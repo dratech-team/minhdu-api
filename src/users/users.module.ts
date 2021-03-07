@@ -4,7 +4,7 @@ import { UsersController } from './users.controller';
 import { MongooseModule } from '@nestjs/mongoose';
 import { UserSchema } from './schemas/users.schema';
 import { PassportModule } from '@nestjs/passport';
-import { AuthGuard } from '../shared/auth.guard';
+import { AuthGuard } from '../core/auth.guard';
 import { APP_FILTER, APP_GUARD } from '@nestjs/core';
 @Module({
   imports: [

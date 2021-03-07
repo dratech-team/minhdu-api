@@ -7,7 +7,7 @@ import {
   } from '@nestjs/common';
 
 import {Reflector} from '@nestjs/core';
-import {IS_PUBLIC_KEY} from '../shared/metadata';
+import {IS_PUBLIC_KEY} from './metadata';
 import * as jwt from 'jsonwebtoken';
 
   @Injectable()
