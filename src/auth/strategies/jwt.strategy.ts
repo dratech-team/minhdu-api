@@ -8,12 +8,10 @@ import { JwtPayload } from '../interfaces/jwt-payload.interface';
 export class JwtStrategy extends PassportStrategy(Strategy) {
 
     constructor(private authService: AuthService){
-
         super({
             jwtFromRequest: ExtractJwt.fromAuthHeaderAsBearerToken(),
-            secretOrKey: process.env.SECRET || 'my_secret'
+            secretOrKey: process.env.JWT_USER_SECRET || 'mysecret'
         });
-
     }
 
     async validate(payload: JwtPayload){

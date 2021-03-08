@@ -7,7 +7,7 @@ import {
   } from '@nestjs/common';
 
 import {Reflector} from '@nestjs/core';
-import {IS_PUBLIC_KEY} from './metadata';
+import {IS_PUBLIC_KEY} from '../common/metadata';
 import * as jwt from 'jsonwebtoken';
 
   @Injectable()
@@ -16,7 +16,7 @@ import * as jwt from 'jsonwebtoken';
     
     async canActivate(context: ExecutionContext): Promise<boolean> {
       const request = context.switchToHttp().getRequest();
-      console.log(1);
+
       const isPublic = this.reflector.getAllAndOverride<boolean>(IS_PUBLIC_KEY, [
         context.getHandler(),
         context.getClass(),
@@ -25,26 +25,28 @@ import * as jwt from 'jsonwebtoken';
       console.log('isPublic', isPublic);
       if(isPublic)  return true;
 
-      if (request) {
+      if (request) {        
         if (!request.headers.authorization) {
           return false;
         }
-        console.log(3);
+
         request.user = await this.validateToken(request.headers.authorization);
         return true;
       }
     }
 
     async validateToken(auth: string) {
+      console.log('auth', auth);
+      
       if (auth.split(' ')[0] !== 'Bearer') {
         throw new HttpException('Invalid token', HttpStatus.UNAUTHORIZED);
       }
       const token = auth.split(' ')[1];
       console.log('token', token);
       try {
-          console.log('process.env.SECRET', process.env.SECRET);
+          console.log('process.env.SECRET', process.env.JWT_USER_SECRET);
           
-        const decoded: any = await jwt.verify(token, process.env.SECRET);
+        const decoded: any = await jwt.verify(token, process.env.JWT_USER_SECRET);
         console.log('decoded', decoded);
         
         return decoded;
