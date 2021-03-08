@@ -1,9 +1,10 @@
 ## Description
 
 # KHO:
-  - Sơ đồ HT: https://bit.ly/3bndXEa
-  - Sơ đồ phân cấp kho: https://bit.ly/3v3dDlK
-  - Sơ đồ phân cấp nhà máy ấp: https://bit.ly/2PIYvtI
+  - [Sơ đồ HT](https://bit.ly/3bndXEa)
+  - [Sơ đồ phân cấp kho](https://bit.ly/3v3dDlK)
+  - [Sơ đồ phân cấp nhà máy ấp](https://bit.ly/2PIYvtI)
+  - [Sơ đồ phân cấp vật tư](https://bit.ly/38gand5)
 
 # Bán hàng
 
