@@ -8,7 +8,7 @@
 
 # Bán hàng
 
-  - Sơ đồ phân cấp trứng: https://bit.ly/30m3mTs
+  - [Sơ đồ phân cấp trứng](https://bit.ly/30m3mTs)
 
 ##  Cài đặt
 
