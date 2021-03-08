@@ -77,4 +77,5 @@ class Swagger {
       SwaggerModule.setup(path || 'api', this.app, document, { customSiteTitle: siteTitle });
   }
 }
+
 bootstrap();
