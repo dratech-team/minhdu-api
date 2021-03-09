@@ -7,12 +7,16 @@ import { ProductsModule } from './products/products.module';
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
 import { ConfigService } from '@nestjs/config';
 import { NestExpressApplication } from '@nestjs/platform-express';
+import { VendorsModule } from './vendors/vendors.module';
+import {CoreTransformInterceptor} from './core/interceptors/coreTransform.interceptor'
 import { config } from 'dotenv';
 config();
 
 async function bootstrap() {
   const app = await NestFactory.create<NestExpressApplication>(AppModule);
   app.useGlobalPipes( new ValidationPipe({ transform: true }) );
+  /* Interceptor overwrite response */
+  // app.useGlobalInterceptors(new CoreTransformInterceptor());
 
   const config = app.get(ConfigService);
   /*
@@ -56,7 +60,8 @@ class Swagger {
           AppModule,
           UsersModule,
           AuthModule,
-          ProductsModule
+          ProductsModule,
+          VendorsModule
       ];
 
       if (extraModules) {

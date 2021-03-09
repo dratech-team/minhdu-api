@@ -8,6 +8,7 @@ import { AuthModule } from './auth/auth.module';
 import { AreasModule } from './areas/areas.module';
 import { CoresModule } from './core/cores.module';
 import { ConfigModule } from '@nestjs/config';
+import { VendorsModule } from './vendors/vendors.module';
 
 const {DB_DRIVER, NODE_ENV,DB_HOST_LOCAL,  DB_HOST, DB_PORT, DB_NAME} = process.env
 const dbDriver = DB_DRIVER || 'mongodb';
@@ -20,8 +21,9 @@ const dbName = DB_NAME || 'minhdu';
     CoresModule,
     ProductsModule, 
     UsersModule,
-    AuthModule,
+    // AuthModule, public all api for development
     AreasModule,
+    VendorsModule,
     ],
   controllers: [AppController],
   providers: [AppService,],

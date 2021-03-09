@@ -15,10 +15,10 @@ import { APP_FILTER, APP_GUARD } from '@nestjs/core';
   controllers: [UsersController],
   providers: [
     UsersService,
-    {
-      provide: APP_GUARD,
-      useClass: AuthGuard,
-    }
+    // {
+    //   provide: APP_GUARD,
+    //   useClass: AuthGuard,
+    // } ---------> disabled auth for development api
   ]
 })
 

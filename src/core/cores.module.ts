@@ -7,6 +7,7 @@ import { HttpErrorFilter } from './filters/exception.filter';
 import { ConfigModule } from '@nestjs/config';
 import configuration from './config/configuration';
 import { PagingMiddleware } from './middlewares/paging.middleware';
+import { ResponseMiddleware } from './middlewares/response.middleware';
 @Global()
 @Module({
     imports: [
@@ -58,6 +59,7 @@ export class CoresModule implements NestModule {
             }),
         ).forRoutes({ path: '*', method: RequestMethod.ALL });
         consumer.apply(PagingMiddleware).forRoutes({ path: '*', method: RequestMethod.GET });
+        consumer.apply(ResponseMiddleware).forRoutes({ path: '*', method: RequestMethod.GET });
         /*
          * End common middleware
          */
