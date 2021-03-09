@@ -1,13 +1,14 @@
-import { Module, NestModule, MiddlewareConsumer } from "@nestjs/common";
-import { AppController } from "./app.controller";
-import { AppService } from "./app.service";
-import { ProductsModule } from "./products/products.module";
-import { MongooseModule } from "@nestjs/mongoose";
-import { UsersModule } from "./users/users.module";
-import { AuthModule } from "./auth/auth.module";
-import { AreasModule } from "./areas/areas.module";
-import { CoresModule } from "./core/cores.module";
-import { ConfigModule } from "@nestjs/config";
+import { Module, NestModule, MiddlewareConsumer  } from '@nestjs/common';
+import { AppController } from './app.controller';
+import { AppService } from './app.service';
+import { ProductsModule } from './products/products.module';
+import { MongooseModule } from '@nestjs/mongoose';
+import { UsersModule } from './users/users.module';
+import { AuthModule } from './auth/auth.module';
+import { AreasModule } from './areas/areas.module';
+import { CoresModule } from './core/cores.module';
+import { ConfigModule } from '@nestjs/config';
+import { VendorsModule } from './vendors/vendors.module';
 
 const {
   DB_DRIVER,
@@ -29,9 +30,10 @@ const dbName = DB_NAME || "minhdu";
     CoresModule,
     ProductsModule,
     UsersModule,
-    AuthModule,
-    AreasModule
-  ],
+    // AuthModule, public all api for development
+    AreasModule,
+    VendorsModule,
+    ],
   controllers: [AppController],
   providers: [AppService]
 })

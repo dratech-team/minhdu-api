@@ -1,18 +1,22 @@
-import { NestFactory } from "@nestjs/core";
-import { Logger, ValidationPipe } from "@nestjs/common";
-import { AppModule } from "./app.module";
-import { UsersModule } from "./users/users.module";
-import { AuthModule } from "./auth/auth.module";
-import { ProductsModule } from "./products/products.module";
-import { DocumentBuilder, SwaggerModule } from "@nestjs/swagger";
-import { ConfigService } from "@nestjs/config";
-import { NestExpressApplication } from "@nestjs/platform-express";
-import { config } from "dotenv";
+import { NestFactory } from '@nestjs/core';
+import { Logger, ValidationPipe } from '@nestjs/common';
+import { AppModule } from './app.module';
+import { UsersModule } from './users/users.module';
+import { AuthModule } from './auth/auth.module';
+import { ProductsModule } from './products/products.module';
+import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
+import { ConfigService } from '@nestjs/config';
+import { NestExpressApplication } from '@nestjs/platform-express';
+import { VendorsModule } from './vendors/vendors.module';
+import {CoreTransformInterceptor} from './core/interceptors/coreTransform.interceptor'
+import { config } from 'dotenv';
 config();
 
 async function bootstrap() {
   const app = await NestFactory.create<NestExpressApplication>(AppModule);
-  app.useGlobalPipes(new ValidationPipe({ transform: true }));
+  app.useGlobalPipes( new ValidationPipe({ transform: true }) );
+  /* Interceptor overwrite response */
+  // app.useGlobalInterceptors(new CoreTransformInterceptor());
 
   const config = app.get(ConfigService);
   /*
@@ -52,14 +56,14 @@ class Swagger {
     this.register(undefined, `${basePath}api`);
   }
 
-  register(
-    extraModules?: any[],
-    path?: string,
-    title?: string,
-    description?: string,
-    version?: string
-  ): void {
-    const mainModules = [AppModule, UsersModule, AuthModule, ProductsModule];
+  register(extraModules?: any[], path?: string, title?: string, description?: string, version?: string): void {
+      const mainModules = [
+          AppModule,
+          UsersModule,
+          AuthModule,
+          ProductsModule,
+          VendorsModule
+      ];
 
     if (extraModules) {
       mainModules.push(...extraModules);

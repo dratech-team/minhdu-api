@@ -14,11 +14,12 @@ import { APP_FILTER, APP_GUARD } from "@nestjs/core";
   exports: [UsersService],
   controllers: [UsersController],
   providers: [
+    //TODO: disabled auth for development api
     UsersService,
-    {
-      provide: APP_GUARD,
-      useClass: AuthGuard
-    }
+    // {
+    //   provide: APP_GUARD,
+    //   useClass: AuthGuard,
+    // }
   ]
 })
 export class UsersModule {}
