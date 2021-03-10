@@ -7,5 +7,4 @@ import { AreasController } from "./areas.controller";
   controllers: [AreasController],
   providers: [AreasService]
 })
-export class AreasModule {
-}
+export class AreasModule {}

@@ -5,12 +5,15 @@ import { STATUS } from "../../constants/areas.constant";
 
 const { ObjectId } = Schema.Types;
 
-export const AreasSchema: Schema<AreasInterface> = new Schema({
-  code: { type: String, index: true, unique: true },
-  name: String,
-  type: String,
-  status: { type: Number, enum: Object.values(STATUS) },
-  address: String,
-  createdBy: ObjectId,
-  updatedBy: ObjectId
-}, { versionKey: false, timestamps: true });
+export const AreasSchema: Schema<AreasInterface> = new Schema(
+  {
+    code: { type: String, index: true, unique: true },
+    name: String,
+    type: String,
+    status: { type: Number, enum: Object.values(STATUS) },
+    address: String,
+    createdBy: ObjectId,
+    updatedBy: ObjectId
+  },
+  { versionKey: false, timestamps: true }
+);

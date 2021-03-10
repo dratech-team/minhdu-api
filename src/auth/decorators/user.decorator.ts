@@ -1,4 +1,4 @@
-import { createParamDecorator, ExecutionContext } from '@nestjs/common';
+import { createParamDecorator, ExecutionContext } from "@nestjs/common";
 
 export const UserAuth = createParamDecorator(
   (key: any, ctx: ExecutionContext) => {
@@ -6,5 +6,5 @@ export const UserAuth = createParamDecorator(
     const user = request.user;
 
     return key ? user && user[key] : user;
-  },
+  }
 );
