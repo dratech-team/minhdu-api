@@ -3,16 +3,15 @@ import { PagingEnum } from "../constants/paging.enum";
 
 @Injectable()
 export class PagingMiddleware implements NestMiddleware {
-    use(req: Record<string, any>, res: Response, next: () => void): any {
-        req.query.skip = +req.query.skip || PagingEnum.DEFAULT_PAGE;
-        req.query.limit = +req.query.limit || PagingEnum.DEFAULT_LIMIT;
-        req.query.sort = this.buildSortStringToObject(req.query.sort)
-        if (req.query.limit > PagingEnum.DEFAULT_MAX_LIMIT) {
-            req.query.limit = 100;
-        }
-        next();
+  use(req: Record<string, any>, res: Response, next: () => void): any {
+    req.query.skip = +req.query.skip || PagingEnum.DEFAULT_PAGE;
+    req.query.limit = +req.query.limit || PagingEnum.DEFAULT_LIMIT;
+    req.query.sort = this.buildSortStringToObject(req.query.sort);
+    if (req.query.limit > PagingEnum.DEFAULT_MAX_LIMIT) {
+      req.query.limit = 100;
     }
-
+    next();
+  }
 
   /**
    * goal function: accept string sort and build to object sort in mongodb
