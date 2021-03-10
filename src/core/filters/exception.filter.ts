@@ -4,8 +4,8 @@ import {
   ArgumentsHost,
   Logger,
   HttpException,
-  HttpStatus,
-} from '@nestjs/common';
+  HttpStatus
+} from "@nestjs/common";
 
 @Catch()
 export class HttpErrorFilter implements ExceptionFilter {
@@ -25,20 +25,20 @@ export class HttpErrorFilter implements ExceptionFilter {
       message:
         status !== HttpStatus.INTERNAL_SERVER_ERROR
           ? exception.message || exception.message || null
-          : 'Internal server error',
+          : "Internal server error"
     };
 
     if (status === HttpStatus.INTERNAL_SERVER_ERROR) {
       Logger.error(
         `${request.method} ${request.url}`,
         exception.stack,
-        'ExceptionFilter',
+        "ExceptionFilter"
       );
     } else {
       Logger.error(
         `${request.method} ${request.url}`,
         JSON.stringify(errorResponse),
-        'ExceptionFilter',
+        "ExceptionFilter"
       );
     }
 

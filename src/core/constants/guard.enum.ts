@@ -1,4 +1,4 @@
 export enum GuardEnum {
-  USER = 'user',
-  CUSTOMER = 'customer',
+  USER = "user",
+  CUSTOMER = "customer"
 }
