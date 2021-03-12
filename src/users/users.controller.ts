@@ -1,23 +1,32 @@
-import { Controller, Get, Post, Body, Put, Param, Delete, HttpException, HttpStatus } from '@nestjs/common';
-import { UsersService } from './users.service';
-import { CreateUserDto } from './dto/create-user.dto';
-import { UpdateUserDto } from './dto/update-user.dto';
-import {UsersInterface} from './interfaces/users.interface'
-import { ApiTags, ApiResponse, ApiCreatedResponse } from '@nestjs/swagger';
-import { SetMetadata } from '@nestjs/common';
-import {UserSecure} from '../auth/decorators/user-secure.decorator'
-@ApiTags('User')
-@Controller('users')
+import {
+  Controller,
+  Get,
+  Post,
+  Body,
+  Put,
+  Param,
+  Delete,
+  HttpException,
+  HttpStatus
+} from "@nestjs/common";
+import { UsersService } from "./users.service";
+import { CreateUserDto } from "./dto/create-user.dto";
+import { UpdateUserDto } from "./dto/update-user.dto";
+import { UsersInterface } from "./interfaces/users.interface";
+import { ApiTags, ApiResponse, ApiCreatedResponse } from "@nestjs/swagger";
+import { SetMetadata } from "@nestjs/common";
+import { UserSecure } from "../auth/decorators/user-secure.decorator";
+@ApiTags("User")
+@Controller("users")
 // @UserSecure()
 export class UsersController {
   constructor(private readonly usersService: UsersService) {}
 
   @Post()
   @ApiCreatedResponse({
-    type: UsersInterface,
+    type: UsersInterface
   })
-  
-  @SetMetadata('isPublic', true)
+  @SetMetadata("isPublic", true)
   create(@Body() createUserDto: CreateUserDto) {
     return this.usersService.create(createUserDto);
   }
