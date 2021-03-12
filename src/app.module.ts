@@ -1,15 +1,14 @@
 import { Module, NestModule, MiddlewareConsumer } from "@nestjs/common";
 import { AppController } from "./app.controller";
 import { AppService } from "./app.service";
-import { ProductsModule } from "./products/products.module";
 import { MongooseModule } from "@nestjs/mongoose";
 import { UsersModule } from "./users/users.module";
 import { AuthModule } from "./auth/auth.module";
-import { AreasModule } from "./areas/areas.module";
 import { CoresModule } from "./core/cores.module";
 import { ConfigModule } from "@nestjs/config";
-import { VendorsModule } from "./vendors/vendors.module";
-
+import { VendorsModule } from "./modules/vendors/vendors.module";
+import { MaterialsWarehouseModule } from "./modules/materials-warehouse/materials-warehouse.module";
+import { StorageModule } from "./modules/storage/storage.module";
 const {
   DB_DRIVER,
   NODE_ENV,
@@ -25,14 +24,17 @@ const dbName = DB_NAME || "minhdu";
 @Module({
   imports: [
     MongooseModule.forRoot(`${dbDriver}://${dbHost}:${dbPort}/${dbName}`, {
-      useNewUrlParser: true
+      useNewUrlParser: true,
+      useUnifiedTopology: true,
+      useCreateIndex: true,
+      useFindAndModify: false
     }),
     CoresModule,
-    ProductsModule,
     UsersModule,
     // AuthModule, public all api for development
-    AreasModule,
-    VendorsModule
+    VendorsModule,
+    MaterialsWarehouseModule,
+    StorageModule
   ],
   controllers: [AppController],
   providers: [AppService]

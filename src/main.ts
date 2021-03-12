@@ -3,12 +3,13 @@ import { Logger, ValidationPipe } from "@nestjs/common";
 import { AppModule } from "./app.module";
 import { UsersModule } from "./users/users.module";
 import { AuthModule } from "./auth/auth.module";
-import { ProductsModule } from "./products/products.module";
 import { DocumentBuilder, SwaggerModule } from "@nestjs/swagger";
 import { ConfigService } from "@nestjs/config";
 import { NestExpressApplication } from "@nestjs/platform-express";
-import { VendorsModule } from "./vendors/vendors.module";
+import { VendorsModule } from "./modules/vendors/vendors.module";
 import { CoreTransformInterceptor } from "./core/interceptors/coreTransform.interceptor";
+import { MaterialsWarehouseModule } from "./modules/materials-warehouse/materials-warehouse.module";
+import { StorageModule } from "./modules/storage/storage.module";
 import { config } from "dotenv";
 config();
 
@@ -67,8 +68,9 @@ class Swagger {
       AppModule,
       UsersModule,
       AuthModule,
-      ProductsModule,
-      VendorsModule
+      VendorsModule,
+      MaterialsWarehouseModule,
+      StorageModule
     ];
 
     if (extraModules) {

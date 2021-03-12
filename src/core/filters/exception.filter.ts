@@ -9,7 +9,7 @@ import {
 
 @Catch()
 export class HttpErrorFilter implements ExceptionFilter {
-  catch(exception: HttpException, host: ArgumentsHost) {
+  catch(exception: any, host: ArgumentsHost) {
     const ctx = host.switchToHttp();
     const response = ctx.getResponse();
     const request = ctx.getRequest();
@@ -22,10 +22,8 @@ export class HttpErrorFilter implements ExceptionFilter {
       timestamp: new Date().toLocaleDateString(),
       path: request.url,
       method: request.method,
-      message:
-        status !== HttpStatus.INTERNAL_SERVER_ERROR
-          ? exception.message || exception.message || null
-          : "Internal server error"
+      message: exception.message ? exception.message : "Internal server error",
+      details: exception.response ? exception.response : exception
     };
 
     if (status === HttpStatus.INTERNAL_SERVER_ERROR) {
@@ -37,7 +35,7 @@ export class HttpErrorFilter implements ExceptionFilter {
     } else {
       Logger.error(
         `${request.method} ${request.url}`,
-        JSON.stringify(errorResponse),
+        exception.stack,
         "ExceptionFilter"
       );
     }
