@@ -54,9 +54,4 @@ export class QueryStorageDto {
   @IsOptional()
   @ApiProperty({ description: "Limit Number" })
   limit: number;
-
-  // @IsString()
-  // @IsOptional()
-  // @ApiProperty({ description: "Sort" })
-  // sort: string;
 }

@@ -17,7 +17,7 @@ export class VendorsService {
     const vendor = await this.vendorsModel.countDocuments({ code });
 
     if (vendor) {
-      throw new HttpException("vendor_already_exists", HttpStatus.BAD_REQUEST);
+      throw new HttpException("code Already Exists", HttpStatus.BAD_REQUEST);
     }
 
     return this.vendorsModel.create(createVendorDto);
