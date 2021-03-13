@@ -42,6 +42,7 @@ async function bootstrap() {
     basePath = basePath.replace(/^\//g, "");
     new Swagger(app).setup(basePath);
   }
+  console.log("process.env.PORT", process.env.PORT);
 
   await app.listen(process.env.PORT, "0.0.0.0");
 }
