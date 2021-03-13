@@ -4,7 +4,9 @@ import {
   IsNotEmpty,
   IsDateString,
   IsNumber,
-  Min
+  IsObject,
+  Min,
+  Max
 } from "class-validator";
 import { ApiProperty } from "@nestjs/swagger";
 
@@ -29,6 +31,11 @@ export class CreateStorageDto {
   @ApiProperty({ description: "Ten mat hang" })
   name: string;
 
+  @IsString()
+  @IsNotEmpty()
+  @ApiProperty({ description: "So hoa don" })
+  invoiceNumber: string;
+
   @IsDateString()
   @IsNotEmpty()
   @ApiProperty({ description: "Ngay het han" })
@@ -40,6 +47,11 @@ export class CreateStorageDto {
   @ApiProperty({ description: "So luong" })
   quantity: number;
 
+  @IsObject()
+  @IsNotEmpty()
+  @ApiProperty({ description: "DVT unit { type: kg, name: kg }" })
+  unit: object;
+
   @IsNumber()
   @Min(0)
   @IsNotEmpty()
@@ -48,7 +60,14 @@ export class CreateStorageDto {
 
   @IsNumber()
   @Min(0)
+  @Max(100)
   @IsNotEmpty()
   @ApiProperty({ description: "Don gia" })
   discount: number;
+
+  @IsNumber()
+  @Min(0)
+  @IsNotEmpty()
+  @ApiProperty({ description: "Don gia cuoi" })
+  discountUnit: number;
 }

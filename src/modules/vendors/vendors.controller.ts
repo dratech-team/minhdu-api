@@ -19,7 +19,7 @@ export class VendorsController {
   constructor(private readonly vendorsService: VendorsService) {}
 
   @Post()
-  create(@Body() createVendorDto: CreateVendorDto) {
+  async create(@Body() createVendorDto: CreateVendorDto) {
     return this.vendorsService.create(createVendorDto);
   }
 

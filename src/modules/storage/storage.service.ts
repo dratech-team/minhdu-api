@@ -31,14 +31,17 @@ export class StorageService {
       dateExpired: newDateExpired,
       quantity,
       price: newPrice,
-      discount: newDiscount
+      discount: newDiscount,
+      discountUnit
     } = createStorageDto;
     /* validate vendorId */
     const vendor = await this.vendorModel
       .findOne({ _id: vendorId, deleted: false })
       .lean();
-    if (!vendor)
+
+    if (!vendor) {
       throw new HttpException("vendorId Not Found", HttpStatus.NOT_FOUND);
+    }
 
     /* validate material ware house */
     const materialWarehouse = await this.materialsWarehouse
@@ -58,6 +61,7 @@ export class StorageService {
     /* validate medicine storage exists*/
     const query = {
       code,
+      "materialWarehouse.id": materialWarehouseId,
       deleted: false,
       dateImport: { $gte: endDateImport }
     };
@@ -102,7 +106,15 @@ export class StorageService {
     const { end: endDateExpired } = dateHelpers.getTimeStartAndEndOfDay(
       newDateExpired
     );
-    const unitPrice = (newPrice * quantity) / newDiscount;
+
+    const newDiscountPercent = newDiscount ? newDiscount / 100 : 0;
+    const unitPrice = newDiscountPercent
+      ? newPrice * quantity * newDiscountPercent
+      : newDiscount;
+
+    if (discountUnit !== unitPrice) {
+      throw new HttpException("discountUnit Invalid", HttpStatus.BAD_REQUEST);
+    }
 
     const storage = {
       ...createStorageDto,
