@@ -43,7 +43,7 @@ async function bootstrap() {
     new Swagger(app).setup(basePath);
   }
 
-  await app.listen(process.env.PORT || 5000);
+  await app.listen(process.env.PORT, "0.0.0.0");
 }
 
 class Swagger {
@@ -70,7 +70,7 @@ class Swagger {
       AuthModule,
       VendorsModule,
       MaterialsWarehouseModule,
-      StorageModule
+      StorageModule,
     ];
 
     if (extraModules) {
@@ -86,10 +86,10 @@ class Swagger {
       .build();
 
     const document = SwaggerModule.createDocument(this.app, options, {
-      include: mainModules
+      include: mainModules,
     });
     SwaggerModule.setup(path || "api", this.app, document, {
-      customSiteTitle: siteTitle
+      customSiteTitle: siteTitle,
     });
   }
 }
