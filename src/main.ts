@@ -43,7 +43,7 @@ async function bootstrap() {
     new Swagger(app).setup(basePath);
   }
 
-  await app.listen(3000);
+  await app.listen(process.env.PORT || 3000);
 }
 
 class Swagger {
