@@ -42,9 +42,11 @@ async function bootstrap() {
     basePath = basePath.replace(/^\//g, "");
     new Swagger(app).setup(basePath);
   }
+
+  const PORT = process.env.PORT || 3000;
   console.log("process.env.PORT", process.env.PORT);
 
-  await app.listen(process.env.PORT, "0.0.0.0");
+  await app.listen(PORT, "0.0.0.0");
 }
 
 class Swagger {
