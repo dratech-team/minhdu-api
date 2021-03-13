@@ -40,9 +40,10 @@ async function bootstrap() {
 
   if (process.env.NODE_ENV !== "production") {
     basePath = basePath.replace(/^\//g, "");
-    new Swagger(app).setup(basePath);
   }
 
+  /* enabled swagger on heroku */
+  new Swagger(app).setup(basePath);
   const PORT = process.env.PORT || 3000;
   console.log("process.env.PORT", process.env.PORT);
 
