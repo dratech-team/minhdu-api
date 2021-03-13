@@ -1,15 +1,14 @@
 import { Module, NestModule, MiddlewareConsumer } from "@nestjs/common";
 import { AppController } from "./app.controller";
 import { AppService } from "./app.service";
-import { ProductsModule } from "./products/products.module";
 import { MongooseModule } from "@nestjs/mongoose";
 import { UsersModule } from "./users/users.module";
 import { AuthModule } from "./auth/auth.module";
-import { AreasModule } from "./areas/areas.module";
 import { CoresModule } from "./core/cores.module";
 import { ConfigModule } from "@nestjs/config";
-import { VendorsModule } from "./vendors/vendors.module";
-
+import { VendorsModule } from "./modules/vendors/vendors.module";
+import { MaterialsWarehouseModule } from "./modules/materials-warehouse/materials-warehouse.module";
+import { StorageModule } from "./modules/storage/storage.module";
 const {
   DB_DRIVER,
   NODE_ENV,
@@ -22,17 +21,26 @@ const dbDriver = DB_DRIVER || "mongodb";
 const dbPort = DB_PORT || 27017;
 const dbHost = NODE_ENV !== "production" ? DB_HOST_LOCAL : DB_HOST;
 const dbName = DB_NAME || "minhdu";
+
+const url =
+  NODE_ENV !== "production"
+    ? `${dbDriver}://${dbHost}:${dbPort}/${dbName}`
+    : DB_HOST;
+
 @Module({
   imports: [
-    MongooseModule.forRoot(`${dbDriver}://${dbHost}:${dbPort}/${dbName}`, {
-      useNewUrlParser: true
+    MongooseModule.forRoot(url, {
+      useNewUrlParser: true,
+      useUnifiedTopology: true,
+      useCreateIndex: true,
+      useFindAndModify: false
     }),
     CoresModule,
-    ProductsModule,
     UsersModule,
     // AuthModule, public all api for development
-    AreasModule,
-    VendorsModule
+    VendorsModule,
+    MaterialsWarehouseModule,
+    StorageModule
   ],
   controllers: [AppController],
   providers: [AppService]
