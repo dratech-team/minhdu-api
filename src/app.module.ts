@@ -21,9 +21,15 @@ const dbDriver = DB_DRIVER || "mongodb";
 const dbPort = DB_PORT || 27017;
 const dbHost = NODE_ENV !== "production" ? DB_HOST_LOCAL : DB_HOST;
 const dbName = DB_NAME || "minhdu";
+
+const url =
+  NODE_ENV !== "production"
+    ? `${dbDriver}://${dbHost}:${dbPort}/${dbName}`
+    : DB_HOST;
+
 @Module({
   imports: [
-    MongooseModule.forRoot(`${dbDriver}://${dbHost}:${dbPort}/${dbName}`, {
+    MongooseModule.forRoot(url, {
       useNewUrlParser: true,
       useUnifiedTopology: true,
       useCreateIndex: true,
