@@ -8,12 +8,12 @@ export const StorageSchema: Schema<StorageInterface> = new Schema(
     vendor: {
       id: ObjectId,
       code: String,
-      name: String
+      name: String,
     },
     materialWarehouse: {
       id: ObjectId,
       name: String,
-      code: String
+      code: String,
     },
     name: { type: String, required: true },
     dateExpired: { type: Date, required: true, index: true },
@@ -22,29 +22,26 @@ export const StorageSchema: Schema<StorageInterface> = new Schema(
     discount: Number,
     status: {
       type: Number,
-      default: STATUS.NON_CONFIRM
+      default: STATUS.NON_CONFIRM,
     },
     dateImport: { type: Date, required: true },
-    unit: {
-      type: String,
-      name: String
-    },
+    unit: String,
     invoiceNumber: {
       type: String,
-      required: true
+      required: true,
     },
 
     unitPrice: { type: Number, required: true },
     deleted: { type: Boolean, default: false },
-    deletedAt: Date
+    deletedAt: Date,
   },
   { versionKey: false, timestamps: true }
 );
 
 StorageSchema.index({
-  createdAt: -1
+  createdAt: -1,
 });
 
 StorageSchema.index({
-  updatedAt: -1
+  updatedAt: -1,
 });

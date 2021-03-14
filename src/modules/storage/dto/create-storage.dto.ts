@@ -6,7 +6,7 @@ import {
   IsNumber,
   IsObject,
   Min,
-  Max
+  Max,
 } from "class-validator";
 import { ApiProperty } from "@nestjs/swagger";
 
@@ -47,10 +47,10 @@ export class CreateStorageDto {
   @ApiProperty({ description: "So luong" })
   quantity: number;
 
-  @IsObject()
+  @IsString()
   @IsNotEmpty()
-  @ApiProperty({ description: "DVT unit { type: kg, name: kg }" })
-  unit: object;
+  @ApiProperty({ description: "Don vi tinh" })
+  unit: string;
 
   @IsNumber()
   @Min(0)

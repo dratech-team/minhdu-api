@@ -5,6 +5,7 @@ import { VendorsInterface } from "./interfaces/vendors.interface";
 import { InjectModel } from "@nestjs/mongoose";
 import { Model } from "mongoose";
 import { queryHelpers } from "../../common/query-helpers";
+import { typesHelpers } from "../../common/types-helpers.common";
 @Injectable()
 export class VendorsService {
   constructor(
@@ -17,13 +18,16 @@ export class VendorsService {
     const vendor = await this.vendorsModel.countDocuments({ code });
 
     if (vendor) {
-      throw new HttpException("code Already Exists", HttpStatus.BAD_REQUEST);
+      throw new HttpException(
+        "Mã nhà cung cấp đã tồn tại trên hệ thống!",
+        HttpStatus.BAD_REQUEST
+      );
     }
 
     return this.vendorsModel.create(createVendorDto);
   }
 
-  async findAll(query) {
+  async findAll(query): Promise<{ vendors: any; total: Number }> {
     const { sort, skip = 0, limit = 20, text_search: textSearch } = query;
     const conditions: any = { deleted: false };
 
@@ -42,21 +46,48 @@ export class VendorsService {
         .skip(skip)
         .limit(limit)
         .lean(),
-      this.vendorsModel.countDocuments(conditions)
+      this.vendorsModel.countDocuments(conditions),
     ]);
 
     return { vendors, total };
   }
 
-  async findOne(id: string) {
+  async findOne(id: string): Promise<VendorsInterface> {
+    await this.validateMongoId(id);
     return this.vendorsModel.findOne({ _id: id });
   }
 
-  async remove(id: string) {
-    await this.vendorsModel.updateOne(
+  async remove(
+    id: string
+  ): Promise<{ ok: number; n: number; nModified: number }> {
+    await this.validateMongoId(id);
+    return this.vendorsModel.updateOne(
       { _id: id },
       { deleted: true, deletedAt: new Date() }
     );
-    return;
+  }
+
+  async validateMongoId(id: string): Promise<boolean> {
+    const isId = typesHelpers.isStringMongoId(id);
+
+    if (!isId) {
+      throw new HttpException(
+        `Id nhà cung cấp không hợp lệ !`,
+        HttpStatus.BAD_REQUEST
+      );
+    }
+
+    const storage = await this.vendorsModel.countDocuments({
+      _id: id,
+    });
+
+    if (!storage) {
+      throw new HttpException(
+        `Nhà cung cấp không tồn tại!`,
+        HttpStatus.NOT_FOUND
+      );
+    }
+
+    return true;
   }
 }

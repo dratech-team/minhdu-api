@@ -10,7 +10,7 @@ import { dateHelpers } from "../../common/date-helpers.common";
 import { queryHelpers } from "../../common/query-helpers";
 import * as moment from "moment";
 import { ApiTags, ApiResponse } from "@nestjs/swagger";
-
+import { typesHelpers } from "../../common/types-helpers.common";
 @ApiTags("Vendors")
 @Injectable()
 export class StorageService {
@@ -23,7 +23,7 @@ export class StorageService {
     private readonly materialsWarehouse: Model<MaterialsWarehouseInterface>
   ) {}
 
-  async create(createStorageDto: CreateStorageDto) {
+  async create(createStorageDto: CreateStorageDto): Promise<StorageInterface> {
     const {
       code,
       vendorId,
@@ -32,7 +32,7 @@ export class StorageService {
       quantity,
       price: newPrice,
       discount: newDiscount,
-      discountUnit
+      discountUnit,
     } = createStorageDto;
     /* validate vendorId */
     const vendor = await this.vendorModel
@@ -40,7 +40,10 @@ export class StorageService {
       .lean();
 
     if (!vendor) {
-      throw new HttpException("vendorId Not Found", HttpStatus.NOT_FOUND);
+      throw new HttpException(
+        "Id nhà cung cấp không tồn tại!",
+        HttpStatus.NOT_FOUND
+      );
     }
 
     /* validate material ware house */
@@ -49,10 +52,7 @@ export class StorageService {
       .lean();
 
     if (!materialWarehouse) {
-      throw new HttpException(
-        "materialWarehouseId Not Found",
-        HttpStatus.NOT_FOUND
-      );
+      throw new HttpException("Id mã kho không tồn tại!", HttpStatus.NOT_FOUND);
     }
 
     const now = new Date();
@@ -63,18 +63,18 @@ export class StorageService {
       code,
       "materialWarehouse.id": materialWarehouseId,
       deleted: false,
-      dateImport: { $gte: endDateImport }
+      dateImport: { $gte: endDateImport },
     };
 
     const storagesFound = await this.storageModel.find(query).lean();
 
     if (storagesFound.length) {
-      const storageFound = storagesFound.find(item => {
+      const storageFound = storagesFound.find((item) => {
         const {
           dateExpired: oldDateExpired,
           dateImport: oldDateImport,
           price: oldPrice,
-          discount: oldDiscount
+          discount: oldDiscount,
         }: any = item;
 
         const isEqualPrice = !!(newPrice === oldPrice);
@@ -110,10 +110,13 @@ export class StorageService {
     const newDiscountPercent = newDiscount ? newDiscount / 100 : 0;
     const unitPrice = newDiscountPercent
       ? newPrice * quantity * newDiscountPercent
-      : newDiscount;
+      : newPrice * quantity;
 
     if (discountUnit !== unitPrice) {
-      throw new HttpException("discountUnit Invalid", HttpStatus.BAD_REQUEST);
+      throw new HttpException(
+        "Đơn giá cuối không hợp lệ!",
+        HttpStatus.BAD_REQUEST
+      );
     }
 
     const storage = {
@@ -125,13 +128,13 @@ export class StorageService {
       vendor,
       dateExpired: new Date(endDateExpired),
       dateImport: new Date(endDateImport),
-      unitPrice
+      unitPrice,
     };
 
     return this.storageModel.create(storage);
   }
 
-  async findAll(query) {
+  async findAll(query): Promise<{ items: any; total: Number }> {
     const {
       materialWarehouseId,
       textSearch,
@@ -142,12 +145,12 @@ export class StorageService {
       dateImportTo,
       skip = 0,
       limit = 20,
-      sort
+      sort,
     } = query;
 
     const conditions: any = {
       deleted: false,
-      "materialWarehouse.id": materialWarehouseId
+      "materialWarehouse.id": materialWarehouseId,
     };
 
     if (textSearch) {
@@ -170,7 +173,7 @@ export class StorageService {
         dateExpiredFrom
       );
       conditionExpiredDate.push({
-        dateExpired: { $gte: new Date(startExpiredDate) }
+        dateExpired: { $gte: new Date(startExpiredDate) },
       });
     }
 
@@ -179,7 +182,7 @@ export class StorageService {
         dateExpiredTo
       );
       conditionExpiredDate.push({
-        dateExpired: { $lte: new Date(endExpiredDate) }
+        dateExpired: { $lte: new Date(endExpiredDate) },
       });
     }
 
@@ -194,7 +197,7 @@ export class StorageService {
         dateImportFrom
       );
       conditionImportDate.push({
-        dateImport: { $gte: new Date(startImportDate) }
+        dateImport: { $gte: new Date(startImportDate) },
       });
     }
 
@@ -203,7 +206,7 @@ export class StorageService {
         dateImportTo
       );
       conditionImportDate.push({
-        dateImport: { $lte: new Date(endImportDate) }
+        dateImport: { $lte: new Date(endImportDate) },
       });
     }
 
@@ -214,38 +217,61 @@ export class StorageService {
         conditions.$and = [...conditions.$and, ...conditionImportDate];
       }
     }
-    console.log("conditions", conditions);
-    console.log("sort", sort);
 
     const [items = [], total = 0] = await Promise.all([
-      this.storageModel
-        .find(conditions)
-        .sort(sort)
-        .skip(skip)
-        .limit(limit)
-        .lean(),
-      this.storageModel.countDocuments(conditions)
+      this.storageModel.find(conditions).sort(sort).skip(skip).limit(limit),
+      this.storageModel.countDocuments(conditions),
     ]);
 
     return { items, total };
   }
 
-  async findOne(id: string) {
-    const conditions: any = { _id: id, deleted: false };
+  async findOne(id: string): Promise<StorageInterface> {
+    await this.validateMongoId(id);
+    const conditions: {} = { _id: id, deleted: false };
     return this.storageModel.findOne(conditions).lean();
   }
 
-  async update(id: string, updateStorageDto: UpdateStorageDto) {
-    return this.storageModel
-      .findByIdAndUpdate({ _id: id }, updateStorageDto, { new: true })
-      .lean();
+  async update(
+    id: string,
+    updateStorageDto: UpdateStorageDto
+  ): Promise<StorageInterface> {
+    return this.storageModel.findByIdAndUpdate({ _id: id }, updateStorageDto, {
+      new: true,
+    });
   }
 
-  async remove(id: string) {
-    await this.storageModel.updateOne(
+  async remove(
+    id: string
+  ): Promise<{ ok: number; n: number; nModified: number }> {
+    await this.validateMongoId(id);
+    return this.storageModel.updateOne(
       { _id: id },
       { deleted: true, deletedAt: new Date() }
     );
-    return;
+  }
+
+  async validateMongoId(id: string): Promise<boolean> {
+    const isId = typesHelpers.isStringMongoId(id);
+
+    if (!isId) {
+      throw new HttpException(
+        `Id phiếu nhập không hợp lệ !`,
+        HttpStatus.BAD_REQUEST
+      );
+    }
+
+    const storage = await this.storageModel.countDocuments({
+      _id: id,
+    });
+
+    if (!storage) {
+      throw new HttpException(
+        `Phiếu nhập không tồn tại!`,
+        HttpStatus.NOT_FOUND
+      );
+    }
+
+    return true;
   }
 }
