@@ -77,11 +77,11 @@ export class VendorsService {
       );
     }
 
-    const storage = await this.vendorsModel.countDocuments({
+    const vendor = await this.vendorsModel.countDocuments({
       _id: id,
     });
 
-    if (!storage) {
+    if (!vendor) {
       throw new HttpException(
         `Nhà cung cấp không tồn tại!`,
         HttpStatus.NOT_FOUND

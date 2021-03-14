@@ -74,11 +74,13 @@ export class MaterialsWarehouseService {
       throw new HttpException(`Id kho không hợp lệ !`, HttpStatus.BAD_REQUEST);
     }
 
-    const storage = await this.materialsWarehouseModel.countDocuments({
-      _id: id,
-    });
+    const materialsWarehouse = await this.materialsWarehouseModel.countDocuments(
+      {
+        _id: id,
+      }
+    );
 
-    if (!storage) {
+    if (!materialsWarehouse) {
       throw new HttpException(`Kho không tồn tại!`, HttpStatus.NOT_FOUND);
     }
 
