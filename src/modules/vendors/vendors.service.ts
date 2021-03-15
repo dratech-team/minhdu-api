@@ -27,7 +27,9 @@ export class VendorsService {
     return this.vendorsModel.create(createVendorDto);
   }
 
-  async findAll(query): Promise<{ vendors: any; total: Number }> {
+  async findAll(
+    query
+  ): Promise<{ vendors: Array<VendorsInterface>; total: Number }> {
     const { sort, skip = 0, limit = 20, text_search: textSearch } = query;
     const conditions: any = { deleted: false };
 
@@ -39,15 +41,13 @@ export class VendorsService {
       conditions.$or = $orSearch;
     }
 
-    const [vendors = [], total = 0] = await Promise.all([
-      this.vendorsModel
-        .find(conditions)
-        .sort(sort)
-        .skip(skip)
-        .limit(limit)
-        .lean(),
+    const results = await Promise.all([
+      this.vendorsModel.find(conditions).sort(sort).skip(skip).limit(limit),
       this.vendorsModel.countDocuments(conditions),
     ]);
+
+    const vendors: Array<VendorsInterface> = results[0] || [];
+    const total: number = results[1] || 0;
 
     return { vendors, total };
   }

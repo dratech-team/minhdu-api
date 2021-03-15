@@ -31,7 +31,12 @@ export class MaterialsWarehouseService {
     return this.materialsWarehouseModel.create(createMaterialsWarehouseDto);
   }
 
-  async findAll(query): Promise<{ materialsWarehouse: any; total: Number }> {
+  async findAll(
+    query
+  ): Promise<{
+    materialsWarehouse: Array<MaterialsWarehouseInterface>;
+    total: Number;
+  }> {
     const { sort, skip = 0, limit = 20, text_search: textSearch } = query;
     const conditions: any = { deleted: false };
 
@@ -39,15 +44,18 @@ export class MaterialsWarehouseService {
       conditions.name = new RegExp(textSearch, "i");
     }
 
-    const [materialsWarehouse = [], total = 0] = await Promise.all([
+    const results = await Promise.all([
       this.materialsWarehouseModel
         .find(conditions)
         .sort(sort)
         .skip(skip)
-        .limit(limit)
-        .lean(),
+        .limit(limit),
       this.materialsWarehouseModel.countDocuments(conditions),
     ]);
+
+    const materialsWarehouse: Array<MaterialsWarehouseInterface> =
+      results[0] || [];
+    const total: number = results[1] || 0;
 
     return { materialsWarehouse, total };
   }

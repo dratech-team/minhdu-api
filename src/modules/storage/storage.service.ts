@@ -134,7 +134,9 @@ export class StorageService {
     return this.storageModel.create(storage);
   }
 
-  async findAll(query): Promise<{ items: any; total: Number }> {
+  async findAll(
+    query
+  ): Promise<{ items: Array<StorageInterface>; total: Number }> {
     const {
       materialWarehouseId,
       textSearch,
@@ -218,10 +220,13 @@ export class StorageService {
       }
     }
 
-    const [items = [], total = 0] = await Promise.all([
+    const results = await Promise.all([
       this.storageModel.find(conditions).sort(sort).skip(skip).limit(limit),
       this.storageModel.countDocuments(conditions),
     ]);
+
+    const items: Array<StorageInterface> = results[0] || [];
+    const total: number = results[1] || 0;
 
     return { items, total };
   }

@@ -3,7 +3,7 @@ import {
   MiddlewareConsumer,
   Module,
   NestModule,
-  RequestMethod
+  RequestMethod,
 } from "@nestjs/common";
 import * as helmet from "helmet";
 import * as compression from "compression";
@@ -25,7 +25,7 @@ import { ResponseMiddleware } from "./middlewares/response.middleware";
     // }),
     /* handle for cron */
     // ScheduleModule.forRoot()
-    ConfigModule.forRoot()
+    ConfigModule.forRoot(),
   ],
 
   providers: [
@@ -34,14 +34,14 @@ import { ResponseMiddleware } from "./middlewares/response.middleware";
     // PermissionService,
     {
       provide: APP_FILTER,
-      useClass: HttpErrorFilter
-    }
+      useClass: HttpErrorFilter,
+    },
   ],
   exports: [
     // ExportService,
     // ImportService,
     // PermissionService,
-  ]
+  ],
 })
 export class CoresModule implements NestModule {
   /**
@@ -61,7 +61,7 @@ export class CoresModule implements NestModule {
         compression(),
         rateLimit({
           windowMs: 1000, // 1s to reset limit
-          max: 30 // limit each IP to 10 requests per windowMs
+          max: 30, // limit each IP to 10 requests per windowMs
         })
       )
       .forRoutes({ path: "*", method: RequestMethod.ALL });
