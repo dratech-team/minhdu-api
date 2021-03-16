@@ -1,11 +1,20 @@
-import { Schema, connection } from "mongoose";
-import { MaterialsWarehouseInterface } from "../interfaces/materials-warehouse.interface";
+import { Prop, Schema, SchemaFactory } from "@nestjs/mongoose";
+import { Document } from "mongoose";
 
-export const MaterialsWarehouseSchema: Schema<MaterialsWarehouseInterface> = new Schema(
-  {
-    name: String,
-    deleted: { type: Boolean, default: false },
-    deletedAt: Date
-  },
-  { versionKey: false, timestamps: true }
+export type MaterialsWarehouseDocument = MaterialsWarehouse & Document;
+
+@Schema()
+export class MaterialsWarehouse {
+  @Prop({ unique: true })
+  name: string;
+
+  @Prop({ default: false })
+  deleted: boolean;
+
+  @Prop()
+  deletedAt: Date;
+}
+
+export const MaterialsWarehouseSchema = SchemaFactory.createForClass(
+  MaterialsWarehouse
 );

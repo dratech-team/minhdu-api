@@ -1,97 +1,75 @@
-import { Injectable, HttpException, HttpStatus } from "@nestjs/common";
-import { InjectModel } from "@nestjs/mongoose";
-import { Model } from "mongoose";
+import { HttpException, HttpStatus, Injectable } from "@nestjs/common";
 import { ApiTags } from "@nestjs/swagger";
 import { CreateMaterialsWarehouseDto } from "./dto/create-materials-warehouse.dto";
-import { MaterialsWarehouseInterface } from "./interfaces/materials-warehouse.interface";
-import { typesHelpers } from "../../common/types-helpers.common";
+import {
+  MaterialsWarehouse,
+  MaterialsWarehouseDocument,
+} from "./schemas/materials-warehouse.schema";
+import { GetMaterialsWarehouseDto } from "./dto/get-materials-warehouse.dto";
+import { Model } from "mongoose";
+import { InjectModel } from "@nestjs/mongoose";
+import { CorePaginateResult } from "../../core/paginate/pagination";
+
 @ApiTags("MaterialsWarehouse")
 @Injectable()
 export class MaterialsWarehouseService {
   constructor(
     @InjectModel("materials-warehouse")
-    private readonly materialsWarehouseModel: Model<MaterialsWarehouseInterface>
+    private readonly materialsModel: Model<MaterialsWarehouseDocument>
   ) {}
 
   async create(
     createMaterialsWarehouseDto: CreateMaterialsWarehouseDto
-  ): Promise<MaterialsWarehouseInterface> {
-    const { name } = createMaterialsWarehouseDto;
-    const countMaterialsWarehouse = await this.materialsWarehouseModel.countDocuments(
-      { name }
-    );
-
-    if (countMaterialsWarehouse) {
-      throw new HttpException(
-        "Tên kho đã tồn tại trên hệ thống!",
-        HttpStatus.BAD_REQUEST
-      );
-    }
-
-    return this.materialsWarehouseModel.create(createMaterialsWarehouseDto);
+  ): Promise<MaterialsWarehouse> {
+    const createdCat = new this.materialsModel(createMaterialsWarehouseDto);
+    return await createdCat.save();
   }
 
   async findAll(
-    query
-  ): Promise<{
-    materialsWarehouse: Array<MaterialsWarehouseInterface>;
-    total: Number;
-  }> {
-    const { sort, skip = 0, limit = 20, text_search: textSearch } = query;
+    getMaterialsWarehouseDto: GetMaterialsWarehouseDto
+  ): Promise<CorePaginateResult> {
+    const { sort, skip = 0, limit = 20, search } = getMaterialsWarehouseDto;
+
     const conditions: any = { deleted: false };
 
-    if (textSearch) {
-      conditions.name = new RegExp(textSearch, "i");
+    if (search) {
+      conditions.name = new RegExp(search, "i");
     }
 
     const results = await Promise.all([
-      this.materialsWarehouseModel
-        .find(conditions)
-        .sort(sort)
-        .skip(skip)
-        .limit(limit),
-      this.materialsWarehouseModel.countDocuments(conditions),
+      this.materialsModel.find(conditions).sort(sort).skip(skip).limit(limit),
+      this.materialsModel.countDocuments(conditions),
     ]);
 
-    const materialsWarehouse: Array<MaterialsWarehouseInterface> =
-      results[0] || [];
-    const total: number = results[1] || 0;
+    // const materialsWarehouse: Array<MaterialsWarehouseInterface> =
+    //   results[0] || [];
+    // const total: number = results[1] || 0;
 
-    return { materialsWarehouse, total };
+    // return results;
   }
 
-  async findOne(id: string): Promise<MaterialsWarehouseInterface> {
-    await this.validateMongoId(id);
-    return this.materialsWarehouseModel.findById(id).lean();
+  async findOne(id: string): Promise<MaterialsWarehouse> {
+    const result = await this.materialsModel
+      .findById(id, (err) => {
+        if (err) {
+          console.log("Id không hợp lệ vui lòng thử lại");
+        }
+      })
+      .lean();
+    if (result == null) {
+      throw new HttpException(
+        '"Sản phẩm không tồn tại"',
+        HttpStatus.BAD_REQUEST
+      );
+    }
+    console.log(result);
+
+    return result;
   }
 
   async remove(
     id: string
   ): Promise<{ ok: number; n: number; nModified: number }> {
-    await this.validateMongoId(id);
-    return this.materialsWarehouseModel.updateOne(
-      { _id: id },
-      { deleted: true, deletedAt: new Date() }
-    );
-  }
-
-  async validateMongoId(id: string): Promise<boolean> {
-    const isId = typesHelpers.isStringMongoId(id);
-
-    if (!isId) {
-      throw new HttpException(`Id kho không hợp lệ !`, HttpStatus.BAD_REQUEST);
-    }
-
-    const materialsWarehouse = await this.materialsWarehouseModel.countDocuments(
-      {
-        _id: id,
-      }
-    );
-
-    if (!materialsWarehouse) {
-      throw new HttpException(`Kho không tồn tại!`, HttpStatus.NOT_FOUND);
-    }
-
-    return true;
+    return this.materialsModel.remove({ _id: id });
   }
 }

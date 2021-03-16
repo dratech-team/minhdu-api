@@ -15,6 +15,7 @@ import { MaterialsWarehouseService } from "./materials-warehouse.service";
 import { CreateMaterialsWarehouseDto } from "./dto/create-materials-warehouse.dto";
 import { UpdateMaterialsWarehouseDto } from "./dto/update-materials-warehouse.dto";
 import { typesHelpers } from "../../common/types-helpers.common";
+
 @ApiTags("Materials Warehouse")
 @Controller("materials-warehouse")
 export class MaterialsWarehouseController {
@@ -31,11 +32,11 @@ export class MaterialsWarehouseController {
 
   @Get()
   async findAll(@Response() res, @Query() query) {
-    const {
-      materialsWarehouse = [],
-      total = 0,
-    } = await this.materialsWarehouseService.findAll(query);
-    return res.status(200).sendItems(materialsWarehouse, total);
+    // const {
+    //   materialsWarehouse = [],
+    //   total = 0,
+    // } = await this.materialsWarehouseService.findAll(query);
+    // return res.status(200).sendItems(materialsWarehouse, total);
   }
 
   @Get(":id")

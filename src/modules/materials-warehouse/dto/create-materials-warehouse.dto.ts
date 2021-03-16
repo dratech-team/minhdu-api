@@ -5,5 +5,5 @@ export class CreateMaterialsWarehouseDto {
   @IsString()
   @IsNotEmpty()
   @ApiProperty({ description: "Ten kho" })
-  name: string;
+  readonly name: string;
 }

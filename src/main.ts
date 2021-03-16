@@ -48,6 +48,8 @@ async function bootstrap() {
   console.log("process.env.PORT", process.env.PORT);
 
   await app.listen(PORT, "0.0.0.0");
+
+  console.log("App Started", process.env.PORT);
 }
 
 class Swagger {

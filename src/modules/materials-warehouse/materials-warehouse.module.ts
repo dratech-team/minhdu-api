@@ -7,10 +7,10 @@ import { MaterialsWarehouseSchema } from "./schemas/materials-warehouse.schema";
 @Module({
   imports: [
     MongooseModule.forFeature([
-      { name: "materials-warehouse", schema: MaterialsWarehouseSchema }
-    ])
+      { name: "materials-warehouse", schema: MaterialsWarehouseSchema },
+    ]),
   ],
   controllers: [MaterialsWarehouseController],
-  providers: [MaterialsWarehouseService]
+  providers: [MaterialsWarehouseService],
 })
 export class MaterialsWarehouseModule {}
