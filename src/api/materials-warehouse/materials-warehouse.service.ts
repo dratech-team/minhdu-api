@@ -27,7 +27,7 @@ export class MaterialsWarehouseService {
 
   async findAll(
     getMaterialsWarehouseDto: GetMaterialsWarehouseDto
-  ): Promise<CorePaginateResult> {
+  ): Promise<void> {
     const { sort, skip = 0, limit = 20, search } = getMaterialsWarehouseDto;
 
     const conditions: any = { deleted: false };

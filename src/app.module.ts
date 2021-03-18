@@ -1,14 +1,12 @@
-import { Module, NestModule, MiddlewareConsumer } from "@nestjs/common";
+import { Module } from "@nestjs/common";
 import { AppController } from "./app.controller";
 import { AppService } from "./app.service";
 import { MongooseModule } from "@nestjs/mongoose";
 import { UsersModule } from "./api/users/users.module";
-import { AuthModule } from "./api/auth/auth.module";
 import { CoresModule } from "./core/cores.module";
-import { ConfigModule } from "@nestjs/config";
 import { VendorsModule } from "./api/vendors/vendors.module";
 import { MaterialsWarehouseModule } from "./api/materials-warehouse/materials-warehouse.module";
-import { StorageModule } from "./api/storage/storage.module";
+
 const {
   DB_DRIVER,
   NODE_ENV,
@@ -40,7 +38,6 @@ const url =
     // AuthModule, public all api for development
     VendorsModule,
     MaterialsWarehouseModule,
-    StorageModule,
   ],
   controllers: [AppController],
   providers: [AppService],

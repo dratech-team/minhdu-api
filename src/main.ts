@@ -9,7 +9,6 @@ import { NestExpressApplication } from "@nestjs/platform-express";
 import { VendorsModule } from "./api/vendors/vendors.module";
 import { CoreTransformInterceptor } from "./core/interceptors/coreTransform.interceptor";
 import { MaterialsWarehouseModule } from "./api/materials-warehouse/materials-warehouse.module";
-import { StorageModule } from "./api/storage/storage.module";
 import { config } from "dotenv";
 config();
 
@@ -76,7 +75,6 @@ class Swagger {
       AuthModule,
       VendorsModule,
       MaterialsWarehouseModule,
-      StorageModule,
     ];
 
     if (extraModules) {
