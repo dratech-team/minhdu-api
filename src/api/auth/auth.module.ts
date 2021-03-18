@@ -18,13 +18,13 @@ import { ConfigModule, ConfigService } from "@nestjs/config";
         const JWT_USER_EXPIRE = config.get("JWT_USER_EXPIRE") || "7h";
         return {
           secret: JWT_USER_SECRET,
-          signOptions: { expiresIn: JWT_USER_EXPIRE }
+          signOptions: { expiresIn: JWT_USER_EXPIRE },
         };
-      }
+      },
     }),
-    UsersModule
+    UsersModule,
   ],
   controllers: [AuthController],
-  providers: [AuthService, JwtStrategy]
+  providers: [AuthService, JwtStrategy],
 })
 export class AuthModule {}

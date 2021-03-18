@@ -2,7 +2,7 @@ import {
   HttpException,
   Injectable,
   UnauthorizedException,
-  HttpStatus
+  HttpStatus,
 } from "@nestjs/common";
 import { JwtService } from "@nestjs/jwt";
 import { LoginUserDto } from "../users/dto/login-user.dto";
@@ -57,14 +57,14 @@ export class AuthService {
     console.log("process JWT_USER_EXPIRE", process.env.JWT_USER_EXPIRE);
 
     let data: JwtPayload = {
-      email: user.email
+      email: user.email,
     };
 
     let jwt = this.jwtService.sign(data);
 
     return {
       expiresIn: process.env.JWT_USER_EXPIRE || "7h",
-      token: jwt
+      token: jwt,
     };
   }
 }

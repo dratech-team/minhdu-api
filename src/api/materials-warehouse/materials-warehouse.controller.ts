@@ -14,7 +14,7 @@ import { ApiTags } from "@nestjs/swagger";
 import { MaterialsWarehouseService } from "./materials-warehouse.service";
 import { CreateMaterialsWarehouseDto } from "./dto/create-materials-warehouse.dto";
 import { UpdateMaterialsWarehouseDto } from "./dto/update-materials-warehouse.dto";
-import { typesHelpers } from "../../common/types-helpers.common";
+import { typesHelpers } from "../../core/common/types-helpers.common";
 
 @ApiTags("Materials Warehouse")
 @Controller("materials-warehouse")

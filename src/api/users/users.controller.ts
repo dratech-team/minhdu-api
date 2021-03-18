@@ -7,7 +7,7 @@ import {
   Param,
   Delete,
   HttpException,
-  HttpStatus
+  HttpStatus,
 } from "@nestjs/common";
 import { UsersService } from "./users.service";
 import { CreateUserDto } from "./dto/create-user.dto";
@@ -24,7 +24,7 @@ export class UsersController {
 
   @Post()
   @ApiCreatedResponse({
-    type: UsersInterface
+    type: UsersInterface,
   })
   @SetMetadata("isPublic", true)
   create(@Body() createUserDto: CreateUserDto) {

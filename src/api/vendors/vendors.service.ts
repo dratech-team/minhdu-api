@@ -4,8 +4,8 @@ import { UpdateVendorDto } from "./dto/update-vendor.dto";
 import { VendorsInterface } from "./interfaces/vendors.interface";
 import { InjectModel } from "@nestjs/mongoose";
 import { Model } from "mongoose";
-import { queryHelpers } from "../../common/query-helpers";
-import { typesHelpers } from "../../common/types-helpers.common";
+import { queryHelpers } from "../../core/common/query-helpers";
+import { typesHelpers } from "../../core/common/types-helpers.common";
 @Injectable()
 export class VendorsService {
   constructor(

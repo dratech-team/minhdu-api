@@ -6,11 +6,11 @@ import { Model } from "mongoose";
 import { StorageInterface } from "../../schemas/storage/storage.interface";
 import { VendorsInterface } from "../../schemas/vendors/vendors.interface";
 import { MaterialsWarehouseInterface } from "../../schemas/materials-warehouse/materials-warehouse.interface";
-import { dateHelpers } from "../../common/date-helpers.common";
-import { queryHelpers } from "../../common/query-helpers";
+import { dateHelpers } from "../../core/common/date-helpers.common";
+import { queryHelpers } from "../../core/common/query-helpers";
 import * as moment from "moment";
 import { ApiTags, ApiResponse } from "@nestjs/swagger";
-import { typesHelpers } from "../../common/types-helpers.common";
+import { typesHelpers } from "../../core/common/types-helpers.common";
 @ApiTags("Vendors")
 @Injectable()
 export class StorageService {
