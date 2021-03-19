@@ -1,3 +1,8 @@
+import { User } from "../../users/schemas/users.schema";
+
 export interface JwtPayload {
-  email: string;
+  readonly refreshToken?: string;
+  readonly accessToken?: string;
+  readonly user: User;
+  readonly roleName: string;
 }

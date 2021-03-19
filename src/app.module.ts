@@ -6,6 +6,7 @@ import { UsersModule } from "./api/users/users.module";
 import { CoresModule } from "./core/cores.module";
 import { VendorsModule } from "./api/vendors/vendors.module";
 import { MaterialsWarehouseModule } from "./api/materials-warehouse/materials-warehouse.module";
+import { AreaModule } from './api/area/area.module';
 
 const {
   DB_DRIVER,
@@ -38,6 +39,7 @@ const url =
     // AuthModule, public all api for development
     VendorsModule,
     MaterialsWarehouseModule,
+    AreaModule,
   ],
   controllers: [AppController],
   providers: [AppService],
