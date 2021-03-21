@@ -1,16 +1,11 @@
 import { NestFactory } from "@nestjs/core";
-import { Logger, ValidationPipe } from "@nestjs/common";
+import { ValidationPipe } from "@nestjs/common";
 import { AppModule } from "./app.module";
-import { UsersModule } from "./users/users.module";
-import { AuthModule } from "./auth/auth.module";
 import { DocumentBuilder, SwaggerModule } from "@nestjs/swagger";
 import { ConfigService } from "@nestjs/config";
 import { NestExpressApplication } from "@nestjs/platform-express";
-import { VendorsModule } from "./modules/vendors/vendors.module";
-import { CoreTransformInterceptor } from "./core/interceptors/coreTransform.interceptor";
-import { MaterialsWarehouseModule } from "./modules/materials-warehouse/materials-warehouse.module";
-import { StorageModule } from "./modules/storage/storage.module";
 import { config } from "dotenv";
+
 config();
 
 async function bootstrap() {
@@ -48,6 +43,8 @@ async function bootstrap() {
   console.log("process.env.PORT", process.env.PORT);
 
   await app.listen(PORT, "0.0.0.0");
+
+  console.log("App Started", process.env.PORT);
 }
 
 class Swagger {
@@ -68,14 +65,7 @@ class Swagger {
     description?: string,
     version?: string
   ): void {
-    const mainModules = [
-      AppModule,
-      UsersModule,
-      AuthModule,
-      VendorsModule,
-      MaterialsWarehouseModule,
-      StorageModule,
-    ];
+    const mainModules = [AppModule];
 
     if (extraModules) {
       mainModules.push(...extraModules);

@@ -3,11 +3,11 @@ import {
   CanActivate,
   ExecutionContext,
   HttpException,
-  HttpStatus
+  HttpStatus,
 } from "@nestjs/common";
 
 import { Reflector } from "@nestjs/core";
-import { IS_PUBLIC_KEY } from "../common/metadata";
+import { IS_PUBLIC_KEY } from "./common/metadata";
 import * as jwt from "jsonwebtoken";
 
 @Injectable()
@@ -19,7 +19,7 @@ export class AuthGuard implements CanActivate {
 
     const isPublic = this.reflector.getAllAndOverride<boolean>(IS_PUBLIC_KEY, [
       context.getHandler(),
-      context.getClass()
+      context.getClass(),
     ]);
 
     console.log("isPublic", isPublic);
