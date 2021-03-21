@@ -2,11 +2,6 @@ import { Module } from "@nestjs/common";
 import { AppController } from "./app.controller";
 import { AppService } from "./app.service";
 import { MongooseModule } from "@nestjs/mongoose";
-import { UsersModule } from "./api/users/users.module";
-import { CoresModule } from "./core/cores.module";
-import { VendorsModule } from "./api/vendors/vendors.module";
-import { MaterialsWarehouseModule } from "./api/materials-warehouse/materials-warehouse.module";
-import { AreaModule } from './api/area/area.module';
 
 const {
   DB_DRIVER,
@@ -34,12 +29,7 @@ const url =
       useCreateIndex: true,
       useFindAndModify: false,
     }),
-    CoresModule,
-    UsersModule,
     // AuthModule, public all api for development
-    VendorsModule,
-    MaterialsWarehouseModule,
-    AreaModule,
   ],
   controllers: [AppController],
   providers: [AppService],

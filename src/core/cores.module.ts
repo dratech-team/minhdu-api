@@ -11,9 +11,9 @@ import * as rateLimit from "express-rate-limit";
 import { APP_FILTER } from "@nestjs/core";
 import { HttpErrorFilter } from "./filters/exception.filter";
 import { ConfigModule } from "@nestjs/config";
-import configuration from "./config/configuration";
 import { PagingMiddleware } from "./middlewares/paging.middleware";
 import { ResponseMiddleware } from "./middlewares/response.middleware";
+
 @Global()
 @Module({
   imports: [
