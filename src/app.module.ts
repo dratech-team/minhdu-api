@@ -1,7 +1,9 @@
-import { Module } from "@nestjs/common";
+import { MiddlewareConsumer, Module, NestModule } from "@nestjs/common";
 import { AppController } from "./app.controller";
 import { AppService } from "./app.service";
 import { MongooseModule } from "@nestjs/mongoose";
+import { SalaryModule } from "./api/salary/salary.module";
+import { LoggerMiddleware } from "@/middlewares/logger.middleware";
 
 const {
   DB_DRIVER,
@@ -29,9 +31,14 @@ const url =
       useCreateIndex: true,
       useFindAndModify: false,
     }),
+    SalaryModule,
     // AuthModule, public all api for development
   ],
   controllers: [AppController],
   providers: [AppService],
 })
-export class AppModule {}
+export class AppModule implements NestModule {
+  configure(consumer: MiddlewareConsumer): any {
+    consumer.apply(LoggerMiddleware);
+  }
+}
