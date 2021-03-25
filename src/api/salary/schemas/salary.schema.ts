@@ -1,4 +1,5 @@
 import * as mongoose from "mongoose";
+import { ModelName } from "../../../common/constant/database.constant";
 
 export const SalarySchema = new mongoose.Schema({
   basic: {

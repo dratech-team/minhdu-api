@@ -7,11 +7,12 @@ import { ModelName } from "../../common/constant/database.constant";
 import { Model } from "mongoose";
 import { SalaryInterface } from "./interfaces/salary.interface";
 import { CreateSalaryDto } from "./dto/create-salary.dto";
+import { InjectModel } from "@nestjs/mongoose";
 
 @Injectable()
 export class SalaryService {
   constructor(
-    @Inject(ModelName.SALARY)
+    @InjectModel(ModelName.SALARY)
     private readonly salaryModel: Model<SalaryInterface>
   ) {}
 
