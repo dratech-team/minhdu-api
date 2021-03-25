@@ -19,9 +19,9 @@
  * ACCOUNTANT_MODERATION (Kế toán kiểm duyệt): Duyệt các phiếu thu/ chi từ các
  * trại con đẩy lên trước khi đưa lên kế toán trưởng
  * IMPORTER_EXPORTER (Xuất nhập khẩu):
- *  -	Đặt mua thiết bị, máy móc chuồng trại
+ *  -  Đặt mua thiết bị, máy móc chuồng trại
  *     -> Thanh toán và theo dõi tiền chuyển khoản đơn hàng nước ngoài.
- *  -	Nhận đơn đặt hàng từ nước ngoài
+ *  -  Nhận đơn đặt hàng từ nước ngoài
  * CONSTRUCTION_DEPARTMENT (Xây dựng): Tổng hợp các hợp đồng
  * HUMAN_RESOURCE (Quản lý nhân sự): Tổng hợp các bảng lương từ các trại con báo cáo lên
  * xác minh và trả lương cho nhân viên
