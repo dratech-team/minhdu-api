@@ -3,7 +3,7 @@ import {
   Injectable,
   InternalServerErrorException,
 } from "@nestjs/common";
-import { ModelName } from "../../common/constant/database.constant";
+import { ModelName } from "@/constants/database.constant";
 import { Model } from "mongoose";
 import { SalaryInterface } from "./interfaces/salary.interface";
 import { CreateSalaryDto } from "./dto/create-salary.dto";

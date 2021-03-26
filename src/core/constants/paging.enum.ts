@@ -1,6 +1,0 @@
-export enum PagingEnum {
-  DEFAULT_PAGE = 0,
-  DEFAULT_LIMIT = 20,
-  DEFAULT_MAX_LIMIT = 100,
-  NO_LIMIT = 999999999
-}

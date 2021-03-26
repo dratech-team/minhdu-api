@@ -2,90 +2,73 @@ import { NestFactory } from "@nestjs/core";
 import { ValidationPipe } from "@nestjs/common";
 import { AppModule } from "./app.module";
 import { DocumentBuilder, SwaggerModule } from "@nestjs/swagger";
-import { ConfigService } from "@nestjs/config";
-import { NestExpressApplication } from "@nestjs/platform-express";
-import { config } from "dotenv";
-
-config();
+import * as express from "express";
+import {
+  ExpressAdapter,
+  NestExpressApplication,
+} from "@nestjs/platform-express";
+import * as compression from "compression";
+import { join } from "path";
+import { WebsocketsExceptionFilter } from "@/filters/ws-exception.filter";
+import { HttpExceptionFilter } from "@/filters/http-exception.filter";
+import { AllExceptionFilter } from "@/filters/all-exception.filter";
+import helmet from "helmet";
+import { ConfigService } from "@/config/config.service";
+import { mongoMorgan } from "./core/functions/mongo-morgan.function";
+import * as requestIp from "request-ip";
 
 async function bootstrap() {
-  const app = await NestFactory.create<NestExpressApplication>(AppModule);
-  app.useGlobalPipes(new ValidationPipe({ transform: true }));
-  /* Interceptor overwrite response */
-  // app.useGlobalInterceptors(new CoreTransformInterceptor());
+  const server = express();
+  const app = await NestFactory.create<NestExpressApplication>(
+    AppModule,
+    new ExpressAdapter(server)
+  );
 
-  const config = app.get(ConfigService);
-  /*
-   * Global prefix version
-   */
-  let basePath = config.get("app.basePath");
-  if (!basePath) basePath = "/";
-  if (basePath != "/" && basePath.charAt(0) != "/")
-    basePath = "/" + basePath + "/";
-  app.setGlobalPrefix(basePath + "api/v1");
+  const configService: ConfigService = app.get(ConfigService);
 
-  /*
-   * Proxy
-   */
-  app.set("trust proxy", 1);
+  app.useStaticAssets(join(__dirname, "..", "public"));
+  app.setBaseViewsDir(join(__dirname, "..", "views"));
+  app.setViewEngine("hbs");
 
-  /*
-   * Swagger configurations
-   */
+  app.useGlobalPipes(new ValidationPipe());
+  app.useGlobalFilters(
+    new WebsocketsExceptionFilter(),
+    new AllExceptionFilter(),
+    new HttpExceptionFilter()
+  );
 
-  if (process.env.NODE_ENV !== "production") {
-    basePath = basePath.replace(/^\//g, "");
-  }
+  const options = new DocumentBuilder()
+    .setTitle("Minh Dư APIs")
+    .addBearerAuth()
+    .setDescription(
+      `<p>The Minh Dư APIs documentation</p>
+    <p> 🪲: bug </p>
+    <p> ⌛: doing </p>
+    <p> 🧑‍🔬: to test </p>
+    <p> ✅: done, haven't tested yet </p>
+    <p> 🌟: done, tested </p>
+    <p> 🚫: deprecated </p>
+    <p> 📄: support load more </p>
+    `
+    )
+    .setVersion("⭐⚡☀✨ 1.7.0 ⭐⚡☀✨")
+    .build();
+  const document = SwaggerModule.createDocument(app, options);
+  SwaggerModule.setup(configService.apiPath, app, document);
 
-  /* enabled swagger on heroku */
-  new Swagger(app).setup(basePath);
-  const PORT = process.env.PORT || 3000;
-  console.log("process.env.PORT", process.env.PORT);
+  app.enableCors(); // protection
+  app.use(helmet());
+  // app.use(csurf())
+  // app.use(morgan('dev')) // 'common'
+  app.use(
+    mongoMorgan("dev", configService.rootMongoUri, configService.databaseName)
+  );
 
-  await app.listen(PORT, "0.0.0.0");
+  app.use(compression());
+  app.use(requestIp.mw());
 
-  console.log("App Started", process.env.PORT);
+  const port = configService.serverPort;
+  await app.listen(port);
 }
 
-class Swagger {
-  constructor(private app: NestExpressApplication) {}
-
-  /**
-   * Register more swagger api here
-   */
-  setup(basePath): void {
-    // Main API
-    this.register(undefined, `${basePath}api`);
-  }
-
-  register(
-    extraModules?: any[],
-    path?: string,
-    title?: string,
-    description?: string,
-    version?: string
-  ): void {
-    const mainModules = [AppModule];
-
-    if (extraModules) {
-      mainModules.push(...extraModules);
-    }
-
-    const siteTitle = title || "Example Swagger APIs";
-    const options = new DocumentBuilder()
-      .setTitle(siteTitle)
-      .setDescription(description || "MinhDu APIs description")
-      .setVersion(version || "1")
-      .addBearerAuth()
-      .build();
-
-    const document = SwaggerModule.createDocument(this.app, options, {
-      include: mainModules,
-    });
-    SwaggerModule.setup(path || "api", this.app, document, {
-      customSiteTitle: siteTitle,
-    });
-  }
-}
-
-bootstrap();
+bootstrap().then((a) => console.log(`[INFO] Server is listening on port ${a}`));

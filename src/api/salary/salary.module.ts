@@ -3,7 +3,7 @@ import { SalaryController } from "./salary.controller";
 import { SalaryService } from "./salary.service";
 import { MongooseModule } from "@nestjs/mongoose";
 import { SalarySchema } from "./schemas/salary.schema";
-import { ModelName } from "../../common/constant/database.constant";
+import { ModelName } from "@/constants/database.constant";
 
 @Module({
   imports: [
