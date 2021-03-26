@@ -51,7 +51,7 @@ async function bootstrap() {
     <p> 📄: support load more </p>
     `
     )
-    .setVersion("⭐⚡☀✨ 1.7.0 ⭐⚡☀✨")
+    .setVersion("⭐⚡☀✨ 0.0.1 ⭐⚡☀✨")
     .build();
   const document = SwaggerModule.createDocument(app, options);
   SwaggerModule.setup(configService.apiPath, app, document);
@@ -61,7 +61,11 @@ async function bootstrap() {
   // app.use(csurf())
   // app.use(morgan('dev')) // 'common'
   app.use(
-    mongoMorgan("dev", configService.rootMongoUri, configService.databaseName)
+    mongoMorgan(
+      "development",
+      configService.rootMongoUri,
+      configService.databaseName
+    )
   );
 
   app.use(compression());

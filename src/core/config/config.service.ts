@@ -116,6 +116,10 @@ export class ConfigService {
     return this.envConfig.DB_NAME;
   }
 
+  get mongoURL(): string {
+    return this.envConfig.DATABASE_URI;
+  }
+
   get serverPort(): string {
     return this.envConfig.PORT;
   }
