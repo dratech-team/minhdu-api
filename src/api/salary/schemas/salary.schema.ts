@@ -1,9 +1,13 @@
-import * as mongoose from "mongoose";
-import { ModelName } from "@/constants/database.constant";
+import { Prop, Schema, SchemaFactory } from "@nestjs/mongoose";
 
-export const SalarySchema = new mongoose.Schema({
-  basic: {
-    type: Number,
-    required: true,
-  },
-});
+import { Document } from "mongoose";
+
+export type SalaryDocument = Salary & Document;
+
+@Schema()
+export class Salary {
+  @Prop()
+  basic: string;
+}
+
+export const SalarySchema = SchemaFactory.createForClass(Salary);

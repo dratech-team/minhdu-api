@@ -1,5 +1,5 @@
 import { Injectable, NestMiddleware } from "@nestjs/common";
-import { PagingEnum } from "../constants/paging.enum";
+import { PagingEnum } from "@/enum/paging.enum";
 
 @Injectable()
 export class PagingMiddleware implements NestMiddleware {
@@ -23,7 +23,7 @@ export class PagingMiddleware implements NestMiddleware {
 
     if (!sortString) return sort;
 
-    sortString.split(",").forEach(field => {
+    sortString.split(",").forEach((field) => {
       const typeSort = field.charAt(0);
       if (typeSort !== "-") {
         sort[field] = 1;

@@ -7,6 +7,9 @@ import { LoggerMiddleware } from "@/middlewares/logger.middleware";
 import { ConfigService } from "@/config/config.service";
 import { MONGO_CONNECTION } from "@/constants/mongo-connection.constant";
 import { ConfigModule } from "@/config/config.module";
+import { UserModule } from './api/user/user.module';
+import { CampModule } from './api/camp/camp.module';
+import { AreaModule } from './api/area/area.module';
 
 @Module({
   imports: [
@@ -22,6 +25,12 @@ import { ConfigModule } from "@/config/config.module";
     } as MongooseModuleAsyncOptions),
 
     SalaryModule,
+
+    UserModule,
+
+    CampModule,
+
+    AreaModule,
     // AuthModule, public all api for development
   ],
   controllers: [AppController],

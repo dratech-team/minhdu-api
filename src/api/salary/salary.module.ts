@@ -13,5 +13,6 @@ import { ModelName } from "@/constants/database.constant";
   ],
   controllers: [SalaryController],
   providers: [SalaryService],
+  exports: [SalaryService],
 })
 export class SalaryModule {}
