@@ -1,4 +1,5 @@
-import { Document, Model, ObjectId } from "mongoose";
+import { Document, Model } from "mongoose";
+import { ObjectId } from "mongodb";
 
 export interface ICustomDocument extends Document {
   _id: ObjectId;

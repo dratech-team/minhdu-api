@@ -7,9 +7,10 @@ import { LoggerMiddleware } from "@/middlewares/logger.middleware";
 import { ConfigService } from "@/config/config.service";
 import { MONGO_CONNECTION } from "@/constants/mongo-connection.constant";
 import { ConfigModule } from "@/config/config.module";
-import { UserModule } from './api/user/user.module';
-import { CampModule } from './api/camp/camp.module';
-import { AreaModule } from './api/area/area.module';
+import { UserModule } from "./api/user/user.module";
+import { CampModule } from "./api/camp/camp.module";
+import { AreaModule } from "./api/area/area.module";
+import { BasicSalaryModule } from "./api/basic-salary/basic-salary.module";
 
 @Module({
   imports: [
@@ -23,14 +24,12 @@ import { AreaModule } from './api/area/area.module';
       inject: [ConfigService],
       connectionName: MONGO_CONNECTION.DEVELOPMENT,
     } as MongooseModuleAsyncOptions),
-
     SalaryModule,
-
     UserModule,
-
     CampModule,
-
     AreaModule,
+    BasicSalaryModule,
+    ConfigModule,
     // AuthModule, public all api for development
   ],
   controllers: [AppController],

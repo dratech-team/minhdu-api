@@ -13,7 +13,6 @@ import { HttpErrorFilter } from "./filters/exception.filter";
 import { ConfigModule } from "@nestjs/config";
 import { PagingMiddleware } from "./middlewares/paging.middleware";
 import { ResponseMiddleware } from "./middlewares/response.middleware";
-import { TranslationModule } from "./translation/translation.module";
 
 @Global()
 @Module({
@@ -27,7 +26,6 @@ import { TranslationModule } from "./translation/translation.module";
     /* handle for cron */
     // ScheduleModule.forRoot()
     ConfigModule.forRoot(),
-    TranslationModule,
   ],
 
   providers: [

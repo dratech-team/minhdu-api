@@ -7,7 +7,7 @@ import { ModelName } from "@/constants/database.constant";
 import { Model } from "mongoose";
 import { CreateSalaryDto } from "./dto/create-salary.dto";
 import { InjectModel } from "@nestjs/mongoose";
-import { Salary, SalaryDocument } from "./schemas/salary.schema";
+import { Salary, SalaryDocument } from "./schema/salary.schema";
 
 @Injectable()
 export class SalaryService {

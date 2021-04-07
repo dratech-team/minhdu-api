@@ -1,6 +1,7 @@
 export enum ModelName {
-  ROLE = "role",
-  SALARY = "salary",
+  ROLE = "Role",
+  SALARY = "Salary",
+  BASIC_SALARY = "BasicSalary",
   TRANSLATION = "Translation",
   LANGUAGE = "Language",
 }

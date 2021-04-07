@@ -1,11 +1,11 @@
 import { Injectable } from "@nestjs/common";
-import { Model, ObjectId } from "mongoose";
+import { Model } from "mongoose";
 import { IRole } from "@/interfaces/role.interface";
-import { USER_TYPE } from "../constants/role-type.constant";
 import { InjectModel } from "@nestjs/mongoose";
-import { ModelName } from "../constants/database.constant";
 
-import * as mongoose from "mongoose";
+import { ObjectId } from "mongodb";
+import { ModelName } from "@/constants/database.constant";
+import { USER_TYPE } from "@/constants/role-type.constant";
 
 @Injectable()
 export class RoleService {
@@ -39,21 +39,13 @@ export class RoleService {
   }
 
   async getRoleById(roleId: string | ObjectId): Promise<IRole> {
-    let role: any;
     if (!roleId) {
       return null;
     }
-    try {
-      role = this.roleModel.findOne({
-        _id:
-          typeof roleId === "string"
-            ? new mongoose.Schema.Types.ObjectId(roleId)
-            : roleId,
-      });
-    } catch (err) {
-      throw "as";
+    if (!ObjectId.isValid(roleId)) {
+      return null;
     }
-    return role;
+    return this.roleModel.findOne({ _id: new ObjectId(roleId) });
   }
 
   async findUserRole(

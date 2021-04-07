@@ -1,4 +1,4 @@
-import { JwtType } from "@/constants";
+import { JwtType } from "@/constants/jwt.constant";
 
 export interface CreateTokenPayload {
   tokenId: string;

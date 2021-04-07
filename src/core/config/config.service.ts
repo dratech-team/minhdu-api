@@ -100,8 +100,19 @@ export class ConfigService {
     if (error) {
       throw new Error(`Config validation error: ${error.message}`);
     }
-
     return validatedEnvConfig as IEnvConfig;
+  }
+
+  get homeConfig() {
+    const SERVER_URL = "https://test.com";
+    return {
+      description: "NestJS Heroku Server",
+      title: "NestJS Heroku Server",
+      imageUrl: `${SERVER_URL}/images/1.jpg`,
+      homeUrl: `${SERVER_URL}/`,
+      iconUrl: `${SERVER_URL}/icons/logo.png`,
+      backgroundUrl: `${SERVER_URL}/images/1.jpg`,
+    };
   }
 
   get apiPath(): string {
