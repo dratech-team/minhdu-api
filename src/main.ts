@@ -14,8 +14,8 @@ import { HttpExceptionFilter } from "@/filters/http-exception.filter";
 import { AllExceptionFilter } from "@/filters/all-exception.filter";
 import helmet from "helmet";
 import { ConfigService } from "@/config/config.service";
-import { mongoMorgan } from "./core/functions/mongo-morgan.function";
 import * as requestIp from "request-ip";
+import { mongoMorgan } from "@/functions/mongo-morgan.function";
 
 async function bootstrap() {
   const server = express();
@@ -57,13 +57,12 @@ async function bootstrap() {
   SwaggerModule.setup(configService.apiPath, app, document);
 
   app.enableCors(); // protection
-  app.use(helmet());
   // app.use(csurf())
   // app.use(morgan('dev')) // 'common'
   app.use(
     mongoMorgan(
       "development",
-      configService.rootMongoUri,
+      configService.mongoURL,
       configService.databaseName
     )
   );
@@ -73,6 +72,7 @@ async function bootstrap() {
 
   const port = configService.serverPort;
   await app.listen(port);
+  console.log(`[INFO] Server is listening on port ${port}`);
 }
 
-bootstrap().then((a) => console.log(`[INFO] Server is listening on port ${a}`));
+bootstrap().then();

@@ -13,6 +13,6 @@ export class AppController {
   @Get()
   @Render("home")
   async getHome(@Response() response: ExpressResponse): Promise<any> {
-    return this.configService.homeConfig;
+    return this.appService.getHello();
   }
 }

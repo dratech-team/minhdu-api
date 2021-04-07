@@ -14,7 +14,7 @@ export interface IMongoMorganOptions {
 export function mongoMorgan(
   format: string,
   mongodbUrl: string,
-  dbName: string,
+  dbName?: string,
   options?: IMongoMorganOptions
 ) {
   options = options || {};
@@ -55,16 +55,16 @@ export function mongoMorgan(
       )
       .split(" ");
 
-    let url = parts[1].split("?").shift();
+    let url = parts[1]?.split("?").shift();
     const url_parts = url
-      .split("/")
-      .map((e) => (ObjectId.isValid(e) ? ":id" : e));
-    url = url_parts.join("/");
+      ?.split("/")
+      ?.map((e) => (ObjectId.isValid(e) ? ":id" : e));
+    url = url_parts?.join("/");
 
     return {
       method: parts[0],
-      url: parts[1].split("?").shift(),
-      apiName: `${parts[0]} - ${parts[1].split("?").shift()}`,
+      url: parts[1]?.split("?").shift(),
+      apiName: `${parts[0]} - ${parts[1]?.split("?").shift()}`,
       statusCode: Number(parts[2]),
       durationTime: Number(parts[3]),
       unit: parts[4],

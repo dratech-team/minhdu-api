@@ -4,6 +4,5 @@ export class ISalaryDto {
   @IsString()
   title: string;
 
-  @IsNumber()
   amount: number;
 }
