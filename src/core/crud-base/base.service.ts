@@ -1,13 +1,11 @@
 import { Document, Model, Types } from "mongoose";
 import { InjectModel } from "@nestjs/mongoose";
-import { IBaseService } from "./IBase-repository.service";
-
+import { IBaseService } from "./ibase.service";
 import { HttpException } from "@nestjs/common";
 import { PaginatorOptions } from "@/crud-base/interface/pagination.interface";
 import { CorePaginateResult } from "@/interfaces/pagination";
 
-export class BaseRepositoryService<T extends Document>
-  implements IBaseService<T> {
+export class BaseService<T extends Document> implements IBaseService<T> {
   constructor(@InjectModel("") private model: Model<T>) {}
 
   create(payload: any, ...args: any[]): Promise<any> {
@@ -34,7 +32,9 @@ export class BaseRepositoryService<T extends Document>
     }
   }
 
-  async delete(id: any, ...args: any[]): Promise<void> {}
+  async delete(id: any, ...args: any[]): Promise<void> {
+    // await this.model.updateOne({ _id: id },{ deleted: true });
+  }
 
   async findOne(id: Types.ObjectId, ...args: any[]): Promise<any> {
     try {

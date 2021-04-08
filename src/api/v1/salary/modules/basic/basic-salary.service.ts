@@ -3,13 +3,13 @@ import { InjectModel } from "@nestjs/mongoose";
 import { ModelName } from "@/constants/database.constant";
 import { Model, Types } from "mongoose";
 import { BasicSalary, BasicSalaryDocument } from "./schema/basic-salary.schema";
-import { BaseRepositoryService } from "@/crud-base/base-repository.service";
+import { BaseService } from "@/crud-base/base.service";
 import { PaginatorOptions } from "@/crud-base/interface/pagination.interface";
 import { UpdateBasicSalaryDto } from "./dto/update-basic-salary.dto";
 import { CorePaginateResult } from "@/interfaces/pagination";
 
 @Injectable()
-export class BasicSalaryService extends BaseRepositoryService<BasicSalaryDocument> {
+export class BasicSalaryService extends BaseService<BasicSalaryDocument> {
   constructor(
     @InjectModel(ModelName.BASIC_SALARY)
     private readonly basicSalaryModel: Model<BasicSalaryDocument>

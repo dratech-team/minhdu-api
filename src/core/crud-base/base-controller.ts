@@ -1,6 +1,6 @@
 import { Get, Post, Delete, Put, Body, Param, Query } from "@nestjs/common";
 import { ApiResponse } from "@nestjs/swagger";
-import { IBaseService } from "./IBase-repository.service";
+import { IBaseService } from "./ibase.service";
 import { Types } from "mongoose";
 import { PaginatorOptions } from "@/crud-base/interface/pagination.interface";
 import { CorePaginateResult } from "@/interfaces/pagination";
