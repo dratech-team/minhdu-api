@@ -42,7 +42,7 @@ async function bootstrap() {
     .addBearerAuth()
     .setDescription(
       `<p>The Minh Dư APIs documentation</p>
-    <p> 🪲: bug </p>
+    <p> 🐞: bug </p>
     <p> ⌛: doing </p>
     <p> 🧑‍🔬: to test </p>
     <p> ✅: done, haven't tested yet </p>
