@@ -1,5 +1,5 @@
 import { Injectable, NestMiddleware } from "@nestjs/common";
-import { PagingEnum } from "@/enum/paging.enum";
+import { PagingEnum } from "@/core/enum/paging.enum";
 
 @Injectable()
 export class PagingMiddleware implements NestMiddleware {

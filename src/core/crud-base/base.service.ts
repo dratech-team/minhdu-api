@@ -2,16 +2,16 @@ import { Document, Model, Types } from "mongoose";
 import { InjectModel } from "@nestjs/mongoose";
 import { IBaseService } from "./ibase.service";
 import { HttpException } from "@nestjs/common";
-import { PaginatorOptions } from "@/crud-base/interface/pagination.interface";
-import { CorePaginateResult } from "@/interfaces/pagination";
+import { PaginatorOptions } from "@/core/crud-base/interface/pagination.interface";
+import { CorePaginateResult } from "@/core/interfaces/pagination";
 
 export class BaseService<T extends Document> implements IBaseService<T> {
   constructor(@InjectModel("") private model: Model<T>) {}
 
-  create(payload: any, ...args: any[]): Promise<any> {
+  async create(payload: any, ...args: any[]): Promise<any> {
     try {
       const createdItem: any = new this.model(payload);
-      return createdItem.save();
+      return await createdItem.save();
     } catch (e) {
       throw new HttpException(e.message || e, e.status || 500);
     }
@@ -52,15 +52,17 @@ export class BaseService<T extends Document> implements IBaseService<T> {
   async findAll(
     paginateOpts?: PaginatorOptions,
     ...args: any[]
-  ): Promise<CorePaginateResult> {
+  ): Promise<CorePaginateResult<any>> {
+    const total = await this.model.countDocuments();
     try {
       if (paginateOpts && paginateOpts.limit && paginateOpts.page) {
         const skips = paginateOpts.limit * (paginateOpts.page - 1);
         paginateOpts.limit = +paginateOpts.limit;
-        const [total = 0, data = []] = await Promise.all([
-          this.model.countDocuments(),
-          this.model.find().skip(skips).limit(paginateOpts.limit).exec(),
-        ]);
+        const data = await this.model
+          .find()
+          .skip(skips)
+          .limit(paginateOpts.limit)
+          .exec();
         return {
           total,
           statusCode: 200,
@@ -69,7 +71,7 @@ export class BaseService<T extends Document> implements IBaseService<T> {
         };
       }
       const data = await this.model.find().exec();
-      return { data };
+      return { total, data };
     } catch (e) {
       throw new HttpException(e.message || e, e.status || 500);
     }
@@ -87,7 +89,7 @@ export class BaseService<T extends Document> implements IBaseService<T> {
     }
   }
 
-  findBy(
+  async findBy(
     query: object,
     paginateOpts?: PaginatorOptions,
     ...args: any[]
@@ -95,7 +97,7 @@ export class BaseService<T extends Document> implements IBaseService<T> {
     try {
       if (paginateOpts && paginateOpts.limit && paginateOpts.page) {
         const skips = paginateOpts.limit * (paginateOpts.page - 1);
-        return this.model
+        return await this.model
           .find(query)
           .skip(skips)
           .limit(paginateOpts.limit)
@@ -105,5 +107,12 @@ export class BaseService<T extends Document> implements IBaseService<T> {
     } catch (e) {
       throw new HttpException(e.message || e, e.status || 500);
     }
+  }
+
+  async salaryTotal(): Promise<number> {
+    const salaries = await this.findAll();
+    return salaries.data
+      .map((e: any) => e.amount)
+      .reduce((accumulator, currentValue) => accumulator + currentValue);
   }
 }

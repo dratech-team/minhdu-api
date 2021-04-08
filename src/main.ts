@@ -9,13 +9,12 @@ import {
 } from "@nestjs/platform-express";
 import * as compression from "compression";
 import { join } from "path";
-import { WebsocketsExceptionFilter } from "@/filters/ws-exception.filter";
-import { HttpExceptionFilter } from "@/filters/http-exception.filter";
-import { AllExceptionFilter } from "@/filters/all-exception.filter";
-import helmet from "helmet";
-import { ConfigService } from "@/config/config.service";
 import * as requestIp from "request-ip";
-import { mongoMorgan } from "@/functions/mongo-morgan.function";
+import { ConfigService } from "@/core/config/config.service";
+import { WebsocketsExceptionFilter } from "@/core/filters/ws-exception.filter";
+import { mongoMorgan } from "@/core/functions/mongo-morgan.function";
+import { AllExceptionFilter } from "@/core/filters/all-exception.filter";
+import { HttpExceptionFilter } from "@/core/filters/http-exception.filter";
 
 async function bootstrap() {
   const server = express();

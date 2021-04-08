@@ -2,7 +2,7 @@ import * as carrier from "carrier";
 import * as morgan from "morgan";
 import * as stream from "stream";
 import { MongoClient, ObjectId } from "mongodb";
-import { IRequest } from "@/interfaces/request.interface";
+import { IRequest } from "@/core/interfaces/request.interface";
 
 const PassThroughStream = stream.PassThrough;
 

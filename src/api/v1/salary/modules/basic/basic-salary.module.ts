@@ -2,8 +2,9 @@ import { Module } from "@nestjs/common";
 import { BasicSalaryController } from "./basic-salary.controller";
 import { BasicSalaryService } from "./basic-salary.service";
 import { MongooseModule } from "@nestjs/mongoose";
-import { ModelName } from "@/constants/database.constant";
 import { BasicSalarySchema } from "./schema/basic-salary.schema";
+import { ModelName } from "@/core/constants/database.constant";
+import { MyLoggerService } from "@/core/services/mylogger.service";
 
 @Module({
   imports: [
@@ -12,7 +13,7 @@ import { BasicSalarySchema } from "./schema/basic-salary.schema";
     ]),
   ],
   controllers: [BasicSalaryController],
-  providers: [BasicSalaryService],
+  providers: [BasicSalaryService, MyLoggerService],
   exports: [BasicSalaryService],
 })
 export class BasicSalaryModule {}

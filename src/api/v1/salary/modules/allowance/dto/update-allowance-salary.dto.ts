@@ -1,3 +1,3 @@
 import { IUpdateSalaryDto } from "@/common/dtos/update-salary.dto";
 
-export class UpdateBasicSalaryDto extends IUpdateSalaryDto {}
+export class UpdateAllowanceSalaryDto extends IUpdateSalaryDto {}

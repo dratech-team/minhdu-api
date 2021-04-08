@@ -1,7 +1,7 @@
 import { Injectable } from "@nestjs/common";
 import { optionalRequire } from "@nestjs/core/helpers/optional-require";
 import { Response } from "express";
-import { CoreResponse } from "@/interfaces/coreResponse.interface";
+import { CoreResponse } from "@/core/interfaces/coreResponse.interface";
 
 const moment = optionalRequire("moment");
 const XLSX = require("xlsx");

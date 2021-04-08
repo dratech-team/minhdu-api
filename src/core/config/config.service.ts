@@ -1,8 +1,11 @@
 import * as dotenv from "dotenv";
 import * as fs from "fs";
 import * as Joi from "joi";
-import { EnvConfig, IEnvConfig } from "@/interfaces/configuration.interface";
-import { NODE_ENV, NODE_ENV_LIST } from "@/constants/config.constant";
+import {
+  EnvConfig,
+  IEnvConfig,
+} from "@/core/interfaces/configuration.interface";
+import { NODE_ENV, NODE_ENV_LIST } from "@/core/constants/config.constant";
 
 export class ConfigService {
   private readonly envConfig: IEnvConfig;

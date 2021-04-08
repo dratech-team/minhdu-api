@@ -10,11 +10,10 @@ import {
 import { BasicSalary } from "./schema/basic-salary.schema";
 import { CreateBasicSalaryDto } from "./dto/create-basic-salary.dto";
 import { BasicSalaryService } from "./basic-salary.service";
-import { BaseController } from "@/crud-base/base-controller";
 import { Types } from "mongoose";
 import { UpdateBasicSalaryDto } from "./dto/update-basic-salary.dto";
-import { MongoIDDto } from "../../../../../common/dtos/mongo-id.dto";
-import { CorePaginateResult } from "@/interfaces/pagination";
+import { BaseController } from "@/core/crud-base/base-controller";
+import { CorePaginateResult } from "@/core/interfaces/pagination";
 
 @Controller("v1/salary/basic")
 export class BasicSalaryController extends BaseController<BasicSalary> {
@@ -23,7 +22,10 @@ export class BasicSalaryController extends BaseController<BasicSalary> {
   }
 
   @Post()
-  async create(@Body() body: CreateBasicSalaryDto, ...args): Promise<any> {
+  async create(
+    @Body() body: CreateBasicSalaryDto,
+    ...args
+  ): Promise<BasicSalary> {
     return super.create(body, ...args);
   }
 
@@ -40,17 +42,17 @@ export class BasicSalaryController extends BaseController<BasicSalary> {
     page: number,
     limit: number,
     ...args
-  ): Promise<CorePaginateResult> {
+  ): Promise<CorePaginateResult<BasicSalary>> {
     return super.findAll(page, limit, ...args);
   }
 
   @Put(":id")
   async update(
-    updates: UpdateBasicSalaryDto,
-    id: Types.ObjectId,
+    @Body() body: UpdateBasicSalaryDto,
+    @Param("id") id: Types.ObjectId,
     ...args
   ): Promise<BasicSalary> {
-    return super.update(updates, id, ...args);
+    return super.update(body, id, ...args);
   }
 
   @Delete(":id")

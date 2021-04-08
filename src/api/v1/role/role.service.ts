@@ -1,11 +1,11 @@
 import { Injectable } from "@nestjs/common";
 import { Model } from "mongoose";
-import { IRole } from "@/interfaces/role.interface";
 import { InjectModel } from "@nestjs/mongoose";
 
 import { ObjectId } from "mongodb";
-import { ModelName } from "@/constants/database.constant";
-import { USER_TYPE } from "@/constants/role-type.constant";
+import { IRole } from "@/core/interfaces/role.interface";
+import { ModelName } from "@/core/constants/database.constant";
+import { USER_TYPE } from "@/core/constants/role-type.constant";
 
 @Injectable()
 export class RoleService {

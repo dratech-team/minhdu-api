@@ -1,7 +1,7 @@
 import { Injectable } from "@nestjs/common";
 import { Response as ExpressResponse } from "express";
 import * as UniqueIdGenerator from "uniqid";
-import { IResponsePending } from "@/interfaces/response-pending.interface";
+import { IResponsePending } from "@/core/interfaces/response-pending.interface";
 
 @Injectable()
 export class ResponsePendingService {

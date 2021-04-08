@@ -1,4 +1,4 @@
-import { ICustomDocument } from "@/interfaces/mongodb.interface";
+import { ICustomDocument } from "@/core/interfaces/mongodb.interface";
 
 export interface ILanguage extends ICustomDocument {
   name: string;

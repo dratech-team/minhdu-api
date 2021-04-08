@@ -3,14 +3,15 @@ import { AppController } from "./app.controller";
 import { AppService } from "./app.service";
 import { MongooseModule, MongooseModuleAsyncOptions } from "@nestjs/mongoose";
 import { SalaryModule } from "./api/v1/salary/salary.module";
-import { LoggerMiddleware } from "@/middlewares/logger.middleware";
-import { ConfigService } from "@/config/config.service";
-import { MONGO_CONNECTION } from "@/constants/mongo-connection.constant";
-import { ConfigModule } from "@/config/config.module";
 import { UserModule } from "./api/v1/user/user.module";
 import { CampModule } from "./api/v1/camp/camp.module";
 import { AreaModule } from "./api/v1/area/area.module";
 import { BasicSalaryModule } from "./api/v1/salary/modules/basic/basic-salary.module";
+import { ConfigModule } from "@/core/config/config.module";
+import { ConfigService } from "@/core/config/config.service";
+import { LoggerMiddleware } from "@/core/middlewares/logger.middleware";
+import { BasicSalaryService } from "./api/v1/salary/modules/basic/basic-salary.service";
+import { MyLoggerService } from "@/core/services/mylogger.service";
 
 @Module({
   imports: [

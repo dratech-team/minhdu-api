@@ -12,9 +12,13 @@
     "baseUrl": "./",
     "incremental": true,
     "paths": {
-      "@/*": [
+      "@/core/*": [
         "./src/core/*"
+      ],
+      "@/common/*": [
+        "./src/common/*"
       ]
     }
   }
 }
+

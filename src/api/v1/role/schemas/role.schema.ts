@@ -1,5 +1,5 @@
 import { ObjectId } from "mongodb";
-import { USER_TYPE } from "@/constants/role-type.constant";
+import { USER_TYPE } from "@/core/constants/role-type.constant";
 import { Prop, Schema, SchemaFactory } from "@nestjs/mongoose";
 
 export type RoleDocument = Role & Document;

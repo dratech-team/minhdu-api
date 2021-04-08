@@ -1,5 +1,4 @@
-import { NODE_ENV } from "@/constants/config.constant";
-import * as Joi from "joi";
+import { NODE_ENV } from "@/core/constants/config.constant";
 
 export interface EnvConfig {
   [key: string]: string;

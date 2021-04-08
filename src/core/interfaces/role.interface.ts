@@ -1,5 +1,5 @@
 import { ICustomDocument } from "./mongodb.interface";
-import { USER_TYPE } from "@/constants/role-type.constant";
+import { USER_TYPE } from "@/core/constants/role-type.constant";
 import { ObjectId } from "mongodb";
 
 export interface IRole extends ICustomDocument {
