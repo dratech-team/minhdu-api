@@ -34,12 +34,7 @@ export class BaseRepositoryService<T extends Document>
     }
   }
 
-  async delete(id: any, ...args: any[]): Promise<void> {
-    const item = await this.findOne(id);
-    if (item) {
-      await item.remove();
-    }
-  }
+  async delete(id: any, ...args: any[]): Promise<void> {}
 
   async findOne(id: Types.ObjectId, ...args: any[]): Promise<any> {
     try {

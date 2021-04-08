@@ -6,7 +6,6 @@ import { BasicSalary, BasicSalaryDocument } from "./schema/basic-salary.schema";
 import { BaseRepositoryService } from "@/crud-base/base-repository.service";
 import { PaginatorOptions } from "@/crud-base/interface/pagination.interface";
 import { UpdateBasicSalaryDto } from "./dto/update-basic-salary.dto";
-import { MongoIDDto } from "../../../../../common/dtos/mongo-id.dto";
 import { CorePaginateResult } from "@/interfaces/pagination";
 
 @Injectable()
@@ -42,7 +41,7 @@ export class BasicSalaryService extends BaseRepositoryService<BasicSalaryDocumen
   }
 
   async delete(id: Types.ObjectId, ...args): Promise<void> {
-    return super.delete(id, ...args);
+    await this.basicSalaryModel.updateOne({ _id: id }, { deleted: true });
   }
 
   async basicSalaryTotal(): Promise<number> {
