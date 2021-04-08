@@ -7,6 +7,7 @@ import { BaseRepositoryService } from "@/crud-base/base-repository.service";
 import { PaginatorOptions } from "@/crud-base/interface/pagination.interface";
 import { UpdateBasicSalaryDto } from "./dto/update-basic-salary.dto";
 import { MongoIDDto } from "../../../common/dtos/mongo-id.dto";
+import { CorePaginateResult } from "@/interfaces/pagination";
 
 @Injectable()
 export class BasicSalaryService extends BaseRepositoryService<BasicSalaryDocument> {
@@ -28,7 +29,7 @@ export class BasicSalaryService extends BaseRepositoryService<BasicSalaryDocumen
   async findAll(
     paginateOpts?: PaginatorOptions,
     ...args
-  ): Promise<BasicSalary[]> {
+  ): Promise<CorePaginateResult> {
     return await super.findAll(paginateOpts, ...args);
   }
 
@@ -46,7 +47,7 @@ export class BasicSalaryService extends BaseRepositoryService<BasicSalaryDocumen
 
   async basicSalaryTotal(): Promise<number> {
     const basicSalaries = await this.findAll();
-    const amount = basicSalaries
+    const amount = basicSalaries.data
       .map((basicSalary: BasicSalary) => basicSalary.amount)
       .reduce((accumulator, currentValue) => accumulator + currentValue);
     console.log(amount);

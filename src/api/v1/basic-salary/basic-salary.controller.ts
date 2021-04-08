@@ -14,6 +14,7 @@ import { BaseController } from "@/crud-base/base-controller";
 import { Types } from "mongoose";
 import { UpdateBasicSalaryDto } from "./dto/update-basic-salary.dto";
 import { MongoIDDto } from "../../../common/dtos/mongo-id.dto";
+import { CorePaginateResult } from "@/interfaces/pagination";
 
 @Controller("v1/basic-salary")
 export class BasicSalaryController extends BaseController<BasicSalary> {
@@ -35,7 +36,11 @@ export class BasicSalaryController extends BaseController<BasicSalary> {
   }
 
   @Get()
-  async findAll(page: number, limit: number, ...args): Promise<BasicSalary[]> {
+  async findAll(
+    page: number,
+    limit: number,
+    ...args
+  ): Promise<CorePaginateResult> {
     return super.findAll(page, limit, ...args);
   }
 

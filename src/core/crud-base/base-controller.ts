@@ -3,6 +3,7 @@ import { ApiResponse } from "@nestjs/swagger";
 import { IBaseService } from "./IBase-repository.service";
 import { Types } from "mongoose";
 import { PaginatorOptions } from "@/crud-base/interface/pagination.interface";
+import { CorePaginateResult } from "@/interfaces/pagination";
 
 export class BaseController<T, DTO = any> {
   constructor(private readonly IBaseService: IBaseService<T>) {}
@@ -13,7 +14,7 @@ export class BaseController<T, DTO = any> {
     @Query("page") page: number,
     @Query("limit") limit: number,
     ...args: any[]
-  ): Promise<T[]> {
+  ): Promise<CorePaginateResult> {
     let options: PaginatorOptions = {
       page,
       limit,

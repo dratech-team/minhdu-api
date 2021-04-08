@@ -35,5 +35,5 @@ documentation
 !.vscode/launch.json
 !.vscode/extensions.json
 
-init-mongo.js
-mongo-volume
+init-mongo.js/
+mongo-volume/

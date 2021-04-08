@@ -4,6 +4,7 @@ import { IBaseService } from "./IBase-repository.service";
 
 import { HttpException } from "@nestjs/common";
 import { PaginatorOptions } from "@/crud-base/interface/pagination.interface";
+import { CorePaginateResult } from "@/interfaces/pagination";
 
 export class BaseRepositoryService<T extends Document>
   implements IBaseService<T> {
@@ -53,14 +54,27 @@ export class BaseRepositoryService<T extends Document>
     }
   }
 
-  findAll(paginateOpts?: PaginatorOptions, ...args: any[]): Promise<any> {
+  async findAll(
+    paginateOpts?: PaginatorOptions,
+    ...args: any[]
+  ): Promise<CorePaginateResult> {
     try {
       if (paginateOpts && paginateOpts.limit && paginateOpts.page) {
         const skips = paginateOpts.limit * (paginateOpts.page - 1);
         paginateOpts.limit = +paginateOpts.limit;
-        return this.model.find().skip(skips).limit(paginateOpts.limit).exec();
+        const [total = 0, data = []] = await Promise.all([
+          this.model.countDocuments(),
+          this.model.find().skip(skips).limit(paginateOpts.limit).exec(),
+        ]);
+        return {
+          total,
+          statusCode: 200,
+          isLastPage: paginateOpts.limit * paginateOpts.page > total,
+          data: data,
+        };
       }
-      return this.model.find().exec();
+      const data = await this.model.find().exec();
+      return { data };
     } catch (e) {
       throw new HttpException(e.message || e, e.status || 500);
     }
