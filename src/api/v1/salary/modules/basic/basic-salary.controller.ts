@@ -13,10 +13,10 @@ import { BasicSalaryService } from "./basic-salary.service";
 import { BaseController } from "@/crud-base/base-controller";
 import { Types } from "mongoose";
 import { UpdateBasicSalaryDto } from "./dto/update-basic-salary.dto";
-import { MongoIDDto } from "../../../common/dtos/mongo-id.dto";
+import { MongoIDDto } from "../../../../../common/dtos/mongo-id.dto";
 import { CorePaginateResult } from "@/interfaces/pagination";
 
-@Controller("v1/basic-salary")
+@Controller("v1/salary/basic")
 export class BasicSalaryController extends BaseController<BasicSalary> {
   constructor(private readonly service: BasicSalaryService) {
     super(service);

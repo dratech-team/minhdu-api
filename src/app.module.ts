@@ -10,7 +10,7 @@ import { ConfigModule } from "@/config/config.module";
 import { UserModule } from "./api/v1/user/user.module";
 import { CampModule } from "./api/v1/camp/camp.module";
 import { AreaModule } from "./api/v1/area/area.module";
-import { BasicSalaryModule } from "./api/v1/basic-salary/basic-salary.module";
+import { BasicSalaryModule } from "./api/v1/salary/modules/basic/basic-salary.module";
 
 @Module({
   imports: [
