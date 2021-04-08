@@ -18,38 +18,42 @@ export class BaseRepositoryService<T extends Document>
     }
   }
 
-  update(id: Types.ObjectId, updates: any, ...args: any[]): Promise<T> {
+  async update(id: Types.ObjectId, updates: any, ...args: any[]): Promise<any> {
     try {
-      const updated: any = this.model.findByIdAndUpdate(id, updates, {
-        upsert: true,
-      });
+      // await this.findOne(id);
+      const updated: any = await this.model
+        .findByIdAndUpdate(id, updates, {
+          new: true,
+        })
+        .exec();
+      console.log(updated);
       return updated;
     } catch (e) {
       throw new HttpException(e.message || e, e.status || 500);
     }
   }
 
-  async delete(id: any, ...args: any[]) {
+  async delete(id: any, ...args: any[]): Promise<void> {
     const item = await this.findOne(id);
     if (item) {
       await item.remove();
     }
-    return { message: "success" };
   }
 
-  async findOne(id: any, ...args: any[]): Promise<T> {
+  async findOne(id: Types.ObjectId, ...args: any[]): Promise<any> {
     try {
       const item = await this.model.findById(id).exec();
       if (!item) {
         throw new HttpException("Not found", 404);
       }
+      console.log(item);
       return item;
     } catch (e) {
-      throw new HttpException(e.message || e, e.status || 500);
+      throw new HttpException("Server Error" || e, e.status || 500);
     }
   }
 
-  findAll(paginateOpts?: PaginatorOptions, ...args: any[]): Promise<T[]> {
+  findAll(paginateOpts?: PaginatorOptions, ...args: any[]): Promise<any> {
     try {
       if (paginateOpts && paginateOpts.limit && paginateOpts.page) {
         const skips = paginateOpts.limit * (paginateOpts.page - 1);
@@ -62,7 +66,7 @@ export class BaseRepositoryService<T extends Document>
     }
   }
 
-  async findOneBy(query: object, ...args: any[]): Promise<T> {
+  async findOneBy(query: object, ...args: any[]): Promise<any> {
     try {
       const item = await this.model.findOne(query).exec();
       if (!item) {
@@ -78,7 +82,7 @@ export class BaseRepositoryService<T extends Document>
     query: object,
     paginateOpts?: PaginatorOptions,
     ...args: any[]
-  ): Promise<T[]> {
+  ): Promise<any> {
     try {
       if (paginateOpts && paginateOpts.limit && paginateOpts.page) {
         const skips = paginateOpts.limit * (paginateOpts.page - 1);

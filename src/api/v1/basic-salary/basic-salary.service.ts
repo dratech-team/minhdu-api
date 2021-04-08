@@ -1,9 +1,12 @@
 import { Injectable } from "@nestjs/common";
 import { InjectModel } from "@nestjs/mongoose";
 import { ModelName } from "@/constants/database.constant";
-import { Model } from "mongoose";
+import { Model, Types } from "mongoose";
 import { BasicSalary, BasicSalaryDocument } from "./schema/basic-salary.schema";
 import { BaseRepositoryService } from "@/crud-base/base-repository.service";
+import { PaginatorOptions } from "@/crud-base/interface/pagination.interface";
+import { UpdateBasicSalaryDto } from "./dto/update-basic-salary.dto";
+import { MongoIDDto } from "../../../common/dtos/mongo-id.dto";
 
 @Injectable()
 export class BasicSalaryService extends BaseRepositoryService<BasicSalaryDocument> {
@@ -14,9 +17,39 @@ export class BasicSalaryService extends BaseRepositoryService<BasicSalaryDocumen
     super(basicSalaryModel);
   }
 
-  create(payload: any, ...args): Promise<any> {
-    console.log(payload);
-    console.log(args);
+  create(payload: any, ...args): Promise<BasicSalary> {
     return super.create(payload, ...args);
+  }
+
+  async findOne(id: Types.ObjectId, ...args): Promise<any> {
+    return await super.findOne(id, ...args);
+  }
+
+  async findAll(
+    paginateOpts?: PaginatorOptions,
+    ...args
+  ): Promise<BasicSalary[]> {
+    return await super.findAll(paginateOpts, ...args);
+  }
+
+  async update(
+    id: Types.ObjectId,
+    updates: UpdateBasicSalaryDto,
+    ...args
+  ): Promise<BasicSalary> {
+    return await super.update(id, updates, ...args);
+  }
+
+  async delete(id: Types.ObjectId, ...args): Promise<void> {
+    return super.delete(id, ...args);
+  }
+
+  async basicSalaryTotal(): Promise<number> {
+    const basicSalaries = await this.findAll();
+    const amount = basicSalaries
+      .map((basicSalary: BasicSalary) => basicSalary.amount)
+      .reduce((accumulator, currentValue) => accumulator + currentValue);
+    console.log(amount);
+    return amount;
   }
 }

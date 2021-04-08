@@ -13,5 +13,6 @@ import { BasicSalarySchema } from "./schema/basic-salary.schema";
   ],
   controllers: [BasicSalaryController],
   providers: [BasicSalaryService],
+  exports: [BasicSalaryService],
 })
 export class BasicSalaryModule {}
