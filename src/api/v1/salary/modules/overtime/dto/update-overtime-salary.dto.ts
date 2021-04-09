@@ -1,5 +1,11 @@
 import { IUpdateSalaryDto } from "../../../../../../common/dtos/update-salary.dto";
-import { IsEnum, IsIn, IsNumber, IsOptional } from "class-validator";
+import {
+  IsEnum,
+  IsIn,
+  IsNotEmpty,
+  IsNumber,
+  IsOptional,
+} from "class-validator";
 import { Type } from "class-transformer";
 import { OvertimeType } from "../overtime-type.enum";
 
@@ -12,4 +18,9 @@ export class UpdateOvertimeSalaryDto extends IUpdateSalaryDto {
   @IsNumber()
   @IsOptional()
   times: number;
+
+  // @Type(() => Number)
+  // @IsNumber()
+  // @IsOptional()
+  // amount: number;
 }

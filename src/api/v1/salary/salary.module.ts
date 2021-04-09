@@ -7,6 +7,7 @@ import { AllowanceModule } from "./modules/allowance/allowance.module";
 import { ModelName } from "../../../common/constant/database.constant";
 import { OvertimeModule } from "./modules/overtime/overtime.module";
 import { BasicSalaryModule } from "./modules/basic/basic-salary.module";
+import { LoanSalaryModule } from "./modules/loan/loan-salary.module";
 
 @Module({
   imports: [
@@ -16,6 +17,7 @@ import { BasicSalaryModule } from "./modules/basic/basic-salary.module";
     AllowanceModule,
     OvertimeModule,
     BasicSalaryModule,
+    LoanSalaryModule,
   ],
   controllers: [SalaryController],
   providers: [SalaryService],

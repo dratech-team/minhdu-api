@@ -12,4 +12,9 @@ export class CreateOvertimeSalaryDto extends ICreateSalaryDto {
   @IsNumber()
   @IsNotEmpty()
   times: number;
+  //
+  // @Type(() => Number)
+  // @IsNumber()
+  // @IsNotEmpty()
+  // amount: number;
 }
