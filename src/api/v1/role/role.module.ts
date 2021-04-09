@@ -5,7 +5,7 @@ import { RoleService } from "./role.service";
 import { MongooseModule } from "@nestjs/mongoose";
 // import { ModelName } from "@/core/constants/database.constant";
 import { RoleDocumentSchema } from "./schemas/role.schema";
-import { ModelName } from "../../../core/constants/database.constant";
+import { ModelName } from "../../../common/constant/database.constant";
 
 @Module({
   imports: [

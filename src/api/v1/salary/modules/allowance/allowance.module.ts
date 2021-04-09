@@ -4,7 +4,7 @@ import { AllowanceService } from "./allowance.service";
 import { MongooseModule } from "@nestjs/mongoose";
 // import { ModelName } from "@/core/constants/database.constant";
 import { AllowanceSalarySchema } from "./schema/allowance-salary.schema";
-import { ModelName } from "../../../../../core/constants/database.constant";
+import { ModelName } from "../../../../../common/constant/database.constant";
 
 @Module({
   imports: [

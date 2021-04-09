@@ -4,8 +4,6 @@ import { IBaseService } from "./ibase.service";
 import { HttpException } from "@nestjs/common";
 import { PaginatorOptions } from "./interface/pagination.interface";
 import { CorePaginateResult } from "../interfaces/pagination";
-// import { PaginatorOptions } from "@/core/crud-base/interface/pagination.interface";
-// import { CorePaginateResult } from "@/core/interfaces/pagination";
 
 export class BaseService<T extends Document> implements IBaseService<T> {
   constructor(@InjectModel("") private model: Model<T>) {}
@@ -34,7 +32,7 @@ export class BaseService<T extends Document> implements IBaseService<T> {
     }
   }
 
-  async delete(id: any, ...args: any[]): Promise<void> {
+  async delete(id: Types.ObjectId, ...args: any[]): Promise<void> {
     // await this.model.updateOne({ _id: id },{ deleted: true });
   }
 
@@ -109,12 +107,5 @@ export class BaseService<T extends Document> implements IBaseService<T> {
     } catch (e) {
       throw new HttpException(e.message || e, e.status || 500);
     }
-  }
-
-  async salaryTotal(): Promise<number> {
-    const salaries = await this.findAll();
-    return salaries.data
-      .map((e: any) => e.amount)
-      .reduce((accumulator, currentValue) => accumulator + currentValue);
   }
 }

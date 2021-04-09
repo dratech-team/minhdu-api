@@ -3,7 +3,7 @@ import { Model } from "mongoose";
 import { InjectModel } from "@nestjs/mongoose";
 
 import { ObjectId } from "mongodb";
-import { ModelName } from "../../../core/constants/database.constant";
+import { ModelName } from "../../../common/constant/database.constant";
 import { IRole } from "../../../core/interfaces/role.interface";
 import { USER_TYPE } from "../../../core/constants/role-type.constant";
 // import { IRole } from "@/core/interfaces/role.interface";

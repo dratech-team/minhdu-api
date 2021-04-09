@@ -1,11 +1,17 @@
-import { IsNumber, IsString } from "class-validator";
+import { IsNotEmpty, IsNumber, IsOptional, IsString } from "class-validator";
 import { Type } from "class-transformer";
 
-export class ISalaryDto {
+export class ICreateSalaryDto {
   @IsString()
+  @IsNotEmpty()
   title: string;
 
   @Type(() => Number)
   @IsNumber()
-  amount: number;
+  @IsNotEmpty()
+  price: number;
+
+  @IsOptional()
+  @IsString()
+  note: string;
 }

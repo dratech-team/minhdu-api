@@ -6,15 +6,10 @@ import {
   AllowanceSalaryDocument,
 } from "./schema/allowance-salary.schema";
 import { CreateAllowanceSalaryDto } from "./dto/create-allowance-salary.dto";
-import { BasicSalary } from "../basic/schema/basic-salary.schema";
 import { BaseService } from "../../../../../core/crud-base/base.service";
-import { ModelName } from "../../../../../core/constants/database.constant";
+import { ModelName } from "../../../../../common/constant/database.constant";
 import { PaginatorOptions } from "../../../../../core/crud-base/interface/pagination.interface";
 import { CorePaginateResult } from "../../../../../core/interfaces/pagination";
-// import { PaginatorOptions } from "@/core/crud-base/interface/pagination.interface";
-// import { CorePaginateResult } from "@/core/interfaces/pagination";
-// import { ModelName } from "@/core/constants/database.constant";
-// import { BaseService } from "@/core/crud-base/base.service";
 
 @Injectable()
 export class AllowanceService extends BaseService<AllowanceSalaryDocument> {
@@ -49,14 +44,5 @@ export class AllowanceService extends BaseService<AllowanceSalaryDocument> {
 
   async delete(id: any, ...args): Promise<void> {
     await this.allowanceModel.updateOne({ _id: id }, { deleted: true });
-  }
-
-  async allowanceSalaryTotal(): Promise<number> {
-    const salaries = await this.findAll();
-    const amount = salaries.data
-      .map((basicSalary: BasicSalary) => basicSalary.amount)
-      .reduce((accumulator, currentValue) => accumulator + currentValue);
-    console.log(amount);
-    return amount;
   }
 }

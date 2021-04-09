@@ -1,5 +1,5 @@
 // import { ISalaryDto } from "@/common/dtos/create-salary.dto";
 
-import { ISalaryDto } from "../../../../../../common/dtos/create-salary.dto";
+import { ICreateSalaryDto } from "../../../../../../common/dtos/create-salary.dto";
 
-export class CreateBasicSalaryDto extends ISalaryDto {}
+export class CreateBasicSalaryDto extends ICreateSalaryDto {}

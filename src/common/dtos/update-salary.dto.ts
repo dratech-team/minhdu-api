@@ -4,10 +4,14 @@ import { Type } from "class-transformer";
 export class IUpdateSalaryDto {
   @IsString()
   @IsOptional()
-  title?: string;
+  title: string;
 
   @Type(() => Number)
   @IsOptional()
   @IsNumber()
-  amount?: number;
+  price: number;
+
+  @IsOptional()
+  @IsString()
+  note: string;
 }
