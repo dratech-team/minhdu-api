@@ -2,8 +2,10 @@ import { Document, Model, Types } from "mongoose";
 import { InjectModel } from "@nestjs/mongoose";
 import { IBaseService } from "./ibase.service";
 import { HttpException } from "@nestjs/common";
-import { PaginatorOptions } from "@/core/crud-base/interface/pagination.interface";
-import { CorePaginateResult } from "@/core/interfaces/pagination";
+import { PaginatorOptions } from "./interface/pagination.interface";
+import { CorePaginateResult } from "../interfaces/pagination";
+// import { PaginatorOptions } from "@/core/crud-base/interface/pagination.interface";
+// import { CorePaginateResult } from "@/core/interfaces/pagination";
 
 export class BaseService<T extends Document> implements IBaseService<T> {
   constructor(@InjectModel("") private model: Model<T>) {}

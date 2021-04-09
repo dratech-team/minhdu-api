@@ -14,9 +14,11 @@ import {
 import { CreateAllowanceSalaryDto } from "./dto/create-allowance-salary.dto";
 import { Types } from "mongoose";
 import { UpdateAllowanceSalaryDto } from "./dto/update-allowance-salary.dto";
-import { BaseController } from "@/core/crud-base/base-controller";
-import { CorePaginateResult } from "@/core/interfaces/pagination";
+// import { BaseController } from "@/core/crud-base/base-controller";
+// import { CorePaginateResult } from "@/core/interfaces/pagination";
 import { AllowanceService } from "./allowance.service";
+import { BaseController } from "../../../../../core/crud-base/base-controller";
+import { CorePaginateResult } from "../../../../../core/interfaces/pagination";
 
 @Controller("v1/salary/allowance")
 export class AllowanceController extends BaseController<AllowanceSalary> {

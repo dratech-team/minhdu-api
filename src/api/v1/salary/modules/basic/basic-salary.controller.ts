@@ -12,8 +12,10 @@ import { CreateBasicSalaryDto } from "./dto/create-basic-salary.dto";
 import { BasicSalaryService } from "./basic-salary.service";
 import { Types } from "mongoose";
 import { UpdateBasicSalaryDto } from "./dto/update-basic-salary.dto";
-import { BaseController } from "@/core/crud-base/base-controller";
-import { CorePaginateResult } from "@/core/interfaces/pagination";
+import { BaseController } from "../../../../../core/crud-base/base-controller";
+import { CorePaginateResult } from "../../../../../core/interfaces/pagination";
+// import { BaseController } from "@/core/crud-base/base-controller";
+// import { CorePaginateResult } from "@/core/interfaces/pagination";
 
 @Controller("v1/salary/basic")
 export class BasicSalaryController extends BaseController<BasicSalary> {

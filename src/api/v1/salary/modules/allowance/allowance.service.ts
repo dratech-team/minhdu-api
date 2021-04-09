@@ -6,11 +6,15 @@ import {
   AllowanceSalaryDocument,
 } from "./schema/allowance-salary.schema";
 import { CreateAllowanceSalaryDto } from "./dto/create-allowance-salary.dto";
-import { PaginatorOptions } from "@/core/crud-base/interface/pagination.interface";
-import { CorePaginateResult } from "@/core/interfaces/pagination";
-import { BaseService } from "@/core/crud-base/base.service";
-import { ModelName } from "@/core/constants/database.constant";
 import { BasicSalary } from "../basic/schema/basic-salary.schema";
+import { BaseService } from "../../../../../core/crud-base/base.service";
+import { ModelName } from "../../../../../core/constants/database.constant";
+import { PaginatorOptions } from "../../../../../core/crud-base/interface/pagination.interface";
+import { CorePaginateResult } from "../../../../../core/interfaces/pagination";
+// import { PaginatorOptions } from "@/core/crud-base/interface/pagination.interface";
+// import { CorePaginateResult } from "@/core/interfaces/pagination";
+// import { ModelName } from "@/core/constants/database.constant";
+// import { BaseService } from "@/core/crud-base/base.service";
 
 @Injectable()
 export class AllowanceService extends BaseService<AllowanceSalaryDocument> {

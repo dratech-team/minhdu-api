@@ -1,9 +1,13 @@
 import { HttpException, HttpStatus, Injectable } from "@nestjs/common";
 import { ObjectId } from "mongodb";
-import { ConfigService } from "@/core/config/config.service";
-import { MyLoggerService } from "@/core/services/mylogger.service";
-import { ERROR_CODE } from "@/core/constants/error.constant";
-import { USER_TYPE } from "@/core/constants/role-type.constant";
+import { MyLoggerService } from "./mylogger.service";
+import { ConfigService } from "../config/config.service";
+import { USER_TYPE } from "../constants/role-type.constant";
+import { ERROR_CODE } from "../constants/error.constant";
+// import { ConfigService } from "@/core/config/config.service";
+// import { MyLoggerService } from "@/core/services/mylogger.service";
+// import { ERROR_CODE } from "@/core/constants/error.constant";
+// import { USER_TYPE } from "@/core/constants/role-type.constant";
 
 @Injectable()
 export class ErrorService {

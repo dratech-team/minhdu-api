@@ -1,6 +1,8 @@
 import { Types } from "mongoose";
-import { PaginatorOptions } from "@/core/crud-base/interface/pagination.interface";
-import { CorePaginateResult } from "@/core/interfaces/pagination";
+import { PaginatorOptions } from "./interface/pagination.interface";
+import { CorePaginateResult } from "../interfaces/pagination";
+// import { PaginatorOptions } from "@/core/crud-base/interface/pagination.interface";
+// import { CorePaginateResult } from "@/core/interfaces/pagination";
 
 export interface IBaseService<ResultType> {
   create(payload: any, ...args: any[]): Promise<ResultType>;

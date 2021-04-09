@@ -7,11 +7,14 @@ import { UserModule } from "./api/v1/user/user.module";
 import { CampModule } from "./api/v1/camp/camp.module";
 import { AreaModule } from "./api/v1/area/area.module";
 import { BasicSalaryModule } from "./api/v1/salary/modules/basic/basic-salary.module";
-import { ConfigModule } from "@/core/config/config.module";
-import { ConfigService } from "@/core/config/config.service";
-import { LoggerMiddleware } from "@/core/middlewares/logger.middleware";
+// import { ConfigModule } from "@/core/config/config.module";
+// import { ConfigService } from "@/core/config/config.service";
+// import { LoggerMiddleware } from "@/core/middlewares/logger.middleware";
 import { BasicSalaryService } from "./api/v1/salary/modules/basic/basic-salary.service";
-import { MyLoggerService } from "@/core/services/mylogger.service";
+import { ConfigService } from "./core/config/config.service";
+import { ConfigModule } from "./core/config/config.module";
+import { LoggerMiddleware } from "./core/middlewares/logger.middleware";
+// import { MyLoggerService } from "@/core/services/mylogger.service";
 
 @Module({
   imports: [

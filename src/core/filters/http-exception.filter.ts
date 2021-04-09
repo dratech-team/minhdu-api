@@ -1,6 +1,8 @@
 import { ArgumentsHost, Catch, HttpException } from "@nestjs/common";
-import { IError } from "@/core/interfaces/error.interface";
-import { CustomException, SendData } from "@/core/filters/custom-exception";
+import { CustomException, SendData } from "./custom-exception";
+import { IError } from "../interfaces/error.interface";
+// import { IError } from "@/core/interfaces/error.interface";
+// import { CustomException, SendData } from "@/core/filters/custom-exception";
 
 @Catch(HttpException)
 export class HttpExceptionFilter extends CustomException<HttpException> {

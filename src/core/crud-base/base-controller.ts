@@ -2,8 +2,10 @@ import { Get, Post, Delete, Put, Body, Param, Query } from "@nestjs/common";
 import { ApiResponse } from "@nestjs/swagger";
 import { IBaseService } from "./ibase.service";
 import { Types } from "mongoose";
-import { PaginatorOptions } from "@/core/crud-base/interface/pagination.interface";
-import { CorePaginateResult } from "@/core/interfaces/pagination";
+import { CorePaginateResult } from "../interfaces/pagination";
+import { PaginatorOptions } from "./interface/pagination.interface";
+// import { PaginatorOptions } from "@/core/crud-base/interface/pagination.interface";
+// import { CorePaginateResult } from "@/core/interfaces/pagination";
 
 export class BaseController<T, DTO = any> {
   constructor(private readonly IBaseService: IBaseService<T>) {}

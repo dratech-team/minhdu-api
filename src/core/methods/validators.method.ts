@@ -1,5 +1,6 @@
 import * as bcrypt from "bcrypt";
-import { IUser } from "@/core/interfaces/user.interface";
+import { IUser } from "../interfaces/user.interface";
+// import { IUser } from "@/core/interfaces/user.interface";
 
 const SALT_ROUND = 10;
 

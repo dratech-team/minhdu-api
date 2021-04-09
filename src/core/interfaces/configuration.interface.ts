@@ -1,4 +1,6 @@
-import { NODE_ENV } from "@/core/constants/config.constant";
+// import { NODE_ENV } from "@/core/constants/config.constant";
+
+import { NODE_ENV } from "../constants/config.constant";
 
 export interface EnvConfig {
   [key: string]: string;
