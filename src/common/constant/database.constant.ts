@@ -5,4 +5,5 @@ export enum ModelName {
   ALLOWANCE_SALARY = "AllowanceSalary",
   OVERTIME_SALARY = "OvertimeSalary",
   LOAN_SALARY = "LoanSalary",
+  DEDUCTION_SALARY = "DeductionSalary",
 }

@@ -39,4 +39,9 @@ export class LoanSalaryService extends BaseService<LoanSalaryDocument> {
   async delete(id: Types.ObjectId, ...args): Promise<void> {
     await this.loanModel.updateOne({ _id: id }, { deleted: true });
   }
+
+  async loanSalaryTotal(): Promise<number> {
+    const salaries = await this.findAll();
+    return salaries.data.map((e) => e.price).reduce((x, y) => x + y);
+  }
 }

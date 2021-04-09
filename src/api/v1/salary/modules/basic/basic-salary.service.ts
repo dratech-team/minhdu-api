@@ -45,4 +45,11 @@ export class BasicSalaryService extends BaseService<BasicSalaryDocument> {
   async delete(id: Types.ObjectId, ...args): Promise<void> {
     await this.basicSalaryModel.updateOne({ _id: id }, { deleted: true });
   }
+
+  async basicSalaryTotal(): Promise<number> {
+    const salaries = await this.findAll();
+    return salaries.data
+      .map((e) => e.price)
+      .reduce((previousValue, currentValue) => previousValue + currentValue);
+  }
 }

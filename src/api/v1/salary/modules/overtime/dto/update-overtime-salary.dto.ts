@@ -18,9 +18,4 @@ export class UpdateOvertimeSalaryDto extends IUpdateSalaryDto {
   @IsNumber()
   @IsOptional()
   times: number;
-
-  // @Type(() => Number)
-  // @IsNumber()
-  // @IsOptional()
-  // amount: number;
 }

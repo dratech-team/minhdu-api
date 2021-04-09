@@ -45,4 +45,11 @@ export class AllowanceService extends BaseService<AllowanceSalaryDocument> {
   async delete(id: any, ...args): Promise<void> {
     await this.allowanceModel.updateOne({ _id: id }, { deleted: true });
   }
+
+  async allowanceSalaryTotal(): Promise<number> {
+    const salaries = await this.findAll();
+    return salaries.data
+      .map((e) => e.price)
+      .reduce((previousValue, currentValue) => previousValue + currentValue);
+  }
 }
