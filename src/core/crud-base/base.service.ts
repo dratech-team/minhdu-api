@@ -8,9 +8,9 @@ import { CorePaginateResult } from "../interfaces/pagination";
 export class BaseService<T extends Document> implements IBaseService<T> {
   constructor(@InjectModel("") private model: Model<T>) {}
 
-  async create(payload: any, ...args: any[]): Promise<any> {
+  async create(body: any, ...args: any[]): Promise<any> {
     try {
-      const createdItem: any = new this.model(payload);
+      const createdItem: any = new this.model(body);
       return await createdItem.save();
     } catch (e) {
       throw new HttpException(e.message || e, e.status || 500);

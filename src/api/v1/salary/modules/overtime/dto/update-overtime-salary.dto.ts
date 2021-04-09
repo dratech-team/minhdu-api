@@ -1,11 +1,5 @@
 import { IUpdateSalaryDto } from "../../../../../../common/dtos/update-salary.dto";
-import {
-  IsEnum,
-  IsIn,
-  IsNotEmpty,
-  IsNumber,
-  IsOptional,
-} from "class-validator";
+import { IsIn, IsNumber, IsOptional } from "class-validator";
 import { Type } from "class-transformer";
 import { OvertimeType } from "../overtime-type.enum";
 

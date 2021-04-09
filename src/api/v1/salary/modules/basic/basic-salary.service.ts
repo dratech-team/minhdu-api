@@ -5,7 +5,6 @@ import { BasicSalary, BasicSalaryDocument } from "./schema/basic-salary.schema";
 import { UpdateBasicSalaryDto } from "./dto/update-basic-salary.dto";
 import { BaseService } from "../../../../../core/crud-base/base.service";
 import { ModelName } from "../../../../../common/constant/database.constant";
-import { MyLoggerService } from "../../../../../core/services/mylogger.service";
 import { PaginatorOptions } from "../../../../../core/crud-base/interface/pagination.interface";
 import { CorePaginateResult } from "../../../../../core/interfaces/pagination";
 
@@ -13,8 +12,7 @@ import { CorePaginateResult } from "../../../../../core/interfaces/pagination";
 export class BasicSalaryService extends BaseService<BasicSalaryDocument> {
   constructor(
     @InjectModel(ModelName.BASIC_SALARY)
-    private readonly basicSalaryModel: Model<BasicSalaryDocument>,
-    private readonly logService: MyLoggerService
+    private readonly basicSalaryModel: Model<BasicSalaryDocument>
   ) {
     super(basicSalaryModel);
   }

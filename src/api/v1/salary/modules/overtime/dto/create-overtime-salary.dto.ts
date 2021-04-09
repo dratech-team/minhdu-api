@@ -1,5 +1,5 @@
 import { ICreateSalaryDto } from "../../../../../../common/dtos/create-salary.dto";
-import { IsEnum, IsIn, IsNotEmpty, IsNumber } from "class-validator";
+import { IsIn, IsNotEmpty, IsNumber } from "class-validator";
 import { Type } from "class-transformer";
 import { OvertimeType } from "../overtime-type.enum";
 
