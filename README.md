@@ -1,17 +1,15 @@
-## Description
-
-# KHO:
-  - [Sơ đồ HT](https://bit.ly/3bndXEa)
-  - [Sơ đồ phân cấp kho](https://bit.ly/3v3dDlK)
-  - [Sơ đồ phân cấp nhà máy ấp](https://bit.ly/2PIYvtI)
-  - [Sơ đồ phân cấp vật tư](https://bit.ly/38gand5)
-
-# Bán hàng
-
-  - [Sơ đồ phân cấp trứng](https://bit.ly/30m3mTs)
-
 ##  Cài đặt
 
+1/ Cài nestjs cli
+```bash
+$ npm i -g @nestjs/cli
+```
+
+2/ Chạy docker compose để tải xuống môi trường mongodb
+```bash
+$ docker-compose up
+```
+3/ Cài node modules
 ```bash
 $ npm install
 ```
@@ -19,10 +17,7 @@ $ npm install
 ## Running the app
 
 ```bash
-# development
-$ npm run start
-
-# watch mode
+# Run ở môi trường dev
 $ npm run start:dev
 
 # production mode
@@ -41,6 +36,18 @@ $ npm run test:e2e
 # test coverage
 $ npm run test:cov
 ```
+
+## Description
+
+# KHO:
+  - [Sơ đồ HT](https://bit.ly/3bndXEa)
+  - [Sơ đồ phân cấp kho](https://bit.ly/3v3dDlK)
+  - [Sơ đồ phân cấp nhà máy ấp](https://bit.ly/2PIYvtI)
+  - [Sơ đồ phân cấp vật tư](https://bit.ly/38gand5)
+
+# Bán hàng
+
+  - [Sơ đồ phân cấp trứng](https://bit.ly/30m3mTs)
 
 ## Hỗ trợ
 
