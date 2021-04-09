@@ -1,7 +1,7 @@
 import { Test, TestingModule } from "@nestjs/testing";
 import { BasicSalaryService } from "./basic-salary.service";
 import { MongooseModule } from "@nestjs/mongoose";
-import { ModelName } from "../../../../../core/constants/database.constant";
+import { ModelName } from "../../../../../common/constant/database.constant";
 import { BasicSalarySchema } from "./schema/basic-salary.schema";
 
 describe("BasicSalaryService", () => {

@@ -1,6 +1,5 @@
 import { Prop, Schema } from "@nestjs/mongoose";
 import { BaseSchema } from "../../core/schema/base.schema";
-// import { BaseSchema } from "@/core/schema/base.schema";
 
 @Schema()
 export class ISalary extends BaseSchema {
@@ -8,5 +7,8 @@ export class ISalary extends BaseSchema {
   title: string;
 
   @Prop()
-  amount: number;
+  price: number;
+
+  @Prop()
+  note: string;
 }

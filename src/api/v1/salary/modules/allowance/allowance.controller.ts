@@ -7,15 +7,10 @@ import {
   Post,
   Put,
 } from "@nestjs/common";
-import {
-  AllowanceSalary,
-  AllowanceSalaryDocument,
-} from "./schema/allowance-salary.schema";
+import { AllowanceSalary } from "./schema/allowance-salary.schema";
 import { CreateAllowanceSalaryDto } from "./dto/create-allowance-salary.dto";
 import { Types } from "mongoose";
 import { UpdateAllowanceSalaryDto } from "./dto/update-allowance-salary.dto";
-// import { BaseController } from "@/core/crud-base/base-controller";
-// import { CorePaginateResult } from "@/core/interfaces/pagination";
 import { AllowanceService } from "./allowance.service";
 import { BaseController } from "../../../../../core/crud-base/base-controller";
 import { CorePaginateResult } from "../../../../../core/interfaces/pagination";
