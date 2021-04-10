@@ -5,7 +5,7 @@ import { InjectModel } from "@nestjs/mongoose";
 import { ObjectId } from "mongodb";
 import { ModelName } from "../../../common/constant/database.constant";
 import { IRole } from "../../../core/interfaces/role.interface";
-import { USER_TYPE } from "../../../core/constants/role-type.constant";
+import { UserType } from "../../../core/constants/role-type.constant";
 // import { IRole } from "@/core/interfaces/role.interface";
 // import { ModelName } from "@/core/constants/database.constant";
 // import { USER_TYPE } from "@/core/constants/role-type.constant";
@@ -26,7 +26,7 @@ export class RoleService {
 
   async addUserRole(
     userId: ObjectId,
-    roleType: USER_TYPE = USER_TYPE.NONE
+    roleType: UserType = UserType.NONE
   ): Promise<IRole> {
     const role = await this.roleModel.findOne({
       userId,
@@ -53,19 +53,19 @@ export class RoleService {
 
   async findUserRole(
     userId: ObjectId,
-    roleType: USER_TYPE = USER_TYPE.NONE
+    roleType: UserType = UserType.NONE
   ): Promise<IRole> {
     return this.roleModel.findOne({ userId, type: roleType });
   }
 
-  async getUserRole(userId: ObjectId): Promise<USER_TYPE> {
+  async getUserRole(userId: ObjectId): Promise<UserType> {
     const role = await this.roleModel.findOne({ userId });
     return role?.type || null;
   }
 
   async setUpRoles(
     usersIds: ObjectId[],
-    roleType: USER_TYPE = USER_TYPE.NONE
+    roleType: UserType = UserType.NONE
   ): Promise<void> {
     const roles = usersIds.map((userId) => ({
       userId,
@@ -77,17 +77,17 @@ export class RoleService {
   async setAdminRole(userId: ObjectId): Promise<IRole> {
     const role = await this.roleModel.findOne({
       userId,
-      type: USER_TYPE.ADMIN,
+      type: UserType.ADMIN,
     });
     if (!role) {
-      return this.roleModel.create({ userId, type: USER_TYPE.ADMIN } as IRole);
+      return this.roleModel.create({ userId, type: UserType.ADMIN } as IRole);
     }
     return role;
   }
 
   async updateUserRole(
     userId: ObjectId,
-    roleType: USER_TYPE = USER_TYPE.NONE
+    roleType: UserType = UserType.NONE
   ): Promise<void> {
     const role = await this.roleModel.findOne({ userId });
     if (!role) {
@@ -143,7 +143,7 @@ export class RoleService {
     const roles = (await this.roleModel.aggregate([
       {
         $match: {
-          type: USER_TYPE.ADMIN,
+          type: UserType.ADMIN,
         },
       },
     ])) as IRole[];

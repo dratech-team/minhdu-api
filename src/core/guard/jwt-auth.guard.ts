@@ -8,7 +8,7 @@ import { Reflector } from "@nestjs/core";
 import { AuthGuard } from "@nestjs/passport";
 import { ErrorService } from "../services/error.service";
 import { IProfile } from "../interfaces/profile.interface";
-import { USER_TYPE } from "../constants/role-type.constant";
+import { UserType } from "../constants/role-type.constant";
 import { ERROR_CODE } from "../constants/error.constant";
 
 /**
@@ -49,7 +49,7 @@ export class JwtAuthGuard extends AuthGuard("jwt") {
   }
 
   getUserTypes(context: ExecutionContext) {
-    return this.reflector.get<USER_TYPE[]>("roles", context.getHandler());
+    return this.reflector.get<UserType[]>("roles", context.getHandler());
   }
 
   // Todo: errorService here

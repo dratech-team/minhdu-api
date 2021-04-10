@@ -33,7 +33,7 @@ export class BaseController<T, DTO = any> {
     description: "Entity retrieved successfully.",
   })
   @ApiResponse({ status: 404, description: "Entity does not exist" })
-  async findById(@Param("id") id: any, ...args: any[]): Promise<T> {
+  async findById(@Param("id") id: Types.ObjectId, ...args: any[]): Promise<T> {
     return await this.IBaseService.findOne(id);
   }
 
