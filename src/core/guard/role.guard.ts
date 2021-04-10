@@ -1,7 +1,7 @@
 import { Injectable, CanActivate, ExecutionContext } from "@nestjs/common";
 import { Observable } from "rxjs";
 import { Reflector } from "@nestjs/core";
-import { USER_TYPE } from "../constants/role-type.constant";
+import { UserType } from "../constants/role-type.constant";
 import { IAppRequest } from "../interfaces/app-request.interface";
 // import { USER_TYPE } from "@/core/constants/role-type.constant";
 // import { IAppRequest } from "@/core/interfaces/app-request.interface";
@@ -14,7 +14,7 @@ export class RolesGuard implements CanActivate {
     context: ExecutionContext
   ): boolean | Promise<boolean> | Observable<boolean> {
     const roles =
-      this.reflector.get<USER_TYPE[]>("roles", context.getHandler()) || [];
+      this.reflector.get<UserType[]>("roles", context.getHandler()) || [];
     if (!roles || !roles.length) {
       return true;
     }
@@ -22,7 +22,7 @@ export class RolesGuard implements CanActivate {
     return this.validateRolesRequest(request, roles);
   }
 
-  validateRolesRequest(request: IAppRequest, roles: USER_TYPE[]): boolean {
+  validateRolesRequest(request: IAppRequest, roles: UserType[]): boolean {
     return roles.includes(request?.user?.user?.userType);
   }
 }

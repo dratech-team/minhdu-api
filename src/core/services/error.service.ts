@@ -2,7 +2,7 @@ import { HttpException, HttpStatus, Injectable } from "@nestjs/common";
 import { ObjectId } from "mongodb";
 import { MyLoggerService } from "./mylogger.service";
 import { ConfigService } from "../config/config.service";
-import { USER_TYPE } from "../constants/role-type.constant";
+import { UserType } from "../constants/role-type.constant";
 import { ERROR_CODE } from "../constants/error.constant";
 // import { ConfigService } from "@/core/config/config.service";
 // import { MyLoggerService } from "@/core/services/mylogger.service";
@@ -18,8 +18,8 @@ export class ErrorService {
   constructor(public readonly configService: ConfigService) {}
 
   public async throwErrorWrongRole(
-    userType: USER_TYPE,
-    userTypes: USER_TYPE[]
+    userType: UserType,
+    userTypes: UserType[]
   ): Promise<void> {
     throw new HttpException(
       {

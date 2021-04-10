@@ -4,8 +4,6 @@ import { IBaseService } from "./ibase.service";
 import { Types } from "mongoose";
 import { CorePaginateResult } from "../interfaces/pagination";
 import { PaginatorOptions } from "./interface/pagination.interface";
-// import { PaginatorOptions } from "@/core/crud-base/interface/pagination.interface";
-// import { CorePaginateResult } from "@/core/interfaces/pagination";
 
 export class BaseController<T, DTO = any> {
   constructor(private readonly IBaseService: IBaseService<T>) {}
@@ -33,7 +31,7 @@ export class BaseController<T, DTO = any> {
     description: "Entity retrieved successfully.",
   })
   @ApiResponse({ status: 404, description: "Entity does not exist" })
-  async findById(@Param("id") id: any, ...args: any[]): Promise<T> {
+  async findById(@Param("id") id: Types.ObjectId, ...args: any[]): Promise<T> {
     return await this.IBaseService.findOne(id);
   }
 
