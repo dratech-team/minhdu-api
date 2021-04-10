@@ -11,8 +11,7 @@ import { DeductionSalarySchema } from "./schema/deduction-salary.schema";
       { name: ModelName.DEDUCTION_SALARY, schema: DeductionSalarySchema },
     ]),
   ],
-  providers: [DeductionService],
   controllers: [DeductionSalaryController],
-  exports: [DeductionService],
+  providers: [DeductionService],
 })
 export class DeductionSalaryModule {}

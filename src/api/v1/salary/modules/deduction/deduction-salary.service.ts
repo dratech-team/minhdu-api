@@ -9,10 +9,15 @@ import { CreateDeductionSalaryDto } from "./dto/create-deduction-salary.dto";
 import { PaginatorOptions } from "../../../../../core/crud-base/interface/pagination.interface";
 import { CorePaginateResult } from "../../../../../core/interfaces/pagination";
 import { AbsentType } from "./absent-type.enum";
+import { InjectModel } from "@nestjs/mongoose";
+import { ModelName } from "../../../../../common/constant/database.constant";
 
 @Injectable()
 export class DeductionService extends BaseService<DeductionSalaryDocument> {
-  constructor(private readonly deductionModel: Model<DeductionSalaryDocument>) {
+  constructor(
+    @InjectModel(ModelName.DEDUCTION_SALARY)
+    private readonly deductionModel: Model<DeductionSalaryDocument>
+  ) {
     super(deductionModel);
   }
 

@@ -8,4 +8,5 @@ export enum ModelName {
   DEDUCTION_SALARY = "DeductionSalary",
   OTHER_SALARY = "OtherSalary",
   POSITION = "Position",
+  USER = "User",
 }
