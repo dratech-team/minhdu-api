@@ -1,13 +1,14 @@
 import {
-  IsEnum,
+  IsEnum, IsMongoId,
   IsNotEmpty,
   IsNumber,
   IsString,
   ValidateNested,
 } from "class-validator";
-import { Type } from "class-transformer";
-import { UserType } from "../../../../core/constants/role-type.constant";
-import { User } from "../../user/schema/user.schema";
+import {Type} from "class-transformer";
+import {UserType} from "../../../../core/constants/role-type.constant";
+import {User} from "../../user/schema/user.schema";
+import {ObjectId} from "mongodb";
 
 export class CreatePositionDto {
   @IsString()
@@ -19,10 +20,8 @@ export class CreatePositionDto {
   @IsNotEmpty()
   readonly wordDay: number;
 
-  @IsEnum(UserType)
+  @Type(() => ObjectId)
   @IsNotEmpty()
-  readonly userType: UserType;
-
-  @ValidateNested()
-  readonly userId: User;
+  @IsMongoId()
+  readonly departmentId: ObjectId;
 }

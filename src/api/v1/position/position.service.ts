@@ -19,6 +19,7 @@ export class PositionService extends BaseService<PositionDocument> {
   }
 
   async create(body: CreatePositionDto, ...args): Promise<Position> {
+
     return super.create(body, ...args);
   }
 
