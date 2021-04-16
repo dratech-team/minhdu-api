@@ -1,7 +1,5 @@
-import { Document, Types } from "mongoose";
+import { Document } from "mongoose";
 import { Prop, Schema, SchemaFactory } from "@nestjs/mongoose";
-import { UserType } from "../../../../core/constants/role-type.constant";
-import { User } from "../../user/schema/user.schema";
 import { BaseDocument } from "../../../../core/schema/base.schema";
 
 export type PositionDocument = Position & Document;
@@ -12,13 +10,7 @@ export class Position extends BaseDocument {
   position: string;
 
   @Prop()
-  wordDay: number;
-
-  @Prop()
-  userType: UserType;
-
-  @Prop({ type: Types.ObjectId, ref: "User" })
-  userId: User;
+  workDay: number;
 }
 
 export const PositionSchema = SchemaFactory.createForClass(Position);

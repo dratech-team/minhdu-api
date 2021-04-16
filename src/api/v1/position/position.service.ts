@@ -8,6 +8,7 @@ import { CorePaginateResult } from "../../../core/interfaces/pagination";
 import { UpdatePositionDto } from "./dto/update-position.dto";
 import { InjectModel } from "@nestjs/mongoose";
 import { ModelName } from "../../../common/constant/database.constant";
+import { ObjectId } from "mongodb";
 
 @Injectable()
 export class PositionService extends BaseService<PositionDocument> {
@@ -22,7 +23,7 @@ export class PositionService extends BaseService<PositionDocument> {
     return super.create(body, ...args);
   }
 
-  async findOne(id: Types.ObjectId, ...args): Promise<Position> {
+  async findOne(id: ObjectId, ...args): Promise<Position> {
     return super.findOne(id, ...args);
   }
 
@@ -34,14 +35,14 @@ export class PositionService extends BaseService<PositionDocument> {
   }
 
   async update(
-    id: Types.ObjectId,
+    id: ObjectId,
     updates: UpdatePositionDto,
     ...args
   ): Promise<Position> {
     return super.update(id, updates, ...args);
   }
 
-  async delete(id: Types.ObjectId, ...args): Promise<void> {
-    await this.positionModel.updateOne({ _id: id }, { deleted: true });
+  async delete(id: ObjectId, ...args): Promise<void> {
+    return super.delete(id, ...args);
   }
 }

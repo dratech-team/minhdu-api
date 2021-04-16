@@ -14,6 +14,7 @@ import { CreatePositionDto } from "./dto/create-position.dto";
 import { Types } from "mongoose";
 import { CorePaginateResult } from "../../../core/interfaces/pagination";
 import { UpdatePositionDto } from "./dto/update-position.dto";
+import { ObjectId } from "mongodb";
 
 @Controller("v1/position")
 export class PositionController extends BaseController<Position> {
@@ -27,7 +28,7 @@ export class PositionController extends BaseController<Position> {
   }
 
   @Get(":id")
-  async findById(@Param("id") id: Types.ObjectId, ...args): Promise<Position> {
+  async findById(@Param("id") id: ObjectId, ...args): Promise<Position> {
     return super.findById(id, ...args);
   }
 
@@ -43,14 +44,14 @@ export class PositionController extends BaseController<Position> {
   @Put(":id")
   async update(
     @Body() updates: UpdatePositionDto,
-    @Param("id") id: Types.ObjectId,
+    @Param("id") id: ObjectId,
     ...args
   ): Promise<Position> {
     return super.update(updates, id, ...args);
   }
 
-  @Delete()
-  async delete(@Param("id") id: Types.ObjectId, ...args): Promise<void> {
+  @Delete(":id")
+  async delete(@Param("id") id: ObjectId, ...args): Promise<void> {
     return super.delete(id, ...args);
   }
 }

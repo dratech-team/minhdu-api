@@ -1,13 +1,5 @@
-import {
-  IsEnum,
-  IsNotEmpty,
-  IsNumber,
-  IsString,
-  ValidateNested,
-} from "class-validator";
+import { IsNotEmpty, IsNumber, IsString } from "class-validator";
 import { Type } from "class-transformer";
-import { UserType } from "../../../../core/constants/role-type.constant";
-import { User } from "../../user/schema/user.schema";
 
 export class CreatePositionDto {
   @IsString()
@@ -17,12 +9,5 @@ export class CreatePositionDto {
   @Type(() => Number)
   @IsNumber()
   @IsNotEmpty()
-  readonly wordDay: number;
-
-  @IsEnum(UserType)
-  @IsNotEmpty()
-  readonly userType: UserType;
-
-  @ValidateNested()
-  readonly userId: User;
+  readonly workDay: number;
 }
