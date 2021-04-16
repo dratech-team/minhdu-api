@@ -1,13 +1,13 @@
 import { Document, Types } from "mongoose";
 import { Prop, Schema, SchemaFactory } from "@nestjs/mongoose";
-import { BaseSchema } from "../../../../core/schema/base.schema";
 import { UserType } from "../../../../core/constants/role-type.constant";
 import { User } from "../../user/schema/user.schema";
+import { BaseDocument } from "../../../../core/schema/base.schema";
 
 export type PositionDocument = Position & Document;
 
 @Schema()
-export class Position extends BaseSchema {
+export class Position extends BaseDocument {
   @Prop()
   position: string;
 

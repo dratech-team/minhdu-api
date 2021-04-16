@@ -1,9 +1,9 @@
 import { Prop, Schema } from "@nestjs/mongoose";
-import { BaseSchema } from "../../core/schema/base.schema";
 import { UserType } from "../../core/constants/role-type.constant";
+import { BaseDocument } from "../../core/schema/base.schema";
 
 @Schema()
-export class IUser extends BaseSchema {
+export class IUser extends BaseDocument {
   @Prop({ required: false })
   email: string;
 

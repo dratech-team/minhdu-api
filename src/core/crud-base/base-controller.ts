@@ -1,9 +1,9 @@
 import { Get, Post, Delete, Put, Body, Param, Query } from "@nestjs/common";
 import { ApiResponse } from "@nestjs/swagger";
 import { IBaseService } from "./ibase.service";
-import { Types } from "mongoose";
 import { CorePaginateResult } from "../interfaces/pagination";
 import { PaginatorOptions } from "./interface/pagination.interface";
+import { ObjectId } from "mongodb";
 
 export class BaseController<T, DTO = any> {
   constructor(private readonly IBaseService: IBaseService<T>) {}
@@ -31,7 +31,7 @@ export class BaseController<T, DTO = any> {
     description: "Entity retrieved successfully.",
   })
   @ApiResponse({ status: 404, description: "Entity does not exist" })
-  async findById(@Param("id") id: Types.ObjectId, ...args: any[]): Promise<T> {
+  async findById(@Param("id") id: ObjectId, ...args: any[]): Promise<T> {
     return await this.IBaseService.findOne(id);
   }
 
@@ -53,7 +53,7 @@ export class BaseController<T, DTO = any> {
   })
   @ApiResponse({ status: 400, description: "Bad Request." })
   @ApiResponse({ status: 404, description: "Entity does not exist" })
-  async delete(@Param("id") id: Types.ObjectId, ...args: any[]): Promise<void> {
+  async delete(@Param("id") id: ObjectId, ...args: any[]): Promise<void> {
     return await this.IBaseService.delete(id);
   }
 
@@ -66,7 +66,7 @@ export class BaseController<T, DTO = any> {
   @ApiResponse({ status: 404, description: "Entity does not exist" })
   async update(
     @Body() updates: DTO,
-    @Param("id") id: Types.ObjectId,
+    @Param("id") id: ObjectId,
     ...args: any[]
   ): Promise<T> {
     return await this.IBaseService.update(id, updates);
