@@ -1,5 +1,6 @@
-import { IsNotEmpty, IsNumber, IsString } from "class-validator";
-import { Type } from "class-transformer";
+import {IsArray, IsMongoId, IsNotEmpty, IsNumber, IsOptional, IsString,} from "class-validator";
+import {Type} from "class-transformer";
+import {ObjectId} from "mongodb";
 
 export class CreatePositionDto {
   @IsString()
@@ -10,4 +11,8 @@ export class CreatePositionDto {
   @IsNumber()
   @IsNotEmpty()
   readonly workDay: number;
+
+  @IsOptional()
+  @IsArray()
+  readonly departmentIds: ObjectId[];
 }

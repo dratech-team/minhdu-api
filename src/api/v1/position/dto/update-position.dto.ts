@@ -1,5 +1,6 @@
-import { IsNumber, IsOptional, IsString } from "class-validator";
-import { Type } from "class-transformer";
+import {IsArray, IsMongoId, IsNumber, IsOptional, IsString} from "class-validator";
+import {Type} from "class-transformer";
+import {ObjectId} from "mongodb";
 
 export class UpdatePositionDto {
   @IsString()
@@ -10,4 +11,8 @@ export class UpdatePositionDto {
   @IsNumber()
   @IsOptional()
   readonly workDay: number;
+
+  @IsOptional()
+  @IsArray()
+  readonly departmentIds: ObjectId[];
 }
