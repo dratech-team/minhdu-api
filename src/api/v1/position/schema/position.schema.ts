@@ -11,11 +11,10 @@ export class Position extends BaseDocument {
   @Prop()
   position: string;
 
-  @Prop()
-  wordDay: number;
+  workDay: number;
 
-  @Prop({type: ObjectId, ref: "Department"})
-  department: Department;
+  @Prop({type: [{type: ObjectId, ref: "Department"}]})
+  departmentIds: Department;
 }
 
 export const PositionSchema = SchemaFactory.createForClass(Position);
