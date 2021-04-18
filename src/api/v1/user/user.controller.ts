@@ -3,23 +3,27 @@ import { JwtAuthGuard } from "../../../core/guard/jwt-auth.guard";
 import { CreateUserDto } from "./dto/create-user.dto";
 import {User} from "./schema/user.schema";
 import {BaseController} from "../../../core/crud-base/base-controller";
+import {UserService} from "./user.service";
 
 @Controller("v1/user")
-export class UserController extends BaseController<User>{
-  // @UseGuards(JwtAuthGuard)
-  @Get("profile")
-  getProfile(@Request() req) {
-    return req.user;
-  }
+export class UserController extends BaseController<User> {
+    constructor( userService: UserService) {
+        super(userService);
+    }
 
-  @Post()
-  async create(
-      @Body() body: CreateUserDto,
-      ...args
-  ): Promise<User> {
-    return super.create(body, ...args);
-  }
+    // @UseGuards(JwtAuthGuard)
+    @Get("profile")
+    getProfile(@Request() req) {
+        return req.user;
+    }
 
+    @Post()
+    async create(@Body() body: CreateUserDto, ...args): Promise<User> {
+        try {
 
-
+            return super.create(body, ...args);
+        } catch (e) {
+            console.log(e);
+        }
+    }
 }
