@@ -2,20 +2,25 @@ import { Injectable } from "@nestjs/common";
 import { BaseService } from "../../../../../core/crud-base/base.service";
 import { OtherSalary, OtherSalaryDocument } from "./schema/other-salary.schema";
 import { Model, Types } from "mongoose";
-import { CreateDeductionSalaryDto } from "../deduction/dto/create-deduction-salary.dto";
 import { PaginatorOptions } from "../../../../../core/crud-base/interface/pagination.interface";
 import { CorePaginateResult } from "../../../../../core/interfaces/pagination";
 import { UpdateOtherSalaryDto } from "./dto/update-other-salary.dto";
 import { OtherType } from "./other-type.enum";
 import { OtherSalaryInterface } from "./interface/other-salary.interface";
+import { CreateOtherSalaryDto } from "./dto/create-other-salary";
+import { InjectModel } from "@nestjs/mongoose";
+import { ModelName } from "../../../../../common/constant/database.constant";
 
 @Injectable()
 export class OtherService extends BaseService<OtherSalaryDocument> {
-  constructor(private readonly otherModel: Model<OtherSalaryDocument>) {
+  constructor(
+    @InjectModel(ModelName.OTHER_SALARY)
+    private readonly otherModel: Model<OtherSalaryDocument>
+  ) {
     super(otherModel);
   }
 
-  async create(body: CreateDeductionSalaryDto, ...args): Promise<OtherSalary> {
+  async create(body: CreateOtherSalaryDto, ...args): Promise<OtherSalary> {
     return super.create(body, ...args);
   }
 

@@ -9,7 +9,7 @@ import { OvertimeModule } from "./modules/overtime/overtime.module";
 import { BasicSalaryModule } from "./modules/basic/basic-salary.module";
 import { LoanSalaryModule } from "./modules/loan/loan-salary.module";
 import { DeductionSalaryModule } from "./modules/deduction/deduction-salary.module";
-import { OtherModule } from './modules/other/other.module';
+import { OtherModule } from "./modules/other/other.module";
 
 @Module({
   imports: [
