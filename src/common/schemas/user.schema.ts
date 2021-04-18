@@ -4,21 +4,38 @@ import { UserType } from "../../core/constants/role-type.constant";
 
 @Schema()
 export class IUser extends BaseSchema {
-  @Prop({ required: false })
-  email: string;
 
-  @Prop({ required: false })
-  password: number;
+  @Prop({ required: true })
+  branchId: string;
 
-  @Prop()
-  userType: UserType;
+  @Prop({ required: true })
+  departmentId: string;
 
-  @Prop()
-  phone: string;
+  @Prop({required: true})
+  position: string;
 
-  @Prop()
+  @Prop({ required: true })
+  userCode: string;
+
+  @Prop({required: true})
   fullName: string;
 
   @Prop()
   address: string;
+
+  @Prop({required: true})
+  dateOfBirth: string;
+
+  @Prop()
+  gender: string;
+
+  @Prop({ required: false })
+  email: string;
+
+  @Prop()
+  phoneNumber: string;
+
+  @Prop()
+  userType: UserType;
+
 }

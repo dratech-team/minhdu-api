@@ -125,4 +125,14 @@ export class BaseService<T extends Document> implements IBaseService<T> {
       throw new HttpException(e.message || e, e.status || 500);
     }
   }
+
+  async count(args?: any[]): Promise<any>{
+    try {
+      let numDocs = await this.model.countDocuments().exec();
+      return numDocs;
+
+    } catch (e) {
+      throw new HttpException(e.message || e, e.status || 500);
+    }
+  }
 }

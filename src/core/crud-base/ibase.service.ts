@@ -25,4 +25,6 @@ export interface IBaseService<ResultType> {
   update(id: Types.ObjectId, payload: any, ...args: any[]): Promise<ResultType>;
 
   delete(id: any, ...args: any[]): Promise<void>;
+
+  count(args?: any[]): Promise<ResultType>;
 }
