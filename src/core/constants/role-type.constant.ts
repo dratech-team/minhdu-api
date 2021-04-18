@@ -1,4 +1,4 @@
-export enum USER_TYPE {
+export enum UserType {
   ADMIN = "ADMIN",
   CHIEF_ACCOUNTANT = "CHIEF_ACCOUNTANT",
   ACCOUNTANT_CASH_FUND = "ACCOUNT_CASH_FUND",
@@ -16,4 +16,4 @@ export enum USER_TYPE {
   NONE = "NONE",
 }
 
-export const ROLE_TYPES_LIST = Object.values(USER_TYPE);
+export const ROLE_TYPES_LIST = Object.values(UserType);

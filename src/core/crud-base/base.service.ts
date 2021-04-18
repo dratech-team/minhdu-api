@@ -34,11 +34,27 @@ export class BaseService<T extends Document> implements IBaseService<T> {
 
   async delete(id: Types.ObjectId, ...args: any[]): Promise<void> {
     // await this.model.updateOne({ _id: id },{ deleted: true });
+    try {
+      console.log(typeof this.model.updateOne());
+      /*this.model.bulkWrite([{updateOne: {
+        filter: {id: id},
+          update: {deleted: true}
+        }}]).then(res =>{
+          console.log(res.modifiedCount);
+      });*/
+      // @ts-ignore
+      await this.model.updateOne({ _id: id },{ deleted: true });
+
+    } catch (e) {
+      throw new HttpException("Server Error" || e, e.status || 500);
+    }
   }
 
   async findOne(id: Types.ObjectId, ...args: any[]): Promise<any> {
     try {
-      const item = await this.model.findById(id).exec();
+      // @ts-ignore
+      const item = await  this.model.findOne({_id: id, deleted: false}).exec();
+      // const item = await this.model.findById(id).exec();
       if (!item) {
         throw new HttpException("Not found", 404);
       }
@@ -70,7 +86,8 @@ export class BaseService<T extends Document> implements IBaseService<T> {
           data: data,
         };
       }
-      const data = await this.model.find().exec();
+      // @ts-ignore
+      const data = await this.model.find({deleted: false}).exec();
       return { total, data };
     } catch (e) {
       throw new HttpException(e.message || e, e.status || 500);

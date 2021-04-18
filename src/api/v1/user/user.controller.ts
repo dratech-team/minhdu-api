@@ -3,7 +3,7 @@ import { JwtAuthGuard } from "../../../core/guard/jwt-auth.guard";
 
 @Controller("v1/user")
 export class UserController {
-  @UseGuards(JwtAuthGuard)
+  // @UseGuards(JwtAuthGuard)
   @Get("profile")
   getProfile(@Request() req) {
     return req.user;

@@ -9,6 +9,8 @@ import { AreaModule } from "./api/v1/area/area.module";
 import { ConfigService } from "./core/config/config.service";
 import { ConfigModule } from "./core/config/config.module";
 import { LoggerMiddleware } from "./core/middlewares/logger.middleware";
+import { PositionModule } from "./api/v1/position/position.module";
+import { DeductionSalaryModule } from "./api/v1/salary/modules/deduction/deduction-salary.module";
 
 @Module({
   imports: [
@@ -30,7 +32,8 @@ import { LoggerMiddleware } from "./core/middlewares/logger.middleware";
     CampModule,
     AreaModule,
     ConfigModule,
-    // AuthModule, public all api for development
+    PositionModule,
+    // AuthModule,
   ],
   controllers: [AppController],
   providers: [AppService],
