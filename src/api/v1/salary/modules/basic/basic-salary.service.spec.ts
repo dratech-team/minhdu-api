@@ -1,7 +1,7 @@
 import { Test, TestingModule } from "@nestjs/testing";
 import { BasicSalaryService } from "./basic-salary.service";
 import { MongooseModule, MongooseModuleAsyncOptions } from "@nestjs/mongoose";
-import { BasicSalaryEntity } from "./entities/basic-salary.entity";
+import { BasicSalarySchema } from "./entities/basic-salary.schema";
 import { BasicSalaryModule } from "./basic-salary.module";
 import { ModelName } from "../../../../../common/constant/database.constant";
 import { ConfigModule } from "../../../../../core/config/config.module";
@@ -28,7 +28,7 @@ describe("BasicSalaryService", () => {
           inject: [ConfigService],
         }),
         MongooseModule.forFeature([
-          { name: ModelName.BASIC_SALARY, schema: BasicSalaryEntity },
+          { name: ModelName.BASIC_SALARY, schema: BasicSalarySchema },
         ]),
         BasicSalaryModule,
       ],

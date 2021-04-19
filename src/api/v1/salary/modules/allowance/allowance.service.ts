@@ -2,9 +2,9 @@ import {Injectable} from "@nestjs/common";
 import {InjectModel} from "@nestjs/mongoose";
 import {Model, Types} from "mongoose";
 import {
-  AllowanceSalary,
+  AllowanceSalaryEntity,
   AllowanceSalaryDocument,
-} from "./entities/allowance-salary.entity";
+} from "./entities/allowance-salary.schema";
 import {CreateAllowanceSalaryDto} from "./dto/create-allowance-salary.dto";
 import {BaseService} from "../../../../../core/crud-base/base.service";
 import {ModelName} from "../../../../../common/constant/database.constant";
@@ -23,18 +23,18 @@ export class AllowanceService extends BaseService<AllowanceSalaryDocument> {
   async create(
     payload: CreateAllowanceSalaryDto,
     ...args
-  ): Promise<AllowanceSalary> {
+  ): Promise<AllowanceSalaryEntity> {
     return await super.create(payload, ...args);
   }
 
-  async findOne(id: Types.ObjectId, ...args): Promise<AllowanceSalary> {
+  async findOne(id: Types.ObjectId, ...args): Promise<AllowanceSalaryEntity> {
     return await super.findOne(id, ...args);
   }
 
   async findAll(
     paginateOpts?: PaginatorOptions,
     ...args
-  ): Promise<CorePaginateResult<AllowanceSalary>> {
+  ): Promise<CorePaginateResult<AllowanceSalaryEntity>> {
     return await super.findAll(paginateOpts, ...args);
   }
 

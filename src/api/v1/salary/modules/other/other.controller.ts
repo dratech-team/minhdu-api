@@ -8,7 +8,7 @@ import {
   Put,
 } from "@nestjs/common";
 import { BaseController } from "../../../../../core/crud-base/base-controller";
-import { OtherSalary } from "./entities/other-salary.entity";
+import { OtherSalaryEntity } from "./entities/other-salary.schema";
 import { OtherService } from "./other.service";
 import { CreateOtherSalaryDto } from "./dto/create-other-salary";
 import { Types } from "mongoose";
@@ -16,7 +16,7 @@ import { CorePaginateResult } from "../../../../../core/interfaces/pagination";
 import { UpdateOtherSalaryDto } from "./dto/update-other-salary.dto";
 
 @Controller("other")
-export class OtherController extends BaseController<OtherSalary> {
+export class OtherController extends BaseController<OtherSalaryEntity> {
   constructor(private readonly service: OtherService) {
     super(service);
   }
@@ -25,7 +25,7 @@ export class OtherController extends BaseController<OtherSalary> {
   async create(
     @Body() body: CreateOtherSalaryDto,
     ...args
-  ): Promise<OtherSalary> {
+  ): Promise<OtherSalaryEntity> {
     return super.create(body, ...args);
   }
 
@@ -33,7 +33,7 @@ export class OtherController extends BaseController<OtherSalary> {
   async findById(
     @Param("id") id: Types.ObjectId,
     ...args
-  ): Promise<OtherSalary> {
+  ): Promise<OtherSalaryEntity> {
     return super.findById(id, ...args);
   }
 
@@ -42,7 +42,7 @@ export class OtherController extends BaseController<OtherSalary> {
     @Param("page") page: number,
     @Param("limit") limit: number,
     ...args
-  ): Promise<CorePaginateResult<OtherSalary>> {
+  ): Promise<CorePaginateResult<OtherSalaryEntity>> {
     return super.findAll(page, limit, ...args);
   }
 
@@ -51,7 +51,7 @@ export class OtherController extends BaseController<OtherSalary> {
     @Body() updates: UpdateOtherSalaryDto,
     @Param("id") id: Types.ObjectId,
     ...args
-  ): Promise<OtherSalary> {
+  ): Promise<OtherSalaryEntity> {
     return super.update(updates, id, ...args);
   }
 

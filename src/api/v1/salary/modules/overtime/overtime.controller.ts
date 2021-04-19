@@ -9,7 +9,7 @@ import {
   Query,
 } from "@nestjs/common";
 import { BaseController } from "../../../../../core/crud-base/base-controller";
-import { OvertimeSalary } from "./entities/overtime-salary.entity";
+import { OvertimeSalaryEntity } from "./entities/overtime-salary.schema";
 import { CreateOvertimeSalaryDto } from "./dto/create-overtime-salary.dto";
 import { CorePaginateResult } from "../../../../../core/interfaces/pagination";
 import { Types } from "mongoose";
@@ -17,7 +17,7 @@ import { UpdateOvertimeSalaryDto } from "./dto/update-overtime-salary.dto";
 import { OvertimeService } from "./overtime.service";
 
 @Controller("v1/salary/overtime")
-export class OvertimeController extends BaseController<OvertimeSalary> {
+export class OvertimeController extends BaseController<OvertimeSalaryEntity> {
   constructor(private readonly service: OvertimeService) {
     super(service);
   }
@@ -26,12 +26,12 @@ export class OvertimeController extends BaseController<OvertimeSalary> {
   async create(
     @Body() body: CreateOvertimeSalaryDto,
     ...args
-  ): Promise<OvertimeSalary> {
+  ): Promise<OvertimeSalaryEntity> {
     return super.create(body, ...args);
   }
 
   @Get(":id")
-  async findById(id: any, ...args): Promise<OvertimeSalary> {
+  async findById(id: any, ...args): Promise<OvertimeSalaryEntity> {
     return await super.findById(id, ...args);
   }
 
@@ -40,7 +40,7 @@ export class OvertimeController extends BaseController<OvertimeSalary> {
     @Query("page") page: number,
     @Query("limit") limit: number,
     ...args
-  ): Promise<CorePaginateResult<OvertimeSalary>> {
+  ): Promise<CorePaginateResult<OvertimeSalaryEntity>> {
     return super.findAll(page, limit, ...args);
   }
 
@@ -49,7 +49,7 @@ export class OvertimeController extends BaseController<OvertimeSalary> {
     @Body() updates: UpdateOvertimeSalaryDto,
     @Param("id") id: Types.ObjectId,
     ...args
-  ): Promise<OvertimeSalary> {
+  ): Promise<OvertimeSalaryEntity> {
     return super.update(updates, id, ...args);
   }
 

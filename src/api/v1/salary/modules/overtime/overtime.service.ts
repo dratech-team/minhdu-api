@@ -1,9 +1,9 @@
 import { Injectable } from "@nestjs/common";
 import { BaseService } from "../../../../../core/crud-base/base.service";
 import {
-  OvertimeSalary,
+  OvertimeSalaryEntity,
   OvertimeSalaryDocument,
-} from "./entities/overtime-salary.entity";
+} from "./entities/overtime-salary.schema";
 import { InjectModel } from "@nestjs/mongoose";
 import { ModelName } from "../../../../../common/constant/database.constant";
 import { Model, Types } from "mongoose";
@@ -27,18 +27,18 @@ export class OvertimeService extends BaseService<OvertimeSalaryDocument> {
   async create(
     body: CreateOvertimeSalaryDto,
     ...args
-  ): Promise<OvertimeSalary> {
+  ): Promise<OvertimeSalaryEntity> {
     return super.create(body, ...args);
   }
 
-  async findOne(id: Types.ObjectId, ...args): Promise<OvertimeSalary> {
+  async findOne(id: Types.ObjectId, ...args): Promise<OvertimeSalaryEntity> {
     return super.findOne(id, ...args);
   }
 
   async findAll(
     paginateOpts?: PaginatorOptions,
     ...args
-  ): Promise<CorePaginateResult<OvertimeSalary>> {
+  ): Promise<CorePaginateResult<OvertimeSalaryEntity>> {
     return super.findAll(paginateOpts, ...args);
   }
 
@@ -46,7 +46,7 @@ export class OvertimeService extends BaseService<OvertimeSalaryDocument> {
     id: Types.ObjectId,
     updates: UpdateOvertimeSalaryDto,
     ...args
-  ): Promise<OvertimeSalary> {
+  ): Promise<OvertimeSalaryEntity> {
     return super.update(id, updates, ...args);
   }
 

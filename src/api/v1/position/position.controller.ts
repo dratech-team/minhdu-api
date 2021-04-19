@@ -8,7 +8,7 @@ import {
   Put,
 } from "@nestjs/common";
 import { BaseController } from "../../../core/crud-base/base-controller";
-import { Position } from "./entities/position.entity";
+import { PositionEntity } from "./entities/positionSchema";
 import { PositionService } from "./position.service";
 import { CreatePositionDto } from "./dto/create-position.dto";
 import { Types } from "mongoose";
@@ -17,18 +17,18 @@ import { UpdatePositionDto } from "./dto/update-position.dto";
 import { ObjectId } from "mongodb";
 
 @Controller("v1/position")
-export class PositionController extends BaseController<Position> {
+export class PositionController extends BaseController<PositionEntity> {
   constructor(private readonly service: PositionService) {
     super(service);
   }
 
   @Post()
-  async create(@Body() body: CreatePositionDto, ...args): Promise<Position> {
+  async create(@Body() body: CreatePositionDto, ...args): Promise<PositionEntity> {
     return super.create(body, ...args);
   }
 
   @Get(":id")
-  async findById(@Param("id") id: ObjectId, ...args): Promise<Position> {
+  async findById(@Param("id") id: ObjectId, ...args): Promise<PositionEntity> {
     return super.findById(id, ...args);
   }
 
@@ -37,7 +37,7 @@ export class PositionController extends BaseController<Position> {
     @Param("number") page: number,
     @Param("limit") limit: number,
     ...args
-  ): Promise<CorePaginateResult<Position>> {
+  ): Promise<CorePaginateResult<PositionEntity>> {
     return super.findAll(page, limit, ...args);
   }
 
@@ -46,7 +46,7 @@ export class PositionController extends BaseController<Position> {
     @Body() updates: UpdatePositionDto,
     @Param("id") id: ObjectId,
     ...args
-  ): Promise<Position> {
+  ): Promise<PositionEntity> {
     return super.update(updates, id, ...args);
   }
 

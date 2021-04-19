@@ -1,6 +1,6 @@
 import { Injectable } from "@nestjs/common";
 import { BaseService } from "../../../../../core/crud-base/base.service";
-import { LoanSalary, LoanSalaryDocument } from "./entities/loan-salary.entity";
+import { LoanSalaryEntity, LoanSalaryDocument } from "./entities/loan-salary.schema";
 import { Model, Types } from "mongoose";
 import { InjectModel } from "@nestjs/mongoose";
 import { ModelName } from "../../../../../common/constant/database.constant";
@@ -17,22 +17,22 @@ export class LoanSalaryService extends BaseService<LoanSalaryDocument> {
     super(loanModel);
   }
 
-  async create(payload: CreateLoanSalaryDto, ...args): Promise<LoanSalary> {
+  async create(payload: CreateLoanSalaryDto, ...args): Promise<LoanSalaryEntity> {
     return super.create(payload, ...args);
   }
 
-  async findOne(id: Types.ObjectId, ...args): Promise<LoanSalary> {
+  async findOne(id: Types.ObjectId, ...args): Promise<LoanSalaryEntity> {
     return super.findOne(id, ...args);
   }
 
   async findAll(
     paginateOpts?: PaginatorOptions,
     ...args
-  ): Promise<CorePaginateResult<LoanSalary>> {
+  ): Promise<CorePaginateResult<LoanSalaryEntity>> {
     return super.findAll(paginateOpts, ...args);
   }
 
-  async update(id: Types.ObjectId, updates: any, ...args): Promise<LoanSalary> {
+  async update(id: Types.ObjectId, updates: any, ...args): Promise<LoanSalaryEntity> {
     return super.update(id, updates, ...args);
   }
 

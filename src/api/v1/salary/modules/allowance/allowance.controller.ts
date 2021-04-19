@@ -7,7 +7,7 @@ import {
   Post,
   Put,
 } from "@nestjs/common";
-import { AllowanceSalary } from "./entities/allowance-salary.entity";
+import { AllowanceSalaryEntity } from "./entities/allowance-salary.schema";
 import { CreateAllowanceSalaryDto } from "./dto/create-allowance-salary.dto";
 import { Types } from "mongoose";
 import { UpdateAllowanceSalaryDto } from "./dto/update-allowance-salary.dto";
@@ -16,7 +16,7 @@ import { BaseController } from "../../../../../core/crud-base/base-controller";
 import { CorePaginateResult } from "../../../../../core/interfaces/pagination";
 
 @Controller("v1/salary/allowance")
-export class AllowanceController extends BaseController<AllowanceSalary> {
+export class AllowanceController extends BaseController<AllowanceSalaryEntity> {
   constructor(private readonly service: AllowanceService) {
     super(service);
   }
@@ -25,7 +25,7 @@ export class AllowanceController extends BaseController<AllowanceSalary> {
   async create(
     @Body() body: CreateAllowanceSalaryDto,
     ...args
-  ): Promise<AllowanceSalary> {
+  ): Promise<AllowanceSalaryEntity> {
     return super.create(body, ...args);
   }
 
@@ -33,7 +33,7 @@ export class AllowanceController extends BaseController<AllowanceSalary> {
   async findById(
     @Param("id") id: Types.ObjectId,
     ...args
-  ): Promise<AllowanceSalary> {
+  ): Promise<AllowanceSalaryEntity> {
     return super.findById(id, ...args);
   }
 
@@ -42,7 +42,7 @@ export class AllowanceController extends BaseController<AllowanceSalary> {
     page: number,
     limit: number,
     ...args
-  ): Promise<CorePaginateResult<AllowanceSalary>> {
+  ): Promise<CorePaginateResult<AllowanceSalaryEntity>> {
     return super.findAll(page, limit, ...args);
   }
 
@@ -51,7 +51,7 @@ export class AllowanceController extends BaseController<AllowanceSalary> {
     @Body() body: UpdateAllowanceSalaryDto,
     @Param("id") id: Types.ObjectId,
     ...args
-  ): Promise<AllowanceSalary> {
+  ): Promise<AllowanceSalaryEntity> {
     return super.update(body, id, ...args);
   }
 

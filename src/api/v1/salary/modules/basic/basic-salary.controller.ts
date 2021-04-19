@@ -7,7 +7,7 @@ import {
   Post,
   Put,
 } from "@nestjs/common";
-import { BasicSalary } from "./entities/basic-salary.entity";
+import { BasicSalaryEntity } from "./entities/basic-salary.schema";
 import { CreateBasicSalaryDto } from "./dto/create-basic-salary.dto";
 import { BasicSalaryService } from "./basic-salary.service";
 import { Types } from "mongoose";
@@ -16,7 +16,7 @@ import { BaseController } from "../../../../../core/crud-base/base-controller";
 import { CorePaginateResult } from "../../../../../core/interfaces/pagination";
 
 @Controller("v1/salary/basic")
-export class BasicSalaryController extends BaseController<BasicSalary> {
+export class BasicSalaryController extends BaseController<BasicSalaryEntity> {
   constructor(private readonly service: BasicSalaryService) {
     super(service);
   }
@@ -25,7 +25,7 @@ export class BasicSalaryController extends BaseController<BasicSalary> {
   async create(
     @Body() body: CreateBasicSalaryDto,
     ...args
-  ): Promise<BasicSalary> {
+  ): Promise<BasicSalaryEntity> {
     return super.create(body, ...args);
   }
 
@@ -33,7 +33,7 @@ export class BasicSalaryController extends BaseController<BasicSalary> {
   async findById(
     @Param("id") id: Types.ObjectId,
     ...args
-  ): Promise<BasicSalary> {
+  ): Promise<BasicSalaryEntity> {
     return super.findById(id, ...args);
   }
 
@@ -42,7 +42,7 @@ export class BasicSalaryController extends BaseController<BasicSalary> {
     page: number,
     limit: number,
     ...args
-  ): Promise<CorePaginateResult<BasicSalary>> {
+  ): Promise<CorePaginateResult<BasicSalaryEntity>> {
     return super.findAll(page, limit, ...args);
   }
 
@@ -51,7 +51,7 @@ export class BasicSalaryController extends BaseController<BasicSalary> {
     @Body() body: UpdateBasicSalaryDto,
     @Param("id") id: Types.ObjectId,
     ...args
-  ): Promise<BasicSalary> {
+  ): Promise<BasicSalaryEntity> {
     return super.update(body, id, ...args);
   }
 

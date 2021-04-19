@@ -1,9 +1,9 @@
 import { Injectable } from "@nestjs/common";
 import { BaseService } from "../../../../../core/crud-base/base.service";
 import {
-  DeductionSalary,
+  DeductionSalaryEntity,
   DeductionSalaryDocument,
-} from "./entities/deduction-salary.entity";
+} from "./entities/deduction-salary.schema";
 import { Model, Types } from "mongoose";
 import { CreateDeductionSalaryDto } from "./dto/create-deduction-salary.dto";
 import { PaginatorOptions } from "../../../../../core/crud-base/interface/pagination.interface";
@@ -24,18 +24,18 @@ export class DeductionService extends BaseService<DeductionSalaryDocument> {
   async create(
     payload: CreateDeductionSalaryDto,
     ...args
-  ): Promise<DeductionSalary> {
+  ): Promise<DeductionSalaryEntity> {
     return super.create(payload, ...args);
   }
 
-  async findOne(id: Types.ObjectId, ...args): Promise<DeductionSalary> {
+  async findOne(id: Types.ObjectId, ...args): Promise<DeductionSalaryEntity> {
     return super.findOne(id, ...args);
   }
 
   async findAll(
     paginateOpts?: PaginatorOptions,
     ...args
-  ): Promise<CorePaginateResult<DeductionSalary>> {
+  ): Promise<CorePaginateResult<DeductionSalaryEntity>> {
     return super.findAll(paginateOpts, ...args);
   }
 
@@ -43,7 +43,7 @@ export class DeductionService extends BaseService<DeductionSalaryDocument> {
     id: Types.ObjectId,
     updates: any,
     ...args
-  ): Promise<DeductionSalary> {
+  ): Promise<DeductionSalaryEntity> {
     return super.update(id, updates, ...args);
   }
 

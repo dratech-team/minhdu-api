@@ -3,12 +3,12 @@ import { DeductionService } from "./deduction-salary.service";
 import { DeductionSalaryController } from "./deduction-salary.controller";
 import { MongooseModule } from "@nestjs/mongoose";
 import { ModelName } from "../../../../../common/constant/database.constant";
-import { DeductionSalaryEntity } from "./entities/deduction-salary.entity";
+import { DeductionSalarySchema } from "./entities/deduction-salary.schema";
 
 @Module({
   imports: [
     MongooseModule.forFeature([
-      { name: ModelName.DEDUCTION_SALARY, schema: DeductionSalaryEntity },
+      { name: ModelName.DEDUCTION_SALARY, schema: DeductionSalarySchema },
     ]),
   ],
   controllers: [DeductionSalaryController],

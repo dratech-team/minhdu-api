@@ -3,11 +3,11 @@ import {AreaController} from "./area.controller";
 import {AreaService} from "./area.service";
 import {MongooseModule} from "@nestjs/mongoose";
 import {ModelName} from "../../../common/constant/database.constant";
-import {AreaEntity} from "./entities/area.entity";
+import {AreaSchema} from "./entities/areaSchema";
 
 @Module({
   imports: [
-    MongooseModule.forFeature([{name: ModelName.AREA, schema: AreaEntity}])
+    MongooseModule.forFeature([{name: ModelName.AREA, schema: AreaSchema}])
   ],
   controllers: [AreaController],
   providers: [AreaService],
