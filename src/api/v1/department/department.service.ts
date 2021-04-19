@@ -1,7 +1,7 @@
 import {Injectable} from "@nestjs/common";
 import {BaseService} from "../../../core/crud-base/base.service";
 import {Model} from "mongoose";
-import {Department, DepartmentDocument} from "./schema/department.schema";
+import {Department, DepartmentDocument} from "./entities/department.schema";
 import {InjectModel} from "@nestjs/mongoose";
 import {ModelName} from "../../../common/constant/database.constant";
 import {CreateDepartmentDto} from "./dto/create-department.dto";

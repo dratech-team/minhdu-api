@@ -1,6 +1,6 @@
 import { Schema, SchemaFactory } from "@nestjs/mongoose";
 import { Document } from "mongoose";
-import { IUser } from "../../../../common/schemas/user.schema";
+import { IUser } from "../../../../common/entities/user.schema";
 
 export type UserDocument = User & Document;
 

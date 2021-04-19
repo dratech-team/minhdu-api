@@ -1,6 +1,6 @@
 import { Document } from "mongoose";
 import { Prop, Schema, SchemaFactory } from "@nestjs/mongoose";
-import { ISalary } from "../../../../../../common/schemas/salary.schema";
+import { ISalary } from "../../../../../../common/entities/salary.schema";
 import { OvertimeType } from "../overtime-type.enum";
 
 export type OvertimeSalaryDocument = Document & OvertimeSalary;

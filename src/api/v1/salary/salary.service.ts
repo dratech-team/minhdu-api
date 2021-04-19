@@ -2,7 +2,7 @@ import { Injectable, InternalServerErrorException } from "@nestjs/common";
 import { Model } from "mongoose";
 import { CreateSalaryDto } from "./dto/create-salary.dto";
 import { InjectModel } from "@nestjs/mongoose";
-import { Salary, SalaryDocument } from "./schema/salary.schema";
+import { Salary, SalaryDocument } from "./entities/salary.schema";
 import { ModelName } from "../../../common/constant/database.constant";
 
 @Injectable()

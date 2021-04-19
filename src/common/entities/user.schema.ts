@@ -1,6 +1,6 @@
 import { Prop, Schema } from "@nestjs/mongoose";
 import { UserType } from "../../core/constants/role-type.constant";
-import { BaseDocument } from "../../core/schema/base.schema";
+import { BaseDocument } from "../../core/entities/base.schema";
 
 @Schema()
 export class IUser extends BaseDocument {

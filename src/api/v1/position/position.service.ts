@@ -1,6 +1,6 @@
 import {Injectable} from "@nestjs/common";
 import {BaseService} from "../../../core/crud-base/base.service";
-import {Position, PositionDocument} from "./schema/position.schema";
+import {Position, PositionDocument} from "./entities/position.schema";
 import {Model, Types} from "mongoose";
 import {CreatePositionDto} from "./dto/create-position.dto";
 import {PaginatorOptions} from "../../../core/crud-base/interface/pagination.interface";

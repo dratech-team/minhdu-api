@@ -3,7 +3,7 @@ import {AreaController} from "./area.controller";
 import {AreaService} from "./area.service";
 import {MongooseModule} from "@nestjs/mongoose";
 import {ModelName} from "../../../common/constant/database.constant";
-import {AreaSchema} from "./schema/area.schema";
+import {AreaSchema} from "./entities/area.schema";
 
 @Module({
   imports: [

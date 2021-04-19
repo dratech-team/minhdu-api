@@ -1,5 +1,5 @@
 import { Prop, Schema } from "@nestjs/mongoose";
-import { BaseDocument } from "../../core/schema/base.schema";
+import { BaseDocument } from "../../core/entities/base.schema";
 
 @Schema()
 export class ISalary extends BaseDocument {

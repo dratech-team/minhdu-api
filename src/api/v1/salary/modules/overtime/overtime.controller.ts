@@ -9,7 +9,7 @@ import {
   Query,
 } from "@nestjs/common";
 import { BaseController } from "../../../../../core/crud-base/base-controller";
-import { OvertimeSalary } from "./schema/overtime-salary.schema";
+import { OvertimeSalary } from "./entities/overtime-salary.schema";
 import { CreateOvertimeSalaryDto } from "./dto/create-overtime-salary.dto";
 import { CorePaginateResult } from "../../../../../core/interfaces/pagination";
 import { Types } from "mongoose";
