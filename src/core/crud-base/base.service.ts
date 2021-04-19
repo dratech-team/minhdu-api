@@ -1,9 +1,10 @@
-import { Document, Model, Types } from "mongoose";
+import { Document, Model } from "mongoose";
 import { InjectModel } from "@nestjs/mongoose";
 import { IBaseService } from "./ibase.service";
 import { HttpException } from "@nestjs/common";
 import { PaginatorOptions } from "./interface/pagination.interface";
 import { CorePaginateResult } from "../interfaces/pagination";
+import { ObjectId } from "mongodb";
 
 export class BaseService<T extends Document> implements IBaseService<T> {
   constructor(@InjectModel("") private model: Model<T>) {}
@@ -17,7 +18,7 @@ export class BaseService<T extends Document> implements IBaseService<T> {
     }
   }
 
-  async update(id: Types.ObjectId, updates: any, ...args: any[]): Promise<any> {
+  async update(id: ObjectId, updates: any, ...args: any[]): Promise<any> {
     try {
       // await this.findOne(id);
       const updated: any = await this.model
@@ -32,7 +33,7 @@ export class BaseService<T extends Document> implements IBaseService<T> {
     }
   }
 
-  async delete(id: Types.ObjectId, ...args: any[]): Promise<void> {
+  async delete(id: ObjectId, ...args: any[]): Promise<void> {
     // await this.model.updateOne({ _id: id },{ deleted: true });
     try {
       console.log(typeof this.model.updateOne());
@@ -43,17 +44,16 @@ export class BaseService<T extends Document> implements IBaseService<T> {
           console.log(res.modifiedCount);
       });*/
       // @ts-ignore
-      await this.model.updateOne({ _id: id },{ deleted: true });
-
+      await this.model.updateOne({ _id: id }, { deleted: true });
     } catch (e) {
       throw new HttpException("Server Error" || e, e.status || 500);
     }
   }
 
-  async findOne(id: Types.ObjectId, ...args: any[]): Promise<any> {
+  async findOne(id: ObjectId, ...args: any[]): Promise<any> {
     try {
       // @ts-ignore
-      const item = await  this.model.findOne({_id: id, deleted: false}).exec();
+      const item = await this.model.findOne({ _id: id, deleted: false }).exec();
       // const item = await this.model.findById(id).exec();
       if (!item) {
         throw new HttpException("Not found", 404);
@@ -87,7 +87,7 @@ export class BaseService<T extends Document> implements IBaseService<T> {
         };
       }
       // @ts-ignore
-      const data = await this.model.find({deleted: false}).exec();
+      const data = await this.model.find({ deleted: false }).exec();
       return { total, data };
     } catch (e) {
       throw new HttpException(e.message || e, e.status || 500);
