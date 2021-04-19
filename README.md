@@ -13,8 +13,8 @@ $ docker-compose up
 ```bash
 $ npm install
 ```
-4/ generate CRUD
-nest g resource <path/name>
+4/ generate CRUD:  
+`nest g resource <path/name>`
 ## Running the app
 
 ```bash
