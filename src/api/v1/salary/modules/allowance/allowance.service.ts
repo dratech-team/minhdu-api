@@ -4,7 +4,7 @@ import { Model, Types } from "mongoose";
 import {
   AllowanceSalary,
   AllowanceSalaryDocument,
-} from "./entities/allowance-salary.schema";
+} from "./entities/allowance-salary.entity";
 import { CreateAllowanceSalaryDto } from "./dto/create-allowance-salary.dto";
 import { BaseService } from "../../../../../core/crud-base/base.service";
 import { ModelName } from "../../../../../common/constant/database.constant";

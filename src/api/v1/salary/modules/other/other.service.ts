@@ -1,6 +1,6 @@
 import { Injectable } from "@nestjs/common";
 import { BaseService } from "../../../../../core/crud-base/base.service";
-import { OtherSalary, OtherSalaryDocument } from "./entities/other-salary.schema";
+import { OtherSalary, OtherSalaryDocument } from "./entities/other-salary.entity";
 import { Model, Types } from "mongoose";
 import { PaginatorOptions } from "../../../../../core/crud-base/interface/pagination.interface";
 import { CorePaginateResult } from "../../../../../core/interfaces/pagination";

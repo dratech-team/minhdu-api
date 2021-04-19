@@ -1,6 +1,6 @@
 import { Injectable } from "@nestjs/common";
 import { BaseService } from "../../../../../core/crud-base/base.service";
-import { LoanSalary, LoanSalaryDocument } from "./entities/loan-salary.schema";
+import { LoanSalary, LoanSalaryDocument } from "./entities/loan-salary.entity";
 import { Model, Types } from "mongoose";
 import { InjectModel } from "@nestjs/mongoose";
 import { ModelName } from "../../../../../common/constant/database.constant";

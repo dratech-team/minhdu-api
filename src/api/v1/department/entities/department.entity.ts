@@ -1,4 +1,4 @@
-import { BaseDocument } from "../../../../core/entities/base.schema";
+import { BaseDocument } from "../../../../core/entities/base.entity";
 import { Prop, Schema, SchemaFactory } from "@nestjs/mongoose";
 import { Document } from "mongoose";
 
@@ -10,4 +10,4 @@ export class Department extends BaseDocument {
   department: string;
 }
 
-export const DepartmentSchema = SchemaFactory.createForClass(Department);
+export const DepartmentEntity = SchemaFactory.createForClass(Department);

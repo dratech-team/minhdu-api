@@ -7,7 +7,7 @@ import {
   Post,
   Put,
 } from "@nestjs/common";
-import { BasicSalary } from "./entities/basic-salary.schema";
+import { BasicSalary } from "./entities/basic-salary.entity";
 import { CreateBasicSalaryDto } from "./dto/create-basic-salary.dto";
 import { BasicSalaryService } from "./basic-salary.service";
 import { Types } from "mongoose";

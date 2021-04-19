@@ -1,6 +1,6 @@
 import { Document } from "mongoose";
 import { Prop, Schema, SchemaFactory } from "@nestjs/mongoose";
-import { ISalary } from "../../../../../../common/entities/salary.schema";
+import { ISalary } from "../../../../../../common/entities/salary.entity";
 import { OvertimeType } from "../overtime-type.enum";
 
 export type OvertimeSalaryDocument = Document & OvertimeSalary;
@@ -17,6 +17,6 @@ export class OvertimeSalary extends ISalary {
   rate: number;
 }
 
-export const OvertimeSalarySchema = SchemaFactory.createForClass(
+export const OvertimeSalaryEntity = SchemaFactory.createForClass(
   OvertimeSalary
 );

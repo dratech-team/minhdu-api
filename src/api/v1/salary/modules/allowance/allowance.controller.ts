@@ -7,7 +7,7 @@ import {
   Post,
   Put,
 } from "@nestjs/common";
-import { AllowanceSalary } from "./entities/allowance-salary.schema";
+import { AllowanceSalary } from "./entities/allowance-salary.entity";
 import { CreateAllowanceSalaryDto } from "./dto/create-allowance-salary.dto";
 import { Types } from "mongoose";
 import { UpdateAllowanceSalaryDto } from "./dto/update-allowance-salary.dto";

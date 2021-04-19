@@ -8,7 +8,7 @@ import {
   Put,
 } from "@nestjs/common";
 import {BaseController} from "../../../core/crud-base/base-controller";
-import {Department} from "./entities/department.schema";
+import {Department} from "./entities/department.entity";
 import {DepartmentService} from "./department.service";
 import {CreateDepartmentDto} from "./dto/create-department.dto";
 import {ObjectId} from "mongodb";

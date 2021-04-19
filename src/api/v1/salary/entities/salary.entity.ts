@@ -10,4 +10,4 @@ export class Salary {
   basic: string;
 }
 
-export const SalarySchema = SchemaFactory.createForClass(Salary);
+export const SalaryEntity = SchemaFactory.createForClass(Salary);

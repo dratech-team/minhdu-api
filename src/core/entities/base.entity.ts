@@ -1,7 +1,7 @@
 import { ObjectId } from "mongodb";
 import { Prop, Schema } from "@nestjs/mongoose";
 import { Document } from "mongoose";
-import { BasicSalary } from "../../api/v1/salary/modules/basic/entities/basic-salary.schema";
+import { BasicSalary } from "../../api/v1/salary/modules/basic/entities/basic-salary.entity";
 
 @Schema()
 export class BaseDocument {

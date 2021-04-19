@@ -1,7 +1,7 @@
 import { Injectable } from "@nestjs/common";
 import { InjectModel } from "@nestjs/mongoose";
 import { Model, Types } from "mongoose";
-import { BasicSalary, BasicSalaryDocument } from "./entities/basic-salary.schema";
+import { BasicSalary, BasicSalaryDocument } from "./entities/basic-salary.entity";
 import { UpdateBasicSalaryDto } from "./dto/update-basic-salary.dto";
 import { BaseService } from "../../../../../core/crud-base/base.service";
 import { ModelName } from "../../../../../common/constant/database.constant";

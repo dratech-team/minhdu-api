@@ -1,4 +1,4 @@
-import {BaseDocument} from "../../../../core/entities/base.schema";
+import {BaseDocument} from "../../../../core/entities/base.entity";
 import {Prop, Schema, SchemaFactory} from "@nestjs/mongoose";
 import {Document} from "mongoose";
 
@@ -13,4 +13,4 @@ export class Area extends BaseDocument {
   area: string;
 }
 
-export const AreaSchema = SchemaFactory.createForClass(Area);
+export const AreaEntity = SchemaFactory.createForClass(Area);

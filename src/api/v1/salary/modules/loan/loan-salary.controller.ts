@@ -9,7 +9,7 @@ import {
   Query,
 } from "@nestjs/common";
 import { BaseController } from "../../../../../core/crud-base/base-controller";
-import { LoanSalary } from "./entities/loan-salary.schema";
+import { LoanSalary } from "./entities/loan-salary.entity";
 import { LoanSalaryService } from "./loan-salary.service";
 import { CreateLoanSalaryDto } from "./dto/create-loan-salary.dto";
 import { Types } from "mongoose";

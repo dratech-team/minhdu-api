@@ -1,6 +1,6 @@
 import { Document } from "mongoose";
 import { Prop, Schema, SchemaFactory } from "@nestjs/mongoose";
-import { ISalary } from "../../../../../../common/entities/salary.schema";
+import { ISalary } from "../../../../../../common/entities/salary.entity";
 import { AbsentType } from "../absent-type.enum";
 
 export type DeductionSalaryDocument = Document & DeductionSalary;
@@ -14,6 +14,6 @@ export class DeductionSalary extends ISalary {
   times: number;
 }
 
-export const DeductionSalarySchema = SchemaFactory.createForClass(
+export const DeductionSalaryEntity = SchemaFactory.createForClass(
   DeductionSalary
 );

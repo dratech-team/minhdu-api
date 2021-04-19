@@ -3,7 +3,7 @@ import { BaseService } from "../../../../../core/crud-base/base.service";
 import {
   OvertimeSalary,
   OvertimeSalaryDocument,
-} from "./entities/overtime-salary.schema";
+} from "./entities/overtime-salary.entity";
 import { InjectModel } from "@nestjs/mongoose";
 import { ModelName } from "../../../../../common/constant/database.constant";
 import { Model, Types } from "mongoose";

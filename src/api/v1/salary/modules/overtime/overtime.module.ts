@@ -3,13 +3,13 @@ import { OvertimeController } from "./overtime.controller";
 import { OvertimeService } from "./overtime.service";
 import { MongooseModule } from "@nestjs/mongoose";
 import { ModelName } from "../../../../../common/constant/database.constant";
-import { OvertimeSalarySchema } from "./entities/overtime-salary.schema";
+import { OvertimeSalaryEntity } from "./entities/overtime-salary.entity";
 import { BasicSalaryModule } from "../basic/basic-salary.module";
 
 @Module({
   imports: [
     MongooseModule.forFeature([
-      { name: ModelName.OVERTIME_SALARY, schema: OvertimeSalarySchema },
+      { name: ModelName.OVERTIME_SALARY, schema: OvertimeSalaryEntity },
     ]),
     BasicSalaryModule,
   ],
