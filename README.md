@@ -13,7 +13,8 @@ $ docker-compose up
 ```bash
 $ npm install
 ```
-
+4/ generate CRUD
+nest g resource <path/name>
 ## Running the app
 
 ```bash
@@ -36,6 +37,10 @@ $ npm run test:e2e
 # test coverage
 $ npm run test:cov
 ```
+
+## lifecycle request nestjs
+<img width="440" alt="Screen Shot 2021-04-19 at 17 28 20" src="https://user-images.githubusercontent.com/48413548/115222263-bf9c6080-a134-11eb-8097-8cd18bd33760.png">
+
 
 ## Description
 
