@@ -63,11 +63,8 @@ export class DeductionService extends BaseService<DeductionSalaryDocument> {
     let amount: number = 0;
 
     for (let i = 0; i < salaries.data.length; i++) {
-      if (salaries.data[i].type === AbsentType.PAID_LEAVE) {
+      if (salaries.data[i].type === AbsentType.UNPAID_LEAVE) {
         amount += (salaries.data[i].price / 26) * salaries.data[i].times;
-      } else if (salaries.data[i].type === AbsentType.UNPAID_LEAVE) {
-        amount +=
-          (salaries.data[i].price / 26) * (salaries.data[i].times * 1.5);
       } else if (salaries.data[i].type === AbsentType.LATE) {
         amount += (salaries.data[i].price / 26 / 8) * salaries.data[i].times;
       }

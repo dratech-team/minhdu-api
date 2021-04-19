@@ -1,17 +1,5 @@
-import { IsNumber, IsOptional, IsString } from "class-validator";
-import { Type } from "class-transformer";
+import {PartialType} from "@nestjs/mapped-types";
+import {ICreateSalaryDto} from "./create-salary.dto";
 
-export class IUpdateSalaryDto {
-  @IsString()
-  @IsOptional()
-  title: string;
-
-  @Type(() => Number)
-  @IsOptional()
-  @IsNumber()
-  price: number;
-
-  @IsOptional()
-  @IsString()
-  note: string;
+export class IUpdateSalaryDto extends PartialType(ICreateSalaryDto) {
 }
