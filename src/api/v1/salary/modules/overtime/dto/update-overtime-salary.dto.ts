@@ -1,15 +1,5 @@
-import { IUpdateSalaryDto } from "../../../../../../common/dtos/update-salary.dto";
-import { IsIn, IsNumber, IsOptional } from "class-validator";
-import { Type } from "class-transformer";
-import { OvertimeType } from "../overtime-type.enum";
+import {PartialType} from "@nestjs/mapped-types";
+import {CreateOvertimeSalaryDto} from "./create-overtime-salary.dto";
 
-export class UpdateOvertimeSalaryDto extends IUpdateSalaryDto {
-  @IsIn([OvertimeType.DAY, OvertimeType.HOUR])
-  @IsOptional()
-  type: OvertimeType;
-
-  @Type(() => Number)
-  @IsNumber()
-  @IsOptional()
-  times: number;
+export class UpdateOvertimeSalaryDto extends PartialType(CreateOvertimeSalaryDto) {
 }

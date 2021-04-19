@@ -1,11 +1,5 @@
-import { IsEnum, IsNotEmpty } from "class-validator";
-import { OtherType } from "../other-type.enum";
-import { Optional } from "@nestjs/common";
-import { IUpdateSalaryDto } from "../../../../../../common/dtos/update-salary.dto";
+import {PartialType} from "@nestjs/mapped-types";
+import {CreateOtherSalaryDto} from "./create-other-salary";
 
-export class UpdateOtherSalaryDto extends IUpdateSalaryDto {
-  @IsEnum(OtherType)
-  @IsNotEmpty()
-  @Optional()
-  type: OtherType;
+export class UpdateOtherSalaryDto extends PartialType(CreateOtherSalaryDto) {
 }
