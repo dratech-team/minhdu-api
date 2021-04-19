@@ -4,6 +4,10 @@ import { CreateUserDto } from "./dto/create-user.dto";
 import {User} from "./schema/user.schema";
 import {BaseController} from "../../../core/crud-base/base-controller";
 import {UserService} from "./user.service";
+import {CorePaginateResult} from "../../../core/interfaces/pagination";
+import {BasicSalary} from "../salary/modules/basic/schema/basic-salary.schema";
+import {UpdateBasicSalaryDto} from "../salary/modules/basic/dto/update-basic-salary.dto";
+import {Types} from "mongoose";
 
 @Controller("v1/user")
 export class UserController extends BaseController<User> {
@@ -19,11 +23,29 @@ export class UserController extends BaseController<User> {
 
     @Post()
     async create(@Body() body: CreateUserDto, ...args): Promise<User> {
-        try {
+        return super.create(body, ...args);
+    }
 
-            return super.create(body, ...args);
-        } catch (e) {
-            console.log(e);
-        }
+    @Get()
+    async findAll(
+        page: number,
+        limit: number,
+        ...args
+    ): Promise<CorePaginateResult<User>> {
+        return super.findAll(page, limit, ...args);
+    }
+
+    @Put(":id")
+    async update(
+        @Body() body: CreateUserDto,
+        @Param("id") id: Types.ObjectId,
+        ...args
+    ): Promise<User> {
+        return super.update(body, id, ...args);
+    }
+
+    @Delete(":id")
+    async delete(@Param("id") id: Types.ObjectId, ...args): Promise<void> {
+        return super.delete(id, ...args);
     }
 }

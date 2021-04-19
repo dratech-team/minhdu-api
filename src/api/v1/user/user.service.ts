@@ -13,4 +13,27 @@ export class UserService extends BaseService<UserDocument> {
   ) {
     super(userModel);
   }
+
+  async findOne(id: Types.ObjectId, ...args): Promise<any> {
+    return await super.findOne(id, ...args);
+  }
+
+  async findAll(
+      paginateOpts?: PaginatorOptions,
+      ...args
+  ): Promise<CorePaginateResult<User>> {
+    return await super.findAll(paginateOpts, ...args);
+  }
+
+  async update(
+      id: Types.ObjectId,
+      updates: CreateUserDto,
+      ...args
+  ): Promise<User> {
+    return await super.update(id, updates, ...args);
+  }
+
+  async delete(id: Types.ObjectId, ...args): Promise<void> {
+    await this.userModel.updateOne({ _id: id }, { deleted: true });
+  }
 }
