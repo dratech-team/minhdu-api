@@ -4,7 +4,6 @@ import { AppService } from "./app.service";
 import { MongooseModule, MongooseModuleAsyncOptions } from "@nestjs/mongoose";
 import { SalaryModule } from "./api/v1/salary/salary.module";
 import { UserModule } from "./api/v1/user/user.module";
-import { CampModule } from "./api/v1/camp/camp.module";
 import { AreaModule } from "./api/v1/area/area.module";
 import { ConfigService } from "./core/config/config.service";
 import { ConfigModule } from "./core/config/config.module";
@@ -30,7 +29,6 @@ import {DepartmentModule} from "./api/v1/department/department.module";
     }),
     SalaryModule,
     UserModule,
-    CampModule,
     AreaModule,
     ConfigModule,
     PositionModule,
