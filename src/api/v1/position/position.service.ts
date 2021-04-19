@@ -42,7 +42,7 @@ export class PositionService extends BaseService<PositionDocument> {
     return super.update(id, updates, ...args);
   }
 
-  async delete(id: Types.ObjectId, ...args): Promise<void> {
-    await this.positionModel.updateOne({_id: id}, {deleted: true});
+  async remove(id: Types.ObjectId, ...args): Promise<void> {
+    return await super.remove(id, ...args);
   }
 }
