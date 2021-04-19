@@ -11,6 +11,7 @@ import { ConfigModule } from "./core/config/config.module";
 import { LoggerMiddleware } from "./core/middlewares/logger.middleware";
 import { PositionModule } from "./api/v1/position/position.module";
 import { DeductionSalaryModule } from "./api/v1/salary/modules/deduction/deduction-salary.module";
+import {DepartmentModule} from "./api/v1/department/department.module";
 
 @Module({
   imports: [
@@ -33,6 +34,7 @@ import { DeductionSalaryModule } from "./api/v1/salary/modules/deduction/deducti
     AreaModule,
     ConfigModule,
     PositionModule,
+    DepartmentModule,
     // AuthModule,
   ],
   controllers: [AppController],

@@ -11,6 +11,7 @@ export class Position extends BaseDocument {
   @Prop()
   position: string;
 
+  @Prop()
   workDay: number;
 
   @Prop({type: [{type: ObjectId, ref: "Department"}]})
