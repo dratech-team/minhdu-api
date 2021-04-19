@@ -5,7 +5,7 @@ import { AreaModule } from "../area/area.module";
 import { SalaryModule } from "../salary/salary.module";
 import { MongooseModule } from "@nestjs/mongoose";
 import { ModelName } from "../../../common/constant/database.constant";
-import { UserSchema } from "./schema/user.schema";
+import { UserSchema } from "./entities/user.schema";
 
 @Module({
   imports: [

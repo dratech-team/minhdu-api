@@ -3,7 +3,7 @@ import { DepartmentController } from "./department.controller";
 import { DepartmentService } from "./department.service";
 import { MongooseModule } from "@nestjs/mongoose";
 import { ModelName } from "../../../common/constant/database.constant";
-import { DepartmentSchema } from "./schema/department.schema";
+import { DepartmentSchema } from "./entities/department.schema";
 
 @Module({
   imports: [

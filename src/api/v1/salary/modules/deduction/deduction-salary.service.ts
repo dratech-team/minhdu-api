@@ -3,7 +3,7 @@ import { BaseService } from "../../../../../core/crud-base/base.service";
 import {
   DeductionSalary,
   DeductionSalaryDocument,
-} from "./schema/deduction-salary.schema";
+} from "./entities/deduction-salary.schema";
 import { Model, Types } from "mongoose";
 import { CreateDeductionSalaryDto } from "./dto/create-deduction-salary.dto";
 import { PaginatorOptions } from "../../../../../core/crud-base/interface/pagination.interface";

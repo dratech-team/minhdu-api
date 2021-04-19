@@ -1,6 +1,6 @@
 import { Document } from "mongoose";
 import { Prop, Schema, SchemaFactory } from "@nestjs/mongoose";
-import { ISalary } from "../../../../../../common/schemas/salary.schema";
+import { ISalary } from "../../../../../../common/entities/salary.schema";
 import { OtherType } from "../other-type.enum";
 
 export type OtherSalaryDocument = Document & OtherSalary;

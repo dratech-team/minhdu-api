@@ -8,7 +8,7 @@ import {
   Put,
 } from "@nestjs/common";
 import { BaseController } from "../../../../../core/crud-base/base-controller";
-import { OtherSalary } from "./schema/other-salary.schema";
+import { OtherSalary } from "./entities/other-salary.schema";
 import { OtherService } from "./other.service";
 import { CreateOtherSalaryDto } from "./dto/create-other-salary";
 import { Types } from "mongoose";

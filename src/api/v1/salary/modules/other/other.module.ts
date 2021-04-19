@@ -3,7 +3,7 @@ import { OtherController } from "./other.controller";
 import { OtherService } from "./other.service";
 import { MongooseModule } from "@nestjs/mongoose";
 import { ModelName } from "../../../../../common/constant/database.constant";
-import { OtherSalarySchema } from "./schema/other-salary.schema";
+import { OtherSalarySchema } from "./entities/other-salary.schema";
 
 @Module({
   imports: [

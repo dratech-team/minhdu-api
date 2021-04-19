@@ -1,4 +1,4 @@
-import {BaseDocument} from "../../../../core/schema/base.schema";
+import {BaseDocument} from "../../../../core/entities/base.schema";
 import {Prop, Schema, SchemaFactory} from "@nestjs/mongoose";
 import {Document} from "mongoose";
 

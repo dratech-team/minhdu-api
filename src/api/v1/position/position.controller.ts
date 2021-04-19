@@ -8,7 +8,7 @@ import {
   Put,
 } from "@nestjs/common";
 import { BaseController } from "../../../core/crud-base/base-controller";
-import { Position } from "./schema/position.schema";
+import { Position } from "./entities/position.schema";
 import { PositionService } from "./position.service";
 import { CreatePositionDto } from "./dto/create-position.dto";
 import { Types } from "mongoose";

@@ -1,6 +1,6 @@
 import {Body, Controller, Delete, Get, Param, Post, Put} from '@nestjs/common';
 import {BaseController} from "../../../core/crud-base/base-controller";
-import {Area} from "./schema/area.schema";
+import {Area} from "./entities/area.schema";
 import {AreaService} from "./area.service";
 import {CreateAreaDto} from "./dto/create-area.dto";
 import {ObjectId} from "mongodb";
