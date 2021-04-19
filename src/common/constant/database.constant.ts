@@ -9,5 +9,6 @@ export enum ModelName {
   OTHER_SALARY = "OtherSalary",
   POSITION = "Position",
   DEPARTMENT = "Department",
+  AREA = "Area",
   USER = "User",
 }

@@ -1,12 +1,17 @@
-import { Module } from "@nestjs/common";
-import { AreaController } from "./area.controller";
-import { AreaService } from "./area.service";
-import { CampModule } from "../camp/camp.module";
+import {Module} from "@nestjs/common";
+import {AreaController} from "./area.controller";
+import {AreaService} from "./area.service";
+import {MongooseModule} from "@nestjs/mongoose";
+import {ModelName} from "../../../common/constant/database.constant";
+import {AreaSchema} from "./schema/area.schema";
 
 @Module({
-  imports: [CampModule],
+  imports: [
+    MongooseModule.forFeature([{name: ModelName.AREA, schema: AreaSchema}])
+  ],
   controllers: [AreaController],
   providers: [AreaService],
   exports: [AreaService],
 })
-export class AreaModule {}
+export class AreaModule {
+}
