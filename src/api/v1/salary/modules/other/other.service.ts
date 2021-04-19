@@ -43,8 +43,8 @@ export class OtherService extends BaseService<OtherSalaryDocument> {
     return super.update(id, updates, ...args);
   }
 
-  async delete(id: Types.ObjectId, ...args): Promise<void> {
-    await this.otherModel.updateOne({ _id: id }, { deleted: true });
+  async remove(id: Types.ObjectId, ...args): Promise<void> {
+    return await super.remove(id, ...args);
   }
 
   async otherSalaryTotal(type: OtherType): Promise<OtherSalaryInterface> {

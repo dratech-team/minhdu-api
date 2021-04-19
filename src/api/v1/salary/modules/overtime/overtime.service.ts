@@ -50,8 +50,8 @@ export class OvertimeService extends BaseService<OvertimeSalaryDocument> {
     return super.update(id, updates, ...args);
   }
 
-  async delete(id: Types.ObjectId, ...args): Promise<void> {
-    await this.overtimeModel.updateOne({ _id: id }, { deleted: true });
+  async remove(id: Types.ObjectId, ...args): Promise<void> {
+    return await super.remove(id, ...args);
   }
 
   //TODO: 26 là số ngày làm chuẩn. Hiện tại đang hardcode. Sau khi làm xong user sẽ thay lấy ngày làm chuẩn từ db

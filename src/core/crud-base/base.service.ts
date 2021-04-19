@@ -33,7 +33,7 @@ export class BaseService<T extends Document> implements IBaseService<T> {
     }
   }
 
-  async delete(id: ObjectId, ...args: any[]): Promise<void> {
+  async remove(id: ObjectId, ...args: any[]): Promise<void> {
     // await this.model.updateOne({ _id: id },{ deleted: true });
     try {
       console.log(typeof this.model.updateOne());

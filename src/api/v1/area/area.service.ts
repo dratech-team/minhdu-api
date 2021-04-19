@@ -36,7 +36,7 @@ export class AreaService extends BaseService<AreaDocument> {
     return super.update(id, updates, ...args);
   }
 
-  async delete(id: ObjectId, ...args): Promise<void> {
-    return super.delete(id, ...args);
+  async remove(id: ObjectId, ...args): Promise<void> {
+    return super.remove(id, ...args);
   }
 }

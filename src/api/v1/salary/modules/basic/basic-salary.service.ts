@@ -1,12 +1,12 @@
-import { Injectable } from "@nestjs/common";
-import { InjectModel } from "@nestjs/mongoose";
-import { Model, Types } from "mongoose";
-import { BasicSalary, BasicSalaryDocument } from "./entities/basic-salary.entity";
-import { UpdateBasicSalaryDto } from "./dto/update-basic-salary.dto";
-import { BaseService } from "../../../../../core/crud-base/base.service";
-import { ModelName } from "../../../../../common/constant/database.constant";
-import { PaginatorOptions } from "../../../../../core/crud-base/interface/pagination.interface";
-import { CorePaginateResult } from "../../../../../core/interfaces/pagination";
+import {Injectable} from "@nestjs/common";
+import {InjectModel} from "@nestjs/mongoose";
+import {Model, Types} from "mongoose";
+import {BasicSalary, BasicSalaryDocument} from "./entities/basic-salary.entity";
+import {UpdateBasicSalaryDto} from "./dto/update-basic-salary.dto";
+import {BaseService} from "../../../../../core/crud-base/base.service";
+import {ModelName} from "../../../../../common/constant/database.constant";
+import {PaginatorOptions} from "../../../../../core/crud-base/interface/pagination.interface";
+import {CorePaginateResult} from "../../../../../core/interfaces/pagination";
 
 @Injectable()
 export class BasicSalaryService extends BaseService<BasicSalaryDocument> {
@@ -40,8 +40,8 @@ export class BasicSalaryService extends BaseService<BasicSalaryDocument> {
     return await super.update(id, updates, ...args);
   }
 
-  async delete(id: Types.ObjectId, ...args): Promise<void> {
-    await this.basicSalaryModel.updateOne({ _id: id }, { deleted: true });
+  async remove(id: Types.ObjectId, ...args): Promise<void> {
+    return await super.remove(id, ...args);
   }
 
   async basicSalaryTotal(): Promise<number> {
