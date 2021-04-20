@@ -31,11 +31,11 @@ export class LoanSalaryController extends BaseController<LoanSalaryEntity> {
   }
 
   @Get(":id")
-  async findById(
+  async findOne(
     @Param("id") id: Types.ObjectId,
     ...args
   ): Promise<LoanSalaryEntity> {
-    return super.findById(id, ...args);
+    return super.findOne(id, ...args);
   }
 
   @Get()
@@ -57,7 +57,7 @@ export class LoanSalaryController extends BaseController<LoanSalaryEntity> {
   }
 
   @Delete(":id")
-  async delete(id: Types.ObjectId, ...args): Promise<void> {
-    return super.delete(id, ...args);
+  async remove(id: Types.ObjectId, ...args): Promise<void> {
+    return super.remove(id, ...args);
   }
 }

@@ -1,9 +1,5 @@
-import {IsOptional, IsString} from "class-validator";
+import {PartialType} from "@nestjs/mapped-types";
+import {CreateAreaDto} from "./create-area.dto";
 
-export class UpdateAreaDto {
-  code: string;
-
-  @IsOptional()
-  @IsString()
-  readonly area: string;
+export class UpdateAreaDto extends PartialType(CreateAreaDto){
 }

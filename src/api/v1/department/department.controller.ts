@@ -30,8 +30,8 @@ export class DepartmentController extends BaseController<DepartmentEntity> {
   }
 
   @Get(":id")
-  async findById(@Param("id") id: ObjectId, ...args): Promise<DepartmentEntity> {
-    return super.findById(id, ...args);
+  async findOne(@Param("id") id: ObjectId, ...args): Promise<DepartmentEntity> {
+    return super.findOne(id, ...args);
   }
 
   @Get()
@@ -53,7 +53,7 @@ export class DepartmentController extends BaseController<DepartmentEntity> {
   }
 
   @Delete(":id")
-  async delete(id: ObjectId, ...args): Promise<void> {
-    return super.delete(id, ...args);
+  async remove(id: ObjectId, ...args): Promise<void> {
+    return super.remove(id, ...args);
   }
 }

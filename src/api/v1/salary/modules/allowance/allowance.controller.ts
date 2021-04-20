@@ -7,8 +7,8 @@ import {
   Post,
   Put,
 } from "@nestjs/common";
-import { AllowanceSalaryEntity } from "./entities/allowance-salary.schema";
 import { CreateAllowanceSalaryDto } from "./dto/create-allowance-salary.dto";
+import { AllowanceSalaryEntity } from "./entities/allowance-salary.schema";
 import { Types } from "mongoose";
 import { UpdateAllowanceSalaryDto } from "./dto/update-allowance-salary.dto";
 import { AllowanceService } from "./allowance.service";
@@ -30,11 +30,11 @@ export class AllowanceController extends BaseController<AllowanceSalaryEntity> {
   }
 
   @Get(":id")
-  async findById(
+  async findOne(
     @Param("id") id: Types.ObjectId,
     ...args
   ): Promise<AllowanceSalaryEntity> {
-    return super.findById(id, ...args);
+    return super.findOne(id, ...args);
   }
 
   @Get()
@@ -56,7 +56,7 @@ export class AllowanceController extends BaseController<AllowanceSalaryEntity> {
   }
 
   @Delete(":id")
-  async delete(@Param("id") id: Types.ObjectId, ...args): Promise<void> {
-    return super.delete(id, ...args);
+  async remove(@Param("id") id: Types.ObjectId, ...args): Promise<void> {
+    return super.remove(id, ...args);
   }
 }

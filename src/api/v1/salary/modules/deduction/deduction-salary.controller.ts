@@ -30,11 +30,11 @@ export class DeductionSalaryController extends BaseController<DeductionSalaryEnt
   }
 
   @Get(":id")
-  async findById(
+  async findOne(
     @Param("id") id: Types.ObjectId,
     ...args
   ): Promise<DeductionSalaryEntity> {
-    return super.findById(id, ...args);
+    return super.findOne(id, ...args);
   }
 
   @Get()
@@ -56,7 +56,7 @@ export class DeductionSalaryController extends BaseController<DeductionSalaryEnt
   }
 
   @Delete("id")
-  async delete(@Param("id") id: Types.ObjectId, ...args): Promise<void> {
-    return super.delete(id, ...args);
+  async remove(@Param("id") id: Types.ObjectId, ...args): Promise<void> {
+    return super.remove(id, ...args);
   }
 }

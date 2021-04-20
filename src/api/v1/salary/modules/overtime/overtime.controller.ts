@@ -31,8 +31,8 @@ export class OvertimeController extends BaseController<OvertimeSalaryEntity> {
   }
 
   @Get(":id")
-  async findById(id: any, ...args): Promise<OvertimeSalaryEntity> {
-    return await super.findById(id, ...args);
+  async findOne(id: any, ...args): Promise<OvertimeSalaryEntity> {
+    return await super.findOne(id, ...args);
   }
 
   @Get()
@@ -54,7 +54,7 @@ export class OvertimeController extends BaseController<OvertimeSalaryEntity> {
   }
 
   @Delete(":id")
-  async delete(@Param("id") id: Types.ObjectId, ...args): Promise<void> {
-    return super.delete(id, ...args);
+  async remove(@Param("id") id: Types.ObjectId, ...args): Promise<void> {
+    return super.remove(id, ...args);
   }
 }

@@ -19,8 +19,8 @@ export class AreaController extends BaseController<AreaEntity> {
   }
 
   @Get(":id")
-  async findById(@Param("id") id: ObjectId, ...args): Promise<AreaEntity> {
-    return super.findById(id, ...args);
+  async findOne(@Param("id") id: ObjectId, ...args): Promise<AreaEntity> {
+    return super.findOne(id, ...args);
   }
 
   @Get()
@@ -34,7 +34,7 @@ export class AreaController extends BaseController<AreaEntity> {
   }
 
   @Delete(":id")
-  async delete(@Param("id") id: ObjectId, ...args): Promise<void> {
-    return super.delete(id, ...args);
+  async remove(@Param("id") id: ObjectId, ...args): Promise<void> {
+    return super.remove(id, ...args);
   }
 }

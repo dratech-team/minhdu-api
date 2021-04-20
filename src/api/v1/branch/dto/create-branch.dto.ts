@@ -1,7 +1,9 @@
 import {IsNotEmpty, IsString} from "class-validator";
 
-export class CreateAreaDto {
+export class CreateBranchDto {
+  code: string;
+
   @IsNotEmpty()
   @IsString()
-  readonly area: string;
+  branch: string;
 }

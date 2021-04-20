@@ -10,5 +10,6 @@ export enum ModelName {
   POSITION = "Position",
   DEPARTMENT = "Department",
   AREA = "Area",
+  BRANCH = "Branch",
   USER = "User",
 }
