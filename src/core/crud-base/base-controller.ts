@@ -71,4 +71,9 @@ export class BaseController<T, DTO = any> {
   ): Promise<T> {
     return await this.IBaseService.update(id, updates);
   }
+
+  @ApiResponse({ status: 404, description: "Entity does not exist" })
+  async count(...args: any[]): Promise<T> {
+    return await this.IBaseService.count();
+  }
 }

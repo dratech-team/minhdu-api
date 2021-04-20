@@ -13,6 +13,7 @@ import {PositionSchema} from "./entities/positionSchema";
   ],
   controllers: [PositionController],
   providers: [PositionService],
+  exports: [PositionService]
 })
 export class PositionModule {
 }
