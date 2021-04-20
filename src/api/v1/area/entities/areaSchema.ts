@@ -6,12 +6,11 @@ export type AreaDocument = AreaEntity & Document;
 
 @Schema()
 export class AreaEntity extends BaseDocument {
-  @Prop({
-    type: String,
-    required: true,
-    unique: true
-  })
-  area: String;
+  @Prop()
+  code: string;
+
+  @Prop()
+  area: string;
 }
 
 export const AreaSchema = SchemaFactory.createForClass(AreaEntity);

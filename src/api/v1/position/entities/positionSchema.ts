@@ -1,13 +1,13 @@
 import {Document} from "mongoose";
 import {Prop, Schema, SchemaFactory} from "@nestjs/mongoose";
 import {BaseDocument} from "../../../../core/entities/base.entity";
-import {Department} from "../../department/entities/department.entity";
+import {DepartmentEntity} from "../../department/entities/departmentSchema";
 import {ObjectId} from "mongodb";
 
-export type PositionDocument = Position & Document;
+export type PositionDocument = PositionEntity & Document;
 
 @Schema()
-export class Position extends BaseDocument {
+export class PositionEntity extends BaseDocument {
   @Prop()
   position: string;
 
@@ -15,7 +15,7 @@ export class Position extends BaseDocument {
   workDay: number;
 
   @Prop({type: [{type: ObjectId, ref: "Department"}]})
-  departmentIds: Department;
+  departmentIds: DepartmentEntity;
 }
 
-export const PositionEntity = SchemaFactory.createForClass(Position);
+export const PositionSchema = SchemaFactory.createForClass(PositionEntity);

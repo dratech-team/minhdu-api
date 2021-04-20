@@ -1,7 +1,7 @@
 import {Injectable} from "@nestjs/common";
 import {BaseService} from "../../../core/crud-base/base.service";
 import {Model} from "mongoose";
-import {Department, DepartmentDocument} from "./entities/department.entity";
+import {DepartmentEntity, DepartmentDocument} from "./entities/departmentSchema";
 import {InjectModel} from "@nestjs/mongoose";
 import {ModelName} from "../../../common/constant/database.constant";
 import {CreateDepartmentDto} from "./dto/create-department.dto";
@@ -19,18 +19,18 @@ export class DepartmentService extends BaseService<DepartmentDocument> {
     super(departmentModel);
   }
 
-  async create(body: CreateDepartmentDto, ...args): Promise<Department> {
+  async create(body: CreateDepartmentDto, ...args): Promise<DepartmentEntity> {
     return super.create(body, ...args);
   }
 
-  async findOne(id: ObjectId, ...args): Promise<Department> {
+  async findOne(id: ObjectId, ...args): Promise<DepartmentEntity> {
     return super.findOne(id, ...args);
   }
 
   async findAll(
     paginateOpts?: PaginatorOptions,
     ...args
-  ): Promise<CorePaginateResult<Department>> {
+  ): Promise<CorePaginateResult<DepartmentEntity>> {
     return super.findAll(paginateOpts, ...args);
   }
 
@@ -38,7 +38,7 @@ export class DepartmentService extends BaseService<DepartmentDocument> {
     id: ObjectId,
     updates: UpdateDepartmentDto,
     ...args
-  ): Promise<Department> {
+  ): Promise<DepartmentEntity> {
     return super.update(id, updates, ...args);
   }
 

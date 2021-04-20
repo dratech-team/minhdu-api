@@ -2,7 +2,7 @@ import { Injectable, InternalServerErrorException } from "@nestjs/common";
 import { Model } from "mongoose";
 import { CreateSalaryDto } from "./dto/create-salary.dto";
 import { InjectModel } from "@nestjs/mongoose";
-import { Salary, SalaryDocument } from "./entities/salary.entity";
+import { SalaryEntity, SalaryDocument } from "./entities/salarySchema";
 import { ModelName } from "../../../common/constant/database.constant";
 
 @Injectable()
@@ -12,7 +12,7 @@ export class SalaryService {
     private readonly salaryModel: Model<SalaryDocument>
   ) {}
 
-  async create(createSalaryDto: CreateSalaryDto): Promise<Salary> {
+  async create(createSalaryDto: CreateSalaryDto): Promise<SalaryEntity> {
     const createdSalary = new this.salaryModel(createSalaryDto);
     try {
       await createdSalary.save();

@@ -3,10 +3,10 @@ import { ObjectId } from "mongodb";
 import { Prop, Schema, SchemaFactory } from "@nestjs/mongoose";
 import { UserType } from "../../../../core/constants/role-type.constant";
 
-export type RoleDocument = Role & Document;
+export type RoleDocument = RoleEntity & Document;
 
 @Schema()
-export class Role {
+export class RoleEntity {
   @Prop()
   readonly type: UserType;
 
@@ -14,4 +14,4 @@ export class Role {
   readonly userId: ObjectId;
 }
 
-export const RoleDocumentSchema = SchemaFactory.createForClass(Role);
+export const RoleDocumentSchema = SchemaFactory.createForClass(RoleEntity);

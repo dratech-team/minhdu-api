@@ -34,7 +34,7 @@ export class AreaController extends BaseController<AreaEntity> {
   }
 
   @Delete(":id")
-  async delete(@Param("id") id: ObjectId, ...args): Promise<void> {
-    return super.delete(id, ...args);
+  async remove(@Param("id") id: ObjectId, ...args): Promise<void> {
+    return super.remove(id, ...args);
   }
 }
