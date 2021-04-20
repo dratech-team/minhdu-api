@@ -31,7 +31,7 @@ export class BaseController<T, DTO = any> {
     description: "Entity retrieved successfully.",
   })
   @ApiResponse({ status: 404, description: "Entity does not exist" })
-  async findById(@Param("id") id: ObjectId, ...args: any[]): Promise<T> {
+  async findOne(@Param("id") id: ObjectId, ...args: any[]): Promise<T> {
     return await this.IBaseService.findOne(id);
   }
 
@@ -53,8 +53,8 @@ export class BaseController<T, DTO = any> {
   })
   @ApiResponse({ status: 400, description: "Bad Request." })
   @ApiResponse({ status: 404, description: "Entity does not exist" })
-  async delete(@Param("id") id: ObjectId, ...args: any[]): Promise<void> {
-    return await this.IBaseService.delete(id);
+  async remove(@Param("id") id: ObjectId, ...args: any[]): Promise<void> {
+    return await this.IBaseService.remove(id);
   }
 
   @Put(":id")

@@ -21,6 +21,8 @@ import { mongoMorgan } from "./core/functions/mongo-morgan.function";
 // import { AllExceptionFilter } from "@/core/filters/all-exception.filter";
 // import { HttpExceptionFilter } from "@/core/filters/http-exception.filter";
 
+declare const module: any;
+
 async function bootstrap() {
   const server = express();
   const app = await NestFactory.create<NestExpressApplication>(
@@ -77,6 +79,10 @@ async function bootstrap() {
   const port = configService.serverPort;
   await app.listen(port);
   console.log(`[INFO] Server is listening on port ${port}`);
+  if (module.hot) {
+    module.hot.accept();
+    module.hot.dispose(() => app.close());
+  }
 }
 
 bootstrap().then();

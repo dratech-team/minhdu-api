@@ -3,7 +3,7 @@ import { DeductionService } from "./deduction-salary.service";
 import { DeductionSalaryController } from "./deduction-salary.controller";
 import { MongooseModule } from "@nestjs/mongoose";
 import { ModelName } from "../../../../../common/constant/database.constant";
-import { DeductionSalarySchema } from "./schema/deduction-salary.schema";
+import { DeductionSalarySchema } from "./entities/deduction-salary.schema";
 
 @Module({
   imports: [

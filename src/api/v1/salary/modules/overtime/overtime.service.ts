@@ -1,9 +1,9 @@
 import { Injectable } from "@nestjs/common";
 import { BaseService } from "../../../../../core/crud-base/base.service";
 import {
-  OvertimeSalary,
+  OvertimeSalaryEntity,
   OvertimeSalaryDocument,
-} from "./schema/overtime-salary.schema";
+} from "./entities/overtime-salary.schema";
 import { InjectModel } from "@nestjs/mongoose";
 import { ModelName } from "../../../../../common/constant/database.constant";
 import { Model, Types } from "mongoose";
@@ -27,18 +27,18 @@ export class OvertimeService extends BaseService<OvertimeSalaryDocument> {
   async create(
     body: CreateOvertimeSalaryDto,
     ...args
-  ): Promise<OvertimeSalary> {
+  ): Promise<OvertimeSalaryEntity> {
     return super.create(body, ...args);
   }
 
-  async findOne(id: Types.ObjectId, ...args): Promise<OvertimeSalary> {
+  async findOne(id: Types.ObjectId, ...args): Promise<OvertimeSalaryEntity> {
     return super.findOne(id, ...args);
   }
 
   async findAll(
     paginateOpts?: PaginatorOptions,
     ...args
-  ): Promise<CorePaginateResult<OvertimeSalary>> {
+  ): Promise<CorePaginateResult<OvertimeSalaryEntity>> {
     return super.findAll(paginateOpts, ...args);
   }
 
@@ -46,12 +46,12 @@ export class OvertimeService extends BaseService<OvertimeSalaryDocument> {
     id: Types.ObjectId,
     updates: UpdateOvertimeSalaryDto,
     ...args
-  ): Promise<OvertimeSalary> {
+  ): Promise<OvertimeSalaryEntity> {
     return super.update(id, updates, ...args);
   }
 
-  async delete(id: Types.ObjectId, ...args): Promise<void> {
-    await this.overtimeModel.updateOne({ _id: id }, { deleted: true });
+  async remove(id: Types.ObjectId, ...args): Promise<void> {
+    return await super.remove(id, ...args);
   }
 
   //TODO: 26 là số ngày làm chuẩn. Hiện tại đang hardcode. Sau khi làm xong user sẽ thay lấy ngày làm chuẩn từ db

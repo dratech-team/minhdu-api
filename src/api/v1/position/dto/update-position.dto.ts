@@ -1,6 +1,6 @@
-import { IsEnum, IsNumber, IsOptional, IsString } from "class-validator";
-import { Type } from "class-transformer";
-import { UserType } from "../../../../core/constants/role-type.constant";
+import {IsArray, IsMongoId, IsNumber, IsOptional, IsString} from "class-validator";
+import {Type} from "class-transformer";
+import {ObjectId} from "mongodb";
 
 export class UpdatePositionDto {
   @IsString()
@@ -10,9 +10,9 @@ export class UpdatePositionDto {
   @Type(() => Number)
   @IsNumber()
   @IsOptional()
-  readonly wordDay: number;
+  readonly workDay: number;
 
-  @IsEnum(UserType)
   @IsOptional()
-  readonly userType: UserType;
+  @IsArray()
+  readonly departmentIds: ObjectId[];
 }

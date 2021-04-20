@@ -8,27 +8,28 @@ import {
   Put,
 } from "@nestjs/common";
 import { BaseController } from "../../../core/crud-base/base-controller";
-import { Position } from "./schema/position.schema";
+import { PositionEntity } from "./entities/positionSchema";
 import { PositionService } from "./position.service";
 import { CreatePositionDto } from "./dto/create-position.dto";
 import { Types } from "mongoose";
 import { CorePaginateResult } from "../../../core/interfaces/pagination";
 import { UpdatePositionDto } from "./dto/update-position.dto";
+import { ObjectId } from "mongodb";
 
 @Controller("v1/position")
-export class PositionController extends BaseController<Position> {
+export class PositionController extends BaseController<PositionEntity> {
   constructor(private readonly service: PositionService) {
     super(service);
   }
 
   @Post()
-  async create(@Body() body: CreatePositionDto, ...args): Promise<Position> {
+  async create(@Body() body: CreatePositionDto, ...args): Promise<PositionEntity> {
     return super.create(body, ...args);
   }
 
   @Get(":id")
-  async findById(@Param("id") id: Types.ObjectId, ...args): Promise<Position> {
-    return super.findById(id, ...args);
+  async findOne(@Param("id") id: ObjectId, ...args): Promise<PositionEntity> {
+    return super.findOne(id, ...args);
   }
 
   @Get()
@@ -36,21 +37,21 @@ export class PositionController extends BaseController<Position> {
     @Param("number") page: number,
     @Param("limit") limit: number,
     ...args
-  ): Promise<CorePaginateResult<Position>> {
+  ): Promise<CorePaginateResult<PositionEntity>> {
     return super.findAll(page, limit, ...args);
   }
 
   @Put(":id")
   async update(
     @Body() updates: UpdatePositionDto,
-    @Param("id") id: Types.ObjectId,
+    @Param("id") id: ObjectId,
     ...args
-  ): Promise<Position> {
+  ): Promise<PositionEntity> {
     return super.update(updates, id, ...args);
   }
 
-  @Delete()
-  async delete(@Param("id") id: Types.ObjectId, ...args): Promise<void> {
-    return super.delete(id, ...args);
+  @Delete(":id")
+  async remove(@Param("id") id: ObjectId, ...args): Promise<void> {
+    return super.remove(id, ...args);
   }
 }

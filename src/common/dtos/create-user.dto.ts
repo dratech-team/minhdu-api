@@ -1,39 +1,39 @@
-import {IsEmail, IsNotEmpty, IsNumber, IsOptional, IsPhoneNumber, IsString, MaxLength} from "class-validator";
-import { Type } from "class-transformer";
+import {
+  IsDate,
+  IsEmail,
+  IsEnum,
+  IsNotEmpty,
+  IsNumber,
+  IsOptional,
+  IsPhoneNumber,
+  IsString,
+  MaxLength
+} from "class-validator";
+import {Type} from "class-transformer";
 import {GenderEnum} from "../../core/enum/gender.enum";
 
 export class ICreateUserDto {
-  @IsString()
-  @IsNotEmpty()
-  readonly branchCode: string;
-
-  @IsString()
-  @IsNotEmpty()
-  readonly departmentCode: string;
-
-  @IsNotEmpty()
-  readonly positionCode: string;
-
-  @IsNotEmpty()
-  readonly  userCode: string;
-
   @IsNotEmpty()
   @MaxLength(50)
+  @IsString()
   readonly fullName: string;
 
   @IsNotEmpty()
   @MaxLength(200)
+  @IsString()
   readonly address: string;
 
-  @Type(()=>Date)
+  @Type(() => Date)
   @IsNotEmpty()
-  readonly dateOfBirth: Date;
+  @IsDate()
+  readonly birthday: Date;
 
   @IsNotEmpty()
-  readonly gender: string; //enum
+  @IsEnum(GenderEnum)
+  readonly gender: GenderEnum;
 
-  @IsOptional()
-  @MaxLength(11)
+  @IsNotEmpty()
+  @IsPhoneNumber("VN")
   readonly phoneNumber: string;
 
   @IsOptional()
@@ -41,6 +41,7 @@ export class ICreateUserDto {
   @IsEmail()
   readonly email: string;
 
+  @IsString()
   @IsOptional()
   readonly note: string;
 }

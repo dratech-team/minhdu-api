@@ -1,6 +1,6 @@
 import { Injectable } from "@nestjs/common";
 import { BaseService } from "../../../../../core/crud-base/base.service";
-import { OtherSalary, OtherSalaryDocument } from "./schema/other-salary.schema";
+import { OtherSalaryEntity, OtherSalaryDocument } from "./entities/other-salary.schema";
 import { Model, Types } from "mongoose";
 import { PaginatorOptions } from "../../../../../core/crud-base/interface/pagination.interface";
 import { CorePaginateResult } from "../../../../../core/interfaces/pagination";
@@ -20,18 +20,18 @@ export class OtherService extends BaseService<OtherSalaryDocument> {
     super(otherModel);
   }
 
-  async create(body: CreateOtherSalaryDto, ...args): Promise<OtherSalary> {
+  async create(body: CreateOtherSalaryDto, ...args): Promise<OtherSalaryEntity> {
     return super.create(body, ...args);
   }
 
-  async findOne(id: Types.ObjectId, ...args): Promise<OtherSalary> {
+  async findOne(id: Types.ObjectId, ...args): Promise<OtherSalaryEntity> {
     return super.findOne(id, ...args);
   }
 
   async findAll(
     paginateOpts?: PaginatorOptions,
     ...args
-  ): Promise<CorePaginateResult<OtherSalary>> {
+  ): Promise<CorePaginateResult<OtherSalaryEntity>> {
     return super.findAll(paginateOpts, ...args);
   }
 
@@ -39,12 +39,12 @@ export class OtherService extends BaseService<OtherSalaryDocument> {
     id: Types.ObjectId,
     updates: UpdateOtherSalaryDto,
     ...args
-  ): Promise<OtherSalary> {
+  ): Promise<OtherSalaryEntity> {
     return super.update(id, updates, ...args);
   }
 
-  async delete(id: Types.ObjectId, ...args): Promise<void> {
-    await this.otherModel.updateOne({ _id: id }, { deleted: true });
+  async remove(id: Types.ObjectId, ...args): Promise<void> {
+    return await super.remove(id, ...args);
   }
 
   async otherSalaryTotal(type: OtherType): Promise<OtherSalaryInterface> {

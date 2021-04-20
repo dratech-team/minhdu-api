@@ -10,13 +10,13 @@ import {
 import { BaseController } from "../../../../../core/crud-base/base-controller";
 import { DeductionService } from "./deduction-salary.service";
 import { CreateDeductionSalaryDto } from "./dto/create-deduction-salary.dto";
-import { DeductionSalary } from "./schema/deduction-salary.schema";
+import { DeductionSalaryEntity } from "./entities/deduction-salary.schema";
 import { Types } from "mongoose";
 import { CorePaginateResult } from "../../../../../core/interfaces/pagination";
 import { UpdateDeductionSalaryDto } from "./dto/update-deduction-salary.dto";
 
 @Controller("v1/salary/deduction")
-export class DeductionSalaryController extends BaseController<DeductionSalary> {
+export class DeductionSalaryController extends BaseController<DeductionSalaryEntity> {
   constructor(private readonly service: DeductionService) {
     super(service);
   }
@@ -25,16 +25,16 @@ export class DeductionSalaryController extends BaseController<DeductionSalary> {
   async create(
     @Body() body: CreateDeductionSalaryDto,
     ...args
-  ): Promise<DeductionSalary> {
+  ): Promise<DeductionSalaryEntity> {
     return super.create(body, ...args);
   }
 
   @Get(":id")
-  async findById(
+  async findOne(
     @Param("id") id: Types.ObjectId,
     ...args
-  ): Promise<DeductionSalary> {
-    return super.findById(id, ...args);
+  ): Promise<DeductionSalaryEntity> {
+    return super.findOne(id, ...args);
   }
 
   @Get()
@@ -42,7 +42,7 @@ export class DeductionSalaryController extends BaseController<DeductionSalary> {
     @Param("page") page: number,
     @Param("limit") limit: number,
     ...args
-  ): Promise<CorePaginateResult<DeductionSalary>> {
+  ): Promise<CorePaginateResult<DeductionSalaryEntity>> {
     return super.findAll(page, limit, ...args);
   }
 
@@ -51,12 +51,12 @@ export class DeductionSalaryController extends BaseController<DeductionSalary> {
     @Body() updates: UpdateDeductionSalaryDto,
     id: Types.ObjectId,
     ...args
-  ): Promise<DeductionSalary> {
+  ): Promise<DeductionSalaryEntity> {
     return super.update(updates, id, ...args);
   }
 
   @Delete("id")
-  async delete(@Param("id") id: Types.ObjectId, ...args): Promise<void> {
-    return super.delete(id, ...args);
+  async remove(@Param("id") id: Types.ObjectId, ...args): Promise<void> {
+    return super.remove(id, ...args);
   }
 }

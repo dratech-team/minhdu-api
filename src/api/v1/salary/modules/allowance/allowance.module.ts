@@ -2,7 +2,7 @@ import { Module } from "@nestjs/common";
 import { AllowanceController } from "./allowance.controller";
 import { AllowanceService } from "./allowance.service";
 import { MongooseModule } from "@nestjs/mongoose";
-import { AllowanceSalarySchema } from "./schema/allowance-salary.schema";
+import { AllowanceSalarySchema } from "./entities/allowance-salary.schema";
 import { ModelName } from "../../../../../common/constant/database.constant";
 
 @Module({
