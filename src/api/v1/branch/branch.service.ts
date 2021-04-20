@@ -1,26 +1,40 @@
-import { Injectable } from '@nestjs/common';
-import { CreateBranchDto } from './dto/create-branch.dto';
-import { UpdateBranchDto } from './dto/update-branch.dto';
+import {Injectable} from '@nestjs/common';
+import {CreateBranchDto} from './dto/create-branch.dto';
+import {UpdateBranchDto} from './dto/update-branch.dto';
+import {BaseService} from "../../../core/crud-base/base.service";
+import {Model} from "mongoose";
+import {BranchDocument, BranchEntity} from "./entities/branch.entity";
+import {InjectModel} from "@nestjs/mongoose";
+import {ModelName} from "../../../common/constant/database.constant";
+import {PaginatorOptions} from "../../../core/crud-base/interface/pagination.interface";
+import {CorePaginateResult} from "../../../core/interfaces/pagination";
+import {ObjectId} from "mongodb";
 
 @Injectable()
-export class BranchService {
-  create(createBranchDto: CreateBranchDto) {
-    return 'This action adds a new branch';
+export class BranchService extends BaseService<BranchDocument> {
+  constructor(
+    @InjectModel(ModelName.BRANCH)
+    private readonly branchService: Model<BranchDocument>) {
+    super(branchService);
   }
 
-  findAll() {
-    return `This action returns all branch`;
+  create(body: CreateBranchDto): Promise<BranchEntity> {
+    return super.create(body);
   }
 
-  findOne(id: number) {
-    return `This action returns a #${id} branch`;
+  async findAll(paginateOpts?: PaginatorOptions, ...args): Promise<CorePaginateResult<BranchEntity>> {
+    return super.findAll(paginateOpts, ...args);
   }
 
-  update(id: number, updateBranchDto: UpdateBranchDto) {
-    return `This action updates a #${id} branch`;
+  async findOne(id: ObjectId, ...args): Promise<BranchEntity> {
+    return super.findOne(id, ...args);
   }
 
-  remove(id: number) {
-    return `This action removes a #${id} branch`;
+  async update(id: ObjectId, updates: UpdateBranchDto, ...args): Promise<BranchEntity> {
+    return super.update(id, updates, ...args);
+  }
+
+  async remove(id: ObjectId, ...args): Promise<void> {
+    return super.remove(id, ...args);
   }
 }

@@ -31,11 +31,11 @@ export class LoanSalaryController extends BaseController<LoanSalary> {
   }
 
   @Get(":id")
-  async findById(
+  async findOne(
     @Param("id") id: Types.ObjectId,
     ...args
   ): Promise<LoanSalary> {
-    return super.findById(id, ...args);
+    return super.findOne(id, ...args);
   }
 
   @Get()

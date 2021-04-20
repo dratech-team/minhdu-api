@@ -28,8 +28,8 @@ export class PositionController extends BaseController<Position> {
   }
 
   @Get(":id")
-  async findById(@Param("id") id: ObjectId, ...args): Promise<Position> {
-    return super.findById(id, ...args);
+  async findOne(@Param("id") id: ObjectId, ...args): Promise<Position> {
+    return super.findOne(id, ...args);
   }
 
   @Get()

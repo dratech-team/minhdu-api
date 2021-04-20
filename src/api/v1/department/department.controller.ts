@@ -30,8 +30,8 @@ export class DepartmentController extends BaseController<Department> {
   }
 
   @Get(":id")
-  async findById(@Param("id") id: ObjectId, ...args): Promise<Department> {
-    return super.findById(id, ...args);
+  async findOne(@Param("id") id: ObjectId, ...args): Promise<Department> {
+    return super.findOne(id, ...args);
   }
 
   @Get()

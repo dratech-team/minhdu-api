@@ -1,6 +1,6 @@
 import {Injectable} from '@nestjs/common';
 import {BaseService} from "../../../core/crud-base/base.service";
-import {Area, AreaDocument} from "./entities/area.entity";
+import {AreaEntity, AreaDocument} from "./entities/areaSchema";
 import {Model} from "mongoose";
 import {InjectModel} from "@nestjs/mongoose";
 import {ModelName} from "../../../common/constant/database.constant";
@@ -20,15 +20,15 @@ export class AreaService extends BaseService<AreaDocument> {
   }
 
   //TODO: handle generate code
-  async create(body: CreateAreaDto, ...args): Promise<Area> {
+  async create(body: CreateAreaDto, ...args): Promise<AreaEntity> {
     return super.create(body, ...args);
   }
 
-  async findOne(id: ObjectId, ...args): Promise<Area> {
+  async findOne(id: ObjectId, ...args): Promise<AreaEntity> {
     return super.findOne(id, ...args);
   }
 
-  async findAll(paginateOpts?: PaginatorOptions, ...args): Promise<CorePaginateResult<Area>> {
+  async findAll(paginateOpts?: PaginatorOptions, ...args): Promise<CorePaginateResult<AreaEntity>> {
     return super.findAll(paginateOpts, ...args);
   }
 

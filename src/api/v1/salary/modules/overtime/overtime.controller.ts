@@ -31,8 +31,8 @@ export class OvertimeController extends BaseController<OvertimeSalary> {
   }
 
   @Get(":id")
-  async findById(id: any, ...args): Promise<OvertimeSalary> {
-    return await super.findById(id, ...args);
+  async findOne(id: any, ...args): Promise<OvertimeSalary> {
+    return await super.findOne(id, ...args);
   }
 
   @Get()

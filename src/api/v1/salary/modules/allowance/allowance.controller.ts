@@ -30,11 +30,11 @@ export class AllowanceController extends BaseController<AllowanceSalary> {
   }
 
   @Get(":id")
-  async findById(
+  async findOne(
     @Param("id") id: Types.ObjectId,
     ...args
   ): Promise<AllowanceSalary> {
-    return super.findById(id, ...args);
+    return super.findOne(id, ...args);
   }
 
   @Get()
