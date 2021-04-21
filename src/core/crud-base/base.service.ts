@@ -55,9 +55,7 @@ export class BaseService<T extends Document> implements IBaseService<T> {
       // @ts-ignore
       const item = await this.model.findOne({ _id: id, deleted: false }).exec();
       // const item = await this.model.findById(id).exec();
-      if (!item) {
-        throw new HttpException("Not found", 404);
-      }
+
       console.log(item);
       return item;
     } catch (e) {
@@ -69,7 +67,8 @@ export class BaseService<T extends Document> implements IBaseService<T> {
     paginateOpts?: PaginatorOptions,
     ...args: any[]
   ): Promise<CorePaginateResult<any>> {
-    const total = await this.model.countDocuments();
+    // @ts-ignore
+    const total = await this.model.countDocuments({deleted: false}).exec();
     try {
       if (paginateOpts && paginateOpts.limit && paginateOpts.page) {
         const skips = paginateOpts.limit * (paginateOpts.page - 1);
@@ -121,6 +120,15 @@ export class BaseService<T extends Document> implements IBaseService<T> {
           .exec();
       }
       return this.model.find().exec();
+    } catch (e) {
+      throw new HttpException(e.message || e, e.status || 500);
+    }
+  }
+
+  async count(args?: any[]): Promise<any>{
+    try {
+      return await this.model.countDocuments().exec();
+
     } catch (e) {
       throw new HttpException(e.message || e, e.status || 500);
     }

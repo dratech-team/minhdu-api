@@ -25,4 +25,6 @@ export interface IBaseService<ResultType> {
     paginateOpts?: PaginatorOptions,
     ...args: any[]
   ): Promise<ResultType[]>;
+
+  count(args?: any[]): Promise<ResultType>;
 }
