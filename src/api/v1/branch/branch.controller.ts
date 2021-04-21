@@ -1,4 +1,4 @@
-import {Body, Controller, Delete, Get, Param, Post, Put} from '@nestjs/common';
+import {Body, Controller, Delete, Get, Param, Post, Put, UseGuards} from '@nestjs/common';
 import {BranchService} from './branch.service';
 import {CreateBranchDto} from './dto/create-branch.dto';
 import {BaseController} from "../../../core/crud-base/base-controller";
@@ -6,8 +6,11 @@ import {BranchEntity} from "./entities/branch.entity";
 import {CorePaginateResult} from "../../../core/interfaces/pagination";
 import {ObjectId} from "mongodb";
 import {UpdateBranchDto} from "./dto/update-branch.dto";
+import {JwtAuthGuard} from "../../../core/guard/jwt-auth.guard";
+
 
 @Controller('v1/branch')
+@UseGuards(JwtAuthGuard)
 export class BranchController extends BaseController<BranchEntity> {
   constructor(private readonly branchService: BranchService) {
     super(branchService);

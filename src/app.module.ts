@@ -12,6 +12,7 @@ import { PositionModule } from "./api/v1/position/position.module";
 import { DeductionSalaryModule } from "./api/v1/salary/modules/deduction/deduction-salary.module";
 import {DepartmentModule} from "./api/v1/department/department.module";
 import { BranchModule } from './api/v1/branch/branch.module';
+import { AuthModule } from './api/v1/auth/auth.module';
 
 @Module({
   imports: [
@@ -35,6 +36,7 @@ import { BranchModule } from './api/v1/branch/branch.module';
     PositionModule,
     DepartmentModule,
     BranchModule,
+    AuthModule,
     // AuthModule,
   ],
   controllers: [AppController],

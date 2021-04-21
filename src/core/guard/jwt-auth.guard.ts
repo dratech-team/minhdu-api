@@ -4,12 +4,11 @@ import {
   HttpStatus,
   Injectable,
 } from "@nestjs/common";
-import { Reflector } from "@nestjs/core";
-import { AuthGuard } from "@nestjs/passport";
-import { ErrorService } from "../services/error.service";
-import { IProfile } from "../interfaces/profile.interface";
-import { UserType } from "../constants/role-type.constant";
-import { ERROR_CODE } from "../constants/error.constant";
+import {Reflector} from "@nestjs/core";
+import {AuthGuard} from "@nestjs/passport";
+import {IProfile} from "../interfaces/profile.interface";
+import {UserType} from "../constants/role-type.constant";
+import {ERROR_CODE} from "../constants/error.constant";
 
 /**
  * JwtStrategy
@@ -18,7 +17,7 @@ import { ERROR_CODE } from "../constants/error.constant";
 export class JwtAuthGuard extends AuthGuard("jwt") {
   constructor(
     private readonly reflector: Reflector,
-    private readonly errorService: ErrorService
+    // private readonly errorService: ErrorService
   ) {
     super();
   }
@@ -27,7 +26,7 @@ export class JwtAuthGuard extends AuthGuard("jwt") {
     const shouldActive = await super.canActivate(context);
 
     if (!shouldActive) {
-      await this.errorService.throwErrorForbiddenResource();
+      console.log('Không tìm thấy tài nguyên. Vui lòng kiểm tra lại!');
       return false;
     }
 
@@ -37,10 +36,7 @@ export class JwtAuthGuard extends AuthGuard("jwt") {
     const userTypes = this.getUserTypes(context);
     if (userTypes?.length) {
       if (!userTypes.includes(profile?.user?.userType)) {
-        await this.errorService.throwErrorWrongRole(
-          profile?.user?.userType,
-          userTypes
-        );
+        console.log(profile?.user?.userType);
         return false;
       }
     }
