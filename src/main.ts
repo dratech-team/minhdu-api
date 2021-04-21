@@ -15,6 +15,8 @@ import { WebsocketsExceptionFilter } from "./core/filters/ws-exception.filter";
 import { AllExceptionFilter } from "./core/filters/all-exception.filter";
 import { HttpExceptionFilter } from "./core/filters/http-exception.filter";
 import { mongoMorgan } from "./core/functions/mongo-morgan.function";
+import {RolesGuard} from "./core/guard/role.guard";
+import {ApiKeyGuard} from "./core/guard/api-key-auth.guard";
 // import { ConfigService } from "@/core/config/config.service";
 // import { WebsocketsExceptionFilter } from "@/core/filters/ws-exception.filter";
 // import { mongoMorgan } from "@/core/functions/mongo-morgan.function";

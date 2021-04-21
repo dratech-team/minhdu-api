@@ -8,16 +8,18 @@ import {ObjectId} from "mongodb";
 import {UpdateBranchDto} from "./dto/update-branch.dto";
 import {JwtAuthGuard} from "../../../core/guard/jwt-auth.guard";
 import {ApiKeyGuard} from "../../../core/guard/api-key-auth.guard";
-
+import {RolesGuard} from 'src/core/guard/role.guard';
+import {Roles} from "../../../core/decorators/roles.decorator";
+import {UserType} from "../../../core/constants/role-type.constant";
 
 @Controller('v1/branch')
-@UseGuards(JwtAuthGuard)
-@UseGuards(ApiKeyGuard)
+@UseGuards(JwtAuthGuard, ApiKeyGuard, RolesGuard)
 export class BranchController extends BaseController<BranchEntity> {
   constructor(private readonly branchService: BranchService) {
     super(branchService);
   }
 
+  @Roles(UserType.ADMIN)
   @Post()
   async create(@Body() body: CreateBranchDto, ...args): Promise<BranchEntity> {
     return super.create(body, ...args);

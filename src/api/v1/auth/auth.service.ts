@@ -10,6 +10,7 @@ import {SignInCredentialDto} from "./dto/signin-credential.dto";
 import {ObjectId} from "mongodb";
 import {JwtService} from "@nestjs/jwt";
 import * as bcrypt from "bcrypt";
+import {JwtPayload} from "./interface/jwt-payload.interface";
 
 @Injectable()
 export class AuthService extends BaseService<CredentialDocument> {
@@ -34,12 +35,15 @@ export class AuthService extends BaseService<CredentialDocument> {
       if (!isValid) {
         throw new UnauthorizedException();
       }
-      const token = this.jwtService.sign({
+
+      const payload: JwtPayload = {
         accountId: user._id,
         username: user.username,
         role: user.role,
         userId: user.userId
-      });
+      };
+
+      const token = this.jwtService.sign(payload);
       return {token};
     } catch (e) {
       throw new HttpException(e, e.status);
