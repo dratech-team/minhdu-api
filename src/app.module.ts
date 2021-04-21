@@ -37,7 +37,6 @@ import { AuthModule } from './api/v1/auth/auth.module';
     DepartmentModule,
     BranchModule,
     AuthModule,
-    // AuthModule,
   ],
   controllers: [AppController],
   providers: [AppService],

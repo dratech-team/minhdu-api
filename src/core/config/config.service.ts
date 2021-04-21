@@ -65,7 +65,7 @@ export class ConfigService {
 
   get signOptions(): jwt.SignOptions {
     return {
-      expiresIn: `3 days`,
+      expiresIn: '3 days',
       algorithm: 'HS256',
     };
   }

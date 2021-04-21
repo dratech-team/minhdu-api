@@ -9,7 +9,6 @@ import {AuthGuard} from "@nestjs/passport";
 import {IProfile} from "../interfaces/profile.interface";
 import {UserType} from "../constants/role-type.constant";
 import {ERROR_CODE} from "../constants/error.constant";
-
 /**
  * JwtStrategy
  */

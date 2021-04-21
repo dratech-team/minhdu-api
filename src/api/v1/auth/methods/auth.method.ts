@@ -1,11 +1,7 @@
-import {generateHash, validPassword} from "../../../../core/methods/validators.method";
+import {CredentialEntity} from "../entities/credential.entity";
 
-export const methods = {
-  validPassword,
-  generateHash,
-};
+export interface IUserMethods {
+  validPassword(this: CredentialEntity, password: string);
 
-type MethodsType = typeof methods
-
-export interface IUserMethods extends MethodsType {
+  generateHash(password: string);
 }

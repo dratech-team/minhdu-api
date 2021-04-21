@@ -1,22 +1,22 @@
-import {Injectable} from '@nestjs/common';
+import {HttpException, Injectable, UnauthorizedException} from '@nestjs/common';
 import {BaseService} from "../../../core/crud-base/base.service";
-import {CredentialDocument} from "./entities/credential.entity";
+import {CredentialDocument, CredentialEntity} from "./entities/credential.entity";
 import {Model} from "mongoose";
 import {InjectModel} from "@nestjs/mongoose";
 import {ModelName} from "../../../common/constant/database.constant";
 import {SignupCredentialDto} from "./dto/signup-credential.dto";
-import {generateHash, validPassword} from "../../../core/methods/validators.method";
+import {generateHash} from "../../../core/methods/validators.method";
 import {SignInCredentialDto} from "./dto/signin-credential.dto";
 import {ObjectId} from "mongodb";
-import {JwtPayload} from "./interface/jwt-payload.interface";
-import {UserService} from "../user/user.service";
+import {JwtService} from "@nestjs/jwt";
+import * as bcrypt from "bcrypt";
 
 @Injectable()
 export class AuthService extends BaseService<CredentialDocument> {
   constructor(
     @InjectModel(ModelName.ACCOUNT)
     private readonly authModel: Model<CredentialDocument>,
-    private readonly userService: UserService,
+    private readonly jwtService: JwtService,
   ) {
     super(authModel);
   }
@@ -26,9 +26,28 @@ export class AuthService extends BaseService<CredentialDocument> {
     return super.create(body, ...args);
   }
 
-  async signIn(body: SignInCredentialDto): Promise<JwtPayload> {
-    const isValid = validPassword(body.password);
+  async signIn(body: SignInCredentialDto): Promise<{ token: string }> {
+    try {
+      const user = await this.findByAccount(body.username);
+      const isValid = await bcrypt.compare(body.password, user.password);
 
+      if (!isValid) {
+        throw new UnauthorizedException();
+      }
+      const token = this.jwtService.sign({
+        accountId: user._id,
+        username: user.username,
+        role: user.role,
+        userId: user.userId
+      });
+      return {token};
+    } catch (e) {
+      throw new HttpException(e, e.status);
+    }
+  }
+
+  async findByAccount(username: string): Promise<CredentialEntity> {
+    return this.authModel.findOne({username: username});
   }
 
   async changeRequest(body: SignupCredentialDto): Promise<SignupCredentialDto> {

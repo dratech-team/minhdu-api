@@ -9,11 +9,13 @@ import {ConfigModule} from "../../../core/config/config.module";
 import {MongooseModule} from "@nestjs/mongoose";
 import {ModelName} from "../../../common/constant/database.constant";
 import {CredentialSchema} from "./entities/credential.entity";
+import {JwtStrategy} from "./jwt.strategy";
 
 @Module({
   imports: [
     UserModule,
     PassportModule,
+    ConfigModule,
     JwtModule.registerAsync({
       imports: [ConfigModule],
       useFactory: async (configService: ConfigService) => ({
@@ -26,8 +28,9 @@ import {CredentialSchema} from "./entities/credential.entity";
     }),
     MongooseModule.forFeature([{name: ModelName.ACCOUNT, schema: CredentialSchema}])
   ],
-  providers: [AuthService],
-  controllers: [AuthController]
+  controllers: [AuthController],
+  providers: [AuthService, JwtStrategy],
+  exports: [AuthService]
 })
 export class AuthModule {
 }
