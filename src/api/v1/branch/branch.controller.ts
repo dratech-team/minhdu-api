@@ -7,10 +7,12 @@ import {CorePaginateResult} from "../../../core/interfaces/pagination";
 import {ObjectId} from "mongodb";
 import {UpdateBranchDto} from "./dto/update-branch.dto";
 import {JwtAuthGuard} from "../../../core/guard/jwt-auth.guard";
+import {ApiKeyGuard} from "../../../core/guard/api-key-auth.guard";
 
 
 @Controller('v1/branch')
 @UseGuards(JwtAuthGuard)
+@UseGuards(ApiKeyGuard)
 export class BranchController extends BaseController<BranchEntity> {
   constructor(private readonly branchService: BranchService) {
     super(branchService);
