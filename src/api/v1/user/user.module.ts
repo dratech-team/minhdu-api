@@ -18,6 +18,8 @@ import {PositionModule} from "../position/position.module";
   ],
   controllers: [UserController],
   providers: [UserService],
+  exports: [UserService]
 })
 export class UserModule {
 }
+

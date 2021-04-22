@@ -1,13 +1,11 @@
 import * as dotenv from "dotenv";
 import * as fs from "fs";
 import * as Joi from "joi";
-import { EnvConfig, IEnvConfig } from "../interfaces/configuration.interface";
-import { NODE_ENV, NODE_ENV_LIST } from "../constants/config.constant";
-// import {
-//   EnvConfig,
-//   IEnvConfig,
-// } from "@/core/interfaces/configuration.interface";
-// import { NODE_ENV, NODE_ENV_LIST } from "@/core/constants/config.constant";
+import {EnvConfig, IEnvConfig} from "../interfaces/configuration.interface";
+import {NODE_ENV, NODE_ENV_LIST} from "../constants/config.constant";
+import {ExtractJwt, StrategyOptions} from 'passport-jwt';
+import * as jwt from 'jsonwebtoken';
+import {TAlgorithm} from 'jwt-simple';
 
 export class ConfigService {
   private readonly envConfig: IEnvConfig;
@@ -32,9 +30,11 @@ export class ConfigService {
       APP_API_KEY: Joi.string().required(),
       ADMIN_KEY: Joi.string().required(),
       DB_NAME: Joi.string().required(),
+      PRIVATE_KEY: Joi.string().required(),
+      PUBLIC_KEY: Joi.string().required(),
     });
 
-    const { error, value: validatedEnvConfig } = envVarsSchema.validate(
+    const {error, value: validatedEnvConfig} = envVarsSchema.validate(
       envConfig
     );
     if (error) {
@@ -52,6 +52,35 @@ export class ConfigService {
       homeUrl: `${SERVER_URL}/`,
       iconUrl: `${SERVER_URL}/icons/logo.png`,
       backgroundUrl: `${SERVER_URL}/images/1.jpg`,
+    };
+  }
+
+  get jwtStrategyOpts(): StrategyOptions {
+    return {
+      jwtFromRequest: ExtractJwt.fromAuthHeaderAsBearerToken(),
+      secretOrKey: this.privateKey,
+      jsonWebTokenOptions: this.verifyOptions,
+    } as StrategyOptions;
+  }
+
+  get signOptions(): jwt.SignOptions {
+    return {
+      expiresIn: '3 days',
+      algorithm: 'HS256',
+    };
+  }
+
+  get privateKey() {
+    return this.envConfig.PRIVATE_KEY;
+  }
+
+  get publicKey(): string {
+    return this.envConfig.PUBLIC_KEY;
+  }
+
+  get verifyOptions(): jwt.VerifyOptions | any {
+    return {
+      algorithms: ['HS256'] as TAlgorithm[],
     };
   }
 

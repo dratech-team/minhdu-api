@@ -21,4 +21,7 @@ export interface IEnvConfig {
   API_PATH: string;
   APP_API_KEY: string;
   ADMIN_KEY: string;
+
+  PRIVATE_KEY: string;
+  PUBLIC_KEY: string;
 }
