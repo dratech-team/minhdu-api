@@ -1,4 +1,4 @@
-import {Inject, Injectable} from "@nestjs/common";
+import {Injectable} from "@nestjs/common";
 import {BaseService} from "../../../core/crud-base/base.service";
 import {UserDocument, UserEntity} from "./entities/user.entity";
 import {Model} from "mongoose";
@@ -9,7 +9,6 @@ import {PaginatorOptions} from "../../../core/crud-base/interface/pagination.int
 import {CorePaginateResult} from "../../../core/interfaces/pagination";
 import {UpdateUserDto} from "./dto/update-user.dto";
 import {CreateUserDto} from "./dto/create-user.dto";
-import {PositionService} from "../position/position.service";
 
 @Injectable()
 export class UserService extends BaseService<UserDocument> {
@@ -21,10 +20,6 @@ export class UserService extends BaseService<UserDocument> {
   }
 
   async create(body: CreateUserDto, ...args): Promise<UserEntity> {
-    // body.position = new ObjectId(body.position);
-    // body.branch = new ObjectId(body.branch);
-    // body.department = new ObjectId(body.department);
-
     return super.create(body, ...args);
   }
 
