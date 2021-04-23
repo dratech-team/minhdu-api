@@ -2,7 +2,7 @@ import {Module} from "@nestjs/common";
 import {PayrollController} from "./payroll.controller";
 import {PayrollService} from "./payroll.service";
 import {MongooseModule} from "@nestjs/mongoose";
-import {PayrollEntity} from "./entities/payroll.entity";
+import {PayrollEntity, PayrollSchema} from "./entities/payroll.entity";
 import {AllowanceModule} from "../allowance/allowance.module";
 import {ModelName} from "../../../common/constant/database.constant";
 import {OvertimeModule} from "../overtime/overtime.module";
@@ -14,7 +14,7 @@ import {OtherModule} from "../other/other.module";
 @Module({
   imports: [
     MongooseModule.forFeature([
-      {name: ModelName.SALARY, schema: PayrollEntity},
+      {name: ModelName.SALARY, schema: PayrollSchema},
     ]),
     AllowanceModule,
     OvertimeModule,
