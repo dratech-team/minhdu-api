@@ -13,6 +13,7 @@ import { DeductionSalaryModule } from "./api/v1/salary/modules/deduction/deducti
 import {DepartmentModule} from "./api/v1/department/department.module";
 import { BranchModule } from './api/v1/branch/branch.module';
 import { AuthModule } from './api/v1/auth/auth.module';
+import {SwaggerModule} from "@nestjs/swagger";
 
 @Module({
   imports: [
@@ -29,6 +30,7 @@ import { AuthModule } from './api/v1/auth/auth.module';
         } as MongooseModuleAsyncOptions),
       inject: [ConfigService],
     }),
+    SwaggerModule,
     SalaryModule,
     UserModule,
     AreaModule,
