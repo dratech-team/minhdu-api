@@ -38,19 +38,20 @@ export class UserService extends BaseService<UserDocument> {
   }
 
 
-  async updateUser(
+  async update(
     id: ObjectId,
-    salaryId: ObjectId,
     updates: UpdateUserDto,
+    salaryId?: ObjectId,
     ...args
   ): Promise<any> {
     try {
       if (salaryId) {
-        const salary = await this.userModel.findOne({_id: id}).findOne({"basicsSalary._id": salaryId}).lean();
+        const user = await this.userModel.updateOne(
+          {_id: id, "basicsSalary._id": salaryId},
+          {"$set": {"basicsSalary.$.title": "dime duoc roi"}}
+        );
 
-        console.log(salary)
-        // return updatedSalary;
-
+        console.log(user);
       } else {
         const found = await this.userModel.find({
           'basicsSalary': {
@@ -62,12 +63,12 @@ export class UserService extends BaseService<UserDocument> {
         if (!isEmpty(found)) {
           console.log("Muc nay da ton tai");
         } else {
-          const updated = await this.userModel.updateOne(
+          const updated = await this.userModel.findByIdAndUpdate(
             {_id: id},
-            {$push: {"basicsSalary": updates.basicSalary}}
+            {$push: {basicsSalary: updates.basicSalary}}
           ).lean();
-
-          return updates;
+          console.log(updated);
+          return updated;
         }
       }
 

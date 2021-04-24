@@ -1,11 +1,11 @@
 import {Prop, Schema, SchemaFactory} from "@nestjs/mongoose";
 import {Document} from "mongoose";
-import {ISalary} from "../../../../common/entities/isalary.entity";
+import {ISalaryEntity} from "../../../../common/entities/isalary.entity";
 
 export type BasicSalaryDocument = Document & BasicSalaryEntity;
 
 @Schema()
-export class BasicSalaryEntity extends ISalary {
+export class BasicSalaryEntity extends ISalaryEntity {
   @Prop({type: String, default: "Lương cơ bản"})
   title: string;
 

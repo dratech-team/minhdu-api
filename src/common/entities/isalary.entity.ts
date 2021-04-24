@@ -1,8 +1,9 @@
-import {Prop, Schema} from "@nestjs/mongoose";
+import {Prop, Schema, SchemaFactory} from "@nestjs/mongoose";
 import {BaseDocument} from "../../core/entities/base.entity";
+import {ObjectId} from "mongodb";
 
 @Schema()
-export class ISalary {
+export class ISalaryEntity {
   @Prop()
   title?: string;
 
@@ -12,3 +13,5 @@ export class ISalary {
   @Prop()
   note?: string;
 }
+
+export const ISalarySchema = SchemaFactory.createForClass(ISalaryEntity);

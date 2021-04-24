@@ -1,12 +1,12 @@
 import {Document} from "mongoose";
 import {Prop, Schema, SchemaFactory} from "@nestjs/mongoose";
 import {OvertimeType} from "../overtime-type.enum";
-import {ISalary} from "../../../../common/entities/isalary.entity";
+import {ISalaryEntity} from "../../../../common/entities/isalary.entity";
 
 export type OvertimeSalaryDocument = Document & OvertimeSalaryEntity;
 
 @Schema()
-export class OvertimeSalaryEntity extends ISalary {
+export class OvertimeSalaryEntity extends ISalaryEntity {
   @Prop()
   type: OvertimeType;
 

@@ -5,7 +5,7 @@ import {PositionEntity} from "../../position/entities/positionSchema";
 import {DepartmentEntity} from "../../department/entities/departmentSchema";
 import {BranchEntity} from "../../branch/entities/branch.entity";
 import * as mongoose from "mongoose";
-import {ISalary} from "../../../../common/entities/isalary.entity";
+import {ISalaryEntity, ISalarySchema} from "../../../../common/entities/isalary.entity";
 
 export type UserDocument = UserEntity & Document;
 
@@ -20,8 +20,8 @@ export class UserEntity extends IUser {
   @Prop({type: mongoose.Schema.Types.ObjectId, ref: "BranchEntity"})
   branch: Types.ObjectId;
 
-  @Prop([ISalary])
-  basicsSalary: ISalary[];
+  @Prop([ISalarySchema])
+  basicsSalary: ISalaryEntity[];
 }
 
 export const UserSchema = SchemaFactory.createForClass(UserEntity);

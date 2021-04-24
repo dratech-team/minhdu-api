@@ -33,14 +33,22 @@ export class UserController extends BaseController<UserEntity> {
     return super.findAll(page, limit, ...args);
   }
 
-  @Put(":id/:salaryId")
-  async update(
+  @Put(":id")
+  async updateUser(
+    @Body() body: UpdateUserDto,
+    @Param("id") id: Types.ObjectId,
+  ): Promise<UserEntity> {
+    return this.service.update(id, body);
+  }
+
+  @Put(":id/salary/:salaryId")
+  async updateSalary(
     @Body() body: UpdateUserDto,
     @Param("id") id: Types.ObjectId,
     @Param("salaryId") salaryId: Types.ObjectId,
     ...args
   ): Promise<UserEntity> {
-    return this.service.updateUser(id, salaryId, body);
+    return this.service.update(id, body, salaryId);
   }
 
   @Delete(":id")
