@@ -6,6 +6,7 @@ import {CorePaginateResult} from "../../../core/interfaces/pagination";
 import {Types} from "mongoose";
 import {UserEntity} from "./entities/user.entity";
 import {UpdateUserDto} from "./dto/update-user.dto";
+import {ObjectId} from "mongodb";
 
 @Controller("v1/user")
 export class UserController extends BaseController<UserEntity> {
@@ -52,7 +53,15 @@ export class UserController extends BaseController<UserEntity> {
   }
 
   @Delete(":id")
-  async remove(@Param("id") id: Types.ObjectId, ...args): Promise<void> {
-    return super.remove(id, ...args);
+  async remove(@Param("id") id: ObjectId): Promise<void> {
+    return this.service.remove(id);
+  }
+
+  @Delete(":id/salary/:salaryId")
+  async removeSalary(
+    @Param("id") id: ObjectId,
+    @Param("salaryId") salaryId: ObjectId
+  ): Promise<void> {
+    return this.service.remove(id, salaryId);
   }
 }
