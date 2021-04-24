@@ -2,13 +2,13 @@ import {Prop, Schema} from "@nestjs/mongoose";
 import {BaseDocument} from "../../core/entities/base.entity";
 
 @Schema()
-export class ISalary extends BaseDocument {
+export class ISalary {
   @Prop()
-  title: string;
+  title?: string;
 
   @Prop()
-  price: number;
+  price?: number;
 
   @Prop()
-  note: string;
+  note?: string;
 }

@@ -18,7 +18,7 @@ export class BasicSalaryService extends BaseService<BasicSalaryDocument> {
     super(basicSalaryModel);
   }
 
-  create(body: CreateBasicSalaryDto): Promise<BasicSalaryEntity> {
+  create(body?: CreateBasicSalaryDto): Promise<BasicSalaryEntity> {
     return super.create(body);
   }
 

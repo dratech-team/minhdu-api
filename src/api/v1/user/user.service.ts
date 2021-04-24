@@ -1,4 +1,4 @@
-import {Injectable} from "@nestjs/common";
+import {HttpException, HttpStatus, Injectable} from "@nestjs/common";
 import {BaseService} from "../../../core/crud-base/base.service";
 import {UserDocument, UserEntity} from "./entities/user.entity";
 import {Model} from "mongoose";
@@ -9,6 +9,7 @@ import {PaginatorOptions} from "../../../core/crud-base/interface/pagination.int
 import {CorePaginateResult} from "../../../core/interfaces/pagination";
 import {UpdateUserDto} from "./dto/update-user.dto";
 import {CreateUserDto} from "./dto/create-user.dto";
+import {isEmpty} from '../../../common/utils/array.utils';
 
 @Injectable()
 export class UserService extends BaseService<UserDocument> {
@@ -36,12 +37,46 @@ export class UserService extends BaseService<UserDocument> {
     return await super.findAll(paginateOpts, ...args);
   }
 
-  async update(
+
+  async updateUser(
     id: ObjectId,
+    salaryId: ObjectId,
     updates: UpdateUserDto,
     ...args
-  ): Promise<UserEntity> {
-    return await super.update(id, updates, ...args);
+  ): Promise<any> {
+    try {
+      if (salaryId) {
+        const salary = await this.userModel.findOne({_id: id}).findOne({"basicsSalary._id": salaryId}).lean();
+
+        console.log(salary)
+        // return updatedSalary;
+
+      } else {
+        const found = await this.userModel.find({
+          'basicsSalary': {
+            $elemMatch: {
+              title: updates.basicSalary.title
+            }
+          }
+        });
+        if (!isEmpty(found)) {
+          console.log("Muc nay da ton tai");
+        } else {
+          const updated = await this.userModel.updateOne(
+            {_id: id},
+            {$push: {"basicsSalary": updates.basicSalary}}
+          ).lean();
+
+          return updates;
+        }
+      }
+
+    } catch (e) {
+      throw  new HttpException(e, e.statusCode || 500);
+    }
+
+
+    // return await super.update(id, updates);
   }
 
   async remove(id: ObjectId, ...args): Promise<void> {

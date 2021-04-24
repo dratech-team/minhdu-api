@@ -5,11 +5,12 @@ import {UserService} from "./user.service";
 import {CorePaginateResult} from "../../../core/interfaces/pagination";
 import {Types} from "mongoose";
 import {UserEntity} from "./entities/user.entity";
+import {UpdateUserDto} from "./dto/update-user.dto";
 
 @Controller("v1/user")
 export class UserController extends BaseController<UserEntity> {
-  constructor(userService: UserService) {
-    super(userService);
+  constructor(private readonly service: UserService) {
+    super(service);
   }
 
   // @UseGuards(JwtAuthGuard)
@@ -32,13 +33,14 @@ export class UserController extends BaseController<UserEntity> {
     return super.findAll(page, limit, ...args);
   }
 
-  @Put(":id")
+  @Put(":id/:salaryId")
   async update(
-    @Body() body: CreateUserDto,
+    @Body() body: UpdateUserDto,
     @Param("id") id: Types.ObjectId,
+    @Param("salaryId") salaryId: Types.ObjectId,
     ...args
   ): Promise<UserEntity> {
-    return super.update(body, id, ...args);
+    return this.service.updateUser(id, salaryId, body);
   }
 
   @Delete(":id")

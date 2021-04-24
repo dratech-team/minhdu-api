@@ -10,6 +10,7 @@
     "format": "prettier --write \"src/**/*.ts\"",
     "start": "NODE_ENV=production ts-node -r tsconfig-paths/register src/main.ts",
     "start:dev": "nest start --watch",
+    "start:debug:webstorm": "node %NODE_DEBUG_OPTION% -r ts-node/register -r tsconfig-paths/register src/main.ts",
     "dev": "nest build --watch --webpack --webpackPath webpack-hmr.config.js",
     "start:debug": "nodemon --config nodemon-debug.json",
     "prestart:prod": "rimraf dist && npm run build",

@@ -21,7 +21,7 @@ export class UserEntity extends IUser {
   branch: Types.ObjectId;
 
   @Prop([ISalary])
-  basicSalary: ISalary[];
+  basicsSalary: ISalary[];
 }
 
 export const UserSchema = SchemaFactory.createForClass(UserEntity);

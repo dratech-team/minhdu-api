@@ -7,6 +7,7 @@ import {MongooseModule} from "@nestjs/mongoose";
 import {ModelName} from "../../../common/constant/database.constant";
 import {UserSchema} from "./entities/user.entity";
 import {PositionModule} from "../position/position.module";
+import { BasicSalaryModule } from "../basic/basic-salary.module";
 
 @Module({
   imports: [
