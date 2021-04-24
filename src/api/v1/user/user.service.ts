@@ -1,4 +1,4 @@
-import {ConflictException, HttpException, HttpStatus, Injectable} from "@nestjs/common";
+import {ConflictException, HttpException, Injectable} from "@nestjs/common";
 import {BaseService} from "../../../core/crud-base/base.service";
 import {UserDocument, UserEntity} from "./entities/user.entity";
 import {Model} from "mongoose";
@@ -10,7 +10,6 @@ import {CorePaginateResult} from "../../../core/interfaces/pagination";
 import {UpdateUserDto} from "./dto/update-user.dto";
 import {CreateUserDto} from "./dto/create-user.dto";
 import {isEmpty} from '../../../common/utils/array.utils';
-import * as Http from "http";
 
 @Injectable()
 export class UserService extends BaseService<UserDocument> {
@@ -77,13 +76,12 @@ export class UserService extends BaseService<UserDocument> {
   async remove(
     id: ObjectId,
     salaryId?: ObjectId,
-  ): Promise<void> {
+  ): Promise<any> {
     try {
       if (salaryId === null || salaryId === undefined) {
-        console.log(salaryId);
-        await this.userModel.deleteOne({_id: id});
+        return await this.userModel.deleteOne({_id: id});
       } else {
-        await this.userModel.updateOne(
+        return await this.userModel.updateOne(
           {_id: id},
           {$pull: {basicsSalary: {_id: salaryId}}}
         );

@@ -7,6 +7,7 @@ import {Types} from "mongoose";
 import {UserEntity} from "./entities/user.entity";
 import {UpdateUserDto} from "./dto/update-user.dto";
 import {ObjectId} from "mongodb";
+import {ApiOperation} from "@nestjs/swagger";
 
 @Controller("v1/user")
 export class UserController extends BaseController<UserEntity> {
@@ -14,12 +15,10 @@ export class UserController extends BaseController<UserEntity> {
     super(service);
   }
 
-  // @UseGuards(JwtAuthGuard)
-  @Get("profile")
-  getProfile(@Request() req) {
-    return req.user;
-  }
-
+  @ApiOperation({
+    summary: 'Tạo user',
+    description: 'User tạo bao gồm các trường cơ bản, basicsSalary sẽ được init nhưng để tạo mới basicsSalary thì vào phần update'
+  })
   @Post()
   async create(@Body() body: CreateUserDto, ...args): Promise<UserEntity> {
     return super.create(body, ...args);
