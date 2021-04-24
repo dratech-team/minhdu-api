@@ -9,10 +9,10 @@ import { ConfigService } from "./core/config/config.service";
 import { ConfigModule } from "./core/config/config.module";
 import { LoggerMiddleware } from "./core/middlewares/logger.middleware";
 import { PositionModule } from "./api/v1/position/position.module";
-import { DeductionSalaryModule } from "./api/v1/deduction/deduction-salary.module";
 import {DepartmentModule} from "./api/v1/department/department.module";
 import { BranchModule } from './api/v1/branch/branch.module';
 import { AuthModule } from './api/v1/auth/auth.module';
+import {SwaggerModule} from "@nestjs/swagger";
 
 @Module({
   imports: [
@@ -29,6 +29,7 @@ import { AuthModule } from './api/v1/auth/auth.module';
         } as MongooseModuleAsyncOptions),
       inject: [ConfigService],
     }),
+    SwaggerModule,
     PayrollModule,
     UserModule,
     AreaModule,
