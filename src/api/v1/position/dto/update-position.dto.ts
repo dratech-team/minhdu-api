@@ -1,18 +1,5 @@
-import {IsArray, IsMongoId, IsNumber, IsOptional, IsString} from "class-validator";
-import {Type} from "class-transformer";
-import {ObjectId} from "mongodb";
+import {PartialType} from "@nestjs/mapped-types";
+import {CreatePositionDto} from "./create-position.dto";
 
-export class UpdatePositionDto {
-  @IsString()
-  @IsOptional()
-  readonly position: string;
-
-  @Type(() => Number)
-  @IsNumber()
-  @IsOptional()
-  readonly workDay: number;
-
-  @IsOptional()
-  @IsArray()
-  readonly departmentIds: ObjectId[];
+export class UpdatePositionDto extends PartialType(CreatePositionDto) {
 }

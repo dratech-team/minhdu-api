@@ -3,7 +3,7 @@ import {PositionController} from "./position.controller";
 import {PositionService} from "./position.service";
 import {MongooseModule} from "@nestjs/mongoose";
 import {ModelName} from "../../../common/constant/database.constant";
-import {PositionSchema} from "./entities/positionSchema";
+import {PositionSchema} from "./entities/position.entity";
 
 @Module({
   imports: [

@@ -1,6 +1,6 @@
 import {Injectable} from '@nestjs/common';
 import {BaseService} from "../../../core/crud-base/base.service";
-import {AreaEntity, AreaDocument} from "./entities/areaSchema";
+import {AreaEntity, AreaDocument} from "./entities/area.entity";
 import {Model} from "mongoose";
 import {InjectModel} from "@nestjs/mongoose";
 import {ModelName} from "../../../common/constant/database.constant";
