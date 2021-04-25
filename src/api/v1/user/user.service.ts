@@ -1,7 +1,7 @@
 import {ConflictException, HttpException, Injectable} from "@nestjs/common";
 import {BaseService} from "../../../core/crud-base/base.service";
 import {UserDocument, UserEntity} from "./entities/user.entity";
-import {Model} from "mongoose";
+import {FilterQuery, Model} from "mongoose";
 import {InjectModel} from "@nestjs/mongoose";
 import {ModelName} from "../../../common/constant/database.constant";
 import {ObjectId} from "mongodb";
@@ -9,7 +9,7 @@ import {PaginatorOptions} from "../../../core/crud-base/interface/pagination.int
 import {CorePaginateResult} from "../../../core/interfaces/pagination";
 import {UpdateUserDto} from "./dto/update-user.dto";
 import {CreateUserDto} from "./dto/create-user.dto";
-import {isEmpty} from '../../../common/utils/array.utils';
+import { isEmpty } from "class-validator";
 
 @Injectable()
 export class UserService extends BaseService<UserDocument> {
@@ -24,11 +24,10 @@ export class UserService extends BaseService<UserDocument> {
     return super.create(body, ...args);
   }
 
-  async findOne(id: ObjectId, ...args): Promise<UserEntity> {
-    const user = await this.userModel.findOne({_id: id, deleted: false}).populate('BranchEntity', 'branch');
-    console.log(user);
-    return user;
-  }
+  // async findOne(filter?: FilterQuery<UserDocument>): Promise<UserEntity> {
+  //   const user = await this.userModel.findOne({_id: filter.id, deleted: false}).populate('BranchEntity', 'branch');
+  //   return user;
+  // }
 
   async findAll(
     paginateOpts?: PaginatorOptions,
@@ -78,7 +77,7 @@ export class UserService extends BaseService<UserDocument> {
     salaryId?: ObjectId,
   ): Promise<any> {
     try {
-      if (salaryId === null || salaryId === undefined) {
+      if (isEmpty(salaryId)) {
         return await this.userModel.deleteOne({_id: id});
       } else {
         return await this.userModel.updateOne(

@@ -26,9 +26,9 @@ export class BranchService extends BaseService<BranchDocument> {
     return super.findAll(paginateOpts, ...args);
   }
 
-  async findOne(id: ObjectId, ...args): Promise<BranchEntity> {
-    return super.findOne(id, ...args);
-  }
+  // async findOne(id: ObjectId, ...args): Promise<BranchEntity> {
+  //   return super.findOne(id, ...args);
+  // }
 
   async update(id: ObjectId, updates: UpdateBranchDto, ...args): Promise<BranchEntity> {
     return super.update(id, updates, ...args);

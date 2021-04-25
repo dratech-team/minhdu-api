@@ -22,10 +22,10 @@ export class PositionService extends BaseService<PositionDocument> {
 
     return super.create(body, ...args);
   }
-
-  async findOne(id: Types.ObjectId, ...args): Promise<PositionEntity> {
-    return super.findOne(id, ...args);
-  }
+  //
+  // async findOne(id: Types.ObjectId): Promise<PositionEntity> {
+  //   return super.findOne(id);
+  // }
 
   async findAll(
     paginateOpts?: PaginatorOptions,

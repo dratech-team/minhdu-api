@@ -24,9 +24,9 @@ export class AreaService extends BaseService<AreaDocument> {
     return super.create(body, ...args);
   }
 
-  async findOne(id: ObjectId, ...args): Promise<AreaEntity> {
-    return super.findOne(id, ...args);
-  }
+  // async findOne(id: ObjectId, ...args): Promise<AreaEntity> {
+  //   return super.findOne(id, ...args);
+  // }
 
   async findAll(paginateOpts?: PaginatorOptions, ...args): Promise<CorePaginateResult<AreaEntity>> {
     return super.findAll(paginateOpts, ...args);

@@ -1,4 +1,4 @@
-import {Injectable} from "@nestjs/common";
+import {Injectable, InternalServerErrorException, NotFoundException} from "@nestjs/common";
 import {BaseService} from "../../../core/crud-base/base.service";
 import {Model} from "mongoose";
 import {DepartmentDocument, DepartmentEntity} from "./entities/department.entity";
@@ -10,6 +10,7 @@ import {PaginatorOptions} from "../../../core/crud-base/interface/pagination.int
 import {CorePaginateResult} from "../../../core/interfaces/pagination";
 import {UpdateDepartmentDto} from "./dto/update-department.dto";
 import {BranchService} from "../branch/branch.service";
+import {isEmpty} from "class-validator";
 
 @Injectable()
 export class DepartmentService extends BaseService<DepartmentDocument> {
@@ -27,8 +28,8 @@ export class DepartmentService extends BaseService<DepartmentDocument> {
     return department;
   }
 
-  async findOne(id: ObjectId, ...args): Promise<DepartmentEntity> {
-    return super.findOne(id, ...args);
+  async findById(id: ObjectId): Promise<DepartmentEntity> {
+    return super.findById(id);
   }
 
   async findAll(
@@ -46,7 +47,19 @@ export class DepartmentService extends BaseService<DepartmentDocument> {
     return super.update(id, updates, ...args);
   }
 
-  async remove(id: ObjectId, ...args): Promise<void> {
-    return super.remove(id, ...args);
+  async remove(id: ObjectId, branchId?: ObjectId): Promise<any> {
+    try {
+      if (isEmpty(branchId)) {
+        await this.departmentModel.deleteOne({_id: id});
+      } else {
+        await this.departmentModel.updateOne(
+          {_id: id},
+          {$pull: {branchIds: branchId}}
+        );
+      }
+    } catch (e) {
+      throw new InternalServerErrorException(e);
+    }
+
   }
 }

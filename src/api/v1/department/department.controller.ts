@@ -1,12 +1,4 @@
-import {
-  Body,
-  Controller,
-  Delete,
-  Get,
-  Param,
-  Post,
-  Put,
-} from "@nestjs/common";
+import {Body, Controller, Delete, Get, Param, Post, Put,} from "@nestjs/common";
 import {BaseController} from "../../../core/crud-base/base-controller";
 import {DepartmentEntity} from "./entities/department.entity";
 import {DepartmentService} from "./department.service";
@@ -14,6 +6,7 @@ import {CreateDepartmentDto} from "./dto/create-department.dto";
 import {ObjectId} from "mongodb";
 import {CorePaginateResult} from "../../../core/interfaces/pagination";
 import {UpdateDepartmentDto} from "./dto/update-department.dto";
+import {ApiOperation} from "@nestjs/swagger";
 
 @Controller("v1/department")
 export class DepartmentController extends BaseController<DepartmentEntity> {
@@ -30,8 +23,8 @@ export class DepartmentController extends BaseController<DepartmentEntity> {
   }
 
   @Get(":id")
-  async findOne(@Param("id") id: ObjectId, ...args): Promise<DepartmentEntity> {
-    return super.findOne(id, ...args);
+  async findById(@Param("id") id: ObjectId, ...args): Promise<DepartmentEntity> {
+    return super.findById(id, ...args);
   }
 
   @Get()
@@ -43,6 +36,10 @@ export class DepartmentController extends BaseController<DepartmentEntity> {
     return super.findAll(page, limit, ...args);
   }
 
+  @ApiOperation({
+    summary: 'Update department',
+    description: 'Update lại tên department or danh sách branch của department này, truyền list id branch'
+  })
   @Put(":id")
   async update(
     @Body() updates: UpdateDepartmentDto,
@@ -52,8 +49,26 @@ export class DepartmentController extends BaseController<DepartmentEntity> {
     return super.update(updates, id, ...args);
   }
 
+  @ApiOperation({
+    summary: 'Remove department',
+    description: 'Xóa department theo id'
+  })
   @Delete(":id")
-  async remove(id: ObjectId, ...args): Promise<void> {
-    return super.remove(id, ...args);
+  async removeDepartment(@Param("id") id: ObjectId, ...args): Promise<void> {
+    return this.service.remove(id, ...args);
   }
+
+  @ApiOperation({
+    summary: 'Remove department (branch)',
+    description: 'xóa 1 branch ra khỏi department'
+  })
+  @Delete(":id/branch/:branchId")
+  async removeBranch(
+    @Param("id") id: ObjectId,
+    @Param("branchId") branchId: ObjectId
+  ): Promise<void> {
+    return this.service.remove(id, branchId);
+  }
+
+
 }

@@ -1,7 +1,7 @@
-import {Document, Model} from "mongoose";
+import {Document, FilterQuery, Model} from "mongoose";
 import {InjectModel} from "@nestjs/mongoose";
 import {IBaseService} from "./ibase.service";
-import {HttpException} from "@nestjs/common";
+import {BadRequestException, HttpException, NotFoundException} from "@nestjs/common";
 import {PaginatorOptions} from "./interface/pagination.interface";
 import {CorePaginateResult} from "../interfaces/pagination";
 import {ObjectId} from "mongodb";
@@ -12,55 +12,35 @@ export class BaseService<T extends Document> implements IBaseService<T> {
 
   async create(body: any, ...args: any[]): Promise<any> {
     try {
-      const createdItem: any = new this.model(body);
-      return await createdItem.save();
+      return await this.model.create(body);
     } catch (e) {
-      throw new HttpException(e, e.status || 500);
+      throw new BadRequestException(`Không thể tạo ${body}. Vui lòng thử lại. `);
     }
   }
 
   async update(id: ObjectId, updates: any, ...args: any[]): Promise<any> {
     try {
-      // await this.findOne(id);
-      const updated: any = await this.model
+      return await this.model
         .findByIdAndUpdate(id, updates, {
           new: true,
-        })
-        .exec();
-      return updated;
+        }).orFail(new HttpException(`id ${id} Không tìm thấy`, 404)).exec();
     } catch (e) {
-      throw new HttpException(e.message || e, e.status || 500);
+      throw new HttpException(e, e.status);
     }
   }
 
   async remove(id: ObjectId, ...args: any[]): Promise<void> {
-    // await this.model.updateOne({ _id: id },{ deleted: true });
     try {
-      console.log(typeof this.model.updateOne());
-      /*this.model.bulkWrite([{updateOne: {
-        filter: {id: id},
-          update: {deleted: true}
-        }}]).then(res =>{
-          console.log(res.modifiedCount);
-      });*/
+
       // @ts-ignore
-      await this.model.updateOne({_id: id}, {deleted: true});
+      await this.model.findByIdAndUpdate(id, {deleted: true}).orFail(new HttpException(`id ${id} Không tìm thấy`, 404));
     } catch (e) {
       throw new HttpException("Server Error" || e, e.status || 500);
     }
   }
 
-  async findOne(id: ObjectId, ...args: any[]): Promise<any> {
-    try {
-      // @ts-ignore
-      const item = await this.model.findOne({_id: id, deleted: false}).exec();
-      // const item = await this.model.findById(id).exec();
-
-      console.log(item);
-      return item;
-    } catch (e) {
-      throw new HttpException("Server Error" || e, e.status || 500);
-    }
+  async findById(id: ObjectId): Promise<any> {
+    return this.model.findById(id).orFail(new NotFoundException(`id ${id} Không tìm thấy`));
   }
 
   async findAll(
@@ -93,18 +73,6 @@ export class BaseService<T extends Document> implements IBaseService<T> {
     }
   }
 
-  async findOneBy(query: object, ...args: any[]): Promise<any> {
-    try {
-      const item = await this.model.findOne(query).exec();
-      if (!item) {
-        throw new HttpException("Not found", 404);
-      }
-      return item;
-    } catch (e) {
-      throw new HttpException(e.message || e, e.status || 500);
-    }
-  }
-
   async findBy(
     query: object,
     paginateOpts?: PaginatorOptions,
@@ -132,5 +100,9 @@ export class BaseService<T extends Document> implements IBaseService<T> {
     } catch (e) {
       throw new HttpException(e.message || e, e.status || 500);
     }
+  }
+
+  async findOne(filter?: FilterQuery<T>): Promise<T> {
+    return this.model.findOne(filter);
   }
 }

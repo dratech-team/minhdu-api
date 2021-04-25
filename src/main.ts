@@ -23,7 +23,7 @@ async function bootstrap() {
   const app = await NestFactory.create<NestExpressApplication>(
     AppModule,
     new ExpressAdapter(server),
-    {logger: false}
+    {logger: true}
   );
 
   const configService: ConfigService = app.get(ConfigService);

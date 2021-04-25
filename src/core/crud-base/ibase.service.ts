@@ -1,6 +1,7 @@
-import {Types} from "mongoose";
+import {FilterQuery, Types} from "mongoose";
 import {PaginatorOptions} from "./interface/pagination.interface";
 import {CorePaginateResult} from "../interfaces/pagination";
+import {ObjectId} from "mongodb";
 // import { PaginatorOptions } from "@/core/crud-base/interface/pagination.interface";
 // import { CorePaginateResult } from "@/core/interfaces/pagination";
 
@@ -12,13 +13,13 @@ export interface IBaseService<ResultType> {
     ...args: any[]
   ): Promise<CorePaginateResult<ResultType>>;
 
-  findOne(id: any, ...args: any[]): Promise<ResultType>;
+  findOne(filter?: FilterQuery<ResultType>): Promise<ResultType>;
 
   update(id: Types.ObjectId, payload: any, ...args: any[]): Promise<ResultType>;
 
   remove(id: any, ...args: any[]): Promise<void>;
 
-  findOneBy(query: object, ...args: any[]): Promise<ResultType>;
+  findById(id: ObjectId): Promise<ResultType>;
 
   findBy(
     query: object,

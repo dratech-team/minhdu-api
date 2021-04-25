@@ -1,4 +1,4 @@
-export const isEmpty = function (items: any[]) {
+ const isEmpty = function (items: any[]) {
   return items === [] || items.length === 0;
 };
 
