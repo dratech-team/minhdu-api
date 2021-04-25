@@ -7,13 +7,13 @@ import * as mongoose from "mongoose";
 
 export type BranchDocument = BranchEntity & Document;
 
-@Schema({autoIndex: true})
+@Schema()
 export class BranchEntity extends BaseDocument {
   @Prop()
   code: string;
 
   @Prop({unique: true})
-  branch: string;
+  name: string;
 
   @Prop({type: ObjectId, ref: "Area"})
   areaId: AreaEntity;

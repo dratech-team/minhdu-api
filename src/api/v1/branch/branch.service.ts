@@ -9,6 +9,7 @@ import {ModelName} from "../../../common/constant/database.constant";
 import {PaginatorOptions} from "../../../core/crud-base/interface/pagination.interface";
 import {CorePaginateResult} from "../../../core/interfaces/pagination";
 import {ObjectId} from "mongodb";
+import {generateId} from "../../../common/utils/generate-id.utils";
 
 @Injectable()
 export class BranchService extends BaseService<BranchDocument> {
@@ -18,27 +19,32 @@ export class BranchService extends BaseService<BranchDocument> {
     super(branchModel);
   }
 
-  create(body: CreateBranchDto): Promise<BranchEntity> {
-    return super.create(body);
+  async create(body: CreateBranchDto): Promise<BranchEntity> {
+    const payload = {
+      name: body.name,
+      code: generateId(body.name),
+    };
+    return await super.create(payload);
   }
 
   async findAll(paginateOpts?: PaginatorOptions, ...args): Promise<CorePaginateResult<BranchEntity>> {
     return super.findAll(paginateOpts, ...args);
   }
 
-  // async findOne(id: ObjectId, ...args): Promise<BranchEntity> {
-  //   return super.findOne(id, ...args);
-  // }
-
   async update(id: ObjectId, updates: UpdateBranchDto, ...args): Promise<BranchEntity> {
-    return super.update(id, updates, ...args);
+    const payload = new BranchEntity();
+    payload.name = updates.name;
+    payload.code = generateId(updates.name);
+    payload.departmentIds = updates.departmentIds;
+
+    return super.update(id, payload, ...args);
   }
 
-  async remove(id: ObjectId, ...args): Promise<void> {
-    return super.remove(id, ...args);
+  async remove(id: ObjectId): Promise<void> {
+    return super.delete(id);
   }
 
-  async updateDepartment(departmentId: ObjectId, branchIds: ObjectId[]): Promise<any> {
+  async updateDepartmentToBranch(departmentId: ObjectId, branchIds: ObjectId[]): Promise<any> {
     for (let i = 0; i < branchIds.length; i++) {
       await this.branchModel.findByIdAndUpdate(
         {_id: branchIds[i]},

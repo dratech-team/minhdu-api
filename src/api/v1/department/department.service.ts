@@ -1,4 +1,4 @@
-import {Injectable, InternalServerErrorException, NotFoundException} from "@nestjs/common";
+import {Injectable} from "@nestjs/common";
 import {BaseService} from "../../../core/crud-base/base.service";
 import {Model} from "mongoose";
 import {DepartmentDocument, DepartmentEntity} from "./entities/department.entity";
@@ -24,7 +24,7 @@ export class DepartmentService extends BaseService<DepartmentDocument> {
 
   async create(body: CreateDepartmentDto, ...args): Promise<DepartmentEntity> {
     const department = await super.create(body, ...args);
-    this.branchService?.updateDepartment(department._id, body.branchIds);
+    this.branchService?.updateDepartmentToBranch(department._id, body.branchIds);
     return department;
   }
 
@@ -48,18 +48,13 @@ export class DepartmentService extends BaseService<DepartmentDocument> {
   }
 
   async remove(id: ObjectId, branchId?: ObjectId): Promise<any> {
-    try {
-      if (isEmpty(branchId)) {
-        await this.departmentModel.deleteOne({_id: id});
-      } else {
-        await this.departmentModel.updateOne(
-          {_id: id},
-          {$pull: {branchIds: branchId}}
-        );
-      }
-    } catch (e) {
-      throw new InternalServerErrorException(e);
+    if (isEmpty(branchId)) {
+      await super.delete(id);
+    } else {
+      await this.departmentModel.updateOne(
+        {_id: id},
+        {$pull: {branchIds: branchId}}
+      );
     }
-
   }
 }

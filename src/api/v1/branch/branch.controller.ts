@@ -1,4 +1,4 @@
-import {Body, Controller, Delete, Get, Param, Post, Put, UseGuards} from '@nestjs/common';
+import {Body, Controller, Delete, Get, Param, Post, Put, Query, UseGuards} from '@nestjs/common';
 import {BranchService} from './branch.service';
 import {CreateBranchDto} from './dto/create-branch.dto';
 import {BaseController} from "../../../core/crud-base/base-controller";
@@ -25,26 +25,36 @@ export class BranchController extends BaseController<BranchEntity> {
     return super.create(body, ...args);
   }
 
+  @Roles(UserType.ADMIN)
   @Get()
   async findAll(
-    @Param("page") page: number,
-    @Param("limit") limit: number
+    @Query("page") page: number,
+    @Query("limit") limit: number
   ): Promise<CorePaginateResult<BranchEntity>> {
     return super.findAll(page, limit,);
   }
 
+  @Roles(UserType.ADMIN)
   @Get(':id')
   async findOne(id: ObjectId, ...args): Promise<BranchEntity> {
     return super.findOne(id, ...args);
   }
 
+  @Roles(UserType.ADMIN)
   @Put(':id')
   async update(@Body() updates: UpdateBranchDto, @Param("id") id: ObjectId, ...args): Promise<BranchEntity> {
     return super.update(updates, id, ...args);
   }
 
+  @Roles(UserType.ADMIN)
   @Delete(':id')
   async remove(@Param('id') id: ObjectId): Promise<void> {
+    return super.remove(id);
+  }
+
+  @Roles(UserType.ADMIN)
+  @Delete(':id')
+  async removeDepartment(@Param('id') id: ObjectId): Promise<void> {
     return super.remove(id);
   }
 }

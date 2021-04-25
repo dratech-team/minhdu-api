@@ -14,16 +14,16 @@ export class BaseService<T extends Document> implements IBaseService<T> {
     try {
       return await this.model.create(body);
     } catch (e) {
-      throw new BadRequestException(`Không thể tạo ${body}. Vui lòng thử lại. `);
+      throw new BadRequestException(e);
     }
   }
 
   async update(id: ObjectId, updates: any, ...args: any[]): Promise<any> {
     try {
-      return await this.model
-        .findByIdAndUpdate(id, updates, {
-          new: true,
-        }).orFail(new HttpException(`id ${id} Không tìm thấy`, 404)).exec();
+      return this.model
+        .findByIdAndUpdate(id, updates, {new: true})
+        .orFail(new NotFoundException(`id ${id} Không tìm thấy`));
+
     } catch (e) {
       throw new HttpException(e, e.status);
     }
@@ -31,13 +31,23 @@ export class BaseService<T extends Document> implements IBaseService<T> {
 
   async remove(id: ObjectId, ...args: any[]): Promise<void> {
     try {
-
       // @ts-ignore
-      await this.model.findByIdAndUpdate(id, {deleted: true}).orFail(new HttpException(`id ${id} Không tìm thấy`, 404));
+      await this.model.findOneAndUpdate({_id: id}, {deleted: true})
+        .orFail(new NotFoundException(`id ${id} Không tìm thấy`));
     } catch (e) {
-      throw new HttpException("Server Error" || e, e.status || 500);
+      throw new BadRequestException(e);
     }
   }
+
+  async delete(id: ObjectId): Promise<void> {
+    try {
+      await this.model.findByIdAndDelete(id)
+        .orFail(new NotFoundException(`id ${id} Không tìm thấy`));
+    } catch (e) {
+      throw new BadRequestException(e);
+    }
+  }
+
 
   async findById(id: ObjectId): Promise<any> {
     return this.model.findById(id).orFail(new NotFoundException(`id ${id} Không tìm thấy`));
@@ -64,12 +74,13 @@ export class BaseService<T extends Document> implements IBaseService<T> {
           isLastPage: paginateOpts.limit * paginateOpts.page > total,
           data: data,
         };
+      } else {
+        // @ts-ignore
+        const data = await this.model.find({deleted: false}).exec();
+        return {total, data};
       }
-      // @ts-ignore
-      const data = await this.model.find({deleted: false}).exec();
-      return {total, data};
     } catch (e) {
-      throw new HttpException(e.message || e, e.status || 500);
+      throw new BadRequestException(e);
     }
   }
 

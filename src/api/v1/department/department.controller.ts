@@ -54,8 +54,8 @@ export class DepartmentController extends BaseController<DepartmentEntity> {
     description: 'Xóa department theo id'
   })
   @Delete(":id")
-  async removeDepartment(@Param("id") id: ObjectId, ...args): Promise<void> {
-    return this.service.remove(id, ...args);
+  async removeDepartment(@Param("id") id: ObjectId): Promise<void> {
+    return this.service.remove(id);
   }
 
   @ApiOperation({
