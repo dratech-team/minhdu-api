@@ -1,7 +1,7 @@
 import {Document} from "mongoose";
 import {Prop, Schema, SchemaFactory} from "@nestjs/mongoose";
 import {BaseDocument} from "../../../../core/entities/base.entity";
-import {DepartmentEntity} from "../../department/entities/departmentSchema";
+import {DepartmentEntity} from "../../department/entities/department.entity";
 import {ObjectId} from "mongodb";
 
 export type PositionDocument = PositionEntity & Document;

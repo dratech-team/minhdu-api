@@ -5,14 +5,16 @@ import {MongooseModule} from "@nestjs/mongoose";
 import {ModelName} from "../../../common/constant/database.constant";
 import {BranchSchema} from "./entities/branch.entity";
 import {ConfigModule} from "../../../core/config/config.module";
+import {DepartmentModule} from "../department/department.module";
 
 @Module({
   imports: [
+    MongooseModule.forFeature([{name: ModelName.BRANCH, schema: BranchSchema}]),
     ConfigModule,
-    MongooseModule.forFeature([{name: ModelName.BRANCH, schema: BranchSchema}])
   ],
   controllers: [BranchController],
-  providers: [BranchService]
+  providers: [BranchService],
+  exports: [BranchService]
 })
 export class BranchModule {
 }

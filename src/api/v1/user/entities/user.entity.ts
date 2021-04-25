@@ -2,7 +2,7 @@ import {Prop, Schema, SchemaFactory} from "@nestjs/mongoose";
 import {Document, Types} from "mongoose";
 import {IUser} from "../../../../common/entities/user.entity";
 import {PositionEntity} from "../../position/entities/position.entity";
-import {DepartmentEntity} from "../../department/entities/departmentSchema";
+import {DepartmentEntity} from "../../department/entities/department.entity";
 import {BranchEntity} from "../../branch/entities/branch.entity";
 import * as mongoose from "mongoose";
 import {SalaryEntity, SalarySchema} from "../../../../common/entities/salaryEntity";

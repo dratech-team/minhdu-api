@@ -1,7 +1,7 @@
 import {Injectable} from "@nestjs/common";
 import {BaseService} from "../../../core/crud-base/base.service";
 import {Model} from "mongoose";
-import {DepartmentEntity, DepartmentDocument} from "./entities/departmentSchema";
+import {DepartmentDocument, DepartmentEntity} from "./entities/department.entity";
 import {InjectModel} from "@nestjs/mongoose";
 import {ModelName} from "../../../common/constant/database.constant";
 import {CreateDepartmentDto} from "./dto/create-department.dto";
@@ -9,18 +9,22 @@ import {ObjectId} from "mongodb";
 import {PaginatorOptions} from "../../../core/crud-base/interface/pagination.interface";
 import {CorePaginateResult} from "../../../core/interfaces/pagination";
 import {UpdateDepartmentDto} from "./dto/update-department.dto";
+import {BranchService} from "../branch/branch.service";
 
 @Injectable()
 export class DepartmentService extends BaseService<DepartmentDocument> {
   constructor(
     @InjectModel(ModelName.DEPARTMENT)
-    private readonly departmentModel: Model<DepartmentDocument>
+    private readonly departmentModel: Model<DepartmentDocument>,
+    private readonly branchService: BranchService,
   ) {
     super(departmentModel);
   }
 
   async create(body: CreateDepartmentDto, ...args): Promise<DepartmentEntity> {
-    return super.create(body, ...args);
+    const department = await super.create(body, ...args);
+    this.branchService?.updateDepartment(department._id, body.branchIds);
+    return department;
   }
 
   async findOne(id: ObjectId, ...args): Promise<DepartmentEntity> {

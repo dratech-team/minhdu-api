@@ -39,6 +39,7 @@ export class PositionService extends BaseService<PositionDocument> {
     updates: UpdatePositionDto,
     ...args
   ): Promise<PositionEntity> {
+
     return super.update(id, updates, ...args);
   }
 

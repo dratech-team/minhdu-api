@@ -14,8 +14,8 @@ import {ObjectId} from "mongodb";
 export class BranchService extends BaseService<BranchDocument> {
   constructor(
     @InjectModel(ModelName.BRANCH)
-    private readonly branchService: Model<BranchDocument>) {
-    super(branchService);
+    private readonly branchModel: Model<BranchDocument>) {
+    super(branchModel);
   }
 
   create(body: CreateBranchDto): Promise<BranchEntity> {
@@ -36,5 +36,14 @@ export class BranchService extends BaseService<BranchDocument> {
 
   async remove(id: ObjectId, ...args): Promise<void> {
     return super.remove(id, ...args);
+  }
+
+  async updateDepartment(departmentId: ObjectId, branchIds: ObjectId[]): Promise<any> {
+    for (let i = 0; i < branchIds.length; i++) {
+      await this.branchModel.findByIdAndUpdate(
+        {_id: branchIds[i]},
+        {"$addToSet": {departmentIds: departmentId}}
+      ).lean();
+    }
   }
 }
