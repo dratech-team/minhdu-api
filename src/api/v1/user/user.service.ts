@@ -1,4 +1,4 @@
-import {Inject, Injectable} from "@nestjs/common";
+import {ConflictException, HttpException, Injectable} from "@nestjs/common";
 import {BaseService} from "../../../core/crud-base/base.service";
 import {UserDocument, UserEntity} from "./entities/user.entity";
 import {Model} from "mongoose";
@@ -9,7 +9,7 @@ import {PaginatorOptions} from "../../../core/crud-base/interface/pagination.int
 import {CorePaginateResult} from "../../../core/interfaces/pagination";
 import {UpdateUserDto} from "./dto/update-user.dto";
 import {CreateUserDto} from "./dto/create-user.dto";
-import {PositionService} from "../position/position.service";
+import {isEmpty} from '../../../common/utils/array.utils';
 
 @Injectable()
 export class UserService extends BaseService<UserDocument> {
@@ -21,10 +21,6 @@ export class UserService extends BaseService<UserDocument> {
   }
 
   async create(body: CreateUserDto, ...args): Promise<UserEntity> {
-    // body.position = new ObjectId(body.position);
-    // body.branch = new ObjectId(body.branch);
-    // body.department = new ObjectId(body.department);
-
     return super.create(body, ...args);
   }
 
@@ -41,15 +37,57 @@ export class UserService extends BaseService<UserDocument> {
     return await super.findAll(paginateOpts, ...args);
   }
 
+
   async update(
     id: ObjectId,
     updates: UpdateUserDto,
+    salaryId?: ObjectId,
     ...args
-  ): Promise<UserEntity> {
-    return await super.update(id, updates, ...args);
+  ): Promise<any> {
+    try {
+      if (salaryId) {
+        return await this.userModel.updateOne(
+          {_id: id, "basicsSalary._id": salaryId},
+          {"$set": {"basicsSalary.$.title": "dime duoc roi"}}
+        );
+      } else {
+        const found = await this.userModel.find({
+          'basicsSalary': {
+            $elemMatch: {
+              title: updates.basicSalary.title
+            }
+          }
+        });
+        if (!isEmpty(found)) {
+          throw new ConflictException({message: 'Mục này đã tồn tại'});
+        } else {
+          return await this.userModel.findByIdAndUpdate(
+            {_id: id},
+            {"$addToSet": {basicsSalary: updates.basicSalary}}
+          ).lean();
+        }
+      }
+
+    } catch (e) {
+      throw  new HttpException(e, e.statusCode || 500);
+    }
   }
 
-  async remove(id: ObjectId, ...args): Promise<void> {
-    return super.remove(id, args);
+  async remove(
+    id: ObjectId,
+    salaryId?: ObjectId,
+  ): Promise<any> {
+    try {
+      if (salaryId === null || salaryId === undefined) {
+        return await this.userModel.deleteOne({_id: id});
+      } else {
+        return await this.userModel.updateOne(
+          {_id: id},
+          {$pull: {basicsSalary: {_id: salaryId}}}
+        );
+      }
+    } catch (e) {
+      throw new HttpException(e, e.statusCode || 500);
+    }
   }
 }

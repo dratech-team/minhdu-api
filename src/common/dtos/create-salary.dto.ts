@@ -1,5 +1,6 @@
-import { IsNotEmpty, IsNumber, IsOptional, IsString } from "class-validator";
-import { Type } from "class-transformer";
+import {IsMongoId, IsNotEmpty, IsNumber, IsOptional, IsString} from "class-validator";
+import {Type} from "class-transformer";
+import {ObjectId} from "mongodb";
 
 export class ICreateSalaryDto {
   @IsString()

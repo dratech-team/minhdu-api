@@ -5,19 +5,20 @@ import {UserService} from "./user.service";
 import {CorePaginateResult} from "../../../core/interfaces/pagination";
 import {Types} from "mongoose";
 import {UserEntity} from "./entities/user.entity";
+import {UpdateUserDto} from "./dto/update-user.dto";
+import {ObjectId} from "mongodb";
+import {ApiOperation} from "@nestjs/swagger";
 
 @Controller("v1/user")
 export class UserController extends BaseController<UserEntity> {
-  constructor(userService: UserService) {
-    super(userService);
+  constructor(private readonly service: UserService) {
+    super(service);
   }
 
-  // @UseGuards(JwtAuthGuard)
-  @Get("profile")
-  getProfile(@Request() req) {
-    return req.user;
-  }
-
+  @ApiOperation({
+    summary: 'Tạo user',
+    description: 'User tạo bao gồm các trường cơ bản, basicsSalary sẽ được init nhưng để tạo mới basicsSalary thì vào phần update'
+  })
   @Post()
   async create(@Body() body: CreateUserDto, ...args): Promise<UserEntity> {
     return super.create(body, ...args);
@@ -33,16 +34,33 @@ export class UserController extends BaseController<UserEntity> {
   }
 
   @Put(":id")
-  async update(
-    @Body() body: CreateUserDto,
+  async updateUser(
+    @Body() body: UpdateUserDto,
     @Param("id") id: Types.ObjectId,
+  ): Promise<UserEntity> {
+    return this.service.update(id, body);
+  }
+
+  @Put(":id/salary/:salaryId")
+  async updateSalary(
+    @Body() body: UpdateUserDto,
+    @Param("id") id: Types.ObjectId,
+    @Param("salaryId") salaryId: Types.ObjectId,
     ...args
   ): Promise<UserEntity> {
-    return super.update(body, id, ...args);
+    return this.service.update(id, body, salaryId);
   }
 
   @Delete(":id")
-  async remove(@Param("id") id: Types.ObjectId, ...args): Promise<void> {
-    return super.remove(id, ...args);
+  async remove(@Param("id") id: ObjectId): Promise<void> {
+    return this.service.remove(id);
+  }
+
+  @Delete(":id/salary/:salaryId")
+  async removeSalary(
+    @Param("id") id: ObjectId,
+    @Param("salaryId") salaryId: ObjectId
+  ): Promise<void> {
+    return this.service.remove(id, salaryId);
   }
 }

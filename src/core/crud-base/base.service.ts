@@ -26,7 +26,6 @@ export class BaseService<T extends Document> implements IBaseService<T> {
           new: true,
         })
         .exec();
-      console.log(updated);
       return updated;
     } catch (e) {
       throw new HttpException(e.message || e, e.status || 500);
