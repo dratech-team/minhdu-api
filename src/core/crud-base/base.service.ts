@@ -57,30 +57,8 @@ export class BaseService<T extends Document> implements IBaseService<T> {
     paginateOpts?: PaginatorOptions,
     ...args: any[]
   ): Promise<PaginateResult<any>> {
-    // @ts-ignore
-    const total = await this.model.countDocuments({deleted: false}).exec();
     try {
-
-      return await this.model.paginate(paginateOpts);
-      // if (paginateOpts && paginateOpts.limit && paginateOpts.page) {
-      //   const skips = paginateOpts.limit * (paginateOpts.page - 1);
-      //   paginateOpts.limit = +paginateOpts.limit;
-      //   const data = await this.model
-      //     .find()
-      //     .skip(skips)
-      //     .limit(paginateOpts.limit)
-      //     .exec();
-      //   return {
-      //     total,
-      //     statusCode: 200,
-      //     isLastPage: paginateOpts.limit * paginateOpts.page > total,
-      //     data: data,
-      //   };
-      // } else {
-      //   // @ts-ignore
-      //   const data = await this.model.find({deleted: false}).exec();
-      //   return {total, data};
-      // }
+      return await this.model.paginate({deleted: false}, paginateOpts);
     } catch (e) {
       throw new BadRequestException(e);
     }
