@@ -17,7 +17,7 @@ export class BranchEntity extends BaseDocument {
   name: string;
 
   @Prop({type: ObjectId, ref: "Area"})
-  areaId: AreaEntity;
+  areaId: ObjectId;
 
   @Prop({type: [{type: mongoose.Schema.Types.ObjectId, ref: "Department"}]})
   departmentIds: ObjectId[];

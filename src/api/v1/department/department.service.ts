@@ -1,60 +1,64 @@
-import {Injectable} from "@nestjs/common";
-import {BaseService} from "../../../core/crud-base/base.service";
-import {PaginateModel, PaginateResult} from "mongoose";
+import {BadRequestException, HttpException, Injectable} from "@nestjs/common";
+import {PaginateModel, PaginateOptions, PaginateResult} from "mongoose";
 import {DepartmentDocument, DepartmentEntity} from "./entities/department.entity";
 import {InjectModel} from "@nestjs/mongoose";
 import {ModelName} from "../../../common/constant/database.constant";
 import {CreateDepartmentDto} from "./dto/create-department.dto";
 import {ObjectId} from "mongodb";
-import {PaginatorOptions} from "../../../core/crud-base/interface/pagination.interface";
 import {UpdateDepartmentDto} from "./dto/update-department.dto";
 import {BranchService} from "../branch/branch.service";
 import {isEmpty} from "class-validator";
 
 @Injectable()
-export class DepartmentService extends BaseService<DepartmentDocument> {
+export class DepartmentService {
   constructor(
     @InjectModel(ModelName.DEPARTMENT)
-    private readonly departmentModel: PaginateModel<DepartmentDocument>,
+    private readonly model: PaginateModel<DepartmentDocument>,
     private readonly branchService: BranchService,
   ) {
-    super(departmentModel);
   }
 
-  async create(body: CreateDepartmentDto, ...args): Promise<DepartmentEntity> {
-    const department = await super.create(body, ...args);
-    this.branchService?.updateDepartmentToBranch(department._id, body.branchIds);
-    return department;
+  async create(body: CreateDepartmentDto): Promise<DepartmentEntity> {
+    try {
+      const department = await this.model.create(body);
+      this.branchService?.updateDepartmentToBranch(department._id, body.branchIds);
+      return department;
+    } catch (e) {
+      throw new BadRequestException(e);
+    }
   }
 
   async findById(id: ObjectId): Promise<DepartmentEntity> {
-    return super.findById(id);
+    return this.model.findById(id);
   }
 
   async findAll(
-    paginateOpts?: PaginatorOptions,
+    paginateOpts?: PaginateOptions,
     ...args
   ): Promise<PaginateResult<DepartmentEntity>> {
-    paginateOpts.populate = ['branches'];
-    return await super.findAll(paginateOpts, ...args);
+    paginateOpts.populate = ['branchIds'];
+    return await this.model.paginate({deleted: false}, paginateOpts, ...args);
   }
 
   async update(
     id: ObjectId,
     updates: UpdateDepartmentDto,
-    ...args
   ): Promise<DepartmentEntity> {
-    return super.update(id, updates, ...args);
+    return this.model.findByIdAndUpdate(id, updates);
   }
 
   async remove(id: ObjectId, branchId?: ObjectId): Promise<any> {
-    if (isEmpty(branchId)) {
-      await super.delete(id);
-    } else {
-      await this.departmentModel.updateOne(
-        {_id: id},
-        {$pull: {branchIds: branchId}}
-      );
+    try {
+      if (isEmpty(branchId)) {
+        await this.model.findByIdAndUpdate(id, {deleted: true});
+      } else {
+        await this.model.updateOne(
+          {_id: id},
+          {$pull: {branchIds: branchId}}
+        );
+      }
+    } catch (e) {
+      throw new HttpException(e, e.statusCode);
     }
   }
 }

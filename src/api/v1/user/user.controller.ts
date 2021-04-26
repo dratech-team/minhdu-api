@@ -1,36 +1,27 @@
-import {Body, Controller, Delete, Get, Param, Post, Put, Request} from "@nestjs/common";
+import {Body, Controller, Delete, Get, Param, ParseIntPipe, Post, Put, Query} from "@nestjs/common";
 import {CreateUserDto} from "./dto/create-user.dto";
-import {BaseController} from "../../../core/crud-base/base-controller";
 import {UserService} from "./user.service";
-import {CorePaginateResult} from "../../../core/interfaces/pagination";
 import {PaginateResult, Types} from "mongoose";
 import {UserEntity} from "./entities/user.entity";
 import {UpdateUserDto} from "./dto/update-user.dto";
 import {ObjectId} from "mongodb";
-import {ApiOperation} from "@nestjs/swagger";
 
 @Controller("v1/user")
-export class UserController extends BaseController<UserEntity> {
+export class UserController {
   constructor(private readonly service: UserService) {
-    super(service);
   }
 
-  @ApiOperation({
-    summary: 'Tạo user',
-    description: 'User tạo bao gồm các trường cơ bản, basicsSalary sẽ được init nhưng để tạo mới basicsSalary thì vào phần update'
-  })
   @Post()
-  async create(@Body() body: CreateUserDto, ...args): Promise<UserEntity> {
-    return super.create(body, ...args);
+  async create(@Body() body: CreateUserDto): Promise<UserEntity> {
+    return this.service.create(body);
   }
 
   @Get()
   async findAll(
-    page: number,
-    limit: number,
-    ...args
+    @Query("page", ParseIntPipe) page: number,
+    @Query("limit", ParseIntPipe) limit: number,
   ): Promise<PaginateResult<UserEntity>> {
-    return super.findAll(page, limit, ...args);
+    return this.service.findAll({page, limit});
   }
 
   @Put(":id")
@@ -46,7 +37,6 @@ export class UserController extends BaseController<UserEntity> {
     @Body() body: UpdateUserDto,
     @Param("id") id: Types.ObjectId,
     @Param("salaryId") salaryId: Types.ObjectId,
-    ...args
   ): Promise<UserEntity> {
     return this.service.update(id, body, salaryId);
   }

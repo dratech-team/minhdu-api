@@ -8,8 +8,8 @@ export class PayrollController {
   constructor(private readonly salaryService: PayrollService) {
   }
 
-  @Post()
-  create(@Body() createSalaryDto: CreatePayrollDto): Promise<PayrollEntity> {
-    return this.salaryService.create(createSalaryDto);
-  }
+  // @Post()
+  // create(@Body() createSalaryDto: CreatePayrollDto): Promise<PayrollEntity> {
+  //   return this.salaryService.create(createSalaryDto);
+  // }
 }

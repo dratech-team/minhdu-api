@@ -1,56 +1,48 @@
-import {ConflictException, HttpException, Injectable} from "@nestjs/common";
-import {BaseService} from "../../../core/crud-base/base.service";
+import {BadRequestException, ConflictException, HttpException, Injectable} from "@nestjs/common";
 import {UserDocument, UserEntity} from "./entities/user.entity";
-import {FilterQuery, Model, PaginateModel, PaginateResult} from "mongoose";
+import {PaginateModel, PaginateOptions, PaginateResult} from "mongoose";
 import {InjectModel} from "@nestjs/mongoose";
 import {ModelName} from "../../../common/constant/database.constant";
 import {ObjectId} from "mongodb";
-import {PaginatorOptions} from "../../../core/crud-base/interface/pagination.interface";
-import {CorePaginateResult} from "../../../core/interfaces/pagination";
 import {UpdateUserDto} from "./dto/update-user.dto";
 import {CreateUserDto} from "./dto/create-user.dto";
-import { isEmpty } from "class-validator";
+import {isEmpty} from "class-validator";
 
 @Injectable()
-export class UserService extends BaseService<UserDocument> {
+export class UserService {
   constructor(
     @InjectModel(ModelName.USER)
-    private readonly userModel: PaginateModel<UserDocument>,
+    private readonly model: PaginateModel<UserDocument>,
   ) {
-    super(userModel);
   }
 
-  async create(body: CreateUserDto, ...args): Promise<UserEntity> {
-    return super.create(body, ...args);
+  async create(body: CreateUserDto): Promise<UserEntity> {
+    try {
+      return await this.model.create(body);
+    } catch (e) {
+      throw new BadRequestException(e);
+    }
   }
-
-  // async findOne(filter?: FilterQuery<UserDocument>): Promise<UserEntity> {
-  //   const user = await this.userModel.findOne({_id: filter.id, deleted: false}).populate('BranchEntity', 'branch');
-  //   return user;
-  // }
 
   async findAll(
-    paginateOpts?: PaginatorOptions,
-    ...args
+    paginateOpts?: PaginateOptions,
   ): Promise<PaginateResult<UserEntity>> {
-    return await super.findAll(paginateOpts, ...args);
+    return await this.model.paginate({deleted: false}, paginateOpts);
   }
-
 
   async update(
     id: ObjectId,
     updates: UpdateUserDto,
     salaryId?: ObjectId,
-    ...args
   ): Promise<any> {
     try {
       if (salaryId) {
-        return await this.userModel.updateOne(
+        return await this.model.updateOne(
           {_id: id, "basicsSalary._id": salaryId},
           {"$set": {"basicsSalary.$.title": "dime duoc roi"}}
         );
       } else {
-        const found = await this.userModel.find({
+        const found = await this.model.find({
           'basicsSalary': {
             $elemMatch: {
               title: updates.basicSalary.title
@@ -60,7 +52,7 @@ export class UserService extends BaseService<UserDocument> {
         if (!isEmpty(found)) {
           throw new ConflictException({message: 'Mục này đã tồn tại'});
         } else {
-          return await this.userModel.findByIdAndUpdate(
+          return await this.model.findByIdAndUpdate(
             {_id: id},
             {"$addToSet": {basicsSalary: updates.basicSalary}}
           ).lean();
@@ -78,11 +70,10 @@ export class UserService extends BaseService<UserDocument> {
   ): Promise<any> {
     try {
       if (isEmpty(salaryId)) {
-        return await this.userModel.deleteOne({_id: id});
+        return await this.model.deleteOne({_id: id});
       } else {
-        return await this.userModel.updateOne(
-          {_id: id},
-          {$pull: {basicsSalary: {_id: salaryId}}}
+        return await this.model.findByIdAndUpdate(
+          id, {$pull: {basicsSalary: {_id: salaryId}}}
         );
       }
     } catch (e) {

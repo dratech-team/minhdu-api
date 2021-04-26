@@ -1,16 +1,14 @@
 import {BaseDocument} from "../../../../core/entities/base.entity";
 import {Prop, Schema, SchemaFactory} from "@nestjs/mongoose";
 import {Document} from "mongoose";
+import * as mongoosePaginate from 'mongoose-paginate';
 
 export type AreaDocument = AreaEntity & Document;
 
 @Schema()
 export class AreaEntity extends BaseDocument {
-  @Prop()
-  code: string;
-
-  @Prop()
-  area: string;
+  @Prop({unique: true})
+  name: string;
 }
 
-export const AreaSchema = SchemaFactory.createForClass(AreaEntity);
+export const AreaSchema = SchemaFactory.createForClass(AreaEntity).plugin(mongoosePaginate);

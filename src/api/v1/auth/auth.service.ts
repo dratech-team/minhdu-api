@@ -1,7 +1,6 @@
-import {HttpException, Injectable, UnauthorizedException} from '@nestjs/common';
-import {BaseService} from "../../../core/crud-base/base.service";
+import {BadRequestException, HttpException, Injectable, UnauthorizedException} from '@nestjs/common';
 import {CredentialDocument, CredentialEntity} from "./entities/credential.entity";
-import {Model, PaginateModel} from "mongoose";
+import {PaginateModel} from "mongoose";
 import {InjectModel} from "@nestjs/mongoose";
 import {ModelName} from "../../../common/constant/database.constant";
 import {SignupCredentialDto} from "./dto/signup-credential.dto";
@@ -13,18 +12,21 @@ import * as bcrypt from "bcrypt";
 import {JwtPayload} from "./interface/jwt-payload.interface";
 
 @Injectable()
-export class AuthService extends BaseService<CredentialDocument> {
+export class AuthService {
   constructor(
     @InjectModel(ModelName.ACCOUNT)
-    private readonly authModel: PaginateModel<CredentialDocument>,
+    private readonly model: PaginateModel<CredentialDocument>,
     private readonly jwtService: JwtService,
   ) {
-    super(authModel);
   }
 
-  async create(body: SignupCredentialDto, ...args): Promise<any> {
-    body = await this.changeRequest(body);
-    return super.create(body, ...args);
+  async register(body: SignupCredentialDto, ...args): Promise<any> {
+    try {
+      body = await this.changeRequest(body);
+      return await this.model.create(body, ...args);
+    } catch (e) {
+      throw new BadRequestException(e);
+    }
   }
 
   async signIn(body: SignInCredentialDto): Promise<{ token: string }> {
@@ -51,7 +53,7 @@ export class AuthService extends BaseService<CredentialDocument> {
   }
 
   async findByAccount(username: string): Promise<CredentialEntity> {
-    return this.authModel.findOne({username: username});
+    return this.model.findOne({username: username});
   }
 
   async changeRequest(body: SignupCredentialDto): Promise<SignupCredentialDto> {
