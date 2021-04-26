@@ -32,7 +32,7 @@ export class BaseService<T extends Document> implements IBaseService<T> {
   async remove(id: ObjectId, ...args: any[]): Promise<void> {
     try {
       // @ts-ignore
-      await this.model.findOneAndUpdate({_id: id}, {deleted: true})
+      await this.model.findOneAndUpdate({_id: _id}, {deleted: true})
         .orFail(new NotFoundException(`id ${id} Không tìm thấy`));
     } catch (e) {
       throw new BadRequestException(e);

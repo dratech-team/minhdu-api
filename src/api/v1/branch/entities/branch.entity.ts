@@ -4,6 +4,7 @@ import {ObjectId} from "mongodb";
 import {AreaEntity} from "../../area/entities/area.entity";
 import {Document} from "mongoose";
 import * as mongoose from "mongoose";
+import * as mongoosePaginate from 'mongoose-paginate';
 
 export type BranchDocument = BranchEntity & Document;
 
@@ -18,8 +19,10 @@ export class BranchEntity extends BaseDocument {
   @Prop({type: ObjectId, ref: "Area"})
   areaId: AreaEntity;
 
-  @Prop({type: [{type: mongoose.Schema.Types.ObjectId, ref: "DepartmentEntity"}]})
+  @Prop({type: [{type: mongoose.Schema.Types.ObjectId, ref: "Department"}]})
   departmentIds: ObjectId[];
 }
 
-export const BranchSchema = SchemaFactory.createForClass(BranchEntity);
+export const BranchSchema = SchemaFactory.createForClass(BranchEntity).plugin(mongoosePaginate);
+
+export const Branch = mongoose.model('branches', BranchSchema);

@@ -8,5 +8,5 @@ export class CreateDepartmentDto {
 
   @IsArray()
   @IsOptional()
-  readonly branchIds: ObjectId[];
+  readonly branches: ObjectId[];
 }

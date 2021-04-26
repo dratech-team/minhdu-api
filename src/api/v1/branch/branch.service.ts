@@ -2,12 +2,11 @@ import {Injectable} from '@nestjs/common';
 import {CreateBranchDto} from './dto/create-branch.dto';
 import {UpdateBranchDto} from './dto/update-branch.dto';
 import {BaseService} from "../../../core/crud-base/base.service";
-import {Model, PaginateModel, PaginateResult} from "mongoose";
+import {PaginateModel, PaginateResult} from "mongoose";
 import {BranchDocument, BranchEntity} from "./entities/branch.entity";
 import {InjectModel} from "@nestjs/mongoose";
 import {ModelName} from "../../../common/constant/database.constant";
 import {PaginatorOptions} from "../../../core/crud-base/interface/pagination.interface";
-import {CorePaginateResult} from "../../../core/interfaces/pagination";
 import {ObjectId} from "mongodb";
 import {generateId} from "../../../common/utils/generate-id.utils";
 
@@ -28,7 +27,8 @@ export class BranchService extends BaseService<BranchDocument> {
   }
 
   async findAll(paginateOpts?: PaginatorOptions, ...args): Promise<PaginateResult<BranchEntity>> {
-    return super.findAll(paginateOpts, ...args);
+    paginateOpts.populate = ['departmentIds'];
+    return await super.findAll(paginateOpts, ...args);
   }
 
   async update(id: ObjectId, updates: UpdateBranchDto, ...args): Promise<BranchEntity> {

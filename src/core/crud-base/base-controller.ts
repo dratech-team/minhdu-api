@@ -16,6 +16,8 @@ export class BaseController<T, DTO = any> {
     @Query("limit") limit: number,
     ...args: any[]
   ): Promise<PaginateResult<T>> {
+    page = Number(page);
+    limit = Number(limit);
     let options: PaginatorOptions = {
       page,
       limit,

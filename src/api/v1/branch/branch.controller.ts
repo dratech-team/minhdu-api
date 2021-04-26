@@ -32,7 +32,8 @@ export class BranchController extends BaseController<BranchEntity> {
     @Query("page") page: number,
     @Query("limit") limit: number
   ): Promise<PaginateResult<BranchEntity>> {
-    return super.findAll(page, limit,);
+
+    return super.findAll(page, limit);
   }
 
   @Roles(UserType.ADMIN)

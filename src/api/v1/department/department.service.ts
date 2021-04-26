@@ -25,7 +25,7 @@ export class DepartmentService extends BaseService<DepartmentDocument> {
 
   async create(body: CreateDepartmentDto, ...args): Promise<DepartmentEntity> {
     const department = await super.create(body, ...args);
-    this.branchService?.updateDepartmentToBranch(department._id, body.branchIds);
+    this.branchService?.updateDepartmentToBranch(department._id, body.branches);
     return department;
   }
 
@@ -36,7 +36,8 @@ export class DepartmentService extends BaseService<DepartmentDocument> {
   async findAll(
     paginateOpts?: PaginatorOptions,
     ...args
-  ): Promise<PaginateResult<DepartmentEntity>>  {
+  ): Promise<PaginateResult<DepartmentEntity>> {
+    paginateOpts.populate = ['branches'];
     return await super.findAll(paginateOpts, ...args);
   }
 
