@@ -1,7 +1,7 @@
 import {Injectable} from '@nestjs/common';
 import {BaseService} from "../../../core/crud-base/base.service";
 import {AreaEntity, AreaDocument} from "./entities/area.entity";
-import {Model} from "mongoose";
+import {Model, PaginateModel, PaginateResult} from "mongoose";
 import {InjectModel} from "@nestjs/mongoose";
 import {ModelName} from "../../../common/constant/database.constant";
 import {CreateAreaDto} from "./dto/create-area.dto";
@@ -14,7 +14,7 @@ import {UpdateAreaDto} from "./dto/update-area.dto";
 export class AreaService extends BaseService<AreaDocument> {
   constructor(
     @InjectModel(ModelName.AREA)
-    private readonly areaModel: Model<AreaDocument>,
+    private readonly areaModel: PaginateModel<AreaDocument>,
   ) {
     super(areaModel);
   }
@@ -28,7 +28,7 @@ export class AreaService extends BaseService<AreaDocument> {
   //   return super.findOne(id, ...args);
   // }
 
-  async findAll(paginateOpts?: PaginatorOptions, ...args): Promise<CorePaginateResult<AreaEntity>> {
+  async findAll(paginateOpts?: PaginatorOptions, ...args): Promise<PaginateResult<AreaEntity>> {
     return super.findAll(paginateOpts, ...args);
   }
 

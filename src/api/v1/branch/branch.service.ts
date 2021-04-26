@@ -2,7 +2,7 @@ import {Injectable} from '@nestjs/common';
 import {CreateBranchDto} from './dto/create-branch.dto';
 import {UpdateBranchDto} from './dto/update-branch.dto';
 import {BaseService} from "../../../core/crud-base/base.service";
-import {Model} from "mongoose";
+import {Model, PaginateModel, PaginateResult} from "mongoose";
 import {BranchDocument, BranchEntity} from "./entities/branch.entity";
 import {InjectModel} from "@nestjs/mongoose";
 import {ModelName} from "../../../common/constant/database.constant";
@@ -15,7 +15,7 @@ import {generateId} from "../../../common/utils/generate-id.utils";
 export class BranchService extends BaseService<BranchDocument> {
   constructor(
     @InjectModel(ModelName.BRANCH)
-    private readonly branchModel: Model<BranchDocument>) {
+    private readonly branchModel: PaginateModel<BranchDocument>) {
     super(branchModel);
   }
 
@@ -27,7 +27,7 @@ export class BranchService extends BaseService<BranchDocument> {
     return await super.create(payload);
   }
 
-  async findAll(paginateOpts?: PaginatorOptions, ...args): Promise<CorePaginateResult<BranchEntity>> {
+  async findAll(paginateOpts?: PaginatorOptions, ...args): Promise<PaginateResult<BranchEntity>> {
     return super.findAll(paginateOpts, ...args);
   }
 

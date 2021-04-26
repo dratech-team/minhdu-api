@@ -1,5 +1,5 @@
 import {Injectable} from "@nestjs/common";
-import {Model} from "mongoose";
+import {Model, PaginateModel} from "mongoose";
 import {CreatePayrollDto} from "./dto/create-payroll.dto";
 import {InjectModel} from "@nestjs/mongoose";
 import {ModelName} from "../../../common/constant/database.constant";
@@ -10,7 +10,7 @@ import {PayrollDocument, PayrollEntity} from "./entities/payroll.entity";
 export class PayrollService extends BaseService<PayrollDocument> {
   constructor(
     @InjectModel(ModelName.SALARY)
-    private readonly salaryModel: Model<PayrollDocument>,
+    private readonly salaryModel: PaginateModel<PayrollDocument>,
   ) {
     super(salaryModel);
   }

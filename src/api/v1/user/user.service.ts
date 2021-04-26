@@ -1,7 +1,7 @@
 import {ConflictException, HttpException, Injectable} from "@nestjs/common";
 import {BaseService} from "../../../core/crud-base/base.service";
 import {UserDocument, UserEntity} from "./entities/user.entity";
-import {FilterQuery, Model} from "mongoose";
+import {FilterQuery, Model, PaginateModel, PaginateResult} from "mongoose";
 import {InjectModel} from "@nestjs/mongoose";
 import {ModelName} from "../../../common/constant/database.constant";
 import {ObjectId} from "mongodb";
@@ -15,7 +15,7 @@ import { isEmpty } from "class-validator";
 export class UserService extends BaseService<UserDocument> {
   constructor(
     @InjectModel(ModelName.USER)
-    private readonly userModel: Model<UserDocument>,
+    private readonly userModel: PaginateModel<UserDocument>,
   ) {
     super(userModel);
   }
@@ -32,7 +32,7 @@ export class UserService extends BaseService<UserDocument> {
   async findAll(
     paginateOpts?: PaginatorOptions,
     ...args
-  ): Promise<CorePaginateResult<UserEntity>> {
+  ): Promise<PaginateResult<UserEntity>> {
     return await super.findAll(paginateOpts, ...args);
   }
 

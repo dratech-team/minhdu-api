@@ -1,7 +1,7 @@
 import {HttpException, Injectable, UnauthorizedException} from '@nestjs/common';
 import {BaseService} from "../../../core/crud-base/base.service";
 import {CredentialDocument, CredentialEntity} from "./entities/credential.entity";
-import {Model} from "mongoose";
+import {Model, PaginateModel} from "mongoose";
 import {InjectModel} from "@nestjs/mongoose";
 import {ModelName} from "../../../common/constant/database.constant";
 import {SignupCredentialDto} from "./dto/signup-credential.dto";
@@ -16,7 +16,7 @@ import {JwtPayload} from "./interface/jwt-payload.interface";
 export class AuthService extends BaseService<CredentialDocument> {
   constructor(
     @InjectModel(ModelName.ACCOUNT)
-    private readonly authModel: Model<CredentialDocument>,
+    private readonly authModel: PaginateModel<CredentialDocument>,
     private readonly jwtService: JwtService,
   ) {
     super(authModel);

@@ -1,4 +1,4 @@
-import {Body, Controller, Delete, Get, Param, Post, Put,} from "@nestjs/common";
+import {Body, Controller, Delete, Get, Param, Post, Put, Query,} from "@nestjs/common";
 import {BaseController} from "../../../core/crud-base/base-controller";
 import {DepartmentEntity} from "./entities/department.entity";
 import {DepartmentService} from "./department.service";
@@ -7,6 +7,7 @@ import {ObjectId} from "mongodb";
 import {CorePaginateResult} from "../../../core/interfaces/pagination";
 import {UpdateDepartmentDto} from "./dto/update-department.dto";
 import {ApiOperation} from "@nestjs/swagger";
+import {PaginateResult} from "mongoose";
 
 @Controller("v1/department")
 export class DepartmentController extends BaseController<DepartmentEntity> {
@@ -29,10 +30,10 @@ export class DepartmentController extends BaseController<DepartmentEntity> {
 
   @Get()
   async findAll(
-    @Param("page") page: number,
-    @Param("limit") limit: number,
+    @Query("page") page: number,
+    @Query("limit") limit: number,
     ...args
-  ): Promise<CorePaginateResult<DepartmentEntity>> {
+  ): Promise<PaginateResult<DepartmentEntity>> {
     return super.findAll(page, limit, ...args);
   }
 

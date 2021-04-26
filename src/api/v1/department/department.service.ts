@@ -1,6 +1,6 @@
 import {Injectable} from "@nestjs/common";
 import {BaseService} from "../../../core/crud-base/base.service";
-import {Model} from "mongoose";
+import {Model, PaginateModel, PaginateResult} from "mongoose";
 import {DepartmentDocument, DepartmentEntity} from "./entities/department.entity";
 import {InjectModel} from "@nestjs/mongoose";
 import {ModelName} from "../../../common/constant/database.constant";
@@ -11,12 +11,13 @@ import {CorePaginateResult} from "../../../core/interfaces/pagination";
 import {UpdateDepartmentDto} from "./dto/update-department.dto";
 import {BranchService} from "../branch/branch.service";
 import {isEmpty} from "class-validator";
+import {UserEntity} from "../user/entities/user.entity";
 
 @Injectable()
 export class DepartmentService extends BaseService<DepartmentDocument> {
   constructor(
     @InjectModel(ModelName.DEPARTMENT)
-    private readonly departmentModel: Model<DepartmentDocument>,
+    private readonly departmentModel: PaginateModel<DepartmentDocument>,
     private readonly branchService: BranchService,
   ) {
     super(departmentModel);
@@ -35,8 +36,8 @@ export class DepartmentService extends BaseService<DepartmentDocument> {
   async findAll(
     paginateOpts?: PaginatorOptions,
     ...args
-  ): Promise<CorePaginateResult<DepartmentEntity>> {
-    return super.findAll(paginateOpts, ...args);
+  ): Promise<PaginateResult<DepartmentEntity>>  {
+    return await super.findAll(paginateOpts, ...args);
   }
 
   async update(

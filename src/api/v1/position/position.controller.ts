@@ -11,7 +11,7 @@ import { BaseController } from "../../../core/crud-base/base-controller";
 import { PositionEntity } from "./entities/position.entity";
 import { PositionService } from "./position.service";
 import { CreatePositionDto } from "./dto/create-position.dto";
-import { Types } from "mongoose";
+import {PaginateResult, Types} from "mongoose";
 import { CorePaginateResult } from "../../../core/interfaces/pagination";
 import { UpdatePositionDto } from "./dto/update-position.dto";
 import { ObjectId } from "mongodb";
@@ -37,7 +37,7 @@ export class PositionController extends BaseController<PositionEntity> {
     @Param("number") page: number,
     @Param("limit") limit: number,
     ...args
-  ): Promise<CorePaginateResult<PositionEntity>> {
+  ): Promise<PaginateResult<PositionEntity>> {
     return super.findAll(page, limit, ...args);
   }
 

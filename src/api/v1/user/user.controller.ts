@@ -3,7 +3,7 @@ import {CreateUserDto} from "./dto/create-user.dto";
 import {BaseController} from "../../../core/crud-base/base-controller";
 import {UserService} from "./user.service";
 import {CorePaginateResult} from "../../../core/interfaces/pagination";
-import {Types} from "mongoose";
+import {PaginateResult, Types} from "mongoose";
 import {UserEntity} from "./entities/user.entity";
 import {UpdateUserDto} from "./dto/update-user.dto";
 import {ObjectId} from "mongodb";
@@ -29,7 +29,7 @@ export class UserController extends BaseController<UserEntity> {
     page: number,
     limit: number,
     ...args
-  ): Promise<CorePaginateResult<UserEntity>> {
+  ): Promise<PaginateResult<UserEntity>> {
     return super.findAll(page, limit, ...args);
   }
 

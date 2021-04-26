@@ -1,4 +1,4 @@
-import {FilterQuery, Types} from "mongoose";
+import {FilterQuery, PaginateResult, Types} from "mongoose";
 import {PaginatorOptions} from "./interface/pagination.interface";
 import {CorePaginateResult} from "../interfaces/pagination";
 import {ObjectId} from "mongodb";
@@ -11,7 +11,7 @@ export interface IBaseService<ResultType> {
   findAll(
     paginateOpts?: PaginatorOptions,
     ...args: any[]
-  ): Promise<CorePaginateResult<ResultType>>;
+  ): Promise<PaginateResult<ResultType>>;
 
   findOne(filter?: FilterQuery<ResultType>): Promise<ResultType>;
 

@@ -1,7 +1,7 @@
 import {Injectable} from "@nestjs/common";
 import {BaseService} from "../../../core/crud-base/base.service";
 import {PositionEntity, PositionDocument} from "./entities/position.entity";
-import {Model, Types} from "mongoose";
+import {Model, PaginateModel, PaginateResult, Types} from "mongoose";
 import {CreatePositionDto} from "./dto/create-position.dto";
 import {PaginatorOptions} from "../../../core/crud-base/interface/pagination.interface";
 import {CorePaginateResult} from "../../../core/interfaces/pagination";
@@ -13,7 +13,7 @@ import {ModelName} from "../../../common/constant/database.constant";
 export class PositionService extends BaseService<PositionDocument> {
   constructor(
     @InjectModel(ModelName.POSITION)
-    private readonly positionModel: Model<PositionDocument>,
+    private readonly positionModel: PaginateModel<PositionDocument>,
   ) {
     super(positionModel);
   }
@@ -30,7 +30,7 @@ export class PositionService extends BaseService<PositionDocument> {
   async findAll(
     paginateOpts?: PaginatorOptions,
     ...args
-  ): Promise<CorePaginateResult<PositionEntity>> {
+  ): Promise<PaginateResult<PositionEntity>> {
     return super.findAll(paginateOpts, ...args);
   }
 

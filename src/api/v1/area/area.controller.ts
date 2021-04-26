@@ -1,4 +1,4 @@
-import {Body, Controller, Delete, Get, Param, Post, Put} from '@nestjs/common';
+import {Body, Controller, Delete, Get, Param, Post, Put, Query} from '@nestjs/common';
 import {BaseController} from "../../../core/crud-base/base-controller";
 import {AreaEntity} from "./entities/area.entity";
 import {AreaService} from "./area.service";
@@ -6,6 +6,7 @@ import {CreateAreaDto} from "./dto/create-area.dto";
 import {ObjectId} from "mongodb";
 import {CorePaginateResult} from "../../../core/interfaces/pagination";
 import {UpdateAreaDto} from "./dto/update-area.dto";
+import {PaginateResult} from "mongoose";
 
 @Controller('v1/area')
 export class AreaController extends BaseController<AreaEntity> {
@@ -24,7 +25,7 @@ export class AreaController extends BaseController<AreaEntity> {
   }
 
   @Get()
-  async findAll(@Param("page") page: number, @Param("limit") limit: number, ...args): Promise<CorePaginateResult<AreaEntity>> {
+  async findAll(@Param("page") page: number, @Query("limit") limit: number, ...args): Promise<PaginateResult<AreaEntity>> {
     return super.findAll(page, limit, ...args);
   }
 

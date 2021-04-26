@@ -1,4 +1,4 @@
-import {Document, FilterQuery, Model} from "mongoose";
+import {Document, FilterQuery, Model, PaginateModel, PaginateResult} from "mongoose";
 import {InjectModel} from "@nestjs/mongoose";
 import {IBaseService} from "./ibase.service";
 import {BadRequestException, HttpException, NotFoundException} from "@nestjs/common";
@@ -7,7 +7,7 @@ import {CorePaginateResult} from "../interfaces/pagination";
 import {ObjectId} from "mongodb";
 
 export class BaseService<T extends Document> implements IBaseService<T> {
-  constructor(@InjectModel("") private model: Model<T>) {
+  constructor(@InjectModel("") private model: PaginateModel<T>) {
   }
 
   async create(body: any, ...args: any[]): Promise<any> {
@@ -56,29 +56,31 @@ export class BaseService<T extends Document> implements IBaseService<T> {
   async findAll(
     paginateOpts?: PaginatorOptions,
     ...args: any[]
-  ): Promise<CorePaginateResult<any>> {
+  ): Promise<PaginateResult<any>> {
     // @ts-ignore
     const total = await this.model.countDocuments({deleted: false}).exec();
     try {
-      if (paginateOpts && paginateOpts.limit && paginateOpts.page) {
-        const skips = paginateOpts.limit * (paginateOpts.page - 1);
-        paginateOpts.limit = +paginateOpts.limit;
-        const data = await this.model
-          .find()
-          .skip(skips)
-          .limit(paginateOpts.limit)
-          .exec();
-        return {
-          total,
-          statusCode: 200,
-          isLastPage: paginateOpts.limit * paginateOpts.page > total,
-          data: data,
-        };
-      } else {
-        // @ts-ignore
-        const data = await this.model.find({deleted: false}).exec();
-        return {total, data};
-      }
+
+      return await this.model.paginate(paginateOpts);
+      // if (paginateOpts && paginateOpts.limit && paginateOpts.page) {
+      //   const skips = paginateOpts.limit * (paginateOpts.page - 1);
+      //   paginateOpts.limit = +paginateOpts.limit;
+      //   const data = await this.model
+      //     .find()
+      //     .skip(skips)
+      //     .limit(paginateOpts.limit)
+      //     .exec();
+      //   return {
+      //     total,
+      //     statusCode: 200,
+      //     isLastPage: paginateOpts.limit * paginateOpts.page > total,
+      //     data: data,
+      //   };
+      // } else {
+      //   // @ts-ignore
+      //   const data = await this.model.find({deleted: false}).exec();
+      //   return {total, data};
+      // }
     } catch (e) {
       throw new BadRequestException(e);
     }

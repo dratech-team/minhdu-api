@@ -11,6 +11,7 @@ import {ApiKeyGuard} from "../../../core/guard/api-key-auth.guard";
 import {RolesGuard} from 'src/core/guard/role.guard';
 import {Roles} from "../../../core/decorators/roles.decorator";
 import {UserType} from "../../../core/constants/role-type.constant";
+import {PaginateResult} from "mongoose";
 
 @Controller('v1/branch')
 @UseGuards(JwtAuthGuard, ApiKeyGuard, RolesGuard)
@@ -30,7 +31,7 @@ export class BranchController extends BaseController<BranchEntity> {
   async findAll(
     @Query("page") page: number,
     @Query("limit") limit: number
-  ): Promise<CorePaginateResult<BranchEntity>> {
+  ): Promise<PaginateResult<BranchEntity>> {
     return super.findAll(page, limit,);
   }
 
