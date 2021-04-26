@@ -1,17 +1,15 @@
 import {Injectable} from "@nestjs/common";
 import {BaseService} from "../../../core/crud-base/base.service";
-import {Model, PaginateModel, PaginateResult} from "mongoose";
+import {PaginateModel, PaginateResult} from "mongoose";
 import {DepartmentDocument, DepartmentEntity} from "./entities/department.entity";
 import {InjectModel} from "@nestjs/mongoose";
 import {ModelName} from "../../../common/constant/database.constant";
 import {CreateDepartmentDto} from "./dto/create-department.dto";
 import {ObjectId} from "mongodb";
 import {PaginatorOptions} from "../../../core/crud-base/interface/pagination.interface";
-import {CorePaginateResult} from "../../../core/interfaces/pagination";
 import {UpdateDepartmentDto} from "./dto/update-department.dto";
 import {BranchService} from "../branch/branch.service";
 import {isEmpty} from "class-validator";
-import {UserEntity} from "../user/entities/user.entity";
 
 @Injectable()
 export class DepartmentService extends BaseService<DepartmentDocument> {
@@ -25,7 +23,7 @@ export class DepartmentService extends BaseService<DepartmentDocument> {
 
   async create(body: CreateDepartmentDto, ...args): Promise<DepartmentEntity> {
     const department = await super.create(body, ...args);
-    this.branchService?.updateDepartmentToBranch(department._id, body.branches);
+    this.branchService?.updateDepartmentToBranch(department._id, body.branchIds);
     return department;
   }
 

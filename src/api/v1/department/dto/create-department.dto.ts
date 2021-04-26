@@ -4,9 +4,9 @@ import {ObjectId} from "mongodb";
 export class CreateDepartmentDto {
   @IsNotEmpty()
   @IsString()
-  readonly department: string;
+  readonly name: string;
 
   @IsArray()
   @IsOptional()
-  readonly branches: ObjectId[];
+  readonly branchIds: ObjectId[];
 }

@@ -3,17 +3,17 @@ import {Prop, Schema, SchemaFactory} from "@nestjs/mongoose";
 import * as mongoose from "mongoose";
 import {Document} from "mongoose";
 import * as mongoosePaginate from 'mongoose-paginate';
-import {BranchEntity, BranchSchema} from "../../branch/entities/branch.entity";
+import {ObjectId} from "mongodb";
 
 export type DepartmentDocument = DepartmentEntity & Document;
 
 @Schema({autoIndex: true})
 export class DepartmentEntity extends BaseDocument {
   @Prop({type: String, unique: true})
-  department: string;
+  name: string;
 
   @Prop({type: [{type: mongoose.Schema.Types.ObjectId, ref: "Branch"}]})
-  branches: BranchEntity[];
+  branchIds: ObjectId[];
 }
 
 export const DepartmentSchema = SchemaFactory.createForClass(DepartmentEntity).plugin(mongoosePaginate);
