@@ -4,6 +4,8 @@ import {IsMongoId, IsNotEmpty} from "class-validator";
 import {Type} from "class-transformer";
 
 export class CreateUserDto extends ICreateUserDto {
+  code: string;
+
   @IsNotEmpty()
   @IsMongoId()
   position: ObjectId;

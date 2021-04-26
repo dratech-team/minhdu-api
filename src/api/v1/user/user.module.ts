@@ -7,6 +7,7 @@ import {MongooseModule} from "@nestjs/mongoose";
 import {ModelName} from "../../../common/constant/database.constant";
 import {UserSchema} from "./entities/user.entity";
 import {PositionModule} from "../position/position.module";
+import {BranchModule} from "../branch/branch.module";
 
 @Module({
   imports: [
@@ -14,6 +15,7 @@ import {PositionModule} from "../position/position.module";
     AreaModule,
     PayrollModule,
     PositionModule,
+    BranchModule,
   ],
   controllers: [UserController],
   providers: [UserService],

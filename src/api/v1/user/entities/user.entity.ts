@@ -7,11 +7,15 @@ import {BranchEntity} from "../../branch/entities/branch.entity";
 import * as mongoose from "mongoose";
 import {SalaryEntity, SalarySchema} from "../../../../common/entities/salaryEntity";
 import {ObjectId} from "mongodb";
+import * as mongoosePaginate from "mongoose-paginate";
 
 export type UserDocument = UserEntity & Document;
 
 @Schema()
 export class UserEntity extends IUser {
+  @Prop()
+  code: string;
+
   @Prop({type: mongoose.Schema.Types.ObjectId, ref: "PositionEntity"})
   position: ObjectId;
 
@@ -25,5 +29,5 @@ export class UserEntity extends IUser {
   basicsSalary: SalaryEntity[];
 }
 
-export const UserSchema = SchemaFactory.createForClass(UserEntity);
+export const UserSchema = SchemaFactory.createForClass(UserEntity).plugin(mongoosePaginate);
 

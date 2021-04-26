@@ -4,7 +4,7 @@ import {AreaService} from "./area.service";
 import {CreateAreaDto} from "./dto/create-area.dto";
 import {ObjectId} from "mongodb";
 import {UpdateAreaDto} from "./dto/update-area.dto";
-import {PaginateResult} from "mongoose";
+import {PaginateOptions, PaginateResult} from "mongoose";
 
 @Controller('v1/area')
 export class AreaController {
@@ -17,16 +17,20 @@ export class AreaController {
   }
 
   @Get(":id")
-  async findById(@Param("id") id: ObjectId): Promise<AreaEntity> {
-    return this.service.findById(id);
+  async findOne(@Param("id") id: ObjectId): Promise<AreaEntity> {
+    return this.service.findOne(id);
   }
 
   @Get()
   async findAll(
-    @Query("page", ParseIntPipe) page: number,
-    @Query("limit", ParseIntPipe) limit: number
+    @Query("page") page: number,
+    @Query("limit") limit: number
   ): Promise<PaginateResult<AreaEntity>> {
-    return this.service.findAll({page, limit});
+    const paginateOpts: PaginateOptions = {
+      page: Number(page ?? 1),
+      limit: Number(limit ?? 10)
+    };
+    return await this.service.findAll(paginateOpts);
   }
 
   @Put(":id")

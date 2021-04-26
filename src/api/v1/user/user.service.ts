@@ -7,17 +7,21 @@ import {ObjectId} from "mongodb";
 import {UpdateUserDto} from "./dto/update-user.dto";
 import {CreateUserDto} from "./dto/create-user.dto";
 import {isEmpty} from "class-validator";
+import {BranchService} from "../branch/branch.service";
 
 @Injectable()
 export class UserService {
   constructor(
     @InjectModel(ModelName.USER)
     private readonly model: PaginateModel<UserDocument>,
+    private readonly branchService: BranchService,
   ) {
   }
 
   async create(body: CreateUserDto): Promise<UserEntity> {
     try {
+      body.code = await this.generateEmployeeCode(body);
+
       return await this.model.create(body);
     } catch (e) {
       throw new BadRequestException(e);
@@ -79,5 +83,20 @@ export class UserService {
     } catch (e) {
       throw new HttpException(e, e.statusCode || 500);
     }
+  }
+
+  async generateEmployeeCode(body: CreateUserDto): Promise<string> {
+    const branch = await this.branchService.findById(body.branch);
+    const count = await this.model.count();
+    let gen: string;
+    if (count < 10) {
+      gen = "000";
+    } else if (count < 100) {
+      gen = "00";
+    } else if (count < 1000) {
+      gen = "0";
+    }
+
+    return `${branch.code} + ${gen} + ${count + 1}`;
   }
 }

@@ -11,37 +11,37 @@ import {UpdateAreaDto} from "./dto/update-area.dto";
 export class AreaService {
   constructor(
     @InjectModel(ModelName.AREA)
-    private readonly areaModel: PaginateModel<AreaDocument>,
+    private readonly model: PaginateModel<AreaDocument>,
   ) {
   }
 
   async create(body: CreateAreaDto): Promise<AreaEntity> {
     try {
-      return await this.areaModel.create(body);
+      return await this.model.create(body);
     } catch (e) {
       throw new BadRequestException(e);
     }
   }
 
-  async findById(id: ObjectId): Promise<any> {
-    return this.areaModel.findById(id);
+  async findOne(id: ObjectId): Promise<any> {
+    return this.model.findOne({_id: id, deleted: false});
   }
 
   async findAll(
     paginateOpts?: PaginateOptions
   ): Promise<PaginateResult<AreaEntity>> {
     try {
-      return await this.areaModel.paginate({deleted: false}, paginateOpts);
+      return await this.model.paginate({deleted: false}, paginateOpts);
     } catch (e) {
       throw new HttpException(e, e.statusCode);
     }
   }
 
   async update(id: ObjectId, updates: UpdateAreaDto): Promise<any> {
-    return this.areaModel.findByIdAndUpdate(id, updates).orFail(new NotFoundException());
+    return this.model.findByIdAndUpdate(id, updates).orFail(new NotFoundException());
   }
 
   async remove(id: ObjectId): Promise<void> {
-    this.areaModel.findByIdAndDelete(id).orFail(new NotFoundException());
+    this.model.findByIdAndUpdate(id, {deleted: true}).orFail(new NotFoundException());
   }
 }

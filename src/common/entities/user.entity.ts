@@ -24,7 +24,6 @@ export class IUser extends BaseDocument {
   email: string;
 
   @Prop()
-  userType: UserType;
-
+  note: string;
 }
 
