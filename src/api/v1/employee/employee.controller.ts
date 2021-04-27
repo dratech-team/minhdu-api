@@ -13,13 +13,18 @@ export class EmployeeController {
 
   @Post()
   async create(@Body() body: CreateEmployeeDto): Promise<EmployeeEntity> {
-    return this.service.create(body);
+    return await this.service.create(body);
+  }
+
+  @Get(":id")
+  async findOne(@Param("id") id: ObjectId): Promise<EmployeeEntity> {
+    return await this.service.findOne(id);
   }
 
   @Get()
   async findAll(
-    @Query("page", ParseIntPipe) page: number,
-    @Query("limit", ParseIntPipe) limit: number,
+    @Query("page") page: number,
+    @Query("limit") limit: number,
   ): Promise<PaginateResult<EmployeeEntity>> {
     return this.service.findAll({page, limit});
   }

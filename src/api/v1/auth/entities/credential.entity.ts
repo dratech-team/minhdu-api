@@ -9,9 +9,9 @@ export type CredentialDocument = CredentialEntity & Document;
 
 const SALT_ROUND = 10;
 
-@Schema()
+@Schema({autoIndex: true})
 export class CredentialEntity extends BaseDocument {
-  @Prop()
+  @Prop({unique: true})
   username: string;
 
   @Prop()

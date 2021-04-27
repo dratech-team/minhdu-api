@@ -5,7 +5,7 @@ import * as mongoosePaginate from 'mongoose-paginate';
 
 export type AreaDocument = AreaEntity & Document;
 
-@Schema()
+@Schema({autoIndex: true})
 export class AreaEntity extends BaseDocument {
   @Prop({unique: true})
   name: string;

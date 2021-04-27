@@ -1,14 +1,13 @@
 import {BaseDocument} from "../../../../core/entities/base.entity";
 import {Prop, Schema, SchemaFactory} from "@nestjs/mongoose";
 import {ObjectId} from "mongodb";
-import {AreaEntity} from "../../area/entities/area.entity";
-import {Document} from "mongoose";
 import * as mongoose from "mongoose";
+import {Document} from "mongoose";
 import * as mongoosePaginate from 'mongoose-paginate';
 
 export type BranchDocument = BranchEntity & Document;
 
-@Schema()
+@Schema({autoIndex: true})
 export class BranchEntity extends BaseDocument {
   @Prop()
   code: string;

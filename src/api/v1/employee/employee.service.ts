@@ -19,11 +19,12 @@ export class EmployeeService {
   }
 
   async create(body: CreateEmployeeDto): Promise<EmployeeEntity> {
+    console.log(body)
     try {
       const employee = new EmployeeEntity();
       employee.code = await this.generateEmployeeCode(body);
       employee.positionId = body.positionId;
-      employee.workDay = body.workday;
+      employee.workday = body.workday;
       employee.departmentId = body.departmentId;
       employee.branchId = body.branchId;
       employee.basicsSalary = [body.basicSalary];
@@ -41,9 +42,16 @@ export class EmployeeService {
     }
   }
 
+  async findOne(id: ObjectId): Promise<EmployeeEntity> {
+    return this.model.findOne({_id: id, deleted: false});
+  }
+
   async findAll(
     paginateOpts?: PaginateOptions,
   ): Promise<PaginateResult<EmployeeEntity>> {
+
+    paginateOpts.populate = ["positionId", "departmentId", "branchId"];
+
     return await this.model.paginate({deleted: false}, paginateOpts);
   }
 

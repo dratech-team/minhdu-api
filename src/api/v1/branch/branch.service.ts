@@ -29,7 +29,7 @@ export class BranchService {
   }
 
   async findById(id: ObjectId): Promise<BranchEntity> {
-    return this.model.findById(id);
+    return this.model.findById(id).orFail(new NotFoundException(`Không tìm thấy chi nhánh này: ${id}`));
   }
 
   async findAll(paginateOpts?: PaginateOptions): Promise<PaginateResult<BranchEntity>> {

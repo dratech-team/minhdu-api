@@ -1,10 +1,10 @@
 import {Prop, Schema, SchemaFactory} from "@nestjs/mongoose";
-import {Document, Types} from "mongoose";
+import * as mongoose from "mongoose";
+import {Document} from "mongoose";
 import {IUser} from "../../../../common/entities/user.entity";
 import {PositionEntity} from "../../position/entities/position.entity";
 import {DepartmentEntity} from "../../department/entities/department.entity";
 import {BranchEntity} from "../../branch/entities/branch.entity";
-import * as mongoose from "mongoose";
 import {SalaryEntity, SalarySchema} from "../../../../common/entities/salaryEntity";
 import {ObjectId} from "mongodb";
 import * as mongoosePaginate from "mongoose-paginate";
@@ -16,16 +16,16 @@ export class EmployeeEntity extends IUser {
   @Prop({unique: true})
   code: string;
 
-  @Prop({type: mongoose.Schema.Types.ObjectId, ref: "PositionEntity"})
+  @Prop({type: mongoose.Schema.Types.ObjectId, ref: "Position"})
   positionId: ObjectId;
 
   @Prop()
-  workDay: number;
+  workday: number;
 
-  @Prop({type: mongoose.Schema.Types.ObjectId, ref: "DepartmentEntity"})
+  @Prop({type: mongoose.Schema.Types.ObjectId, ref: "Department"})
   departmentId: ObjectId;
 
-  @Prop({type: mongoose.Schema.Types.ObjectId, ref: "BranchEntity"})
+  @Prop({type: mongoose.Schema.Types.ObjectId, ref: "Branch"})
   branchId: ObjectId;
 
   @Prop([SalarySchema])
@@ -33,4 +33,6 @@ export class EmployeeEntity extends IUser {
 }
 
 export const EmployeeSchema = SchemaFactory.createForClass(EmployeeEntity).plugin(mongoosePaginate);
+
+
 

@@ -4,7 +4,6 @@ import {IsMongoId, IsNotEmpty, IsNumber, IsObject} from "class-validator";
 import {Type} from "class-transformer";
 import {ICreateSalaryDto} from "../../../../common/dtos/create-salary.dto";
 
-
 export class CreateEmployeeDto extends ICreateUserDto {
   @Type(() => Number)
   @IsNotEmpty()
