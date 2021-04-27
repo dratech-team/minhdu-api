@@ -56,7 +56,7 @@ export class BranchService {
     const payload = new BranchEntity();
     payload.name = updates.name;
     payload.code = generateId(updates.name);
-    payload.departmentIds = updates.departmentIds;
+    // payload.departmentIds = updates.departmentIds;
     payload.areaId = updates.areaId;
 
     return this.model.findByIdAndUpdate(id, payload).orFail(new NotFoundException());

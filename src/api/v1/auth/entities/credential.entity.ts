@@ -2,8 +2,6 @@ import {BaseDocument} from "../../../../core/entities/base.entity";
 import {Prop, Schema, SchemaFactory} from "@nestjs/mongoose";
 import {ObjectId} from "mongodb";
 import {Document} from "mongoose";
-import {generateHash} from "../../../../core/methods/validators.method";
-import {IUserMethods} from "../methods/auth.method";
 import * as bcrypt from "bcrypt";
 import {UserType} from "../../../../core/constants/role-type.constant";
 
@@ -13,8 +11,6 @@ const SALT_ROUND = 10;
 
 @Schema()
 export class CredentialEntity extends BaseDocument {
-  _id: ObjectId;
-
   @Prop()
   username: string;
 

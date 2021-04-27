@@ -30,7 +30,7 @@ export class PositionService {
   async findAll(
     paginateOpts?: PaginateOptions,
   ): Promise<PaginateResult<PositionEntity>> {
-    return this.model.paginate(paginateOpts);
+    return this.model.paginate({deleted: false}, paginateOpts);
   }
 
   async update(

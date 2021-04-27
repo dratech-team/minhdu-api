@@ -1,8 +1,8 @@
-import {Body, Controller, Delete, Get, Param, ParseIntPipe, Post, Put,} from "@nestjs/common";
+import {Body, Controller, Delete, Get, Param, ParseIntPipe, Post, Put, Query,} from "@nestjs/common";
 import {PositionEntity} from "./entities/position.entity";
 import {PositionService} from "./position.service";
 import {CreatePositionDto} from "./dto/create-position.dto";
-import {PaginateResult} from "mongoose";
+import {PaginateOptions, PaginateResult} from "mongoose";
 import {UpdatePositionDto} from "./dto/update-position.dto";
 import {ObjectId} from "mongodb";
 
@@ -23,8 +23,8 @@ export class PositionController {
 
   @Get()
   async findAll(
-    @Param("number", ParseIntPipe) page: number,
-    @Param("limit", ParseIntPipe) limit: number,
+    @Query("page") page: number,
+    @Query("limit") limit: number,
   ): Promise<PaginateResult<PositionEntity>> {
     return this.service.findAll({page, limit});
   }

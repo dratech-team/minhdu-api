@@ -2,7 +2,7 @@ import {Prop, Schema, SchemaFactory} from "@nestjs/mongoose";
 
 @Schema()
 export class SalaryEntity {
-  @Prop()
+  @Prop({unique: true})
   title?: string;
 
   @Prop()

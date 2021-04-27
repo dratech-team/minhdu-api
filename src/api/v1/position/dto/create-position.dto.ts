@@ -5,7 +5,7 @@ import {ObjectId} from "mongodb";
 export class CreatePositionDto {
   @IsString()
   @IsNotEmpty()
-  readonly position: string;
+  readonly name: string;
 
   @Type(() => Number)
   @IsNumber()

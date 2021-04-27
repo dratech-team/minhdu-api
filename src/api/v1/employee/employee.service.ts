@@ -23,6 +23,7 @@ export class EmployeeService {
       const employee = new EmployeeEntity();
       employee.code = await this.generateEmployeeCode(body);
       employee.positionId = body.positionId;
+      employee.workDay = body.workday;
       employee.departmentId = body.departmentId;
       employee.branchId = body.branchId;
       employee.basicsSalary = [body.basicSalary];

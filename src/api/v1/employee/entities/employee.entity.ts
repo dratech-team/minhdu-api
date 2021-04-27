@@ -13,11 +13,14 @@ export type EmployeeDocument = EmployeeEntity & Document;
 
 @Schema()
 export class EmployeeEntity extends IUser {
-  @Prop()
+  @Prop({unique: true})
   code: string;
 
   @Prop({type: mongoose.Schema.Types.ObjectId, ref: "PositionEntity"})
   positionId: ObjectId;
+
+  @Prop()
+  workDay: number;
 
   @Prop({type: mongoose.Schema.Types.ObjectId, ref: "DepartmentEntity"})
   departmentId: ObjectId;

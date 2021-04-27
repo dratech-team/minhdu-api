@@ -20,9 +20,9 @@ export class DepartmentService {
 
   async create(body: CreateDepartmentDto): Promise<DepartmentEntity> {
     try {
-      const department = await this.model.create(body);
-      this.branchService?.updateDepartmentToBranch(department._id, body.branchIds);
-      return department;
+      return await this.model.create(body);
+      // this.branchService?.updateDepartmentToBranch(department._id, body.branchIds);
+      //  department;
     } catch (e) {
       throw new BadRequestException(e);
     }
@@ -33,11 +33,10 @@ export class DepartmentService {
   }
 
   async findAll(
-    paginateOpts?: PaginateOptions,
-    ...args
+    paginateOpts?: PaginateOptions
   ): Promise<PaginateResult<DepartmentEntity>> {
     paginateOpts.populate = ['branchIds'];
-    return await this.model.paginate({deleted: false}, paginateOpts, ...args);
+    return await this.model.paginate({deleted: false}, paginateOpts);
   }
 
   async update(

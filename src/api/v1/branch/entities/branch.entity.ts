@@ -18,9 +18,6 @@ export class BranchEntity extends BaseDocument {
 
   @Prop({type: ObjectId, ref: "Area"})
   areaId: ObjectId;
-
-  @Prop({type: [{type: mongoose.Schema.Types.ObjectId, ref: "Department"}]})
-  departmentIds: ObjectId[];
 }
 
 export const BranchSchema = SchemaFactory.createForClass(BranchEntity).plugin(mongoosePaginate);

@@ -1,21 +1,18 @@
 import {Document} from "mongoose";
 import {Prop, Schema, SchemaFactory} from "@nestjs/mongoose";
 import {BaseDocument} from "../../../../core/entities/base.entity";
-import {DepartmentEntity} from "../../department/entities/department.entity";
 import {ObjectId} from "mongodb";
+import * as mongoosePaginate from "mongoose-paginate";
 
 export type PositionDocument = PositionEntity & Document;
 
 @Schema()
 export class PositionEntity extends BaseDocument {
   @Prop()
-  position: string;
-
-  @Prop()
-  workDay: number;
+  name: string;
 
   @Prop({type: [{type: ObjectId, ref: "Department"}]})
-  departmentIds: DepartmentEntity;
+  departmentIds: ObjectId[];
 }
 
-export const PositionSchema = SchemaFactory.createForClass(PositionEntity);
+export const PositionSchema = SchemaFactory.createForClass(PositionEntity).plugin(mongoosePaginate);
