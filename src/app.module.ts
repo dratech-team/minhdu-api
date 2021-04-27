@@ -3,7 +3,7 @@ import {AppController} from "./app.controller";
 import {AppService} from "./app.service";
 import {MongooseModule, MongooseModuleAsyncOptions} from "@nestjs/mongoose";
 import {PayrollModule} from "./api/v1/payroll/payroll.module";
-import {UserModule} from "./api/v1/user/user.module";
+import {EmployeeModule} from "./api/v1/employee/employee.module";
 import {AreaModule} from "./api/v1/area/area.module";
 import {ConfigService} from "./core/config/config.service";
 import {ConfigModule} from "./core/config/config.module";
@@ -33,7 +33,7 @@ import {SwaggerModule} from "@nestjs/swagger";
     }),
     SwaggerModule,
     // PayrollModule,
-    // UserModule,
+    // EmployeeModule,
     // AreaModule,
     ConfigModule,
     // PositionModule,

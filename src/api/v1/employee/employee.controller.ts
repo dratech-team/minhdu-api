@@ -1,18 +1,18 @@
 import {Body, Controller, Delete, Get, Param, ParseIntPipe, Post, Put, Query} from "@nestjs/common";
-import {CreateUserDto} from "./dto/create-user.dto";
-import {UserService} from "./user.service";
+import {CreateEmployeeDto} from "./dto/create-employee.dto";
+import {EmployeeService} from "./employee.service";
 import {PaginateResult, Types} from "mongoose";
-import {UserEntity} from "./entities/user.entity";
-import {UpdateUserDto} from "./dto/update-user.dto";
+import {EmployeeEntity} from "./entities/employee.entity";
+import {UpdateEmployeeDto} from "./dto/update-employee.dto";
 import {ObjectId} from "mongodb";
 
-@Controller("v1/user")
-export class UserController {
-  constructor(private readonly service: UserService) {
+@Controller("v1/employee")
+export class EmployeeController {
+  constructor(private readonly service: EmployeeService) {
   }
 
   @Post()
-  async create(@Body() body: CreateUserDto): Promise<UserEntity> {
+  async create(@Body() body: CreateEmployeeDto): Promise<EmployeeEntity> {
     return this.service.create(body);
   }
 
@@ -20,24 +20,24 @@ export class UserController {
   async findAll(
     @Query("page", ParseIntPipe) page: number,
     @Query("limit", ParseIntPipe) limit: number,
-  ): Promise<PaginateResult<UserEntity>> {
+  ): Promise<PaginateResult<EmployeeEntity>> {
     return this.service.findAll({page, limit});
   }
 
   @Put(":id")
   async updateUser(
-    @Body() body: UpdateUserDto,
-    @Param("id") id: Types.ObjectId,
-  ): Promise<UserEntity> {
+    @Body() body: UpdateEmployeeDto,
+    @Param("id") id: ObjectId,
+  ): Promise<EmployeeEntity> {
     return this.service.update(id, body);
   }
 
   @Put(":id/salary/:salaryId")
   async updateSalary(
-    @Body() body: UpdateUserDto,
-    @Param("id") id: Types.ObjectId,
-    @Param("salaryId") salaryId: Types.ObjectId,
-  ): Promise<UserEntity> {
+    @Body() body: UpdateEmployeeDto,
+    @Param("id") id: ObjectId,
+    @Param("salaryId") salaryId: ObjectId,
+  ): Promise<EmployeeEntity> {
     return this.service.update(id, body, salaryId);
   }
 

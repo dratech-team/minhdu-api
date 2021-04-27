@@ -1,6 +1,6 @@
 import * as bcrypt from "bcrypt";
 import {CredentialEntity} from "../../api/v1/auth/entities/credential.entity";
-// import { IUser } from "@/core/interfaces/user.interface";
+// import { IUser } from "@/core/interfaces/employee.interface";
 
 const SALT_ROUND = 10;
 

@@ -32,7 +32,9 @@ async function bootstrap() {
   app.setBaseViewsDir(join(__dirname, "..", "views"));
   app.setViewEngine("hbs");
 
-  app.useGlobalPipes(new ValidationPipe());
+  app.useGlobalPipes(new ValidationPipe({
+    transform: true,
+  }));
   app.useGlobalFilters(
     new WebsocketsExceptionFilter(),
     new AllExceptionFilter(),

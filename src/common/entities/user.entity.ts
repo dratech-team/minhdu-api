@@ -20,7 +20,7 @@ export class IUser extends BaseDocument {
   @Prop()
   phone: string;
 
-  @Prop()
+  @Prop({unique: true})
   email: string;
 
   @Prop()

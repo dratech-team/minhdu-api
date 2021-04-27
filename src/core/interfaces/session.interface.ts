@@ -9,6 +9,6 @@ export interface ISession extends ICustomDocument {
   installationId?: string;
   expiresAt: Date;
 
-  // Indicate that this refresh token is forced to be expired due to user already deleted
+  // Indicate that this refresh token is forced to be expired due to employee already deleted
   isUserDeleted: boolean;
 }

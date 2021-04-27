@@ -9,25 +9,25 @@ import {SalaryEntity, SalarySchema} from "../../../../common/entities/salaryEnti
 import {ObjectId} from "mongodb";
 import * as mongoosePaginate from "mongoose-paginate";
 
-export type UserDocument = UserEntity & Document;
+export type EmployeeDocument = EmployeeEntity & Document;
 
 @Schema()
-export class UserEntity extends IUser {
+export class EmployeeEntity extends IUser {
   @Prop()
   code: string;
 
   @Prop({type: mongoose.Schema.Types.ObjectId, ref: "PositionEntity"})
-  position: ObjectId;
+  positionId: ObjectId;
 
   @Prop({type: mongoose.Schema.Types.ObjectId, ref: "DepartmentEntity"})
-  department: ObjectId;
+  departmentId: ObjectId;
 
   @Prop({type: mongoose.Schema.Types.ObjectId, ref: "BranchEntity"})
-  branch: ObjectId;
+  branchId: ObjectId;
 
   @Prop([SalarySchema])
   basicsSalary: SalaryEntity[];
 }
 
-export const UserSchema = SchemaFactory.createForClass(UserEntity).plugin(mongoosePaginate);
+export const EmployeeSchema = SchemaFactory.createForClass(EmployeeEntity).plugin(mongoosePaginate);
 

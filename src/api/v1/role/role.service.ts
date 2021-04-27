@@ -20,7 +20,7 @@ export class RoleService {
     public readonly roleModel: Model<IRole>
   ) {
     this.updateAdminUserIds().then((val) => {
-      // console.log('Update admin user ids')
+      // console.log('Update admin employee ids')
     });
   }
 

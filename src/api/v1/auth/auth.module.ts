@@ -3,7 +3,7 @@ import {AuthService} from './auth.service';
 import {AuthController} from './auth.controller';
 import {JwtModule} from "@nestjs/jwt";
 import {PassportModule} from "@nestjs/passport";
-import {UserModule} from "../user/user.module";
+import {EmployeeModule} from "../employee/employee.module";
 import {ConfigService} from "../../../core/config/config.service";
 import {ConfigModule} from "../../../core/config/config.module";
 import {MongooseModule} from "@nestjs/mongoose";
@@ -13,7 +13,7 @@ import {JwtStrategy} from "./jwt.strategy";
 
 @Module({
   imports: [
-    UserModule,
+    EmployeeModule,
     PassportModule,
     ConfigModule,
     JwtModule.registerAsync({

@@ -34,7 +34,7 @@ export class ICreateUserDto {
 
   @IsNotEmpty()
   @IsPhoneNumber("VN")
-  readonly phoneNumber: string;
+  readonly phone: string;
 
   @IsOptional()
   @MaxLength(100)
