@@ -19,7 +19,6 @@ export class EmployeeService {
   }
 
   async create(body: CreateEmployeeDto): Promise<EmployeeEntity> {
-    console.log(body)
     try {
       const employee = new EmployeeEntity();
       employee.code = await this.generateEmployeeCode(body);

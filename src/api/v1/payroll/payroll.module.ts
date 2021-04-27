@@ -8,7 +8,7 @@ import {ModelName} from "../../../common/constant/database.constant";
 @Module({
   imports: [
     MongooseModule.forFeature([
-      {name: ModelName.SALARY, schema: PayrollSchema},
+      {name: ModelName.PAYROLL, schema: PayrollSchema},
     ]),
   ],
   controllers: [PayrollController],
