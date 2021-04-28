@@ -15,13 +15,15 @@ import { WebsocketsExceptionFilter } from "./core/filters/ws-exception.filter";
 import { AllExceptionFilter } from "./core/filters/all-exception.filter";
 import { HttpExceptionFilter } from "./core/filters/http-exception.filter";
 import { mongoMorgan } from "./core/functions/mongo-morgan.function";
+import {AppV2Module} from "./app-v2.module";
 
 declare const module: any;
 
 async function bootstrap() {
   const server = express();
   const app = await NestFactory.create<NestExpressApplication>(
-    AppModule,
+    // AppModule,
+    AppV2Module,
     new ExpressAdapter(server),
     {logger: true}
   );
