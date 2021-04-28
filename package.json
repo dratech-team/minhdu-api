@@ -99,7 +99,7 @@
     "ts-loader": "8.1.0",
     "tsconfig-paths": "3.9.0",
     "webpack": "^5.33.2",
-    "webpack-node-externals": "^2.5.2"
+    "webpack-node-externals": "3.0.0"
   },
   "jest": {
     "moduleFileExtensions": [
