@@ -75,7 +75,7 @@ async function bootstrap() {
   app.use(requestIp.mw());
 
   const port = configService.serverPort;
-  await app.listen(port);
+  await app.listen(port || 3000);
   console.log(`[INFO] Server is listening on port ${port}`);
   if (module.hot) {
     module.hot.accept();
