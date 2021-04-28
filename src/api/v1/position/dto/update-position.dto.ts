@@ -1,18 +1,5 @@
-import { IsEnum, IsNumber, IsOptional, IsString } from "class-validator";
-import { Type } from "class-transformer";
-import { UserType } from "../../../../core/constants/role-type.constant";
+import {PartialType} from "@nestjs/mapped-types";
+import {CreatePositionDto} from "./create-position.dto";
 
-export class UpdatePositionDto {
-  @IsString()
-  @IsOptional()
-  readonly position: string;
-
-  @Type(() => Number)
-  @IsNumber()
-  @IsOptional()
-  readonly wordDay: number;
-
-  @IsEnum(UserType)
-  @IsOptional()
-  readonly userType: UserType;
+export class UpdatePositionDto extends PartialType(CreatePositionDto) {
 }

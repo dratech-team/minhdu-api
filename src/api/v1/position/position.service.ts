@@ -1,47 +1,50 @@
-import { Injectable } from "@nestjs/common";
-import { BaseService } from "../../../core/crud-base/base.service";
-import { Position, PositionDocument } from "./schema/position.schema";
-import { Model, Types } from "mongoose";
-import { CreatePositionDto } from "./dto/create-position.dto";
-import { PaginatorOptions } from "../../../core/crud-base/interface/pagination.interface";
-import { CorePaginateResult } from "../../../core/interfaces/pagination";
-import { UpdatePositionDto } from "./dto/update-position.dto";
-import { InjectModel } from "@nestjs/mongoose";
-import { ModelName } from "../../../common/constant/database.constant";
+import {BadRequestException, Injectable, NotFoundException} from "@nestjs/common";
+import {PositionDocument, PositionEntity} from "./entities/position.entity";
+import {PaginateModel, PaginateOptions, PaginateResult, Types} from "mongoose";
+import {CreatePositionDto} from "./dto/create-position.dto";
+import {UpdatePositionDto} from "./dto/update-position.dto";
+import {InjectModel} from "@nestjs/mongoose";
+import {ModelName} from "../../../common/constant/database.constant";
+import {ObjectId} from "mongodb";
 
 @Injectable()
-export class PositionService extends BaseService<PositionDocument> {
+export class PositionService {
   constructor(
     @InjectModel(ModelName.POSITION)
-    private readonly positionModel: Model<PositionDocument>
+    private readonly model: PaginateModel<PositionDocument>,
   ) {
-    super(positionModel);
   }
 
-  async create(body: CreatePositionDto, ...args): Promise<Position> {
-    return super.create(body, ...args);
+  async create(body: CreatePositionDto): Promise<PositionEntity> {
+    try {
+      return await this.model.create(body);
+    } catch (e) {
+      throw new BadRequestException(e);
+    }
   }
 
-  async findOne(id: Types.ObjectId, ...args): Promise<Position> {
-    return super.findOne(id, ...args);
+  async findById(id: ObjectId): Promise<PositionEntity> {
+    return this.model.findById(id);
   }
 
   async findAll(
-    paginateOpts?: PaginatorOptions,
-    ...args
-  ): Promise<CorePaginateResult<Position>> {
-    return super.findAll(paginateOpts, ...args);
+    paginateOpts?: PaginateOptions,
+  ): Promise<PaginateResult<PositionEntity>> {
+    return this.model.paginate({deleted: false}, paginateOpts);
   }
 
   async update(
-    id: Types.ObjectId,
+    id: ObjectId,
     updates: UpdatePositionDto,
-    ...args
-  ): Promise<Position> {
-    return super.update(id, updates, ...args);
+  ): Promise<PositionEntity> {
+    return this.model
+      .findByIdAndUpdate(id, {updates})
+      .orFail(new NotFoundException());
   }
 
-  async delete(id: Types.ObjectId, ...args): Promise<void> {
-    await this.positionModel.updateOne({ _id: id }, { deleted: true });
+  async remove(id: Types.ObjectId): Promise<void> {
+    this.model
+      .findByIdAndUpdate(id, {deleted: true})
+      .orFail(new NotFoundException());
   }
 }

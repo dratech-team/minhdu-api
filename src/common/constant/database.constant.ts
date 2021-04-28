@@ -1,6 +1,7 @@
 export enum ModelName {
   ROLE = "_Role",
-  SALARY = "Salary",
+  ACCOUNT = "_Account",
+  PAYROLL = "Payroll",
   BASIC_SALARY = "BasicSalary",
   ALLOWANCE_SALARY = "AllowanceSalary",
   OVERTIME_SALARY = "OvertimeSalary",
@@ -8,5 +9,8 @@ export enum ModelName {
   DEDUCTION_SALARY = "DeductionSalary",
   OTHER_SALARY = "OtherSalary",
   POSITION = "Position",
-  USER = "User",
+  DEPARTMENT = "Department",
+  AREA = "Area",
+  BRANCH = "Branch",
+  EMPLOYEE = "Employee",
 }

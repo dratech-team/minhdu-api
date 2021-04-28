@@ -1,56 +1,44 @@
-import {
-  Body,
-  Controller,
-  Delete,
-  Get,
-  Param,
-  Post,
-  Put,
-} from "@nestjs/common";
-import { BaseController } from "../../../core/crud-base/base-controller";
-import { Position } from "./schema/position.schema";
-import { PositionService } from "./position.service";
-import { CreatePositionDto } from "./dto/create-position.dto";
-import { Types } from "mongoose";
-import { CorePaginateResult } from "../../../core/interfaces/pagination";
-import { UpdatePositionDto } from "./dto/update-position.dto";
+import {Body, Controller, Delete, Get, Param, ParseIntPipe, Post, Put, Query,} from "@nestjs/common";
+import {PositionEntity} from "./entities/position.entity";
+import {PositionService} from "./position.service";
+import {CreatePositionDto} from "./dto/create-position.dto";
+import {PaginateOptions, PaginateResult} from "mongoose";
+import {UpdatePositionDto} from "./dto/update-position.dto";
+import {ObjectId} from "mongodb";
 
 @Controller("v1/position")
-export class PositionController extends BaseController<Position> {
+export class PositionController {
   constructor(private readonly service: PositionService) {
-    super(service);
   }
 
   @Post()
-  async create(@Body() body: CreatePositionDto, ...args): Promise<Position> {
-    return super.create(body, ...args);
+  async create(@Body() body: CreatePositionDto): Promise<PositionEntity> {
+    return this.service.create(body);
   }
 
   @Get(":id")
-  async findById(@Param("id") id: Types.ObjectId, ...args): Promise<Position> {
-    return super.findById(id, ...args);
+  async findOne(@Param("id") id: ObjectId): Promise<PositionEntity> {
+    return this.service.findById(id);
   }
 
   @Get()
   async findAll(
-    @Param("number") page: number,
-    @Param("limit") limit: number,
-    ...args
-  ): Promise<CorePaginateResult<Position>> {
-    return super.findAll(page, limit, ...args);
+    @Query("page") page: number,
+    @Query("limit") limit: number,
+  ): Promise<PaginateResult<PositionEntity>> {
+    return this.service.findAll({page, limit});
   }
 
   @Put(":id")
   async update(
+    @Param("id") id: ObjectId,
     @Body() updates: UpdatePositionDto,
-    @Param("id") id: Types.ObjectId,
-    ...args
-  ): Promise<Position> {
-    return super.update(updates, id, ...args);
+  ): Promise<PositionEntity> {
+    return this.service.update(id, updates);
   }
 
-  @Delete()
-  async delete(@Param("id") id: Types.ObjectId, ...args): Promise<void> {
-    return super.delete(id, ...args);
+  @Delete(":id")
+  async remove(@Param("id") id: ObjectId): Promise<void> {
+    return this.service.remove(id);
   }
 }
