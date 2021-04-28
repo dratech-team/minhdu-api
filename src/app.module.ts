@@ -23,8 +23,6 @@ import {PayrollModule} from "./api/v1/payroll/payroll.module";
         useUnifiedTopology: true,
         connectionName: configService.databaseName,
         connectionFactory: (connection) => {
-          connection.plugin(require('mongoose-autopopulate'));
-          connection.plugin(require('./common/plugins/mongoose-found.plugin'));
           return connection;
         }
       }),
