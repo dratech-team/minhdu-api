@@ -6,10 +6,10 @@ import {ObjectId} from "mongodb";
 import {UpdateBranchDto} from "./dto/update-branch.dto";
 import {JwtAuthGuard} from "../../../core/guard/jwt-auth.guard";
 import {ApiKeyGuard} from "../../../core/guard/api-key-auth.guard";
-import {RolesGuard} from 'src/core/guard/role.guard';
 import {Roles} from "../../../core/decorators/roles.decorator";
 import {UserType} from "../../../core/constants/role-type.constant";
 import {PaginateResult} from "mongoose";
+import {RolesGuard} from "../../../core/guard/role.guard";
 
 @Controller('v1/branch')
 @UseGuards(JwtAuthGuard, ApiKeyGuard, RolesGuard)

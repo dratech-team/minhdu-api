@@ -5,7 +5,6 @@ import {MongooseModule} from "@nestjs/mongoose";
 import {ModelName} from "../../../common/constant/database.constant";
 import {BranchSchema} from "./entities/branch.entity";
 import {ConfigModule} from "../../../core/config/config.module";
-import {DepartmentModule} from "../department/department.module";
 
 @Module({
   imports: [
