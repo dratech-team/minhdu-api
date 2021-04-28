@@ -1,6 +1,6 @@
 import {MiddlewareConsumer, Module, NestModule} from "@nestjs/common";
 import {AppController} from "./app.controller";
-import {AppService} from "./app.service";
+// import {AppService} from "./app.service";
 import {MongooseModule} from "@nestjs/mongoose";
 import {ConfigService} from "./core/config/config.service";
 import {ConfigModule} from "./core/config/config.module";
@@ -13,6 +13,7 @@ import {BranchModule} from "./api/v1/branch/branch.module";
 import {AreaModule} from "./api/v1/area/area.module";
 import {EmployeeModule} from "./api/v1/employee/employee.module";
 import {PayrollModule} from "./api/v1/payroll/payroll.module";
+import {AppService} from "./app.service";
 
 @Module({
   imports: [
