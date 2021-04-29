@@ -1,26 +1,79 @@
-import { Injectable } from '@nestjs/common';
-import { CreateBranchDto } from './dto/create-branch.dto';
-import { UpdateBranchDto } from './dto/update-branch.dto';
+import {
+  BadRequestException,
+  ConflictException,
+  Injectable,
+  InternalServerErrorException,
+  NotFoundException
+} from '@nestjs/common';
+import {CreateBranchDto} from './dto/create-branch.dto';
+import {UpdateBranchDto} from './dto/update-branch.dto';
+import {PrismaService} from "../../../prisma.service";
+import {Branch} from '@prisma/client';
+import {PaginateResult} from "../../../common/interfaces/paginate.interface";
 
 @Injectable()
 export class BranchService {
-  create(createBranchDto: CreateBranchDto) {
-    return 'This action adds a new branch';
+  constructor(private readonly prisma: PrismaService) {
   }
 
-  findAll() {
-    return `This action returns all branch`;
+  async create(body: CreateBranchDto): Promise<Branch> {
+    const departments = body.departmentIds?.map((department) => ({
+      id: department
+    }));
+
+    try {
+      return await this.prisma.branch.create({
+        data: {
+          name: body.name,
+          area: {connect: {id: body.areaId}},
+          departments: {connect: departments}
+        }
+      });
+    } catch (e) {
+      if (e?.code == "P2025") {
+        throw new NotFoundException(`Không tìm thấy khu vực ${body?.areaId} hoặc các phòng ban ${body?.departmentIds?.join(", ")}. Vui lòng thử lại. Chi tiết: ${e?.meta?.cause}`);
+      } else if (e?.code == "P2002") {
+        throw new ConflictException('Tên chi nhánh không được phép trùng nhau. Vui lòng thử lại');
+      } else {
+        throw new BadRequestException(e);
+      }
+    }
+  }
+
+  async findAll(skip: number, take: number, areaId: number): Promise<PaginateResult> {
+    try {
+      const [count, data] = await Promise.all([
+        this.prisma.branch.count({where: {areaId: areaId}}),
+        this.prisma.branch.findMany({
+          skip: skip,
+          take: take,
+          where: {areaId: areaId},
+          include: {departments: true}
+        }),
+      ]);
+      return {
+        data,
+        statusCode: 200,
+        page: (skip / take) + 1,
+        total: count,
+      };
+    } catch (e) {
+      throw new InternalServerErrorException(`Các tham số skip, take, id là bắt buộc. Vui lòng kiểm tra lại bạn đã truyền đủ 3 tham số chưa.?`);
+    }
+
   }
 
   findOne(id: number) {
-    return `This action returns a #${id} branch`;
+    return this.prisma.branch.findUnique({where: {id: id}});
   }
 
-  update(id: number, updateBranchDto: UpdateBranchDto) {
-    return `This action updates a #${id} branch`;
+  async update(id: number, updates: UpdateBranchDto) {
+    return await this.prisma.branch.update({where: {id: id}, data: updates}).catch((e) => new BadRequestException(e));
   }
 
-  remove(id: number) {
-    return `This action removes a #${id} branch`;
+  async remove(id: number): Promise<void> {
+    await this.prisma.branch.delete({where: {id: id}}).catch((e) => {
+      throw new BadRequestException(e);
+    });
   }
 }

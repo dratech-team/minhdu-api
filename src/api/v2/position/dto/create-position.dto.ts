@@ -1,14 +1,9 @@
 import {IsArray, IsNotEmpty, IsOptional, IsString} from "class-validator";
-import {Type} from "class-transformer";
 
-export class CreateBranchDto {
+export class CreatePositionDto {
   @IsNotEmpty()
   @IsString()
   name: string;
-
-  @IsNotEmpty()
-  @Type(() => Number)
-  areaId: number;
 
   @IsOptional()
   @IsArray()
