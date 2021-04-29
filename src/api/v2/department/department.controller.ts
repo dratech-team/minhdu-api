@@ -13,14 +13,22 @@ export class DepartmentController {
     return this.departmentService.create(createDepartmentDto);
   }
 
+  @Get("/branch/:id")
+  findAllBranch(
+    @Query("skip") skip: number,
+    @Query("take") take: number,
+    @Param("id") id: number,
+    @Query("name") name: string,
+  ) {
+    return this.departmentService.findAll(+skip, +take, +id, name);
+  }
+
   @Get()
   findAll(
     @Query("skip") skip: number,
-    @Query("take") take: number,
-    @Query("branchId") branchId: number,
-    @Query("name") name: string,
+    @Query("take") take: number
   ) {
-    return this.departmentService.findAll(+skip, +take, +branchId, name);
+    return this.departmentService.findAll(+skip, +take);
   }
 
   // @Get(':id')

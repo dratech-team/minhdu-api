@@ -20,34 +20,57 @@ export class DepartmentService {
     const branches = body.branchIds?.map(branch => ({
       id: branch
     }));
+
+    const positions = body.positions?.map(position => ({
+      position: {
+        connectOrCreate: {
+          where: {name: position},
+          create: {name: position}
+        },
+      }
+    }));
     try {
       return await this.prisma.department.create({
         data: {
-          name: body.name,
-          branches: {connect: branches}
+          name: body.department,
+          branches: {connect: branches},
+          positions: {create: positions}
         }
       });
     } catch (e) {
+      console.log(e);
       if (e?.code == "P2025") {
         throw new NotFoundException(`Không tìm thấy chi nhánh ${body?.branchIds?.join(" hoặc ")}. Chi tiết: ${e?.meta?.cause}`);
       } else if (e?.code == "P2002") {
-        throw new ConflictException('Tên phòng ban không được phép trùng nhau. Vui lòng thử lại');
+        throw new ConflictException(`Tên có tên bị trùng. Vui lòng kiểm tra lại. Chi tiết ${e}`);
       } else {
         throw new BadRequestException(e);
       }
     }
   }
 
-  async findAll(skip: number, take: number, branchId: number, search?: string): Promise<PaginateResult> {
+  async findAll(skip: number, take: number, id?: number, search?: string): Promise<PaginateResult> {
     try {
       const [count, data] = await Promise.all([
-        this.prisma.department.count({where: {branches: {some: {id: branchId}}}}),
+        id
+          ? this.prisma.department.count({where: {branches: {some: {id: id}}}})
+          : this.prisma.department.count(),
 
-        this.prisma.department.findMany({
-          skip: skip,
-          take: take,
-          where: {branches: {some: {id: branchId}}, name: search},
-        }),
+        id
+          ? this.prisma.department.findMany({
+            skip: skip,
+            take: take,
+            where: {branches: {some: {id: id}}, name: search}
+          })
+          : this.prisma.department.findMany({
+            skip: skip,
+            take: take,
+            include: {
+              positions: {
+                select: {position: true}
+              },
+            }
+          }),
       ]);
       return {
         data,
@@ -56,7 +79,7 @@ export class DepartmentService {
         total: count,
       };
     } catch (e) {
-      throw new InternalServerErrorException(`Các tham số skip, take, id là bắt buộc. Vui lòng kiểm tra lại bạn đã truyền đủ 3 tham số chưa.?`);
+      throw new InternalServerErrorException(`Các tham số skip, take, id là bắt buộc. Vui lòng kiểm tra lại bạn đã truyền đủ 3 tham số chưa.?. Chi tiết: ${e}`);
     }
   }
 
@@ -66,10 +89,10 @@ export class DepartmentService {
   //   });
   // }
 
-  async update(id: number, updates: UpdateDepartmentDto): Promise<Department> {
-    return await this.prisma.department.update({where: {id: id}, data: updates}).catch((e) => {
-      throw new BadRequestException(e);
-    });
+  async update(id: number, updates: UpdateDepartmentDto): Promise<void> {
+    // return await this.prisma.department.update({where: {id: id}, data: updates}).catch((e) => {
+    //   throw new BadRequestException(e);
+    // });
   }
 
   async remove(id: number): Promise<void> {

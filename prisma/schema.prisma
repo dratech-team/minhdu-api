@@ -9,28 +9,37 @@ datasource db {
 
 model Area {
   id       Int      @id @default(autoincrement())
-  name     String  @unique
+  name     String   @unique
   branches Branch[]
 }
 
 model Branch {
-  id          Int           @id @default(autoincrement())
-  name        String        @unique
+  id          Int          @id @default(autoincrement())
+  name        String       @unique
   areaId      Int
-  area        Area          @relation(fields: [areaId], references: [id])
+  area        Area         @relation(fields: [areaId], references: [id])
   departments Department[]
 }
 
 model Department {
-  id        Int        @id @default(autoincrement())
-  name      String     @unique
+  id        Int                      @id @default(autoincrement())
+  name      String                   @unique
   branches  Branch[]
-  positions Position[]
+  positions DepartmentsOnPositions[]
+}
+
+model DepartmentsOnPositions {
+  id           Int         @id @default(autoincrement())
+  department   Department? @relation(fields: [departmentId], references: [id])
+  departmentId Int
+  position     Position?   @relation(fields: [positionId], references: [id])
+  positionId   Int
+
+  @@unique([departmentId, positionId])
 }
 
 model Position {
-  id          Int          @id @default(autoincrement())
-  name        String
-  departments Department[]
-  @@unique([name, lastName], name: "UniqueFirstAndLastNameIndex")
+  id          Int                      @id @default(autoincrement())
+  name        String                   @unique
+  departments DepartmentsOnPositions[]
 }

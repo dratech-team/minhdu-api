@@ -1,11 +1,12 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete } from '@nestjs/common';
-import { PositionService } from './position.service';
-import { CreatePositionDto } from './dto/create-position.dto';
-import { UpdatePositionDto } from './dto/update-position.dto';
+import {Controller, Get, Post, Body, Patch, Param, Delete, Query} from '@nestjs/common';
+import {PositionService} from './position.service';
+import {CreatePositionDto} from './dto/create-position.dto';
+import {UpdatePositionDto} from './dto/update-position.dto';
 
-@Controller('position')
+@Controller('v2/position')
 export class PositionController {
-  constructor(private readonly positionService: PositionService) {}
+  constructor(private readonly positionService: PositionService) {
+  }
 
   @Post()
   create(@Body() createPositionDto: CreatePositionDto) {
@@ -13,8 +14,11 @@ export class PositionController {
   }
 
   @Get()
-  findAll() {
-    return this.positionService.findAll();
+  findAll(
+    @Query("skip") skip: number,
+    @Query("take") take: number,
+  ) {
+    return this.positionService.findAll(+skip, +take);
   }
 
   @Get(':id')
