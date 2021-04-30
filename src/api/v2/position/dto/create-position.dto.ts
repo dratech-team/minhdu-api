@@ -7,5 +7,5 @@ export class CreatePositionDto {
 
   @IsOptional()
   @IsArray()
-  departmentIds: number[]
+  departments: string[]
 }

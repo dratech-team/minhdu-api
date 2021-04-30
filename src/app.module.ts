@@ -56,6 +56,7 @@ import {AreaModule} from "./api/v2/area/area.module";
 import {BranchModule} from "./api/v2/branch/branch.module";
 import { DepartmentModule } from './api/v2/department/department.module';
 import { PositionModule } from './api/v2/position/position.module';
+import { EmployeeModule } from './api/v2/employee/employee.module';
 
 @Module({
   imports: [
@@ -63,6 +64,7 @@ import { PositionModule } from './api/v2/position/position.module';
     BranchModule,
     DepartmentModule,
     PositionModule,
+    EmployeeModule,
   ],
   controllers: [AppController],
   providers: [PrismaService],

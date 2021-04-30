@@ -34,6 +34,7 @@ export class DepartmentService {
         data: {
           name: body.department,
           branches: {connect: branches},
+          // @ts-ignore
           positions: {create: positions}
         }
       });
@@ -51,6 +52,7 @@ export class DepartmentService {
 
   async findAll(skip: number, take: number, id?: number, search?: string): Promise<PaginateResult> {
     try {
+      // @ts-ignore
       const [count, data] = await Promise.all([
         id
           ? this.prisma.department.count({where: {branches: {some: {id: id}}}})
@@ -67,6 +69,7 @@ export class DepartmentService {
             take: take,
             include: {
               positions: {
+                // @ts-ignore
                 select: {position: true}
               },
             }
@@ -89,10 +92,34 @@ export class DepartmentService {
   //   });
   // }
 
-  async update(id: number, updates: UpdateDepartmentDto): Promise<void> {
-    // return await this.prisma.department.update({where: {id: id}, data: updates}).catch((e) => {
-    //   throw new BadRequestException(e);
-    // });
+  async update(id: number, updates: UpdateDepartmentDto): Promise<Department> {
+    const positions = updates.positionIds?.map((positionId) => ({
+      id: positionId
+    }));
+
+    const positions1 = updates.positionIds?.map(position => ({
+      position: {
+        connectOrCreate: {
+          where: {id: position},
+          create: {id: position}
+        },
+      }
+    }));
+    // data: {
+    //   // @ts-ignore
+    //   name: updates.department, positions: {create: positions1},
+    // },//connect: updates.positionIds.map((position) => ({id: position})), create: updates.positionIds.map((position) => ({id: position}))
+    try {
+      return await this.prisma.department.update({
+        where: {id: id},
+        data: {
+          name: updates.department,
+        }
+      });
+    } catch (e) {
+      console.log(e);
+      throw new BadRequestException(e);
+    }
   }
 
   async remove(id: number): Promise<void> {

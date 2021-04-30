@@ -37,7 +37,10 @@ export class DepartmentController {
   // }
 
   @Patch(':id')
-  update(@Param('id') id: string, @Body() updateDepartmentDto: UpdateDepartmentDto) {
+  update(
+    @Param('id') id: string,
+    @Body() updateDepartmentDto: UpdateDepartmentDto
+  ) {
     return this.departmentService.update(+id, updateDepartmentDto);
   }
 

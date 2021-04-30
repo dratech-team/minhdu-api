@@ -17,18 +17,27 @@ export class PositionService {
   }
 
   async create(body: CreatePositionDto): Promise<Position> {
+    const departments = body.departments.map((department => ({
+      department: {
+        connectOrCreate: {
+          where: {name: department},
+          create: {name: department}
+        }
+      }
+    })));
+
     try {
+
       return await this.prisma.position.create({
         data: {
           name: body.name,
-          // branches: {
-          //   create: []
-          // }
+          // @ts-ignore
+          departments: {create: departments},
         }
       });
     } catch (e) {
       if (e?.code == "P2025") {
-        throw new NotFoundException(`Không tìm thấy phòng ban ${body?.departmentIds?.join(" hoặc ")}. Chi tiết: ${e?.meta?.cause}`);
+        throw new NotFoundException(`Không tìm thấy phòng ban ${body?.departments?.join(" hoặc ")}. Chi tiết: ${e?.meta?.cause}`);
       } else if (e?.code == "P2002") {
         throw new ConflictException('Tên chức vụ không được phép trùng nhau. Vui lòng thử lại');
       } else {
@@ -57,12 +66,18 @@ export class PositionService {
     }
   }
 
-  findOne(id: number) {
-    return `This action returns a #${id} position`;
+  async findOne(id: number) {
+    return this.prisma.position.findUnique({where: {id: id}});
   }
 
-  update(id: number, updatePositionDto: UpdatePositionDto) {
-    return `This action updates a #${id} position`;
+  update(id: number, updates: UpdatePositionDto) {
+    try {
+      // this.prisma.position.update({where: {id: id}, data: updates});
+      return `This action updates a #${id} position`;
+    } catch (e) {
+      throw new BadRequestException(e);
+    }
+
   }
 
   remove(id: number) {
