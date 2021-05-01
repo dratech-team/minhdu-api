@@ -18,28 +18,52 @@ model Branch {
   name        String       @unique
   areaId      Int
   area        Area         @relation(fields: [areaId], references: [id])
-  departments Department[]
+  departments BranchToDepartment[]
+  employee    Employee?
+}
+
+model BranchToDepartment {
+  id            Int         @id @default(autoincrement())
+  branch        Branch?     @relation(fields: [branchId], references: [id])
+  branchId      Int?
+  department    Department?  @relation(fields: [departmentId], references: [id])
+  departmentId  Int?
+  @@unique([branchId, departmentId])
 }
 
 model Department {
   id        Int                      @id @default(autoincrement())
   name      String                   @unique
-  branches  Branch[]
-  positions DepartmentsOnPositions[]
+  color     String                   @unique
+  branches  BranchToDepartment[]
+  positions DepartmentToPosition[]
+  employee  Employee?
 }
 
-model DepartmentsOnPositions {
+model DepartmentToPosition {
   id           Int         @id @default(autoincrement())
+  workday      Int
   department   Department? @relation(fields: [departmentId], references: [id])
   departmentId Int
   position     Position?   @relation(fields: [positionId], references: [id])
   positionId   Int
-
   @@unique([departmentId, positionId])
 }
 
 model Position {
   id          Int                      @id @default(autoincrement())
   name        String                   @unique
-  departments DepartmentsOnPositions[]
+  employee    Employee?
+  departments DepartmentToPosition[]
+}
+
+model Employee {
+   id           Int              @id  @default(autoincrement())
+   code         String           @unique()
+   branchId     Int
+   branch       Branch           @relation(fields: [branchId], references: [id])
+   departmentId Int
+   department   Department       @relation(fields: [departmentId], references: [id])
+   positionId   Int              @unique
+   position     Position         @relation(fields: [positionId], references: [id])
 }

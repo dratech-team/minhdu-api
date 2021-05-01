@@ -17,27 +17,25 @@ export class PositionService {
   }
 
   async create(body: CreatePositionDto): Promise<Position> {
-    const departments = body.departments.map((department => ({
-      department: {
-        connectOrCreate: {
-          where: {name: department},
-          create: {name: department}
-        }
-      }
-    })));
-
     try {
-
       return await this.prisma.position.create({
+        // @ts-ignore
         data: {
           name: body.name,
-          // @ts-ignore
-          departments: {create: departments},
+          departments: {
+            create: body.departmentIds?.map((departmentId => ({
+              department: {
+                connect: {id: departmentId},
+              },
+              workday: body.workday,
+            })))
+          }
         }
       });
     } catch (e) {
+      console.log(e);
       if (e?.code == "P2025") {
-        throw new NotFoundException(`Không tìm thấy phòng ban ${body?.departments?.join(" hoặc ")}. Chi tiết: ${e?.meta?.cause}`);
+        throw new NotFoundException(`Không tìm thấy phòng ban ${body?.departmentIds?.join(" hoặc ")}. Chi tiết: ${e?.meta?.cause}`);
       } else if (e?.code == "P2002") {
         throw new ConflictException('Tên chức vụ không được phép trùng nhau. Vui lòng thử lại');
       } else {
@@ -49,8 +47,8 @@ export class PositionService {
   async findAll(skip: number, take: number): Promise<PaginateResult> {
     try {
       const [count, data] = await Promise.all([
-        this.prisma.department.count(),
-        this.prisma.department.findMany({
+        this.prisma.position.count(),
+        this.prisma.position.findMany({
           skip: skip,
           take: take
         }),

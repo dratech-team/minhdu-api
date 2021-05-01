@@ -1,9 +1,6 @@
 import {CreateDepartmentDto} from './create-department.dto';
-import {OmitType, PartialType} from "@nestjs/mapped-types";
-import {IsArray, IsOptional} from "class-validator";
+import {PartialType} from "@nestjs/mapped-types";
 
-export class UpdateDepartmentDto extends PartialType(OmitType(CreateDepartmentDto, ['positions'] as const)) {
-  @IsOptional()
-  @IsArray()
-  positionIds: number[]
+export class UpdateDepartmentDto extends PartialType(CreateDepartmentDto) {
+
 }

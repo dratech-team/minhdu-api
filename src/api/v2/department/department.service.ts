@@ -17,25 +17,20 @@ export class DepartmentService {
   }
 
   async create(body: CreateDepartmentDto): Promise<Department> {
-    const branches = body.branchIds?.map(branch => ({
-      id: branch
-    }));
-
-    const positions = body.positions?.map(position => ({
-      position: {
-        connectOrCreate: {
-          where: {name: position},
-          create: {name: position}
-        },
+    const branches = body.branchIds?.map(branchId => ({
+      branch: {
+        connect: {id: branchId}
       }
     }));
+    console.log(body);
     try {
       return await this.prisma.department.create({
         data: {
           name: body.department,
-          branches: {connect: branches},
-          // @ts-ignore
-          positions: {create: positions}
+          color: body.color,
+          branches: {
+            create: branches
+          },
         }
       });
     } catch (e) {
@@ -52,7 +47,6 @@ export class DepartmentService {
 
   async findAll(skip: number, take: number, id?: number, search?: string): Promise<PaginateResult> {
     try {
-      // @ts-ignore
       const [count, data] = await Promise.all([
         id
           ? this.prisma.department.count({where: {branches: {some: {id: id}}}})
@@ -93,27 +87,13 @@ export class DepartmentService {
   // }
 
   async update(id: number, updates: UpdateDepartmentDto): Promise<Department> {
-    const positions = updates.positionIds?.map((positionId) => ({
-      id: positionId
-    }));
-
-    const positions1 = updates.positionIds?.map(position => ({
-      position: {
-        connectOrCreate: {
-          where: {id: position},
-          create: {id: position}
-        },
-      }
-    }));
-    // data: {
-    //   // @ts-ignore
-    //   name: updates.department, positions: {create: positions1},
-    // },//connect: updates.positionIds.map((position) => ({id: position})), create: updates.positionIds.map((position) => ({id: position}))
     try {
       return await this.prisma.department.update({
         where: {id: id},
         data: {
           name: updates.department,
+          color: updates.color,
+          // branches: {connect: updates.branchIds.map((branchId) => {id: branchId})},
         }
       });
     } catch (e) {
