@@ -1,7 +1,14 @@
-import {BadRequestException, ConflictException, Injectable, NotFoundException} from '@nestjs/common';
+import {
+  BadRequestException,
+  ConflictException,
+  Injectable,
+  InternalServerErrorException,
+  NotFoundException
+} from '@nestjs/common';
 import {CreateEmployeeDto} from './dto/create-employee.dto';
 import {UpdateEmployeeDto} from './dto/update-employee.dto';
 import {PrismaService} from "../../../prisma.service";
+import {PaginateResult} from "../../../common/interfaces/paginate.interface";
 
 @Injectable()
 export class EmployeeService {
@@ -44,8 +51,24 @@ export class EmployeeService {
 
   }
 
-  findAll() {
-    return `This action returns all employee`;
+  async findAll(skip: number, take: number): Promise<PaginateResult> {
+    try {
+      const [count, data] = await Promise.all([
+        this.prisma.employee.count(),
+        this.prisma.employee.findMany({
+          skip: skip,
+          take: take
+        })
+      ]);
+      return {
+        data,
+        statusCode: 200,
+        page: (skip / take) + 1,
+        total: count,
+      };
+    } catch (e) {
+      throw new InternalServerErrorException(`Các tham số skip, take, id là bắt buộc. Vui lòng kiểm tra lại bạn đã truyền đủ 3 tham số chưa.?. Chi tiết: ${e}`);
+    }
   }
 
   findOne(id: number) {
