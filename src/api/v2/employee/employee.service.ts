@@ -71,8 +71,8 @@ export class EmployeeService {
     }
   }
 
-  findOne(id: number) {
-    return `This action returns a #${id} employee`;
+  async findOne(id: string) {
+    return await this.prisma.employee.findUnique({where: {id: id}});
   }
 
   update(id: number, updateEmployeeDto: UpdateEmployeeDto) {
