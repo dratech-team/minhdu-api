@@ -57,6 +57,7 @@ import {BranchModule} from "./api/v2/branch/branch.module";
 import { DepartmentModule } from './api/v2/department/department.module';
 import { PositionModule } from './api/v2/position/position.module';
 import { EmployeeModule } from './api/v2/employee/employee.module';
+import { AuthModule } from './api/v2/auth/auth.module';
 
 @Module({
   imports: [
@@ -65,6 +66,7 @@ import { EmployeeModule } from './api/v2/employee/employee.module';
     DepartmentModule,
     PositionModule,
     EmployeeModule,
+    AuthModule,
   ],
   controllers: [AppController],
   providers: [PrismaService],

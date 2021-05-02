@@ -7,6 +7,32 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
+model Account {
+  id       Int      @id @default(autoincrement())
+  username String   @unique
+  password String
+  role     Role
+  employee Employee?
+}
+
+enum Role {
+  ADMIN
+  CHIEF_ACCOUNTANT
+  ACCOUNTANT_CASH_FUND
+  ACCOUNTANT_MODERATION
+  SALESMAN
+  SALESMAN_EGG
+  IMPORTER_EXPORTER
+  CONSTRUCTION_DEPARTMENT
+  HUMAN_RESOURCE
+  CAMP_ACCOUNTING
+  CAMP_MANAGEMENT
+  CAMP_DIRECTOR
+  HATCHERY_ACCOUNTING
+  HATCHERY_MANAGEMENT
+  NONE
+}
+
 model Area {
   id       Int      @id @default(autoincrement())
   name     String   @unique
@@ -59,7 +85,8 @@ model Position {
 
 model Employee {
    id           String           @id
-   code         String           @unique()
+   accountId    Int?
+   account      Account?         @relation(fields: [accountId], references: [id])
    name         String
    gender       GenderType
    birthday     DateTime

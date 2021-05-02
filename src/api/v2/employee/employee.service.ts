@@ -18,9 +18,9 @@ export class EmployeeService {
   async create(body: CreateEmployeeDto) {
     try {
       return await this.prisma.employee.create({
+        // @ts-ignore
         data: {
-          id: body.id,
-          code: await this.generateEmployeeCode(body),
+          id: await this.generateEmployeeCode(body),
           name: body.name,
           address: body.address,
           basicSalary: {
