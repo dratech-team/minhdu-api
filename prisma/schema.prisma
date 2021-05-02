@@ -15,24 +15,6 @@ model Account {
   employee Employee?
 }
 
-enum Role {
-  ADMIN
-  CHIEF_ACCOUNTANT
-  ACCOUNTANT_CASH_FUND
-  ACCOUNTANT_MODERATION
-  SALESMAN
-  SALESMAN_EGG
-  IMPORTER_EXPORTER
-  CONSTRUCTION_DEPARTMENT
-  HUMAN_RESOURCE
-  CAMP_ACCOUNTING
-  CAMP_MANAGEMENT
-  CAMP_DIRECTOR
-  HATCHERY_ACCOUNTING
-  HATCHERY_MANAGEMENT
-  NONE
-}
-
 model Area {
   id       Int      @id @default(autoincrement())
   name     String   @unique
@@ -45,7 +27,7 @@ model Branch {
   areaId      Int
   area        Area         @relation(fields: [areaId], references: [id])
   departments BranchToDepartment[]
-  employee    Employee[]
+  employees   Employee[]
 }
 
 model BranchToDepartment {
@@ -79,7 +61,7 @@ model DepartmentToPosition {
 model Position {
   id          Int                      @id @default(autoincrement())
   name        String                   @unique
-  employee    Employee[]
+  employees   Employee[]
   departments DepartmentToPosition[]
 }
 
@@ -100,6 +82,7 @@ model Employee {
    position     Position         @relation(fields: [positionId], references: [id])
    basicSalaryId Int
    basicSalary  Salary           @relation(fields: [basicSalaryId], references: [id])
+   payrolls     Payroll[]
    workedAt     DateTime?
    leftAt       DateTime?
    idCardAt     DateTime?
@@ -119,6 +102,18 @@ model Salary {
   rate          Float?
   price         Float?
   note          String?
+  payrollId     Int
+  payroll       Payroll             @relation(fields: [payrollId], references: [id])
+}
+
+model Payroll {
+  id                Int              @id  @default(autoincrement())
+  employeeId        String
+  employee          Employee            @relation(fields: [employeeId], references: [id])
+  salaries          Salary[]
+  isEdit            Boolean          @default(true)
+  confirmedAt       DateTime?
+  paidAt            DateTime?
 }
 
 enum SalaryType {
@@ -135,4 +130,22 @@ enum GenderType {
   MALE
   FEMALE
   OTHER
+}
+
+enum Role {
+  ADMIN
+  CHIEF_ACCOUNTANT
+  ACCOUNTANT_CASH_FUND
+  ACCOUNTANT_MODERATION
+  SALESMAN
+  SALESMAN_EGG
+  IMPORTER_EXPORTER
+  CONSTRUCTION_DEPARTMENT
+  HUMAN_RESOURCE
+  CAMP_ACCOUNTING
+  CAMP_MANAGEMENT
+  CAMP_DIRECTOR
+  HATCHERY_ACCOUNTING
+  HATCHERY_MANAGEMENT
+  NONE
 }
