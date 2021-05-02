@@ -51,7 +51,7 @@
     "escape-string-regexp": "4.0.0",
     "express": "4.17.1",
     "express-rate-limit": "5.2.6",
-    "helmet": "4.4.1",
+    "helmet": "4.6.0",
     "joi": "^17.4.0",
     "jwt-simple": "^0.5.6",
     "lodash": "^4.17.21",
