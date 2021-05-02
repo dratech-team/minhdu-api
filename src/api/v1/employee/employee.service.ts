@@ -27,7 +27,7 @@ export class EmployeeService {
       employee.departmentId = body.departmentId;
       employee.branchId = body.branchId;
       employee.basicsSalary = [body.basicSalary];
-      employee.fullName = body.fullName;
+      employee.fullName = body.name;
       employee.address = body.address;
       employee.birthday = body.birthday;
       employee.gender = body.gender;

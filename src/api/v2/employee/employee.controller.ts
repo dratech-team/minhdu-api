@@ -3,7 +3,7 @@ import { EmployeeService } from './employee.service';
 import { CreateEmployeeDto } from './dto/create-employee.dto';
 import { UpdateEmployeeDto } from './dto/update-employee.dto';
 
-@Controller('employee')
+@Controller('v2/employee')
 export class EmployeeController {
   constructor(private readonly employeeService: EmployeeService) {}
 

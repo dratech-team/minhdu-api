@@ -10,6 +10,7 @@ import {UpdateBranchDto} from './dto/update-branch.dto';
 import {PrismaService} from "../../../prisma.service";
 import {Branch} from '@prisma/client';
 import {PaginateResult} from "../../../common/interfaces/paginate.interface";
+import {generateId} from "../../../common/utils/generate-id.utils";
 
 @Injectable()
 export class BranchService {
@@ -21,9 +22,12 @@ export class BranchService {
       id: department
     }));
 
+    const id = generateId(body.name);
+
     try {
       return await this.prisma.branch.create({
         data: {
+          id: id,
           name: body.name,
           area: {connect: {id: body.areaId}},
           departments: {connect: departments}
@@ -63,15 +67,15 @@ export class BranchService {
 
   }
 
-  findOne(id: number) {
+  findOne(id: string) {
     return this.prisma.branch.findUnique({where: {id: id}});
   }
 
-  async update(id: number, updates: UpdateBranchDto) {
+  async update(id: string, updates: UpdateBranchDto) {
     return await this.prisma.branch.update({where: {id: id}, data: updates}).catch((e) => new BadRequestException(e));
   }
 
-  async remove(id: number): Promise<void> {
+  async remove(id: string): Promise<void> {
     await this.prisma.branch.delete({where: {id: id}}).catch((e) => {
       throw new BadRequestException(e);
     });

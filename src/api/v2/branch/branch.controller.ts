@@ -2,7 +2,6 @@ import {Body, Controller, Delete, Get, Param, ParseIntPipe, Patch, Post, Query} 
 import {BranchService} from './branch.service';
 import {CreateBranchDto} from './dto/create-branch.dto';
 import {UpdateBranchDto} from './dto/update-branch.dto';
-import {skip} from "rxjs/operators";
 
 @Controller('v2/branch')
 export class BranchController {
@@ -24,17 +23,17 @@ export class BranchController {
   }
 
   @Get(':id')
-  findOne(@Param('id') id: number) {
-    return this.branchService.findOne(+id);
+  async findOne(@Param('id') id: string) {
+    return this.branchService.findOne(id);
   }
 
   @Patch(':id')
-  update(@Param('id') id: number, @Body() updateBranchDto: UpdateBranchDto) {
-    return this.branchService.update(+id, updateBranchDto);
+  update(@Param('id') id: string, @Body() updateBranchDto: UpdateBranchDto) {
+    return this.branchService.update(id, updateBranchDto);
   }
 
   @Delete(':id')
-  remove(@Param('id') id: string) {
-    this.branchService.remove(+id);
+  async remove(@Param('id') id: string) {
+    await this.branchService.remove(id);
   }
 }

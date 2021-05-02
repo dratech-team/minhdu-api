@@ -11,5 +11,5 @@ export class CreateDepartmentDto {
 
   @IsNotEmpty()
   @IsArray()
-  branchIds: number[];
+  branchIds: string[];
 }

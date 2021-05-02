@@ -25,7 +25,7 @@ export class AreaService {
 
   async update(id: number, updates: UpdateAreaDto): Promise<Area> {
     try {
-      return await this.service.branch.update({where: {id: id}, data: updates});
+      return await this.service.area.update({where: {id: id}, data: updates});
     } catch (e) {
       throw new BadRequestException(e);
     }

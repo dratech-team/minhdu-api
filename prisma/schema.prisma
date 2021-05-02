@@ -14,18 +14,18 @@ model Area {
 }
 
 model Branch {
-  id          Int          @id @default(autoincrement())
+  id          String       @id
   name        String       @unique
   areaId      Int
   area        Area         @relation(fields: [areaId], references: [id])
   departments BranchToDepartment[]
-  employee    Employee?
+  employee    Employee[]
 }
 
 model BranchToDepartment {
   id            Int         @id @default(autoincrement())
   branch        Branch?     @relation(fields: [branchId], references: [id])
-  branchId      Int?
+  branchId      String?
   department    Department?  @relation(fields: [departmentId], references: [id])
   departmentId  Int?
   @@unique([branchId, departmentId])
@@ -37,7 +37,7 @@ model Department {
   color     String                   @unique
   branches  BranchToDepartment[]
   positions DepartmentToPosition[]
-  employee  Employee?
+  employee  Employee[]
 }
 
 model DepartmentToPosition {
@@ -53,17 +53,59 @@ model DepartmentToPosition {
 model Position {
   id          Int                      @id @default(autoincrement())
   name        String                   @unique
-  employee    Employee?
+  employee    Employee[]
   departments DepartmentToPosition[]
 }
 
 model Employee {
-   id           Int              @id  @default(autoincrement())
+   id           String           @id
    code         String           @unique()
-   branchId     Int
+   name         String
+   gender       GenderType
+   birthday     DateTime
+   phone        String
+   email        String?
+   branchId     String
    branch       Branch           @relation(fields: [branchId], references: [id])
    departmentId Int
    department   Department       @relation(fields: [departmentId], references: [id])
-   positionId   Int              @unique
+   positionId   Int              
    position     Position         @relation(fields: [positionId], references: [id])
+   basicSalaryId Int
+   basicSalary  Salary           @relation(fields: [basicSalaryId], references: [id])
+   workedAt     DateTime?
+   leftAt       DateTime?
+   idCardAt     DateTime?
+   address      String
+   certificate  String?
+   stayedAt     DateTime?
+   contractAt   DateTime?
+   note         String?
+}
+
+model Salary {
+  id            Int              @id  @default(autoincrement())
+  title         String
+  employee      Employee?
+  type          SalaryType            @default(BASIC)
+  times         Float?
+  rate          Float?
+  price         Float?
+  note          String?
+}
+
+enum SalaryType {
+  BASIC
+  ALLOWANCE
+  OVERTIME
+  ABSENT
+  LATE
+  LOAN
+  REWARD
+}
+
+enum GenderType {
+  MALE
+  FEMALE
+  OTHER
 }
