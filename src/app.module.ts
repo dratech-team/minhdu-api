@@ -59,6 +59,7 @@ import { PositionModule } from './api/v2/position/position.module';
 import { EmployeeModule } from './api/v2/employee/employee.module';
 import { AuthModule } from './api/v2/auth/auth.module';
 import { PayrollModule } from './api/v2/payroll/payroll.module';
+import { DiagramModule } from './api/v2/diagram/diagram.module';
 
 @Module({
   imports: [
@@ -69,6 +70,7 @@ import { PayrollModule } from './api/v2/payroll/payroll.module';
     EmployeeModule,
     AuthModule,
     PayrollModule,
+    DiagramModule,
   ],
   controllers: [AppController],
   providers: [PrismaService],
