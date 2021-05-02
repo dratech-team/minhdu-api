@@ -75,12 +75,16 @@ export class EmployeeService {
     return await this.prisma.employee.findUnique({where: {id: id}});
   }
 
-  update(id: number, updateEmployeeDto: UpdateEmployeeDto) {
-    return `This action updates a #${id} employee`;
+  async update(id: string, updates: UpdateEmployeeDto) {
+    return await this.prisma.branch.update({where: {id: id}, data: updates})
+      .catch((e) => new BadRequestException(e));
+
   }
 
-  remove(id: number) {
-    return `This action removes a #${id} employee`;
+  async remove(id: string) {
+    await this.prisma.branch.delete({where: {id: id}}).catch((e) => {
+      throw new BadRequestException(e);
+    });
   }
 
   async generateEmployeeCode(body: CreateEmployeeDto): Promise<string> {
