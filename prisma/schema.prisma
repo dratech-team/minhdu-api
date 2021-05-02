@@ -7,27 +7,145 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
-model Post {
-  id        Int      @id @default(autoincrement())
-  title     String   @db.VarChar(255)
-  createdAt DateTime @default(now()) @db.Timestamp(6)
-  content   String?
-  published Boolean  @default(false)
-  authorId  Int
-  User      User     @relation(fields: [authorId], references: [id])
+model Account {
+  id       Int      @id @default(autoincrement())
+  username String   @unique
+  password String
+  role     Role
+  employee Employee?
 }
 
-model Profile {
-  id     Int     @id @default(autoincrement())
-  bio    String?
-  userId Int     @unique
-  User   User    @relation(fields: [userId], references: [id])
+model Area {
+  id       Int      @id @default(autoincrement())
+  name     String   @unique
+  branches Branch[]
 }
 
-model User {
-  id      Int      @id @default(autoincrement())
-  name    String?  @db.VarChar(255)
-  email   String   @unique @db.VarChar(255)
-  Post    Post[]
-  Profile Profile?
+model Branch {
+  id          String       @id
+  name        String       @unique
+  areaId      Int
+  area        Area         @relation(fields: [areaId], references: [id])
+  departments BranchToDepartment[]
+  employees   Employee[]
+}
+
+model BranchToDepartment {
+  id            Int         @id @default(autoincrement())
+  branch        Branch?     @relation(fields: [branchId], references: [id])
+  branchId      String?
+  department    Department?  @relation(fields: [departmentId], references: [id])
+  departmentId  Int?
+  @@unique([branchId, departmentId])
+}
+
+model Department {
+  id        Int                      @id @default(autoincrement())
+  name      String                   @unique
+  color     String                   @unique
+  branches  BranchToDepartment[]
+  positions DepartmentToPosition[]
+  employee  Employee[]
+}
+
+model DepartmentToPosition {
+  id           Int         @id @default(autoincrement())
+  workday      Int
+  department   Department? @relation(fields: [departmentId], references: [id])
+  departmentId Int
+  position     Position?   @relation(fields: [positionId], references: [id])
+  positionId   Int
+  @@unique([departmentId, positionId])
+}
+
+model Position {
+  id          Int                      @id @default(autoincrement())
+  name        String                   @unique
+  employees   Employee[]
+  departments DepartmentToPosition[]
+}
+
+model Employee {
+   id           String           @id
+   accountId    Int?
+   account      Account?         @relation(fields: [accountId], references: [id])
+   name         String
+   gender       GenderType
+   birthday     DateTime
+   phone        String
+   email        String?
+   branchId     String
+   branch       Branch           @relation(fields: [branchId], references: [id])
+   departmentId Int
+   department   Department       @relation(fields: [departmentId], references: [id])
+   positionId   Int              
+   position     Position         @relation(fields: [positionId], references: [id])
+   basicSalaryId Int
+   basicSalary  Salary           @relation(fields: [basicSalaryId], references: [id])
+   payrolls     Payroll[]
+   workedAt     DateTime?
+   leftAt       DateTime?
+   idCardAt     DateTime?
+   address      String
+   certificate  String?
+   stayedAt     DateTime?
+   contractAt   DateTime?
+   note         String?
+}
+
+model Salary {
+  id            Int              @id  @default(autoincrement())
+  title         String
+  employee      Employee?
+  type          SalaryType            @default(BASIC)
+  times         Float?
+  rate          Float?
+  price         Float?
+  note          String?
+  payrollId     Int
+  payroll       Payroll             @relation(fields: [payrollId], references: [id])
+}
+
+model Payroll {
+  id                Int              @id  @default(autoincrement())
+  employeeId        String
+  employee          Employee            @relation(fields: [employeeId], references: [id])
+  salaries          Salary[]
+  isEdit            Boolean          @default(true)
+  confirmedAt       DateTime?
+  paidAt            DateTime?
+}
+
+enum SalaryType {
+  BASIC
+  ALLOWANCE
+  OVERTIME
+  ABSENT
+  LATE
+  LOAN
+  REWARD
+}
+
+enum GenderType {
+  MALE
+  FEMALE
+  OTHER
+}
+
+enum Role {
+  ADMIN
+  CHIEF_ACCOUNTANT
+  ACCOUNTANT_CASH_FUND
+  ACCOUNTANT_MODERATION
+  SALESMAN
+  SALESMAN_EGG
+  IMPORTER_EXPORTER
+  CONSTRUCTION_DEPARTMENT
+  HUMAN_RESOURCE
+  CAMP_ACCOUNTING
+  CAMP_MANAGEMENT
+  CAMP_DIRECTOR
+  HATCHERY_ACCOUNTING
+  HATCHERY_MANAGEMENT
+  NONE
 }

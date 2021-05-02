@@ -1,6 +1,5 @@
 import {Prop, Schema} from "@nestjs/mongoose";
-import {UserType} from "../../core/constants/role-type.constant";
-import {GenderEnum} from "../../core/enum/gender.enum";
+import {GenderType} from "@prisma/client";
 import {BaseDocument} from "../../core/entities/base.entity";
 
 @Schema()
@@ -14,8 +13,8 @@ export class IUser extends BaseDocument {
   @Prop({type: Date})
   birthday: Date;
 
-  @Prop({type: GenderEnum})
-  gender: GenderEnum;
+  @Prop({type: GenderType})
+  gender: GenderType;
 
   @Prop()
   phone: string;

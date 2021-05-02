@@ -1,22 +1,12 @@
-import {
-  IsDate,
-  IsEmail,
-  IsEnum,
-  IsNotEmpty,
-  IsNumber,
-  IsOptional,
-  IsPhoneNumber,
-  IsString,
-  MaxLength
-} from "class-validator";
+import {IsDate, IsEmail, IsEnum, IsNotEmpty, IsOptional, IsPhoneNumber, IsString, MaxLength} from "class-validator";
 import {Type} from "class-transformer";
-import {GenderEnum} from "../../core/enum/gender.enum";
+import {GenderType} from "@prisma/client";
 
 export class ICreateUserDto {
   @IsNotEmpty()
   @MaxLength(50)
   @IsString()
-  readonly fullName: string;
+  readonly name: string;
 
   @IsNotEmpty()
   @MaxLength(200)
@@ -24,13 +14,13 @@ export class ICreateUserDto {
   readonly address: string;
 
   @Type(() => Date)
-  @IsNotEmpty()
   @IsDate()
+  @IsNotEmpty()
   readonly birthday: Date;
 
   @IsNotEmpty()
-  @IsEnum(GenderEnum)
-  readonly gender: GenderEnum;
+  @IsEnum(GenderType)
+  readonly gender: GenderType;
 
   @IsNotEmpty()
   @IsPhoneNumber("VN")
