@@ -18,7 +18,6 @@ export class EmployeeService {
   async create(body: CreateEmployeeDto) {
     try {
       return await this.prisma.employee.create({
-        // @ts-ignore
         data: {
           id: await this.generateEmployeeCode(body),
           name: body.name,
@@ -88,7 +87,6 @@ export class EmployeeService {
   }
 
   async generateEmployeeCode(body: CreateEmployeeDto): Promise<string> {
-    const branch = await this.prisma.branch.findUnique({where: {id: body.branchId}});
     const count = await this.prisma.employee.count();
     let gen: string;
     if (count < 10) {
@@ -99,6 +97,6 @@ export class EmployeeService {
       gen = "0";
     }
 
-    return `${branch.id}${gen}${count + 1}`;
+    return `${body.branchId}${gen}${count + 1}`;
   }
 }

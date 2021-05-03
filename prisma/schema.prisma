@@ -80,8 +80,8 @@ model Employee {
    department   Department       @relation(fields: [departmentId], references: [id])
    positionId   Int              
    position     Position         @relation(fields: [positionId], references: [id])
-   basicSalaryId Int
-   basicSalary  Salary           @relation(fields: [basicSalaryId], references: [id])
+   salaryId     Int
+   basicSalary  BasicSalary      @relation(fields: [salaryId], references: [id])
    payrolls     Payroll[]
    workedAt     DateTime?
    leftAt       DateTime?
@@ -93,23 +93,30 @@ model Employee {
    note         String?
 }
 
-model Salary {
+model BasicSalary {
   id            Int              @id  @default(autoincrement())
   title         String
+  price         Float
+  note          String?
   employee      Employee?
+}
+
+model Salary {
+  id            Int                   @id  @default(autoincrement())
+  title         String
   type          SalaryType            @default(BASIC)
   times         Float?
   rate          Float?
   price         Float?
   note          String?
   payrollId     Int
-  payroll       Payroll             @relation(fields: [payrollId], references: [id])
+  payroll       Payroll               @relation(fields: [payrollId], references: [id])
 }
 
 model Payroll {
   id                Int              @id  @default(autoincrement())
   employeeId        String
-  employee          Employee            @relation(fields: [employeeId], references: [id])
+  employee          Employee         @relation(fields: [employeeId], references: [id])
   salaries          Salary[]
   isEdit            Boolean          @default(true)
   confirmedAt       DateTime?

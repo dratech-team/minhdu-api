@@ -1,10 +1,14 @@
-import { Injectable } from '@nestjs/common';
-import { CreatePayrollDto } from './dto/create-payroll.dto';
-import { UpdatePayrollDto } from './dto/update-payroll.dto';
+import {Injectable} from '@nestjs/common';
+import {CreatePayrollDto} from './dto/create-payroll.dto';
+import {UpdatePayrollDto} from './dto/update-payroll.dto';
+import {PrismaService} from "../../../prisma.service";
 
 @Injectable()
 export class PayrollService {
-  create(createPayrollDto: CreatePayrollDto) {
+  constructor(private readonly prisma: PrismaService) {
+  }
+
+  create(body: CreatePayrollDto) {
     return 'This action adds a new payroll';
   }
 

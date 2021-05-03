@@ -1,7 +1,7 @@
 import {ICreateUserDto} from "../../../../common/dtos/create-user.dto";
 import {Type} from "class-transformer";
 import {IsDate, IsNotEmpty, IsNumber, IsObject, IsString} from "class-validator";
-import {Salary} from "@prisma/client";
+import {BasicSalary} from "@prisma/client";
 
 export class CreateEmployeeDto extends ICreateUserDto {
   @IsString()
@@ -34,5 +34,5 @@ export class CreateEmployeeDto extends ICreateUserDto {
 
   @IsNotEmpty()
   @IsObject()
-  basicSalary: Salary;
+  basicSalary: BasicSalary;
 }
