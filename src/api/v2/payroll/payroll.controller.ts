@@ -1,11 +1,25 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete } from '@nestjs/common';
-import { PayrollService } from './payroll.service';
-import { CreatePayrollDto } from './dto/create-payroll.dto';
-import { UpdatePayrollDto } from './dto/update-payroll.dto';
+import {
+  Controller,
+  Get,
+  Post,
+  Body,
+  Patch,
+  Param,
+  Delete,
+  Query,
+  ParseBoolPipe,
+  UsePipes,
+  ValidationPipe
+} from '@nestjs/common';
+import {PayrollService} from './payroll.service';
+import {CreatePayrollDto} from './dto/create-payroll.dto';
+import {UpdatePayrollDto} from './dto/update-payroll.dto';
+import {UpdateSalaryPayrollDto} from "./dto/update-salary-payroll.dto";
 
-@Controller('payroll')
+@Controller('v2/payroll')
 export class PayrollController {
-  constructor(private readonly payrollService: PayrollService) {}
+  constructor(private readonly payrollService: PayrollService) {
+  }
 
   @Post()
   create(@Body() createPayrollDto: CreatePayrollDto) {
@@ -13,8 +27,13 @@ export class PayrollController {
   }
 
   @Get()
-  findAll() {
-    return this.payrollService.findAll();
+  findAll(
+    @Query("employeeId") employeeId: string,
+    @Query("confirmed", ParseBoolPipe) confirmed: boolean,
+    @Query("skip") skip: number,
+    @Query("take") take: number,
+  ) {
+    return this.payrollService.findAll(employeeId, confirmed, +skip, +take);
   }
 
   @Get(':id')
@@ -23,8 +42,19 @@ export class PayrollController {
   }
 
   @Patch(':id')
-  update(@Param('id') id: string, @Body() updatePayrollDto: UpdatePayrollDto) {
+  update(
+    @Param('id') id: number,
+    @Body() updatePayrollDto: UpdatePayrollDto
+  ) {
     return this.payrollService.update(+id, updatePayrollDto);
+  }
+
+  @Patch('salary/:id')
+  updateSalary(
+    @Param('id') id: number,
+    @Body() updates: UpdateSalaryPayrollDto
+  ) {
+    return this.payrollService.updateSalary(+id, updates);
   }
 
   @Delete(':id')

@@ -23,7 +23,11 @@ export class EmployeeService {
           name: body.name,
           address: body.address,
           basicSalary: {
-            create: body.basicSalary,
+            create: {
+              title: '',
+              price: 2,
+              note: ''
+            },
           },
           workedAt: new Date(body.workedAt).toISOString(),
           branch: {connect: {id: body.branchId}},

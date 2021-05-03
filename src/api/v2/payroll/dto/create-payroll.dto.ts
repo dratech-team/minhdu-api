@@ -1,5 +1,5 @@
-import {Salary} from "@prisma/client";
-import {IsArray, IsNotEmpty, IsObject, IsString} from "class-validator";
+import {SalaryType} from "@prisma/client";
+import {IsEnum, IsNotEmpty, IsNumber, IsOptional, IsString} from "class-validator";
 
 export class CreatePayrollDto {
   @IsNotEmpty()
@@ -7,8 +7,26 @@ export class CreatePayrollDto {
   employeeId: string;
 
   @IsNotEmpty()
-  @IsObject()
-  salaries: Salary;
+  @IsString()
+  title: string;
 
+  @IsOptional()
+  @IsEnum(SalaryType)
+  type: SalaryType;
 
+  @IsOptional()
+  @IsNumber()
+  times: number;
+
+  @IsOptional()
+  @IsNumber()
+  rate: number;
+
+  @IsOptional()
+  @IsNumber()
+  price: number;
+
+  @IsOptional()
+  @IsString()
+  note: string;
 }

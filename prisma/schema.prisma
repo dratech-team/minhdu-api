@@ -66,39 +66,31 @@ model Position {
 }
 
 model Employee {
-   id           String           @id
-   accountId    Int?
-   account      Account?         @relation(fields: [accountId], references: [id])
-   name         String
-   gender       GenderType
-   birthday     DateTime
-   phone        String
-   email        String?
-   branchId     String
-   branch       Branch           @relation(fields: [branchId], references: [id])
-   departmentId Int
-   department   Department       @relation(fields: [departmentId], references: [id])
-   positionId   Int              
-   position     Position         @relation(fields: [positionId], references: [id])
-   salaryId     Int
-   basicSalary  BasicSalary      @relation(fields: [salaryId], references: [id])
-   payrolls     Payroll[]
-   workedAt     DateTime?
-   leftAt       DateTime?
-   idCardAt     DateTime?
-   address      String
-   certificate  String?
-   stayedAt     DateTime?
-   contractAt   DateTime?
-   note         String?
-}
-
-model BasicSalary {
-  id            Int              @id  @default(autoincrement())
-  title         String
-  price         Float
-  note          String?
-  employee      Employee?
+   id               String           @id
+   accountId        Int?
+   account          Account?         @relation(fields: [accountId], references: [id])
+   name             String
+   gender           GenderType
+   birthday         DateTime
+   phone            String
+   email            String?
+   branchId         String
+   branch           Branch           @relation(fields: [branchId], references: [id])
+   departmentId     Int
+   department       Department       @relation(fields: [departmentId], references: [id])
+   positionId       Int
+   position         Position         @relation(fields: [positionId], references: [id])
+   salaryId         Int
+   basicSalary      Salary?
+   payrolls         Payroll[]
+   workedAt         DateTime?
+   leftAt           DateTime?
+   idCardAt         DateTime?
+   address          String
+   certificate      String?
+   stayedAt         DateTime?
+   contractAt       DateTime?
+   note             String?
 }
 
 model Salary {
@@ -109,8 +101,11 @@ model Salary {
   rate          Float?
   price         Float?
   note          String?
-  payrollId     Int
-  payroll       Payroll               @relation(fields: [payrollId], references: [id])
+  employeeId    String?
+  employee      Employee?           @relation(fields: [employeeId], references: [id])
+  payrollId     Int?
+  payroll       Payroll?              @relation(fields: [payrollId], references: [id])
+  @@unique([title, type, times, rate, price])
 }
 
 model Payroll {
