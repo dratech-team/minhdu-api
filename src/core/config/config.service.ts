@@ -1,11 +1,11 @@
 import * as dotenv from "dotenv";
 import * as fs from "fs";
 import * as Joi from "joi";
-import {EnvConfig, IEnvConfig} from "../interfaces/configuration.interface";
-import {NODE_ENV, NODE_ENV_LIST} from "../constants/config.constant";
-import {ExtractJwt, StrategyOptions} from 'passport-jwt';
+import { EnvConfig, IEnvConfig } from "../interfaces/configuration.interface";
+import { NODE_ENV, NODE_ENV_LIST } from "../constants/config.constant";
+import { ExtractJwt, StrategyOptions } from 'passport-jwt';
 import * as jwt from 'jsonwebtoken';
-import {TAlgorithm} from 'jwt-simple';
+import { TAlgorithm } from 'jwt-simple';
 
 export class ConfigService {
   private readonly envConfig: IEnvConfig;
@@ -34,7 +34,7 @@ export class ConfigService {
       PUBLIC_KEY: Joi.string().required(),
     });
 
-    const {error, value: validatedEnvConfig} = envVarsSchema.validate(
+    const { error, value: validatedEnvConfig } = envVarsSchema.validate(
       envConfig
     );
     if (error) {

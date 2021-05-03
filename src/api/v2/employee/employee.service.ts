@@ -10,6 +10,8 @@ import {UpdateEmployeeDto} from './dto/update-employee.dto';
 import {PrismaService} from "../../../prisma.service";
 import {PaginateResult} from "../../../common/interfaces/paginate.interface";
 
+const qr = require("qrcode");
+
 @Injectable()
 export class EmployeeService {
   constructor(private readonly prisma: PrismaService) {
@@ -104,7 +106,17 @@ export class EmployeeService {
     } else if (count < 1000) {
       gen = "0";
     }
+    const id = `${body.branchId}${gen}${count + 1}`;
+    this.updateQrCodeEmployee(id).then();
+    return id;
+  }
 
-    return `${body.branchId}${gen}${count + 1}`;
+  async updateQrCodeEmployee(id: string) {
+    const qrCode = await qr.toDataURL(id);
+    await this.prisma.employee.update({
+      where: {id: id},
+      data: {qrCode: qrCode}
+    });
+
   }
 }

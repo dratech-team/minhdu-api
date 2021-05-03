@@ -91,6 +91,7 @@ model Employee {
   stayedAt     DateTime?
   contractAt   DateTime?
   note         String?
+  qrCode       String?
 }
 
 model Salary {
