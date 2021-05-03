@@ -73,13 +73,6 @@ export class PayrollService {
         }),
 
       ]);
-
-      const basics = await this.prisma.salary.findMany({
-        where: {employee: {id: employeeId}}
-      });
-
-      data.push(basics);
-
       return {
         data,
         statusCode: 200,

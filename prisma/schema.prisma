@@ -8,8 +8,8 @@ datasource db {
 }
 
 model Account {
-  id       Int      @id @default(autoincrement())
-  username String   @unique
+  id       Int       @id @default(autoincrement())
+  username String    @unique
   password String
   role     Role
   employee Employee?
@@ -22,27 +22,28 @@ model Area {
 }
 
 model Branch {
-  id          String       @id
-  name        String       @unique
+  id          String               @id
+  name        String               @unique
   areaId      Int
-  area        Area         @relation(fields: [areaId], references: [id])
+  area        Area                 @relation(fields: [areaId], references: [id])
   departments BranchToDepartment[]
   employees   Employee[]
 }
 
 model BranchToDepartment {
-  id            Int         @id @default(autoincrement())
-  branch        Branch?     @relation(fields: [branchId], references: [id])
-  branchId      String?
-  department    Department?  @relation(fields: [departmentId], references: [id])
-  departmentId  Int?
+  id           Int         @id @default(autoincrement())
+  branch       Branch?     @relation(fields: [branchId], references: [id])
+  branchId     String?
+  department   Department? @relation(fields: [departmentId], references: [id])
+  departmentId Int?
+
   @@unique([branchId, departmentId])
 }
 
 model Department {
-  id        Int                      @id @default(autoincrement())
-  name      String                   @unique
-  color     String                   @unique
+  id        Int                    @id @default(autoincrement())
+  name      String                 @unique
+  color     String                 @unique
   branches  BranchToDepartment[]
   positions DepartmentToPosition[]
   employee  Employee[]
@@ -55,67 +56,65 @@ model DepartmentToPosition {
   departmentId Int
   position     Position?   @relation(fields: [positionId], references: [id])
   positionId   Int
+
   @@unique([departmentId, positionId])
 }
 
 model Position {
-  id          Int                      @id @default(autoincrement())
-  name        String                   @unique
+  id          Int                    @id @default(autoincrement())
+  name        String                 @unique
   employees   Employee[]
   departments DepartmentToPosition[]
 }
 
 model Employee {
-   id               String           @id
-   accountId        Int?
-   account          Account?         @relation(fields: [accountId], references: [id])
-   name             String
-   gender           GenderType
-   birthday         DateTime
-   phone            String
-   email            String?
-   branchId         String
-   branch           Branch           @relation(fields: [branchId], references: [id])
-   departmentId     Int
-   department       Department       @relation(fields: [departmentId], references: [id])
-   positionId       Int
-   position         Position         @relation(fields: [positionId], references: [id])
-   salaryId         Int
-   basicSalary      Salary?
-   payrolls         Payroll[]
-   workedAt         DateTime?
-   leftAt           DateTime?
-   idCardAt         DateTime?
-   address          String
-   certificate      String?
-   stayedAt         DateTime?
-   contractAt       DateTime?
-   note             String?
+  id           String     @id
+  accountId    Int?
+  account      Account?   @relation(fields: [accountId], references: [id])
+  name         String
+  gender       GenderType
+  birthday     DateTime
+  phone        String
+  email        String?
+  branchId     String
+  branch       Branch     @relation(fields: [branchId], references: [id])
+  departmentId Int
+  department   Department @relation(fields: [departmentId], references: [id])
+  positionId   Int
+  position     Position   @relation(fields: [positionId], references: [id])
+  payrolls     Payroll[]
+  workedAt     DateTime?
+  leftAt       DateTime?
+  idCardAt     DateTime?
+  address      String
+  certificate  String?
+  stayedAt     DateTime?
+  contractAt   DateTime?
+  note         String?
 }
 
 model Salary {
-  id            Int                   @id  @default(autoincrement())
-  title         String
-  type          SalaryType            @default(BASIC)
-  times         Float?
-  rate          Float?
-  price         Float?
-  note          String?
-  employeeId    String?
-  employee      Employee?           @relation(fields: [employeeId], references: [id])
-  payrollId     Int?
-  payroll       Payroll?              @relation(fields: [payrollId], references: [id])
+  id        Int        @id @default(autoincrement())
+  title     String
+  type      SalaryType @default(BASIC)
+  times     Float?
+  rate      Float?
+  price     Float?
+  note      String?
+  payrollId Int
+  payroll   Payroll    @relation(fields: [payrollId], references: [id])
+
   @@unique([title, type, times, rate, price])
 }
 
 model Payroll {
-  id                Int              @id  @default(autoincrement())
-  employeeId        String
-  employee          Employee         @relation(fields: [employeeId], references: [id])
-  salaries          Salary[]
-  isEdit            Boolean          @default(true)
-  confirmedAt       DateTime?
-  paidAt            DateTime?
+  id          Int       @id @default(autoincrement())
+  employeeId  String
+  employee    Employee? @relation(fields: [employeeId], references: [id])
+  salaries    Salary[]
+  isEdit      Boolean   @default(true)
+  confirmedAt DateTime?
+  paidAt      DateTime?
 }
 
 enum SalaryType {

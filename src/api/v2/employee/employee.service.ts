@@ -22,12 +22,16 @@ export class EmployeeService {
           id: await this.generateEmployeeCode(body),
           name: body.name,
           address: body.address,
-          basicSalary: {
+          payrolls: {
             create: {
-              title: '',
-              price: 2,
-              note: ''
-            },
+              salaries: {
+                create: {
+                  title: body.basicSalary.title,
+                  price: body.basicSalary.price,
+                  note: body.basicSalary.note
+                }
+              }
+            }
           },
           workedAt: new Date(body.workedAt).toISOString(),
           branch: {connect: {id: body.branchId}},
