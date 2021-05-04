@@ -9,7 +9,7 @@ import {
   Query,
   ParseBoolPipe,
   UsePipes,
-  ValidationPipe
+  ValidationPipe, ParseIntPipe
 } from '@nestjs/common';
 import {PayrollService} from './payroll.service';
 import {CreatePayrollDto} from './dto/create-payroll.dto';
@@ -21,8 +21,19 @@ export class PayrollController {
   constructor(private readonly payrollService: PayrollService) {
   }
 
+  @Post(":id")
+  updateCreateSalary(
+    @Param("id", ParseIntPipe) id: number,
+    @Body() updateSalaryPayrollDto: UpdateSalaryPayrollDto
+  ) {
+    return this.payrollService.updateCreateSalary(+id, updateSalaryPayrollDto);
+  }
+
+  /**
+   * Tạo phiếu lương mới nếu không còn phiếu lương nào đang trong trạng thái chờ
+   * */
   @Post()
-  create(@Body() createPayrollDto: CreatePayrollDto) {
+  createPayroll(@Body() createPayrollDto: CreatePayrollDto) {
     return this.payrollService.create(createPayrollDto);
   }
 

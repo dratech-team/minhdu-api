@@ -66,7 +66,13 @@ export class EmployeeService {
         this.prisma.employee.count(),
         this.prisma.employee.findMany({
           skip: skip,
-          take: take
+          take: take,
+          include: {
+            payrolls: {
+              select: {id: true},
+              where: {confirmedAt: null}
+            }
+          }
         })
       ]);
       return {

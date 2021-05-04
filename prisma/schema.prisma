@@ -99,7 +99,7 @@ model Salary {
   title     String
   type      SalaryType @default(BASIC)
   times     Float?
-  rate      Float?
+  rate      Float?     @default(1)
   price     Float?
   note      String?
   payrollId Int
@@ -120,12 +120,15 @@ model Payroll {
 
 enum SalaryType {
   BASIC
+  BASIC_SALARY
   ALLOWANCE
-  OVERTIME
+  DAY
+  TIME
   ABSENT
   LATE
   LOAN
   REWARD
+  DEDUCTION
 }
 
 enum GenderType {
