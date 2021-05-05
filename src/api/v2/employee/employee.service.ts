@@ -20,14 +20,10 @@ export class EmployeeService {
   async create(body: CreateEmployeeDto) {
     console.log(body.salaries);
     const salaries = body.salaries?.map((salary) => ({
-      salaries: {
-        create: {
-          title: salary.title,
-          type: salary.type,
-          price: salary.price,
-          note: salary.note
-        }
-      }
+      title: salary.title,
+      type: salary.type,
+      price: salary.price,
+      note: salary.note
     }));
 
     try {
@@ -37,7 +33,6 @@ export class EmployeeService {
           name: body.name,
           address: body.address,
           salaries: {
-            // @ts-ignore
             create: salaries
           },
           workedAt: new Date(body.workedAt).toISOString(),

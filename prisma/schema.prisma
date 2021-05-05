@@ -104,8 +104,8 @@ model Salary {
   price     Float?
   forgot    Boolean?   @default(false)
   note      String?
-  payrollId Int
-  payroll   Payroll    @relation(fields: [payrollId], references: [id])
+  payrollId Int?
+  payroll   Payroll?    @relation(fields: [payrollId], references: [id])
   employeeId String?
   employee  Employee?  @relation(fields: [employeeId], references: [id])
 
