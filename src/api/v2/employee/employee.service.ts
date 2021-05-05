@@ -18,22 +18,27 @@ export class EmployeeService {
   }
 
   async create(body: CreateEmployeeDto) {
+    console.log(body.salaries);
+    const salaries = body.salaries?.map((salary) => ({
+      salaries: {
+        create: {
+          title: salary.title,
+          type: salary.type,
+          price: salary.price,
+          note: salary.note
+        }
+      }
+    }));
+
     try {
       return await this.prisma.employee.create({
         data: {
           id: await this.generateEmployeeCode(body),
           name: body.name,
           address: body.address,
-          payrolls: {
-            create: {
-              salaries: {
-                create: {
-                  title: body.basicSalary.title,
-                  price: body.basicSalary.price,
-                  note: body.basicSalary.note
-                }
-              }
-            }
+          salaries: {
+            // @ts-ignore
+            create: salaries
           },
           workedAt: new Date(body.workedAt).toISOString(),
           branch: {connect: {id: body.branchId}},

@@ -1,12 +1,17 @@
 import {ICreateUserDto} from "../../../../common/dtos/create-user.dto";
 import {Type} from "class-transformer";
-import {IsDate, IsNotEmpty, IsNumber, IsObject, IsString} from "class-validator";
+import {IsArray, IsDate, IsEnum, IsNotEmpty, IsNumber, IsObject, IsString} from "class-validator";
+import {SalaryType} from "@prisma/client";
 
 class BasicSalaryDto {
 
   @IsNotEmpty()
   @IsString()
   title: string;
+
+  @IsNotEmpty()
+  @IsEnum(SalaryType)
+  type: SalaryType;
 
   @Type(() => Number)
   @IsNotEmpty()
@@ -42,9 +47,9 @@ export class CreateEmployeeDto extends ICreateUserDto {
   @IsNotEmpty()
   workedAt: Date;
 
-  @IsNotEmpty()
-  @IsObject()
-  basicSalary: BasicSalaryDto;
+  @Type(() => Array)
+  @IsArray()
+  salaries: BasicSalaryDto[];
 
   @Type(() => Date)
   @IsDate()

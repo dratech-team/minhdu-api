@@ -165,17 +165,29 @@ export class PayrollService {
 
     const _allowance = salaries.filter(salary => salary.type === SalaryType.ALLOWANCE).map(e => e.price).reduce((a, b) => a + b);
 
-    _overtime = salaries.filter(salary => salary.type === SalaryType.DAY).map(e => {
-      return e.price === null ? _basics / workday * e.times * e.rate : e.price;
-    }).reduce((a, b) => a + b);
+    for (let i = 0; i < salaries.length; i++) {
+      if(salaries[i].type === SalaryType.ABSENT) {
 
-    _overtime += salaries.filter(salary => salary.type === SalaryType.TIME).map(e => {
-      return e.price === null ? _basics / workday / 8 * e.times * e.rate : e.price;
-    }).reduce((a, b) => a + b);
-
-    _deductions += salaries.filter(salary => salary.type === SalaryType.ABSENT).map(e => {
-      return e.price === null ? _basics / workday / 8 * e.times * e.rate : e.price;
-    }).reduce((a, b) => a + b);
+      }
+    }
+    // _overtime = salaries.filter(salary => salary.type === SalaryType.DAY).map(e => {
+    //   return e.price === null ? _basics / workday * e.times * e.rate : e.price;
+    // }).reduce((a, b) => a + b);
+    // _overtime += salaries.filter(salary => salary.type === SalaryType.TIME).map(e => {
+    //   return e.price === null ? _basics / workday / 8 * e.times * e.rate : e.price;
+    // }).reduce((a, b) => a + b);
+    //
+    // _deductions += salaries.filter(salary => salary.type === SalaryType.ABSENT).map(e => {
+    //   return e.price === null ? _basics / workday * e.times * e.rate : e.price;
+    // }).reduce((a, b) => a + b);
+    //
+    // _deductions += salaries.filter(salary => salary.type === SalaryType.LATE).map(e => {
+    //   return e.price === null ? _basics / workday / 8 * e.times * e.rate : e.price;
+    // }).reduce((a, b) => a + b);
+    //
+    // _deductions += salaries.filter(salary => salary.type === SalaryType.LATE).map(e => {
+    //   return e.price === null ? _basics / workday / 8 * e.times * e.rate : e.price;
+    // }).reduce((a, b) => a + b);
     //
     // for (let i = 0; i < salaries.length; i++) {
     //   let hour = ((_basics / workday) / 8) * salaries[i].times;

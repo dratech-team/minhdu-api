@@ -41,12 +41,12 @@ model BranchToDepartment {
 }
 
 model Department {
-  id        Int                    @id @default(autoincrement())
-  name      String                 @unique
-  color     String                 @unique
-  branches  BranchToDepartment[]
-  positions DepartmentToPosition[]
-  employee  Employee[]
+  id            Int                    @id @default(autoincrement())
+  name          String                 @unique
+  color         String                 @unique
+  branches      BranchToDepartment[]
+  positions     DepartmentToPosition[]
+  employee      Employee[]
 }
 
 model DepartmentToPosition {
@@ -56,7 +56,6 @@ model DepartmentToPosition {
   departmentId Int
   position     Position?   @relation(fields: [positionId], references: [id])
   positionId   Int
-
   @@unique([departmentId, positionId])
 }
 
@@ -92,6 +91,8 @@ model Employee {
   contractAt   DateTime?
   note         String?
   qrCode       String?
+  isFlatSalary Boolean    @default(false)
+  salaries     Salary[]
 }
 
 model Salary {
@@ -101,9 +102,12 @@ model Salary {
   times     Float?
   rate      Float?     @default(1)
   price     Float?
+  forgot    Boolean?   @default(false)
   note      String?
   payrollId Int
   payroll   Payroll    @relation(fields: [payrollId], references: [id])
+  employeeId String?
+  employee  Employee?  @relation(fields: [employeeId], references: [id])
 
   @@unique([title, type, times, rate, price])
 }
@@ -119,16 +123,16 @@ model Payroll {
 }
 
 enum SalaryType {
+//Lương cơ bản bắt buộc
   BASIC
-  BASIC_SALARY
+// Nếu
+//Phụ cấp ở lại: Nếu ngày làm thực tế < ngày chuẩn thì cộng vào khoảng này để chia ra giá 1 ngày công rồi nhân với ngày công thực tế
+  ALLOWANCE_STAYED
+//Phụ cấp cơm các thứ. không ảnh hướng tới lương 1 ngày
   ALLOWANCE
-  DAY
-  TIME
+  OVERTIME
   ABSENT
   LATE
-  LOAN
-  REWARD
-  DEDUCTION
 }
 
 enum GenderType {

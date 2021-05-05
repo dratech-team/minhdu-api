@@ -22,7 +22,6 @@ export class DepartmentService {
         connect: {id: branchId}
       }
     }));
-    console.log(body);
     try {
       return await this.prisma.department.create({
         data: {
