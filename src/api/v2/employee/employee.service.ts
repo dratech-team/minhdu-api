@@ -9,31 +9,30 @@ import {CreateEmployeeDto} from './dto/create-employee.dto';
 import {UpdateEmployeeDto} from './dto/update-employee.dto';
 import {PrismaService} from "../../../prisma.service";
 import {PaginateResult} from "../../../common/interfaces/paginate.interface";
+import {SalaryService} from "../salary/salary.service";
 
 const qr = require("qrcode");
 
 @Injectable()
 export class EmployeeService {
-  constructor(private readonly prisma: PrismaService) {
+  constructor(
+    private readonly prisma: PrismaService,
+    private readonly salaryService: SalaryService,
+  ) {
   }
 
   async create(body: CreateEmployeeDto) {
-    console.log(body.salaries);
-    const salaries = body.salaries?.map((salary) => ({
-      title: salary.title,
-      type: salary.type,
-      price: salary.price,
-      note: salary.note
-    }));
-
     try {
+      const salaries = await Promise.all(body.salaries.map(e => this.salaryService.create(e)));
+      const salaryIds = salaries.map(e => ({id: e.id}));
+
       return await this.prisma.employee.create({
         data: {
           id: await this.generateEmployeeCode(body),
           name: body.name,
           address: body.address,
           salaries: {
-            create: salaries
+            connect: salaryIds
           },
           workedAt: new Date(body.workedAt).toISOString(),
           branch: {connect: {id: body.branchId}},
