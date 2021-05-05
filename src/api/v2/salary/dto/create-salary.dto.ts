@@ -1,23 +1,4 @@
-import {SalaryType} from "@prisma/client";
-import {IsEnum, IsNotEmpty, IsNumber, IsString} from "class-validator";
-import {Type} from "class-transformer";
+import {ICreateSalaryDto} from "../../../../common/dtos/create-salary.dto";
 
-export class CreateSalaryDto {
-
-  @IsNotEmpty()
-  @IsString()
-  title: string;
-
-  @IsNotEmpty()
-  @IsEnum(SalaryType)
-  type: SalaryType;
-
-  @Type(() => Number)
-  @IsNotEmpty()
-  @IsNumber()
-  price: number;
-
-  @IsNotEmpty()
-  @IsString()
-  note: string;
+export class CreateSalaryDto extends ICreateSalaryDto {
 }

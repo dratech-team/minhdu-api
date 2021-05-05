@@ -10,6 +10,8 @@ import {UpdateEmployeeDto} from './dto/update-employee.dto';
 import {PrismaService} from "../../../prisma.service";
 import {PaginateResult} from "../../../common/interfaces/paginate.interface";
 import {SalaryService} from "../salary/salary.service";
+import {CreateSalaryDto} from "../salary/dto/create-salary.dto";
+import {UpdateSalaryDto} from "./dto/update-salary.dto";
 
 const qr = require("qrcode");
 
@@ -20,7 +22,9 @@ export class EmployeeService {
     private readonly salaryService: SalaryService,
   ) {
   }
-
+  /**
+   * Thêm thông tin nhân viên và lương căn bản ban đầu
+   * */
   async create(body: CreateEmployeeDto) {
     try {
       const salaries = await Promise.all(body.salaries.map(e => this.salaryService.create(e)));
@@ -57,6 +61,28 @@ export class EmployeeService {
       }
     }
 
+  }
+
+  /**
+   * Thêm lương cơ bản / lương phụ cấp ở lại của nhân viên
+   * */
+  async createSalary(id: string, body: CreateSalaryDto) {
+    try {
+      const salary = await this.salaryService.create(body);
+      return await this.prisma.employee.update({
+        where: {id: id},
+        data: {salaries: {connect: {id: salary.id}}},
+      });
+    } catch (e) {
+      console.log(e);
+    }
+  }
+
+  /**
+   * Update luongw caur nhaan viene chi Hr moi dc update
+   * */
+  async updateSalary(id: number, updates: UpdateSalaryDto) {
+    return this.salaryService.update(id, updates);
   }
 
   async findAll(skip: number, take: number): Promise<PaginateResult> {

@@ -1,15 +1,19 @@
-import {IsMongoId, IsNotEmpty, IsNumber, IsOptional, IsString} from "class-validator";
+import {SalaryType} from "@prisma/client";
+import {IsEnum, IsNotEmpty, IsNumber, IsOptional, IsString} from "class-validator";
 import {Type} from "class-transformer";
-import {ObjectId} from "mongodb";
 
 export class ICreateSalaryDto {
-  @IsString()
   @IsNotEmpty()
+  @IsString()
   title: string;
 
+  @IsOptional()
+  @IsEnum(SalaryType)
+  type: SalaryType;
+
   @Type(() => Number)
-  @IsNumber()
   @IsNotEmpty()
+  @IsNumber()
   price: number;
 
   @IsOptional()

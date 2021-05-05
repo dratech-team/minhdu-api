@@ -9,19 +9,22 @@ export class SalaryService {
   }
 
   async create(createSalaryDto: CreateSalaryDto) {
-    return await this.prisma.salary.create({data: createSalaryDto});
+    return await this.prisma.salary.create({data: createSalaryDto });
   }
 
   findAll() {
     return `This action returns all salary`;
   }
 
-  findOne(id: number) {
-    return `This action returns a #${id} salary`;
+  async findOne(id: number) {
+
   }
 
-  update(id: number, updateSalaryDto: UpdateSalaryDto) {
-    return `This action updates a #${id} salary`;
+  async update(id: number, updateSalaryDto: UpdateSalaryDto) {
+    return this.prisma.salary.update({
+      where: {id: id},
+      data: updateSalaryDto
+    });
   }
 
   remove(id: number) {
