@@ -21,20 +21,12 @@ export class PayrollController {
   constructor(private readonly payrollService: PayrollService) {
   }
 
-  @Post(":id")
-  updateCreateSalary(
-    @Param("id", ParseIntPipe) id: number,
-    @Body() updateSalaryPayrollDto: UpdateSalaryPayrollDto
-  ) {
-    return this.payrollService.updateCreateSalary(+id, updateSalaryPayrollDto);
-  }
-
-  /**
-   * Tạo phiếu lương mới nếu không còn phiếu lương nào đang trong trạng thái chờ
-   * */
   @Post()
-  createPayroll(@Body() createPayrollDto: CreatePayrollDto) {
-    return this.payrollService.create(createPayrollDto);
+  create(
+    @Query("employeeId") employeeId: string,
+    @Body() body: CreatePayrollDto
+  ) {
+    return this.payrollService.create(employeeId, body);
   }
 
   @Get()
@@ -58,14 +50,6 @@ export class PayrollController {
     @Body() updatePayrollDto: UpdatePayrollDto
   ) {
     return this.payrollService.update(+id, updatePayrollDto);
-  }
-
-  @Patch('salary/:id')
-  updateSalary(
-    @Param('id') id: number,
-    @Body() updates: UpdateSalaryPayrollDto
-  ) {
-    return this.payrollService.updateSalary(+id, updates);
   }
 
   @Delete(':id')

@@ -4,46 +4,45 @@ import {UpdatePayrollDto} from './dto/update-payroll.dto';
 import {PrismaService} from "../../../prisma.service";
 import {Promise} from "mongoose";
 import {Payroll, Salary, SalaryType} from '@prisma/client';
-import {UpdateSalaryPayrollDto} from "./dto/update-salary-payroll.dto";
+import {SalaryService} from "../salary/salary.service";
 
 @Injectable()
 export class PayrollService {
-  constructor(private readonly prisma: PrismaService) {
+  constructor(
+    private readonly prisma: PrismaService,
+    private readonly salaryService: SalaryService,
+  ) {
   }
 
   /**
-   * Cập nhật phiếu lương nếu quản lý chưa xác nhận phiếu lương này. Nhận vào id của payroll
+   * Tạo payroll dùng cho các khoảng khấu trừ / thương tết / phụ cấp khác
    * */
-  async updateCreateSalary(id: number, updateSalaryPayrollDto: UpdateSalaryPayrollDto) {
+  async create(employeeId: string, body: CreatePayrollDto) {
     try {
-      return await this.prisma.payroll.update({
+      const payroll = await this.prisma.payroll.findMany({
         where: {
-          id: id
-        },
-        data: {
-          salaries: {
-            create: updateSalaryPayrollDto,
+          employeeId: employeeId,
+          confirmedAt: null,
+        }
+      });
+      const salary = await this.salaryService.create(body);
+      if (payroll.length > 1) {
+        throw new BadRequestException(`Bạn còn ${payroll.length} chưa được duyệt hoặc thanh toán. Vui lòng liên hệ quản lý.`);
+      } else if (payroll.length === 1) {
+        return await this.prisma.payroll.update({
+          where: {id: payroll[0].id},
+          data: {
+            salaries: {connect: {id: salary.id}}
           }
-        }
-      });
-    } catch (e) {
-      console.error(e);
-      throw new InternalServerErrorException(e);
-    }
-  }
-
-  async create(body: CreatePayrollDto) {
-    try {
-      const confirmed = await this.prisma.payroll.findMany({where: {confirmedAt: null}});
-      if (confirmed.length > 0) {
-        throw new BadRequestException(`Phiếu lương của nhân viên ${body.employeeId} vẫn còn tồn đọng ${confirmed.length} phiếu chưa được quản lý duyệt. Vui lòng xử lý trước khi tạo phiếu lương mới.`);
+        });
+      } else {
+        return await this.prisma.payroll.create({
+          data: {
+            employee: {connect: {id: employeeId}},
+            salaries: {connect: {id: salary.id}}
+          }
+        });
       }
-      return await this.prisma.payroll.create({
-        data: {
-          employeeId: body.employeeId,
-          salaries: {create: body}
-        }
-      });
     } catch (e) {
       console.error(e);
       throw new InternalServerErrorException(e);
@@ -101,8 +100,7 @@ export class PayrollService {
     }
   }
 
-  async findOne(id: number): Promise<{ salaries: Salary[], total: number }> {
-
+  async findOne(id: number): Promise<{ day: number, salary: number, tax: number, total: number }> {
     const payroll = await this.prisma.payroll.findUnique({
       where: {id: id},
       include: {
@@ -112,13 +110,15 @@ export class PayrollService {
 
     const employee = await this.prisma.employee.findUnique({
       where: {id: payroll.employeeId},
-      select: {positionId: true, departmentId: true, contractAt: true}
+      select: {salaries: true, positionId: true, departmentId: true, contractAt: true, isFlatSalary: true}
     });
 
     const workday = await this.prisma.departmentToPosition.findUnique({
       where: {departmentId_positionId: {positionId: employee.positionId, departmentId: employee.departmentId}}
     });
-    return this.totalSalary(payroll.salaries, workday.workday, employee.contractAt !== null);
+    const salaries = employee.salaries.concat(payroll.salaries);
+
+    return this.totalSalary(salaries, workday.workday, employee.contractAt !== null);
   }
 
   async update(id: number, updates: UpdatePayrollDto) {
@@ -145,90 +145,60 @@ export class PayrollService {
     return updated;
   }
 
-  async updateSalary(id: number, updates: UpdateSalaryPayrollDto) {
-    return await this.prisma.salary.update({
-      where: {id: id},
-      data: updates
-    });
-  }
-
   remove(id: number) {
     return `This action removes a #${id} payroll`;
   }
 
-  totalSalary(salaries: Salary[], workday: number, isContract: boolean) {
-    let _rewards: number = 0;
-    let _deductions: number = 0;
-    let _overtime: number = 0;
+  totalSalary(
+    salaries: Salary[],
+    workday: number,
+    isContract: boolean,
+  ): { day: number, salary: number, tax: number, total: number } {
+    const absent = salaries
+      ?.filter((salary) => salary.type === SalaryType.ABSENT)
+      ?.map(e => e.times)
+      ?.reduce((a, b) => a + b, 0);
 
-    const _basics = salaries.filter(salary => salary.type === SalaryType.BASIC).map(e => e.price).reduce((a, b) => a + b);
+    const absentForgot = salaries
+      ?.filter((salary) => salary.type === SalaryType.ABSENT && salary.forgot)
+      ?.map(e => e.times * 0.5)
+      ?.reduce((a, b) => a + b, 0);
 
-    const _allowance = salaries.filter(salary => salary.type === SalaryType.ALLOWANCE).map(e => e.price).reduce((a, b) => a + b);
+    const overtime = salaries
+      ?.filter((salary) => salary.type === SalaryType.OVERTIME)
+      ?.map(e => e.times * e.rate)
+      ?.reduce((a, b) => a + b, 0);
 
-    for (let i = 0; i < salaries.length; i++) {
-      if(salaries[i].type === SalaryType.ABSENT) {
+    const workTotal = workday + overtime - absent;
 
-      }
-    }
-    // _overtime = salaries.filter(salary => salary.type === SalaryType.DAY).map(e => {
-    //   return e.price === null ? _basics / workday * e.times * e.rate : e.price;
-    // }).reduce((a, b) => a + b);
-    // _overtime += salaries.filter(salary => salary.type === SalaryType.TIME).map(e => {
-    //   return e.price === null ? _basics / workday / 8 * e.times * e.rate : e.price;
-    // }).reduce((a, b) => a + b);
-    //
-    // _deductions += salaries.filter(salary => salary.type === SalaryType.ABSENT).map(e => {
-    //   return e.price === null ? _basics / workday * e.times * e.rate : e.price;
-    // }).reduce((a, b) => a + b);
-    //
-    // _deductions += salaries.filter(salary => salary.type === SalaryType.LATE).map(e => {
-    //   return e.price === null ? _basics / workday / 8 * e.times * e.rate : e.price;
-    // }).reduce((a, b) => a + b);
-    //
-    // _deductions += salaries.filter(salary => salary.type === SalaryType.LATE).map(e => {
-    //   return e.price === null ? _basics / workday / 8 * e.times * e.rate : e.price;
-    // }).reduce((a, b) => a + b);
-    //
-    // for (let i = 0; i < salaries.length; i++) {
-    //   let hour = ((_basics / workday) / 8) * salaries[i].times;
-    //   let day = ((_basics / workday) * salaries[i].rate) * salaries[i].times;
-    //
-    //   switch (salaries[i].type) {
-    //     case SalaryType.BASIC_SALARY:
-    //       _basics += salaries[i].price;
-    //       if (isContract) {
-    //         _deductions += salaries[i].price * 0.115;
-    //       }
-    //       break;
-    //     case SalaryType.BASIC:
-    //       _basics += salaries[i].price;
-    //       break;
-    //     case SalaryType.ALLOWANCE:
-    //       _rewards += salaries[i].price;
-    //       break;
-    //     case SalaryType.DAY:
-    //       _rewards += day;
-    //       break;
-    //     case SalaryType.TIME:
-    //       _rewards += hour;
-    //       break;
-    //     case SalaryType.ABSENT:
-    //       _deductions += (_basics / workday) * salaries[i].times;
-    //       break;
-    //     case SalaryType.LATE:
-    //       _deductions += hour;
-    //       break;
-    //     case SalaryType.LOAN:
-    //       _deductions += salaries[i].price;
-    //       break;
-    //   }
-    // }
-    console.log(`basic ${_basics}`);
-    console.log(`_deductions ${_deductions}`);
+    const daySalary = salaries
+      ?.filter((salary) => workTotal < workday ? salary.type === SalaryType.BASIC || salary.type === SalaryType.ALLOWANCE_STAYED : salary.type === SalaryType.BASIC)
+      ?.map(e => e.price)?.reduce((a, b) => a + b, 0) / workday;
+
+    const allowanceSalary = salaries
+      ?.filter((salary) => salary.type === SalaryType.ALLOWANCE_STAYED || salary.type === SalaryType.ALLOWANCE)
+      ?.map(e => e.price)?.reduce((a, b) => a + b, 0);
+
+    const basicSalary = salaries
+      ?.filter((salary) => salary.type === SalaryType.BASIC && salary.title === "Lương cơ bản")
+      ?.map(e => e.price)?.reduce((a, b) => a + b, 0);
+
+    const late = salaries
+      ?.filter((salary) => salary.type === SalaryType.LATE)
+      ?.map(e => daySalary / 8 * e.times)?.reduce((a, b) => a + b, 0);
+
+    const salary = Math.ceil((daySalary * (workTotal - absentForgot) + allowanceSalary) - (isContract ? basicSalary * 0.115 : 0) - late);
+
+    console.log(`=== Ngày thực tế ${workTotal - absentForgot} ===`);
+    console.log(`=== Lương thực nhận theo ngày làm: ${Math.ceil(daySalary * (workTotal - absentForgot) + allowanceSalary)} ===`);
+    console.log(`=== Thuế + bảo hiểm: ${isContract ? basicSalary * 0.115 : 0} ===`);
+    console.log(`=== Lương thực nhận: ${salary} ===`);
 
     return {
-      salaries: salaries,
-      total: (_basics + _rewards) - _deductions,
+      day: workTotal - absentForgot,
+      salary: Math.ceil(daySalary * (workTotal - absentForgot) + allowanceSalary),
+      tax: isContract ? basicSalary * 0.115 : 0,
+      total: salary,
     };
   }
 }

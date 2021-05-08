@@ -1,11 +1,8 @@
 import {SalaryType} from "@prisma/client";
-import {IsEnum, IsNotEmpty, IsNumber, IsOptional, IsString} from "class-validator";
+import {IsBoolean, IsEnum, IsNotEmpty, IsNumber, IsOptional, IsString} from "class-validator";
+import {Type} from "class-transformer";
 
 export class CreatePayrollDto {
-  @IsNotEmpty()
-  @IsString()
-  employeeId: string;
-
   @IsNotEmpty()
   @IsString()
   title: string;
@@ -13,6 +10,11 @@ export class CreatePayrollDto {
   @IsOptional()
   @IsEnum(SalaryType)
   type: SalaryType;
+
+  @IsOptional()
+  @Type(() => Boolean)
+  @IsBoolean()
+  forgot: boolean;
 
   @IsOptional()
   @IsNumber()

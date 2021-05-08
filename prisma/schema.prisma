@@ -128,8 +128,9 @@ enum SalaryType {
 // Nếu
 //Phụ cấp ở lại: Nếu ngày làm thực tế < ngày chuẩn thì cộng vào khoảng này để chia ra giá 1 ngày công rồi nhân với ngày công thực tế
   ALLOWANCE_STAYED
-//Phụ cấp cơm các thứ. không ảnh hướng tới lương 1 ngày
+//Phụ cấp cơm các thứ. không ảnh hướng tới lương 1 ngày, tăng ca theo giờ + giá tiền
   ALLOWANCE
+//Tăng ca theo ngày
   OVERTIME
   ABSENT
   LATE
