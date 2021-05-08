@@ -14,12 +14,8 @@ export class BranchController {
   }
 
   @Get()
-  findAll(
-    @Query("skip", ParseIntPipe) skip: number,
-    @Query("take", ParseIntPipe) take: number,
-    @Query("areaId") areaId?: number,
-  ) {
-    return this.branchService.findAll(+skip, +take, +areaId);
+  findAll() {
+    return this.branchService.findAll();
   }
 
   @Get(':id')

@@ -1,4 +1,4 @@
-import {Controller, Get, Post, Body, Patch, Param, Delete, Query} from '@nestjs/common';
+import {Body, Controller, Delete, Get, Param, Patch, Post, Query} from '@nestjs/common';
 import {DepartmentService} from './department.service';
 import {CreateDepartmentDto} from './dto/create-department.dto';
 import {UpdateDepartmentDto} from './dto/update-department.dto';
@@ -13,22 +13,19 @@ export class DepartmentController {
     return this.departmentService.create(createDepartmentDto);
   }
 
-  @Get("/branch/:id")
-  findAllBranch(
-    @Query("skip") skip: number,
-    @Query("take") take: number,
-    @Param("id") id: number,
-    @Query("name") name: string,
-  ) {
-    return this.departmentService.findAll(+skip, +take, +id, name);
-  }
+  // @Get("/branch/:id")
+  // findAllBranch(
+  //   @Query("skip") skip: number,
+  //   @Query("take") take: number,
+  //   @Param("id") id: number,
+  //   @Query("name") name: string,
+  // ) {
+  //   return this.departmentService.findAll(+skip, +take, +id, name);
+  // }
 
   @Get()
-  findAll(
-    @Query("skip") skip: number,
-    @Query("take") take: number
-  ) {
-    return this.departmentService.findAll(+skip, +take);
+  findAll() {
+    return this.departmentService.findAll();
   }
 
   // @Get(':id')

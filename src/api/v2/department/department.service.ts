@@ -9,7 +9,6 @@ import {CreateDepartmentDto} from './dto/create-department.dto';
 import {UpdateDepartmentDto} from './dto/update-department.dto';
 import {PrismaService} from "../../../prisma.service";
 import {Department} from '@prisma/client';
-import {PaginateResult} from "../../../common/interfaces/paginate.interface";
 
 @Injectable()
 export class DepartmentService {
@@ -44,36 +43,11 @@ export class DepartmentService {
     }
   }
 
-  async findAll(skip: number, take: number, id?: number, search?: string): Promise<PaginateResult> {
+  async findAll(search?: string): Promise<any> {
     try {
-      const [count, data] = await Promise.all([
-        id
-          ? this.prisma.department.count({where: {branches: {some: {id: id}}}})
-          : this.prisma.department.count(),
-
-        id
-          ? this.prisma.department.findMany({
-            skip: skip,
-            take: take,
-            where: {branches: {some: {id: id}}, name: search}
-          })
-          : this.prisma.department.findMany({
-            skip: skip,
-            take: take,
-            include: {
-              positions: {
-                // @ts-ignore
-                select: {position: true}
-              },
-            }
-          }),
-      ]);
-      return {
-        data,
-        statusCode: 200,
-        page: (skip / take) + 1,
-        total: count,
-      };
+      return await this.prisma.branch.findMany({
+        include: {departments: {select: {department: true}}}
+      });
     } catch (e) {
       throw new InternalServerErrorException(`Các tham số skip, take, id là bắt buộc. Vui lòng kiểm tra lại bạn đã truyền đủ 3 tham số chưa.?. Chi tiết: ${e}`);
     }

@@ -44,23 +44,11 @@ export class BranchService {
     }
   }
 
-  async findAll(skip: number, take: number, areaId: number): Promise<PaginateResult> {
+  async findAll(): Promise<any> {
     try {
-      const [count, data] = await Promise.all([
-        this.prisma.branch.count({where: {areaId: areaId}}),
-        this.prisma.branch.findMany({
-          skip: skip,
-          take: take,
-          where: {areaId: areaId},
-          include: {departments: true}
-        }),
-      ]);
-      return {
-        data,
-        statusCode: 200,
-        page: (skip / take) + 1,
-        total: count,
-      };
+      return await this.prisma.branch.findMany({
+        include: {departments: {select: {department: true}}}
+      });
     } catch (e) {
       throw new InternalServerErrorException(`Các tham số skip, take, id là bắt buộc. Vui lòng kiểm tra lại bạn đã truyền đủ 3 tham số chưa.?`);
     }
