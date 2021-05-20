@@ -45,11 +45,29 @@ export class BranchService {
   }
 
   async findAll(): Promise<any> {
+    let branches = [];
+
     try {
-      return await this.prisma.branch.findMany({
-        include: {departments: {select: {department: true}}}
+      const res = await this.prisma.branch.findMany({
+        select: {
+          id: true,
+          name: true,
+          departments: {
+            select: {
+              id: true,
+              positions: {select: {id: true}}
+            }
+          },
+        }
       });
+      res.map(branch => branches.push({
+        id: branch.id,
+        name: branch.name,
+        departmentIds: branch.departments.map(e => e.id)
+      }));
+      return branches;
     } catch (e) {
+      console.error(e);
       throw new InternalServerErrorException(`Các tham số skip, take, id là bắt buộc. Vui lòng kiểm tra lại bạn đã truyền đủ 3 tham số chưa.?`);
     }
 

@@ -8,7 +8,8 @@ import {SalaryModule} from "../salary/salary.module";
 @Module({
   imports: [SalaryModule],
   controllers: [PayrollController],
-  providers: [PayrollService, PrismaService]
+  providers: [PayrollService, PrismaService],
+  exports: [PayrollService]
 })
 export class PayrollModule {
 }

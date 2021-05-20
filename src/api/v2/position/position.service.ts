@@ -44,24 +44,8 @@ export class PositionService {
     }
   }
 
-  async findAll(skip: number, take: number): Promise<PaginateResult> {
-    try {
-      const [count, data] = await Promise.all([
-        this.prisma.position.count(),
-        this.prisma.position.findMany({
-          skip: skip,
-          take: take
-        }),
-      ]);
-      return {
-        data,
-        statusCode: 200,
-        page: (skip / take) + 1,
-        total: count,
-      };
-    } catch (e) {
-      throw new InternalServerErrorException(`Các tham số skip, take là bắt buộc. Vui lòng kiểm tra lại bạn đã truyền đủ 3 tham số chưa.? Chi tiết ${e}`);
-    }
+  async findAll(): Promise<Position[]> {
+    return await this.prisma.position.findMany();
   }
 
   async findOne(id: number) {

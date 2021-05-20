@@ -26,25 +26,15 @@ model Branch {
   name        String               @unique
   areaId      Int
   area        Area                 @relation(fields: [areaId], references: [id])
-  departments BranchToDepartment[]
+  departments Department[]
   employees   Employee[]
-}
-
-model BranchToDepartment {
-  id           Int         @id @default(autoincrement())
-  branch       Branch?     @relation(fields: [branchId], references: [id])
-  branchId     String?
-  department   Department? @relation(fields: [departmentId], references: [id])
-  departmentId Int?
-
-  @@unique([branchId, departmentId])
 }
 
 model Department {
   id            Int                    @id @default(autoincrement())
   name          String                 @unique
   color         String                 @unique
-  branches      BranchToDepartment[]
+  branches      Branch[]
   positions     DepartmentToPosition[]
   employee      Employee[]
 }

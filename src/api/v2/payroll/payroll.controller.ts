@@ -21,12 +21,11 @@ export class PayrollController {
   constructor(private readonly payrollService: PayrollService) {
   }
 
-  @Post()
+  @Post('/employee/:employeeId')
   create(
-    @Query("employeeId") employeeId: string,
-    @Body() body: CreatePayrollDto
+    @Param("employeeId") employeeId: string,
   ) {
-    return this.payrollService.create(employeeId, body);
+    return this.payrollService.create(employeeId);
   }
 
   @Get()

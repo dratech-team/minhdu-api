@@ -17,18 +17,14 @@ export class DepartmentService {
 
   async create(body: CreateDepartmentDto): Promise<Department> {
     const branches = body.branchIds?.map(branchId => ({
-      branch: {
-        connect: {id: branchId}
-      }
+      id: branchId
     }));
     try {
       return await this.prisma.department.create({
         data: {
           name: body.department,
           color: body.color,
-          branches: {
-            create: branches
-          },
+          branches: {connect: branches}
         }
       });
     } catch (e) {
@@ -43,11 +39,22 @@ export class DepartmentService {
     }
   }
 
-  async findAll(search?: string): Promise<any> {
+  async findAll(): Promise<any> {
+    let departments = [];
     try {
-      return await this.prisma.branch.findMany({
-        include: {departments: {select: {department: true}}}
+      const res = await this.prisma.department.findMany({
+        select: {
+          id: true,
+          name: true,
+          positions: {select: {id: true, workday: true}}
+        }
       });
+      res.map(department => departments.push({
+        id: department.id,
+        name: department.name,
+        positionIds: department.positions.map(position => position.id),
+      }));
+      return departments;
     } catch (e) {
       throw new InternalServerErrorException(`Các tham số skip, take, id là bắt buộc. Vui lòng kiểm tra lại bạn đã truyền đủ 3 tham số chưa.?. Chi tiết: ${e}`);
     }

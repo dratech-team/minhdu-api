@@ -14,11 +14,8 @@ export class PositionController {
   }
 
   @Get()
-  findAll(
-    @Query("skip") skip: number,
-    @Query("take") take: number,
-  ) {
-    return this.positionService.findAll(+skip, +take);
+  findAll() {
+    return this.positionService.findAll();
   }
 
   @Get(':id')

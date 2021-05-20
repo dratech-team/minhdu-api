@@ -1,4 +1,4 @@
-import {BadRequestException, Injectable, InternalServerErrorException} from '@nestjs/common';
+import {BadRequestException, Injectable} from '@nestjs/common';
 import {CreatePayrollDto} from './dto/create-payroll.dto';
 import {UpdatePayrollDto} from './dto/update-payroll.dto';
 import {PrismaService} from "../../../prisma.service";
@@ -17,35 +17,28 @@ export class PayrollService {
   /**
    * Tạo payroll dùng cho các khoảng khấu trừ / thương tết / phụ cấp khác
    * */
-  async create(employeeId: string, body: CreatePayrollDto) {
+  async create(employeeId: string) {
     try {
-      const payroll = await this.prisma.payroll.findMany({
-        where: {
-          employeeId: employeeId,
-          confirmedAt: null,
+      const basic = await this.prisma.employee.findUnique({
+        where: {id: employeeId},
+        select: {
+          salaries: true
         }
       });
-      const salary = await this.salaryService.create(body);
-      if (payroll.length > 1) {
-        throw new BadRequestException(`Bạn còn ${payroll.length} chưa được duyệt hoặc thanh toán. Vui lòng liên hệ quản lý.`);
-      } else if (payroll.length === 1) {
-        return await this.prisma.payroll.update({
-          where: {id: payroll[0].id},
-          data: {
-            salaries: {connect: {id: salary.id}}
-          }
-        });
-      } else {
-        return await this.prisma.payroll.create({
-          data: {
-            employee: {connect: {id: employeeId}},
-            salaries: {connect: {id: salary.id}}
-          }
-        });
-      }
+
+      const connect = basic.salaries.map(e => ({
+        id: e.id
+      }));
+
+      return this.prisma.payroll.create({
+        data: {
+          employee: {connect: {id: employeeId}},
+          salaries: {connect: connect}
+        }
+      });
     } catch (e) {
       console.error(e);
-      throw new InternalServerErrorException(e);
+      throw new BadRequestException(e);
     }
   }
 
@@ -69,8 +62,6 @@ export class PayrollService {
             }
         }),
         this.prisma.payroll.findMany({
-          skip: skip,
-          take: take,
           where: confirmed != null
             ? (
               confirmed ? {
@@ -88,37 +79,24 @@ export class PayrollService {
         }),
 
       ]);
-      return {
-        data,
-        statusCode: 200,
-        page: (skip / take) + 1,
-        total: count,
-      };
+      return data;
     } catch (e) {
       console.error(e);
       throw new BadRequestException(e);
     }
   }
 
-  async findOne(id: number): Promise<{ day: number, salary: number, tax: number, total: number }> {
-    const payroll = await this.prisma.payroll.findUnique({
+  async findOne(id: number): Promise<any> {
+    const salaries = await this.prisma.payroll.findUnique({
       where: {id: id},
       include: {
         salaries: true
       }
     });
 
-    const employee = await this.prisma.employee.findUnique({
-      where: {id: payroll.employeeId},
-      select: {salaries: true, positionId: true, departmentId: true, contractAt: true, isFlatSalary: true}
-    });
+    console.log(salaries);
 
-    const workday = await this.prisma.departmentToPosition.findUnique({
-      where: {departmentId_positionId: {positionId: employee.positionId, departmentId: employee.departmentId}}
-    });
-    const salaries = employee.salaries.concat(payroll.salaries);
-
-    return this.totalSalary(salaries, workday.workday, employee.contractAt !== null);
+    return salaries.salaries;
   }
 
   async update(id: number, updates: UpdatePayrollDto) {
@@ -200,5 +178,14 @@ export class PayrollService {
       tax: isContract ? basicSalary * 0.115 : 0,
       total: salary,
     };
+  }
+
+  async connectSalaryToPayroll(salaryId: number, employeeId: string) {
+    await this.prisma.payroll.create({
+      data: {
+        employee: {connect: {id: employeeId}},
+        salaries: {connect: {id: salaryId}}
+      }
+    });
   }
 }

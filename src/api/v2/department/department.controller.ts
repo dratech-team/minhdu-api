@@ -1,13 +1,20 @@
-import {Body, Controller, Delete, Get, Param, Patch, Post, Query} from '@nestjs/common';
+import {Body, Controller, Delete, Get, Param, Patch, Post, Query, UseGuards} from '@nestjs/common';
 import {DepartmentService} from './department.service';
 import {CreateDepartmentDto} from './dto/create-department.dto';
 import {UpdateDepartmentDto} from './dto/update-department.dto';
+import {Roles} from "../../../core/decorators/roles.decorator";
+import {JwtAuthGuard} from "../../../core/guard/jwt-auth.guard";
+import {ApiKeyGuard} from "../../../core/guard/api-key-auth.guard";
+import {RolesGuard} from "../../../core/guard/role.guard";
+import {UserType} from "../../../core/constants/role-type.constant";
 
+// @UseGuards(JwtAuthGuard, ApiKeyGuard, RolesGuard)
 @Controller('v2/department')
 export class DepartmentController {
   constructor(private readonly departmentService: DepartmentService) {
   }
 
+  @Roles(UserType.ADMIN)
   @Post()
   create(@Body() createDepartmentDto: CreateDepartmentDto) {
     return this.departmentService.create(createDepartmentDto);
@@ -27,6 +34,7 @@ export class DepartmentController {
   findAll() {
     return this.departmentService.findAll();
   }
+
 
   // @Get(':id')
   // findOne(@Param('id') id: string) {

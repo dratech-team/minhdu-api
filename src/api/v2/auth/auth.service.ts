@@ -21,7 +21,7 @@ export class AuthService {
           username: body.username,
           password: await generateHash(body.password),
           role: body.role,
-          employee: {connect: {id: body.employeeId}}
+          employee: body.employeeId ? {connect: {id: body.employeeId}} : {}
         }
       });
       return {status: 'Register Success!'};
@@ -31,7 +31,7 @@ export class AuthService {
     }
   }
 
-  async signIn(body: SignInCredentialDto): Promise<{ token: string }> {
+  async signIn(body: SignInCredentialDto): Promise<{ id: number, role: string, token: string }> {
     try {
       const user = await this.prisma.account.findUnique({where: {username: body.username}});
       const isValid = await bcrypt.compare(body.password, user.password);
@@ -47,7 +47,7 @@ export class AuthService {
       };
 
       const token = this.jwtService.sign(payload);
-      return {token};
+      return {id: user.id, role: user.role, token};
     } catch (e) {
       throw new BadRequestException(e);
     }

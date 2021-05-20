@@ -2,6 +2,8 @@ import {Body, Controller, Delete, Get, Param, ParseIntPipe, Patch, Post, Query} 
 import {BranchService} from './branch.service';
 import {CreateBranchDto} from './dto/create-branch.dto';
 import {UpdateBranchDto} from './dto/update-branch.dto';
+import {Roles} from "../../../core/decorators/roles.decorator";
+import {UserType} from "../../../core/constants/role-type.constant";
 
 @Controller('v2/branch')
 export class BranchController {
@@ -17,6 +19,7 @@ export class BranchController {
   findAll() {
     return this.branchService.findAll();
   }
+
 
   @Get(':id')
   async findOne(@Param('id') id: string) {

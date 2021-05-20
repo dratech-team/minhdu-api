@@ -1,3 +1,37 @@
+import {Module} from "@nestjs/common";
+import {AppController} from "./app.controller";
+import {PrismaService} from "./prisma.service";
+import {AreaModule} from "./api/v2/area/area.module";
+import {BranchModule} from "./api/v2/branch/branch.module";
+import { DepartmentModule } from './api/v2/department/department.module';
+import { PositionModule } from './api/v2/position/position.module';
+import { EmployeeModule } from './api/v2/employee/employee.module';
+import { AuthModule } from './api/v2/auth/auth.module';
+import { PayrollModule } from './api/v2/payroll/payroll.module';
+import { DiagramModule } from './api/v2/diagram/diagram.module';
+import { SalaryModule } from './api/v2/salary/salary.module';
+import {ConfigModule} from "./core/config/config.module";
+
+@Module({
+  imports: [
+    AreaModule,
+    BranchModule,
+    DepartmentModule,
+    PositionModule,
+    EmployeeModule,
+    AuthModule,
+    PayrollModule,
+    DiagramModule,
+    SalaryModule,
+    ConfigModule,
+  ],
+  controllers: [AppController],
+  providers: [PrismaService],
+})
+export class AppModule {
+
+}
+
 // import {MiddlewareConsumer, Module, NestModule} from "@nestjs/common";
 // import {AppController} from "./app.controller";
 // // import {AppService} from "./app.service";
@@ -47,37 +81,4 @@
 //     consumer.apply(LoggerMiddleware);
 //   }
 // }
-
-
-import {Module} from "@nestjs/common";
-import {AppController} from "./app.controller";
-import {PrismaService} from "./prisma.service";
-import {AreaModule} from "./api/v2/area/area.module";
-import {BranchModule} from "./api/v2/branch/branch.module";
-import { DepartmentModule } from './api/v2/department/department.module';
-import { PositionModule } from './api/v2/position/position.module';
-import { EmployeeModule } from './api/v2/employee/employee.module';
-import { AuthModule } from './api/v2/auth/auth.module';
-import { PayrollModule } from './api/v2/payroll/payroll.module';
-import { DiagramModule } from './api/v2/diagram/diagram.module';
-import { SalaryModule } from './api/v2/salary/salary.module';
-
-@Module({
-  imports: [
-    AreaModule,
-    BranchModule,
-    DepartmentModule,
-    PositionModule,
-    EmployeeModule,
-    AuthModule,
-    PayrollModule,
-    DiagramModule,
-    SalaryModule,
-  ],
-  controllers: [AppController],
-  providers: [PrismaService],
-})
-export class AppModule {
-
-}
 

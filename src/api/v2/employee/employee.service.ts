@@ -8,35 +8,67 @@ import {
 import {CreateEmployeeDto} from './dto/create-employee.dto';
 import {UpdateEmployeeDto} from './dto/update-employee.dto';
 import {PrismaService} from "../../../prisma.service";
-import {PaginateResult} from "../../../common/interfaces/paginate.interface";
 import {SalaryService} from "../salary/salary.service";
 import {CreateSalaryDto} from "../salary/dto/create-salary.dto";
 import {UpdateSalaryDto} from "./dto/update-salary.dto";
+import {SalaryType} from '@prisma/client';
+import {PayrollService} from "../payroll/payroll.service";
 
 const qr = require("qrcode");
 
 @Injectable()
 export class EmployeeService {
+  selectEmployee = {
+    id: true,
+    name: true,
+    position: {
+      select: {
+        id: true,
+        name: true,
+      }
+    },
+    department: {
+      select: {
+        id: true,
+        name: true
+      }
+    },
+    payrolls: {
+      select: {
+        id: true,
+        paidAt: true,
+        salaries: true,
+      }
+    },
+    isFlatSalary: true,
+  }
+
   constructor(
     private readonly prisma: PrismaService,
     private readonly salaryService: SalaryService,
+    private readonly payrollService: PayrollService,
   ) {
   }
+
   /**
    * Thêm thông tin nhân viên và lương căn bản ban đầu
    * */
   async create(body: CreateEmployeeDto) {
     try {
-      const salaries = await Promise.all(body.salaries.map(e => this.salaryService.create(e)));
-      const salaryIds = salaries.map(e => ({id: e.id}));
+      const salary = await this.salaryService.create({
+        title: 'Lương cơ bản trích BH',
+        price: body.price,
+        type: SalaryType.BASIC,
+        note: body.note
+      });
 
-      return await this.prisma.employee.create({
+      const employee = await this.prisma.employee.create({
         data: {
           id: await this.generateEmployeeCode(body),
           name: body.name,
           address: body.address,
           salaries: {
-            connect: salaryIds
+            connect: {id: salary.id}
           },
           workedAt: new Date(body.workedAt).toISOString(),
           branch: {connect: {id: body.branchId}},
@@ -46,8 +78,17 @@ export class EmployeeService {
           birthday: new Date(body.birthday).toISOString(),
           gender: body.gender,
           note: body.note,
-        }
+        },
+        select: {id: true, name: true, position: true, payrolls: true}
       });
+
+      this.payrollService.connectSalaryToPayroll(salary.id, employee.id).then();
+
+      return {
+        id: employee.id,
+        name: employee.name,
+        position: employee.position.name,
+      };
     } catch (e) {
       console.log(e);
       if (e?.code == "P2025") {
@@ -85,34 +126,107 @@ export class EmployeeService {
     return this.salaryService.update(id, updates);
   }
 
-  async findAll(skip: number, take: number): Promise<PaginateResult> {
+  async findAll(skip: number, take: number, search?: string): Promise<any> {
+    let data = [];
+    let workDay: number;
+    let actualDay: number = new Date().getDate();
+
+    if (isNaN(skip) || isNaN(take)) {
+      skip = 0;
+      take = 10;
+    }
     try {
-      const [count, data] = await Promise.all([
-        this.prisma.employee.count(),
-        this.prisma.employee.findMany({
-          skip: skip,
-          take: take,
-          include: {
-            payrolls: {
-              select: {id: true},
-              where: {confirmedAt: null}
-            }
-          }
-        })
-      ]);
+      const total = await this.prisma.employee.count();
+      const employees = await this.findEmployees(skip, take, search);
+
+      for (let i = 0; i < employees.length; i++) {
+        workDay = (await this.workDay(employees[i].department.id, employees[i].position.id)).workday;
+
+        const payrolls = employees[i]?.payrolls?.filter(payroll => payroll.paidAt === null);
+
+        if (payrolls?.length === 1) {
+          actualDay = this.actualDay(payrolls[0]);
+        }
+
+        data.push({
+          id: employees[i].id,
+          name: employees[i].name,
+          gender: employees[i].gender,
+          birthday: employees[i].birthday,
+          phone: employees[i].phone,
+          workedAt: employees[i].workedAt,
+          leftAt: employees[i].leftAt,
+          idCardAt: employees[i].idCardAt,
+          address: employees[i].address,
+          certificate: employees[i].certificate,
+          stayedAt: employees[i].stayedAt,
+          contractAt: employees[i].contractAt,
+          note: employees[i].note,
+          qrcode: employees[i].qrCode,
+          isFlatSalary: employees[i].isFlatSalary,
+          branch: employees[i].branch,
+          department: employees[i].department,
+          position: employees[i].position,
+          payrolls: employees[i].payrolls,
+          workDay: workDay,
+          actualDay
+        });
+      }
+
       return {
-        data,
-        statusCode: 200,
-        page: (skip / take) + 1,
-        total: count,
+        total,
+        data
       };
     } catch (e) {
+      console.error(e);
       throw new InternalServerErrorException(`Các tham số skip, take, id là bắt buộc. Vui lòng kiểm tra lại bạn đã truyền đủ 3 tham số chưa.?. Chi tiết: ${e}`);
     }
   }
 
   async findOne(id: string) {
-    return await this.prisma.employee.findUnique({where: {id: id}});
+    let actualDay: number = new Date().getDate();
+
+    const employee = await this.prisma.employee.findUnique({
+      where: {id: id},
+      include: {
+        branch: true,
+        department: true,
+        position: true,
+        payrolls: true,
+      }
+    });
+
+    const workDay = await this.workDay(employee.department.id, employee.position.id);
+
+    const payrolls = employee?.payrolls?.filter(payroll => payroll.paidAt === null);
+
+    if (payrolls.length === 1) {
+      actualDay = this.actualDay(payrolls[0]);
+    }
+
+    return {
+      id: employee.id,
+      name: employee.name,
+      gender: employee.gender,
+      birthday: employee.birthday,
+      phone: employee.phone,
+      workedAt: employee.workedAt,
+      leftAt: employee.leftAt,
+      idCardAt: employee.idCardAt,
+      address: employee.address,
+      certificate: employee.certificate,
+      stayedAt: employee.stayedAt,
+      contractAt: employee.contractAt,
+      note: employee.note,
+      qrcode: employee.qrCode,
+      isFlatSalary: employee.isFlatSalary,
+      branch: employee.branch,
+      department: employee.department,
+      position: employee.position,
+      payrolls: employee.payrolls,
+      workDay: workDay.workday,
+      actualDay
+    };
   }
 
   async update(id: string, updates: UpdateEmployeeDto) {
@@ -149,5 +263,100 @@ export class EmployeeService {
       data: {qrCode: qrCode}
     });
 
+  }
+
+  async findEmployees(skip: number, take: number, search: string): Promise<any> {
+    const include = {
+      branch: {
+        select: {
+          id: true,
+          name: true,
+        }
+      },
+      department: {
+        select: {
+          id: true,
+          name: true,
+        }
+      },
+      position: {
+        select: {
+          id: true,
+          name: true,
+        }
+      },
+      payrolls: true
+    };
+
+    const searchName = {name: {startsWith: search}};
+
+    if (search == '' || search === undefined || search === null) {
+      return await this.prisma.employee.findMany({skip, take, include: include});
+    } else {
+      let employees = await this.prisma.employee.findMany({
+        skip,
+        take,
+        where: searchName,
+        include: include,
+      });
+
+      if (employees.length === 0) {
+        employees = await this.prisma.employee.findMany({
+          skip,
+          take,
+          where: {branch: searchName},
+          include: include
+        });
+      }
+
+      if (employees.length === 0) {
+        employees = await this.prisma.employee.findMany({
+          skip,
+          take,
+          where: {department: searchName},
+          include: include
+        });
+      }
+      return employees;
+    }
+
+  }
+
+  async findEmployee(skip: number, take: number, search?: string) {
+    return await this.prisma.employee.findMany({
+      skip: skip,
+      take: take,
+      where: {
+        name: {startsWith: search}
+      },
+      select: this.selectEmployee
+    });
+  }
+
+  async workDay(departmentId, positionId): Promise<{ workday: number }> {
+    return await this.prisma.departmentToPosition.findUnique({
+      where: {
+        departmentId_positionId: {
+          departmentId: departmentId,
+          positionId: positionId,
+        }
+      },
+      select: {workday: true}
+    });
+  }
+
+  actualDay(payroll) {
+    let actualDay: number = new Date().getDate();
+
+    const absent = payroll?.salaries?.filter(salary => salary.type === SalaryType.ABSENT).map(e => e.times).reduce((a, b) => a + b, 0);
+    const late = payroll?.salaries?.filter(salary => salary.type === SalaryType.LATE).map(e => e.times).reduce((a, b) => a + b, 0);
+
+    if (absent > 0) {
+      actualDay -= absent;
+    }
+    if (late > 8) {
+      actualDay -= 1;
+    }
+    return actualDay;
   }
 }
