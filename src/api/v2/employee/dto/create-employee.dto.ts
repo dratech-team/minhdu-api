@@ -3,30 +3,12 @@ import {Type} from "class-transformer";
 import {IsArray, IsDate, IsEnum, IsNotEmpty, IsNumber, IsObject, IsOptional, IsString} from "class-validator";
 import {SalaryType} from "@prisma/client";
 
-class BasicSalaryDto {
-
-  @IsNotEmpty()
-  @IsString()
-  title: string;
-
-  @IsNotEmpty()
-  @IsEnum(SalaryType)
-  type: SalaryType;
-
-  @Type(() => Number)
-  @IsNotEmpty()
-  @IsNumber()
-  price: number;
-
-  @IsNotEmpty()
-  @IsString()
-  note: string;
-}
-
 export class CreateEmployeeDto extends ICreateUserDto {
+  id: string;
+
   @IsString()
   @IsNotEmpty()
-  id: string;
+  identify: string;
 
   @IsString()
   @IsNotEmpty()

@@ -21,21 +21,9 @@ export class PayrollController {
   constructor(private readonly payrollService: PayrollService) {
   }
 
-  @Post('/employee/:employeeId')
-  create(
-    @Param("employeeId") employeeId: string,
-  ) {
-    return this.payrollService.create(employeeId);
-  }
-
   @Get()
-  findAll(
-    @Query("employeeId") employeeId: string,
-    @Query("confirmed", ParseBoolPipe) confirmed: boolean,
-    @Query("skip") skip: number,
-    @Query("take") take: number,
-  ) {
-    return this.payrollService.findAll(employeeId, confirmed, +skip, +take);
+  findAll() {
+    return this.payrollService.findAll();
   }
 
   @Get(':id')

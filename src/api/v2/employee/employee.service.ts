@@ -1,23 +1,23 @@
-import {
-  BadRequestException,
-  ConflictException,
-  Injectable,
-  InternalServerErrorException,
-  NotFoundException
-} from '@nestjs/common';
+import {BadRequestException, ConflictException, Injectable, NotFoundException} from '@nestjs/common';
 import {CreateEmployeeDto} from './dto/create-employee.dto';
 import {UpdateEmployeeDto} from './dto/update-employee.dto';
 import {PrismaService} from "../../../prisma.service";
 import {SalaryService} from "../salary/salary.service";
-import {CreateSalaryDto} from "../salary/dto/create-salary.dto";
-import {UpdateSalaryDto} from "./dto/update-salary.dto";
 import {SalaryType} from '@prisma/client';
 import {PayrollService} from "../payroll/payroll.service";
+import {Promise} from "mongoose";
 
 const qr = require("qrcode");
 
 @Injectable()
 export class EmployeeService {
+  constructor(
+    private readonly prisma: PrismaService,
+    private readonly salaryService: SalaryService,
+    private readonly payrollService: PayrollService,
+  ) {
+  }
+
   selectEmployee = {
     id: true,
     name: true,
@@ -43,13 +43,6 @@ export class EmployeeService {
     isFlatSalary: true,
   }
 
-  constructor(
-    private readonly prisma: PrismaService,
-    private readonly salaryService: SalaryService,
-    private readonly payrollService: PayrollService,
-  ) {
-  }
-
   /**
    * Thêm thông tin nhân viên và lương căn bản ban đầu
    * */
@@ -62,9 +55,10 @@ export class EmployeeService {
         note: body.note
       });
 
-      const employee = await this.prisma.employee.create({
+      return await this.prisma.employee.create({
         data: {
           id: await this.generateEmployeeCode(body),
+          identify: body.identify,
           name: body.name,
           address: body.address,
           salaries: {
@@ -78,19 +72,17 @@ export class EmployeeService {
           birthday: new Date(body.birthday).toISOString(),
           gender: body.gender,
           note: body.note,
+          payrolls: {
+            create: {
+              salaries: {
+                connect: {id: salary.id}
+              }
+            }
+          }
         },
-        select: {id: true, name: true, position: true, payrolls: true}
       });
-
-      this.payrollService.connectSalaryToPayroll(salary.id, employee.id).then();
-
-      return {
-        id: employee.id,
-        name: employee.name,
-        position: employee.position.name,
-      };
     } catch (e) {
-      console.log(e);
+      console.error(e);
       if (e?.code == "P2025") {
         throw new NotFoundException(`Không tìm thấy id ${body?.branchId} hoặc ${body?.departmentId} hoặc ${body?.positionId}. Chi tiết: ${e?.meta?.cause}`);
       } else if (e?.code == "P2002") {
@@ -101,87 +93,85 @@ export class EmployeeService {
         throw new BadRequestException(e);
       }
     }
-
-  }
-
-  /**
-   * Thêm lương cơ bản / lương phụ cấp ở lại của nhân viên
-   * */
-  async createSalary(id: string, body: CreateSalaryDto) {
-    try {
-      const salary = await this.salaryService.create(body);
-      return await this.prisma.employee.update({
-        where: {id: id},
-        data: {salaries: {connect: {id: salary.id}}},
-      });
-    } catch (e) {
-      console.log(e);
-    }
-  }
-
-  /**
-   * Update luongw caur nhaan viene chi Hr moi dc update
-   * */
-  async updateSalary(id: number, updates: UpdateSalaryDto) {
-    return this.salaryService.update(id, updates);
   }
 
   async findAll(skip: number, take: number, search?: string): Promise<any> {
-    let data = [];
-    let workDay: number;
-    let actualDay: number = new Date().getDate();
 
-    if (isNaN(skip) || isNaN(take)) {
-      skip = 0;
-      take = 10;
-    }
-    try {
-      const total = await this.prisma.employee.count();
-      const employees = await this.findEmployees(skip, take, search);
-
-      for (let i = 0; i < employees.length; i++) {
-        workDay = (await this.workDay(employees[i].department.id, employees[i].position.id)).workday;
-
-        const payrolls = employees[i]?.payrolls?.filter(payroll => payroll.paidAt === null);
-
-        if (payrolls?.length === 1) {
-          actualDay = this.actualDay(payrolls[0]);
+    const [total, data] = await Promise.all([
+      this.prisma.employee.count(),
+      this.prisma.employee.findMany({
+        skip,
+        take,
+        include: {
+          branch: true,
+          department: true,
+          position: true
         }
+      }),
+    ]);
 
-        data.push({
-          id: employees[i].id,
-          name: employees[i].name,
-          gender: employees[i].gender,
-          birthday: employees[i].birthday,
-          phone: employees[i].phone,
-          workedAt: employees[i].workedAt,
-          leftAt: employees[i].leftAt,
-          idCardAt: employees[i].idCardAt,
-          address: employees[i].address,
-          certificate: employees[i].certificate,
-          stayedAt: employees[i].stayedAt,
-          contractAt: employees[i].contractAt,
-          note: employees[i].note,
-          qrcode: employees[i].qrCode,
-          isFlatSalary: employees[i].isFlatSalary,
-          branch: employees[i].branch,
-          department: employees[i].department,
-          position: employees[i].position,
-          payrolls: employees[i].payrolls,
-          workDay: workDay,
-          actualDay
-        });
-      }
-
-      return {
-        total,
-        data
-      };
-    } catch (e) {
-      console.error(e);
-      throw new InternalServerErrorException(`Các tham số skip, take, id là bắt buộc. Vui lòng kiểm tra lại bạn đã truyền đủ 3 tham số chưa.?. Chi tiết: ${e}`);
-    }
+    return {total, data};
   }
+
+  // async findAll(skip: number, take: number, search?: string): Promise<any> {
+  //   let data = [];
+  //   let workDay: number;
+  //   let actualDay: number = new Date().getDate();
+  //
+  //   if (isNaN(skip) || isNaN(take)) {
+  //     skip = 0;
+  //     take = 10;
+  //   }
+  //   try {
+  //     const total = await this.prisma.employee.count();
+  //     const employees = await this.findEmployees(skip, take, search);
+  //
+  //     for (let i = 0; i < employees.length; i++) {
+  //       workDay = (await this.workDay(employees[i].department.id, employees[i].position.id)).workday;
+  //       let payrolls = employees[i].payrolls;
+  //
+  //       if (payrolls.length === 0) {
+  //         payrolls = await this.payrollService.create(employees[i].id);
+  //       }
+  //
+  //       if (payrolls?.length === 1) {
+  //         actualDay = this.actualDay(payrolls[0]);
+  //       }
+  //
+  //       data.push({
+  //         id: employees[i].id,
+  //         name: employees[i].name,
+  //         gender: employees[i].gender,
+  //         birthday: employees[i].birthday,
+  //         phone: employees[i].phone,
+  //         workedAt: employees[i].workedAt,
+  //         leftAt: employees[i].leftAt,
+  //         idCardAt: employees[i].idCardAt,
+  //         address: employees[i].address,
+  //         certificate: employees[i].certificate,
+  //         stayedAt: employees[i].stayedAt,
+  //         contractAt: employees[i].contractAt,
+  //         note: employees[i].note,
+  //         qrcode: employees[i].qrCode,
+  //         isFlatSalary: employees[i].isFlatSalary,
+  //         branch: employees[i].branch,
+  //         department: employees[i].department,
+  //         position: employees[i].position,
+  //         payrolls: employees[i].payrolls,
+  //         workDay,
+  //         actualDay
+  //       });
+  //     }
+  //
+  //     return {
+  //       total,
+  //       data
+  //     };
+  //   } catch (e) {
+  //     console.error(e);
+  //     throw new InternalServerErrorException(`Các tham số skip, take, id là bắt buộc. Vui lòng kiểm tra lại bạn đã truyền đủ 3 tham số chưa.?. Chi tiết: ${e}`);
+  //   }
+  // }
 
   async findOne(id: string) {
     let actualDay: number = new Date().getDate();
@@ -200,9 +190,7 @@ export class EmployeeService {
 
     const payrolls = employee?.payrolls?.filter(payroll => payroll.paidAt === null);
 
-    if (payrolls.length === 1) {
-      actualDay = this.actualDay(payrolls[0]);
-    }
+
 
     return {
       id: employee.id,
@@ -266,6 +254,10 @@ export class EmployeeService {
   }
 
   async findEmployees(skip: number, take: number, search: string): Promise<any> {
+    const date = new Date(), y = date.getFullYear(), m = date.getMonth();
+    const firstDay = new Date(y, m, 1);
+    const lastDay = new Date(y, m + 1, 0);
+
     const include = {
       branch: {
         select: {
@@ -285,7 +277,11 @@ export class EmployeeService {
           name: true,
         }
       },
-      payrolls: true
+      payrolls: {
+        where: {
+          createdAt: {lte: lastDay, gte: firstDay}
+        }
+      }
     };
 
     const searchName = {name: {startsWith: search}};
@@ -343,20 +339,5 @@ export class EmployeeService {
       },
       select: {workday: true}
     });
-  }
-
-  actualDay(payroll) {
-    let actualDay: number = new Date().getDate();
-
-    const absent = payroll?.salaries?.filter(salary => salary.type === SalaryType.ABSENT).map(e => e.times).reduce((a, b) => a + b, 0);
-    const late = payroll?.salaries?.filter(salary => salary.type === SalaryType.LATE).map(e => e.times).reduce((a, b) => a + b, 0);
-
-    if (absent > 0) {
-      actualDay -= absent;
-    }
-    if (late > 8) {
-      actualDay -= 1;
-    }
-    return actualDay;
   }
 }

@@ -13,7 +13,29 @@ export class DiagramService {
   }
 
   async findAll() {
-    return await this.prisma.area.findMany();
+    return await this.prisma.branch.findMany({
+      select: {
+        id: true,
+        name: true,
+        departments: {
+          select: {
+            id: true,
+            name: true,
+            color: true,
+            positions: {
+              select: {
+                position: {
+                  select: {
+                    id: true,
+                    name: true
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    });
   }
 
   findOne(id: number) {

@@ -58,6 +58,7 @@ model Position {
 
 model Employee {
   id           String     @id
+  identify     String
   accountId    Int?
   account      Account?   @relation(fields: [accountId], references: [id])
   name         String
@@ -83,6 +84,7 @@ model Employee {
   qrCode       String?
   isFlatSalary Boolean    @default(false)
   salaries     Salary[]
+   @@unique([id, identify])
 }
 
 model Salary {
@@ -110,6 +112,7 @@ model Payroll {
   isEdit      Boolean   @default(true)
   confirmedAt DateTime?
   paidAt      DateTime?
+  createdAt   DateTime  @default(now())
 }
 
 enum SalaryType {

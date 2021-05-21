@@ -1,4 +1,4 @@
-import {Body, Controller, Delete, Get, Param, Patch, Post, Query, UseGuards} from '@nestjs/common';
+import {Body, Controller, Delete, Get, Param, ParseIntPipe, Patch, Post, Query, UseGuards} from '@nestjs/common';
 import {EmployeeService} from './employee.service';
 import {CreateEmployeeDto} from './dto/create-employee.dto';
 import {UpdateEmployeeDto} from './dto/update-employee.dto';
@@ -22,16 +22,11 @@ export class EmployeeController {
     return this.employeeService.create(createEmployeeDto);
   }
 
-  @Post(":id")
-  createSalary(@Param("id") id: string, @Body() body: CreateSalaryDto) {
-    return this.employeeService.createSalary(id, body);
-  }
-
   @Get()
   @Roles(UserType.ADMIN)
   findAll(
-    @Query("skip") skip: number,
-    @Query("take") take: number,
+    @Query("skip", ParseIntPipe) skip: number,
+    @Query("take", ParseIntPipe) take: number,
     @Query("search") search: string,
   ) {
     return this.employeeService.findAll(+skip, +take, search);
@@ -46,11 +41,6 @@ export class EmployeeController {
   @Patch(':id')
   update(@Param('id') id: string, @Body() updateEmployeeDto: UpdateEmployeeDto) {
     return this.employeeService.update(id, updateEmployeeDto);
-  }
-
-  @Patch('/salary/:id')
-  updateSalary(@Param('id') id: number, @Body() updates: UpdateSalaryDto) {
-    return this.employeeService.updateSalary(+id, updates);
   }
 
   @Delete(':id')
