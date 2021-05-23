@@ -5,11 +5,11 @@ import {
   InternalServerErrorException,
   NotFoundException
 } from '@nestjs/common';
-import {Position} from '@prisma/client';
-import {CreatePositionDto} from './dto/create-position.dto';
-import {UpdatePositionDto} from './dto/update-position.dto';
-import {PrismaService} from "../../../prisma.service";
-import {PaginateResult} from "../../../common/interfaces/paginate.interface";
+import { Position } from '@prisma/client';
+import { CreatePositionDto } from './dto/create-position.dto';
+import { UpdatePositionDto } from './dto/update-position.dto';
+import { PrismaService } from "../../../prisma.service";
+import { PaginateResult } from "../../../common/interfaces/paginate.interface";
 
 @Injectable()
 export class PositionService {
@@ -19,13 +19,12 @@ export class PositionService {
   async create(body: CreatePositionDto): Promise<Position> {
     try {
       return await this.prisma.position.create({
-        // @ts-ignore
         data: {
           name: body.name,
           departments: {
             create: body.departmentIds?.map((departmentId => ({
               department: {
-                connect: {id: departmentId},
+                connect: { id: departmentId },
               },
               workday: body.workday,
             })))
@@ -45,16 +44,27 @@ export class PositionService {
   }
 
   async findAll(): Promise<Position[]> {
-    return await this.prisma.position.findMany();
+    try {
+      return await this.prisma.position.findMany();
+    } catch (e) {
+      console.error(e);
+      throw new BadRequestException(e);
+    }
   }
 
   async findOne(id: number) {
-    return this.prisma.position.findUnique({where: {id: id}});
+    try {
+      return await this.prisma.position.findUnique({ where: { id: id } });
+    } catch (e) {
+      console.error(e);
+      throw new BadRequestException(e);
+    }
+
   }
 
   update(id: number, updates: UpdatePositionDto) {
     try {
-      return this.prisma.position.update({where: {id: id}, data: updates});
+      return this.prisma.position.update({ where: { id: id }, data: updates });
     } catch (e) {
       throw new BadRequestException(e);
     }
@@ -62,6 +72,6 @@ export class PositionService {
   }
 
   remove(id: number) {
-    return this.prisma.position.delete({where: {id: id}});
+    return this.prisma.position.delete({ where: { id: id } });
   }
 }

@@ -15,21 +15,20 @@ model Account {
   employee Employee?
 }
 
-
 model Branch {
-  id          String               @id
-  name        String               @unique
+  id          String       @id
+  name        String       @unique
   departments Department[]
   employees   Employee[]
 }
 
 model Department {
-  id            Int                    @id @default(autoincrement())
-  name          String                 @unique
-  color         String                 @unique
-  branches      Branch[]
-  positions     DepartmentToPosition[]
-  employee      Employee[]
+  id        Int                    @id @default(autoincrement())
+  name      String                 @unique
+  color     String                 @unique
+  branches  Branch[]
+  positions DepartmentToPosition[]
+  employee  Employee[]
 }
 
 model DepartmentToPosition {
@@ -39,6 +38,7 @@ model DepartmentToPosition {
   departmentId Int
   position     Position?   @relation(fields: [positionId], references: [id])
   positionId   Int
+
   @@unique([departmentId, positionId])
 }
 
@@ -68,7 +68,7 @@ model Employee {
   payrolls     Payroll[]
   workedAt     DateTime?
   leftAt       DateTime?
-  idCardAt     DateTime?
+  idCardAt     DateTime
   address      String
   certificate  String?
   stayedAt     DateTime?
@@ -77,23 +77,24 @@ model Employee {
   qrCode       String?
   isFlatSalary Boolean    @default(false)
   salaries     Salary[]
-   @@unique([id, identify])
+
+  @@unique([id, identify])
 }
 
 model Salary {
-  id        Int        @id @default(autoincrement())
-  title     String?
-  type      SalaryType @default(BASIC)
-  datetime  DateTime?
-  times     Float?
-  rate      Float?     @default(1)
-  price     Float?
-  forgot    Boolean?   @default(false)
-  note      String?
-  payrollId Int?
-  payroll   Payroll?    @relation(fields: [payrollId], references: [id])
+  id         Int        @id @default(autoincrement())
+  title      String?
+  type       SalaryType @default(BASIC)
+  datetime   DateTime?
+  times      Float?
+  rate       Float?     @default(1)
+  price      Float?
+  forgot     Boolean?   @default(false)
+  note       String?
+  payrollId  Int?
+  payroll    Payroll?   @relation(fields: [payrollId], references: [id])
   employeeId String?
-  employee  Employee?  @relation(fields: [employeeId], references: [id])
+  employee   Employee?  @relation(fields: [employeeId], references: [id])
 
   @@unique([title, type, times, rate, price])
 }
@@ -110,14 +111,14 @@ model Payroll {
 }
 
 enum SalaryType {
-//Lương cơ bản bắt buộc
+  //Lương cơ bản bắt buộc
   BASIC
-// Nếu
-//Phụ cấp ở lại: Nếu ngày làm thực tế < ngày chuẩn thì cộng vào khoảng này để chia ra giá 1 ngày công rồi nhân với ngày công thực tế
+  // Nếu
+  //Phụ cấp ở lại: Nếu ngày làm thực tế < ngày chuẩn thì cộng vào khoảng này để chia ra giá 1 ngày công rồi nhân với ngày công thực tế
   ALLOWANCE_STAYED
-//Phụ cấp cơm các thứ. không ảnh hướng tới lương 1 ngày, tăng ca theo giờ + giá tiền
+  //Phụ cấp cơm các thứ. không ảnh hướng tới lương 1 ngày, tăng ca theo giờ + giá tiền
   ALLOWANCE
-//Tăng ca theo ngày
+  //Tăng ca theo ngày
   OVERTIME
   ABSENT
   LATE

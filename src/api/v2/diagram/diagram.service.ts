@@ -1,7 +1,7 @@
-import {Injectable} from '@nestjs/common';
-import {CreateDiagramDto} from './dto/create-diagram.dto';
-import {UpdateDiagramDto} from './dto/update-diagram.dto';
-import {PrismaService} from "../../../prisma.service";
+import { BadRequestException, Injectable } from '@nestjs/common';
+import { CreateDiagramDto } from './dto/create-diagram.dto';
+import { UpdateDiagramDto } from './dto/update-diagram.dto';
+import { PrismaService } from "../../../prisma.service";
 
 @Injectable()
 export class DiagramService {
@@ -13,29 +13,34 @@ export class DiagramService {
   }
 
   async findAll() {
-    return await this.prisma.branch.findMany({
-      select: {
-        id: true,
-        name: true,
-        departments: {
-          select: {
-            id: true,
-            name: true,
-            color: true,
-            positions: {
-              select: {
-                position: {
-                  select: {
-                    id: true,
-                    name: true
+    try {
+      return await this.prisma.branch.findMany({
+        select: {
+          id: true,
+          name: true,
+          departments: {
+            select: {
+              id: true,
+              name: true,
+              color: true,
+              positions: {
+                select: {
+                  position: {
+                    select: {
+                      id: true,
+                      name: true
+                    }
                   }
                 }
               }
             }
           }
         }
-      }
-    });
+      });
+    } catch (e) {
+      console.error(e);
+      throw new BadRequestException(e);
+    }
   }
 
   findOne(id: number) {

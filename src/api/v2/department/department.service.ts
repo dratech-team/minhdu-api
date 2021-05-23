@@ -16,17 +16,32 @@ export class DepartmentService {
   }
 
   async create(body: CreateDepartmentDto): Promise<Department> {
-    const branches = body.branchIds?.map(branchId => ({
-      id: branchId
-    }));
     try {
-      return await this.prisma.department.create({
-        data: {
-          name: body.name,
-          color: body.color,
-          branches: {connect: branches}
-        }
+      const branches = body.branchIds?.map(branchId => ({
+        id: branchId
+      }));
+
+      const data = await this.prisma.department.findUnique({
+        where: {name: body.name}
       });
+
+      if (data) {
+        return this.prisma.department.update({
+          where: {id: data.id},
+          data: {
+            branches: {connect: branches}
+          }
+        });
+      } else {
+        body.color = Math.floor(Math.random() * 16777215).toString(16);
+        return await this.prisma.department.create({
+          data: {
+            name: body.name,
+            color: body.color,
+            branches: {connect: branches}
+          }
+        });
+      }
     } catch (e) {
       console.log(e);
       if (e?.code == "P2025") {
