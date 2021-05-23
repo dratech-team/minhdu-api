@@ -22,7 +22,7 @@ export class DepartmentService {
     try {
       return await this.prisma.department.create({
         data: {
-          name: body.department,
+          name: body.name,
           color: body.color,
           branches: {connect: branches}
         }
@@ -71,7 +71,7 @@ export class DepartmentService {
       return await this.prisma.department.update({
         where: {id: id},
         data: {
-          name: updates.department,
+          name: updates.name,
           color: updates.color,
           // branches: {connect: updates.branchIds.map((branchId) => {id: branchId})},
         }

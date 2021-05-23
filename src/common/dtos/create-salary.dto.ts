@@ -3,16 +3,16 @@ import {IsEnum, IsNotEmpty, IsNumber, IsOptional, IsString} from "class-validato
 import {Type} from "class-transformer";
 
 export class ICreateSalaryDto {
-  @IsNotEmpty()
+  @IsOptional()
   @IsString()
   title: string;
 
-  @IsOptional()
+  @IsNotEmpty()
   @IsEnum(SalaryType)
   type: SalaryType;
 
   @Type(() => Number)
-  @IsNotEmpty()
+  @IsOptional()
   @IsNumber()
   price: number;
 

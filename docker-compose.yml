@@ -1,8 +1,6 @@
 version: '3'
-
-services:
-  database:
-    image: postgres:latest
+  db:
+    image: postgres:12-alpine
     restart: unless-stopped
     volumes:
       - postgres-data:/var/lib/postgresql/data

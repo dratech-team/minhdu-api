@@ -1,7 +1,6 @@
 import {Module} from "@nestjs/common";
 import {AppController} from "./app.controller";
 import {PrismaService} from "./prisma.service";
-import {AreaModule} from "./api/v2/area/area.module";
 import {BranchModule} from "./api/v2/branch/branch.module";
 import { DepartmentModule } from './api/v2/department/department.module';
 import { PositionModule } from './api/v2/position/position.module';
@@ -14,7 +13,6 @@ import {ConfigModule} from "./core/config/config.module";
 
 @Module({
   imports: [
-    AreaModule,
     BranchModule,
     DepartmentModule,
     PositionModule,

@@ -18,10 +18,6 @@ export class BranchService {
   }
 
   async create(body: CreateBranchDto): Promise<Branch> {
-    const departments = body.departmentIds?.map((department) => ({
-      id: department
-    }));
-
     const id = generateId(body.name);
 
     try {
@@ -29,14 +25,10 @@ export class BranchService {
         data: {
           id: id,
           name: body.name,
-          area: {connect: {id: body.areaId}},
-          departments: {connect: departments}
         }
       });
     } catch (e) {
-      if (e?.code == "P2025") {
-        throw new NotFoundException(`Không tìm thấy khu vực ${body?.areaId} hoặc các phòng ban ${body?.departmentIds?.join(", ")}. Vui lòng thử lại. Chi tiết: ${e?.meta?.cause}`);
-      } else if (e?.code == "P2002") {
+      if (e?.code == "P2002") {
         throw new ConflictException('Tên chi nhánh không được phép trùng nhau. Vui lòng thử lại');
       } else {
         throw new BadRequestException(e);

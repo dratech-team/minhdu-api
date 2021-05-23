@@ -3,7 +3,7 @@ import { SalaryService } from './salary.service';
 import { CreateSalaryDto } from './dto/create-salary.dto';
 import { UpdateSalaryDto } from './dto/update-salary.dto';
 
-@Controller('salary')
+@Controller('v2/salary')
 export class SalaryController {
   constructor(private readonly salaryService: SalaryService) {}
 

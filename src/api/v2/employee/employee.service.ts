@@ -4,8 +4,8 @@ import {UpdateEmployeeDto} from './dto/update-employee.dto';
 import {PrismaService} from "../../../prisma.service";
 import {SalaryService} from "../salary/salary.service";
 import {SalaryType} from '@prisma/client';
-import {PayrollService} from "../payroll/payroll.service";
 import {Promise} from "mongoose";
+import {CreateSalaryDto} from "../salary/dto/create-salary.dto";
 
 const qr = require("qrcode");
 
@@ -14,8 +14,13 @@ export class EmployeeService {
   constructor(
     private readonly prisma: PrismaService,
     private readonly salaryService: SalaryService,
-    private readonly payrollService: PayrollService,
   ) {
+  }
+
+  include = {
+    branch: true,
+    department: true,
+    position: true
   }
 
   selectEmployee = {
@@ -47,13 +52,13 @@ export class EmployeeService {
    * Thêm thông tin nhân viên và lương căn bản ban đầu
    * */
   async create(body: CreateEmployeeDto) {
+    const bodySalary = new CreateSalaryDto();
+    bodySalary.title = 'Lương cơ bản trích BH';
+    bodySalary.price = body.price;
+    bodySalary.type = SalaryType.BASIC;
+    bodySalary.note = body.note;
     try {
-      const salary = await this.salaryService.create({
-        title: 'Lương cơ bản trích BH',
-        price: body.price,
-        type: SalaryType.BASIC,
-        note: body.note
-      });
+      const salary = await this.salaryService.create(bodySalary);
 
       return await this.prisma.employee.create({
         data: {
@@ -80,6 +85,7 @@ export class EmployeeService {
             }
           }
         },
+        include: this.include
       });
     } catch (e) {
       console.error(e);
@@ -189,7 +195,6 @@ export class EmployeeService {
     const workDay = await this.workDay(employee.department.id, employee.position.id);
 
     const payrolls = employee?.payrolls?.filter(payroll => payroll.paidAt === null);
-
 
 
     return {

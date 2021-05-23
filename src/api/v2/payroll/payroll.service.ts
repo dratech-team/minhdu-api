@@ -1,7 +1,6 @@
 import {BadRequestException, Injectable} from '@nestjs/common';
 import {UpdatePayrollDto} from './dto/update-payroll.dto';
 import {PrismaService} from "../../../prisma.service";
-import {Promise} from "mongoose";
 import {Salary, SalaryType} from '@prisma/client';
 import * as moment from "moment";
 
@@ -42,61 +41,65 @@ export class PayrollService {
 
   async findAll() {
     const datetime = moment().format('yyyy-MM');
-    let workDay: number;
+    let workday: number;
     let actualDay: number;
     let data = [];
-
+    let payroll: any;
 
     try {
-      let employees = await this.findEmployees();
+      const [total, employees] = await Promise.all([
+        this.prisma.employee.count(),
+        this.findEmployee()
+      ]);
 
       for (let i = 0; i < employees.length; i++) {
         /**
-         * Tạo payroll của tháng này nếu tháng này chưa có payroll mới
+         * - Nếu nhân viên nào có nhiều hơn 1 phiếu lương trong tháng này thì sẽ  hiện ra lỗi. xoá bớt 1 phiếu lương đi
+         * - Nếu nhân viên không tồn tại phiếu lương trong tháng này thì tự dộng tạo phiêu lương mới
          * */
-        employees[i].payrolls.filter(async (employee) => {
-          if (!employee.createdAt.toISOString().startsWith(datetime)) {
-            employees[i].payrolls.push(await this.create(employees[i].id));
-          }
+
+        const count = employees[i].payrolls.filter(payroll => {
+          const createdAt = moment(payroll.createdAt).format('yyyy-MM');
+          return new Date(createdAt).getTime() === new Date(datetime).getTime();
         });
 
+        switch (count.length) {
+          case 0:
+            payroll = await this.create(employees[i].id).then();
+            break;
+          case 1:
+            payroll = employees[i].payrolls[0];
+            break;
+          default:
+            throw new BadRequestException(`Có gì đó không đúng. Các nhân viên ${employees[i].name} có nhiều hơn 2 phiếu lương trong tháng này`);
+        }
 
-        workDay = (await this.prisma.departmentToPosition.findFirst({
-          where: {
-            departmentId: employees[i].departmentId,
-            positionId: employees[i].positionId
-          },
-          select: {workday: true}
-        })).workday;
+
+        workday = await this.workday(employees[i]);
 
         actualDay = this.actualDay(employees[i].payrolls);
 
         data.push({
-          id: employees[i].id,
-          name: employees[i].name,
-          gender: employees[i].gender,
-          birthday: employees[i].birthday,
-          phone: employees[i].phone,
-          workedAt: employees[i].workedAt,
-          leftAt: employees[i].leftAt,
-          idCardAt: employees[i].idCardAt,
-          address: employees[i].address,
-          certificate: employees[i].certificate,
-          stayedAt: employees[i].stayedAt,
-          contractAt: employees[i].contractAt,
-          note: employees[i].note,
-          qrcode: employees[i].qrCode,
-          isFlatSalary: employees[i].isFlatSalary,
-          branch: employees[i].branch,
-          department: employees[i].department,
-          position: employees[i].position,
-          payrolls: employees[i].payrolls,
-          workDay,
-          actualDay
+          id: payroll.id,
+          isEdit: payroll.isEdit,
+          confirmedAt: payroll.confirmedAt,
+          paidAt: payroll.paidAt,
+          createdAt: payroll.createdAt,
+          salaries: payroll.salaries,
+          employee: {
+            id: employees[i].id,
+            name: employees[i].name,
+            isFlatSalary: employees[i].isFlatSalary,
+            branch: employees[i].branch,
+            department: employees[i].department,
+            position: employees[i].position,
+            contractAt: employees[i].contractAt,
+            workday,
+            actualDay
+          }
         });
       }
-
-      return data;
+      return {total, data};
 
     } catch (e) {
       console.error(e);
@@ -104,41 +107,40 @@ export class PayrollService {
     }
   }
 
-
   async findOne(id: number): Promise<any> {
-    const salaries = await this.prisma.payroll.findUnique({
+    const payroll = await this.prisma.payroll.findUnique({
       where: {id: id},
       include: {
-        salaries: true
+        salaries: true,
       }
     });
-
-    return salaries.salaries;
+    return await this.queryPayroll(payroll);
   }
 
   async update(id: number, updates: UpdatePayrollDto) {
-    const salary = await this.prisma.salary.create({
-      data: {
-        title: updates.title,
-        price: updates.price,
-        type: updates.type,
-        times: updates.times,
-        rate: updates.rate,
-        forgot: updates.forgot,
-        note: updates.note,
-      }
-    });
+    // let salary: Salary;
+    //
+    // if (updates.salary) {
+    //   if (updates.salary.type === SalaryType.OVERTIME || updates.salary.type === SalaryType.ALLOWANCE && !updates.salary.datetime) {
+    //     throw new BadRequestException('Ngày không được để trống.');
+    //   } else {
+    //     salary = await this.prisma.salary.create({data: updates.salary});
+    //   }
+    // }
 
-    return await this.prisma.payroll.update({
+    const payroll = await this.prisma.payroll.update({
       where: {id: id},
       data: {
         isEdit: updates.isConfirm == null,
         paidAt: updates.isPaid ? new Date() : null,
         confirmedAt: updates.isConfirm ? new Date() : null,
-        salaries: {connect: {id: salary.id}}
+        salaries: {
+          connect: {id: updates.salaryId}
+        }
       },
       include: {salaries: true}
     });
+    return await this.queryPayroll(payroll);
   }
 
   remove(id: number) {
@@ -213,14 +215,58 @@ export class PayrollService {
     return actualDay;
   }
 
-  async findEmployees() {
+  async workday(employee) {
+    return (await this.prisma.departmentToPosition.findFirst({
+      where: {
+        departmentId: employee.departmentId,
+        positionId: employee.positionId
+      },
+      select: {workday: true}
+    })).workday;
+  }
+
+  async findEmployee(id?: string) {
     return await this.prisma.employee.findMany({
+      where: id ? {
+        id: id
+      } : {},
       include: {
         branch: true,
         department: true,
         position: true,
-        payrolls: true
+        payrolls: {
+          include: {
+            salaries: true
+          }
+        }
       },
     });
+  }
+
+  async queryPayroll(payroll) {
+    const employees = await this.findEmployee(payroll.employeeId);
+
+    const workday = await this.workday(employees);
+    const actualDay = this.actualDay(payroll);
+
+    return {
+      id: payroll.id,
+      isEdit: payroll.isEdit,
+      confirmedAt: payroll.confirmedAt,
+      paidAt: payroll.paidAt,
+      createdAt: payroll.createdAt,
+      salaries: payroll.salaries,
+      employee: {
+        id: employees[0].id,
+        name: employees[0].name,
+        isFlatSalary: employees[0].isFlatSalary,
+        branch: employees[0].branch,
+        department: employees[0].department,
+        position: employees[0].position,
+        contractAt: employees[0].contractAt,
+        workday,
+        actualDay
+      }
+    };
   }
 }

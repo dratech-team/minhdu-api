@@ -15,17 +15,10 @@ model Account {
   employee Employee?
 }
 
-model Area {
-  id       Int      @id @default(autoincrement())
-  name     String   @unique
-  branches Branch[]
-}
 
 model Branch {
   id          String               @id
   name        String               @unique
-  areaId      Int
-  area        Area                 @relation(fields: [areaId], references: [id])
   departments Department[]
   employees   Employee[]
 }
@@ -89,8 +82,9 @@ model Employee {
 
 model Salary {
   id        Int        @id @default(autoincrement())
-  title     String
+  title     String?
   type      SalaryType @default(BASIC)
+  datetime  DateTime?
   times     Float?
   rate      Float?     @default(1)
   price     Float?

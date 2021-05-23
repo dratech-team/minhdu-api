@@ -54,8 +54,7 @@ export class PositionService {
 
   update(id: number, updates: UpdatePositionDto) {
     try {
-      // this.prisma.position.update({where: {id: id}, data: updates});
-      return `This action updates a #${id} position`;
+      return this.prisma.position.update({where: {id: id}, data: updates});
     } catch (e) {
       throw new BadRequestException(e);
     }
@@ -63,6 +62,6 @@ export class PositionService {
   }
 
   remove(id: number) {
-    return `This action removes a #${id} position`;
+    return this.prisma.position.delete({where: {id: id}});
   }
 }

@@ -18,7 +18,7 @@ import { ResponseMiddleware } from "./middlewares/response.middleware";
 @Module({
   imports: [
     // ConfigModule.forRoot({
-    //     envFilePath: ['.env.development'],
+    //     envFilePath: ['.env.production'],
     //     load: [configuration],
     //     isGlobal: true,
     //     expandVariables: true,

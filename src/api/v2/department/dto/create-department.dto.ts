@@ -3,7 +3,7 @@ import {IsArray, IsNotEmpty, IsString} from "class-validator";
 export class CreateDepartmentDto {
   @IsNotEmpty()
   @IsString()
-  department: string;
+  name: string;
 
   @IsNotEmpty()
   @IsString()

@@ -1,9 +1,12 @@
 import {CreatePayrollDto} from './create-payroll.dto';
-import {IsBoolean, IsOptional} from "class-validator";
+import {IsBoolean, IsObject, IsOptional} from "class-validator";
 import {Type} from "class-transformer";
-import { PartialType } from '@nestjs/mapped-types';
 
-export class UpdatePayrollDto extends PartialType(CreatePayrollDto) {
+export class UpdatePayrollDto {
+  @IsOptional()
+  @Type(() => Number)
+  salaryId: number
+
   @IsOptional()
   @Type(() => Boolean)
   @IsBoolean()
@@ -13,4 +16,5 @@ export class UpdatePayrollDto extends PartialType(CreatePayrollDto) {
   @Type(() => Boolean)
   @IsBoolean()
   isPaid: boolean;
+
 }
