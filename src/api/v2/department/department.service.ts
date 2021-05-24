@@ -61,12 +61,14 @@ export class DepartmentService {
         select: {
           id: true,
           name: true,
+          color: true,
           positions: {select: {id: true, workday: true}}
         }
       });
       res.map(department => departments.push({
         id: department.id,
         name: department.name,
+        color: department.color,
         positionIds: department.positions.map(position => position.id),
       }));
       return departments;

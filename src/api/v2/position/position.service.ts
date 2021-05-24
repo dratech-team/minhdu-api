@@ -1,15 +1,8 @@
-import {
-  BadRequestException,
-  ConflictException,
-  Injectable,
-  InternalServerErrorException,
-  NotFoundException
-} from '@nestjs/common';
-import { Position } from '@prisma/client';
-import { CreatePositionDto } from './dto/create-position.dto';
-import { UpdatePositionDto } from './dto/update-position.dto';
-import { PrismaService } from "../../../prisma.service";
-import { PaginateResult } from "../../../common/interfaces/paginate.interface";
+import {BadRequestException, ConflictException, Injectable, NotFoundException} from '@nestjs/common';
+import {Position} from '@prisma/client';
+import {CreatePositionDto} from './dto/create-position.dto';
+import {UpdatePositionDto} from './dto/update-position.dto';
+import {PrismaService} from "../../../prisma.service";
 
 @Injectable()
 export class PositionService {
@@ -24,7 +17,7 @@ export class PositionService {
           departments: {
             create: body.departmentIds?.map((departmentId => ({
               department: {
-                connect: { id: departmentId },
+                connect: {id: departmentId},
               },
               workday: body.workday,
             })))
@@ -54,7 +47,7 @@ export class PositionService {
 
   async findOne(id: number) {
     try {
-      return await this.prisma.position.findUnique({ where: { id: id } });
+      return await this.prisma.position.findUnique({where: {id: id}});
     } catch (e) {
       console.error(e);
       throw new BadRequestException(e);
@@ -64,7 +57,7 @@ export class PositionService {
 
   update(id: number, updates: UpdatePositionDto) {
     try {
-      return this.prisma.position.update({ where: { id: id }, data: updates });
+      return this.prisma.position.update({where: {id: id}, data: updates});
     } catch (e) {
       throw new BadRequestException(e);
     }
@@ -72,6 +65,6 @@ export class PositionService {
   }
 
   remove(id: number) {
-    return this.prisma.position.delete({ where: { id: id } });
+    return this.prisma.position.delete({where: {id: id}});
   }
 }
