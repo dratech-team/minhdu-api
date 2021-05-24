@@ -1,7 +1,7 @@
-import { BadRequestException, Injectable } from '@nestjs/common';
-import { CreateDiagramDto } from './dto/create-diagram.dto';
-import { UpdateDiagramDto } from './dto/update-diagram.dto';
-import { PrismaService } from "../../../prisma.service";
+import {BadRequestException, Injectable} from '@nestjs/common';
+import {CreateDiagramDto} from './dto/create-diagram.dto';
+import {UpdateDiagramDto} from './dto/update-diagram.dto';
+import {PrismaService} from "../../../prisma.service";
 
 @Injectable()
 export class DiagramService {
@@ -13,42 +13,43 @@ export class DiagramService {
   }
 
   async findAll() {
+    let data = [];
     try {
-      return await this.prisma.branch.findMany({
+      const diagrams = await this.prisma.departmentToPosition.findMany({
         select: {
-          id: true,
-          name: true,
-          departments: {
-            select: {
-              id: true,
-              name: true,
-              color: true,
-              positions: {
-                select: {
-                  position: {
-                    select: {
-                      id: true,
-                      name: true
-                    }
-                  }
-                }
-              }
-            }
-          }
+          position: true,
+          department: true,
+          workday: true,
         }
       });
+      diagrams.map((diagram) => {
+        data.push({
+          departmentId: diagram.department.id,
+          positionId: diagram.position.id,
+          workday: diagram.workday,
+        });
+      });
+      return data;
     } catch (e) {
       console.error(e);
       throw new BadRequestException(e);
     }
   }
 
-  findOne(id: number) {
-    return `This action returns a #${id} diagram`;
+  async findOne() {
+    return 'development';
   }
 
-  update(id: number, updateDiagramDto: UpdateDiagramDto) {
-    return `This action updates a #${id} diagram`;
+  async update(departmentId: number, positionId: number, update: UpdateDiagramDto) {
+    return await this.prisma.departmentToPosition.update({
+      where: {
+        departmentId_positionId: {
+          departmentId: departmentId,
+          positionId: positionId,
+        }
+      },
+      data: update
+    });
   }
 
   remove(id: number) {

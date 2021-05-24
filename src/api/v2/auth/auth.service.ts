@@ -43,11 +43,14 @@ export class AuthService {
       const payload = {
         accountId: user.id,
         username: user.username,
-        role: user.role,
       };
 
-      const token = this.jwtService.sign(payload);
-      return {id: user.id, role: user.role, token};
+      const token = this.jwtService.sign(payload, {expiresIn: '10h'});
+      return {
+        id: user.id,
+        role: user.role,
+        token,
+      };
     } catch (e) {
       throw new BadRequestException(e);
     }

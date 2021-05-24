@@ -17,13 +17,13 @@ export class EmployeeController {
   }
 
   @Post()
-  @Roles(UserType.ADMIN)
+  @Roles(UserType.ADMIN, UserType.HUMAN_RESOURCE)
   create(@Body() createEmployeeDto: CreateEmployeeDto) {
     return this.employeeService.create(createEmployeeDto);
   }
 
   @Get()
-  @Roles(UserType.ADMIN)
+  @Roles(UserType.ADMIN, UserType.HUMAN_RESOURCE)
   findAll(
     @Query("skip", ParseIntPipe) skip: number,
     @Query("take", ParseIntPipe) take: number,
@@ -33,17 +33,18 @@ export class EmployeeController {
   }
 
   @Get(':id')
-  @Roles(UserType.ADMIN)
   findOne(@Param('id') id: string) {
     return this.employeeService.findOne(id);
   }
 
   @Patch(':id')
+  @Roles(UserType.ADMIN, UserType.HUMAN_RESOURCE)
   update(@Param('id') id: string, @Body() updateEmployeeDto: UpdateEmployeeDto) {
     return this.employeeService.update(id, updateEmployeeDto);
   }
 
   @Delete(':id')
+  @Roles(UserType.ADMIN, UserType.HUMAN_RESOURCE)
   remove(@Param('id') id: string) {
     return this.employeeService.remove(id);
   }

@@ -36,9 +36,24 @@ export class PositionService {
     }
   }
 
-  async findAll(): Promise<Position[]> {
+  async findAll(): Promise<any> {
+    let data = [];
     try {
-      return await this.prisma.position.findMany();
+      const diagrams = await this.prisma.departmentToPosition.findMany({
+        select: {
+          position: true,
+          workday: true,
+          positionId: true,
+        }
+      });
+      diagrams.map(diagram => {
+        data.push({
+          id: diagram.positionId,
+          name: diagram.position.name,
+          workday: diagram.workday,
+        });
+      });
+      return data;
     } catch (e) {
       console.error(e);
       throw new BadRequestException(e);
