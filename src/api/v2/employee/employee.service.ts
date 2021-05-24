@@ -66,6 +66,7 @@ export class EmployeeService {
           identify: body.identify,
           name: body.name,
           address: body.address,
+          workday: body.workday,
           salaries: {
             connect: { id: salary.id }
           },
@@ -139,8 +140,6 @@ export class EmployeeService {
         }
       });
 
-      const workDay = await this.workDay(employee.department.id, employee.position.id);
-
       const payrolls = employee?.payrolls?.filter(payroll => payroll.paidAt === null);
 
 
@@ -164,7 +163,7 @@ export class EmployeeService {
         department: employee.department,
         position: employee.position,
         payrolls: employee.payrolls,
-        workDay: workDay.workday,
+        workDay: employee.workday,
         actualDay
       };
     } catch (e) {
@@ -285,15 +284,5 @@ export class EmployeeService {
     });
   }
 
-  async workDay(departmentId, positionId): Promise<{ workday: number }> {
-    return await this.prisma.departmentToPosition.findUnique({
-      where: {
-        departmentId_positionId: {
-          departmentId: departmentId,
-          positionId: positionId,
-        }
-      },
-      select: { workday: true }
-    });
-  }
+
 }

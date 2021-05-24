@@ -75,8 +75,6 @@ export class PayrollService {
         }
 
 
-        workday = await this.workday(employees[i]);
-
         actualDay = this.actualDay(employees[i].payrolls);
 
         data.push({
@@ -215,15 +213,6 @@ export class PayrollService {
     return actualDay;
   }
 
-  async workday(employee) {
-    return (await this.prisma.departmentToPosition.findFirst({
-      where: {
-        departmentId: employee.departmentId,
-        positionId: employee.positionId
-      },
-      select: {workday: true}
-    })).workday;
-  }
 
   async findEmployee(id?: string) {
     return await this.prisma.employee.findMany({
@@ -246,7 +235,6 @@ export class PayrollService {
   async queryPayroll(payroll) {
     const employees = await this.findEmployee(payroll.employeeId);
 
-    const workday = await this.workday(employees);
     const actualDay = this.actualDay(payroll);
 
     return {
@@ -264,7 +252,7 @@ export class PayrollService {
         department: employees[0].department,
         position: employees[0].position,
         contractAt: employees[0].contractAt,
-        workday,
+        workday: employees[0].workday,
         actualDay
       }
     };

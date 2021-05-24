@@ -13,27 +13,7 @@ export class DiagramService {
   }
 
   async findAll() {
-    let data = [];
-    try {
-      const diagrams = await this.prisma.departmentToPosition.findMany({
-        select: {
-          position: true,
-          department: true,
-          workday: true,
-        }
-      });
-      diagrams.map((diagram) => {
-        data.push({
-          departmentId: diagram.department.id,
-          positionId: diagram.position.id,
-          workday: diagram.workday,
-        });
-      });
-      return data;
-    } catch (e) {
-      console.error(e);
-      throw new BadRequestException(e);
-    }
+    return 'diagram getAll';
   }
 
   async findOne() {
@@ -41,15 +21,6 @@ export class DiagramService {
   }
 
   async update(departmentId: number, positionId: number, update: UpdateDiagramDto) {
-    return await this.prisma.departmentToPosition.update({
-      where: {
-        departmentId_positionId: {
-          departmentId: departmentId,
-          positionId: positionId,
-        }
-      },
-      data: update
-    });
   }
 
   remove(id: number) {

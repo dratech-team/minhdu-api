@@ -27,26 +27,15 @@ model Department {
   name      String                 @unique
   color     String                 @unique
   branches  Branch[]
-  positions DepartmentToPosition[]
+  positions Position[]
   employee  Employee[]
-}
-
-model DepartmentToPosition {
-  id           Int         @id @default(autoincrement())
-  workday      Int
-  department   Department? @relation(fields: [departmentId], references: [id])
-  departmentId Int
-  position     Position?   @relation(fields: [positionId], references: [id])
-  positionId   Int
-
-  @@unique([departmentId, positionId])
 }
 
 model Position {
   id          Int                    @id @default(autoincrement())
   name        String                 @unique
   employees   Employee[]
-  departments DepartmentToPosition[]
+  departments Department[]
 }
 
 model Employee {

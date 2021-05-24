@@ -57,15 +57,15 @@ export class DepartmentService {
   async findAll(): Promise<any> {
     let departments = [];
     try {
-      const res = await this.prisma.department.findMany({
+      const data = await this.prisma.department.findMany({
         select: {
           id: true,
           name: true,
           color: true,
-          positions: {select: {id: true, workday: true}}
+          positions: {select: {id: true}}
         }
       });
-      res.map(department => departments.push({
+      data.map(department => departments.push({
         id: department.id,
         name: department.name,
         color: department.color,

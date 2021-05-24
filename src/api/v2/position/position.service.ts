@@ -10,17 +10,19 @@ export class PositionService {
   }
 
   async create(body: CreatePositionDto): Promise<Position> {
+    if (body.departmentIds.length === 0) {
+      throw new BadRequestException('Chức vụ phải liên kết ít nhất với 1 bộ phận.');
+    }
+    const departmentIds = body.departmentIds.map(departmentId => ({
+      id: departmentId
+    }));
+
     try {
       return await this.prisma.position.create({
         data: {
           name: body.name,
           departments: {
-            create: body.departmentIds?.map((departmentId => ({
-              department: {
-                connect: {id: departmentId},
-              },
-              workday: body.workday,
-            })))
+            connect: departmentIds,
           }
         }
       });
@@ -37,23 +39,8 @@ export class PositionService {
   }
 
   async findAll(): Promise<any> {
-    let data = [];
     try {
-      const diagrams = await this.prisma.departmentToPosition.findMany({
-        select: {
-          position: true,
-          workday: true,
-          positionId: true,
-        }
-      });
-      diagrams.map(diagram => {
-        data.push({
-          id: diagram.positionId,
-          name: diagram.position.name,
-          workday: diagram.workday,
-        });
-      });
-      return data;
+      return await this.prisma.position.findMany();
     } catch (e) {
       console.error(e);
       throw new BadRequestException(e);
