@@ -106,13 +106,18 @@ export class PayrollService {
   }
 
   async findOne(id: number): Promise<any> {
-    const payroll = await this.prisma.payroll.findUnique({
-      where: {id: id},
-      include: {
-        salaries: true,
-      }
-    });
-    return await this.queryPayroll(payroll);
+    try {
+      const payroll = await this.prisma.payroll.findUnique({
+        where: {id: id},
+        include: {
+          salaries: true,
+        }
+      });
+      return await this.queryPayroll(payroll);
+    } catch (e) {
+      console.error(e);
+      throw new BadRequestException(e);
+    }
   }
 
   async update(id: number, updates: UpdatePayrollDto) {

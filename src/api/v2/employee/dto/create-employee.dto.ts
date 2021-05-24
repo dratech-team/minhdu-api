@@ -3,8 +3,6 @@ import {Type} from "class-transformer";
 import {IsDate, IsNotEmpty, IsNumber, IsOptional, IsString} from "class-validator";
 
 export class CreateEmployeeDto extends ICreateUserDto {
-  id: string;
-
   @IsString()
   @IsNotEmpty()
   identify: string;

@@ -66,7 +66,7 @@ export class EmployeeService {
           identify: body.identify,
           name: body.name,
           address: body.address,
-          workday: body.workday,
+          workday: +body.workday,
           salaries: {
             connect: {id: salary.id}
           },
@@ -103,15 +103,16 @@ export class EmployeeService {
     }
   }
 
-  async findAll(skip: number, take: number, search?: string): Promise<any> {
+  async findAll(branchId: string, skip: number, take: number, search?: string): Promise<any> {
     try {
-
       const [total, data] = await Promise.all([
-        this.prisma.employee.count(),
+        this.prisma.employee.count({
+          where: {branchId}
+        }),
         this.prisma.employee.findMany({
           skip,
           take,
-          where: {leftAt: null},
+          where: {leftAt: null, branchId},
           include: {
             branch: true,
             department: true,

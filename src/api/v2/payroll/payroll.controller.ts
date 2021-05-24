@@ -6,7 +6,7 @@ import {ApiKeyGuard} from "../../../core/guard/api-key-auth.guard";
 import {RolesGuard} from "../../../core/guard/role.guard";
 import {Roles} from "../../../core/decorators/roles.decorator";
 import {UserType} from "../../../core/constants/role-type.constant";
-import {ReqProfile, ReqUserProfile} from "../../../core/decorators/req-profile.decorator";
+import {ReqProfile} from "../../../core/decorators/req-profile.decorator";
 
 @Controller('v2/payroll')
 @UseGuards(JwtAuthGuard, ApiKeyGuard, RolesGuard)
@@ -22,8 +22,7 @@ export class PayrollController {
 
   @Roles(UserType.ADMIN, UserType.HUMAN_RESOURCE, UserType.CAMP_ACCOUNTING)
   @Get(':id')
-  findOne(@ReqUserProfile() user: any, @Param('id') id: string) {
-    console.log(user);
+  findOne(@ReqProfile() branchId: string, @Param('id') id: string) {
     return this.payrollService.findOne(+id);
   }
 

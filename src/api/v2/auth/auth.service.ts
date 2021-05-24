@@ -37,9 +37,11 @@ export class AuthService {
   }
 
   async signIn(body: SignInCredentialDto): Promise<any> {
+    let payload: any;
     try {
       const user = await this.prisma.account.findUnique({
-        where: {username: body.username}
+        where: {username: body.username},
+        include: {employee: {select: {branchId: true}}}
       });
       const isValid = await bcrypt.compare(body.password, user.password);
 
@@ -47,15 +49,29 @@ export class AuthService {
         throw new UnauthorizedException();
       }
 
-      const payload = {
-        accountId: user.id,
-        username: user.username,
-        role: user.role,
-      };
+      if (user.employee) {
+        payload = {
+          accountId: user.id,
+          username: user.username,
+          role: user.role,
+          branchId: user.employee.branchId,
+        };
+      } else {
+        payload = {
+          accountId: user.id,
+          username: user.username,
+          role: user.role,
+        };
+      }
 
       const token = this.jwtService.sign(payload);
 
-      return {
+      return user.employee ? {
+        id: user.id,
+        role: user.role,
+        branchId: user.employee.branchId,
+        token,
+      } : {
         id: user.id,
         role: user.role,
         token,

@@ -7,6 +7,7 @@ import {ApiKeyGuard} from "../../../core/guard/api-key-auth.guard";
 import {RolesGuard} from "../../../core/guard/role.guard";
 import {Roles} from "../../../core/decorators/roles.decorator";
 import {UserType} from "../../../core/constants/role-type.constant";
+import {ReqProfile} from "../../../core/decorators/req-profile.decorator";
 
 @Controller('v2/employee')
 @UseGuards(JwtAuthGuard, ApiKeyGuard, RolesGuard)
@@ -21,16 +22,18 @@ export class EmployeeController {
   }
 
   @Get()
-  @Roles(UserType.ADMIN, UserType.HUMAN_RESOURCE)
+  @Roles(UserType.ADMIN, UserType.HUMAN_RESOURCE, UserType.CAMP_ACCOUNTING)
   findAll(
+    @ReqProfile() branchId: string,
     @Query("skip", ParseIntPipe) skip: number,
     @Query("take", ParseIntPipe) take: number,
     @Query("search") search: string,
   ) {
-    return this.employeeService.findAll(+skip, +take, search);
+    return this.employeeService.findAll(branchId, +skip, +take, search);
   }
 
   @Get(':id')
+  @Roles(UserType.ADMIN, UserType.HUMAN_RESOURCE, UserType.CAMP_ACCOUNTING)
   findOne(@Param('id') id: string) {
     return this.employeeService.findOne(id);
   }
