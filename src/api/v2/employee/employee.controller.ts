@@ -2,8 +2,6 @@ import {Body, Controller, Delete, Get, Param, ParseIntPipe, Patch, Post, Query, 
 import {EmployeeService} from './employee.service';
 import {CreateEmployeeDto} from './dto/create-employee.dto';
 import {UpdateEmployeeDto} from './dto/update-employee.dto';
-import {CreateSalaryDto} from "../salary/dto/create-salary.dto";
-import {UpdateSalaryDto} from "./dto/update-salary.dto";
 import {JwtAuthGuard} from "../../../core/guard/jwt-auth.guard";
 import {ApiKeyGuard} from "../../../core/guard/api-key-auth.guard";
 import {RolesGuard} from "../../../core/guard/role.guard";

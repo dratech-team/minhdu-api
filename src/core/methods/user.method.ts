@@ -1,7 +1,6 @@
-import { generateHash, validPassword } from "./validators.method";
+import { generateHash } from "./validators.method";
 
 export const methods = {
-  validPassword,
   generateHash,
 };
 

@@ -59,6 +59,7 @@ export class ConfigService {
     return {
       jwtFromRequest: ExtractJwt.fromAuthHeaderAsBearerToken(),
       secretOrKey: this.privateKey,
+      ignoreExpiration: false,
       jsonWebTokenOptions: this.verifyOptions,
     } as StrategyOptions;
   }

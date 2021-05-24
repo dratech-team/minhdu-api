@@ -5,8 +5,8 @@ import {PrismaService} from "../../../prisma.service";
 import {JwtModule} from "@nestjs/jwt";
 import {ConfigModule} from "../../../core/config/config.module";
 import {ConfigService} from "../../../core/config/config.service";
-import {JwtStrategy} from "../../v1/auth/jwt.strategy";
 import {PassportModule} from "@nestjs/passport";
+import {JwtStrategy} from "./jwt.strategy";
 
 @Module({
   imports: [

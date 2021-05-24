@@ -1,11 +1,11 @@
-import { BadRequestException, ConflictException, Injectable, NotFoundException } from '@nestjs/common';
-import { CreateEmployeeDto } from './dto/create-employee.dto';
-import { UpdateEmployeeDto } from './dto/update-employee.dto';
-import { PrismaService } from "../../../prisma.service";
-import { SalaryService } from "../salary/salary.service";
-import { SalaryType } from '@prisma/client';
-import { Promise } from "mongoose";
-import { CreateSalaryDto } from "../salary/dto/create-salary.dto";
+import {BadRequestException, ConflictException, Injectable, NotFoundException} from '@nestjs/common';
+import {CreateEmployeeDto} from './dto/create-employee.dto';
+import {UpdateEmployeeDto} from './dto/update-employee.dto';
+import {PrismaService} from "../../../prisma.service";
+import {SalaryService} from "../salary/salary.service";
+import {SalaryType} from '@prisma/client';
+import {Promise} from "mongoose";
+import {CreateSalaryDto} from "../salary/dto/create-salary.dto";
 
 const qr = require("qrcode");
 
@@ -68,12 +68,12 @@ export class EmployeeService {
           address: body.address,
           workday: body.workday,
           salaries: {
-            connect: { id: salary.id }
+            connect: {id: salary.id}
           },
           workedAt: new Date(body.workedAt).toISOString(),
-          branch: { connect: { id: body.branchId } },
-          department: { connect: { id: body.departmentId } },
-          position: { connect: { id: body.positionId } },
+          branch: {connect: {id: body.branchId}},
+          department: {connect: {id: body.departmentId}},
+          position: {connect: {id: body.positionId}},
           phone: body.phone,
           birthday: new Date(body.birthday).toISOString(),
           idCardAt: new Date(body.idCardAt).toISOString(),
@@ -82,7 +82,7 @@ export class EmployeeService {
           payrolls: {
             create: {
               salaries: {
-                connect: { id: salary.id }
+                connect: {id: salary.id}
               }
             }
           }
@@ -111,6 +111,7 @@ export class EmployeeService {
         this.prisma.employee.findMany({
           skip,
           take,
+          where: {leftAt: null},
           include: {
             branch: true,
             department: true,
@@ -119,7 +120,7 @@ export class EmployeeService {
         }),
       ]);
 
-      return { total, data };
+      return {total, data};
     } catch (e) {
       console.error(e);
       throw new BadRequestException(e);
@@ -128,10 +129,8 @@ export class EmployeeService {
 
   async findOne(id: string) {
     try {
-      let actualDay: number = new Date().getDate();
-
-      const employee = await this.prisma.employee.findUnique({
-        where: { id: id },
+      return await this.prisma.employee.findUnique({
+        where: {id: id},
         include: {
           branch: true,
           department: true,
@@ -139,33 +138,6 @@ export class EmployeeService {
           payrolls: true,
         }
       });
-
-      const payrolls = employee?.payrolls?.filter(payroll => payroll.paidAt === null);
-
-
-      return {
-        id: employee.id,
-        name: employee.name,
-        gender: employee.gender,
-        birthday: employee.birthday,
-        phone: employee.phone,
-        workedAt: employee.workedAt,
-        leftAt: employee.leftAt,
-        idCardAt: employee.idCardAt,
-        address: employee.address,
-        certificate: employee.certificate,
-        stayedAt: employee.stayedAt,
-        contractAt: employee.contractAt,
-        note: employee.note,
-        qrcode: employee.qrCode,
-        isFlatSalary: employee.isFlatSalary,
-        branch: employee.branch,
-        department: employee.department,
-        position: employee.position,
-        payrolls: employee.payrolls,
-        workDay: employee.workday,
-        actualDay
-      };
     } catch (e) {
       console.error(e);
       throw new BadRequestException(e);
@@ -173,13 +145,13 @@ export class EmployeeService {
   }
 
   async update(id: string, updates: UpdateEmployeeDto) {
-    return await this.prisma.branch.update({ where: { id: id }, data: updates })
+    return await this.prisma.branch.update({where: {id: id}, data: updates})
       .catch((e) => new BadRequestException(e));
 
   }
 
   async remove(id: string) {
-    await this.prisma.branch.delete({ where: { id: id } }).catch((e) => {
+    await this.prisma.branch.delete({where: {id: id}}).catch((e) => {
       throw new BadRequestException(e);
     });
   }
@@ -202,8 +174,8 @@ export class EmployeeService {
   async updateQrCodeEmployee(id: string) {
     const qrCode = await qr.toDataURL(id);
     await this.prisma.employee.update({
-      where: { id: id },
-      data: { qrCode: qrCode }
+      where: {id: id},
+      data: {qrCode: qrCode}
     });
 
   }
@@ -234,15 +206,15 @@ export class EmployeeService {
       },
       payrolls: {
         where: {
-          createdAt: { lte: lastDay, gte: firstDay }
+          createdAt: {lte: lastDay, gte: firstDay}
         }
       }
     };
 
-    const searchName = { name: { startsWith: search } };
+    const searchName = {name: {startsWith: search}};
 
     if (search == '' || search === undefined || search === null) {
-      return await this.prisma.employee.findMany({ skip, take, include: include });
+      return await this.prisma.employee.findMany({skip, take, include: include});
     } else {
       let employees = await this.prisma.employee.findMany({
         skip,
@@ -255,7 +227,7 @@ export class EmployeeService {
         employees = await this.prisma.employee.findMany({
           skip,
           take,
-          where: { branch: searchName },
+          where: {branch: searchName},
           include: include
         });
       }
@@ -264,25 +236,11 @@ export class EmployeeService {
         employees = await this.prisma.employee.findMany({
           skip,
           take,
-          where: { department: searchName },
+          where: {department: searchName},
           include: include
         });
       }
       return employees;
     }
-
   }
-
-  async findEmployee(skip: number, take: number, search?: string) {
-    return await this.prisma.employee.findMany({
-      skip: skip,
-      take: take,
-      where: {
-        name: { startsWith: search }
-      },
-      select: this.selectEmployee
-    });
-  }
-
-
 }

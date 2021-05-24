@@ -1,4 +1,4 @@
-import {BadRequestException, HttpException, Injectable, UnauthorizedException} from '@nestjs/common';
+import {BadRequestException, ConflictException, Injectable, UnauthorizedException} from '@nestjs/common';
 import {SignupCredentialDto} from './dto/signup-credential.dto';
 import {SignInCredentialDto} from "./dto/signin-credential.dto";
 import {PrismaService} from "../../../prisma.service";
@@ -27,13 +27,20 @@ export class AuthService {
       return {status: 'Register Success!'};
     } catch (e) {
       console.log(e);
-      throw new BadRequestException(e);
+      if (e.code === 'P2002') {
+        throw new ConflictException(`Username ${body.username} đã tồn tại.`);
+      } else {
+        throw new BadRequestException(e);
+      }
+
     }
   }
 
-  async signIn(body: SignInCredentialDto): Promise<{ id: number, role: string, token: string }> {
+  async signIn(body: SignInCredentialDto): Promise<any> {
     try {
-      const user = await this.prisma.account.findUnique({where: {username: body.username}});
+      const user = await this.prisma.account.findUnique({
+        where: {username: body.username}
+      });
       const isValid = await bcrypt.compare(body.password, user.password);
 
       if (!isValid) {
@@ -43,9 +50,11 @@ export class AuthService {
       const payload = {
         accountId: user.id,
         username: user.username,
+        role: user.role,
       };
 
-      const token = this.jwtService.sign(payload, {expiresIn: '10h'});
+      const token = this.jwtService.sign(payload);
+
       return {
         id: user.id,
         role: user.role,
