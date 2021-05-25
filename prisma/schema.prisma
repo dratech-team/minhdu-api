@@ -18,22 +18,22 @@ model Account {
 model Branch {
   id          String       @id
   name        String       @unique
-  departments Department[]
   employees   Employee[]
+  departments Department[]
 }
 
 model Department {
-  id        Int                    @id @default(autoincrement())
-  name      String                 @unique
-  color     String                 @unique
+  id        Int        @id @default(autoincrement())
+  name      String     @unique
+  color     String     @unique
+  employee  Employee[]
   branches  Branch[]
   positions Position[]
-  employee  Employee[]
 }
 
 model Position {
-  id          Int                    @id @default(autoincrement())
-  name        String                 @unique
+  id          Int          @id @default(autoincrement())
+  name        String       @unique
   employees   Employee[]
   departments Department[]
 }
@@ -41,20 +41,15 @@ model Position {
 model Employee {
   id           String     @id
   identify     String
-  accountId    Int?
-  account      Account?   @relation(fields: [accountId], references: [id])
+  accountId    Int?       @unique
   name         String
   gender       GenderType
   birthday     DateTime
   phone        String
   email        String?
   branchId     String
-  branch       Branch     @relation(fields: [branchId], references: [id])
   departmentId Int
-  department   Department @relation(fields: [departmentId], references: [id])
   positionId   Int
-  position     Position   @relation(fields: [positionId], references: [id])
-  payrolls     Payroll[]
   workedAt     DateTime?
   leftAt       DateTime?
   idCardAt     DateTime
@@ -65,9 +60,15 @@ model Employee {
   note         String?
   qrCode       String?
   isFlatSalary Boolean    @default(false)
+  workday      Int
+  account      Account?   @relation(fields: [accountId], references: [id])
+  branch       Branch     @relation(fields: [branchId], references: [id])
+  department   Department @relation(fields: [departmentId], references: [id])
+  position     Position   @relation(fields: [positionId], references: [id])
+  payrolls     Payroll[]
   salaries     Salary[]
 
-  @@unique([id, identify])
+  @@unique([id, identify], name: "Employee.id_identify_unique")
 }
 
 model Salary {
@@ -81,33 +82,28 @@ model Salary {
   forgot     Boolean?   @default(false)
   note       String?
   payrollId  Int?
-  payroll    Payroll?   @relation(fields: [payrollId], references: [id])
   employeeId String?
   employee   Employee?  @relation(fields: [employeeId], references: [id])
+  payroll    Payroll?   @relation(fields: [payrollId], references: [id])
 
-  @@unique([title, type, times, rate, price])
+  @@unique([title, type, times, rate, price], name: "Salary.title_type_times_rate_price_unique")
 }
 
 model Payroll {
   id          Int       @id @default(autoincrement())
   employeeId  String
-  employee    Employee? @relation(fields: [employeeId], references: [id])
-  salaries    Salary[]
   isEdit      Boolean   @default(true)
   confirmedAt DateTime?
   paidAt      DateTime?
   createdAt   DateTime  @default(now())
+  employee    Employee  @relation(fields: [employeeId], references: [id])
+  salaries    Salary[]
 }
 
 enum SalaryType {
-  //Lương cơ bản bắt buộc
   BASIC
-  // Nếu
-  //Phụ cấp ở lại: Nếu ngày làm thực tế < ngày chuẩn thì cộng vào khoảng này để chia ra giá 1 ngày công rồi nhân với ngày công thực tế
   ALLOWANCE_STAYED
-  //Phụ cấp cơm các thứ. không ảnh hướng tới lương 1 ngày, tăng ca theo giờ + giá tiền
   ALLOWANCE
-  //Tăng ca theo ngày
   OVERTIME
   ABSENT
   LATE

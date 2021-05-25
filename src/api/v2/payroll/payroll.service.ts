@@ -160,7 +160,12 @@ export class PayrollService {
     });
 
     const employee = await this.prisma.employee.findUnique({
-      where: {id: payroll.employeeId}
+      where: {id: payroll.employeeId},
+      include: {
+        branch: true,
+        department: true,
+        position: true,
+      }
     });
 
     const absent = payroll.salaries
@@ -204,6 +209,17 @@ export class PayrollService {
     console.log(`=== Lương thực nhận: ${salary} ===`);
 
     return {
+      employee: {
+        id: employee.id,
+        name: employee.name,
+        branch: employee.branch,
+        department: employee.department,
+        position: employee.position,
+      },
+      payrollId: payroll.id,
+      salaries: payroll.salaries,
+      status: payroll.paidAt ? 'Đã thanh toán' : 'Chưa thanh toán',
+      createdAt: payroll.createdAt,
       day: workTotal - absentForgot,
       salary: Math.ceil(daySalary * (workTotal - absentForgot) + allowanceSalary),
       tax: employee.contractAt !== null ? basicSalary * 0.115 : 0,
