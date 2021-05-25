@@ -66,7 +66,12 @@ export class PositionService {
 
   }
 
-  remove(id: number) {
-    return this.prisma.position.delete({where: {id: id}});
+  async remove(id: number) {
+    try {
+      return await this.prisma.position.delete({where: {id: id}});
+    } catch (e) {
+      console.error(e);
+      throw new BadRequestException(`Chức vụ này đang được liên kết với nhiều nhân viên. Thao tác này sẽ xảy ra các trường hợp ngoài ý muốn. Vui lòng liên hệ admin. Chi tiết: ${e}`);
+    }
   }
 }

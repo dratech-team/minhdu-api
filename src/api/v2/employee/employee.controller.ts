@@ -38,6 +38,18 @@ export class EmployeeController {
     return this.employeeService.findOne(id);
   }
 
+
+  @Get(':id/payrolls')
+  @Roles(UserType.ADMIN, UserType.HUMAN_RESOURCE, UserType.CAMP_ACCOUNTING)
+  findPayrolls(
+    @Param('id') id: string,
+    @Query("skip", ParseIntPipe) skip: number,
+    @Query("take", ParseIntPipe) take: number,
+    @Query("search") search: string,
+  ) {
+    return this.employeeService.findPayrolls(id, +skip, +take, search);
+  }
+
   @Patch(':id')
   @Roles(UserType.ADMIN, UserType.HUMAN_RESOURCE)
   update(@Param('id') id: string, @Body() updateEmployeeDto: UpdateEmployeeDto) {

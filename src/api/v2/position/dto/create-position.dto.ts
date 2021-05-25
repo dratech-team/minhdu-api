@@ -6,11 +6,6 @@ export class CreatePositionDto {
   @IsString()
   name: string;
 
-  @Type(() => Number)
-  @IsNotEmpty()
-  @IsNumber()
-  workday: number;
-
   @IsNotEmpty()
   @IsArray()
   departmentIds: number[];

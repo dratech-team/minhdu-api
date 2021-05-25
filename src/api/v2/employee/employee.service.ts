@@ -145,6 +145,13 @@ export class EmployeeService {
     }
   }
 
+  async findPayrolls(employeeId: string, skip: number, take: number, search: string) {
+    return await this.prisma.payroll.findMany({
+      where: {employeeId},
+      include: {salaries: true}
+    });
+  }
+
   async update(id: string, updates: UpdateEmployeeDto) {
     return await this.prisma.branch.update({where: {id: id}, data: updates})
       .catch((e) => new BadRequestException(e));

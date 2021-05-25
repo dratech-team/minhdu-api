@@ -1,4 +1,4 @@
-import {Body, Controller, Delete, Get, Param, Patch, UseGuards} from '@nestjs/common';
+import {Body, Controller, Delete, Get, Param, ParseIntPipe, Patch, Query, UseGuards} from '@nestjs/common';
 import {PayrollService} from './payroll.service';
 import {UpdatePayrollDto} from './dto/update-payroll.dto';
 import {JwtAuthGuard} from "../../../core/guard/jwt-auth.guard";
@@ -16,14 +16,25 @@ export class PayrollController {
 
   @Get()
   @Roles(UserType.ADMIN, UserType.HUMAN_RESOURCE, UserType.CAMP_ACCOUNTING)
-  findAll() {
-    return this.payrollService.findAll();
+  findAll(
+    @ReqProfile() branchId: string,
+    @Query("skip", ParseIntPipe) skip: number,
+    @Query("take", ParseIntPipe) take: number,
+    @Query("search") search: string,
+  ) {
+    return this.payrollService.findAll(branchId, +skip, +take, search);
   }
 
   @Roles(UserType.ADMIN, UserType.HUMAN_RESOURCE, UserType.CAMP_ACCOUNTING)
   @Get(':id')
   findOne(@ReqProfile() branchId: string, @Param('id') id: string) {
     return this.payrollService.findOne(+id);
+  }
+
+  @Roles(UserType.ADMIN, UserType.HUMAN_RESOURCE, UserType.CAMP_ACCOUNTING)
+  @Get('/export/:id')
+  exportPayroll(@Param('id') id: string) {
+    return this.payrollService.exportPayroll(+id);
   }
 
   @Patch(':id')
