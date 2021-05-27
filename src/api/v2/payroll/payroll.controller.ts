@@ -26,15 +26,15 @@ export class PayrollController {
   }
 
   @Roles(UserType.ADMIN, UserType.HUMAN_RESOURCE, UserType.CAMP_ACCOUNTING)
-  @Get(':id')
-  findOne(@ReqProfile() branchId: string, @Param('id') id: string) {
-    return this.payrollService.findOne(+id);
+  @Get('/export')
+  exportPayrolls(@ReqProfile() branchId: string,) {
+    return this.payrollService.print(branchId);
   }
 
   @Roles(UserType.ADMIN, UserType.HUMAN_RESOURCE, UserType.CAMP_ACCOUNTING)
-  @Get('/export/:id')
-  exportPayroll(@Param('id') id: string) {
-    return this.payrollService.exportPayroll(+id);
+  @Get(':id')
+  findOne(@ReqProfile() branchId: string, @Param('id') id: string) {
+    return this.payrollService.findOne(+id);
   }
 
   @Patch(':id')

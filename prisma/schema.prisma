@@ -12,7 +12,7 @@ model Account {
   username String    @unique
   password String
   role     Role
-  employee Employee?
+  branch   Branch?
 }
 
 model Branch {
@@ -20,6 +20,8 @@ model Branch {
   name        String       @unique
   employees   Employee[]
   departments Department[]
+  accountId   Int
+  account     Account      @relation(fields: [accountId], references: [id])
 }
 
 model Department {
@@ -27,29 +29,29 @@ model Department {
   name      String     @unique
   color     String     @unique
   employee  Employee[]
-  branches  Branch[]
+  branchId  String
+  branch    Branch     @relation(fields: [branchId], references: [id])
   positions Position[]
 }
 
 model Position {
   id          Int          @id @default(autoincrement())
-  name        String       @unique
+  name        String
+  workday     Int
   employees   Employee[]
-  departments Department[]
+  departmentId Int
+  department  Department   @relation(fields: [departmentId], references: [id])
+  @@unique([name, departmentId])
 }
 
 model Employee {
   id           String     @id
   identify     String
-  accountId    Int?       @unique
   name         String
   gender       GenderType
   birthday     DateTime
   phone        String
   email        String?
-  branchId     String
-  departmentId Int
-  positionId   Int
   workedAt     DateTime?
   leftAt       DateTime?
   idCardAt     DateTime
@@ -60,10 +62,11 @@ model Employee {
   note         String?
   qrCode       String?
   isFlatSalary Boolean    @default(false)
-  workday      Int
-  account      Account?   @relation(fields: [accountId], references: [id])
+  branchId     String
   branch       Branch     @relation(fields: [branchId], references: [id])
+  departmentId Int
   department   Department @relation(fields: [departmentId], references: [id])
+  positionId   Int
   position     Position   @relation(fields: [positionId], references: [id])
   payrolls     Payroll[]
   salaries     Salary[]

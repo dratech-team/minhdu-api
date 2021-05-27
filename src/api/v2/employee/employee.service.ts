@@ -23,31 +23,6 @@ export class EmployeeService {
     position: true
   }
 
-  selectEmployee = {
-    id: true,
-    name: true,
-    position: {
-      select: {
-        id: true,
-        name: true,
-      }
-    },
-    department: {
-      select: {
-        id: true,
-        name: true
-      }
-    },
-    payrolls: {
-      select: {
-        id: true,
-        paidAt: true,
-        salaries: true,
-      }
-    },
-    isFlatSalary: true,
-  }
-
   /**
    * Thêm thông tin nhân viên và lương căn bản ban đầu
    * */
@@ -59,14 +34,12 @@ export class EmployeeService {
     bodySalary.note = body.note;
     try {
       const salary = await this.salaryService.create(bodySalary);
-
       return await this.prisma.employee.create({
         data: {
           id: await this.generateEmployeeCode(body),
           identify: body.identify,
           name: body.name,
           address: body.address,
-          workday: +body.workday,
           salaries: {
             connect: {id: salary.id}
           },
@@ -145,17 +118,9 @@ export class EmployeeService {
     }
   }
 
-  async findPayrolls(employeeId: string, skip: number, take: number, search: string) {
-    return await this.prisma.payroll.findMany({
-      where: {employeeId},
-      include: {salaries: true}
-    });
-  }
-
   async update(id: string, updates: UpdateEmployeeDto) {
-    return await this.prisma.branch.update({where: {id: id}, data: updates})
+    return await this.prisma.employee.update({where: {id: id}, data: updates})
       .catch((e) => new BadRequestException(e));
-
   }
 
   async remove(id: string) {

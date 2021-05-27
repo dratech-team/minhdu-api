@@ -1,4 +1,4 @@
-import { IsArray, IsNotEmpty, IsOptional, IsString } from "class-validator";
+import {IsNotEmpty, IsOptional, IsString} from "class-validator";
 
 export class CreateDepartmentDto {
   @IsNotEmpty()
@@ -9,6 +9,6 @@ export class CreateDepartmentDto {
   color: string;
 
   @IsNotEmpty()
-  @IsArray()
-  branchIds: string[];
+  @IsString()
+  branchId: string;
 }

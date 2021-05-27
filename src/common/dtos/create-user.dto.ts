@@ -16,7 +16,7 @@ export class ICreateUserDto {
   @Type(() => Date)
   @IsDate()
   @IsNotEmpty()
-  readonly birthday: Date;
+  birthday: Date;
 
   @IsNotEmpty()
   @IsEnum(GenderType)

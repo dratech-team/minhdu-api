@@ -1,5 +1,4 @@
-import {IsArray, IsNotEmpty, IsNumber, IsString} from "class-validator";
-import {Type} from "class-transformer";
+import {IsNotEmpty, IsNumber, IsString} from "class-validator";
 
 export class CreatePositionDto {
   @IsNotEmpty()
@@ -7,6 +6,10 @@ export class CreatePositionDto {
   name: string;
 
   @IsNotEmpty()
-  @IsArray()
-  departmentIds: number[];
+  @IsNumber()
+  workday: number;
+
+  @IsNotEmpty()
+  @IsNumber()
+  departmentId: number;
 }

@@ -1,10 +1,4 @@
-import {
-  BadRequestException,
-  ConflictException,
-  Injectable,
-  InternalServerErrorException,
-  NotFoundException
-} from '@nestjs/common';
+import {BadRequestException, ConflictException, Injectable, NotFoundException} from '@nestjs/common';
 import {CreateDepartmentDto} from './dto/create-department.dto';
 import {UpdateDepartmentDto} from './dto/update-department.dto';
 import {PrismaService} from "../../../prisma.service";
@@ -16,36 +10,14 @@ export class DepartmentService {
   }
 
   async create(body: CreateDepartmentDto): Promise<Department> {
+    body.color = Math.floor(Math.random() * 16777215).toString(16);
+
     try {
-      const branches = body.branchIds?.map(branchId => ({
-        id: branchId
-      }));
-
-      const data = await this.prisma.department.findUnique({
-        where: {name: body.name}
-      });
-
-      if (data) {
-        return this.prisma.department.update({
-          where: {id: data.id},
-          data: {
-            branches: {connect: branches}
-          }
-        });
-      } else {
-        body.color = Math.floor(Math.random() * 16777215).toString(16);
-        return await this.prisma.department.create({
-          data: {
-            name: body.name,
-            color: body.color,
-            branches: {connect: branches}
-          }
-        });
-      }
+      return await this.prisma.department.create({data: body});
     } catch (e) {
       console.log(e);
       if (e?.code == "P2025") {
-        throw new NotFoundException(`Không tìm thấy chi nhánh ${body?.branchIds?.join(" hoặc ")}. Chi tiết: ${e?.meta?.cause}`);
+        throw new NotFoundException(`Không tìm thấy chi nhánh ${body?.branchId}. Chi tiết: ${e?.meta?.cause}`);
       } else if (e?.code == "P2002") {
         throw new ConflictException(`Tên có tên bị trùng. Vui lòng kiểm tra lại. Chi tiết ${e}`);
       } else {
@@ -55,43 +27,36 @@ export class DepartmentService {
   }
 
   async findAll(): Promise<any> {
-    let departments = [];
+    let data = [];
     try {
-      const data = await this.prisma.department.findMany({
-        select: {
-          id: true,
-          name: true,
-          color: true,
-          positions: {select: {id: true}}
-        }
+      const departments = await this.prisma.department.findMany({include: {positions: true}});
+      departments.map(department => {
+        data.push({
+          id: department.id,
+          name: department.name,
+          color: department.color,
+          branchId: department.branchId,
+          positionIds: department.positions.map(position => position.id)
+        });
       });
-      data.map(department => departments.push({
-        id: department.id,
-        name: department.name,
-        color: department.color,
-        positionIds: department.positions.map(position => position.id),
-      }));
-      return departments;
+      return data;
     } catch (e) {
-      throw new InternalServerErrorException(`Các tham số skip, take, id là bắt buộc. Vui lòng kiểm tra lại bạn đã truyền đủ 3 tham số chưa.?. Chi tiết: ${e}`);
+      throw new BadRequestException(`Các tham số skip, take, id là bắt buộc. Vui lòng kiểm tra lại bạn đã truyền đủ 3 tham số chưa.?. Chi tiết: ${e}`);
     }
   }
 
-  // async findOne(id: number): Promise<Department> {
-  //   const department = await this.prisma.department.findMany({
-  //     where: {branches: {some: {id: id}}, },
-  //   });
-  // }
+  async findOne(id: number): Promise<Department> {
+    return await this.prisma.department.findUnique({
+      where: {id},
+      include: {branch: true}
+    });
+  }
 
   async update(id: number, updates: UpdateDepartmentDto): Promise<Department> {
     try {
       return await this.prisma.department.update({
         where: {id: id},
-        data: {
-          name: updates.name,
-          color: updates.color,
-          // branches: {connect: updates.branchIds.map((branchId) => {id: branchId})},
-        }
+        data: {name: updates.name}
       });
     } catch (e) {
       console.log(e);

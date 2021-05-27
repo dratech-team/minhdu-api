@@ -19,15 +19,11 @@ export class CreateEmployeeDto extends ICreateUserDto {
   @Type(() => Number)
   @IsNumber()
   @IsNotEmpty()
-  workday: number;
-
-  @Type(() => Number)
-  @IsNumber()
-  @IsNotEmpty()
   positionId: number;
 
   @Type(() => Date)
   @IsDate()
+  @IsNotEmpty()
   @IsNotEmpty()
   workedAt: Date;
 

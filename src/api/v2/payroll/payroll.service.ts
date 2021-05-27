@@ -98,6 +98,34 @@ export class PayrollService {
     }
   }
 
+  async print(branchId: string) {
+    const date = new Date(), y = date.getFullYear(), m = date.getMonth();
+    const firstDay = new Date(y, m, 1);
+    const lastDay = new Date(y, m + 1, 0);
+    try {
+      const payrolls = await this.prisma.payroll.findMany({
+        where: {
+          createdAt: {
+            gte: firstDay,
+            lte: lastDay,
+          },
+          employee: {
+            branch: {
+              id: branchId
+            }
+          }
+        },
+        include: {
+          salaries: true,
+        }
+      });
+      return await this.exportPayroll(payrolls);
+    } catch (e) {
+      console.error(e);
+      throw new BadRequestException(e);
+    }
+  }
+
   async findOne(id: number): Promise<any> {
     try {
       const payroll = await this.prisma.payroll.findUnique({
@@ -153,78 +181,79 @@ export class PayrollService {
     return `This action removes a #${id} payroll`;
   }
 
-  async exportPayroll(id: number) {
-    const payroll = await this.prisma.payroll.findUnique({
-      where: {id},
-      include: {salaries: true}
-    });
+  async exportPayroll(payroll: any) {
+    let employees = [];
+    let absent = 0;
+    let absentForgot = 0;
+    let overtime = 0;
+    let basicSalary = 0;
+    let allowanceSalary = 0;
+    let workTotal = 0;
 
-    const employee = await this.prisma.employee.findUnique({
-      where: {id: payroll.employeeId},
-      include: {
-        branch: true,
-        department: true,
-        position: true,
+    for (let i = 0; i < payroll.length; i++) {
+      const employee = await this.prisma.employee.findUnique({
+        where: {id: payroll[i].employeeId},
+        include: {
+          branch: true,
+          department: true,
+          position: true,
+        }
+      });
+
+      for (let j = 0; j < payroll[i].salaries.length; j++) {
+        if (payroll[i].salaries[j].type === SalaryType.ABSENT) {
+          absent += payroll[i].salaries[j].times;
+        } else if (payroll[i].salaries[j].type === SalaryType.ABSENT && payroll[i].salaries[j].forgot) {
+          absentForgot += payroll[i].salaries[j].times * 0.5;
+        } else if (payroll[i].salaries[j].type === SalaryType.OVERTIME) {
+          overtime += payroll[i].salaries[j].times * payroll[i].salaries[i].rate;
+        } else if (payroll[i].salaries[j].type === SalaryType.ALLOWANCE_STAYED || payroll[i].salaries[j].type === SalaryType.ALLOWANCE) {
+          allowanceSalary += payroll[i].salaries[j].price;
+        } else if (payroll[i].salaries[j].type === SalaryType.BASIC && payroll[i].salaries[j].title === "Lương cơ bản") {
+          allowanceSalary += payroll[i].salaries[j].price;
+        } else if (payroll[i].salaries[j].type === SalaryType.LATE) {
+          allowanceSalary += payroll[i].salaries[j].price;
+        }
       }
-    });
 
-    const absent = payroll.salaries
-      ?.filter((salary) => salary.type === SalaryType.ABSENT)
-      ?.map(e => e.times)
-      ?.reduce((a, b) => a + b, 0);
+      workTotal = employee.position.workday + overtime - absent;
 
-    const absentForgot = payroll.salaries
-      ?.filter((salary) => salary.type === SalaryType.ABSENT && salary.forgot)
-      ?.map(e => e.times * 0.5)
-      ?.reduce((a, b) => a + b, 0);
+      const daySalary = payroll[i].salaries
+        .filter((salary) => workTotal < employee.position.workday ? salary.type === SalaryType.BASIC || salary.type === SalaryType.ALLOWANCE_STAYED : salary.type === SalaryType.BASIC)
+        .map(e => e.price)?.reduce((a, b) => a + b, 0) / employee.position.workday;
 
-    const overtime = payroll.salaries
-      ?.filter((salary) => salary.type === SalaryType.OVERTIME)
-      ?.map(e => e.times * e.rate)
-      ?.reduce((a, b) => a + b, 0);
+      const late = payroll[i].salaries
+        .filter((salary) => salary.type === SalaryType.LATE)
+        .map(e => daySalary / 8 * e.times)?.reduce((a, b) => a + b, 0);
 
-    const workTotal = employee.workday + overtime - absent;
+      const salary = Math.ceil((daySalary * (workTotal - absentForgot) + allowanceSalary) - (employee.contractAt !== null ? basicSalary * 0.115 : 0) - late);
 
-    const daySalary = payroll.salaries
-      ?.filter((salary) => workTotal < employee.workday ? salary.type === SalaryType.BASIC || salary.type === SalaryType.ALLOWANCE_STAYED : salary.type === SalaryType.BASIC)
-      ?.map(e => e.price)?.reduce((a, b) => a + b, 0) / employee.workday;
+      console.log(`=== Ngày thực tế ${workTotal - absentForgot} ===`);
+      console.log(`=== Lương thực nhận theo ngày làm: ${Math.ceil(daySalary * (workTotal - absentForgot) + allowanceSalary)} ===`);
+      console.log(`=== Thuế + bảo hiểm: ${employee.contractAt !== null ? basicSalary * 0.115 : 0} ===`);
+      console.log(`=== Lương thực nhận: ${salary} ===`);
 
-    const allowanceSalary = payroll.salaries
-      ?.filter((salary) => salary.type === SalaryType.ALLOWANCE_STAYED || salary.type === SalaryType.ALLOWANCE)
-      ?.map(e => e.price)?.reduce((a, b) => a + b, 0);
+      employees.push({
+        employee: {
+          id: employee.id,
+          name: employee.name,
+          position: employee.position,
+          note: employee.note,
+        },
+        payrollId: payroll[i].id,
+        basics: payroll[i].salaries.filter(salary => salary.type === SalaryType.BASIC),
+        stays: payroll[i].salaries.filter(salary => salary.type === SalaryType.ALLOWANCE_STAYED),
+        allowances: payroll[i].salaries.filter(salary => salary.type === SalaryType.ALLOWANCE || salary.type === SalaryType.OVERTIME),
+        deductions: payroll[i].salaries.filter(salary => salary.type === SalaryType.ABSENT || salary.type === SalaryType.LATE),
+        createdAt: payroll[i].createdAt,
+        day: workTotal - absentForgot,
+        salary: Math.ceil(daySalary * (workTotal - absentForgot) + allowanceSalary),
+        tax: employee.contractAt !== null ? basicSalary * 0.115 : 0,
+        total: salary,
+      });
+    }
 
-    const basicSalary = payroll.salaries
-      ?.filter((salary) => salary.type === SalaryType.BASIC && salary.title === "Lương cơ bản")
-      ?.map(e => e.price)?.reduce((a, b) => a + b, 0);
-
-    const late = payroll.salaries
-      ?.filter((salary) => salary.type === SalaryType.LATE)
-      ?.map(e => daySalary / 8 * e.times)?.reduce((a, b) => a + b, 0);
-
-    const salary = Math.ceil((daySalary * (workTotal - absentForgot) + allowanceSalary) - (employee.contractAt !== null ? basicSalary * 0.115 : 0) - late);
-
-    console.log(`=== Ngày thực tế ${workTotal - absentForgot} ===`);
-    console.log(`=== Lương thực nhận theo ngày làm: ${Math.ceil(daySalary * (workTotal - absentForgot) + allowanceSalary)} ===`);
-    console.log(`=== Thuế + bảo hiểm: ${employee.contractAt !== null ? basicSalary * 0.115 : 0} ===`);
-    console.log(`=== Lương thực nhận: ${salary} ===`);
-
-    return {
-      employee: {
-        id: employee.id,
-        name: employee.name,
-        branch: employee.branch,
-        department: employee.department,
-        position: employee.position,
-      },
-      payrollId: payroll.id,
-      salaries: payroll.salaries,
-      status: payroll.paidAt ? 'Đã thanh toán' : 'Chưa thanh toán',
-      createdAt: payroll.createdAt,
-      day: workTotal - absentForgot,
-      salary: Math.ceil(daySalary * (workTotal - absentForgot) + allowanceSalary),
-      tax: employee.contractAt !== null ? basicSalary * 0.115 : 0,
-      total: salary,
-    };
+    return employees;
   }
 
 

@@ -11,6 +11,7 @@ import {PrismaService} from "../../../prisma.service";
 import {Branch} from '@prisma/client';
 import {PaginateResult} from "../../../common/interfaces/paginate.interface";
 import {generateId} from "../../../common/utils/generate-id.utils";
+import {CreateDepartmentDto} from "../department/dto/create-department.dto";
 
 @Injectable()
 export class BranchService {
