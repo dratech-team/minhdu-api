@@ -1,7 +1,7 @@
 import {BadRequestException, Injectable} from '@nestjs/common';
 import {UpdatePayrollDto} from './dto/update-payroll.dto';
 import {PrismaService} from "../../../prisma.service";
-import {SalaryType} from '@prisma/client';
+import {Salary, SalaryType} from '@prisma/client';
 import * as moment from "moment";
 
 @Injectable()
@@ -40,62 +40,36 @@ export class PayrollService {
   }
 
   async findAll(branchId: string, skip: number, take: number, search?: string) {
-    const datetime = moment().format('yyyy-MM');
-    let data = [];
-    let payroll: any;
-
     try {
-      const [total, employees] = await Promise.all([
-        this.prisma.employee.count({where: {branchId}}),
-        this.prisma.employee.findMany({
-          where: {branchId},
-          take, skip,
-          include: {payrolls: {include: {salaries: true}}, branch: true, department: true, position: true}
-        })
-      ]);
-
-      for (let i = 0; i < employees.length; i++) {
-        /**
-         * - Nếu nhân viên nào có nhiều hơn 1 phiếu lương trong tháng này thì sẽ  hiện ra lỗi. xoá bớt 1 phiếu lương đi
-         * - Nếu nhân viên không tồn tại phiếu lương trong tháng này thì tự dộng tạo phiêu lương mới
-         * */
-
-        const count = employees[i].payrolls.filter(payroll => {
-          const createdAt = moment(payroll.createdAt).format('yyyy-MM');
-          return new Date(createdAt).getTime() === new Date(datetime).getTime();
-        });
-
-        switch (count.length) {
-          case 0:
-            payroll = await this.create(employees[i].id).then();
-            break;
-          case 1:
-            payroll = employees[i].payrolls[0];
-            break;
-          default:
-            throw new BadRequestException(`Có gì đó không đúng. Các nhân viên ${employees[i].name} có nhiều hơn 2 phiếu lương trong tháng này`);
-        }
-
-        const actualDay = this.actualDay(employees[i].payrolls);
-        console.log(actualDay);
-        data.push({
-          id: payroll.id,
-          employeeId: payroll.employeeId,
-          isEdit: payroll.isEdit,
-          confirmedAt: payroll.confirmedAt,
-          paidAt: payroll.paidAt,
-          createdAt: payroll.createdAt,
-          salaries: payroll.salaries,
-          actualDay,
-          employee: employees[i]
-        });
+      const checkExist = await this.checkPayrollExist(branchId);
+      if (checkExist) {
+        const [total, payrolls] = await Promise.all([
+          this.prisma.payroll.count({where: {employee: {branchId}}}),
+          this.prisma.payroll.findMany({
+            where: {employee: {branchId}},
+            take, skip,
+            include: {
+              salaries: true,
+              employee: {
+                include: {
+                  branch: true,
+                  department: true,
+                  position: true,
+                }
+              }
+            }
+          })
+        ]);
+        return {
+          total: total,
+          data: payrolls.map(payroll => this.totalSalary(payroll)),
+        };
       }
-      return {total, data};
-
     } catch (e) {
       console.error(e);
       throw new BadRequestException(e);
     }
+
   }
 
   async print(branchId: string) {
@@ -119,7 +93,7 @@ export class PayrollService {
           salaries: true,
         }
       });
-      return await this.exportPayroll(payrolls);
+      return await this.totalSalary(payrolls);
     } catch (e) {
       console.error(e);
       throw new BadRequestException(e);
@@ -142,8 +116,6 @@ export class PayrollService {
         }
       });
 
-      const actualDay = this.actualDay(payroll);
-
       return {
         id: payroll.id,
         employeeId: payroll.employeeId,
@@ -152,7 +124,7 @@ export class PayrollService {
         paidAt: payroll.paidAt,
         createdAt: payroll.createdAt,
         salaries: payroll.salaries,
-        actualDay: actualDay,
+        actualDay: this.actualDay(payroll.salaries),
         employee: payroll.employee
       };
     } catch (e) {
@@ -181,96 +153,98 @@ export class PayrollService {
     return `This action removes a #${id} payroll`;
   }
 
-  async exportPayroll(payroll: any) {
-    let employees = [];
+  actualDay(salaries: Salary[]) {
+    return new Date().getDate() - salaries.filter(salary => salary.type === SalaryType.ABSENT)
+      .map(e => e.forgot ? e.times * 0.5 : e.times)
+      .reduce((a, b) => a + b, 0);
+  }
 
+  totalSalary(payroll: any) {
     let basicSalary = 0;
-    let overtime = 0;
+    let staySalary = 0;
     let allowanceSalary = 0;
-    let stayed = 0;
+    let absentTime = 0;
+    let lateTime = 0;
+    let daySalary = 0;
 
-    for (let i = 0; i < payroll.length; i++) {
-      const employee = await this.prisma.employee.findUnique({
-        where: {id: payroll[i].employeeId},
-        include: {
-          branch: true,
-          department: true,
-          position: true,
-        }
-      });
+    const actualDay = this.actualDay(payroll.salaries);
 
-      for (let j = 0; j < payroll[i].salaries.length; j++) {
-        switch (payroll[i].salaries[j].type) {
-          case SalaryType.BASIC:
-            basicSalary += payroll[i].salaries[j].price;
-            break;
-          case SalaryType.ALLOWANCE_STAYED:
-            stayed += payroll[i].salaries[j].price;
-            break;
-          case SalaryType.OVERTIME:
-            overtime += payroll[i].salaries[j].price * payroll[i].salaries[i].rate;
-            break;
-          case SalaryType.ALLOWANCE:
-            overtime += payroll[i].salaries[j].times * payroll[i].salaries[i].price;
-            break;
-        }
+
+    for (let i = 0; i < payroll.salaries.length; i++) {
+      switch (payroll.salaries[i].type) {
+        case SalaryType.BASIC:
+          basicSalary += payroll.salaries[i].price;
+          break;
+        case SalaryType.ALLOWANCE_STAYED:
+          staySalary += payroll.salaries[i].price;
+          break;
+        case SalaryType.ALLOWANCE:
+          allowanceSalary += payroll.salaries[i].times * payroll.salaries[i].price;
+          break;
+        case SalaryType.OVERTIME:
+          allowanceSalary += payroll.salaries[i].times * payroll.salaries[i].price * payroll.salaries[i].rate;
+          break;
+        case SalaryType.ABSENT:
+          if (payroll.salaries[i].forgot) {
+            absentTime += payroll.salaries[i].times * 0.5;
+          }
+          absentTime += payroll.salaries[i].times;
+          break;
+        case SalaryType.LATE:
+          lateTime += payroll.salaries[i].times;
+          break;
       }
-
-      const actualDay = this.actualDay(payroll[i]);
-
-      const daySalary = payroll[i].salaries
-        .filter((salary) => actualDay.actualDay < employee.position.workday ? salary.type === SalaryType.BASIC || salary.type === SalaryType.ALLOWANCE_STAYED : salary.type === SalaryType.BASIC)
-        .map(e => e.price)?.reduce((a, b) => a + b, 0) / employee.position.workday;
-
-      const salary = Math.ceil((daySalary * actualDay.actualDay + allowanceSalary) - (employee.contractAt !== null ? basicSalary * 0.115 : 0));
-
-      console.log(`=== Ngày thực tế ${actualDay.actualDay - actualDay.absent} ===`);
-      console.log(`=== Lương thực nhận theo ngày làm: ${Math.ceil(daySalary * (actualDay.actualDay - actualDay.absent) + allowanceSalary)} ===`);
-      console.log(`=== Thuế + bảo hiểm: ${employee.contractAt !== null ? basicSalary * 0.115 : 0} ===`);
-      console.log(`=== Lương thực nhận: ${salary} ===`);
-
-      employees.push({
-        employee: {
-          id: employee.id,
-          name: employee.name,
-          position: employee.position,
-          note: employee.note,
-        },
-        payrollId: payroll[i].id,
-        basic: basicSalary,
-        stayed: stayed,
-        allowance: overtime,
-        deductions: daySalary * actualDay.absent + daySalary * actualDay.late,
-        createdAt: payroll[i].createdAt,
-        day: actualDay,
-        salary: Math.ceil(salary),
-        tax: employee.contractAt !== null ? basicSalary * 0.115 : 0,
-        total: salary,
-      });
     }
 
-    return employees;
+    if (actualDay < payroll.employee.workday) {
+      daySalary = (basicSalary + staySalary) / payroll.employee.workday;
+    } else {
+      daySalary = basicSalary / payroll.employee.workday;
+    }
+
+    const tax = payroll.employee.contractAt !== null ? basicSalary * 0.115 : 0;
+    const deduction = daySalary / 8 * lateTime + daySalary * absentTime;
+
+    const total = Math.ceil((daySalary * actualDay + allowanceSalary) - (tax + deduction));
+
+    return {
+      employee: payroll.employee,
+      payrollId: payroll.id,
+      basic: basicSalary,
+      stay: staySalary,
+      allowance: allowanceSalary,
+      deduction,
+      actualDay,
+      total: !payroll.isEdit ? total : 0,
+      tax,
+    };
   }
 
 
-  actualDay(payroll) {
-    let actualDay: number = new Date().getDate();
+  async checkPayrollExist(branchId: string): Promise<boolean> {
+    const datetime = moment().format('yyyy-MM');
+    try {
+      const employees = await this.prisma.employee.findMany({
+        where: {branchId},
+        include: {payrolls: true}
+      });
 
-    const absent = payroll?.salaries?.filter(salary => salary.type === SalaryType.ABSENT).map(e => {
-      if (e.forgot) {
-        return e.times * 0.5;
-      } else {
-        return e.times;
+      for (let i = 0; i < employees.length; i++) {
+        const count = employees[i].payrolls.filter(payroll => {
+          const createdAt = moment(payroll.createdAt).format('yyyy-MM');
+          return new Date(createdAt).getTime() === new Date(datetime).getTime();
+        });
+
+        if (count.length > 1) {
+          throw new BadRequestException(`Có gì đó không đúng. Các nhân viên ${employees[i].name} có nhiều hơn 2 phiếu lương trong tháng này`);
+        } else if (count.length === 0) {
+          await this.create(employees[i].id).then();
+        }
+        return true;
       }
-    }).reduce((a, b) => a + b, 0);
-    const late = payroll?.salaries?.filter(salary => salary.type === SalaryType.LATE).map(e => e.times).reduce((a, b) => a + b, 0);
-
-    if (absent > 0) {
-      actualDay -= absent;
+    } catch (e) {
+      console.error(e);
+      throw new BadRequestException(e);
     }
-    if (late === 4) {
-      actualDay -= 0.5;
-    }
-    return {actualDay, absent, late};
   }
 }
