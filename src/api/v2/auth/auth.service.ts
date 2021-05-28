@@ -16,14 +16,8 @@ export class AuthService {
 
   async register(body: SignupCredentialDto): Promise<{ status: string }> {
     try {
-      await this.prisma.account.create({
-        data: {
-          username: body.username,
-          password: await generateHash(body.password),
-          role: body.role,
-          employee: body.employeeId ? {connect: {id: body.employeeId}} : {}
-        }
-      });
+      body.password = await generateHash(body.password);
+      await this.prisma.account.create({data: body});
       return {status: 'Register Success!'};
     } catch (e) {
       console.log(e);
@@ -32,7 +26,6 @@ export class AuthService {
       } else {
         throw new BadRequestException(e);
       }
-
     }
   }
 
@@ -41,7 +34,7 @@ export class AuthService {
     try {
       const user = await this.prisma.account.findUnique({
         where: {username: body.username},
-        include: {employee: {select: {branchId: true}}}
+        include: {branch: true}
       });
       const isValid = await bcrypt.compare(body.password, user.password);
 
@@ -49,12 +42,12 @@ export class AuthService {
         throw new UnauthorizedException();
       }
 
-      if (user.employee) {
+      if (user.branch) {
         payload = {
           accountId: user.id,
           username: user.username,
           role: user.role,
-          branchId: user.employee.branchId,
+          branchId: user.branch.id,
         };
       } else {
         payload = {
@@ -66,10 +59,10 @@ export class AuthService {
 
       const token = this.jwtService.sign(payload);
 
-      return user.employee ? {
+      return user.branch ? {
         id: user.id,
         role: user.role,
-        branchId: user.employee.branchId,
+        branchId: user.branch.id,
         token,
       } : {
         id: user.id,

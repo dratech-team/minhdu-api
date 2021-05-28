@@ -8,8 +8,8 @@ datasource db {
 }
 
 model Account {
-  id       Int       @id @default(autoincrement())
-  username String    @unique
+  id       Int     @id @default(autoincrement())
+  username String  @unique
   password String
   role     Role
   branch   Branch?
@@ -18,29 +18,30 @@ model Account {
 model Branch {
   id          String       @id
   name        String       @unique
-  employees   Employee[]
+  accountId   Int?          @unique
+  account     Account?      @relation(fields: [accountId], references: [id])
   departments Department[]
-  accountId   Int
-  account     Account      @relation(fields: [accountId], references: [id])
+  employees   Employee[]
 }
 
 model Department {
   id        Int        @id @default(autoincrement())
   name      String     @unique
   color     String     @unique
-  employee  Employee[]
   branchId  String
   branch    Branch     @relation(fields: [branchId], references: [id])
+  employee  Employee[]
   positions Position[]
 }
 
 model Position {
-  id          Int          @id @default(autoincrement())
-  name        String
-  workday     Int
-  employees   Employee[]
+  id           Int        @id @default(autoincrement())
+  name         String
   departmentId Int
-  department  Department   @relation(fields: [departmentId], references: [id])
+  workday      Int
+  department   Department @relation(fields: [departmentId], references: [id])
+  employees    Employee[]
+
   @@unique([name, departmentId])
 }
 
@@ -52,6 +53,9 @@ model Employee {
   birthday     DateTime
   phone        String
   email        String?
+  branchId     String
+  departmentId Int
+  positionId   Int
   workedAt     DateTime?
   leftAt       DateTime?
   idCardAt     DateTime
@@ -62,16 +66,13 @@ model Employee {
   note         String?
   qrCode       String?
   isFlatSalary Boolean    @default(false)
-  branchId     String
   branch       Branch     @relation(fields: [branchId], references: [id])
-  departmentId Int
   department   Department @relation(fields: [departmentId], references: [id])
-  positionId   Int
   position     Position   @relation(fields: [positionId], references: [id])
   payrolls     Payroll[]
   salaries     Salary[]
 
-  @@unique([id, identify], name: "Employee.id_identify_unique")
+  @@unique([id, identify])
 }
 
 model Salary {
@@ -89,7 +90,7 @@ model Salary {
   employee   Employee?  @relation(fields: [employeeId], references: [id])
   payroll    Payroll?   @relation(fields: [payrollId], references: [id])
 
-  @@unique([title, type, times, rate, price], name: "Salary.title_type_times_rate_price_unique")
+  @@unique([title, type, times, rate, price])
 }
 
 model Payroll {
