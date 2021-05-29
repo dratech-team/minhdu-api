@@ -2,6 +2,7 @@ import {BadRequestException, Injectable} from '@nestjs/common';
 import {UpdateSalaryDto} from './dto/update-salary.dto';
 import {CreateSalaryDto} from "./dto/create-salary.dto";
 import {PrismaService} from "../../../prisma.service";
+import {SalaryType} from '@prisma/client';
 
 @Injectable()
 export class SalaryService {
@@ -10,6 +11,9 @@ export class SalaryService {
 
   async create(createSalaryDto?: CreateSalaryDto) {
     createSalaryDto.datetime = new Date(createSalaryDto.datetime);
+    if (createSalaryDto.datetime && createSalaryDto.type === SalaryType.ABSENT) {
+      createSalaryDto.times = 1;
+    }
     try {
       const salary = await this.prisma.salary.findMany({
         where: {

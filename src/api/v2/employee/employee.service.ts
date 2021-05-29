@@ -11,10 +11,7 @@ const qr = require("qrcode");
 
 @Injectable()
 export class EmployeeService {
-  constructor(
-    private readonly prisma: PrismaService,
-    private readonly salaryService: SalaryService,
-  ) {
+  constructor(private readonly prisma: PrismaService,) {
   }
 
   include = {
@@ -27,13 +24,15 @@ export class EmployeeService {
    * Thêm thông tin nhân viên và lương căn bản ban đầu
    * */
   async create(body: CreateEmployeeDto) {
-    const bodySalary = new CreateSalaryDto();
-    bodySalary.title = 'Lương cơ bản trích BH';
-    bodySalary.price = body.price;
-    bodySalary.type = SalaryType.BASIC;
-    bodySalary.note = body.note;
     try {
-      const salary = await this.salaryService.create(bodySalary);
+      const salary = await this.prisma.salary.create({
+        data: {
+          title: 'Lương cơ bản trích BH',
+          price: body.price,
+          type: SalaryType.BASIC,
+          note: body.note
+        }
+      });
       return await this.prisma.employee.create({
         data: {
           id: await this.generateEmployeeCode(body),
@@ -77,15 +76,25 @@ export class EmployeeService {
   }
 
   async findAll(branchId: string, skip: number, take: number, search?: string): Promise<any> {
+    if (search == undefined) {
+      search = '';
+    }
     try {
       const [total, data] = await Promise.all([
         this.prisma.employee.count({
-          where: {branchId}
+          where: {
+            branchId,
+            id: {startsWith: search}
+          }
         }),
         this.prisma.employee.findMany({
           skip,
           take,
-          where: {leftAt: null, branchId},
+          where: {
+            leftAt: null,
+            branchId,
+            id: {startsWith: search}
+          },
           include: {
             branch: true,
             department: true,
@@ -133,10 +142,12 @@ export class EmployeeService {
     const count = await this.prisma.employee.count();
     let gen: string;
     if (count < 10) {
-      gen = "000";
+      gen = "0000";
     } else if (count < 100) {
-      gen = "00";
+      gen = "000";
     } else if (count < 1000) {
+      gen = "00";
+    } else if (count < 10000) {
       gen = "0";
     }
     const id = `${body.branchId}${gen}${count + 1}`;

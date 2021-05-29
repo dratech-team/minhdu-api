@@ -1,12 +1,12 @@
-import {Body, Controller, Delete, Get, Param, ParseIntPipe, Patch, Query, UseGuards} from '@nestjs/common';
+import {Body, Controller, Delete, Get, Param, ParseIntPipe, Patch, Query, Res, UseGuards} from '@nestjs/common';
 import {PayrollService} from './payroll.service';
 import {UpdatePayrollDto} from './dto/update-payroll.dto';
-import {JwtAuthGuard} from "../../../core/guard/jwt-auth.guard";
-import {ApiKeyGuard} from "../../../core/guard/api-key-auth.guard";
-import {RolesGuard} from "../../../core/guard/role.guard";
 import {Roles} from "../../../core/decorators/roles.decorator";
 import {UserType} from "../../../core/constants/role-type.constant";
 import {ReqProfile} from "../../../core/decorators/req-profile.decorator";
+import {JwtAuthGuard} from "../../../core/guard/jwt-auth.guard";
+import {RolesGuard} from "../../../core/guard/role.guard";
+import {ApiKeyGuard} from "../../../core/guard/api-key-auth.guard";
 
 @Controller('v2/payroll')
 @UseGuards(JwtAuthGuard, ApiKeyGuard, RolesGuard)
@@ -21,14 +21,18 @@ export class PayrollController {
     @Query("skip", ParseIntPipe) skip: number,
     @Query("take", ParseIntPipe) take: number,
     @Query("search") search: string,
+    @Query("datetime") datetime: Date,
   ) {
-    return this.payrollService.findAll(branchId, +skip, +take, search);
+    console.log(branchId);
+    return this.payrollService.findAll(branchId, +skip, +take, search, datetime);
   }
 
-  @Roles(UserType.ADMIN, UserType.HUMAN_RESOURCE, UserType.CAMP_ACCOUNTING)
+  // @Roles(UserType.ADMIN, UserType.HUMAN_RESOURCE, UserType.CAMP_ACCOUNTING)
   @Get('/export')
-  exportPayrolls(@ReqProfile() branchId: string,) {
-    return this.payrollService.print(branchId);
+  async exportPayrolls(@Res() res, @ReqProfile() branchId: string,) {
+    return await this.payrollService.print(branchId);
+    // return res.download(fileName);
+    // return this.payrollService.print(branchId);
   }
 
   @Roles(UserType.ADMIN, UserType.HUMAN_RESOURCE, UserType.CAMP_ACCOUNTING)
@@ -38,7 +42,7 @@ export class PayrollController {
   }
 
   @Patch(':id')
-  @Roles(UserType.CAMP_ACCOUNTING)
+  @Roles(UserType.ADMIN, UserType.HUMAN_RESOURCE, UserType.CAMP_ACCOUNTING)
   update(
     @Param('id') id: number,
     @Body() updatePayrollDto: UpdatePayrollDto
