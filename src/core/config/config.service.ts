@@ -19,12 +19,9 @@ export class ConfigService {
     const envVarsSchema = Joi.object<IEnvConfig>({
       NODE_ENV: Joi.string()
         .valid(...NODE_ENV_LIST)
-        .default(NODE_ENV.DEVELOPMENT),
-
+        .default(NODE_ENV.PRODUCTION),
+      DATABASE_URL: Joi.string().required(),
       APP_NAME: Joi.string().required(),
-      DATABASE_URI: Joi.string().required(),
-      SERVER_URL: Joi.string().required(),
-      PUBLIC_SERVER_URL: Joi.string().required(),
       PORT: Joi.string().required(),
       API_PATH: Joi.string().required(),
       APP_API_KEY: Joi.string().required(),
@@ -94,8 +91,9 @@ export class ConfigService {
   }
 
   get mongoURL(): string {
-    return this.envConfig.DATABASE_URI;
+    return this.envConfig.DATABASE_URL;
   }
+
 
   get serverPort(): string {
     return this.envConfig.PORT;

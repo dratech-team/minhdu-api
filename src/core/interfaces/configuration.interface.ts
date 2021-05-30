@@ -10,13 +10,9 @@ export interface IEnvConfig {
   NODE_ENV: NODE_ENV;
 
   APP_NAME: string;
-
-  DATABASE_URI: string;
-
-  SERVER_URL: string;
-  PUBLIC_SERVER_URL: string;
+  
   PORT: string;
-
+  DATABASE_URL: string;
   DB_NAME: string;
   API_PATH: string;
   APP_API_KEY: string;
