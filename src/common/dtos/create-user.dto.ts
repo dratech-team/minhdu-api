@@ -24,7 +24,7 @@ export class ICreateUserDto {
   @IsString()
   readonly address: string;
 
-  @Type(() => Date.UTC)
+  @Type(() => Date)
   @IsDate()
   @IsNotEmpty()
   birthday: Date;

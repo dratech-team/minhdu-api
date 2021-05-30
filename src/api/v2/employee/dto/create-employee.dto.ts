@@ -1,6 +1,6 @@
 import {ICreateUserDto} from "../../../../common/dtos/create-user.dto";
 import {Type} from "class-transformer";
-import {IsDate, IsNotEmpty, IsNumber, IsOptional, IsString, MaxLength, MinLength} from "class-validator";
+import {IsDate, IsNotEmpty, IsNumber, IsOptional, IsString, MaxLength, Min, MinLength} from "class-validator";
 
 export class CreateEmployeeDto extends ICreateUserDto {
   @IsString()
@@ -23,7 +23,7 @@ export class CreateEmployeeDto extends ICreateUserDto {
   @IsNotEmpty()
   positionId: number;
 
-  @Type(() => Date.UTC)
+  @Type(() => Date)
   @IsDate()
   @IsNotEmpty()
   @IsNotEmpty()
@@ -36,9 +36,10 @@ export class CreateEmployeeDto extends ICreateUserDto {
   @Type(() => Number)
   @IsNotEmpty()
   @IsNumber()
+  @Min(1)
   price: number;
 
-  @Type(() => Date.UTC)
+  @Type(() => Date)
   @IsDate()
   @IsNotEmpty()
   idCardAt: Date;
