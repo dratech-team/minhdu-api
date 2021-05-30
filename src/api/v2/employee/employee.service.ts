@@ -42,13 +42,13 @@ export class EmployeeService {
           salaries: {
             connect: {id: salary.id}
           },
-          workedAt: new Date(body.workedAt).toISOString(),
+          workedAt: body.workedAt,
           branch: {connect: {id: body.branchId}},
           department: {connect: {id: body.departmentId}},
           position: {connect: {id: body.positionId}},
           phone: body.phone,
-          birthday: new Date(body.birthday).toISOString(),
-          idCardAt: new Date(body.idCardAt).toISOString(),
+          birthday: body.birthday,
+          idCardAt: body.idCardAt,
           gender: body.gender,
           note: body.note,
           payrolls: {

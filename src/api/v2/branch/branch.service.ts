@@ -1,17 +1,8 @@
-import {
-  BadRequestException,
-  ConflictException,
-  Injectable,
-  InternalServerErrorException,
-  NotFoundException
-} from '@nestjs/common';
+import {BadRequestException, ConflictException, Injectable, InternalServerErrorException} from '@nestjs/common';
 import {CreateBranchDto} from './dto/create-branch.dto';
 import {UpdateBranchDto} from './dto/update-branch.dto';
 import {PrismaService} from "../../../prisma.service";
 import {Branch} from '@prisma/client';
-import {PaginateResult} from "../../../common/interfaces/paginate.interface";
-import {generateId} from "../../../common/utils/generate-id.utils";
-import {CreateDepartmentDto} from "../department/dto/create-department.dto";
 
 @Injectable()
 export class BranchService {
@@ -19,7 +10,7 @@ export class BranchService {
   }
 
   async create(body: CreateBranchDto): Promise<Branch> {
-    const id = generateId(body.name);
+    const id = this.generateNameCode(body.name);
 
     try {
       return await this.prisma.branch.create({
@@ -78,5 +69,28 @@ export class BranchService {
     await this.prisma.branch.delete({where: {id: id}}).catch((e) => {
       throw new BadRequestException(e);
     });
+  }
+
+  generateNameCode(str) {
+
+    // Xoa dau cach thua VA xoa Unico
+    str.trim();
+    str.replace(/\s+/g, " ");
+
+    // Tach cac ki tu dau tien
+    let x = str.split(" ");
+    let kq = "";
+    for (let i = x.length - 1; i >= 0; i--) {
+      kq = x[i].charAt(0) + kq;
+    }
+
+    // Xoa ki tu them
+    while (kq.length <= 2) kq += "1";
+    if (kq.length > 3) kq = kq.slice(kq.length - 3);
+    // Xoa dau
+    kq = kq.normalize('NFD')
+      .replace(/[\u0300-\u036f]/g, '')
+      .replace(/đ/g, 'd').replace(/Đ/g, 'D');
+    return kq.toUpperCase();
   }
 }

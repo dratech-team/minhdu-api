@@ -1,4 +1,14 @@
-import {IsDate, IsEmail, IsEnum, IsNotEmpty, IsOptional, IsPhoneNumber, IsString, MaxLength} from "class-validator";
+import {
+  IsDate,
+  IsEmail,
+  IsEnum,
+  IsNotEmpty,
+  IsOptional,
+  IsPhoneNumber,
+  IsString,
+  MaxLength,
+  MinLength
+} from "class-validator";
 import {Type} from "class-transformer";
 import {GenderType} from "@prisma/client";
 
@@ -10,10 +20,11 @@ export class ICreateUserDto {
 
   @IsNotEmpty()
   @MaxLength(200)
+  @MinLength(10)
   @IsString()
   readonly address: string;
 
-  @Type(() => Date)
+  @Type(() => Date.UTC)
   @IsDate()
   @IsNotEmpty()
   birthday: Date;
@@ -27,7 +38,7 @@ export class ICreateUserDto {
   readonly phone: string;
 
   @IsOptional()
-  @MaxLength(100)
+  @MaxLength(20)
   @IsEmail()
   readonly email: string;
 
