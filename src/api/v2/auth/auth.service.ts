@@ -17,7 +17,14 @@ export class AuthService {
   async register(body: SignupCredentialDto): Promise<{ status: string }> {
     try {
       body.password = await generateHash(body.password);
-      await this.prisma.account.create({data: body});
+      await this.prisma.account.create({
+        data: {
+          username: body.username,
+          role: body.role,
+          branch: body.branchId ? {connect: {id: body.branchId}} : {},
+          password: body.password,
+        }
+      });
       return {status: 'Register Success!'};
     } catch (e) {
       console.log(e);

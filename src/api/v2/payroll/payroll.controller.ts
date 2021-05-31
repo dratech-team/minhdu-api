@@ -23,7 +23,6 @@ export class PayrollController {
     @Query("search") search: string,
     @Query("datetime") datetime: Date,
   ) {
-    console.log(branchId);
     return this.payrollService.findAll(branchId, +skip, +take, search, datetime);
   }
 

@@ -2,10 +2,7 @@ import {BadRequestException, ConflictException, Injectable, NotFoundException} f
 import {CreateEmployeeDto} from './dto/create-employee.dto';
 import {UpdateEmployeeDto} from './dto/update-employee.dto';
 import {PrismaService} from "../../../prisma.service";
-import {SalaryService} from "../salary/salary.service";
 import {SalaryType} from '@prisma/client';
-import {Promise} from "mongoose";
-import {CreateSalaryDto} from "../salary/dto/create-salary.dto";
 
 const qr = require("qrcode");
 
@@ -42,15 +39,16 @@ export class EmployeeService {
           salaries: {
             connect: {id: salary.id}
           },
-          workedAt: body.workedAt,
+          workedAt: new Date(body.workedAt),
           branch: {connect: {id: body.branchId}},
           department: {connect: {id: body.departmentId}},
           position: {connect: {id: body.positionId}},
           phone: body.phone,
-          birthday: body.birthday,
-          idCardAt: body.idCardAt,
+          birthday: new Date(body.birthday),
+          idCardAt: new Date(body.idCardAt),
           gender: body.gender,
           note: body.note,
+          isFlatSalary: body.isFlatSalary,
           payrolls: {
             create: {
               salaries: {
@@ -164,67 +162,4 @@ export class EmployeeService {
 
   }
 
-  async findEmployees(skip: number, take: number, search: string): Promise<any> {
-    const date = new Date(), y = date.getFullYear(), m = date.getMonth();
-    const firstDay = new Date(y, m, 1);
-    const lastDay = new Date(y, m + 1, 0);
-
-    const include = {
-      branch: {
-        select: {
-          id: true,
-          name: true,
-        }
-      },
-      department: {
-        select: {
-          id: true,
-          name: true,
-        }
-      },
-      position: {
-        select: {
-          id: true,
-          name: true,
-        }
-      },
-      payrolls: {
-        where: {
-          createdAt: {lte: lastDay, gte: firstDay}
-        }
-      }
-    };
-
-    const searchName = {name: {startsWith: search}};
-
-    if (search == '' || search === undefined || search === null) {
-      return await this.prisma.employee.findMany({skip, take, include: include});
-    } else {
-      let employees = await this.prisma.employee.findMany({
-        skip,
-        take,
-        where: searchName,
-        include: include,
-      });
-
-      if (employees.length === 0) {
-        employees = await this.prisma.employee.findMany({
-          skip,
-          take,
-          where: {branch: searchName},
-          include: include
-        });
-      }
-
-      if (employees.length === 0) {
-        employees = await this.prisma.employee.findMany({
-          skip,
-          take,
-          where: {department: searchName},
-          include: include
-        });
-      }
-      return employees;
-    }
-  }
 }

@@ -46,10 +46,9 @@ export class PayrollService {
     const date = new Date(), y = date.getFullYear(), m = date.getMonth();
     const firstDay = new Date(y, m, 1);
     const lastDay = new Date();
-
-    console.log(firstDay, lastDay);
     try {
       const checkExist = await this.checkPayrollExist(branchId);
+
       const where = {
         AND: [
           {
@@ -101,6 +100,11 @@ export class PayrollService {
           total: total,
           data: payrolls.map(payroll => this.totalSalary(payroll)),
         };
+      } else {
+        return {
+          total: 0,
+          data: [],
+        };
       }
     } catch (e) {
       console.error(e);
@@ -141,7 +145,7 @@ export class PayrollService {
       return await this.prisma.payroll.update({
         where: {id: id},
         data: {
-          salaries: {connect: {id: updates.salaryId}},
+          // salaries: updates.salaryId ? {connect: {id: updates.salaryId}} : {},
           isEdit: updates.isEdit,
           paidAt: updates.isPaid ? new Date() : null,
           confirmedAt: updates.isConfirm ? new Date() : null,
