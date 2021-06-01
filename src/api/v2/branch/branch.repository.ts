@@ -35,8 +35,8 @@ export class BranchRepository {
     }).catch(err => new BadRequestException(err));
   }
 
-  async findOne(id: number) {
-    return this.prisma.branch.findUnique({where: {id: id}}).catch(e => new BadRequestException(e));
+  async findOne(id: number): Promise<Branch> {
+    return await this.prisma.branch.findUnique({where: {id: id}});
   }
 
   async update(id: number, updates: UpdateBranchDto) {

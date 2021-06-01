@@ -1,144 +1,65 @@
-import {BadRequestException, ConflictException, Injectable, NotFoundException} from '@nestjs/common';
+import {Injectable} from '@nestjs/common';
 import {CreateEmployeeDto} from './dto/create-employee.dto';
-import {UpdateEmployeeDto} from './dto/update-employee.dto';
-import {PrismaService} from "../../../prisma.service";
+import {EmployeeRepository} from "./employee.repository";
+import {BranchService} from "../branch/branch.service";
+import {SalaryService} from "../salary/salary.service";
 import {SalaryType} from '@prisma/client';
+import {CreateSalaryDto} from "../salary/dto/create-salary.dto";
+import {UpdateEmployeeDto} from "./dto/update-employee.dto";
 
 const qr = require("qrcode");
 
 @Injectable()
 export class EmployeeService {
-  constructor(private readonly prisma: PrismaService) {
-  }
-
-  include = {
-    branch: true,
-    department: true,
-    position: true
+  constructor(
+    private readonly repository: EmployeeRepository,
+    private readonly branchService: BranchService,
+    private readonly salaryService: SalaryService,
+  ) {
   }
 
   /**
    * Thêm thông tin nhân viên và lương căn bản ban đầu
    * */
   async create(body: CreateEmployeeDto) {
-    try {
-      const salary = await this.prisma.salary.create({
-        data: {
-          title: 'Lương cơ bản trích BH',
-          price: body.price,
-          type: SalaryType.BASIC,
-          note: body.note
-        }
-      });
-      const branch = await this.prisma.branch.findUnique({where: {id: body.branchId}});
-      return await this.prisma.employee.create({
-        data: {
-          id: await this.generateEmployeeCode(branch.code),
-          identify: body.identify,
-          name: body.name,
-          address: body.address,
-          salaries: {
-            connect: {id: salary.id}
-          },
-          workedAt: new Date(body.workedAt),
-          branch: {connect: {id: body.branchId}},
-          department: {connect: {id: body.departmentId}},
-          position: {connect: {id: body.positionId}},
-          phone: body.phone,
-          birthday: new Date(body.birthday),
-          idCardAt: new Date(body.idCardAt),
-          gender: body.gender,
-          note: body.note,
-          isFlatSalary: body.isFlatSalary,
-          payrolls: {
-            create: {
-              salaries: {
-                connect: {id: salary.id}
-              }
-            }
-          }
-        },
-        include: this.include
-      });
-    } catch (e) {
-      console.error(e);
-      if (e?.code == "P2025") {
-        throw new NotFoundException(`Không tìm thấy id ${body?.branchId} hoặc ${body?.departmentId} hoặc ${body?.positionId}. Chi tiết: ${e?.meta?.cause}`);
-      } else if (e?.code == "P2002") {
-        throw new ConflictException(`CMND không được giống nhau. Vui lòng kiểm tra lại. Chi tiết: ${e}`);
-      } else if (e?.code == "P2014") {
-        throw new BadRequestException(`Chi nhánh ${body.branchId} không tồn tại phòng ban ${body.departmentId} hoặc phòng ban ${body.departmentId} không tồn tại chức vụ ${body.positionId}. Vui lòng kiểm tra lại. Chi tiết: ${e?.meta}`);
-      } else {
-        throw new BadRequestException(e);
-      }
-    }
+    /*Khởi tạo lương cơ bản*/
+    const basic = new CreateSalaryDto();
+    basic.title = 'Lương cơ bản trích BH';
+    basic.price = body.price;
+    basic.type = SalaryType.BASIC;
+    const salary = await this.salaryService.create(basic);
+
+    /*Generate mã nhân viên dựa trên code branch*/
+    const branch = await this.branchService.findOne(body.branchId);
+    body.id = await this.generateEmployeeCode(branch.code);
+
+    body.salaryId = salary.id;
+    return this.repository.create(body);
   }
 
   async findAll(branchId: number, skip: number, take: number, search?: string): Promise<any> {
-    if (search == undefined) {
-      search = '';
-    }
-    try {
-      const [total, data] = await Promise.all([
-        this.prisma.employee.count({
-          where: {
-            branchId,
-            id: {startsWith: search}
-          }
-        }),
-        this.prisma.employee.findMany({
-          skip,
-          take,
-          where: {
-            leftAt: null,
-            branchId,
-            id: {startsWith: search}
-          },
-          include: {
-            branch: true,
-            department: true,
-            position: true
-          }
-        }),
-      ]);
+    return this.repository.findAll(branchId, skip, take, search);
+  }
 
-      return {total, data};
-    } catch (e) {
-      console.error(e);
-      throw new BadRequestException(e);
-    }
+  findMany(branchId: number) {
+    return this.repository.findMany(branchId);
   }
 
   async findOne(id: string) {
-    try {
-      return await this.prisma.employee.findUnique({
-        where: {id: id},
-        include: {
-          branch: true,
-          department: true,
-          position: true,
-          payrolls: true,
-        }
-      });
-    } catch (e) {
-      console.error(e);
-      throw new BadRequestException(e);
-    }
+    return this.repository.findOne(id);
   }
 
+
   async update(id: string, updates: UpdateEmployeeDto) {
-    return await this.prisma.employee.update({where: {id: id}, data: updates})
-      .catch((e) => new BadRequestException(e));
+    return this.repository.update(id, updates);
   }
 
   async remove(id: string) {
-    await this.prisma.employee.delete({where: {id: id}}).catch((e) => {
-      throw new BadRequestException(e);
-    });
+    return this.repository.remove(id);
   }
 
   async generateEmployeeCode(code: string): Promise<string> {
-    const count = await this.prisma.employee.count();
+    const count = await this.repository.count();
     let gen: string;
     if (count < 10) {
       gen = "0000";
@@ -156,11 +77,6 @@ export class EmployeeService {
 
   async updateQrCodeEmployee(id: string) {
     const qrCode = await qr.toDataURL(id);
-    await this.prisma.employee.update({
-      where: {id: id},
-      data: {qrCode: qrCode}
-    });
-
+    this.repository.updateQrCode(id, qrCode);
   }
-
 }

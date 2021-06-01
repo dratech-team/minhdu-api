@@ -1,161 +1,64 @@
 import {BadRequestException, Injectable} from '@nestjs/common';
 import {UpdatePayrollDto} from './dto/update-payroll.dto';
-import {PrismaService} from "../../../prisma.service";
 import {Salary, SalaryType} from '@prisma/client';
 import * as moment from "moment";
 import * as XLSX from "xlsx";
+import {PayrollRepository} from "./payroll.repository";
+import {EmployeeService} from "../employee/employee.service";
 
 @Injectable()
 export class PayrollService {
-  constructor(private readonly prisma: PrismaService) {
+  constructor(
+    private readonly repository: PayrollRepository,
+    private readonly employeeService: EmployeeService
+  ) {
   }
 
   /**
    * Tạo payroll dùng cho các khoảng khấu trừ / thương tết / phụ cấp khác
    * */
   async create(employeeId: string) {
-    try {
-      const basic = await this.prisma.employee.findUnique({
-        where: {id: employeeId},
-        select: {
-          salaries: true
-        }
-      });
-
-      const connect = basic.salaries.map(e => ({
-        id: e.id
-      }));
-
-      return this.prisma.payroll.create({
-        data: {
-          employee: {connect: {id: employeeId}},
-          salaries: {connect: connect}
-        }
-      });
-    } catch (e) {
-      console.error(e);
-      throw new BadRequestException(e);
-    }
+    const employee = await this.employeeService.findOne(employeeId);
+    const salaries = employee.salaries.map(e => ({
+      id: e.id
+    }));
+    return this.repository.create(employeeId, salaries);
   }
 
   async findAll(branchId: number, skip: number, take: number, search?: string, datetime?: Date) {
-    // let date: Date;
-    // if(datetime) {
-    //   date = new Date(datetime);
-    // }
-    const date = new Date(), y = date.getFullYear(), m = date.getMonth();
-    const firstDay = new Date(y, m, 1);
-    const lastDay = new Date();
-    try {
-      const checkExist = await this.checkPayrollExist(branchId);
-
-      const where = {
-        AND: [
-          {
-            employee: {branchId},
-          },
-          {
-            createdAt: {
-              gte: firstDay,
-              lte: lastDay,
-            }
-          },
-          {
-            OR: [
-              {
-                employeeId: {startsWith: search}
-              },
-              {
-                employee: {
-                  branch: {
-                    name: {startsWith: search}
-                  }
-                }
-              },
-            ]
-          }
-        ],
+    const checkExist = await this.checkPayrollExist(branchId);
+    if (checkExist) {
+      const payroll = await this.repository.findAll(branchId, skip, take, search, datetime);
+      return {
+        total: payroll.total,
+        data: payroll.data.map((e => {
+          return {
+            id: e.id,
+            isEdit: e.isEdit,
+            confirmedAt: e.confirmedAt,
+            paidAt: e.paidAt,
+            createdAt: e.createdAt,
+            salaries: e.salaries,
+            employee: e.employee,
+            actualDay: this.actualDay(e.salaries),
+          };
+        })),
       };
-      if (checkExist) {
-        const [total, payrolls] = await Promise.all([
-          this.prisma.payroll.count({
-            where: where
-          }),
-          this.prisma.payroll.findMany({
-            where: where,
-            take, skip,
-            include: {
-              salaries: true,
-              employee: {
-                include: {
-                  branch: true,
-                  department: true,
-                  position: true,
-                }
-              }
-            }
-          })
-        ]);
-        return {
-          total: total,
-          data: payrolls.map(payroll => this.totalSalary(payroll)),
-        };
-      } else {
-        return {
-          total: 0,
-          data: [],
-        };
-      }
-    } catch (e) {
-      console.error(e);
-      throw new BadRequestException(e);
+    } else {
+      return {
+        total: 0,
+        data: [],
+      };
     }
-
   }
 
   async findOne(id: number): Promise<any> {
-    try {
-      const payroll = await this.prisma.payroll.findUnique({
-        where: {id: id},
-        include: {
-          salaries: true,
-          employee: {
-            include: {
-              branch: true,
-              department: true,
-              position: true,
-            }
-          }
-        }
-      });
-
-      return this.totalSalary(payroll);
-    } catch (e) {
-      console.error(e);
-      throw new BadRequestException(e);
-    }
+    const payroll = this.repository.findOne(id);
+    return this.totalSalary(payroll);
   }
 
   async update(id: number, updates: UpdatePayrollDto) {
-    try {
-      const payroll = await this.prisma.payroll.findUnique({where: {id}});
-      if (!payroll.isEdit) {
-        throw new BadRequestException('Phiếu lương đã được tạo vì vậy bạn không có quyền sửa. Vui lòng liên hệ admin để được hỗ trợ.');
-      }
-      return await this.prisma.payroll.update({
-        where: {id: id},
-        data: {
-          salaries: updates.salaryId ? {connect: {id: updates.salaryId}} : {},
-          isEdit: updates.isEdit,
-          paidAt: updates.isPaid ? new Date() : null,
-          confirmedAt: updates.isConfirm ? new Date() : null,
-        },
-        include: {salaries: true}
-      });
-    } catch (e) {
-      console.error(e);
-      throw new BadRequestException(e);
-    }
+    return this.repository.update(id, updates);
   }
 
   async remove(id: number) {
@@ -178,7 +81,6 @@ export class PayrollService {
     let daySalary = 0;
 
     const actualDay = this.actualDay(payroll.salaries);
-
 
     for (let i = 0; i < payroll.salaries.length; i++) {
       switch (payroll.salaries[i].type) {
@@ -238,41 +140,41 @@ export class PayrollService {
     };
   }
 
-  async print(branchId: number) {
-    const date = new Date(), y = date.getFullYear(), m = date.getMonth();
-    const firstDay = new Date(y, m, 1);
-    const lastDay = new Date(y, m + 1, 0);
-    try {
-      const payrolls = await this.prisma.payroll.findMany({
-        where: {
-          createdAt: {
-            gte: firstDay,
-            lte: lastDay,
-          },
-          employee: {
-            branch: {
-              id: branchId
-            }
-          }
-        },
-        include: {
-          employee: {
-            include: {
-              branch: true,
-              department: true,
-              position: true,
-            }
-          },
-          salaries: true,
-        }
-      });
-      const res = payrolls.map(payroll => this.totalSalary(payroll));
-      return await this.handleExcel(res);
-    } catch (e) {
-      console.error(e);
-      throw new BadRequestException(e);
-    }
-  }
+  // async print(branchId: number) {
+  //   const date = new Date(), y = date.getFullYear(), m = date.getMonth();
+  //   const firstDay = new Date(y, m, 1);
+  //   const lastDay = new Date(y, m + 1, 0);
+  //   try {
+  //     const payrolls = await this.prisma.payroll.findMany({
+  //       where: {
+  //         createdAt: {
+  //           gte: firstDay,
+  //           lte: lastDay,
+  //         },
+  //         employee: {
+  //           branch: {
+  //             id: branchId
+  //           }
+  //         }
+  //       },
+  //       include: {
+  //         employee: {
+  //           include: {
+  //             branch: true,
+  //             department: true,
+  //             position: true,
+  //           }
+  //         },
+  //         salaries: true,
+  //       }
+  //     });
+  //     const res = payrolls.map(payroll => this.totalSalary(payroll));
+  //     return await this.handleExcel(res);
+  //   } catch (e) {
+  //     console.error(e);
+  //     throw new BadRequestException(e);
+  //   }
+  // }
 
   async handleExcel(res: any[]) {
     const fileName = 'ab.xlsx';
@@ -292,10 +194,7 @@ export class PayrollService {
   async checkPayrollExist(branchId: number): Promise<boolean> {
     const datetime = moment().format('yyyy-MM');
     try {
-      const employees = await this.prisma.employee.findMany({
-        where: {branchId},
-        include: {payrolls: true}
-      });
+      const employees = await this.employeeService.findMany(branchId);
 
       for (let i = 0; i < employees.length; i++) {
         const count = employees[i].payrolls.filter(payroll => {

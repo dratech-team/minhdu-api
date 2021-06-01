@@ -31,22 +31,22 @@ export class EmployeeController {
   ) {
     return this.employeeService.findAll(branchId, +skip, +take, search);
   }
-
-  @Get(':id')
-  @Roles(UserType.ADMIN, UserType.HUMAN_RESOURCE, UserType.CAMP_ACCOUNTING)
-  findOne(@Param('id') id: string) {
-    return this.employeeService.findOne(id);
-  }
-
-  @Patch(':id')
-  @Roles(UserType.ADMIN, UserType.HUMAN_RESOURCE)
-  update(@Param('id') id: string, @Body() updateEmployeeDto: UpdateEmployeeDto) {
-    return this.employeeService.update(id, updateEmployeeDto);
-  }
-
-  @Delete(':id')
-  @Roles(UserType.ADMIN, UserType.HUMAN_RESOURCE)
-  remove(@Param('id') id: string) {
-    return this.employeeService.remove(id);
-  }
+  //
+  // @Get(':id')
+  // @Roles(UserType.ADMIN, UserType.HUMAN_RESOURCE, UserType.CAMP_ACCOUNTING)
+  // findOne(@Param('id') id: string) {
+  //   return this.employeeService.findOne(id);
+  // }
+  //
+  // @Patch(':id')
+  // @Roles(UserType.ADMIN, UserType.HUMAN_RESOURCE)
+  // update(@Param('id') id: string, @Body() updateEmployeeDto: UpdateEmployeeDto) {
+  //   return this.employeeService.update(id, updateEmployeeDto);
+  // }
+  //
+  // @Delete(':id')
+  // @Roles(UserType.ADMIN, UserType.HUMAN_RESOURCE)
+  // remove(@Param('id') id: string) {
+  //   return this.employeeService.remove(id);
+  // }
 }

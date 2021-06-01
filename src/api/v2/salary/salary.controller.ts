@@ -11,24 +11,24 @@ export class SalaryController {
   create(@Body() createSalaryDto: CreateSalaryDto) {
     return this.salaryService.create(createSalaryDto);
   }
-
-  @Get()
-  findAll() {
-    return this.salaryService.findAll();
-  }
-
-  @Get(':id')
-  findOne(@Param('id') id: string) {
-    return this.salaryService.findOne(+id);
-  }
-
-  @Patch(':id')
-  update(@Param('id') id: string, @Body() updateSalaryDto: UpdateSalaryDto) {
-    return this.salaryService.update(+id, updateSalaryDto);
-  }
-
-  @Delete(':id')
-  remove(@Param('id') id: string) {
-    return this.salaryService.remove(+id);
-  }
+  //
+  // @Get()
+  // findAll() {
+  //   return this.salaryService.findAll();
+  // }
+  //
+  // @Get(':id')
+  // findOne(@Param('id') id: string) {
+  //   return this.salaryService.findOne(+id);
+  // }
+  //
+  // @Patch(':id')
+  // update(@Param('id') id: string, @Body() updateSalaryDto: UpdateSalaryDto) {
+  //   return this.salaryService.update(+id, updateSalaryDto);
+  // }
+  //
+  // @Delete(':id')
+  // remove(@Param('id') id: string) {
+  //   return this.salaryService.remove(+id);
+  // }
 }

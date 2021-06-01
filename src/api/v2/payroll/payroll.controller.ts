@@ -29,7 +29,7 @@ export class PayrollController {
   // @Roles(UserType.ADMIN, UserType.HUMAN_RESOURCE, UserType.CAMP_ACCOUNTING)
   @Get('/export')
   async exportPayrolls(@Res() res, @ReqProfile() branchId: number,) {
-    return await this.payrollService.print(branchId);
+    // return await this.payrollService.print(branchId);
     // return res.download(fileName);
     // return this.payrollService.print(branchId);
   }

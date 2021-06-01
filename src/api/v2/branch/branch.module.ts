@@ -8,7 +8,8 @@ import {ConfigModule} from "../../../core/config/config.module";
 @Module({
   imports: [ConfigModule],
   controllers: [BranchController],
-  providers: [BranchService, PrismaService, BranchRepository]
+  providers: [BranchService, PrismaService, BranchRepository],
+  exports: [BranchService]
 })
 export class BranchModule {
 }

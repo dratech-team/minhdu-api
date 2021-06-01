@@ -9,7 +9,7 @@ import {
   MaxLength,
   MinLength
 } from "class-validator";
-import {Type} from "class-transformer";
+import {Transform, Type} from "class-transformer";
 import {GenderType} from "@prisma/client";
 
 export class ICreateUserDto {
@@ -25,6 +25,7 @@ export class ICreateUserDto {
   readonly address: string;
 
   @Type(() => Date)
+  @Transform(birthday => new Date(birthday.value))
   @IsDate()
   @IsNotEmpty()
   birthday: Date;
