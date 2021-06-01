@@ -87,7 +87,7 @@ export class EmployeeRepository {
   }
 
   async findMany(branchId: number) {
-    return  await this.prisma.employee.findMany({
+    return await this.prisma.employee.findMany({
       where: {branchId},
       include: {payrolls: true}
     });
@@ -120,6 +120,17 @@ export class EmployeeRepository {
     this.prisma.employee.delete({where: {id: id}}).catch((e) => {
       throw new BadRequestException(e);
     });
+  }
+
+  connectSalary(id: string, salaryId: number) {
+    this.prisma.employee.update({
+      where: {id},
+      data: {
+        salaries: {
+          connect: {id: salaryId}
+        }
+      }
+    }).then();
   }
 
   updateQrCode(id: string, qrCode: string): void {

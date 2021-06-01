@@ -19,4 +19,15 @@ export class SalaryRepository {
   async findMany(body: CreateSalaryDto) {
     return await this.prisma.salary.findFirst({where: body});
   }
+
+  async findOne(id: number) {
+    return this.prisma.salary.findUnique({where: {id}});
+  }
+
+  async remove(id: number) {
+    this.prisma.salary.delete({where: {id: id}}).catch(err => {
+      console.error(err);
+      throw new BadRequestException(err);
+    });
+  }
 }

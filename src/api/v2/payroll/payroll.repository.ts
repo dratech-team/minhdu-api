@@ -21,7 +21,6 @@ export class PayrollRepository {
     }
   }
 
-
   async findAll(branchId: number, skip: number, take: number, search?: string, datetime?: Date) {
     const date = new Date(), y = date.getFullYear(), m = date.getMonth();
     const firstDay = new Date(y, m, 1);
@@ -55,12 +54,9 @@ export class PayrollRepository {
         ],
       };
       const [total, payrolls] = await Promise.all([
-        this.prisma.payroll.count({
-          where: where
-        }),
+        this.prisma.payroll.count({where}),
         this.prisma.payroll.findMany({
-          where: where,
-          take, skip,
+          where, take, skip,
           include: {
             salaries: true,
             employee: {

@@ -5,12 +5,14 @@ import * as moment from "moment";
 import * as XLSX from "xlsx";
 import {PayrollRepository} from "./payroll.repository";
 import {EmployeeService} from "../employee/employee.service";
+import {SalaryService} from "../salary/salary.service";
 
 @Injectable()
 export class PayrollService {
   constructor(
     private readonly repository: PayrollRepository,
-    private readonly employeeService: EmployeeService
+    private readonly employeeService: EmployeeService,
+    private readonly salaryService: SalaryService,
   ) {
   }
 
@@ -29,6 +31,7 @@ export class PayrollService {
     const checkExist = await this.checkPayrollExist(branchId);
     if (checkExist) {
       const payroll = await this.repository.findAll(branchId, skip, take, search, datetime);
+
       return {
         total: payroll.total,
         data: payroll.data.map((e => {
@@ -53,12 +56,18 @@ export class PayrollService {
   }
 
   async findOne(id: number): Promise<any> {
-    const payroll = this.repository.findOne(id);
+    const payroll = await this.repository.findOne(id);
     return this.totalSalary(payroll);
   }
 
   async update(id: number, updates: UpdatePayrollDto) {
-    return this.repository.update(id, updates);
+    const payroll = await this.repository.update(id, updates);
+    this.salaryService.findOne(updates.salaryId).then(salary => {
+      if (salary.type === SalaryType.BASIC || salary.type === SalaryType.ALLOWANCE_STAYED) {
+        this.employeeService.connectSalary(payroll.employeeId, updates.salaryId);
+      }
+    });
+    return payroll;
   }
 
   async remove(id: number) {
@@ -66,7 +75,7 @@ export class PayrollService {
   }
 
   actualDay(salaries: Salary[]) {
-    return new Date().getDate() - salaries.filter(salary => salary.type === SalaryType.ABSENT)
+    return new Date().getDate() - salaries?.filter(salary => salary.type === SalaryType.ABSENT)
       .map(e => e.forgot ? e.times * 1.5 : e.times)
       .reduce((a, b) => a + b, 0);
   }

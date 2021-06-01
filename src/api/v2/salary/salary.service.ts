@@ -13,7 +13,7 @@ export class SalaryService {
     if (salary) {
       return salary;
     } else {
-      return  this.repository.create(body);
+      return this.repository.create(body);
     }
   }
 
@@ -22,9 +22,10 @@ export class SalaryService {
   //   return `This action returns all salary`;
   // }
   //
-  // async findOne(id: number) {
-  //
-  // }
+  async findOne(id: number) {
+    return this.repository.findOne(id);
+  }
+
   //
   // async update(id: number, updateSalaryDto: UpdateSalaryDto) {
   //   return this.prisma.salary.update({
@@ -33,12 +34,7 @@ export class SalaryService {
   //   });
   // }
   //
-  // async remove(id: number) {
-  //   try {
-  //     await this.prisma.salary.delete({where: {id: id}});
-  //   } catch (e) {
-  //     console.error(e);
-  //     throw new BadRequestException(e);
-  //   }
-  // }
+  remove(id: number) {
+    this.repository.remove(id).then();
+  }
 }

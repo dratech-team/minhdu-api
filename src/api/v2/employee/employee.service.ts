@@ -58,6 +58,10 @@ export class EmployeeService {
     return this.repository.remove(id);
   }
 
+  connectSalary(id: string, salaryId: number): void {
+    this.repository.connectSalary(id, salaryId);
+  }
+
   async generateEmployeeCode(code: string): Promise<string> {
     const count = await this.repository.count();
     let gen: string;
