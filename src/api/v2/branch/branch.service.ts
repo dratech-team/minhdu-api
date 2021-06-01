@@ -1,4 +1,4 @@
-import {BadRequestException, ConflictException, Injectable} from '@nestjs/common';
+import {Injectable} from '@nestjs/common';
 import {CreateBranchDto} from './dto/create-branch.dto';
 import {Branch} from '@prisma/client';
 import {BranchRepository} from "./branch.repository";
@@ -11,36 +11,21 @@ export class BranchService {
 
   async create(body: CreateBranchDto): Promise<Branch> {
     const code = this.generateNameCode(body.name);
+    const branch = await this.repository.create(body);
+    this.repository.changeCode(branch.id, code).then();
 
-    try {
-      const branch = await this.repository.create(body);
-      this.repository.changeCode(branch.id, code).then();
-
-      return branch;
-    } catch (e) {
-      console.error(e);
-      if (e?.code == "P2002") {
-        throw new ConflictException('Tên chi nhánh không được phép trùng nhau. Vui lòng thử lại');
-      } else {
-        throw new BadRequestException(e);
-      }
-    }
+    return branch;
   }
 
   async findAll(): Promise<any> {
-    try {
-      const res = await this.repository.findAll();
-      return res.map(branch => {
-        return {
-          id: branch.id,
-          name: branch.name,
-          departmentIds: branch.departments.map(e => e.id)
-        };
-      });
-    } catch (e) {
-      console.error(e);
-      throw new BadRequestException(`Các tham số skip, take, id là bắt buộc. Vui lòng kiểm tra lại bạn đã truyền đủ 3 tham số chưa.?`);
-    }
+    const res = await this.repository.findAll();
+    return res.map(branch => {
+      return {
+        id: branch.id,
+        name: branch.name,
+        departmentIds: branch.departments.map(e => e.id)
+      };
+    });
   }
 
   findOne(id: number) {
