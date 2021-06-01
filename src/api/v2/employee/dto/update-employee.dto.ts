@@ -5,12 +5,12 @@ import {Type} from "class-transformer";
 
 export class UpdateEmployeeDto extends PartialType(CreateEmployeeDto) {
   @IsOptional()
-  @Type(() => Date.UTC)
+  @Type(() => Date)
   @IsDate()
   stayedAt: Date;
 
   @IsOptional()
-  @Type(() => Date.UTC)
+  @Type(() => Date)
   @IsDate()
   contractAt: Date;
 }

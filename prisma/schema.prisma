@@ -16,10 +16,11 @@ model Account {
 }
 
 model Branch {
-  id          String       @id
-  name        String       @unique
-  accountId   Int?          @unique
-  account     Account?      @relation(fields: [accountId], references: [id])
+  id          Int          @id @default(autoincrement())
+  code        String?
+  name        String      @unique
+  accountId   Int?
+  account     Account?     @relation(fields: [accountId], references: [id])
   departments Department[]
   employees   Employee[]
 }
@@ -28,7 +29,7 @@ model Department {
   id        Int        @id @default(autoincrement())
   name      String     @unique
   color     String     @unique
-  branchId  String
+  branchId  Int
   branch    Branch     @relation(fields: [branchId], references: [id])
   employee  Employee[]
   positions Position[]
@@ -53,7 +54,7 @@ model Employee {
   birthday     DateTime
   phone        String
   email        String?
-  branchId     String
+  branchId     Int
   departmentId Int
   positionId   Int
   workedAt     DateTime?

@@ -1,4 +1,4 @@
-import {Body, Controller, Delete, Get, Param, Patch, Post} from '@nestjs/common';
+import {BadRequestException, Body, Controller, Delete, Get, Param, Patch, Post} from '@nestjs/common';
 import {BranchService} from './branch.service';
 import {CreateBranchDto} from './dto/create-branch.dto';
 import {UpdateBranchDto} from './dto/update-branch.dto';
@@ -20,17 +20,17 @@ export class BranchController {
 
 
   @Get(':id')
-  async findOne(@Param('id') id: string) {
+  async findOne(@Param('id') id: number) {
     return this.branchService.findOne(id);
   }
 
   @Patch(':id')
-  update(@Param('id') id: string, @Body() updateBranchDto: UpdateBranchDto) {
+  update(@Param('id') id: number, @Body() updateBranchDto: UpdateBranchDto) {
     return this.branchService.update(id, updateBranchDto);
   }
 
   @Delete(':id')
-  async remove(@Param('id') id: string) {
-    await this.branchService.remove(id);
+  remove(@Param('id') id: number) {
+    return this.branchService.remove(+id);
   }
 }

@@ -1,25 +1,24 @@
-import {BadRequestException, ConflictException, Injectable, InternalServerErrorException} from '@nestjs/common';
+import {BadRequestException, ConflictException, Injectable} from '@nestjs/common';
 import {CreateBranchDto} from './dto/create-branch.dto';
-import {UpdateBranchDto} from './dto/update-branch.dto';
-import {PrismaService} from "../../../prisma.service";
 import {Branch} from '@prisma/client';
+import {BranchRepository} from "./branch.repository";
+import {UpdateBranchDto} from "./dto/update-branch.dto";
 
 @Injectable()
 export class BranchService {
-  constructor(private readonly prisma: PrismaService) {
+  constructor(private readonly repository: BranchRepository) {
   }
 
   async create(body: CreateBranchDto): Promise<Branch> {
-    const id = this.generateNameCode(body.name);
+    const code = this.generateNameCode(body.name);
 
     try {
-      return await this.prisma.branch.create({
-        data: {
-          id: id,
-          name: body.name,
-        }
-      });
+      const branch = await this.repository.create(body);
+      this.repository.changeCode(branch.id, code).then();
+
+      return branch;
     } catch (e) {
+      console.error(e);
       if (e?.code == "P2002") {
         throw new ConflictException('Tên chi nhánh không được phép trùng nhau. Vui lòng thử lại');
       } else {
@@ -29,46 +28,31 @@ export class BranchService {
   }
 
   async findAll(): Promise<any> {
-    let branches = [];
-
     try {
-      const res = await this.prisma.branch.findMany({
-        select: {
-          id: true,
-          name: true,
-          departments: {
-            select: {
-              id: true,
-              positions: {select: {id: true}}
-            }
-          },
-        }
+      const res = await this.repository.findAll();
+      return res.map(branch => {
+        return {
+          id: branch.id,
+          name: branch.name,
+          departmentIds: branch.departments.map(e => e.id)
+        };
       });
-      res.map(branch => branches.push({
-        id: branch.id,
-        name: branch.name,
-        departmentIds: branch.departments.map(e => e.id)
-      }));
-      return branches;
     } catch (e) {
       console.error(e);
-      throw new InternalServerErrorException(`Các tham số skip, take, id là bắt buộc. Vui lòng kiểm tra lại bạn đã truyền đủ 3 tham số chưa.?`);
+      throw new BadRequestException(`Các tham số skip, take, id là bắt buộc. Vui lòng kiểm tra lại bạn đã truyền đủ 3 tham số chưa.?`);
     }
-
   }
 
-  findOne(id: string) {
-    return this.prisma.branch.findUnique({where: {id: id}});
+  findOne(id: number) {
+    return this.repository.findOne(id);
   }
 
-  async update(id: string, updates: UpdateBranchDto) {
-    return await this.prisma.branch.update({where: {id: id}, data: updates}).catch((e) => new BadRequestException(e));
+  update(id: number, updates: UpdateBranchDto): Promise<any> {
+    return this.repository.update(id, updates);
   }
 
-  async remove(id: string): Promise<void> {
-    await this.prisma.branch.delete({where: {id: id}}).catch((e) => {
-      throw new BadRequestException(e);
-    });
+  remove(id: number): void {
+    this.repository.remove(id);
   }
 
   generateNameCode(str) {

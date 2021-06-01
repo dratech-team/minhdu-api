@@ -8,7 +8,7 @@ const qr = require("qrcode");
 
 @Injectable()
 export class EmployeeService {
-  constructor(private readonly prisma: PrismaService,) {
+  constructor(private readonly prisma: PrismaService) {
   }
 
   include = {
@@ -30,9 +30,10 @@ export class EmployeeService {
           note: body.note
         }
       });
+      const branch = await this.prisma.branch.findUnique({where: {id: body.branchId}});
       return await this.prisma.employee.create({
         data: {
-          id: await this.generateEmployeeCode(body),
+          id: await this.generateEmployeeCode(branch.code),
           identify: body.identify,
           name: body.name,
           address: body.address,
@@ -73,7 +74,7 @@ export class EmployeeService {
     }
   }
 
-  async findAll(branchId: string, skip: number, take: number, search?: string): Promise<any> {
+  async findAll(branchId: number, skip: number, take: number, search?: string): Promise<any> {
     if (search == undefined) {
       search = '';
     }
@@ -131,12 +132,12 @@ export class EmployeeService {
   }
 
   async remove(id: string) {
-    await this.prisma.branch.delete({where: {id: id}}).catch((e) => {
+    await this.prisma.employee.delete({where: {id: id}}).catch((e) => {
       throw new BadRequestException(e);
     });
   }
 
-  async generateEmployeeCode(body: CreateEmployeeDto): Promise<string> {
+  async generateEmployeeCode(code: string): Promise<string> {
     const count = await this.prisma.employee.count();
     let gen: string;
     if (count < 10) {
@@ -148,7 +149,7 @@ export class EmployeeService {
     } else if (count < 10000) {
       gen = "0";
     }
-    const id = `${body.branchId}${gen}${count + 1}`;
+    const id = `${code}${gen}${count + 1}`;
     this.updateQrCodeEmployee(id).then();
     return id;
   }

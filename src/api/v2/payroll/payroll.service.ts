@@ -38,7 +38,7 @@ export class PayrollService {
     }
   }
 
-  async findAll(branchId: string, skip: number, take: number, search?: string, datetime?: Date) {
+  async findAll(branchId: number, skip: number, take: number, search?: string, datetime?: Date) {
     // let date: Date;
     // if(datetime) {
     //   date = new Date(datetime);
@@ -145,7 +145,7 @@ export class PayrollService {
       return await this.prisma.payroll.update({
         where: {id: id},
         data: {
-          // salaries: updates.salaryId ? {connect: {id: updates.salaryId}} : {},
+          salaries: updates.salaryId ? {connect: {id: updates.salaryId}} : {},
           isEdit: updates.isEdit,
           paidAt: updates.isPaid ? new Date() : null,
           confirmedAt: updates.isConfirm ? new Date() : null,
@@ -238,7 +238,7 @@ export class PayrollService {
     };
   }
 
-  async print(branchId: string) {
+  async print(branchId: number) {
     const date = new Date(), y = date.getFullYear(), m = date.getMonth();
     const firstDay = new Date(y, m, 1);
     const lastDay = new Date(y, m + 1, 0);
@@ -289,7 +289,7 @@ export class PayrollService {
     return fileName;
   }
 
-  async checkPayrollExist(branchId: string): Promise<boolean> {
+  async checkPayrollExist(branchId: number): Promise<boolean> {
     const datetime = moment().format('yyyy-MM');
     try {
       const employees = await this.prisma.employee.findMany({

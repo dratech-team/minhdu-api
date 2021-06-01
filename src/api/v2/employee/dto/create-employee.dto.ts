@@ -9,9 +9,9 @@ export class CreateEmployeeDto extends ICreateUserDto {
   @MinLength(9)
   identify: string;
 
-  @IsString()
+  @IsNumber()
   @IsNotEmpty()
-  branchId: string;
+  branchId: number;
 
   @Type(() => Number)
   @IsNumber()
