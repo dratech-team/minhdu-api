@@ -57,7 +57,9 @@ export class PayrollService {
 
   async findOne(id: number): Promise<any> {
     const payroll = await this.repository.findOne(id);
-    return this.totalSalary(payroll);
+    if (payroll) {
+      return this.totalSalary(payroll);
+    }
   }
 
   async update(id: number, updates: UpdatePayrollDto) {
