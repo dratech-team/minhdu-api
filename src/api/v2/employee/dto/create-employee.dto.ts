@@ -13,6 +13,10 @@ export class CreateEmployeeDto extends ICreateUserDto {
   @MinLength(9)
   identify: string;
 
+  @IsOptional()
+  @IsString()
+  avt: string;
+
   @IsNumber()
   @IsNotEmpty()
   branchId: number;

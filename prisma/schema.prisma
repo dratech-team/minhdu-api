@@ -50,6 +50,7 @@ model Employee {
   id           String     @id
   identify     String
   name         String
+  avt          String?    @default("https://ibb.co/2ydP38t")
   gender       GenderType
   birthday     DateTime
   phone        String

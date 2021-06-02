@@ -1,7 +1,6 @@
-import {Body, Controller, Delete, Get, Param, ParseIntPipe, Patch, Post, Query, UseGuards} from '@nestjs/common';
+import {Body, Controller, Get, Param, ParseIntPipe, Post, Query, UseGuards} from '@nestjs/common';
 import {EmployeeService} from './employee.service';
 import {CreateEmployeeDto} from './dto/create-employee.dto';
-import {UpdateEmployeeDto} from './dto/update-employee.dto';
 import {JwtAuthGuard} from "../../../core/guard/jwt-auth.guard";
 import {ApiKeyGuard} from "../../../core/guard/api-key-auth.guard";
 import {RolesGuard} from "../../../core/guard/role.guard";
@@ -31,12 +30,13 @@ export class EmployeeController {
   ) {
     return this.employeeService.findAll(branchId, +skip, +take, search);
   }
-  //
-  // @Get(':id')
-  // @Roles(UserType.ADMIN, UserType.HUMAN_RESOURCE, UserType.CAMP_ACCOUNTING)
-  // findOne(@Param('id') id: string) {
-  //   return this.employeeService.findOne(id);
-  // }
+
+  @Get(':id')
+  @Roles(UserType.ADMIN, UserType.HUMAN_RESOURCE, UserType.CAMP_ACCOUNTING)
+  findOne(@Param('id') id: string) {
+    return this.employeeService.findOne(id);
+  }
+
   //
   // @Patch(':id')
   // @Roles(UserType.ADMIN, UserType.HUMAN_RESOURCE)

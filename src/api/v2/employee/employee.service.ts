@@ -3,7 +3,7 @@ import {CreateEmployeeDto} from './dto/create-employee.dto';
 import {EmployeeRepository} from "./employee.repository";
 import {BranchService} from "../branch/branch.service";
 import {SalaryService} from "../salary/salary.service";
-import {SalaryType} from '@prisma/client';
+import {Employee, GenderType, SalaryType} from '@prisma/client';
 import {CreateSalaryDto} from "../salary/dto/create-salary.dto";
 import {UpdateEmployeeDto} from "./dto/update-employee.dto";
 
@@ -21,19 +21,24 @@ export class EmployeeService {
   /**
    * Thêm thông tin nhân viên và lương căn bản ban đầu
    * */
-  async create(body: CreateEmployeeDto) {
-    /*Khởi tạo lương cơ bản*/
+  async create(body: CreateEmployeeDto): Promise<Employee> {
+    /**
+    *Khởi tạo lương cơ bản
+    */
     const basic = new CreateSalaryDto();
     basic.title = 'Lương cơ bản trích BH';
     basic.price = body.price;
     basic.type = SalaryType.BASIC;
     const salary = await this.salaryService.create(basic);
 
-    /*Generate mã nhân viên dựa trên code branch*/
+    /**
+     * Generate mã nhân viên dựa trên code branch
+     * */
     const branch = await this.branchService.findOne(body.branchId);
     body.id = await this.generateEmployeeCode(branch.code);
 
     body.salaryId = salary.id;
+
     return this.repository.create(body);
   }
 
