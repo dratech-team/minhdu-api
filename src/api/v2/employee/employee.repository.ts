@@ -12,7 +12,7 @@ export class EmployeeRepository {
     try {
       return await this.prisma.employee.create({
         data: {
-          id: body.id,
+          code: body.code,
           identify: body.identify,
           name: body.name,
           address: body.address,
@@ -27,6 +27,7 @@ export class EmployeeRepository {
           gender: body.gender,
           note: body.note,
           isFlatSalary: body.isFlatSalary,
+          certificate: body.certificate,
           payrolls: {
             create: {
               salaries: {
@@ -43,15 +44,7 @@ export class EmployeeRepository {
       });
     } catch (err) {
       console.error(err);
-      if (err?.code == "P2025") {
-        throw new NotFoundException(`Không tìm thấy id ${body?.branchId} hoặc ${body?.departmentId} hoặc ${body?.positionId}. Chi tiết: ${err?.meta?.cause}`);
-      } else if (err?.code == "P2002") {
-        throw new ConflictException(`CMND không được giống nhau. Vui lòng kiểm tra lại. Chi tiết: ${err}`);
-      } else if (err?.code == "P2014") {
-        throw new BadRequestException(`Chi nhánh ${body.branchId} không tồn tại phòng ban ${body.departmentId} hoặc phòng ban ${body.departmentId} không tồn tại chức vụ ${body.positionId}. Vui lòng kiểm tra lại. Chi tiết: ${err?.meta}`);
-      } else {
-        throw new BadRequestException(err);
-      }
+      throw new BadRequestException(err);
     }
   }
 
@@ -63,7 +56,7 @@ export class EmployeeRepository {
     const where = {
       leftAt: null,
       branchId,
-      id: {startsWith: search}
+      code: {startsWith: search}
     };
     try {
       const [total, data] = await Promise.all([
@@ -93,7 +86,7 @@ export class EmployeeRepository {
     });
   }
 
-  async findOne(id: string) {
+  async findOne(id: number) {
     try {
       return await this.prisma.employee.findUnique({
         where: {id: id},
@@ -111,7 +104,7 @@ export class EmployeeRepository {
     }
   }
 
-  async update(id: string, updates: UpdateEmployeeDto) {
+  async update(id: number, updates: UpdateEmployeeDto) {
     try {
       return await this.prisma.employee.update({where: {id: id}, data: updates});
     } catch (e) {
@@ -120,15 +113,15 @@ export class EmployeeRepository {
     }
   }
 
-  async remove(id: string) {
+  async remove(id: number) {
     this.prisma.employee.delete({where: {id: id}}).catch((e) => {
       throw new BadRequestException(e);
     });
   }
 
-  connectSalary(id: string, salaryId: number) {
+  connectSalary(employeeId: number, salaryId: number) {
     this.prisma.employee.update({
-      where: {id},
+      where: {id: employeeId},
       data: {
         salaries: {
           connect: {id: salaryId}
@@ -137,9 +130,9 @@ export class EmployeeRepository {
     }).then();
   }
 
-  updateQrCode(id: string, qrCode: string): void {
+  updateQrCode(employeeId: number, qrCode: string): void {
     this.prisma.employee.update({
-      where: {id},
+      where: {id: employeeId},
       data: {qrCode}
     }).then();
   }

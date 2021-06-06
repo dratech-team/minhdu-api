@@ -3,7 +3,7 @@ import {Type} from "class-transformer";
 import {IsDate, IsNotEmpty, IsNumber, IsOptional, IsString, MaxLength, Min, MinLength} from "class-validator";
 
 export class CreateEmployeeDto extends ICreateUserDto {
-  id: string;
+  code: string;
 
   salaryId: number;
 
@@ -46,6 +46,10 @@ export class CreateEmployeeDto extends ICreateUserDto {
   @IsNumber()
   @Min(1)
   price: number;
+
+  @IsNotEmpty()
+  @IsString()
+  certificate: string;
 
   @Type(() => Date)
   @IsDate()

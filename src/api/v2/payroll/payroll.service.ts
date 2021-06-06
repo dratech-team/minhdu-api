@@ -16,9 +16,11 @@ export class PayrollService {
   ) {
   }
 
+  async create() {
 
+  }
 
-  async autoGenerate(employeeId: string) {
+  async autoGenerate(employeeId: number) {
     const employee = await this.employeeService.findOne(employeeId);
     const salaries = employee.salaries.map(e => ({
       id: e.id

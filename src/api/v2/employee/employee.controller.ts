@@ -34,15 +34,15 @@ export class EmployeeController {
 
   @Get(':id')
   @Roles(UserType.ADMIN, UserType.HUMAN_RESOURCE, UserType.CAMP_ACCOUNTING)
-  findOne(@Param('id') id: string) {
-    return this.employeeService.findOne(id);
+  findOne(@Param('id') id: number) {
+    return this.employeeService.findOne(+id);
   }
 
 
   @Patch(':id')
   @Roles(UserType.ADMIN, UserType.HUMAN_RESOURCE)
-  update(@Param('id') id: string, @Body() updateEmployeeDto: UpdateEmployeeDto) {
-    return this.employeeService.update(id, updateEmployeeDto);
+  update(@Param('id') id: number, @Body() updateEmployeeDto: UpdateEmployeeDto) {
+    return this.employeeService.update(+id, updateEmployeeDto);
   }
 
   // @Delete(':id')

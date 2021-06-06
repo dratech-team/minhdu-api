@@ -3,7 +3,7 @@ import {CreateEmployeeDto} from './dto/create-employee.dto';
 import {EmployeeRepository} from "./employee.repository";
 import {BranchService} from "../branch/branch.service";
 import {SalaryService} from "../salary/salary.service";
-import {Employee, GenderType, SalaryType} from '@prisma/client';
+import {SalaryType} from '@prisma/client';
 import {CreateSalaryDto} from "../salary/dto/create-salary.dto";
 import {UpdateEmployeeDto} from "./dto/update-employee.dto";
 
@@ -21,10 +21,10 @@ export class EmployeeService {
   /**
    * Thêm thông tin nhân viên và lương căn bản ban đầu
    * */
-  async create(body: CreateEmployeeDto): Promise<Employee> {
+  async create(body: CreateEmployeeDto) {
     /**
-    *Khởi tạo lương cơ bản
-    */
+     *Khởi tạo lương cơ bản
+     */
     const basic = new CreateSalaryDto();
     basic.title = 'Lương cơ bản trích BH';
     basic.price = body.price;
@@ -35,11 +35,13 @@ export class EmployeeService {
      * Generate mã nhân viên dựa trên code branch
      * */
     const branch = await this.branchService.findOne(body.branchId);
-    body.id = await this.generateEmployeeCode(branch.code);
+    body.code = await this.generateEmployeeCode(branch.code);
 
     body.salaryId = salary.id;
-
-    return this.repository.create(body);
+    console.log(body);
+    return this.repository.create(body).then(employee => {
+      this.updateQrCodeEmployee(employee.id, employee.code);
+    });
   }
 
   async findAll(branchId: number, skip: number, take: number, search?: string): Promise<any> {
@@ -50,25 +52,26 @@ export class EmployeeService {
     return this.repository.findMany(branchId);
   }
 
-  async findOne(id: string) {
+  async findOne(id: number) {
     return this.repository.findOne(id);
   }
 
 
-  async update(id: string, updates: UpdateEmployeeDto) {
+  async update(id: number, updates: UpdateEmployeeDto) {
     return this.repository.update(id, updates);
   }
 
-  async remove(id: string) {
+  async remove(id: number) {
     return this.repository.remove(id);
   }
 
-  connectSalary(id: string, salaryId: number): void {
-    this.repository.connectSalary(id, salaryId);
+  connectSalary(employeeId: number, salaryId: number): void {
+    this.repository.connectSalary(employeeId, salaryId);
   }
 
-  async generateEmployeeCode(code: string): Promise<string> {
+  async generateEmployeeCode(branchCode: string): Promise<string> {
     const count = await this.repository.count();
+    console.log(count);
     let gen: string;
     if (count < 10) {
       gen = "0000";
@@ -79,13 +82,11 @@ export class EmployeeService {
     } else if (count < 10000) {
       gen = "0";
     }
-    const id = `${code}${gen}${count + 1}`;
-    this.updateQrCodeEmployee(id).then();
-    return id;
+    return `${branchCode}${gen}${count + 1}`;
   }
 
-  async updateQrCodeEmployee(id: string) {
-    const qrCode = await qr.toDataURL(id);
-    this.repository.updateQrCode(id, qrCode);
+  async updateQrCodeEmployee(employeeId: number, code: string) {
+    const qrCode = await qr.toDataURL(code);
+    this.repository.updateQrCode(employeeId, qrCode);
   }
 }

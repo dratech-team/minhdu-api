@@ -47,7 +47,8 @@ model Position {
 }
 
 model Employee {
-  id           String     @id
+  id           Int        @id @default(autoincrement())
+  code         String
   identify     String
   name         String
   avt          String?    @default("https://ibb.co/2ydP38t")
@@ -88,7 +89,7 @@ model Salary {
   forgot     Boolean?   @default(false)
   note       String?
   payrollId  Int?
-  employeeId String?
+  employeeId Int?
   employee   Employee?  @relation(fields: [employeeId], references: [id])
   payroll    Payroll?   @relation(fields: [payrollId], references: [id])
 
@@ -97,7 +98,7 @@ model Salary {
 
 model Payroll {
   id          Int       @id @default(autoincrement())
-  employeeId  String
+  employeeId  Int
   isEdit      Boolean   @default(true)
   confirmedAt DateTime?
   paidAt      DateTime?

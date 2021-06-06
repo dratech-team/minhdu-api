@@ -7,7 +7,7 @@ export class PayrollRepository {
   constructor(private readonly prisma: PrismaService) {
   }
 
-  async create(employeeId: string, salaries: any[]) {
+  async create(employeeId: number, salaries: any[]) {
     try {
       return this.prisma.payroll.create({
         data: {
@@ -54,9 +54,9 @@ export class PayrollRepository {
         ],
       };
       const [total, payrolls] = await Promise.all([
-        this.prisma.payroll.count({where}),
+        this.prisma.payroll.count(),
         this.prisma.payroll.findMany({
-          where, take, skip,
+          take, skip,
           include: {
             salaries: true,
             employee: {

@@ -1,4 +1,4 @@
-import {Body, Controller, Delete, Get, Param, ParseIntPipe, Patch, Query, Res, UseGuards} from '@nestjs/common';
+import {Body, Controller, Delete, Get, Param, ParseIntPipe, Patch, Post, Query, Res, UseGuards} from '@nestjs/common';
 import {PayrollService} from './payroll.service';
 import {UpdatePayrollDto} from './dto/update-payroll.dto';
 import {Roles} from "../../../core/decorators/roles.decorator";
@@ -12,6 +12,11 @@ import {ApiKeyGuard} from "../../../core/guard/api-key-auth.guard";
 @UseGuards(JwtAuthGuard, ApiKeyGuard, RolesGuard)
 export class PayrollController {
   constructor(private readonly payrollService: PayrollService) {
+  }
+
+  @Post()
+  create(@Body() createAt: Date) {
+    return this.payrollService.create();
   }
 
   @Get()
