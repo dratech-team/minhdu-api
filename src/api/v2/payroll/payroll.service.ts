@@ -16,10 +16,9 @@ export class PayrollService {
   ) {
   }
 
-  /**
-   * Tạo payroll dùng cho các khoảng khấu trừ / thương tết / phụ cấp khác
-   * */
-  async create(employeeId: string) {
+
+
+  async autoGenerate(employeeId: string) {
     const employee = await this.employeeService.findOne(employeeId);
     const salaries = employee.salaries.map(e => ({
       id: e.id
@@ -151,42 +150,6 @@ export class PayrollService {
     };
   }
 
-  // async print(branchId: number) {
-  //   const date = new Date(), y = date.getFullYear(), m = date.getMonth();
-  //   const firstDay = new Date(y, m, 1);
-  //   const lastDay = new Date(y, m + 1, 0);
-  //   try {
-  //     const payrolls = await this.prisma.payroll.findMany({
-  //       where: {
-  //         createdAt: {
-  //           gte: firstDay,
-  //           lte: lastDay,
-  //         },
-  //         employee: {
-  //           branch: {
-  //             id: branchId
-  //           }
-  //         }
-  //       },
-  //       include: {
-  //         employee: {
-  //           include: {
-  //             branch: true,
-  //             department: true,
-  //             position: true,
-  //           }
-  //         },
-  //         salaries: true,
-  //       }
-  //     });
-  //     const res = payrolls.map(payroll => this.totalSalary(payroll));
-  //     return await this.handleExcel(res);
-  //   } catch (e) {
-  //     console.error(e);
-  //     throw new BadRequestException(e);
-  //   }
-  // }
-
   async checkPayrollExist(branchId: number): Promise<boolean> {
     const datetime = moment().format('yyyy-MM');
     try {
@@ -201,7 +164,7 @@ export class PayrollService {
         if (count.length > 1) {
           throw new BadRequestException(`Có gì đó không đúng. Các nhân viên ${employees[i].name} có nhiều hơn 2 phiếu lương trong tháng này`);
         } else if (count.length === 0) {
-          await this.create(employees[i].id).then();
+          await this.autoGenerate(employees[i].id).then();
         }
         return true;
       }

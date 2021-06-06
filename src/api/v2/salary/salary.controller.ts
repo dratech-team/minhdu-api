@@ -1,6 +1,7 @@
-import {Body, Controller, Delete, Get, Param, Post} from '@nestjs/common';
+import {Body, Controller, Delete, Param, Patch, Post} from '@nestjs/common';
 import {SalaryService} from './salary.service';
 import {CreateSalaryDto} from './dto/create-salary.dto';
+import {UpdateSalaryDto} from "./dto/update-salary.dto";
 
 @Controller('v2/salary')
 export class SalaryController {
@@ -22,11 +23,11 @@ export class SalaryController {
     return this.salaryService.findOne(+id);
   }
 
-  //
-  // @Patch(':id')
-  // update(@Param('id') id: string, @Body() updateSalaryDto: UpdateSalaryDto) {
-  //   return this.salaryService.update(+id, updateSalaryDto);
-  // }
+
+  @Patch(':id')
+  update(@Param('id') id: string, @Body() updateSalaryDto: UpdateSalaryDto) {
+    return this.salaryService.update(+id, updateSalaryDto);
+  }
 
   @Delete(':id')
   remove(@Param('id') id: string) {
