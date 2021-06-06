@@ -1,9 +1,9 @@
 import {CreateEmployeeDto} from './create-employee.dto';
-import {PartialType} from "@nestjs/mapped-types";
+import {OmitType, PartialType} from "@nestjs/mapped-types";
 import {IsDate, IsNumber, IsOptional} from "class-validator";
 import {Type} from "class-transformer";
 
-export class UpdateEmployeeDto extends PartialType(CreateEmployeeDto) {
+export class UpdateEmployeeDto extends PartialType(OmitType(CreateEmployeeDto, ['price'] as const)) {
   @IsOptional()
   @Type(() => Date)
   @IsDate()

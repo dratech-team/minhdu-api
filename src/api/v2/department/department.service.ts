@@ -22,7 +22,7 @@ export class DepartmentService {
         name: department.name,
         color: department.color,
         branchId: department.branchId,
-        positionIds: department.positions.map(position => position.id)
+        positionIds: department.positions.map(position => position.id),
       };
     });
   }

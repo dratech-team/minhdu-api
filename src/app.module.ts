@@ -7,7 +7,7 @@ import { PositionModule } from './api/v2/position/position.module';
 import { EmployeeModule } from './api/v2/employee/employee.module';
 import { AuthModule } from './api/v2/auth/auth.module';
 import { PayrollModule } from './api/v2/payroll/payroll.module';
-import { DiagramModule } from './api/v2/diagram/diagram.module';
+import { OrgChartModule } from './api/v2/org-chart/org-chart.module';
 import { SalaryModule } from './api/v2/salary/salary.module';
 import {ConfigModule} from "./core/config/config.module";
 
@@ -19,7 +19,7 @@ import {ConfigModule} from "./core/config/config.module";
     EmployeeModule,
     AuthModule,
     PayrollModule,
-    DiagramModule,
+    OrgChartModule,
     SalaryModule,
     ConfigModule,
   ],

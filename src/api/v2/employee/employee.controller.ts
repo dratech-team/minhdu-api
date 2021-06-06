@@ -1,4 +1,4 @@
-import {Body, Controller, Get, Param, ParseIntPipe, Post, Query, UseGuards} from '@nestjs/common';
+import {Body, Controller, Get, Param, ParseIntPipe, Patch, Post, Query, UseGuards} from '@nestjs/common';
 import {EmployeeService} from './employee.service';
 import {CreateEmployeeDto} from './dto/create-employee.dto';
 import {JwtAuthGuard} from "../../../core/guard/jwt-auth.guard";
@@ -7,6 +7,7 @@ import {RolesGuard} from "../../../core/guard/role.guard";
 import {Roles} from "../../../core/decorators/roles.decorator";
 import {UserType} from "../../../core/constants/role-type.constant";
 import {ReqProfile} from "../../../core/decorators/req-profile.decorator";
+import {UpdateEmployeeDto} from "./dto/update-employee.dto";
 
 @Controller('v2/employee')
 @UseGuards(JwtAuthGuard, ApiKeyGuard, RolesGuard)
@@ -37,13 +38,13 @@ export class EmployeeController {
     return this.employeeService.findOne(id);
   }
 
-  //
-  // @Patch(':id')
-  // @Roles(UserType.ADMIN, UserType.HUMAN_RESOURCE)
-  // update(@Param('id') id: string, @Body() updateEmployeeDto: UpdateEmployeeDto) {
-  //   return this.employeeService.update(id, updateEmployeeDto);
-  // }
-  //
+
+  @Patch(':id')
+  @Roles(UserType.ADMIN, UserType.HUMAN_RESOURCE)
+  update(@Param('id') id: string, @Body() updateEmployeeDto: UpdateEmployeeDto) {
+    return this.employeeService.update(id, updateEmployeeDto);
+  }
+
   // @Delete(':id')
   // @Roles(UserType.ADMIN, UserType.HUMAN_RESOURCE)
   // remove(@Param('id') id: string) {

@@ -112,8 +112,12 @@ export class EmployeeRepository {
   }
 
   async update(id: string, updates: UpdateEmployeeDto) {
-    return await this.prisma.employee.update({where: {id: id}, data: updates})
-      .catch((e) => new BadRequestException(e));
+    try {
+      return await this.prisma.employee.update({where: {id: id}, data: updates});
+    } catch (e) {
+      console.error(e);
+      throw new BadRequestException(e);
+    }
   }
 
   async remove(id: string) {

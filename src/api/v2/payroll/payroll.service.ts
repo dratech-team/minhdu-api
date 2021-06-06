@@ -187,21 +187,6 @@ export class PayrollService {
   //   }
   // }
 
-  async handleExcel(res: any[]) {
-    const fileName = 'ab.xlsx';
-    // var data = "a,b,c\n1,2,4".split("\n").map(function (x) {
-    //   return x.split(",");
-    // });
-
-    // const data = res[0].
-    var ws = XLSX.utils.json_to_sheet(res);
-    var wb = XLSX.utils.book_new();
-    XLSX.utils.book_append_sheet(wb, ws, "SheetJS");
-
-    await XLSX.writeFile(wb, fileName, {bookType: 'xlsx'});
-    return fileName;
-  }
-
   async checkPayrollExist(branchId: number): Promise<boolean> {
     const datetime = moment().format('yyyy-MM');
     try {
