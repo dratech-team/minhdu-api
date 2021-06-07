@@ -1,11 +1,12 @@
-import {BadRequestException, Injectable} from '@nestjs/common';
+import {BadRequestException, ConflictException, Injectable} from '@nestjs/common';
 import {UpdatePayrollDto} from './dto/update-payroll.dto';
 import {Salary, SalaryType} from '@prisma/client';
 import * as moment from "moment";
-import * as XLSX from "xlsx";
 import {PayrollRepository} from "./payroll.repository";
 import {EmployeeService} from "../employee/employee.service";
 import {SalaryService} from "../salary/salary.service";
+import {CreatePayrollDto} from "./dto/create-payroll.dto";
+import {firstMonth, lastMonth} from "../../../utils/datetime.util";
 
 @Injectable()
 export class PayrollService {
@@ -16,51 +17,37 @@ export class PayrollService {
   ) {
   }
 
-  async create() {
-
-  }
-
-  async autoGenerate(employeeId: number) {
-    const employee = await this.employeeService.findOne(employeeId);
-    const salaries = employee.salaries.map(e => ({
-      id: e.id
-    }));
-    return this.repository.create(employeeId, salaries);
+  async create(body: CreatePayrollDto) {
+    const first = firstMonth(body.createdAt);
+    const last = lastMonth(body.createdAt);
+    const payroll = await this.repository.findMany({first, last});
+    if (payroll !== null) {
+      throw new ConflictException(`Phiếu lương tháng ${moment(body.createdAt).format('MM/yyyy')} đã tồn tại.. Vui lòng kiểm tra kỹ lại trước khi thêm.. Tức cái lồng ngực á`);
+    }
+    const employee = await this.employeeService.findOne(body.employeeId);
+    body.salaries = employee.salaries;
+    return await this.repository.create(body.employeeId, body.salaries, body.createdAt);
   }
 
   async findAll(branchId: number, skip: number, take: number, search?: string, datetime?: Date) {
     const checkExist = await this.checkPayrollExist(branchId);
     if (checkExist) {
-      const payroll = await this.repository.findAll(branchId, skip, take, search, datetime);
-
+      const res = await this.repository.findAll(branchId, skip, take, search, datetime);
       return {
-        total: payroll.total,
-        data: payroll.data.map((e => {
-          return {
-            id: e.id,
-            isEdit: e.isEdit,
-            confirmedAt: e.confirmedAt,
-            paidAt: e.paidAt,
-            createdAt: e.createdAt,
-            salaries: e.salaries,
-            employee: e.employee,
-            actualDay: this.actualDay(e.salaries),
-          };
-        })),
+        total: res.total,
+        data: res.data.map(payroll => this.returnPayroll(payroll)),
       };
     } else {
-      return {
-        total: 0,
-        data: [],
-      };
+      throw new BadRequestException('Có Lỗi xảy ra ở payroll service. Vui lòng liên hệ developer để khắc phục. Xin cảm ơn');
     }
   }
 
-  async findOne(id: number): Promise<any> {
+  async findOne(id: number, isConfirm: boolean): Promise<any> {
     const payroll = await this.repository.findOne(id);
-    if (payroll) {
+    if (isConfirm) {
       return this.totalSalary(payroll);
     }
+    return this.returnPayroll(payroll);
   }
 
   async update(id: number, updates: UpdatePayrollDto) {
@@ -77,10 +64,40 @@ export class PayrollService {
     return `This action removes a #${id} payroll`;
   }
 
+  returnPayroll(payroll: any) {
+    return {
+      id: payroll.id,
+      isEdit: payroll.isEdit,
+      confirmedAt: payroll.confirmedAt,
+      paidAt: payroll.paidAt,
+      createdAt: payroll.createdAt,
+      salaries: payroll.salaries,
+      employee: payroll.employee,
+      actualDay: this.actualDay(payroll.salaries),
+      payment: payroll.isEdit ? 'Đang xử lý' : this.totalSalary(payroll),
+    };
+  }
+
   actualDay(salaries: Salary[]) {
-    return new Date().getDate() - salaries?.filter(salary => salary.type === SalaryType.ABSENT)
-      .map(e => e.forgot ? e.times * 1.5 : e.times)
-      .reduce((a, b) => a + b, 0);
+    let absent = 0;
+    let late = 0;
+    const day = 30;
+    for (let i = 0; i < salaries.length; i++) {
+      switch (salaries[i].type) {
+        case SalaryType.ABSENT:
+          if (salaries[i].forgot) {
+            absent += salaries[i].times * 1.5;
+          } else {
+            absent += salaries[i].times;
+          }
+          break;
+        case SalaryType.LATE:
+          if (salaries[i].times === 4) {
+            late += 0.5;
+          }
+      }
+    }
+    return day - (absent + late);
   }
 
   totalSalary(payroll: any) {
@@ -91,7 +108,6 @@ export class PayrollService {
     let absentTime = 0;
     let lateTime = 0;
     let daySalary = 0;
-
     const actualDay = this.actualDay(payroll.salaries);
 
     for (let i = 0; i < payroll.salaries.length; i++) {
@@ -109,7 +125,7 @@ export class PayrollService {
           allowanceSalary += payroll.salaries[i].times * payroll.salaries[i].price;
           break;
         case SalaryType.OVERTIME:
-          overtime += payroll.salaries[i].rate;
+          overtime += payroll.salaries[i].rate - 1;
           break;
         // case SalaryType.ABSENT:
         //   if (payroll.salaries[i].forgot) {
@@ -123,56 +139,62 @@ export class PayrollService {
       }
     }
 
-    if (actualDay < payroll.employee.position.workday) {
-      daySalary = (basicSalary + staySalary) / payroll.employee.position.workday;
+    /*
+    * Nếu ngày thực tế > ngày công chuẩn thì lương 1 ngày = (tổng lương cơ bản + phụ cấp ở lại) / ngày làm chuẩn
+    * Nếu ngày thực tế < ngày công chuẩn thì lương 1 ngày = tổng lương cơ bản / ngày làm chuẩn và tiền phụ cấp
+    * ở lại = (tổng phụ cấp ở lại / số ngày làm việc chuẩn) * ngày làm thực tế
+    * */
+    if (actualDay > payroll.employee.position.workday) {
+      daySalary = Math.ceil((basicSalary + staySalary) / payroll.employee.position.workday);
     } else {
-      daySalary = basicSalary / payroll.employee.position.workday;
+      daySalary = Math.ceil(basicSalary / payroll.employee.position.workday);
+      staySalary = (staySalary / payroll.employee.position.workday) * actualDay;
     }
 
-    const tax = payroll.employee.contractAt !== null ? basicSalary * 0.115 : 0;
+    const basic = payroll.salaries.filter(salary => salary.title === 'Lương cơ bản trích BH')[0];
+
+    const tax = payroll.employee.contractAt !== null ? basic.price * 0.115 : 0;
     const deduction = daySalary / 8 * lateTime + daySalary * absentTime;
     const allowanceOvertime = daySalary * overtime;
-
-    const total = Math.ceil((daySalary * (actualDay + overtime) + allowanceSalary) - tax);
+    const total = Math.ceil(((daySalary * actualDay) + allowanceSalary + staySalary + (daySalary * overtime)) - tax);
 
     return {
-      id: payroll.id,
-      confirmedAt: payroll.confirmedAt,
-      paidAt: payroll.paidAt,
-      createdAt: payroll.createdAt,
       basic: basicSalary,
       stay: staySalary,
       allowance: allowanceSalary + allowanceOvertime,
       deduction,
       actualDay,
-      salaries: payroll.salaries,
-      total: !payroll.isEdit ? total : 0,
       tax,
-      employee: payroll.employee,
+      daySalary,
+      total: Math.round((total / 1000)) * 1000,
     };
   }
 
+  /*
+  * Kiểm tra phiếu lương của từng nhân viên đã tồn tại trong tháng này chưa?. Nếu chưa thì sẽ khởi tạo. Sau khi khởi
+  * tạo xong hết danh sách nhân viên thì sẽ trả về true
+  * */
   async checkPayrollExist(branchId: number): Promise<boolean> {
-    const datetime = moment().format('yyyy-MM');
+    const datetime = moment().format('MM/yyyy');
     try {
       const employees = await this.employeeService.findMany(branchId);
 
       for (let i = 0; i < employees.length; i++) {
         const count = employees[i].payrolls.filter(payroll => {
-          const createdAt = moment(payroll.createdAt).format('yyyy-MM');
-          return new Date(createdAt).getTime() === new Date(datetime).getTime();
+          const createdAt = moment(payroll.createdAt).format('MM/yyyy');
+          return datetime == createdAt;
         });
 
         if (count.length > 1) {
           throw new BadRequestException(`Có gì đó không đúng. Các nhân viên ${employees[i].name} có nhiều hơn 2 phiếu lương trong tháng này`);
         } else if (count.length === 0) {
-          await this.autoGenerate(employees[i].id).then();
+          await this.repository.create(employees[i].id, employees[i].salaries, new Date());
         }
-        return true;
       }
-    } catch (e) {
-      console.error(e);
-      throw new BadRequestException(e);
+      return true;
+    } catch (err) {
+      console.error(err);
+      throw new BadRequestException(err);
     }
   }
 }

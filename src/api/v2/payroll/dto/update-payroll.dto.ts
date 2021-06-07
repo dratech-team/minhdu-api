@@ -1,8 +1,7 @@
 import {IsBoolean, IsOptional} from "class-validator";
 import {Type} from "class-transformer";
-import {UpdateSalaryPayrollDto} from "./update-salary-payroll.dto";
 
-export class UpdatePayrollDto extends UpdateSalaryPayrollDto {
+export class UpdatePayrollDto {
   @IsOptional()
   @Type(() => Number)
   salaryId: number
@@ -21,5 +20,4 @@ export class UpdatePayrollDto extends UpdateSalaryPayrollDto {
   @Type(() => Boolean)
   @IsBoolean()
   isPaid: boolean;
-
 }

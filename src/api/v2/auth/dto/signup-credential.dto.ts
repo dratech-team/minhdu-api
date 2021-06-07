@@ -9,9 +9,6 @@ export class SignupCredentialDto extends SignInCredentialDto {
   role: Role;
 
   @IsOptional()
-  employeeId: string;
-
-  @IsOptional()
   @IsNumber()
-  branchId: number;
+  employeeId: number;
 }

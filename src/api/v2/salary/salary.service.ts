@@ -1,5 +1,5 @@
-import {Injectable} from '@nestjs/common';
-import {Salary} from '@prisma/client';
+import {BadRequestException, Injectable} from '@nestjs/common';
+import {Salary, SalaryType} from '@prisma/client';
 import {CreateSalaryDto} from "./dto/create-salary.dto";
 import {SalaryRepository} from "./salary.repository";
 import {UpdateSalaryDto} from "./dto/update-salary.dto";
@@ -10,11 +10,11 @@ export class SalaryService {
   }
 
   async create(body: CreateSalaryDto): Promise<Salary> {
-    const salary = await this.repository.findMany(body);
-    if (salary) {
-      return salary;
-    } else {
-      return this.repository.create(body);
+    try {
+      return await this.repository.create(body);
+    } catch (err) {
+      console.error(err);
+      throw new BadRequestException(err);
     }
   }
 
@@ -29,7 +29,11 @@ export class SalaryService {
 
 
   async update(id: number, updateSalaryDto: UpdateSalaryDto) {
-    return await this.repository.update(id, updateSalaryDto);
+    try {
+      return await this.repository.update(id, updateSalaryDto);
+    } catch (err) {
+      throw new BadRequestException(err);
+    }
   }
 
   remove(id: number) {

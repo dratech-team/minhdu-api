@@ -21,7 +21,7 @@ export class AuthService {
         data: {
           username: body.username,
           role: body.role,
-          branch: body.branchId ? {connect: {id: body.branchId}} : {},
+          employee: {connect: {id: body.employeeId}},
           password: body.password,
         }
       });
@@ -41,7 +41,7 @@ export class AuthService {
     try {
       const user = await this.prisma.account.findUnique({
         where: {username: body.username},
-        include: {branch: true}
+        include: {employee: true}
       });
       const isValid = await bcrypt.compare(body.password, user.password);
 
@@ -49,12 +49,12 @@ export class AuthService {
         throw new UnauthorizedException();
       }
 
-      if (user.branch) {
+      if (user.employee) {
         payload = {
           accountId: user.id,
           username: user.username,
           role: user.role,
-          branchId: user.branch.id,
+          branchId: user.employee.branchId
         };
       } else {
         payload = {
@@ -66,18 +66,19 @@ export class AuthService {
 
       const token = this.jwtService.sign(payload);
 
-      return user.branch ? {
+      return user.employee ? {
         id: user.id,
         role: user.role,
-        branchId: user.branch.id,
+        branchId: user.employee.branchId,
         token,
       } : {
         id: user.id,
         role: user.role,
         token,
       };
-    } catch (e) {
-      throw new BadRequestException(e);
+    } catch (err) {
+      console.error(err);
+      throw new BadRequestException(err);
     }
   }
 }

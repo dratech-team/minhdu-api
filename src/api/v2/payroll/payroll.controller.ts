@@ -7,6 +7,7 @@ import {ReqProfile} from "../../../core/decorators/req-profile.decorator";
 import {JwtAuthGuard} from "../../../core/guard/jwt-auth.guard";
 import {RolesGuard} from "../../../core/guard/role.guard";
 import {ApiKeyGuard} from "../../../core/guard/api-key-auth.guard";
+import {CreatePayrollDto} from "./dto/create-payroll.dto";
 
 @Controller('v2/payroll')
 @UseGuards(JwtAuthGuard, ApiKeyGuard, RolesGuard)
@@ -14,9 +15,10 @@ export class PayrollController {
   constructor(private readonly payrollService: PayrollService) {
   }
 
+  @Roles(UserType.ADMIN, UserType.HUMAN_RESOURCE, UserType.CAMP_ACCOUNTING)
   @Post()
-  create(@Body() createAt: Date) {
-    return this.payrollService.create();
+  create(@Body() body: CreatePayrollDto) {
+    return this.payrollService.create(body);
   }
 
   @Get()
@@ -41,8 +43,12 @@ export class PayrollController {
 
   @Roles(UserType.ADMIN, UserType.HUMAN_RESOURCE, UserType.CAMP_ACCOUNTING)
   @Get(':id')
-  findOne(@ReqProfile() branchId: string, @Param('id') id: string) {
-    return this.payrollService.findOne(+id);
+  findOne(
+    @ReqProfile() branchId: string,
+    @Param('id') id: string,
+    @Query('isConfirm') isConfirm: boolean
+  ) {
+    return this.payrollService.findOne(+id, Boolean(isConfirm));
   }
 
   @Patch(':id')

@@ -38,10 +38,9 @@ export class EmployeeService {
     body.code = await this.generateEmployeeCode(branch.code);
 
     body.salaryId = salary.id;
-    console.log(body);
-    return this.repository.create(body).then(employee => {
-      this.updateQrCodeEmployee(employee.id, employee.code);
-    });
+    const employee = await this.repository.create(body);
+    this.updateQrCodeEmployee(employee.id, employee.code);
+    return employee;
   }
 
   async findAll(branchId: number, skip: number, take: number, search?: string): Promise<any> {
@@ -85,8 +84,7 @@ export class EmployeeService {
     return `${branchCode}${gen}${count + 1}`;
   }
 
-  async updateQrCodeEmployee(employeeId: number, code: string) {
-    const qrCode = await qr.toDataURL(code);
-    this.repository.updateQrCode(employeeId, qrCode);
+  updateQrCodeEmployee(employeeId: number, code: string) {
+    qr.toDataURL(code).then(qrCode => this.repository.updateQrCode(employeeId, qrCode));
   }
 }

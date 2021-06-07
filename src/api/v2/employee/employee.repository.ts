@@ -1,7 +1,8 @@
-import {BadRequestException, ConflictException, Injectable, NotFoundException} from "@nestjs/common";
+import {BadRequestException, Injectable} from "@nestjs/common";
 import {PrismaService} from "../../../prisma.service";
 import {CreateEmployeeDto} from "./dto/create-employee.dto";
 import {UpdateEmployeeDto} from "./dto/update-employee.dto";
+import {firstMonth, lastMonth} from "../../../utils/datetime.util";
 
 @Injectable()
 export class EmployeeRepository {
@@ -82,7 +83,7 @@ export class EmployeeRepository {
   async findMany(branchId: number) {
     return await this.prisma.employee.findMany({
       where: {branchId},
-      include: {payrolls: true}
+      include: {payrolls: true, salaries: true}
     });
   }
 
@@ -130,7 +131,7 @@ export class EmployeeRepository {
     }).then();
   }
 
-  updateQrCode(employeeId: number, qrCode: string): void {
+  updateQrCode(employeeId: number, qrCode: string) {
     this.prisma.employee.update({
       where: {id: employeeId},
       data: {qrCode}

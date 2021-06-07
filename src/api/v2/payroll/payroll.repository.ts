@@ -1,30 +1,30 @@
 import {BadRequestException, Injectable} from "@nestjs/common";
 import {PrismaService} from "../../../prisma.service";
 import {UpdatePayrollDto} from "./dto/update-payroll.dto";
+import {Salary} from "@prisma/client";
+import {firstMonth, lastMonth} from "../../../utils/datetime.util";
 
 @Injectable()
 export class PayrollRepository {
   constructor(private readonly prisma: PrismaService) {
   }
 
-  async create(employeeId: number, salaries: any[]) {
+  async create(employeeId: number, salaries: Salary[], createdAt: Date) {
     try {
-      return this.prisma.payroll.create({
+      return await this.prisma.payroll.create({
         data: {
-          employee: {connect: {id: employeeId}},
-          salaries: {connect: salaries}
+          employeeId: employeeId,
+          salaries: {connect: salaries.map(salary => ({id: salary.id}))},
+          createdAt: createdAt,
         }
       });
-    } catch (e) {
-      console.error(e);
-      throw new BadRequestException(e);
+    } catch (err) {
+      console.error(err);
+      throw new BadRequestException(err);
     }
   }
 
   async findAll(branchId: number, skip: number, take: number, search?: string, datetime?: Date) {
-    const date = new Date(), y = date.getFullYear(), m = date.getMonth();
-    const firstDay = new Date(y, m, 1);
-    const lastDay = new Date();
     try {
       const where = {
         AND: [
@@ -33,14 +33,16 @@ export class PayrollRepository {
           },
           {
             createdAt: {
-              gte: firstDay,
-              lte: lastDay,
+              gte: firstMonth(new Date()),
+              lte: lastMonth(new Date()),
             }
           },
           {
             OR: [
               {
-                employeeId: {startsWith: search}
+                employee: {
+                  code: {startsWith: search}
+                }
               },
               {
                 employee: {
@@ -54,9 +56,9 @@ export class PayrollRepository {
         ],
       };
       const [total, payrolls] = await Promise.all([
-        this.prisma.payroll.count(),
+        this.prisma.payroll.count({where}),
         this.prisma.payroll.findMany({
-          take, skip,
+          where, take, skip,
           include: {
             salaries: true,
             employee: {
@@ -98,6 +100,23 @@ export class PayrollRepository {
       console.error(e);
       throw new BadRequestException(e);
     }
+  }
+
+  async findMany(query: any) {
+    try {
+      return await this.prisma.payroll.findFirst({
+        where: {
+          createdAt: {
+            gte: query.first,
+            lte: query.last,
+          }
+        }
+      });
+    } catch (err) {
+      console.error(err);
+      throw new BadRequestException(err);
+    }
+
   }
 
   async update(id: number, updates: UpdatePayrollDto) {

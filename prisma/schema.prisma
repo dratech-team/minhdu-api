@@ -8,19 +8,17 @@ datasource db {
 }
 
 model Account {
-  id       Int     @id @default(autoincrement())
-  username String  @unique
-  password String
-  role     Role
-  branch   Branch?
+  id         Int     @id @default(autoincrement())
+  username   String  @unique
+  password   String
+  role       Role
+  employee   Employee?
 }
 
 model Branch {
-  id          Int          @id @default(autoincrement())
+  id          Int           @id @default(autoincrement())
   code        String?
-  name        String      @unique
-  accountId   Int?
-  account     Account?     @relation(fields: [accountId], references: [id])
+  name        String        @unique
   departments Department[]
   employees   Employee[]
 }
@@ -72,6 +70,8 @@ model Employee {
   branch       Branch     @relation(fields: [branchId], references: [id])
   department   Department @relation(fields: [departmentId], references: [id])
   position     Position   @relation(fields: [positionId], references: [id])
+  accountId    Int?
+  account      Account?    @relation(fields: [accountId], references: [id])
   payrolls     Payroll[]
   salaries     Salary[]
 
@@ -83,7 +83,7 @@ model Salary {
   title      String?
   type       SalaryType @default(BASIC)
   datetime   DateTime?
-  times      Float?
+  times      Float?     @default(1)
   rate       Float?     @default(1)
   price      Float?
   forgot     Boolean?   @default(false)
@@ -92,8 +92,6 @@ model Salary {
   employeeId Int?
   employee   Employee?  @relation(fields: [employeeId], references: [id])
   payroll    Payroll?   @relation(fields: [payrollId], references: [id])
-
-  @@unique([title, type, times, rate, price])
 }
 
 model Payroll {
