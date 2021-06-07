@@ -7,3 +7,13 @@ export function firstMonth(datetime: Date): Date {
 export function lastMonth(datetime: Date): Date {
   return moment(datetime).clone().endOf('month').toDate();
 }
+
+export function lastDayOfMonth(datetime: Date): number {
+  const month = moment(datetime).format('MM/yyyy');
+  const current = moment(new Date()).format('MM/yyyy');
+
+  if (month === current) {
+    return new Date().getDate();
+  }
+  return moment('2021-05-07 08:05:55.606').endOf('month').date();
+}

@@ -6,7 +6,7 @@ import {PayrollRepository} from "./payroll.repository";
 import {EmployeeService} from "../employee/employee.service";
 import {SalaryService} from "../salary/salary.service";
 import {CreatePayrollDto} from "./dto/create-payroll.dto";
-import {firstMonth, lastMonth} from "../../../utils/datetime.util";
+import {firstMonth, lastDayOfMonth, lastMonth} from "../../../utils/datetime.util";
 
 @Injectable()
 export class PayrollService {
@@ -50,6 +50,14 @@ export class PayrollService {
     return this.returnPayroll(payroll);
   }
 
+  /*
+  * - Font end sẽ thêm salary mới và gửi id salary lên để connect vào phiếu lương
+  *     + Nếu id salary thuộc type BASIC hoặc ALLOWANCE_STAYED thì sẽ được connect thêm tới lương của nhân viên
+  *     + Ngược lại sẽ chỉ connect cho payroll
+  * - Chặn edit phiếu lương sau khi phiếu lương đã xác nhận
+  * - Quản lý xác phiếu lương,
+  * - Quỹ Xác nhận đã thanh toán phiếu lương
+  * */
   async update(id: number, updates: UpdatePayrollDto) {
     const payroll = await this.repository.update(id, updates);
     this.salaryService.findOne(updates.salaryId).then(salary => {
@@ -73,15 +81,15 @@ export class PayrollService {
       createdAt: payroll.createdAt,
       salaries: payroll.salaries,
       employee: payroll.employee,
-      actualDay: this.actualDay(payroll.salaries),
+      actualDay: lastDayOfMonth(payroll.createdAt) - this.totalAbsent(payroll.salaries),
       payment: payroll.isEdit ? 'Đang xử lý' : this.totalSalary(payroll),
     };
   }
 
-  actualDay(salaries: Salary[]) {
+  totalAbsent(salaries: Salary[]) {
     let absent = 0;
     let late = 0;
-    const day = 30;
+
     for (let i = 0; i < salaries.length; i++) {
       switch (salaries[i].type) {
         case SalaryType.ABSENT:
@@ -97,7 +105,7 @@ export class PayrollService {
           }
       }
     }
-    return day - (absent + late);
+    return absent + late;
   }
 
   totalSalary(payroll: any) {
@@ -108,7 +116,11 @@ export class PayrollService {
     let absentTime = 0;
     let lateTime = 0;
     let daySalary = 0;
-    const actualDay = this.actualDay(payroll.salaries);
+    let actualDay = lastDayOfMonth(payroll.createdAt) - this.totalAbsent(payroll.salaries);
+
+    if (payroll.employee.isFlatSalary && this.totalAbsent(payroll) === 0) {
+      actualDay = 30;
+    }
 
     for (let i = 0; i < payroll.salaries.length; i++) {
       switch (payroll.salaries[i].type) {
@@ -127,12 +139,6 @@ export class PayrollService {
         case SalaryType.OVERTIME:
           overtime += payroll.salaries[i].rate - 1;
           break;
-        // case SalaryType.ABSENT:
-        //   if (payroll.salaries[i].forgot) {
-        //     absentTime += payroll.salaries[i].times * 1.5;
-        //   }
-        //   absentTime += payroll.salaries[i].times;
-        //   break;
         case SalaryType.LATE:
           lateTime += payroll.salaries[i].times;
           break;
@@ -140,15 +146,15 @@ export class PayrollService {
     }
 
     /*
-    * Nếu ngày thực tế > ngày công chuẩn thì lương 1 ngày = (tổng lương cơ bản + phụ cấp ở lại) / ngày làm chuẩn
-    * Nếu ngày thực tế < ngày công chuẩn thì lương 1 ngày = tổng lương cơ bản / ngày làm chuẩn và tiền phụ cấp
+    * Nếu ngày thực tế < ngày công chuẩn => lương 1 ngày = tổng lương cơ bản / ngày làm chuẩn và tiền phụ cấp
+    * Ngược lại                          => lương 1 ngày = (tổng lương cơ bản + phụ cấp ở lại) / ngày làm chuẩn
     * ở lại = (tổng phụ cấp ở lại / số ngày làm việc chuẩn) * ngày làm thực tế
     * */
-    if (actualDay > payroll.employee.position.workday) {
-      daySalary = Math.ceil((basicSalary + staySalary) / payroll.employee.position.workday);
-    } else {
+    if (actualDay < payroll.employee.position.workday) {
       daySalary = Math.ceil(basicSalary / payroll.employee.position.workday);
       staySalary = (staySalary / payroll.employee.position.workday) * actualDay;
+    } else {
+      daySalary = Math.ceil((basicSalary + staySalary) / payroll.employee.position.workday);
     }
 
     const basic = payroll.salaries.filter(salary => salary.title === 'Lương cơ bản trích BH')[0];
