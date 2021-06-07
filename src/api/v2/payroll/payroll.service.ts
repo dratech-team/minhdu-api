@@ -116,6 +116,7 @@ export class PayrollService {
     let absentTime = 0;
     let lateTime = 0;
     let daySalary = 0;
+    let total = 0;
     let actualDay = lastDayOfMonth(payroll.createdAt) - this.totalAbsent(payroll.salaries);
 
     if (payroll.employee.isFlatSalary && this.totalAbsent(payroll) === 0) {
@@ -137,6 +138,11 @@ export class PayrollService {
           allowanceSalary += payroll.salaries[i].times * payroll.salaries[i].price;
           break;
         case SalaryType.OVERTIME:
+          /*
+          * Nếu lương x2 thì tính thêm 1 ngày vì ngày hiện tại vẫn đi làm*/
+          // if (payroll.salaries[i].rate > 1) {
+          //   overtime += payroll.salaries[i].rate - 1;
+          // }
           overtime += payroll.salaries[i].rate - 1;
           break;
         case SalaryType.LATE:
@@ -146,15 +152,24 @@ export class PayrollService {
     }
 
     /*
-    * Nếu ngày thực tế < ngày công chuẩn => lương 1 ngày = tổng lương cơ bản / ngày làm chuẩn và tiền phụ cấp
-    * Ngược lại                          => lương 1 ngày = (tổng lương cơ bản + phụ cấp ở lại) / ngày làm chuẩn
-    * ở lại = (tổng phụ cấp ở lại / số ngày làm việc chuẩn) * ngày làm thực tế
     * */
-    if (actualDay < payroll.employee.position.workday) {
-      daySalary = Math.ceil(basicSalary / payroll.employee.position.workday);
-      staySalary = (staySalary / payroll.employee.position.workday) * actualDay;
+    // if (actualDay < payroll.employee.position.workday) {
+    //   staySalary = (staySalary / payroll.employee.position.workday) * actualDay;
+    // }
+    //
+    // if (payroll.employee.contractAt === null) {
+    //   daySalary = Math.ceil(basicSalary / payroll.employee.position.workday);
+    // } else {
+    //   if (actualDay > payroll.employee.position.workday) {
+    //     daySalary = Math.ceil(basicSalary / payroll.employee.position.workday);
+    //   }
+    //   daySalary = Math.ceil((basicSalary + staySalary) / payroll.employee.position.workday);
+    // }
+    if (actualDay >= payroll.employee.position.workday) {
+      daySalary = basicSalary / payroll.employee.position.workday;
     } else {
-      daySalary = Math.ceil((basicSalary + staySalary) / payroll.employee.position.workday);
+      daySalary = (basicSalary + staySalary) / payroll.employee.position.workday;
+      staySalary = (staySalary / payroll.employee.position.workday) * actualDay;
     }
 
     const basic = payroll.salaries.filter(salary => salary.title === 'Lương cơ bản trích BH')[0];
@@ -162,16 +177,22 @@ export class PayrollService {
     const tax = payroll.employee.contractAt !== null ? basic.price * 0.115 : 0;
     const deduction = daySalary / 8 * lateTime + daySalary * absentTime;
     const allowanceOvertime = daySalary * overtime;
-    const total = Math.ceil(((daySalary * actualDay) + allowanceSalary + staySalary + (daySalary * overtime)) - tax);
 
+    if (actualDay >= payroll.employee.position.workday) {
+      total = ((daySalary * actualDay) + allowanceSalary + allowanceOvertime + staySalary) - tax;
+    } else {
+      total = ((daySalary * actualDay) + allowanceSalary + allowanceOvertime) - tax;
+    }
     return {
-      basic: basicSalary,
-      stay: staySalary,
-      allowance: allowanceSalary + allowanceOvertime,
+      basic: Math.ceil(basicSalary),
+      stay: Math.ceil(staySalary),
+      allowance: Math.ceil(allowanceSalary + allowanceOvertime),
       deduction,
-      actualDay,
-      tax,
       daySalary,
+      actualDay,
+      workday: payroll.employee.position.workday,
+      salaryActual: Math.ceil(daySalary * actualDay),
+      tax,
       total: Math.round((total / 1000)) * 1000,
     };
   }

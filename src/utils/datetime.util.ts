@@ -11,9 +11,9 @@ export function lastMonth(datetime: Date): Date {
 export function lastDayOfMonth(datetime: Date): number {
   const month = moment(datetime).format('MM/yyyy');
   const current = moment(new Date()).format('MM/yyyy');
-
   if (month === current) {
     return new Date().getDate();
   }
-  return moment('2021-05-07 08:05:55.606').endOf('month').date();
+
+  return moment(datetime).endOf('month').date();
 }

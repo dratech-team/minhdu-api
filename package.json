@@ -38,7 +38,7 @@
     "@nestjs/schedule": "^0.4.3",
     "@nestjs/swagger": "4.8.0",
     "@nestjs/websockets": "^7.6.15",
-    "@prisma/client": "2.21.2",
+    "@prisma/client": "2.22.0",
     "@types/mongoose-paginate": "^5.0.8",
     "@types/passport": "1.0.6",
     "basic-auth-token": "^0.4.2",

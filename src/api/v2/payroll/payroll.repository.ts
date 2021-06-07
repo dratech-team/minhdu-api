@@ -11,11 +11,16 @@ export class PayrollRepository {
 
   async create(employeeId: number, salaries: Salary[], createdAt: Date) {
     try {
-      return await this.prisma.payroll.create({
+      const payroll = await this.prisma.payroll.create({
         data: {
           employeeId: employeeId,
-          salaries: {connect: salaries.map(salary => ({id: salary.id}))},
           createdAt: createdAt,
+        },
+      });
+     await this.prisma.payroll.update({
+        where: {id: payroll.id},
+        data: {
+          salaries: {connect: salaries.map(e => ({id: e.id}))}
         }
       });
     } catch (err) {
