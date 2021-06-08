@@ -5,16 +5,19 @@ import {
   IsNotEmpty,
   IsOptional,
   IsPhoneNumber,
-  IsString,
+  IsString, MaxDate,
   MaxLength,
   MinLength
 } from "class-validator";
 import {Transform, Type} from "class-transformer";
 import {GenderType} from "@prisma/client";
+import * as moment from "moment";
+import {ValidatorMessage} from "../constant/validator.constant";
 
 export class ICreateUserDto {
   @IsNotEmpty()
-  @MaxLength(50)
+  @MaxLength(20)
+  @MinLength(5, {message: ValidatorMessage.name})
   @IsString()
   readonly name: string;
 
@@ -28,6 +31,10 @@ export class ICreateUserDto {
   @Transform(birthday => new Date(birthday.value))
   @IsDate()
   @IsNotEmpty()
+  @MaxDate(
+    moment(new Date()).subtract(18, 'years').toDate(),
+    {message: ValidatorMessage.birthday}
+  )
   birthday: Date;
 
   @IsNotEmpty()
@@ -35,7 +42,7 @@ export class ICreateUserDto {
   readonly gender: GenderType;
 
   @IsNotEmpty()
-  @IsPhoneNumber("VN")
+  @IsPhoneNumber("VN", {message: ValidatorMessage.phone})
   readonly phone: string;
 
   @IsOptional()

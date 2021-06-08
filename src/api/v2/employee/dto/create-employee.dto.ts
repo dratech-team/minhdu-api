@@ -1,6 +1,7 @@
 import {ICreateUserDto} from "../../../../common/dtos/create-user.dto";
 import {Type} from "class-transformer";
-import {IsDate, IsNotEmpty, IsNumber, IsOptional, IsString, MaxLength, Min, MinLength} from "class-validator";
+import {IsDate, IsNotEmpty, IsNumber, IsOptional, IsString, MaxDate, MaxLength, Min, MinLength} from "class-validator";
+import {ValidatorMessage} from "../../../../common/constant/validator.constant";
 
 export class CreateEmployeeDto extends ICreateUserDto {
   code: string;
@@ -9,8 +10,8 @@ export class CreateEmployeeDto extends ICreateUserDto {
 
   @IsString()
   @IsNotEmpty()
-  @MaxLength(12)
-  @MinLength(9)
+  @MaxLength(12, {message: ValidatorMessage.identify})
+  @MinLength(9, {message: ValidatorMessage.identify})
   identify: string;
 
   @IsOptional()
@@ -33,6 +34,7 @@ export class CreateEmployeeDto extends ICreateUserDto {
 
   @Type(() => Date)
   @IsDate()
+  @MaxDate(new Date(), {message: ValidatorMessage.datetime})
   @IsNotEmpty()
   @IsNotEmpty()
   workedAt: Date;
@@ -47,12 +49,13 @@ export class CreateEmployeeDto extends ICreateUserDto {
   @Min(1)
   price: number;
 
-  @IsNotEmpty()
+  @IsOptional()
   @IsString()
   certificate: string;
 
   @Type(() => Date)
   @IsDate()
+  @MaxDate(new Date(), {message: ValidatorMessage.datetime})
   @IsNotEmpty()
   idCardAt: Date;
 }
