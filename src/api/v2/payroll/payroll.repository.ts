@@ -34,7 +34,7 @@ export class PayrollRepository {
       const where = {
         AND: [
           {
-            employee: {branchId},
+            employee: {branchId, leftAt: null},
           },
           {
             createdAt: {
@@ -76,8 +76,9 @@ export class PayrollRepository {
           }
         })
       ]);
+
       return {
-        total: total,
+        total,
         data: payrolls,
       };
     } catch (e) {

@@ -1,4 +1,17 @@
-import {Body, Controller, Delete, Get, Param, ParseIntPipe, Patch, Post, Query, Res, UseGuards} from '@nestjs/common';
+import {
+  Body,
+  Controller,
+  Delete,
+  Get,
+  Param,
+  ParseIntPipe,
+  Patch,
+  Post,
+  Query,
+  Req,
+  Res,
+  UseGuards, UseInterceptors
+} from '@nestjs/common';
 import {PayrollService} from './payroll.service';
 import {UpdatePayrollDto} from './dto/update-payroll.dto';
 import {Roles} from "../../../core/decorators/roles.decorator";
@@ -8,6 +21,7 @@ import {JwtAuthGuard} from "../../../core/guard/jwt-auth.guard";
 import {RolesGuard} from "../../../core/guard/role.guard";
 import {ApiKeyGuard} from "../../../core/guard/api-key-auth.guard";
 import {CreatePayrollDto} from "./dto/create-payroll.dto";
+import {FilterInterceptor} from "../../../prisma.service";
 
 @Controller('v2/payroll')
 @UseGuards(JwtAuthGuard, ApiKeyGuard, RolesGuard)
@@ -44,7 +58,6 @@ export class PayrollController {
   @Roles(UserType.ADMIN, UserType.HUMAN_RESOURCE, UserType.CAMP_ACCOUNTING)
   @Get(':id')
   findOne(
-    @ReqProfile() branchId: string,
     @Param('id') id: string,
     @Query('isConfirm') isConfirm: boolean
   ) {

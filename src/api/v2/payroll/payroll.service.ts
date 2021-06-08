@@ -20,7 +20,6 @@ export class PayrollService {
   async create(body: CreatePayrollDto) {
     const first = firstMonth(body.createdAt);
     const last = lastMonth(body.createdAt);
-    console.log(first, last);
     const payroll = await this.repository.findMany({first, last, employeeId: body.employeeId});
     if (payroll !== null) {
       throw new ConflictException(`Phiếu lương tháng ${moment(body.createdAt).format('MM/yyyy')} đã tồn tại.. Vui lòng kiểm tra kỹ lại trước khi thêm.. Tức cái lồng ngực á`);
@@ -87,8 +86,6 @@ export class PayrollService {
     };
   }
 
-  /*
-  * */
   totalAbsent(salaries: Salary[]) {
     let absent = 0;
     let late = 0;
@@ -111,6 +108,20 @@ export class PayrollService {
     return absent + late;
   }
 
+  /*
+  * Tổng lương: result
+  * Ngày làm thực tế: actual
+  * Ngày công chuẩn: workday
+  * Tổng lương cơ bản: basics
+  * Tổng phụ cấp ở lại: stays
+  * Tổng phụ cấp khác: allowances
+  * Lương cố định: isFlat
+  * Tổng ngày vắng: absents
+  *
+  * 1. actual > workday                  => result = (basics / workday) x actual + stays + allowances
+  * 2. actual < workday                  => result = [(basics + stays) / workday] x actual + allowances
+  * 3. isFlat === true && absents !== 0  => actual = workday (Dù tháng đó có bao nhiêu ngày đi chăng nữa). else quay lại 1 & 2
+  * */
   totalSalary(payroll: any) {
     let basicSalary = 0;
     let staySalary = 0;
@@ -120,7 +131,9 @@ export class PayrollService {
     let lateTime = 0;
     let daySalary = 0;
     let total = 0;
-    let actualDay = lastDayOfMonth(payroll.createdAt) - this.totalAbsent(payroll.salaries);
+    /*
+    * Nếu tháng này nghỉ ngang thì sẽ lấy ngày hôm nay (lúc lập phiếu lương)*/
+    let actualDay = (!payroll.isEdit ? new Date().getDate() : lastDayOfMonth(payroll.createdAt)) - this.totalAbsent(payroll.salaries);
 
     if (payroll.employee.isFlatSalary && this.totalAbsent(payroll.salaries) === 0) {
       actualDay = 30;
@@ -143,9 +156,6 @@ export class PayrollService {
         case SalaryType.OVERTIME:
           /*
           * Nếu lương x2 thì tính thêm 1 ngày vì ngày hiện tại vẫn đi làm*/
-          // if (payroll.salaries[i].rate > 1) {
-          //   overtime += payroll.salaries[i].rate - 1;
-          // }
           overtime += payroll.salaries[i].rate - 1;
           break;
         case SalaryType.LATE:
