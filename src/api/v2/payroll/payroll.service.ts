@@ -20,7 +20,8 @@ export class PayrollService {
   async create(body: CreatePayrollDto) {
     const first = firstMonth(body.createdAt);
     const last = lastMonth(body.createdAt);
-    const payroll = await this.repository.findMany({first, last});
+    console.log(first, last);
+    const payroll = await this.repository.findMany({first, last, employeeId: body.employeeId});
     if (payroll !== null) {
       throw new ConflictException(`Phiếu lương tháng ${moment(body.createdAt).format('MM/yyyy')} đã tồn tại.. Vui lòng kiểm tra kỹ lại trước khi thêm.. Tức cái lồng ngực á`);
     }
@@ -86,6 +87,8 @@ export class PayrollService {
     };
   }
 
+  /*
+  * */
   totalAbsent(salaries: Salary[]) {
     let absent = 0;
     let late = 0;
@@ -119,7 +122,7 @@ export class PayrollService {
     let total = 0;
     let actualDay = lastDayOfMonth(payroll.createdAt) - this.totalAbsent(payroll.salaries);
 
-    if (payroll.employee.isFlatSalary && this.totalAbsent(payroll) === 0) {
+    if (payroll.employee.isFlatSalary && this.totalAbsent(payroll.salaries) === 0) {
       actualDay = 30;
     }
 
@@ -150,26 +153,10 @@ export class PayrollService {
           break;
       }
     }
-
-    /*
-    * */
-    // if (actualDay < payroll.employee.position.workday) {
-    //   staySalary = (staySalary / payroll.employee.position.workday) * actualDay;
-    // }
-    //
-    // if (payroll.employee.contractAt === null) {
-    //   daySalary = Math.ceil(basicSalary / payroll.employee.position.workday);
-    // } else {
-    //   if (actualDay > payroll.employee.position.workday) {
-    //     daySalary = Math.ceil(basicSalary / payroll.employee.position.workday);
-    //   }
-    //   daySalary = Math.ceil((basicSalary + staySalary) / payroll.employee.position.workday);
-    // }
     if (actualDay >= payroll.employee.position.workday) {
       daySalary = basicSalary / payroll.employee.position.workday;
     } else {
       daySalary = (basicSalary + staySalary) / payroll.employee.position.workday;
-      staySalary = (staySalary / payroll.employee.position.workday) * actualDay;
     }
 
     const basic = payroll.salaries.filter(salary => salary.title === 'Lương cơ bản trích BH')[0];

@@ -17,7 +17,7 @@ export class PayrollRepository {
           createdAt: createdAt,
         },
       });
-     await this.prisma.payroll.update({
+      await this.prisma.payroll.update({
         where: {id: payroll.id},
         data: {
           salaries: {connect: salaries.map(e => ({id: e.id}))}
@@ -111,6 +111,7 @@ export class PayrollRepository {
     try {
       return await this.prisma.payroll.findFirst({
         where: {
+          employeeId: query.employeeId,
           createdAt: {
             gte: query.first,
             lte: query.last,
