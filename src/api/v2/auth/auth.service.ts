@@ -21,7 +21,7 @@ export class AuthService {
         data: {
           username: body.username,
           role: body.role,
-          employee: {connect: {id: body.employeeId}},
+          employee: body.employeeId ? {connect: {id: body.employeeId}} : {},
           password: body.password,
         }
       });
