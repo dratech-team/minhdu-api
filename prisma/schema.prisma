@@ -82,8 +82,9 @@ model Salary {
   id         Int        @id @default(autoincrement())
   title      String?
   type       SalaryType @default(BASIC)
+  unit       DatetimeUnit   @default(DAY)
   datetime   DateTime?
-  times      Float?     @default(1)
+  times      Float?
   rate       Float?     @default(1)
   price      Float?
   forgot     Boolean?   @default(false)
@@ -106,11 +107,17 @@ model Payroll {
 
 enum SalaryType {
   BASIC
-  ALLOWANCE_STAYED
+  STAY
   ALLOWANCE
   OVERTIME
   ABSENT
-  LATE
+}
+
+enum DatetimeUnit {
+  MINUTE
+  HOUR
+  DAY
+  MONTH
 }
 
 enum GenderType {

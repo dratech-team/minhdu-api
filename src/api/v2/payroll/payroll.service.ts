@@ -1,12 +1,15 @@
 import {BadRequestException, ConflictException, Injectable} from '@nestjs/common';
 import {UpdatePayrollDto} from './dto/update-payroll.dto';
-import {Salary, SalaryType} from '@prisma/client';
+import {DatetimeUnit, Salary, SalaryType} from '@prisma/client';
 import * as moment from "moment";
 import {PayrollRepository} from "./payroll.repository";
 import {EmployeeService} from "../employee/employee.service";
 import {SalaryService} from "../salary/salary.service";
 import {CreatePayrollDto} from "./dto/create-payroll.dto";
 import {firstMonth, lastDayOfMonth, lastMonth} from "../../../utils/datetime.util";
+import * as XLSX from 'xlsx';
+
+var formidable = require('formidable');
 
 @Injectable()
 export class PayrollService {
@@ -35,7 +38,7 @@ export class PayrollService {
       const res = await this.repository.findAll(branchId, skip, take, search, datetime);
       return {
         total: res.total,
-        data: res.data.map(payroll => this.returnPayroll(payroll)),
+        data: res.data,
       };
     } else {
       throw new BadRequestException('Có Lỗi xảy ra ở payroll service. Vui lòng liên hệ developer để khắc phục. Xin cảm ơn');
@@ -61,7 +64,7 @@ export class PayrollService {
   async update(id: number, updates: UpdatePayrollDto) {
     const payroll = await this.repository.update(id, updates);
     this.salaryService.findOne(updates.salaryId).then(salary => {
-      if (salary.type === SalaryType.BASIC || salary.type === SalaryType.ALLOWANCE_STAYED) {
+      if (salary.type === SalaryType.BASIC || salary.type === SalaryType.STAY) {
         this.employeeService.connectSalary(payroll.employeeId, updates.salaryId);
       }
     });
@@ -93,16 +96,17 @@ export class PayrollService {
     for (let i = 0; i < salaries.length; i++) {
       switch (salaries[i].type) {
         case SalaryType.ABSENT:
-          if (salaries[i].forgot) {
-            absent += salaries[i].times * 1.5;
+          if (salaries[i].unit === DatetimeUnit.DAY) {
+            if (salaries[i].forgot) {
+              absent += salaries[i].times * 1.5;
+            } else {
+              absent += salaries[i].times;
+            }
           } else {
-            absent += salaries[i].times;
+            late += salaries[i].times;
           }
+
           break;
-        case SalaryType.LATE:
-          if (salaries[i].times === 4) {
-            late += 0.5;
-          }
       }
     }
     return absent + late;
@@ -144,7 +148,7 @@ export class PayrollService {
         case SalaryType.BASIC:
           basicSalary += payroll.salaries[i].price;
           break;
-        case SalaryType.ALLOWANCE_STAYED:
+        case SalaryType.STAY:
           staySalary += payroll.salaries[i].price;
           break;
         case SalaryType.ALLOWANCE:
@@ -158,8 +162,10 @@ export class PayrollService {
           * Nếu lương x2 thì tính thêm 1 ngày vì ngày hiện tại vẫn đi làm*/
           overtime += payroll.salaries[i].rate - 1;
           break;
-        case SalaryType.LATE:
-          lateTime += payroll.salaries[i].times;
+        case SalaryType.ABSENT:
+          if (payroll.salaries[i].unit === DatetimeUnit.HOUR) {
+            lateTime += payroll.salaries[i].times;
+          }
           break;
       }
     }
@@ -201,7 +207,7 @@ export class PayrollService {
   async checkPayrollExist(branchId: number): Promise<boolean> {
     const datetime = moment().format('MM/yyyy');
     try {
-      const employees = await this.employeeService.findMany(branchId);
+      const employees = await this.employeeService.findBy(branchId);
 
       for (let i = 0; i < employees.length; i++) {
         const count = employees[i].payrolls.filter(payroll => {
@@ -223,3 +229,82 @@ export class PayrollService {
   }
 }
 
+export function readFirstSheet(data: any[]) {
+  var form = new formidable.IncomingForm();
+
+}
+
+function OBJtoXML(obj) {
+  var xml = '';
+  for (var prop in obj) {
+    xml += obj[prop] instanceof Array ? '' : "<" + prop + ">";
+    if (obj[prop] instanceof Array) {
+      for (var array in obj[prop]) {
+        xml += "<" + prop + ">";
+        xml += OBJtoXML(new Object(obj[prop][array]));
+        xml += "</" + prop + ">";
+      }
+    } else if (typeof obj[prop] == "object") {
+      xml += OBJtoXML(new Object(obj[prop]));
+    } else {
+      xml += obj[prop];
+    }
+    xml += obj[prop] instanceof Array ? '' : "</" + prop + ">";
+  }
+  var xml = xml.replace(/<\/?[0-9]{1,}>/g, '');
+  console.log(xml);
+  return xml;
+}
+
+// export function readFirstSheet(data: any[]) {
+//   const excelData = data;
+//   const dataSize = excelData ? Object.keys(excelData[0]).length : 0;
+//   const wb = XLSX.utils.book_new();
+//   let ws;
+//
+//   const customHeaders = null;
+//   // Append headers & data
+//   if (customHeaders) {
+//     ws = XLSX.utils.sheet_add_aoa(wb, [customHeaders]);
+//     XLSX.utils.sheet_add_json(ws, excelData, {origin: 'A4', skipHeader: true});
+//   } else {
+//     ws = XLSX.utils.json_to_sheet(excelData);
+//   }
+//
+//   // Auto filter
+//   ws['!autofilter'] = {ref: `A1:${getExcelColumn(dataSize)}1`};
+//   prep(data[0].salaries);
+//   autoFitColumns(data, ws, customHeaders);
+//   XLSX.utils.book_append_sheet(wb, ws, 'Sheet 1');
+//   XLSX.writeFile(wb, 'b.xlsx', {type: 'file', bookType: 'xlsx'});
+// }
+//   console.log(data);
+// }
+//
+// // This function can be bad performance if the excel data is big
+// function autoFitColumns(json: any[], worksheet: any, header?: string[]): void {
+//   const jsonKeys = header ? header : Object.keys(json);
+//   const objectMaxLength = [];
+//
+//   for (let i = 0; i < json.length; i++) {
+//     const value = json[i];
+//     for (let j = 0; j < jsonKeys.length; j++) {
+//       if (typeof value[jsonKeys[j]] == 'number') {
+//         objectMaxLength[j] = 10;
+//
+//       } else {
+//         const l = value[jsonKeys[j]] ? value[jsonKeys[j]].length : 0;
+//         objectMaxLength[j] = objectMaxLength[j] >= l ? objectMaxLength[j] : l;
+//       }
+//     }
+//
+//     const key = jsonKeys;
+//     for (let j = 0; j < key.length; j++) {
+//       objectMaxLength[j] = objectMaxLength[j] >= key[j].length ? objectMaxLength[j] : key[j].length;
+//     }
+//   }
+//
+//   worksheet['!cols'] = objectMaxLength.map(w => {
+//     return {width: w + 5};
+//   });
+// }

@@ -59,6 +59,7 @@ export class EmployeeRepository {
       branchId,
       code: {startsWith: search}
     };
+
     try {
       const [total, data] = await Promise.all([
         await this.prisma.employee.count({where}),
@@ -80,7 +81,7 @@ export class EmployeeRepository {
     }
   }
 
-  async findMany(branchId: number) {
+  async findBy(branchId: number) {
     return await this.prisma.employee.findMany({
       where: {branchId},
       include: {payrolls: true, salaries: true}

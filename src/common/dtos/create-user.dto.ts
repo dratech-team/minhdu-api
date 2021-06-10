@@ -31,10 +31,10 @@ export class ICreateUserDto {
   @Transform(birthday => new Date(birthday.value))
   @IsDate()
   @IsNotEmpty()
-  @MaxDate(
-    moment(new Date()).subtract(18, 'years').toDate(),
-    {message: ValidatorMessage.birthday}
-  )
+  // @MaxDate(
+  //   moment(new Date()).subtract(18, 'years').toDate(),
+  //   {message: ValidatorMessage.birthday}
+  // )
   birthday: Date;
 
   @IsNotEmpty()

@@ -47,8 +47,8 @@ export class EmployeeService {
     return this.repository.findAll(branchId, skip, take, search);
   }
 
-  findMany(branchId: number) {
-    return this.repository.findMany(branchId);
+  findBy(branchId: number) {
+    return this.repository.findBy(branchId);
   }
 
   async findOne(id: number) {

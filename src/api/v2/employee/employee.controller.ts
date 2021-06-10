@@ -25,8 +25,8 @@ export class EmployeeController {
   @Roles(UserType.ADMIN, UserType.HUMAN_RESOURCE, UserType.CAMP_ACCOUNTING)
   findAll(
     @ReqProfile() branchId: number,
-    @Query("skip", ParseIntPipe) skip: number,
-    @Query("take", ParseIntPipe) take: number,
+    @Query("skip") skip: number,
+    @Query("take") take: number,
     @Query("search") search: string,
   ) {
     return this.employeeService.findAll(branchId, +skip, +take, search);
