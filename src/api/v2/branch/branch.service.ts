@@ -3,29 +3,33 @@ import {CreateBranchDto} from './dto/create-branch.dto';
 import {Branch} from '@prisma/client';
 import {BranchRepository} from "./branch.repository";
 import {UpdateBranchDto} from "./dto/update-branch.dto";
+import {BaseBranchService} from "./base-branch.service";
 
 @Injectable()
-export class BranchService {
+export class BranchService implements BaseBranchService {
   constructor(private readonly repository: BranchRepository) {
   }
 
   async create(body: CreateBranchDto): Promise<Branch> {
-    const code = this.generateNameCode(body.name);
-    const branch = await this.repository.create(body);
-    this.repository.changeCode(branch.id, code).then();
+    body.code = this.generateCode(body.name);
 
-    return branch;
+    return await this.repository.create(body);
   }
 
   async findAll(): Promise<any> {
-    const res = await this.repository.findAll();
-    return res.map(branch => {
-      return {
-        id: branch.id,
-        name: branch.name,
-        departmentIds: branch.departments.map(e => e.id)
-      };
+    return this.repository.findAll().then(branches => {
+      return branches.map(branch => {
+        return {
+          id: branch.id,
+          name: branch.name,
+          departmentIds: branch.departments.map(e => e.id)
+        };
+      });
     });
+  }
+
+  findBy(query: any): Promise<[]> {
+    return Promise.resolve([]);
   }
 
   findOne(id: number) {
@@ -40,14 +44,14 @@ export class BranchService {
     this.repository.remove(id);
   }
 
-  generateNameCode(str) {
+  generateCode(input: string): string {
 
     // Xoa dau cach thua VA xoa Unico
-    str.trim();
-    str.replace(/\s+/g, " ");
+    input.trim();
+    input.replace(/\s+/g, " ");
 
     // Tach cac ki tu dau tien
-    let x = str.split(" ");
+    let x = input.split(" ");
     let kq = "";
     for (let i = x.length - 1; i >= 0; i--) {
       kq = x[i].charAt(0) + kq;

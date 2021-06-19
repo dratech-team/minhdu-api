@@ -1,61 +1,61 @@
-import {ICreateUserDto} from "../../../../common/dtos/create-user.dto";
 import {Type} from "class-transformer";
-import {IsDate, IsNotEmpty, IsNumber, IsOptional, IsString, MaxDate, MaxLength, Min, MinLength} from "class-validator";
-import {ValidatorMessage} from "../../../../common/constant/validator.constant";
+import {
+  IsBoolean,
+  IsDate,
+  IsEmail,
+  IsNotEmpty,
+  IsNumber,
+  IsOptional,
+  IsString,
+  MaxLength,
+  ValidateNested
+} from "class-validator";
+import {CreateProfileDto} from "../../profile/dto/create-profile.dto";
 
-export class CreateEmployeeDto extends ICreateUserDto {
+export class CreateEmployeeDto {
+  @IsOptional()
   code: string;
 
-  salaryId: number;
-
-  @IsString()
+  /// FIXME: Max date đang bị lỗi
+  @Type(() => Date)
   @IsNotEmpty()
-  @MaxLength(12, {message: ValidatorMessage.identify})
-  @MinLength(9, {message: ValidatorMessage.identify})
-  identify: string;
+  // @MaxDate(new Date(), {message: `createdAt ${ValidatorMessage.datetime}`})
+  @IsDate()
+  readonly createdAt: Date
+
+  /// FIXME: Max date đang bị lỗi
+  @Type(() => Date)
+  @IsDate()
+  // @MaxDate(new Date(), {message: `workedAt ${ValidatorMessage.datetime}`})
+  @IsNotEmpty()
+  readonly workedAt: Date;
 
   @IsOptional()
   @IsString()
-  avt: string;
-
-  @IsNumber()
-  @IsNotEmpty()
-  branchId: number;
-
-  @Type(() => Number)
-  @IsNumber()
-  @IsNotEmpty()
-  departmentId: number;
-
-  @Type(() => Number)
-  @IsNumber()
-  @IsNotEmpty()
-  positionId: number;
-
-  @Type(() => Date)
-  @IsDate()
-  @MaxDate(new Date(), {message: ValidatorMessage.datetime})
-  @IsNotEmpty()
-  @IsNotEmpty()
-  workedAt: Date;
+  qrCode: string;
 
   @Type(() => Boolean)
-  @IsOptional()
-  isFlatSalary: boolean;
+  @IsNotEmpty()
+  @IsBoolean()
+  readonly isFlatSalary: boolean
 
   @Type(() => Number)
   @IsNotEmpty()
   @IsNumber()
-  @Min(1)
-  price: number;
+  readonly positionId: number;
+
+  @IsNotEmpty()
+  @ValidateNested()
+  readonly profile: CreateProfileDto;
+
+  @IsOptional()
+  @MaxLength(20)
+  @IsEmail()
+  readonly email: string;
+
 
   @IsOptional()
   @IsString()
-  certificate: string;
-
-  @Type(() => Date)
-  @IsDate()
-  @MaxDate(new Date(), {message: ValidatorMessage.datetime})
-  @IsNotEmpty()
-  idCardAt: Date;
+  readonly note: string;
 }
+

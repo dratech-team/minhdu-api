@@ -15,7 +15,6 @@ export class OrgChartRepository {
         departments: {
           select: {
             id: true,
-            color: true,
             name: true,
             positions: true
           }

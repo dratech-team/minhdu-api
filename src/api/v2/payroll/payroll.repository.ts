@@ -3,24 +3,30 @@ import {PrismaService} from "../../../prisma.service";
 import {UpdatePayrollDto} from "./dto/update-payroll.dto";
 import {Salary} from "@prisma/client";
 import {firstMonth, lastMonth} from "../../../utils/datetime.util";
+import {InterfaceRepository} from "../../../common/repository/interface.repository";
+import {CreatePayrollDto} from "./dto/create-payroll.dto";
 
 @Injectable()
-export class PayrollRepository {
+export class PayrollRepository implements InterfaceRepository<any>{
   constructor(private readonly prisma: PrismaService) {
   }
 
-  async create(employeeId: number, salaries: Salary[], createdAt: Date) {
+  count(query?: any): Promise<number> {
+    return Promise.resolve(0);
+  }
+
+  async create(body: CreatePayrollDto) {
     try {
       const payroll = await this.prisma.payroll.create({
         data: {
-          employeeId: employeeId,
-          createdAt: createdAt,
+          employeeId: body.employeeId,
+          createdAt: body.createdAt,
         },
       });
-      await this.prisma.payroll.update({
+      return await this.prisma.payroll.update({
         where: {id: payroll.id},
         data: {
-          salaries: {connect: salaries.map(e => ({id: e.id}))}
+          salaries: {connect: body.salaries.map(e => ({id: e.id}))}
         }
       });
     } catch (err) {
@@ -68,9 +74,7 @@ export class PayrollRepository {
             salaries: true,
             employee: {
               include: {
-                branch: true,
-                department: true,
-                position: true,
+                position: {include: {department: {include: {branch: true}}}},
               }
             }
           }
@@ -87,6 +91,10 @@ export class PayrollRepository {
     }
   }
 
+  findBy(branchId: number, query: any): Promise<any[]> {
+    return Promise.resolve([]);
+  }
+
   async findOne(id: number): Promise<any> {
     try {
       return await this.prisma.payroll.findUnique({
@@ -95,9 +103,7 @@ export class PayrollRepository {
           salaries: true,
           employee: {
             include: {
-              branch: true,
-              department: true,
-              position: true,
+              position: {include: {department: {include: {branch: true}}}},
             }
           }
         }
@@ -129,16 +135,16 @@ export class PayrollRepository {
   async update(id: number, updates: UpdatePayrollDto) {
     try {
       const payroll = await this.prisma.payroll.findUnique({where: {id}});
-      if (!payroll.isEdit) {
+      if (!payroll.accConfirmedAt) {
         throw new BadRequestException('Phiếu lương đã được tạo vì vậy bạn không có quyền sửa. Vui lòng liên hệ admin để được hỗ trợ.');
       }
       return await this.prisma.payroll.update({
         where: {id: id},
         data: {
           salaries: updates.salaryId ? {connect: {id: updates.salaryId}} : {},
-          isEdit: updates.isEdit,
+          accConfirmedAt: updates.accConfirmedAt,
           paidAt: updates.isPaid ? new Date() : null,
-          confirmedAt: updates.isConfirm ? new Date() : null,
+          manConfirmedAt: updates.manConfirmedAt ? new Date() : null,
         },
         include: {salaries: true}
       });
@@ -146,5 +152,8 @@ export class PayrollRepository {
       console.error(e);
       throw new BadRequestException(e);
     }
+  }
+
+  remove(id: number): void {
   }
 }

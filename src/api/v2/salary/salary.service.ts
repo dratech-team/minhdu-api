@@ -1,11 +1,12 @@
 import {BadRequestException, Injectable} from '@nestjs/common';
-import {Salary, SalaryType} from '@prisma/client';
+import {Salary} from '@prisma/client';
 import {CreateSalaryDto} from "./dto/create-salary.dto";
 import {SalaryRepository} from "./salary.repository";
 import {UpdateSalaryDto} from "./dto/update-salary.dto";
+import {BaseSalaryService} from "./base-salary.service";
 
 @Injectable()
-export class SalaryService {
+export class SalaryService implements BaseSalaryService {
   constructor(private readonly repository: SalaryRepository) {
   }
 
@@ -18,11 +19,15 @@ export class SalaryService {
     }
   }
 
-  //
-  // findAll() {
-  //   return `This action returns all salary`;
-  // }
-  //
+
+  findAll(employeeId: number, skip: number, take: number, search?: string) {
+    return this.repository.findAll(employeeId, skip, take, search);
+  }
+
+  findBy(employeeId: number, query: any): Promise<Salary[]> {
+    throw new Error('Method not implemented.');
+  }
+
   async findOne(id: number) {
     return this.repository.findOne(id);
   }
@@ -38,5 +43,9 @@ export class SalaryService {
 
   remove(id: number) {
     this.repository.remove(id).then();
+  }
+
+  createHistory(): Promise<void> {
+    return Promise.resolve(undefined);
   }
 }

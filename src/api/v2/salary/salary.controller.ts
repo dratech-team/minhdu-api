@@ -1,7 +1,8 @@
-import {Body, Controller, Delete, Param, Patch, Post} from '@nestjs/common';
+import {Body, Controller, Delete, Get, Param, ParseIntPipe, Patch, Post, Query} from '@nestjs/common';
 import {SalaryService} from './salary.service';
 import {CreateSalaryDto} from './dto/create-salary.dto';
 import {UpdateSalaryDto} from "./dto/update-salary.dto";
+import {ReqProfile} from "../../../core/decorators/req-profile.decorator";
 
 @Controller('v2/salary')
 export class SalaryController {
@@ -13,12 +14,18 @@ export class SalaryController {
     return this.salaryService.create(createSalaryDto);
   }
 
-  //
   // @Get()
-  // findAll() {
+  // findAll(
+  //   @Query() employeeId: number,
+  //   @Query("skip", ParseIntPipe) skip: number,
+  //   @Query("take", ParseIntPipe) take: number,
+  //   @Query("search") search: string,
+  //   @Query("datetime") datetime: Date,
+  // ) {
   //   return this.salaryService.findAll();
   // }
-  //  @Get(':id')
+
+  @Get(':id')
   findOne(@Param('id') id: string) {
     return this.salaryService.findOne(+id);
   }

@@ -10,14 +10,16 @@ export class BranchRepository {
   }
 
   async create(body: CreateBranchDto): Promise<Branch> {
-    return this.prisma.branch.create({data: body}).catch(err => {
+    try {
+      return await this.prisma.branch.create({data: body});
+    } catch (err) {
       console.error(err);
       if (err?.code == "P2002") {
         throw new ConflictException('Tên chi nhánh không được phép trùng nhau. Vui lòng thử lại');
       } else {
         throw new BadRequestException(err);
       }
-    });
+    }
   }
 
   async findAll(): Promise<any> {
@@ -45,12 +47,5 @@ export class BranchRepository {
 
   remove(id: number): void {
     this.prisma.branch.delete({where: {id: id}}).catch(e => new BadRequestException(e));
-  }
-
-  async changeCode(id: number, code: string) {
-    return await this.prisma.branch.update({
-      where: {id: id},
-      data: {code: code + id}
-    }).catch((e) => new BadRequestException(e));
   }
 }

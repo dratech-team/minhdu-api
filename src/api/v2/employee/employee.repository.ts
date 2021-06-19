@@ -2,10 +2,12 @@ import {BadRequestException, Injectable} from "@nestjs/common";
 import {PrismaService} from "../../../prisma.service";
 import {CreateEmployeeDto} from "./dto/create-employee.dto";
 import {UpdateEmployeeDto} from "./dto/update-employee.dto";
-import {firstMonth, lastMonth} from "../../../utils/datetime.util";
+import {ResponsePagination} from "../../../common/entities/response.pagination";
+import {Employee} from "@prisma/client";
+import {InterfaceRepository} from "../../../common/repository/interface.repository";
 
 @Injectable()
-export class EmployeeRepository {
+export class EmployeeRepository implements InterfaceRepository<Employee> {
   constructor(private readonly prisma: PrismaService) {
   }
 
@@ -14,33 +16,17 @@ export class EmployeeRepository {
       return await this.prisma.employee.create({
         data: {
           code: body.code,
-          identify: body.identify,
-          name: body.name,
-          address: body.address,
-          salaries: {connect: {id: body.salaryId}},
-          workedAt: new Date(body.workedAt),
-          branch: {connect: {id: body.branchId}},
-          department: {connect: {id: body.departmentId}},
-          position: {connect: {id: body.positionId}},
-          phone: body.phone,
-          birthday: new Date(body.birthday),
-          idCardAt: new Date(body.idCardAt),
-          gender: body.gender,
-          note: body.note,
+          createdAt: body.createdAt,
+          workedAt: body.workedAt,
           isFlatSalary: body.isFlatSalary,
-          certificate: body.certificate,
-          payrolls: {
-            create: {
-              salaries: {
-                connect: {id: body.salaryId}
-              }
-            }
+          position: {connect: {id: body.positionId}},
+          note: body.note,
+          profile: {
+            create: body.profile
           }
         },
         include: {
-          branch: true,
-          department: true,
-          position: true
+          position: {include: {department: {include: {branch: true}}}}
         }
       });
     } catch (err) {
@@ -53,7 +39,7 @@ export class EmployeeRepository {
     return await this.prisma.employee.count();
   }
 
-  async findAll(branchId: number, skip: number, take: number, search?: string) {
+  async findAll(branchId: number, skip: number, take: number, search?: string): Promise<ResponsePagination<Employee>> {
     const where = {
       leftAt: null,
       branchId,
@@ -62,19 +48,15 @@ export class EmployeeRepository {
 
     try {
       const [total, data] = await Promise.all([
-        await this.prisma.employee.count({where}),
+        this.prisma.employee.count({where, skip, take,}),
         this.prisma.employee.findMany({
           where, skip, take,
           include: {
-            branch: true,
-            department: true,
-            position: true
+            position: {include: {department: {include: {branch: true}}}}
           }
-        }),
+        })
       ]);
-      return {
-        total, data
-      };
+      return {total, data};
     } catch (e) {
       console.error(e);
       throw new BadRequestException(e);
@@ -83,7 +65,7 @@ export class EmployeeRepository {
 
   async findBy(branchId: number) {
     return await this.prisma.employee.findMany({
-      where: {branchId},
+      where: {position: {department: {branch: {id: branchId}}}},
       include: {payrolls: true, salaries: true}
     });
   }
@@ -94,9 +76,7 @@ export class EmployeeRepository {
         where: {id: id},
         include: {
           salaries: true,
-          branch: true,
-          department: true,
-          position: true,
+          position: {include: {department: {include: {branch: true}}}},
           payrolls: true,
         }
       });
@@ -108,16 +88,23 @@ export class EmployeeRepository {
 
   async update(id: number, updates: UpdateEmployeeDto) {
     try {
-      return await this.prisma.employee.update({where: {id: id}, data: updates});
+      return await this.prisma.employee.update({
+        where: {id: id},
+        data: {
+          leftAt: updates.leftAt,
+          position: {connect: {id: updates.positionId}},
+        }
+      });
     } catch (e) {
-      console.error(e);
       throw new BadRequestException(e);
     }
   }
 
+  /* Nghỉ việc */
   async remove(id: number) {
-    this.prisma.employee.delete({where: {id: id}}).catch((e) => {
-      throw new BadRequestException(e);
+    this.prisma.employee.delete({where: {id: id}}).catch(err => {
+      console.error(err);
+      throw new BadRequestException(err);
     });
   }
 
@@ -132,10 +119,10 @@ export class EmployeeRepository {
     }).then();
   }
 
-  updateQrCode(employeeId: number, qrCode: string) {
-    this.prisma.employee.update({
-      where: {id: employeeId},
-      data: {qrCode}
-    }).then();
-  }
+  // updateQrCode(employeeId: number, qrCode: string) {
+  //   this.prisma.employee.update({
+  //     where: {id: employeeId},
+  //     data: {qrCode}
+  //   }).then();
+  // }
 }

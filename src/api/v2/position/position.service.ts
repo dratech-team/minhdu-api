@@ -3,9 +3,10 @@ import {Position} from '@prisma/client';
 import {CreatePositionDto} from './dto/create-position.dto';
 import {UpdatePositionDto} from './dto/update-position.dto';
 import {PositionRepository} from "./position.repository";
+import {BasePositionService} from "./base-position.service";
 
 @Injectable()
-export class PositionService {
+export class PositionService implements BasePositionService {
   constructor(private readonly repository: PositionRepository) {
   }
 
@@ -15,6 +16,14 @@ export class PositionService {
 
   async findAll(): Promise<any> {
     return this.repository.findAll();
+  }
+
+  findBy(query: any): Promise<Position[]> {
+    throw new Error('Method not implemented.');
+  }
+
+  findBranch(id: number): Promise<any> {
+    return this.repository.findBranch(id);
   }
 
   async findOne(id: number) {

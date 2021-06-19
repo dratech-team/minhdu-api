@@ -42,6 +42,13 @@ export class PositionRepository {
     }
   }
 
+  async findBranch(id: number): Promise<any> {
+    return await this.prisma.position.findFirst({
+      where: {id: id},
+      select: {department: {select: {branch: {select: {code: true}}}}}
+    });
+  }
+
   async update(id: number, updates: UpdatePositionDto) {
     try {
       return await this.prisma.position.update({where: {id: id}, data: updates});

@@ -1,17 +1,4 @@
-import {
-  Body,
-  Controller,
-  Delete,
-  Get,
-  Param,
-  ParseIntPipe,
-  Patch,
-  Post,
-  Query,
-  Req,
-  Res,
-  UseGuards, UseInterceptors
-} from '@nestjs/common';
+import {Body, Controller, Delete, Get, Param, ParseIntPipe, Patch, Post, Query, Res, UseGuards} from '@nestjs/common';
 import {PayrollService} from './payroll.service';
 import {UpdatePayrollDto} from './dto/update-payroll.dto';
 import {Roles} from "../../../core/decorators/roles.decorator";
@@ -21,9 +8,9 @@ import {JwtAuthGuard} from "../../../core/guard/jwt-auth.guard";
 import {RolesGuard} from "../../../core/guard/role.guard";
 import {ApiKeyGuard} from "../../../core/guard/api-key-auth.guard";
 import {CreatePayrollDto} from "./dto/create-payroll.dto";
-import {FilterInterceptor} from "../../../prisma.service";
+import {ApiV2Constant} from "../../../common/constant/api.constant";
 
-@Controller('v2/payroll')
+@Controller(ApiV2Constant.PAYROLL)
 @UseGuards(JwtAuthGuard, ApiKeyGuard, RolesGuard)
 export class PayrollController {
   constructor(private readonly payrollService: PayrollService) {
@@ -59,9 +46,8 @@ export class PayrollController {
   @Get(':id')
   findOne(
     @Param('id') id: string,
-    @Query('isConfirm') isConfirm: boolean
   ) {
-    return this.payrollService.findOne(+id, Boolean(isConfirm));
+    return this.payrollService.findOne(+id);
   }
 
   @Patch(':id')

@@ -3,12 +3,13 @@ import {IsNotEmpty, IsNumber, IsOptional, IsString} from "class-validator";
 export class CreateDepartmentDto {
   @IsNotEmpty()
   @IsString()
-  name: string;
+  readonly name: string;
 
   @IsOptional()
+  @IsString()
   color: string;
 
   @IsNotEmpty()
   @IsNumber()
-  branchId: number;
+  readonly branchId: number;
 }

@@ -2,107 +2,384 @@ generator client {
   provider = "prisma-client-js"
 }
 
+// generator dbml {
+//   provider            = "prisma-dbml-generator"
+//   output              = "../dbml"
+//   outputName          = "awesome.dbml"
+//   projectName         = "Project Name"
+//   projectDatabaseType = "PostgreSQL"
+//   projectNote         = "Test project description"
+// }
+
 datasource db {
   provider = "postgresql"
   url      = env("DATABASE_URL")
 }
 
 model Account {
-  id         Int     @id @default(autoincrement())
-  username   String  @unique
+  id         Int      @id @default(autoincrement())
+  username   String   @unique
   password   String
+  employee   Employee @relation(fields: [employeeId], references: [id])
+  employeeId Int
   role       Role
-  employee   Employee?
+}
+
+model Degree {
+  id         Int           @id @default(autoincrement())
+  startedAt  DateTime
+  endedAt    DateTime
+  major      String
+  formality  FormalityType
+  level      DegreeLevel
+  status     DegreeStatus
+  note       String
+  employee   Employee      @relation(fields: [employeeId], references: [id])
+  employeeId Int
+}
+
+model Bank {
+  id        Int       @id @default(autoincrement())
+  stk       String?
+  owner     String
+  name      String
+  profile   Profile   @relation(fields: [profileId], references: [id])
+  profileId Int
+  employee  Employee?
+}
+
+model Social {
+  id        Int       @id @default(autoincrement())
+  facebook  String?
+  zalo      String?
+  rofile    Profile   @relation(fields: [profileId], references: [id])
+  profileId Int
+  employee  Employee?
+}
+
+//Quốc gia
+model Nation {
+  id        Int        @id @default(autoincrement())
+  code      String
+  name      String
+  provinces Province[]
+}
+
+model Province {
+  id        Int        @id @default(autoincrement())
+  code      String?
+  name      String
+  nation    Nation     @relation(fields: [nationId], references: [id])
+  nationId  Int
+  districts District[]
+}
+
+model District {
+  id         Int      @id @default(autoincrement())
+  code       String?
+  name       String
+  province   Province @relation(fields: [provinceId], references: [id])
+  provinceId Int
+  wards      Ward[]
+}
+
+model Ward {
+  id         Int       @id @default(autoincrement())
+  code       String?
+  name       String
+  district   District  @relation(fields: [districtId], references: [id])
+  districtId Int
+  profiles   Profile[]
 }
 
 model Branch {
-  id          Int           @id @default(autoincrement())
-  code        String?
-  name        String        @unique
+  id          Int          @id @default(autoincrement())
+  code        String       @unique
+  name        String
   departments Department[]
-  employees   Employee[]
 }
 
 model Department {
   id        Int        @id @default(autoincrement())
-  name      String     @unique
-  color     String     @unique
-  branchId  Int
+  name      String
   branch    Branch     @relation(fields: [branchId], references: [id])
-  employee  Employee[]
+  branchId  Int
   positions Position[]
 }
 
 model Position {
-  id           Int        @id @default(autoincrement())
-  name         String
-  departmentId Int
-  workday      Int
-  department   Department @relation(fields: [departmentId], references: [id])
-  employees    Employee[]
+  id            Int           @id @default(autoincrement())
+  name          String
+  department    Department    @relation(fields: [departmentId], references: [id])
+  departmentId  Int
+  employees     Employee[]
+  workHistories WorkHistory[]
+}
 
-  @@unique([name, departmentId])
+model Profile {
+  id         Int        @id @default(autoincrement())
+  firstName  String
+  lastName   String
+  avt        String?
+  gender     GenderType
+  phone      String
+  workPhone  String?
+  birthday   DateTime
+  birthplace String
+  identity   String     @unique
+  idCardAt   DateTime
+  issuedBy   String
+  ward       Ward       @relation(fields: [wardId], references: [id])
+  wardId     Int
+  address    String
+  email      String?
+  religion   String?
+  mst        String?
+  employee   Employee?
+  relative   Relative?
+  customer   Customer?
+  banks      Bank[]
+  socials    Social[]
+}
+
+// Hợp đồng
+model Contract {
+  id         Int          @id @default(autoincrement())
+  contractId String?
+  type       ContractType
+  name       String
+  position   String
+  createdAt  DateTime
+  expiredAt  DateTime
+  employee   Employee     @relation(fields: [employeeId], references: [id])
+  employeeId Int
 }
 
 model Employee {
-  id           Int        @id @default(autoincrement())
-  code         String
-  identify     String
-  name         String
-  avt          String?    @default("https://ibb.co/2ydP38t")
-  gender       GenderType
-  birthday     DateTime
-  phone        String
-  email        String?
-  branchId     Int
-  departmentId Int
-  positionId   Int
-  workedAt     DateTime?
-  leftAt       DateTime?
-  idCardAt     DateTime
-  address      String
-  certificate  String?
-  stayedAt     DateTime?
-  contractAt   DateTime?
-  note         String?
-  qrCode       String?
-  isFlatSalary Boolean    @default(false)
-  branch       Branch     @relation(fields: [branchId], references: [id])
-  department   Department @relation(fields: [departmentId], references: [id])
-  position     Position   @relation(fields: [positionId], references: [id])
-  accountId    Int?
-  account      Account?    @relation(fields: [accountId], references: [id])
-  payrolls     Payroll[]
-  salaries     Salary[]
+  id              Int             @id @default(autoincrement())
+  code            String          @unique
+  createdAt       DateTime //Ngày thử việc (vào làm)
+  workedAt        DateTime? //Ngày làm chính thức
+  leftAt          DateTime?
+  isFlatSalary    Boolean
+  position        Position        @relation(fields: [positionId], references: [id])
+  positionId      Int
+  note            String?
+  email           String?
+  profile         Profile         @relation(fields: [profileId], references: [id])
+  profileId       Int
+  social          Social?         @relation(fields: [socialId], references: [id])
+  socialId        Int?
+  banks           Bank?           @relation(fields: [bankId], references: [id])
+  bankId          Int?
+  account         Account?
+  routes          Route[]
+  salaries        Salary[]
+  payrolls        Payroll[]
+  contracts       Contract[]
+  degrees         Degree[]
+  workHistories   WorkHistory[]
+  systemHistories SystemHistory[]
+  salaryHistory   SalaryHistory?  @relation(fields: [salaryHistoryId], references: [id])
+  salaryHistoryId Int?
+}
 
-  @@unique([id, identify])
+model WorkHistory {
+  id         Int        @id @default(autoincrement())
+  position   Position   @relation(fields: [positionId], references: [id])
+  positionId Int
+  createdAt  DateTime?  @default(now())
+  employees  Employee[]
+}
+
+model OvertimeTemplate {
+  id    Int           @id @default(autoincrement())
+  title String
+  type  SalaryType?   @default(OVERTIME)
+  price Float
+  unit  DatetimeUnit? @default(HOUR)
+  note  String?
+}
+
+model Relative {
+  id           Int              @id @default(autoincrement())
+  career       String
+  relationship RelationshipType
+  email        String?
+  profile      Profile          @relation(fields: [profileId], references: [id])
+  profileId    Int
+}
+
+model Customer {
+  id        Int              @id @default(autoincrement())
+  profile   Profile          @relation(fields: [profileId], references: [id])
+  profileId Int
+  type      CustomerType
+  resource  CustomerResource
+  note      String?
+  orders    Order[]
+}
+
+model Commodity {
+  id     Int           @id @default(autoincrement())
+  code   String
+  name   String
+  unit   CommodityUnit
+  price  Float
+  amount Float
+  orders Order[]
+}
+
+model Order {
+  id          Int          @id @default(autoincrement())
+  customer    Customer     @relation(fields: [customerId], references: [id])
+  customerId  Int
+  paidAt      DateTime
+  createdAt   DateTime
+  explain     String
+  currency    CurrencyUnit
+  paidTotal   Float
+  payType     PaymentType
+  commodities Commodity[]
+  routes      Route[]
+}
+
+model Route {
+  id         Int      @id @default(autoincrement())
+  name       String
+  startedAt  DateTime
+  endedAt    DateTime
+  driver     Employee @relation(fields: [employeeId], references: [id])
+  employeeId Int
+  orders     Order[]
+  bsx        String
+  latitude   Float
+  longitude  Float
 }
 
 model Salary {
-  id         Int        @id @default(autoincrement())
-  title      String?
-  type       SalaryType @default(BASIC)
-  unit       DatetimeUnit   @default(DAY)
-  datetime   DateTime?
-  times      Float?
-  rate       Float?     @default(1)
-  price      Float?
-  forgot     Boolean?   @default(false)
-  note       String?
-  employeeId Int?
-  employee   Employee?  @relation(fields: [employeeId], references: [id])
-  payroll    Payroll[]
+  id              Int            @id @default(autoincrement())
+  title           String
+  type            SalaryType
+  times           Float?
+  price           Float?
+  unit            DatetimeUnit?  @default(DAY)
+  rate            Float?         @default(1)
+  datetime        DateTime?      @default(now())
+  forgot          Boolean?       @default(false)
+  note            String?
+  employee        Employee       @relation(fields: [employeeId], references: [id])
+  employeeId      Int
+  Payroll         Payroll?       @relation(fields: [payrollId], references: [id])
+  payrollId       Int?
+  SalaryHistory   SalaryHistory? @relation(fields: [salaryHistoryId], references: [id])
+  salaryHistoryId Int?
 }
 
 model Payroll {
-  id          Int       @id @default(autoincrement())
+  id             Int       @id @default(autoincrement())
+  salaries       Salary[]
+  employee       Employee  @relation(fields: [employeeId], references: [id])
+  employeeId     Int
+  accConfirmedAt DateTime?
+  manConfirmedAt DateTime?
+  paidAt         DateTime?
+  createdAt      DateTime? @default(now())
+}
+
+model SystemHistory {
+  id          Int          @id @default(autoincrement())
+  appName     AppEnum
+  employee    Employee     @relation(fields: [employeeId], references: [id])
   employeeId  Int
-  isEdit      Boolean   @default(true)
-  confirmedAt DateTime?
-  paidAt      DateTime?
-  createdAt   DateTime  @default(now())
-  employee    Employee  @relation(fields: [employeeId], references: [id])
-  salaries    Salary[]
+  createdAt   DateTime?    @default(now())
+  object      String
+  activity    ActivityType
+  description String
+  ip          String?
+}
+
+model SalaryHistory {
+  id       Int       @id @default(autoincrement())
+  salaries Salary[]
+  employee Employee?
+}
+
+enum CurrencyUnit {
+  VND
+  USD
+  EUR
+  GBP
+  MYR
+  MMK
+  CNY
+  JPY
+}
+
+enum PaymentType {
+  TRANSFER
+  CASH
+}
+
+enum DegreeStatus {
+  GRADUATED
+  NOT_GRADUATED
+}
+
+enum ActivityType {
+  CREATE
+  UPDATE
+  DELETE
+}
+
+enum AppEnum {
+  HUMAN_RESOURCE
+  BUSSINESS
+}
+
+enum RelationshipType {
+  HUSBAND
+  WIFE
+  FATHER
+  MOTHER
+  DAUGHTER
+  SON
+}
+
+enum CustomerType {
+  RETAIL
+  AGENCY
+}
+
+enum CommodityUnit {
+  KG
+  CON
+}
+
+enum CustomerResource {
+  RESEARCH //nhân viên tự tìm
+  INTRODUCED //Được giới thiệu
+  SELF_FIND //khách hàng tự tìm đến
+  OTHER //Khác
+}
+
+enum ContractType {
+  LIMITED
+  UNLIMITED
+}
+
+enum DegreeLevel {
+  EXCELLENT
+  GOOD
+  AVERAGE
+  BELOW_AVERAGE
+}
+
+enum FormalityType {
+  FORMAL
+  INFORMAL
+  TRAINING
+  REMOTE
 }
 
 enum SalaryType {

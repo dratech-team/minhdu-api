@@ -1,4 +1,10 @@
-import {BadRequestException, ConflictException, Injectable, UnauthorizedException} from '@nestjs/common';
+import {
+  BadRequestException,
+  ConflictException,
+  Injectable,
+  NotFoundException,
+  UnauthorizedException
+} from '@nestjs/common';
 import {SignupCredentialDto} from './dto/signup-credential.dto';
 import {SignInCredentialDto} from "./dto/signin-credential.dto";
 import {PrismaService} from "../../../prisma.service";
@@ -41,8 +47,12 @@ export class AuthService {
     try {
       const user = await this.prisma.account.findUnique({
         where: {username: body.username},
-        include: {employee: true}
+        include: {employee: {select: {position: {select: {department: {select: {branchId: true}}}}}}}
       });
+      const branchId = user.employee.position.department.branchId;
+      if (!user) {
+        throw new NotFoundException('username không tồn tại');
+      }
       const isValid = await bcrypt.compare(body.password, user.password);
 
       if (!isValid) {
@@ -54,7 +64,7 @@ export class AuthService {
           accountId: user.id,
           username: user.username,
           role: user.role,
-          branchId: user.employee.branchId
+          branchId: branchId
         };
       } else {
         payload = {
@@ -69,7 +79,7 @@ export class AuthService {
       return user.employee ? {
         id: user.id,
         role: user.role,
-        branchId: user.employee.branchId,
+        branchId: branchId,
         token,
       } : {
         id: user.id,

@@ -1,6 +1,6 @@
-import {SalaryType} from "@prisma/client";
 import {IsEnum, IsNotEmpty, IsNumber, IsOptional, IsString} from "class-validator";
 import {Type} from "class-transformer";
+import { SalaryType } from "@prisma/client";
 
 export class ICreateSalaryDto {
   @IsOptional()

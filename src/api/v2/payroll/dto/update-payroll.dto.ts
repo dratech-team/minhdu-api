@@ -1,23 +1,23 @@
-import {IsBoolean, IsOptional} from "class-validator";
+import {IsBoolean, IsDate, IsOptional} from "class-validator";
 import {Type} from "class-transformer";
 
 export class UpdatePayrollDto {
   @IsOptional()
   @Type(() => Number)
-  salaryId: number
+  readonly salaryId: number
+
+  @IsOptional()
+  @Type(() => Date)
+  @IsDate()
+  readonly accConfirmedAt: Date
+
+  @IsOptional()
+  @Type(() => Date)
+  @IsDate()
+  readonly manConfirmedAt: Date;
 
   @IsOptional()
   @Type(() => Boolean)
   @IsBoolean()
-  isEdit: boolean
-
-  @IsOptional()
-  @Type(() => Boolean)
-  @IsBoolean()
-  isConfirm: boolean;
-
-  @IsOptional()
-  @Type(() => Boolean)
-  @IsBoolean()
-  isPaid: boolean;
+  readonly isPaid: boolean;
 }

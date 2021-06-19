@@ -6,7 +6,8 @@ import {PositionRepository} from "./position.repository";
 
 @Module({
   controllers: [PositionController],
-  providers: [PrismaService, PositionRepository, PositionService]
+  providers: [PrismaService, PositionRepository, PositionService],
+  exports: [PositionService]
 })
 export class PositionModule {
 }

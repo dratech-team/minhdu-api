@@ -1,8 +1,8 @@
 import {ICreateSalaryDto} from "../../../../common/dtos/create-salary.dto";
 import {Type} from "class-transformer";
-import {IsEnum, IsOptional, MaxDate} from "class-validator";
+import {IsEnum, IsNotEmpty, IsNumber, IsOptional, MaxDate} from "class-validator";
 import {ValidatorMessage} from "../../../../common/constant/validator.constant";
-import { DatetimeUnit } from "@prisma/client";
+import {DatetimeUnit} from "@prisma/client";
 
 export class CreateSalaryDto extends ICreateSalaryDto {
   @Type(() => Date)
@@ -24,4 +24,14 @@ export class CreateSalaryDto extends ICreateSalaryDto {
   @IsOptional()
   @Type(() => Boolean)
   forgot: boolean;
+
+  @Type(() => Number)
+  @IsNotEmpty()
+  @IsNumber()
+  employeeId: number
+
+  @Type(() => Number)
+  @IsOptional()
+  @IsNumber()
+  payrollId: number
 }
