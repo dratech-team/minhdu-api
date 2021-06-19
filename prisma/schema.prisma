@@ -5,8 +5,8 @@ generator client {
 // generator dbml {
 //   provider            = "prisma-dbml-generator"
 //   output              = "../dbml"
-//   outputName          = "awesome.dbml"
-//   projectName         = "Project Name"
+//   outputName          = "minhdu.dbml"
+//   projectName         = "Minh du"
 //   projectDatabaseType = "PostgreSQL"
 //   projectNote         = "Test project description"
 // }
@@ -17,11 +17,11 @@ datasource db {
 }
 
 model Account {
-  id         Int      @id @default(autoincrement())
-  username   String   @unique
+  id         Int       @id @default(autoincrement())
+  username   String    @unique
   password   String
-  employee   Employee @relation(fields: [employeeId], references: [id])
-  employeeId Int
+  employee   Employee? @relation(fields: [employeeId], references: [id])
+  employeeId Int?
   role       Role
 }
 
@@ -110,6 +110,7 @@ model Department {
 model Position {
   id            Int           @id @default(autoincrement())
   name          String
+  workday       Int
   department    Department    @relation(fields: [departmentId], references: [id])
   departmentId  Int
   employees     Employee[]
@@ -126,7 +127,7 @@ model Profile {
   workPhone  String?
   birthday   DateTime
   birthplace String
-  identity   String     @unique
+  identify   String     @unique
   idCardAt   DateTime
   issuedBy   String
   ward       Ward       @relation(fields: [wardId], references: [id])
@@ -136,7 +137,6 @@ model Profile {
   religion   String?
   mst        String?
   employee   Employee?
-  relative   Relative?
   customer   Customer?
   banks      Bank[]
   socials    Social[]
@@ -182,6 +182,7 @@ model Employee {
   systemHistories SystemHistory[]
   salaryHistory   SalaryHistory?  @relation(fields: [salaryHistoryId], references: [id])
   salaryHistoryId Int?
+  relatives       Relative[]
 }
 
 model WorkHistory {
@@ -206,8 +207,8 @@ model Relative {
   career       String
   relationship RelationshipType
   email        String?
-  profile      Profile          @relation(fields: [profileId], references: [id])
-  profileId    Int
+  employee     Employee         @relation(fields: [employeeId], references: [id])
+  employeeId   Int
 }
 
 model Customer {

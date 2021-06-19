@@ -23,10 +23,12 @@ export class DepartmentRepository {
   }
 
   async findAll(): Promise<any> {
-    return this.prisma.department.findMany({include: {positions: {select: {id: true}}}}).catch(err => {
+    try {
+      return await this.prisma.department.findMany({include: {positions: {select: {id: true}}}});
+    } catch (err) {
       console.error(err);
       throw new BadRequestException(err);
-    });
+    }
   }
 
   async findOne(id: number): Promise<Department> {

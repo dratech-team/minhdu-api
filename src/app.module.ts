@@ -15,11 +15,13 @@ import {ContractModule} from './api/v2/contract/contract.module';
 import {DegreeModule} from './api/v2/degree/degree.module';
 import {SalaryHistoryModule} from './api/v2/salary-history/salary-history.module';
 import {LoggerMiddleware} from "./core/middlewares/logger.middleware";
-import {EmployeeController} from "./api/v2/employee/employee.controller";
-import {SalaryController} from "./api/v2/salary/salary.controller";
 import {PayrollController} from "./api/v2/payroll/payroll.controller";
 import { WorkHistoryModule } from './api/v2/work-history/work-history.module';
 import { ProfileModule } from './api/v2/profile/profile.module';
+import { NationModule } from './api/v2/nation/nation.module';
+import { ProvinceModule } from './api/v2/province/province.module';
+import { DistrictModule } from './api/v2/district/district.module';
+import { WardModule } from './api/v2/ward/ward.module';
 
 @Module({
   imports: [
@@ -38,6 +40,10 @@ import { ProfileModule } from './api/v2/profile/profile.module';
     SalaryHistoryModule,
     WorkHistoryModule,
     ProfileModule,
+    NationModule,
+    ProvinceModule,
+    DistrictModule,
+    WardModule,
   ],
   controllers: [AppController],
   providers: [PrismaService],

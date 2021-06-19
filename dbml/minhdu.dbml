@@ -1,0 +1,479 @@
+//// ------------------------------------------------------
+//// THIS FILE WAS AUTOMATICALLY GENERATED (DO NOT MODIFY)
+//// ------------------------------------------------------
+
+Project "Minh du" {
+  database_type: 'PostgreSQL'
+  Note: 'Test project description'
+}
+
+Table Account {
+  id Int [pk, increment]
+  username String [unique, not null]
+  password String [not null]
+  employee Employee
+  employeeId Int
+  role Role [not null]
+}
+
+Table Degree {
+  id Int [pk, increment]
+  startedAt DateTime [not null]
+  endedAt DateTime [not null]
+  major String [not null]
+  formality FormalityType [not null]
+  level DegreeLevel [not null]
+  status DegreeStatus [not null]
+  note String [not null]
+  employee Employee [not null]
+  employeeId Int [not null]
+}
+
+Table Bank {
+  id Int [pk, increment]
+  stk String
+  owner String [not null]
+  name String [not null]
+  profile Profile [not null]
+  profileId Int [not null]
+  employee Employee
+}
+
+Table Social {
+  id Int [pk, increment]
+  facebook String
+  zalo String
+  rofile Profile [not null]
+  profileId Int [not null]
+  employee Employee
+}
+
+Table Nation {
+  id Int [pk, increment]
+  code String [not null]
+  name String [not null]
+  provinces Province [not null]
+}
+
+Table Province {
+  id Int [pk, increment]
+  code String
+  name String [not null]
+  nation Nation [not null]
+  nationId Int [not null]
+  districts District [not null]
+}
+
+Table District {
+  id Int [pk, increment]
+  code String
+  name String [not null]
+  province Province [not null]
+  provinceId Int [not null]
+  wards Ward [not null]
+}
+
+Table Ward {
+  id Int [pk, increment]
+  code String
+  name String [not null]
+  district District [not null]
+  districtId Int [not null]
+  profiles Profile [not null]
+}
+
+Table Branch {
+  id Int [pk, increment]
+  code String [unique, not null]
+  name String [not null]
+  departments Department [not null]
+}
+
+Table Department {
+  id Int [pk, increment]
+  name String [not null]
+  branch Branch [not null]
+  branchId Int [not null]
+  positions Position [not null]
+}
+
+Table Position {
+  id Int [pk, increment]
+  name String [not null]
+  workday Int [not null]
+  department Department [not null]
+  departmentId Int [not null]
+  employees Employee [not null]
+  workHistories WorkHistory [not null]
+}
+
+Table Profile {
+  id Int [pk, increment]
+  firstName String [not null]
+  lastName String [not null]
+  avt String
+  gender GenderType [not null]
+  phone String [not null]
+  workPhone String
+  birthday DateTime [not null]
+  birthplace String [not null]
+  identify String [unique, not null]
+  idCardAt DateTime [not null]
+  issuedBy String [not null]
+  ward Ward [not null]
+  wardId Int [not null]
+  address String [not null]
+  email String
+  religion String
+  mst String
+  employee Employee
+  customer Customer
+  banks Bank [not null]
+  socials Social [not null]
+}
+
+Table Contract {
+  id Int [pk, increment]
+  contractId String
+  type ContractType [not null]
+  name String [not null]
+  position String [not null]
+  createdAt DateTime [not null]
+  expiredAt DateTime [not null]
+  employee Employee [not null]
+  employeeId Int [not null]
+}
+
+Table Employee {
+  id Int [pk, increment]
+  code String [unique, not null]
+  createdAt DateTime [not null]
+  workedAt DateTime
+  leftAt DateTime
+  isFlatSalary Boolean [not null]
+  position Position [not null]
+  positionId Int [not null]
+  note String
+  email String
+  profile Profile [not null]
+  profileId Int [not null]
+  social Social
+  socialId Int
+  banks Bank
+  bankId Int
+  account Account
+  routes Route [not null]
+  salaries Salary [not null]
+  payrolls Payroll [not null]
+  contracts Contract [not null]
+  degrees Degree [not null]
+  workHistories WorkHistory [not null]
+  systemHistories SystemHistory [not null]
+  salaryHistory SalaryHistory
+  salaryHistoryId Int
+  relatives Relative [not null]
+}
+
+Table WorkHistory {
+  id Int [pk, increment]
+  position Position [not null]
+  positionId Int [not null]
+  createdAt DateTime [default: `now()`]
+  employees Employee [not null]
+}
+
+Table OvertimeTemplate {
+  id Int [pk, increment]
+  title String [not null]
+  type SalaryType [default: 'OVERTIME']
+  price Float [not null]
+  unit DatetimeUnit [default: 'HOUR']
+  note String
+}
+
+Table Relative {
+  id Int [pk, increment]
+  career String [not null]
+  relationship RelationshipType [not null]
+  email String
+  employee Employee [not null]
+  employeeId Int [not null]
+}
+
+Table Customer {
+  id Int [pk, increment]
+  profile Profile [not null]
+  profileId Int [not null]
+  type CustomerType [not null]
+  resource CustomerResource [not null]
+  note String
+  orders Order [not null]
+}
+
+Table Commodity {
+  id Int [pk, increment]
+  code String [not null]
+  name String [not null]
+  unit CommodityUnit [not null]
+  price Float [not null]
+  amount Float [not null]
+  orders Order [not null]
+}
+
+Table Order {
+  id Int [pk, increment]
+  customer Customer [not null]
+  customerId Int [not null]
+  paidAt DateTime [not null]
+  createdAt DateTime [not null]
+  explain String [not null]
+  currency CurrencyUnit [not null]
+  paidTotal Float [not null]
+  payType PaymentType [not null]
+  commodities Commodity [not null]
+  routes Route [not null]
+}
+
+Table Route {
+  id Int [pk, increment]
+  name String [not null]
+  startedAt DateTime [not null]
+  endedAt DateTime [not null]
+  driver Employee [not null]
+  employeeId Int [not null]
+  orders Order [not null]
+  bsx String [not null]
+  latitude Float [not null]
+  longitude Float [not null]
+}
+
+Table Salary {
+  id Int [pk, increment]
+  title String [not null]
+  type SalaryType [not null]
+  times Float
+  price Float
+  unit DatetimeUnit [default: 'DAY']
+  rate Float [default: 1]
+  datetime DateTime [default: `now()`]
+  forgot Boolean [default: false]
+  note String
+  employee Employee [not null]
+  employeeId Int [not null]
+  Payroll Payroll
+  payrollId Int
+  SalaryHistory SalaryHistory
+  salaryHistoryId Int
+}
+
+Table Payroll {
+  id Int [pk, increment]
+  salaries Salary [not null]
+  employee Employee [not null]
+  employeeId Int [not null]
+  accConfirmedAt DateTime
+  manConfirmedAt DateTime
+  paidAt DateTime
+  createdAt DateTime [default: `now()`]
+}
+
+Table SystemHistory {
+  id Int [pk, increment]
+  appName AppEnum [not null]
+  employee Employee [not null]
+  employeeId Int [not null]
+  createdAt DateTime [default: `now()`]
+  object String [not null]
+  activity ActivityType [not null]
+  description String [not null]
+  ip String
+}
+
+Table SalaryHistory {
+  id Int [pk, increment]
+  salaries Salary [not null]
+  employee Employee
+}
+
+Table EmployeeToWorkHistory {
+  workhistoriesId Int [ref: > WorkHistory.id]
+  employeesId Int [ref: > Employee.id]
+}
+
+Table CommodityToOrder {
+  ordersId Int [ref: > Order.id]
+  commoditiesId Int [ref: > Commodity.id]
+}
+
+Table OrderToRoute {
+  routesId Int [ref: > Route.id]
+  ordersId Int [ref: > Order.id]
+}
+
+Enum CurrencyUnit {
+  VND
+  USD
+  EUR
+  GBP
+  MYR
+  MMK
+  CNY
+  JPY
+}
+
+Enum PaymentType {
+  TRANSFER
+  CASH
+}
+
+Enum DegreeStatus {
+  GRADUATED
+  NOT_GRADUATED
+}
+
+Enum ActivityType {
+  CREATE
+  UPDATE
+  DELETE
+}
+
+Enum AppEnum {
+  HUMAN_RESOURCE
+  BUSSINESS
+}
+
+Enum RelationshipType {
+  HUSBAND
+  WIFE
+  FATHER
+  MOTHER
+  DAUGHTER
+  SON
+}
+
+Enum CustomerType {
+  RETAIL
+  AGENCY
+}
+
+Enum CommodityUnit {
+  KG
+  CON
+}
+
+Enum CustomerResource {
+  RESEARCH
+  INTRODUCED
+  SELF_FIND
+  OTHER
+}
+
+Enum ContractType {
+  LIMITED
+  UNLIMITED
+}
+
+Enum DegreeLevel {
+  EXCELLENT
+  GOOD
+  AVERAGE
+  BELOW_AVERAGE
+}
+
+Enum FormalityType {
+  FORMAL
+  INFORMAL
+  TRAINING
+  REMOTE
+}
+
+Enum SalaryType {
+  BASIC
+  STAY
+  ALLOWANCE
+  OVERTIME
+  ABSENT
+}
+
+Enum DatetimeUnit {
+  MINUTE
+  HOUR
+  DAY
+  MONTH
+}
+
+Enum GenderType {
+  MALE
+  FEMALE
+  OTHER
+}
+
+Enum Role {
+  ADMIN
+  CHIEF_ACCOUNTANT
+  ACCOUNTANT_CASH_FUND
+  ACCOUNTANT_MODERATION
+  SALESMAN
+  SALESMAN_EGG
+  IMPORTER_EXPORTER
+  CONSTRUCTION_DEPARTMENT
+  HUMAN_RESOURCE
+  CAMP_ACCOUNTING
+  CAMP_MANAGEMENT
+  CAMP_DIRECTOR
+  HATCHERY_ACCOUNTING
+  HATCHERY_MANAGEMENT
+  NONE
+}
+
+Ref: Account.employeeId - Employee.id
+
+Ref: Degree.employeeId > Employee.id
+
+Ref: Bank.profileId > Profile.id
+
+Ref: Social.profileId > Profile.id
+
+Ref: Province.nationId > Nation.id
+
+Ref: District.provinceId > Province.id
+
+Ref: Ward.districtId > District.id
+
+Ref: Department.branchId > Branch.id
+
+Ref: Position.departmentId > Department.id
+
+Ref: Profile.wardId > Ward.id
+
+Ref: Contract.employeeId > Employee.id
+
+Ref: Employee.positionId > Position.id
+
+Ref: Employee.profileId - Profile.id
+
+Ref: Employee.socialId - Social.id
+
+Ref: Employee.bankId - Bank.id
+
+Ref: Employee.salaryHistoryId - SalaryHistory.id
+
+Ref: WorkHistory.positionId > Position.id
+
+Ref: Relative.employeeId > Employee.id
+
+Ref: Customer.profileId - Profile.id
+
+Ref: Order.customerId > Customer.id
+
+Ref: Route.employeeId > Employee.id
+
+Ref: Salary.employeeId > Employee.id
+
+Ref: Salary.payrollId > Payroll.id
+
+Ref: Salary.salaryHistoryId > SalaryHistory.id
+
+Ref: Payroll.employeeId > Employee.id
+
+Ref: SystemHistory.employeeId > Employee.id

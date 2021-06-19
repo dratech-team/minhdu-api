@@ -15,7 +15,7 @@ export class DepartmentService implements BaseDepartmentService {
   }
 
   async findAll(): Promise<any> {
-    this.repository.findAll().then(departments => {
+    return this.repository.findAll().then(departments => {
       return departments.map(department => {
         return {
           id: department.id,

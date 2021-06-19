@@ -53,7 +53,6 @@ export class CreateEmployeeDto {
   @IsEmail()
   readonly email: string;
 
-
   @IsOptional()
   @IsString()
   readonly note: string;

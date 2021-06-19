@@ -17,14 +17,13 @@ export class BranchService implements BaseBranchService {
   }
 
   async findAll(): Promise<any> {
-    return this.repository.findAll().then(branches => {
-      return branches.map(branch => {
-        return {
-          id: branch.id,
-          name: branch.name,
-          departmentIds: branch.departments.map(e => e.id)
-        };
-      });
+    const branches = await this.repository.findAll();
+    return branches.map(branch => {
+      return {
+        id: branch.id,
+        name: branch.name,
+        departmentIds: branch.departments.map(department => department.id),
+      };
     });
   }
 

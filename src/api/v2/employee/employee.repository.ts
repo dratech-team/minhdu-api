@@ -26,7 +26,7 @@ export class EmployeeRepository implements InterfaceRepository<Employee> {
           }
         },
         include: {
-          position: {include: {department: {include: {branch: true}}}}
+          position: {include: {department: {include: {branch: true}}}},
         }
       });
     } catch (err) {

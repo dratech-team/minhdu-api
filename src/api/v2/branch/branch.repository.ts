@@ -23,18 +23,22 @@ export class BranchRepository {
   }
 
   async findAll(): Promise<any> {
-    return this.prisma.branch.findMany({
-      select: {
-        id: true,
-        name: true,
-        departments: {
-          select: {
-            id: true,
-            positions: {select: {id: true}}
-          }
-        },
-      }
-    }).catch(err => new BadRequestException(err));
+    try {
+      return await this.prisma.branch.findMany({
+        select: {
+          id: true,
+          name: true,
+          departments: {
+            select: {
+              id: true
+            }
+          },
+        }
+      });
+    } catch (err) {
+      console.error(err);
+      throw new BadRequestException(err);
+    }
   }
 
   async findOne(id: number): Promise<Branch> {

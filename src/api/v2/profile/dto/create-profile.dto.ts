@@ -33,7 +33,7 @@ export class CreateProfileDto {
   @IsPhoneNumber('VN')
   readonly phone: string;
 
-  @IsNotEmpty()
+  @IsOptional()
   @IsString()
   @IsPhoneNumber('VN')
   readonly workPhone: string;
@@ -50,7 +50,7 @@ export class CreateProfileDto {
 
   @IsNotEmpty()
   @IsString()
-  readonly identity: string
+  readonly identify: string
 
   @IsNotEmpty()
   @Type(() => Date)

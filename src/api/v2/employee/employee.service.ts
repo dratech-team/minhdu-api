@@ -5,7 +5,6 @@ import {UpdateEmployeeDto} from "./dto/update-employee.dto";
 import {BaseEmployeeService} from "./base-employee.service";
 import {ResponsePagination} from "../../../common/entities/response.pagination";
 import {Employee} from "@prisma/client";
-import {PrismaService} from "../../../prisma.service";
 import {PositionService} from "../position/position.service";
 
 @Injectable()
@@ -30,7 +29,7 @@ export class EmployeeService implements BaseEmployeeService {
       return await this.repository.create(body);
     } catch (err) {
       console.error(err);
-      if (err.response.code === "P2002") {
+      if (err?.response?.code === "P2002") {
         throw new ConflictException('CMND nhân viên đã tồn tại', err);
       }
       throw new BadRequestException(err);

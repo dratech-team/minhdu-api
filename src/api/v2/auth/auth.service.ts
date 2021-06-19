@@ -49,7 +49,7 @@ export class AuthService {
         where: {username: body.username},
         include: {employee: {select: {position: {select: {department: {select: {branchId: true}}}}}}}
       });
-      const branchId = user.employee.position.department.branchId;
+      const branchId = user?.employee?.position?.department?.branchId;
       if (!user) {
         throw new NotFoundException('username không tồn tại');
       }
