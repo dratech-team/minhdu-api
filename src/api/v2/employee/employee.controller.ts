@@ -1,4 +1,4 @@
-import {Body, Controller, Get, Param, ParseIntPipe, Patch, Post, Query, UseGuards} from '@nestjs/common';
+import {Body, Controller, Get, Param, Patch, Post, Query, UseGuards} from '@nestjs/common';
 import {EmployeeService} from './employee.service';
 import {CreateEmployeeDto} from './dto/create-employee.dto';
 import {JwtAuthGuard} from "../../../core/guard/jwt-auth.guard";
@@ -38,12 +38,12 @@ export class EmployeeController {
     return this.employeeService.findOne(+id);
   }
 
-
   @Patch(':id')
   @Roles(UserType.ADMIN, UserType.HUMAN_RESOURCE)
   update(@Param('id') id: number, @Body() updateEmployeeDto: UpdateEmployeeDto) {
     return this.employeeService.update(+id, updateEmployeeDto);
   }
+
 
   // @Delete(':id')
   // @Roles(UserType.ADMIN, UserType.HUMAN_RESOURCE)

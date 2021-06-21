@@ -1,6 +1,7 @@
+import {IsBoolean, IsEmail, IsEnum, IsNotEmpty, IsNumber, IsOptional, IsString, ValidateNested} from "class-validator";
 import {RelationshipType} from "@prisma/client";
-import {IsEmail, IsEnum, IsNotEmpty, IsNumber, IsOptional, IsString, ValidateNested} from "class-validator";
-import {CreateProfileDto} from "../../profile/dto/create-profile.dto";
+import {Type} from "class-transformer";
+import {CreateProfileDto} from "../../employee/dto/create-profile.dto";
 
 export class CreateRelativeDto {
   @IsNotEmpty()
@@ -8,18 +9,20 @@ export class CreateRelativeDto {
   readonly relationship: RelationshipType;
 
   @IsOptional()
-  @IsEmail()
-  readonly email: string;
-
-  @IsOptional()
   @IsString()
   readonly career: string;
 
-  @IsNotEmpty()
-  @IsNumber()
-  readonly employeeId: number;
+  @IsOptional()
+  @Type(() => Boolean)
+  @IsBoolean()
+  readonly sos: boolean;
 
   @IsNotEmpty()
   @ValidateNested()
   readonly profile: CreateProfileDto;
+
+  @IsNotEmpty()
+  @Type(() => Number)
+  @IsNumber()
+  employeeId: number;
 }

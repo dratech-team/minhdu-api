@@ -3,12 +3,12 @@ generator client {
 }
 
 // generator dbml {
-//   provider            = "prisma-dbml-generator"
-//   output              = "../dbml"
-//   outputName          = "minhdu.dbml"
-//   projectName         = "Minh du"
-//   projectDatabaseType = "PostgreSQL"
-//   projectNote         = "Test project description"
+//  provider            = "prisma-dbml-generator"
+//  output              = "../dbml"
+//  outputName          = "minhdu.dbml"
+//  projectName         = "Minh du"
+//  projectDatabaseType = "PostgreSQL"
+//  projectNote         = "Test project description"
 // }
 
 datasource db {
@@ -27,34 +27,33 @@ model Account {
 
 model Degree {
   id         Int           @id @default(autoincrement())
+  school     String
+  type       DegreeType
   startedAt  DateTime
   endedAt    DateTime
   major      String
   formality  FormalityType
-  level      DegreeLevel
+  level      DegreeLevel?
   status     DegreeStatus
-  note       String
+  note       String?
   employee   Employee      @relation(fields: [employeeId], references: [id])
   employeeId Int
 }
 
 model Bank {
-  id        Int       @id @default(autoincrement())
-  stk       String?
-  owner     String
-  name      String
-  profile   Profile   @relation(fields: [profileId], references: [id])
-  profileId Int
-  employee  Employee?
+  id         Int      @id @default(autoincrement())
+  stk        String?
+  owner      String
+  name       String
+  employee   Employee @relation(fields: [employeeId], references: [id])
+  employeeId Int
 }
 
 model Social {
-  id        Int       @id @default(autoincrement())
-  facebook  String?
-  zalo      String?
-  rofile    Profile   @relation(fields: [profileId], references: [id])
-  profileId Int
-  employee  Employee?
+  id       Int       @id @default(autoincrement())
+  facebook String?
+  zalo     String?
+  employee Employee?
 }
 
 //Quốc gia
@@ -135,11 +134,11 @@ model Profile {
   address    String
   email      String?
   religion   String?
+  ethnicity  String?
   mst        String?
   employee   Employee?
   customer   Customer?
-  banks      Bank[]
-  socials    Social[]
+  relative   Relative?
 }
 
 // Hợp đồng
@@ -165,13 +164,11 @@ model Employee {
   position        Position        @relation(fields: [positionId], references: [id])
   positionId      Int
   note            String?
-  email           String?
   profile         Profile         @relation(fields: [profileId], references: [id])
   profileId       Int
   social          Social?         @relation(fields: [socialId], references: [id])
   socialId        Int?
-  banks           Bank?           @relation(fields: [bankId], references: [id])
-  bankId          Int?
+  banks           Bank[]
   account         Account?
   routes          Route[]
   salaries        Salary[]
@@ -180,8 +177,7 @@ model Employee {
   degrees         Degree[]
   workHistories   WorkHistory[]
   systemHistories SystemHistory[]
-  salaryHistory   SalaryHistory?  @relation(fields: [salaryHistoryId], references: [id])
-  salaryHistoryId Int?
+  salariesHistory SalaryHistory[]
   relatives       Relative[]
 }
 
@@ -206,9 +202,11 @@ model Relative {
   id           Int              @id @default(autoincrement())
   career       String
   relationship RelationshipType
-  email        String?
+  profile      Profile          @relation(fields: [profileId], references: [id])
+  sos          Boolean?         @default(false)
   employee     Employee         @relation(fields: [employeeId], references: [id])
   employeeId   Int
+  profileId    Int
 }
 
 model Customer {
@@ -301,9 +299,10 @@ model SystemHistory {
 }
 
 model SalaryHistory {
-  id       Int       @id @default(autoincrement())
-  salaries Salary[]
-  employee Employee?
+  id         Int      @id @default(autoincrement())
+  salaries   Salary[]
+  employee   Employee @relation(fields: [employeeId], references: [id])
+  employeeId Int
 }
 
 enum CurrencyUnit {
@@ -374,6 +373,15 @@ enum DegreeLevel {
   GOOD
   AVERAGE
   BELOW_AVERAGE
+}
+
+enum DegreeType {
+  UNIVERSITY //đại học
+  COLLEGE //cao đẳng
+  INTERMEDIATE //trung cấp
+  MASTER //thạc sĩ
+  PHILOSOPHY //tiến sĩ
+
 }
 
 enum FormalityType {

@@ -14,7 +14,7 @@ export class DegreeController {
 
   @Get()
   findAll() {
-    // return this.degreeService.findAll();
+    return this.degreeService.findAll();
   }
 
   @Get(':id')

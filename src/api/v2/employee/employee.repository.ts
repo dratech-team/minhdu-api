@@ -26,6 +26,7 @@ export class EmployeeRepository implements InterfaceRepository<Employee> {
           }
         },
         include: {
+          profile: true,
           position: {include: {department: {include: {branch: true}}}},
         }
       });
@@ -52,7 +53,8 @@ export class EmployeeRepository implements InterfaceRepository<Employee> {
         this.prisma.employee.findMany({
           where, skip, take,
           include: {
-            position: {include: {department: {include: {branch: true}}}}
+            position: {include: {department: {include: {branch: true}}}},
+            profile: true,
           }
         })
       ]);
@@ -75,8 +77,34 @@ export class EmployeeRepository implements InterfaceRepository<Employee> {
       return await this.prisma.employee.findUnique({
         where: {id: id},
         include: {
-          salaries: true,
+          profile: {
+            include: {
+              ward: {
+                include: {
+                  district: {
+                    include: {
+                      province: {
+                        include: {
+                          nation: true,
+                        }
+                      }
+                    }
+                  }
+                },
+              },
+            }
+          },
+          social: true,
+          degrees: true,
+          contracts: true,
+          relatives: {
+            include: {
+              profile: true
+            }
+          },
+          banks: true,
           position: {include: {department: {include: {branch: true}}}},
+          salaries: true,
           payrolls: true,
         }
       });
@@ -93,11 +121,24 @@ export class EmployeeRepository implements InterfaceRepository<Employee> {
         data: {
           leftAt: updates.leftAt,
           position: {connect: {id: updates.positionId}},
+          profile: {update: updates.profile},
+          workedAt: updates.workedAt,
+          createdAt: updates.createdAt,
+          note: updates.note,
         }
       });
-    } catch (e) {
-      throw new BadRequestException(e);
+    } catch (err) {
+      console.error(err);
+      throw new BadRequestException(err);
     }
+  }
+
+  /* Nghỉ việc */
+  async removeRelative(relativeId: number) {
+    this.prisma.relative.delete({where: {id: relativeId}}).catch(err => {
+      console.error(err);
+      throw new BadRequestException(err);
+    });
   }
 
   /* Nghỉ việc */

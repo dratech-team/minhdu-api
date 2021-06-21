@@ -1,30 +1,43 @@
-import {Injectable} from '@nestjs/common';
+import {BadRequestException, Injectable} from '@nestjs/common';
 import {CreateRelativeDto} from './dto/create-relative.dto';
 import {UpdateRelativeDto} from './dto/update-relative.dto';
-import {RelativeRepository} from "./relative.repository";
+import {PrismaService} from "../../../prisma.service";
 
 @Injectable()
 export class RelativeService {
-  constructor(private readonly service: RelativeRepository) {
+  constructor(private readonly prisma: PrismaService) {
   }
 
-  create(body: CreateRelativeDto) {
-    return this.service.create(body);
+  async create(body: CreateRelativeDto) {
+    try {
+      return await this.prisma.relative.create({
+        data: {
+          profile: {create: body.profile},
+          sos: body.sos,
+          relationship: body.relationship,
+          career: body.career,
+          employee: {connect: {id: body.employeeId}}
+        }
+      });
+    } catch (err) {
+      console.error(err);
+      throw new BadRequestException(err);
+    }
   }
 
-  findAll(branchId: number, skip: number, take: number, search?: string) {
-    return this.service.findAll(branchId, skip, take, search);
+  findAll() {
+    return `This action returns all relative`;
   }
 
   findOne(id: number) {
-    return this.service.findOne(id);
+    return `This action returns a #${id} relative`;
   }
 
-  update(id: number, updateFamilyDto: UpdateRelativeDto) {
-    return this.service.update(id, updateFamilyDto);
+  update(id: number, updateRelativeDto: UpdateRelativeDto) {
+    return `This action updates a #${id} relative`;
   }
 
   remove(id: number) {
-    return this.service.remove(id);
+    return `This action removes a #${id} relative`;
   }
 }

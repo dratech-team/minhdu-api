@@ -1,37 +1,35 @@
-import {Injectable} from '@nestjs/common';
+import {BadRequestException, Injectable} from '@nestjs/common';
 import {CreateDegreeDto} from './dto/create-degree.dto';
 import {UpdateDegreeDto} from './dto/update-degree.dto';
-import {BaseDegreeService} from "./base-degree.service";
-import {DegreeRepository} from "./degree.repository";
-import {ResponsePagination} from "../../../common/entities/response.pagination";
-import {Degree} from "@prisma/client";
+import {PrismaService} from "../../../prisma.service";
 
 @Injectable()
-export class DegreeService implements BaseDegreeService {
-  constructor(private readonly repository: DegreeRepository) {
+export class DegreeService {
+  constructor(private readonly prisma: PrismaService) {
   }
 
-  create(createDegreeDto: CreateDegreeDto) {
-    return this.repository.create(createDegreeDto);
+  async create(body: CreateDegreeDto) {
+    try {
+      return await this.prisma.degree.create({data: body});
+    } catch (err) {
+      console.error(err);
+      throw new BadRequestException(err);
+    }
   }
 
-  async findAll(employeeId: number, skip: number, take: number, search?: string): Promise<ResponsePagination<Degree>> {
-    return await this.repository.findAll(employeeId, skip, take, search);
-  }
-
-  findBy(employeeId: number, query: any): Promise<[]> {
-    return Promise.resolve([]);
+  findAll() {
+    return `This action returns all degree`;
   }
 
   findOne(id: number) {
-    return this.repository.findOne(id);
+    return `This action returns a #${id} degree`;
   }
 
   update(id: number, updateDegreeDto: UpdateDegreeDto) {
-    return this.repository.update(id, updateDegreeDto);
+    return `This action updates a #${id} degree`;
   }
 
   remove(id: number) {
-    this.repository.remove(id);
+    return `This action removes a #${id} degree`;
   }
 }

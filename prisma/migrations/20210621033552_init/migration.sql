@@ -32,6 +32,9 @@ CREATE TYPE "ContractType" AS ENUM ('LIMITED', 'UNLIMITED');
 CREATE TYPE "DegreeLevel" AS ENUM ('EXCELLENT', 'GOOD', 'AVERAGE', 'BELOW_AVERAGE');
 
 -- CreateEnum
+CREATE TYPE "DegreeType" AS ENUM ('UNIVERSITY', 'COLLEGE', 'INTERMEDIATE', 'MASTER', 'PHILOSOPHY');
+
+-- CreateEnum
 CREATE TYPE "FormalityType" AS ENUM ('FORMAL', 'INFORMAL', 'TRAINING', 'REMOTE');
 
 -- CreateEnum
@@ -51,7 +54,7 @@ CREATE TABLE "Account" (
     "id" SERIAL NOT NULL,
     "username" TEXT NOT NULL,
     "password" TEXT NOT NULL,
-    "employeeId" INTEGER NOT NULL,
+    "employeeId" INTEGER,
     "role" "Role" NOT NULL,
 
     PRIMARY KEY ("id")
@@ -60,13 +63,15 @@ CREATE TABLE "Account" (
 -- CreateTable
 CREATE TABLE "Degree" (
     "id" SERIAL NOT NULL,
+    "school" TEXT NOT NULL,
+    "type" "DegreeType" NOT NULL,
     "startedAt" TIMESTAMP(3) NOT NULL,
     "endedAt" TIMESTAMP(3) NOT NULL,
     "major" TEXT NOT NULL,
     "formality" "FormalityType" NOT NULL,
-    "level" "DegreeLevel" NOT NULL,
+    "level" "DegreeLevel",
     "status" "DegreeStatus" NOT NULL,
-    "note" TEXT NOT NULL,
+    "note" TEXT,
     "employeeId" INTEGER NOT NULL,
 
     PRIMARY KEY ("id")
@@ -78,7 +83,7 @@ CREATE TABLE "Bank" (
     "stk" TEXT,
     "owner" TEXT NOT NULL,
     "name" TEXT NOT NULL,
-    "profileId" INTEGER NOT NULL,
+    "employeeId" INTEGER NOT NULL,
 
     PRIMARY KEY ("id")
 );
@@ -88,7 +93,6 @@ CREATE TABLE "Social" (
     "id" SERIAL NOT NULL,
     "facebook" TEXT,
     "zalo" TEXT,
-    "profileId" INTEGER NOT NULL,
 
     PRIMARY KEY ("id")
 );
@@ -154,6 +158,7 @@ CREATE TABLE "Department" (
 CREATE TABLE "Position" (
     "id" SERIAL NOT NULL,
     "name" TEXT NOT NULL,
+    "workday" INTEGER NOT NULL,
     "departmentId" INTEGER NOT NULL,
 
     PRIMARY KEY ("id")
@@ -170,13 +175,14 @@ CREATE TABLE "Profile" (
     "workPhone" TEXT,
     "birthday" TIMESTAMP(3) NOT NULL,
     "birthplace" TEXT NOT NULL,
-    "identity" TEXT NOT NULL,
+    "identify" TEXT NOT NULL,
     "idCardAt" TIMESTAMP(3) NOT NULL,
     "issuedBy" TEXT NOT NULL,
     "wardId" INTEGER NOT NULL,
     "address" TEXT NOT NULL,
     "email" TEXT,
     "religion" TEXT,
+    "ethnicity" TEXT,
     "mst" TEXT,
 
     PRIMARY KEY ("id")
@@ -208,7 +214,6 @@ CREATE TABLE "Employee" (
     "note" TEXT,
     "profileId" INTEGER NOT NULL,
     "socialId" INTEGER,
-    "bankId" INTEGER,
 
     PRIMARY KEY ("id")
 );
@@ -239,6 +244,8 @@ CREATE TABLE "Relative" (
     "id" SERIAL NOT NULL,
     "career" TEXT NOT NULL,
     "relationship" "RelationshipType" NOT NULL,
+    "sos" BOOLEAN DEFAULT false,
+    "employeeId" INTEGER NOT NULL,
     "profileId" INTEGER NOT NULL,
 
     PRIMARY KEY ("id")
@@ -309,6 +316,7 @@ CREATE TABLE "Salary" (
     "note" TEXT,
     "employeeId" INTEGER NOT NULL,
     "payrollId" INTEGER,
+    "salaryHistoryId" INTEGER,
 
     PRIMARY KEY ("id")
 );
@@ -340,6 +348,14 @@ CREATE TABLE "SystemHistory" (
 );
 
 -- CreateTable
+CREATE TABLE "SalaryHistory" (
+    "id" SERIAL NOT NULL,
+    "employeeId" INTEGER NOT NULL,
+
+    PRIMARY KEY ("id")
+);
+
+-- CreateTable
 CREATE TABLE "_EmployeeToWorkHistory" (
     "A" INTEGER NOT NULL,
     "B" INTEGER NOT NULL
@@ -358,10 +374,16 @@ CREATE TABLE "_OrderToRoute" (
 );
 
 -- CreateIndex
+CREATE UNIQUE INDEX "Account.username_unique" ON "Account"("username");
+
+-- CreateIndex
+CREATE UNIQUE INDEX "Account_employeeId_unique" ON "Account"("employeeId");
+
+-- CreateIndex
 CREATE UNIQUE INDEX "Branch.code_unique" ON "Branch"("code");
 
 -- CreateIndex
-CREATE UNIQUE INDEX "Profile.identity_unique" ON "Profile"("identity");
+CREATE UNIQUE INDEX "Profile.identify_unique" ON "Profile"("identify");
 
 -- CreateIndex
 CREATE UNIQUE INDEX "Employee.code_unique" ON "Employee"("code");
@@ -371,9 +393,6 @@ CREATE UNIQUE INDEX "Employee_profileId_unique" ON "Employee"("profileId");
 
 -- CreateIndex
 CREATE UNIQUE INDEX "Employee_socialId_unique" ON "Employee"("socialId");
-
--- CreateIndex
-CREATE UNIQUE INDEX "Employee_bankId_unique" ON "Employee"("bankId");
 
 -- CreateIndex
 CREATE UNIQUE INDEX "Relative_profileId_unique" ON "Relative"("profileId");
@@ -400,16 +419,13 @@ CREATE UNIQUE INDEX "_OrderToRoute_AB_unique" ON "_OrderToRoute"("A", "B");
 CREATE INDEX "_OrderToRoute_B_index" ON "_OrderToRoute"("B");
 
 -- AddForeignKey
-ALTER TABLE "Account" ADD FOREIGN KEY ("employeeId") REFERENCES "Employee"("id") ON DELETE CASCADE ON UPDATE CASCADE;
+ALTER TABLE "Account" ADD FOREIGN KEY ("employeeId") REFERENCES "Employee"("id") ON DELETE SET NULL ON UPDATE CASCADE;
 
 -- AddForeignKey
 ALTER TABLE "Degree" ADD FOREIGN KEY ("employeeId") REFERENCES "Employee"("id") ON DELETE CASCADE ON UPDATE CASCADE;
 
 -- AddForeignKey
-ALTER TABLE "Bank" ADD FOREIGN KEY ("profileId") REFERENCES "Profile"("id") ON DELETE CASCADE ON UPDATE CASCADE;
-
--- AddForeignKey
-ALTER TABLE "Social" ADD FOREIGN KEY ("profileId") REFERENCES "Profile"("id") ON DELETE CASCADE ON UPDATE CASCADE;
+ALTER TABLE "Bank" ADD FOREIGN KEY ("employeeId") REFERENCES "Employee"("id") ON DELETE CASCADE ON UPDATE CASCADE;
 
 -- AddForeignKey
 ALTER TABLE "Province" ADD FOREIGN KEY ("nationId") REFERENCES "Nation"("id") ON DELETE CASCADE ON UPDATE CASCADE;
@@ -442,13 +458,13 @@ ALTER TABLE "Employee" ADD FOREIGN KEY ("profileId") REFERENCES "Profile"("id") 
 ALTER TABLE "Employee" ADD FOREIGN KEY ("socialId") REFERENCES "Social"("id") ON DELETE SET NULL ON UPDATE CASCADE;
 
 -- AddForeignKey
-ALTER TABLE "Employee" ADD FOREIGN KEY ("bankId") REFERENCES "Bank"("id") ON DELETE SET NULL ON UPDATE CASCADE;
-
--- AddForeignKey
 ALTER TABLE "WorkHistory" ADD FOREIGN KEY ("positionId") REFERENCES "Position"("id") ON DELETE CASCADE ON UPDATE CASCADE;
 
 -- AddForeignKey
 ALTER TABLE "Relative" ADD FOREIGN KEY ("profileId") REFERENCES "Profile"("id") ON DELETE CASCADE ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "Relative" ADD FOREIGN KEY ("employeeId") REFERENCES "Employee"("id") ON DELETE CASCADE ON UPDATE CASCADE;
 
 -- AddForeignKey
 ALTER TABLE "Customer" ADD FOREIGN KEY ("profileId") REFERENCES "Profile"("id") ON DELETE CASCADE ON UPDATE CASCADE;
@@ -466,10 +482,16 @@ ALTER TABLE "Salary" ADD FOREIGN KEY ("employeeId") REFERENCES "Employee"("id") 
 ALTER TABLE "Salary" ADD FOREIGN KEY ("payrollId") REFERENCES "Payroll"("id") ON DELETE SET NULL ON UPDATE CASCADE;
 
 -- AddForeignKey
+ALTER TABLE "Salary" ADD FOREIGN KEY ("salaryHistoryId") REFERENCES "SalaryHistory"("id") ON DELETE SET NULL ON UPDATE CASCADE;
+
+-- AddForeignKey
 ALTER TABLE "Payroll" ADD FOREIGN KEY ("employeeId") REFERENCES "Employee"("id") ON DELETE CASCADE ON UPDATE CASCADE;
 
 -- AddForeignKey
 ALTER TABLE "SystemHistory" ADD FOREIGN KEY ("employeeId") REFERENCES "Employee"("id") ON DELETE CASCADE ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "SalaryHistory" ADD FOREIGN KEY ("employeeId") REFERENCES "Employee"("id") ON DELETE CASCADE ON UPDATE CASCADE;
 
 -- AddForeignKey
 ALTER TABLE "_EmployeeToWorkHistory" ADD FOREIGN KEY ("A") REFERENCES "Employee"("id") ON DELETE CASCADE ON UPDATE CASCADE;

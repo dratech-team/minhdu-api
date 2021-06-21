@@ -10,7 +10,7 @@ import {
   MaxLength,
   ValidateNested
 } from "class-validator";
-import {CreateProfileDto} from "../../profile/dto/create-profile.dto";
+import {CreateProfileDto} from "./create-profile.dto";
 
 export class CreateEmployeeDto {
   @IsOptional()

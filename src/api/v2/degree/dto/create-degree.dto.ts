@@ -1,19 +1,26 @@
-import {IsDate, IsEnum, IsNotEmpty, IsNumber, IsOptional, IsString, MaxDate, MinDate} from "class-validator";
+import {DegreeLevel, DegreeStatus, DegreeType, FormalityType} from "@prisma/client";
+import {IsDate, IsEnum, IsNotEmpty, IsNumber, IsOptional, IsString, MaxDate} from "class-validator";
 import {Type} from "class-transformer";
-import {ValidatorMessage} from "../../../../common/constant/validator.constant";
-import {DegreeLevel, DegreeStatus, FormalityType} from "@prisma/client";
 
 export class CreateDegreeDto {
-  @Type(() => Date)
   @IsNotEmpty()
+  @IsString()
+  readonly school: string;
+
+  @IsNotEmpty()
+  @IsEnum(DegreeType)
+  readonly type: DegreeType;
+
+  @IsNotEmpty()
+  @Type(() => Date)
   @IsDate()
-  @MaxDate(new Date(), {message: ValidatorMessage.datetime})
+  @MaxDate(new Date())
   readonly startedAt: Date;
 
-  @Type(() => Date)
   @IsNotEmpty()
+  @Type(() => Date)
   @IsDate()
-  @MinDate(new Date(), {message: ValidatorMessage.datetime})
+  @MaxDate(new Date())
   readonly endedAt: Date;
 
   @IsNotEmpty()
@@ -24,19 +31,22 @@ export class CreateDegreeDto {
   @IsEnum(FormalityType)
   readonly formality: FormalityType;
 
-  @IsNotEmpty()
-  @IsEnum(DegreeLevel)
+  @IsOptional()
+  @IsEnum(FormalityType)
   readonly level: DegreeLevel;
 
-  @IsNotEmpty()
+  @IsOptional()
   @IsEnum(DegreeStatus)
   readonly status: DegreeStatus;
 
-  @IsOptional()
+  @IsNotEmpty()
   @IsString()
-  readonly note: string
+  readonly note: string;
 
   @IsNotEmpty()
+  @Type(() => Number)
   @IsNumber()
   readonly employeeId: number;
+
+
 }

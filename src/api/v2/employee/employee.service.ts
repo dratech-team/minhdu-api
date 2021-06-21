@@ -11,18 +11,12 @@ import {PositionService} from "../position/position.service";
 export class EmployeeService implements BaseEmployeeService {
   constructor(
     private readonly repository: EmployeeRepository,
-    private readonly positionService: PositionService
+    private readonly positionService: PositionService,
   ) {
   }
 
-  /**
-   * Thêm thông tin nhân viên và lương căn bản ban đầu
-   * */
   async create(body: CreateEmployeeDto) {
     try {
-      /**
-       * Generate mã nhân viên dựa trên code branch
-       * */
       const res = await this.positionService.findBranch(body.positionId);
       body.code = await this.generateEmployeeCode(res.department.branch.code);
 

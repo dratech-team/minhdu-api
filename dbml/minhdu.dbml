@@ -18,13 +18,15 @@ Table Account {
 
 Table Degree {
   id Int [pk, increment]
+  school String [not null]
+  type DegreeType [not null]
   startedAt DateTime [not null]
   endedAt DateTime [not null]
   major String [not null]
   formality FormalityType [not null]
-  level DegreeLevel [not null]
+  level DegreeLevel
   status DegreeStatus [not null]
-  note String [not null]
+  note String
   employee Employee [not null]
   employeeId Int [not null]
 }
@@ -34,17 +36,14 @@ Table Bank {
   stk String
   owner String [not null]
   name String [not null]
-  profile Profile [not null]
-  profileId Int [not null]
-  employee Employee
+  employee Employee [not null]
+  employeeId Int [not null]
 }
 
 Table Social {
   id Int [pk, increment]
   facebook String
   zalo String
-  rofile Profile [not null]
-  profileId Int [not null]
   employee Employee
 }
 
@@ -125,11 +124,11 @@ Table Profile {
   address String [not null]
   email String
   religion String
+  ethnicity String
   mst String
   employee Employee
   customer Customer
-  banks Bank [not null]
-  socials Social [not null]
+  relative Relative
 }
 
 Table Contract {
@@ -154,13 +153,11 @@ Table Employee {
   position Position [not null]
   positionId Int [not null]
   note String
-  email String
   profile Profile [not null]
   profileId Int [not null]
   social Social
   socialId Int
-  banks Bank
-  bankId Int
+  banks Bank [not null]
   account Account
   routes Route [not null]
   salaries Salary [not null]
@@ -169,8 +166,7 @@ Table Employee {
   degrees Degree [not null]
   workHistories WorkHistory [not null]
   systemHistories SystemHistory [not null]
-  salaryHistory SalaryHistory
-  salaryHistoryId Int
+  salariesHistory SalaryHistory [not null]
   relatives Relative [not null]
 }
 
@@ -195,9 +191,11 @@ Table Relative {
   id Int [pk, increment]
   career String [not null]
   relationship RelationshipType [not null]
-  email String
+  profile Profile [not null]
+  sos Boolean
   employee Employee [not null]
   employeeId Int [not null]
+  profileId Int [not null]
 }
 
 Table Customer {
@@ -292,7 +290,8 @@ Table SystemHistory {
 Table SalaryHistory {
   id Int [pk, increment]
   salaries Salary [not null]
-  employee Employee
+  employee Employee [not null]
+  employeeId Int [not null]
 }
 
 Table EmployeeToWorkHistory {
@@ -380,6 +379,14 @@ Enum DegreeLevel {
   BELOW_AVERAGE
 }
 
+Enum DegreeType {
+  UNIVERSITY
+  COLLEGE
+  INTERMEDIATE
+  MASTER
+  PHILOSOPHY
+}
+
 Enum FormalityType {
   FORMAL
   INFORMAL
@@ -430,9 +437,7 @@ Ref: Account.employeeId - Employee.id
 
 Ref: Degree.employeeId > Employee.id
 
-Ref: Bank.profileId > Profile.id
-
-Ref: Social.profileId > Profile.id
+Ref: Bank.employeeId > Employee.id
 
 Ref: Province.nationId > Nation.id
 
@@ -454,11 +459,9 @@ Ref: Employee.profileId - Profile.id
 
 Ref: Employee.socialId - Social.id
 
-Ref: Employee.bankId - Bank.id
-
-Ref: Employee.salaryHistoryId - SalaryHistory.id
-
 Ref: WorkHistory.positionId > Position.id
+
+Ref: Relative.profileId - Profile.id
 
 Ref: Relative.employeeId > Employee.id
 
@@ -477,3 +480,5 @@ Ref: Salary.salaryHistoryId > SalaryHistory.id
 Ref: Payroll.employeeId > Employee.id
 
 Ref: SystemHistory.employeeId > Employee.id
+
+Ref: SalaryHistory.employeeId > Employee.id

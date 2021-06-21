@@ -5,30 +5,30 @@ import { UpdateRelativeDto } from './dto/update-relative.dto';
 
 @Controller('v2/relative')
 export class RelativeController {
-  constructor(private readonly familyService: RelativeService) {}
+  constructor(private readonly relativeService: RelativeService) {}
 
   @Post()
-  create(@Body() createFamilyDto: CreateRelativeDto) {
-    return this.familyService.create(createFamilyDto);
+  create(@Body() createRelativeDto: CreateRelativeDto) {
+    return this.relativeService.create(createRelativeDto);
   }
 
-  // @Get()
-  // findAll() {
-  //   return this.familyService.findAll();
-  // }
+  @Get()
+  findAll() {
+    return this.relativeService.findAll();
+  }
 
   @Get(':id')
   findOne(@Param('id') id: string) {
-    return this.familyService.findOne(+id);
+    return this.relativeService.findOne(+id);
   }
 
   @Patch(':id')
-  update(@Param('id') id: string, @Body() updateFamilyDto: UpdateRelativeDto) {
-    return this.familyService.update(+id, updateFamilyDto);
+  update(@Param('id') id: string, @Body() updateRelativeDto: UpdateRelativeDto) {
+    return this.relativeService.update(+id, updateRelativeDto);
   }
 
   @Delete(':id')
   remove(@Param('id') id: string) {
-    return this.familyService.remove(+id);
+    return this.relativeService.remove(+id);
   }
 }
