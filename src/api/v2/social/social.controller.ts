@@ -3,7 +3,7 @@ import { SocialService } from './social.service';
 import { CreateSocialDto } from './dto/create-social.dto';
 import { UpdateSocialDto } from './dto/update-social.dto';
 
-@Controller('social')
+@Controller('v2/social')
 export class SocialController {
   constructor(private readonly socialService: SocialService) {}
 

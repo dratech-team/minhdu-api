@@ -3,7 +3,7 @@ import { DegreeService } from './degree.service';
 import { CreateDegreeDto } from './dto/create-degree.dto';
 import { UpdateDegreeDto } from './dto/update-degree.dto';
 
-@Controller('degree')
+@Controller('v2/degree')
 export class DegreeController {
   constructor(private readonly degreeService: DegreeService) {}
 
