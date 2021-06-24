@@ -25,11 +25,19 @@ export class DegreeService {
     return `This action returns a #${id} degree`;
   }
 
-  update(id: number, updateDegreeDto: UpdateDegreeDto) {
-    return `This action updates a #${id} degree`;
+  async update(id: number, updates: UpdateDegreeDto) {
+    try {
+      return await this.prisma.degree.update({
+        where: {id},
+        data: updates
+      });
+    } catch (err) {
+      console.error(err);
+      throw new BadRequestException(err);
+    }
   }
 
   remove(id: number) {
-    return `This action removes a #${id} degree`;
+    return this.prisma.degree.delete({where: {id}});
   }
 }

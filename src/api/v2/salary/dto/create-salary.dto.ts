@@ -14,6 +14,7 @@ export class CreateSalaryDto extends ICreateSalaryDto {
   @Type(() => Number)
   times: number
 
+  @IsOptional()
   @IsEnum(DatetimeUnit)
   unit: DatetimeUnit;
 

@@ -11,6 +11,7 @@ import {
   ValidateNested
 } from "class-validator";
 import {CreateProfileDto} from "./create-profile.dto";
+import {CreateSocialDto} from "./create-social.dto";
 
 export class CreateEmployeeDto {
   @IsOptional()
@@ -47,6 +48,10 @@ export class CreateEmployeeDto {
   @IsNotEmpty()
   @ValidateNested()
   readonly profile: CreateProfileDto;
+
+  @IsOptional()
+  @ValidateNested()
+  readonly social: CreateSocialDto;
 
   @IsOptional()
   @MaxLength(20)

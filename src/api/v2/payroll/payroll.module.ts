@@ -12,7 +12,7 @@ import {SalaryModule} from "../salary/salary.module";
 @Module({
   imports: [ConfigModule, EmployeeModule, SalaryModule],
   controllers: [PayrollController],
-  providers: [PayrollService, PrismaService, PayrollRepository, EmployeeRepository, SalaryRepository],
+  providers: [PrismaService, PayrollService, PayrollRepository, EmployeeRepository, SalaryRepository],
   exports: [PayrollService]
 })
 export class PayrollModule {

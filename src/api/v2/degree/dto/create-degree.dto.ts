@@ -32,14 +32,14 @@ export class CreateDegreeDto {
   readonly formality: FormalityType;
 
   @IsOptional()
-  @IsEnum(FormalityType)
+  @IsEnum(DegreeLevel)
   readonly level: DegreeLevel;
 
   @IsOptional()
   @IsEnum(DegreeStatus)
   readonly status: DegreeStatus;
 
-  @IsNotEmpty()
+  @IsOptional()
   @IsString()
   readonly note: string;
 
@@ -47,6 +47,4 @@ export class CreateDegreeDto {
   @Type(() => Number)
   @IsNumber()
   readonly employeeId: number;
-
-
 }

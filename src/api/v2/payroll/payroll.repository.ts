@@ -1,13 +1,12 @@
 import {BadRequestException, Injectable} from "@nestjs/common";
 import {PrismaService} from "../../../prisma.service";
 import {UpdatePayrollDto} from "./dto/update-payroll.dto";
-import {Salary} from "@prisma/client";
 import {firstMonth, lastMonth} from "../../../utils/datetime.util";
 import {InterfaceRepository} from "../../../common/repository/interface.repository";
 import {CreatePayrollDto} from "./dto/create-payroll.dto";
 
 @Injectable()
-export class PayrollRepository implements InterfaceRepository<any>{
+export class PayrollRepository implements InterfaceRepository<any> {
   constructor(private readonly prisma: PrismaService) {
   }
 
@@ -36,36 +35,16 @@ export class PayrollRepository implements InterfaceRepository<any>{
   }
 
   async findAll(branchId: number, skip: number, take: number, search?: string, datetime?: Date) {
+    const where = {
+      employee: {
+        position: {
+          department: {branchId}
+        },
+        leftAt: null
+      },
+    };
+
     try {
-      const where = {
-        AND: [
-          {
-            employee: {branchId, leftAt: null},
-          },
-          {
-            createdAt: {
-              gte: firstMonth(new Date()),
-              lte: lastMonth(new Date()),
-            }
-          },
-          {
-            OR: [
-              {
-                employee: {
-                  code: {startsWith: search}
-                }
-              },
-              {
-                employee: {
-                  branch: {
-                    name: {startsWith: search}
-                  }
-                }
-              },
-            ]
-          }
-        ],
-      };
       const [total, payrolls] = await Promise.all([
         this.prisma.payroll.count({where}),
         this.prisma.payroll.findMany({
@@ -74,9 +53,10 @@ export class PayrollRepository implements InterfaceRepository<any>{
             salaries: true,
             employee: {
               include: {
+                profile: true,
                 position: {include: {department: {include: {branch: true}}}},
               }
-            }
+            },
           }
         })
       ]);
@@ -103,6 +83,7 @@ export class PayrollRepository implements InterfaceRepository<any>{
           salaries: true,
           employee: {
             include: {
+              contracts: true,
               position: {include: {department: {include: {branch: true}}}},
             }
           }

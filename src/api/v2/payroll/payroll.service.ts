@@ -23,7 +23,7 @@ export class PayrollService implements BasePayrollService {
     const last = lastMonth(date);
 
     const payroll = await this.repository.findMany({first, last, employeeId: employeeId});
-    return payroll === null;
+    return payroll !== null;
   }
 
   async create(body: CreatePayrollDto) {
@@ -41,7 +41,6 @@ export class PayrollService implements BasePayrollService {
     }
   }
 
-
   /*
   * Kiểm tra phiếu lương của từng nhân viên đã tồn tại trong tháng này chưa?. Nếu chưa thì sẽ khởi tạo. Sau khi khởi
   * tạo xong hết danh sách nhân viên thì sẽ trả về true
@@ -58,7 +57,6 @@ export class PayrollService implements BasePayrollService {
           body.employeeId = employees[i].id;
           body.salaries = employees[i].salaries;
           body.createdAt = new Date();
-
           await this.repository.create(body);
         }
       }
@@ -70,12 +68,22 @@ export class PayrollService implements BasePayrollService {
   }
 
   async findAll(branchId: number, skip: number, take: number, search?: string, datetime?: Date) {
+    if (!datetime) {
+      datetime = new Date();
+    }
     const checkExist = await this.generatePayroll(branchId);
     if (checkExist) {
       const res = await this.repository.findAll(branchId, skip, take, search, datetime);
+      const data = res.data.map(payroll => {
+        return {
+          id: payroll.id,
+          employee: payroll.employee,
+          salary: payroll.salaries.length !== 0 ? this.totalSalary(payroll) : null,
+        };
+      });
       return {
         total: res.total,
-        data: res.data,
+        data,
       };
     } else {
       throw new BadRequestException('Có Lỗi xảy ra ở payroll service. Vui lòng liên hệ developer để khắc phục. Xin cảm ơn');
@@ -83,7 +91,17 @@ export class PayrollService implements BasePayrollService {
   }
 
   async findOne(id: number): Promise<any> {
-    return await this.repository.findOne(id);
+    const res = await this.repository.findOne(id);
+    return {
+      id: res.id,
+      accConfirmedAt: res.accConfirmedAt,
+      manConfirmedAt: res.manConfirmedAt,
+      paidAt: res.paidAt,
+      createdAt: res.createdAt,
+      salaries: res.salaries,
+      employee: res.employee,
+      salary: this.totalSalary(res),
+    };
   }
 
   /*
@@ -194,9 +212,8 @@ export class PayrollService implements BasePayrollService {
       daySalary = (basicSalary + staySalary) / payroll.employee.position.workday;
     }
 
-    const basic = payroll.salaries.filter(salary => salary.title === 'Lương cơ bản trích BH')[0];
-
-    const tax = payroll.employee.contractAt !== null ? basic.price * 0.115 : 0;
+    const basic = payroll.salaries.filter(salary => salary.type === SalaryType.BASIC_ISNURANCE)[0];
+    const tax = payroll.employee.contracts !== 0 ? basic.price * 0.115 : 0;
     const deduction = daySalary / 8 * lateTime + daySalary * absentTime;
     const allowanceOvertime = daySalary * overtime;
 

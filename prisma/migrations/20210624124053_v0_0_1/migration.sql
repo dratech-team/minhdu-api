@@ -1,0 +1,2 @@
+-- AlterEnum
+ALTER TYPE "SalaryType" ADD VALUE 'BASIC_ISNURANCE';

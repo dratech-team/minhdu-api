@@ -14,7 +14,7 @@ export class PositionService implements BasePositionService {
     return this.repository.create(body);
   }
 
-  async findAll(): Promise<any> {
+  async findAll(): Promise<Position[]> {
     return this.repository.findAll();
   }
 

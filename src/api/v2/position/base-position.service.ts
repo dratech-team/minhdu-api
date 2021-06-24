@@ -6,7 +6,7 @@ import {UpdatePositionDto} from "./dto/update-position.dto";
 export interface BasePositionService {
   create(body: CreatePositionDto): Promise<Position>;
 
-  findAll(): Promise<ResponsePagination<Position>>;
+  findAll(): Promise<Position[]>;
 
   findOne(id: number): Promise<Position>;
 

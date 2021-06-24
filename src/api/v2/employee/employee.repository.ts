@@ -74,7 +74,7 @@ export class EmployeeRepository implements InterfaceRepository<Employee> {
 
   async findOne(id: number) {
     try {
-      return await this.prisma.employee.findUnique({
+      const res = await this.prisma.employee.findUnique({
         where: {id: id},
         include: {
           profile: {
@@ -108,6 +108,7 @@ export class EmployeeRepository implements InterfaceRepository<Employee> {
           payrolls: true,
         }
       });
+      return res;
     } catch (e) {
       console.error(e);
       throw new BadRequestException(e);
@@ -122,6 +123,7 @@ export class EmployeeRepository implements InterfaceRepository<Employee> {
           leftAt: updates.leftAt,
           position: {connect: {id: updates.positionId}},
           profile: {update: updates.profile},
+          social: {upsert: {create: updates.social, update: updates.social}},
           workedAt: updates.workedAt,
           createdAt: updates.createdAt,
           note: updates.note,
@@ -131,14 +133,6 @@ export class EmployeeRepository implements InterfaceRepository<Employee> {
       console.error(err);
       throw new BadRequestException(err);
     }
-  }
-
-  /* Nghỉ việc */
-  async removeRelative(relativeId: number) {
-    this.prisma.relative.delete({where: {id: relativeId}}).catch(err => {
-      console.error(err);
-      throw new BadRequestException(err);
-    });
   }
 
   /* Nghỉ việc */

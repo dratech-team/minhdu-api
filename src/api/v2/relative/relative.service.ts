@@ -16,7 +16,7 @@ export class RelativeService {
           sos: body.sos,
           relationship: body.relationship,
           career: body.career,
-          employee: {connect: {id: body.employeeId}}
+          employee: {connect: {id: body.employeeId}},
         }
       });
     } catch (err) {
@@ -26,18 +26,47 @@ export class RelativeService {
   }
 
   findAll() {
-    return `This action returns all relative`;
+    let items = [1, 3, 7, 6, 2, 9];
+    console.log('mang ban dau', items);
+    items.sort().reverse();
+    console.log('mang sap xep ', items);
+
+    for (let i = 0; i < items.length; i++) {
+      let a = items[i] - (items[i + 1]);
+      items.filter(e => {
+        if (e === a) {
+          console.log(items[i], items[i + 1], a);
+        }
+      });
+
+    }
   }
 
   findOne(id: number) {
     return `This action returns a #${id} relative`;
   }
 
-  update(id: number, updateRelativeDto: UpdateRelativeDto) {
-    return `This action updates a #${id} relative`;
+  async update(id: number, updates: UpdateRelativeDto) {
+    try {
+      return await this.prisma.relative.update({
+        where: {id},
+        data: {
+          profile: {update: updates.profile},
+          sos: updates.sos,
+          relationship: updates.relationship,
+          career: updates.career,
+        }
+      });
+    } catch (err) {
+      console.error(err);
+      throw new BadRequestException(err);
+    }
   }
 
   remove(id: number) {
-    return `This action removes a #${id} relative`;
+    this.prisma.relative.delete({where: {id}}).catch(err => {
+      console.error(err);
+      throw new BadRequestException(err);
+    });
   }
 }

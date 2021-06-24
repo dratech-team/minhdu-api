@@ -1,5 +1,6 @@
 generator client {
-  provider = "prisma-client-js"
+  provider        = "prisma-client-js"
+  previewFeatures = ["selectRelationCount"]
 }
 
 // generator dbml {
@@ -267,10 +268,10 @@ model Salary {
   datetime        DateTime?      @default(now())
   forgot          Boolean?       @default(false)
   note            String?
-  employee        Employee       @relation(fields: [employeeId], references: [id])
-  employeeId      Int
-  Payroll         Payroll?       @relation(fields: [payrollId], references: [id])
-  payrollId       Int?
+  employee        Employee?      @relation(fields: [employeeId], references: [id])
+  employeeId      Int?
+  Payroll         Payroll        @relation(fields: [payrollId], references: [id])
+  payrollId       Int
   SalaryHistory   SalaryHistory? @relation(fields: [salaryHistoryId], references: [id])
   salaryHistoryId Int?
 }
@@ -392,6 +393,7 @@ enum FormalityType {
 }
 
 enum SalaryType {
+  BASIC_ISNURANCE
   BASIC
   STAY
   ALLOWANCE
