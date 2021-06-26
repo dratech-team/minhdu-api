@@ -10,10 +10,10 @@ import {
   MaxLength,
   ValidateNested
 } from "class-validator";
-import {CreateProfileDto} from "./create-profile.dto";
+import {CreateProfileDto} from "../../../../common/dtos/create-profile.dto";
 import {CreateSocialDto} from "./create-social.dto";
 
-export class CreateEmployeeDto {
+export class CreateEmployeeDto extends CreateProfileDto{
   @IsOptional()
   code: string;
 
@@ -45,16 +45,11 @@ export class CreateEmployeeDto {
   @IsNumber()
   readonly positionId: number;
 
-  @IsNotEmpty()
-  @ValidateNested()
-  readonly profile: CreateProfileDto;
-
   @IsOptional()
   @ValidateNested()
   readonly social: CreateSocialDto;
 
   @IsOptional()
-  @MaxLength(20)
   @IsEmail()
   readonly email: string;
 

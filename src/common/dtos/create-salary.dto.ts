@@ -1,22 +1,44 @@
-import {IsEnum, IsNotEmpty, IsNumber, IsOptional, IsString} from "class-validator";
+import {IsEnum, IsNotEmpty, IsNumber, IsOptional, IsString, MaxDate} from "class-validator";
 import {Type} from "class-transformer";
-import { SalaryType } from "@prisma/client";
+import {DatetimeUnit, SalaryType} from "@prisma/client";
+import {ValidatorMessage} from "../constant/validator.constant";
 
 export class ICreateSalaryDto {
   @IsOptional()
   @IsString()
-  title: string;
+  readonly title: string;
 
   @IsNotEmpty()
   @IsEnum(SalaryType)
-  type: SalaryType;
+  readonly type: SalaryType;
+
+  @IsOptional()
+  @IsEnum(DatetimeUnit)
+  readonly unit: DatetimeUnit;
+
+  @Type(() => Date)
+  @IsOptional()
+  @MaxDate(new Date(), {message: ValidatorMessage.datetime})
+  readonly datetime: Date;
+
+  @IsOptional()
+  @Type(() => Number)
+  readonly times: number;
+
+  @IsOptional()
+  @Type(() => Boolean)
+  readonly forgot: boolean;
+
+  @IsOptional()
+  @Type(() => Number)
+  readonly rate: number;
 
   @Type(() => Number)
   @IsOptional()
   @IsNumber()
-  price: number;
+  readonly price: number;
 
   @IsOptional()
   @IsString()
-  note: string;
+  readonly note: string;
 }

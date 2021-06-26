@@ -6,15 +6,15 @@ import {ValidatorMessage} from "../../../../common/constant/validator.constant";
 export class CreatePayrollDto {
   @IsNotEmpty()
   @IsNumber()
-  employeeId: number;
+  readonly employeeId: number;
 
   @IsOptional()
-  salaries: Salary[];
+  readonly salaries: Salary[];
 
   @IsNotEmpty()
   @Type(() => Date)
   @IsDate()
   @MaxDate(new Date(), {message: ValidatorMessage.datetime})
-  createdAt: Date;
+  readonly createdAt: Date;
 
 }

@@ -11,7 +11,7 @@ import {
   MinLength
 } from "class-validator";
 import {Type} from "class-transformer";
-import {ValidatorMessage} from "../../../../common/constant/validator.constant";
+import {ValidatorMessage} from "../constant/validator.constant";
 
 export class CreateProfileDto {
   @IsNotEmpty()

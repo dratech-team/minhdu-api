@@ -1,26 +1,50 @@
-import { Injectable } from '@nestjs/common';
-import { CreateCustomerDto } from './dto/create-customer.dto';
-import { UpdateCustomerDto } from './dto/update-customer.dto';
+import {BadRequestException, Injectable} from "@nestjs/common";
+import {PrismaService} from "../../../prisma.service";
+import {CreateCustomerDto} from "./dto/create-customer.dto";
+import {UpdateCustomerDto} from "./dto/update-customer.dto";
 
 @Injectable()
 export class CustomerService {
-  create(createCustomerDto: CreateCustomerDto) {
-    return 'This action adds a new customer';
+  constructor(private readonly prisma: PrismaService) {
   }
 
-  findAll() {
-    return `This action returns all customer`;
+  async create(body: CreateCustomerDto) {
+    try {
+      return await this.prisma.customer.create({data: body});
+    } catch (err) {
+      console.error(err);
+      throw new BadRequestException(err);
+    }
   }
 
-  findOne(id: number) {
-    return `This action returns a #${id} customer`;
+  async findAll() {
+    try {
+      return await this.prisma.customer.findMany();
+    } catch (err) {
+      console.error(err);
+      throw new BadRequestException(err);
+    }
   }
 
-  update(id: number, updateCustomerDto: UpdateCustomerDto) {
+  async findOne(id: number) {
+    try {
+      return await this.prisma.customer.findUnique({where: {id}});
+    } catch (err) {
+      console.error(err);
+      throw new BadRequestException(err);
+    }
+  }
+
+  update(id: number, update: UpdateCustomerDto) {
     return `This action updates a #${id} customer`;
   }
 
-  remove(id: number) {
-    return `This action removes a #${id} customer`;
+  async remove(id: number) {
+    try {
+      return await this.prisma.customer.delete({where: {id}});
+    } catch (err) {
+      console.error(err);
+      throw new BadRequestException(err);
+    }
   }
 }

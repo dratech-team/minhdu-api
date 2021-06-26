@@ -50,13 +50,6 @@ model Bank {
   employeeId Int
 }
 
-model Social {
-  id       Int       @id @default(autoincrement())
-  facebook String?
-  zalo     String?
-  employee Employee?
-}
-
 //Quốc gia
 model Nation {
   id        Int        @id @default(autoincrement())
@@ -84,12 +77,14 @@ model District {
 }
 
 model Ward {
-  id         Int       @id @default(autoincrement())
+  id         Int        @id @default(autoincrement())
   code       String?
   name       String
-  district   District  @relation(fields: [districtId], references: [id])
+  district   District   @relation(fields: [districtId], references: [id])
   districtId Int
-  profiles   Profile[]
+  Employee   Employee[]
+  Customer   Customer[]
+  Relative   Relative[]
 }
 
 model Branch {
@@ -117,31 +112,6 @@ model Position {
   workHistories WorkHistory[]
 }
 
-model Profile {
-  id         Int        @id @default(autoincrement())
-  firstName  String
-  lastName   String
-  avt        String?
-  gender     GenderType
-  phone      String
-  workPhone  String?
-  birthday   DateTime
-  birthplace String
-  identify   String     @unique
-  idCardAt   DateTime
-  issuedBy   String
-  ward       Ward       @relation(fields: [wardId], references: [id])
-  wardId     Int
-  address    String
-  email      String?
-  religion   String?
-  ethnicity  String?
-  mst        String?
-  employee   Employee?
-  customer   Customer?
-  relative   Relative?
-}
-
 // Hợp đồng
 model Contract {
   id         Int          @id @default(autoincrement())
@@ -158,6 +128,24 @@ model Contract {
 model Employee {
   id              Int             @id @default(autoincrement())
   code            String          @unique
+  firstName       String
+  lastName        String
+  avt             String?
+  gender          GenderType
+  phone           String
+  workPhone       String?
+  birthday        DateTime
+  birthplace      String
+  identify        String          @unique
+  idCardAt        DateTime
+  issuedBy        String
+  ward            Ward            @relation(fields: [wardId], references: [id])
+  wardId          Int
+  address         String
+  email           String?
+  religion        String?
+  ethnicity       String?
+  mst             String?
   createdAt       DateTime //Ngày thử việc (vào làm)
   workedAt        DateTime? //Ngày làm chính thức
   leftAt          DateTime?
@@ -165,10 +153,8 @@ model Employee {
   position        Position        @relation(fields: [positionId], references: [id])
   positionId      Int
   note            String?
-  profile         Profile         @relation(fields: [profileId], references: [id])
-  profileId       Int
-  social          Social?         @relation(fields: [socialId], references: [id])
-  socialId        Int?
+  facebook        String?
+  zalo            String?
   banks           Bank[]
   account         Account?
   routes          Route[]
@@ -178,7 +164,6 @@ model Employee {
   degrees         Degree[]
   workHistories   WorkHistory[]
   systemHistories SystemHistory[]
-  salariesHistory SalaryHistory[]
   relatives       Relative[]
 }
 
@@ -201,19 +186,49 @@ model OvertimeTemplate {
 
 model Relative {
   id           Int              @id @default(autoincrement())
+  firstName    String
+  lastName     String
+  gender       GenderType
+  phone        String
+  workPhone    String?
+  birthday     DateTime
+  birthplace   String
+  identify     String?          @unique
+  idCardAt     DateTime?
+  issuedBy     String?
+  ward         Ward             @relation(fields: [wardId], references: [id])
+  wardId       Int
+  address      String
+  religion     String?
+  ethnicity    String?
+  mst          String?
   career       String
   relationship RelationshipType
-  profile      Profile          @relation(fields: [profileId], references: [id])
   sos          Boolean?         @default(false)
   employee     Employee         @relation(fields: [employeeId], references: [id])
   employeeId   Int
-  profileId    Int
 }
 
 model Customer {
   id          Int              @id @default(autoincrement())
-  profile     Profile          @relation(fields: [profileId], references: [id])
-  profileId   Int
+  firstName   String
+  lastName    String
+  avt         String?
+  gender      GenderType
+  phone       String
+  workPhone   String?
+  birthday    DateTime
+  birthplace  String
+  identify    String           @unique
+  idCardAt    DateTime
+  issuedBy    String
+  ward        Ward             @relation(fields: [wardId], references: [id])
+  wardId      Int
+  address     String
+  email       String?
+  religion    String?
+  ethnicity   String?
+  mst         String?
   type        CustomerType
   resource    CustomerResource
   isPotential Boolean?         @default(false)
@@ -259,22 +274,19 @@ model Route {
 }
 
 model Salary {
-  id              Int            @id @default(autoincrement())
-  title           String
-  type            SalaryType
-  times           Float?
-  price           Float?
-  unit            DatetimeUnit?  @default(DAY)
-  rate            Float?         @default(1)
-  datetime        DateTime?      @default(now())
-  forgot          Boolean?       @default(false)
-  note            String?
-  employee        Employee?      @relation(fields: [employeeId], references: [id])
-  employeeId      Int?
-  Payroll         Payroll        @relation(fields: [payrollId], references: [id])
-  payrollId       Int
-  SalaryHistory   SalaryHistory? @relation(fields: [salaryHistoryId], references: [id])
-  salaryHistoryId Int?
+  id         Int           @id @default(autoincrement())
+  title      String
+  type       SalaryType
+  times      Float?
+  price      Float?
+  unit       DatetimeUnit? @default(DAY)
+  rate       Float?        @default(1)
+  datetime   DateTime?     @default(now())
+  forgot     Boolean?      @default(false)
+  note       String?
+  employee   Employee?     @relation(fields: [employeeId], references: [id])
+  employeeId Int?
+  payrolls   Payroll[]
 }
 
 model Payroll {
@@ -298,13 +310,6 @@ model SystemHistory {
   activity    ActivityType
   description String
   ip          String?
-}
-
-model SalaryHistory {
-  id         Int      @id @default(autoincrement())
-  salaries   Salary[]
-  employee   Employee @relation(fields: [employeeId], references: [id])
-  employeeId Int
 }
 
 enum CurrencyUnit {

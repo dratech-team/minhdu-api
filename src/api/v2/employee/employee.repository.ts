@@ -5,6 +5,7 @@ import {UpdateEmployeeDto} from "./dto/update-employee.dto";
 import {ResponsePagination} from "../../../common/entities/response.pagination";
 import {Employee} from "@prisma/client";
 import {InterfaceRepository} from "../../../common/repository/interface.repository";
+import {firstMonth, lastMonth} from "../../../utils/datetime.util";
 
 @Injectable()
 export class EmployeeRepository implements InterfaceRepository<Employee> {
@@ -14,19 +15,8 @@ export class EmployeeRepository implements InterfaceRepository<Employee> {
   async create(body: CreateEmployeeDto) {
     try {
       return await this.prisma.employee.create({
-        data: {
-          code: body.code,
-          createdAt: body.createdAt,
-          workedAt: body.workedAt,
-          isFlatSalary: body.isFlatSalary,
-          position: {connect: {id: body.positionId}},
-          note: body.note,
-          profile: {
-            create: body.profile
-          }
-        },
+        data: body,
         include: {
-          profile: true,
           position: {include: {department: {include: {branch: true}}}},
         }
       });
@@ -55,7 +45,6 @@ export class EmployeeRepository implements InterfaceRepository<Employee> {
           where, skip, take,
           include: {
             position: {include: {department: {include: {branch: true}}}},
-            profile: true,
           }
         })
       ]);
@@ -66,50 +55,27 @@ export class EmployeeRepository implements InterfaceRepository<Employee> {
     }
   }
 
-  async findBy(branchId: number) {
-    return await this.prisma.employee.findMany({
-      where: {position: {department: {branch: {id: branchId}}}},
+  async findBy(query: any) {
+   return  await this.prisma.employee.findMany({
+      where: query,
       include: {payrolls: true, salaries: true}
     });
   }
 
   async findOne(id: number) {
     try {
-      const res = await this.prisma.employee.findUnique({
+      return await this.prisma.employee.findUnique({
         where: {id: id},
         include: {
-          profile: {
-            include: {
-              ward: {
-                include: {
-                  district: {
-                    include: {
-                      province: {
-                        include: {
-                          nation: true,
-                        }
-                      }
-                    }
-                  }
-                },
-              },
-            }
-          },
-          social: true,
           degrees: true,
           contracts: true,
-          relatives: {
-            include: {
-              profile: true
-            }
-          },
+          relatives: true,
           banks: true,
           position: {include: {department: {include: {branch: true}}}},
           salaries: true,
           payrolls: true,
         }
       });
-      return res;
     } catch (e) {
       console.error(e);
       throw new BadRequestException(e);
@@ -120,15 +86,7 @@ export class EmployeeRepository implements InterfaceRepository<Employee> {
     try {
       return await this.prisma.employee.update({
         where: {id: id},
-        data: {
-          leftAt: updates.leftAt,
-          position: {connect: {id: updates.positionId}},
-          profile: {update: updates.profile},
-          social: {upsert: {create: updates.social, update: updates.social}},
-          workedAt: updates.workedAt,
-          createdAt: updates.createdAt,
-          note: updates.note,
-        }
+        data: updates
       });
     } catch (err) {
       console.error(err);

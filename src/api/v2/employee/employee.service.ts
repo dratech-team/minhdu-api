@@ -39,8 +39,8 @@ export class EmployeeService implements BaseEmployeeService {
     return await this.repository.findAll(branchId, skip, take, search);
   }
 
-  findBy(branchId: number) {
-    return this.repository.findBy(branchId);
+  findBy(query: any) {
+    return this.repository.findBy(query);
   }
 
   async findOne(id: number) {

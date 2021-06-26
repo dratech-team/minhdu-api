@@ -53,7 +53,6 @@ export class PayrollRepository implements InterfaceRepository<any> {
             salaries: true,
             employee: {
               include: {
-                profile: true,
                 position: {include: {department: {include: {branch: true}}}},
               }
             },
@@ -71,8 +70,15 @@ export class PayrollRepository implements InterfaceRepository<any> {
     }
   }
 
-  findBy(branchId: number, query: any): Promise<any[]> {
-    return Promise.resolve([]);
+  async findBy(query: any): Promise<any[]> {
+    try {
+      return await this.prisma.payroll.findMany({
+        where: query,
+      });
+    } catch (err) {
+      console.error(err);
+      throw new BadRequestException(err);
+    }
   }
 
   async findOne(id: number): Promise<any> {
@@ -84,7 +90,6 @@ export class PayrollRepository implements InterfaceRepository<any> {
           employee: {
             include: {
               contracts: true,
-              profile: true,
               position: {include: {department: {include: {branch: true}}}},
             }
           }

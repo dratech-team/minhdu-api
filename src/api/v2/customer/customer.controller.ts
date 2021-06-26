@@ -2,8 +2,9 @@ import { Controller, Get, Post, Body, Patch, Param, Delete } from '@nestjs/commo
 import { CustomerService } from './customer.service';
 import { CreateCustomerDto } from './dto/create-customer.dto';
 import { UpdateCustomerDto } from './dto/update-customer.dto';
+import {ApiV2Constant} from "../../../common/constant/api.constant";
 
-@Controller('customer')
+@Controller(ApiV2Constant.CUSTOMER)
 export class CustomerController {
   constructor(private readonly customerService: CustomerService) {}
 

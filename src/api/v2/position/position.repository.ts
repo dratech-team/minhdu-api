@@ -13,7 +13,7 @@ export class PositionRepository {
     try {
       return await this.prisma.position.create({data: body});
     } catch (e) {
-      console.log(e);
+      console.error(e);
       if (e?.code == "P2025") {
         throw new NotFoundException(`Không tìm thấy phòng ban ${body?.departmentId}. Chi tiết: ${e?.meta?.cause}`);
       } else if (e?.code == "P2002") {
@@ -43,10 +43,15 @@ export class PositionRepository {
   }
 
   async findBranch(id: number): Promise<any> {
-    return await this.prisma.position.findFirst({
-      where: {id: id},
-      select: {department: {select: {branch: {select: {code: true}}}}}
-    });
+    try {
+      return await this.prisma.position.findFirst({
+        where: {id: id},
+        select: {department: {select: {branch: {select: {code: true}}}}}
+      });
+    } catch (err) {
+      console.error(err);
+      throw new BadRequestException(err);
+    }
   }
 
   async update(id: number, updates: UpdatePositionDto) {
