@@ -41,6 +41,7 @@ export class EmployeeRepository implements InterfaceRepository<Employee> {
   }
 
   async findAll(branchId: number, skip: number, take: number, search?: string): Promise<ResponsePagination<Employee>> {
+
     const where = {
       leftAt: null,
       branchId,

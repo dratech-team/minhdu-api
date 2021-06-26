@@ -41,8 +41,8 @@ export class SalaryService implements BaseSalaryService {
     }
   }
 
-  remove(id: number) {
-    this.repository.remove(id).then();
+  async remove(id: number) {
+   await this.repository.remove(id);
   }
 
   createHistory(): Promise<void> {

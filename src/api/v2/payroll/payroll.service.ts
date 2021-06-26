@@ -29,7 +29,7 @@ export class PayrollService implements BasePayrollService {
   async create(body: CreatePayrollDto) {
     try {
       const exist = await this.checkCurrentExist(body.createdAt, body.employeeId);
-      if (!exist) {
+      if (exist) {
         throw new ConflictException(`Phiếu lương tháng ${moment(body.createdAt).format('MM/yyyy')} đã tồn tại.. Vui lòng kiểm tra kỹ lại trước khi thêm.. Tức cái lồng ngực á`);
       }
       const employee = await this.employeeService.findOne(body.employeeId);
@@ -68,17 +68,18 @@ export class PayrollService implements BasePayrollService {
   }
 
   async findAll(branchId: number, skip: number, take: number, search?: string, datetime?: Date) {
-    if (!datetime) {
-      datetime = new Date();
-    }
     const checkExist = await this.generatePayroll(branchId);
     if (checkExist) {
       const res = await this.repository.findAll(branchId, skip, take, search, datetime);
-      const data = res.data.map(payroll => {
+      const data = res?.data?.map(payroll => {
         return {
           id: payroll.id,
           employee: payroll.employee,
-          salary: payroll.salaries.length !== 0 ? this.totalSalary(payroll) : null,
+          accConfirmedAt: payroll.accConfirmedAt,
+          manConfirmedAt: payroll.manConfirmedAt,
+          paidAt: payroll.paidAt,
+          createdAt: payroll.createdAt,
+          payslip: payroll.manConfirmedAt !== null && payroll.salaries.length !== 0 ? this.totalSalary(payroll) : null,
         };
       });
       return {
@@ -100,7 +101,7 @@ export class PayrollService implements BasePayrollService {
       createdAt: res.createdAt,
       salaries: res.salaries,
       employee: res.employee,
-      salary: this.totalSalary(res),
+      payslip: res.manConfirmedAt !== null && res.salaries.length !== 0 ? this.totalSalary(res) : null,
     };
   }
 
@@ -165,6 +166,7 @@ export class PayrollService implements BasePayrollService {
   * */
   totalSalary(payroll: any) {
     let basicSalary = 0;
+    let tax = 0;
     let staySalary = 0;
     let allowanceSalary = 0;
     let overtime = 0;
@@ -212,8 +214,11 @@ export class PayrollService implements BasePayrollService {
       daySalary = (basicSalary + staySalary) / payroll.employee.position.workday;
     }
 
-    const basic = payroll.salaries.filter(salary => salary.type === SalaryType.BASIC_ISNURANCE)[0];
-    const tax = payroll.employee.contracts !== 0 ? basic.price * 0.115 : 0;
+    const basic = payroll.salaries.find(salary => salary.type === SalaryType.BASIC_ISNURANCE);
+    if(basic !== undefined) {
+      tax = payroll.employee.contracts !== 0 ? basic.price * 0.115 : 0;
+    }
+
     const deduction = daySalary / 8 * lateTime + daySalary * absentTime;
     const allowanceOvertime = daySalary * overtime;
 

@@ -211,13 +211,14 @@ model Relative {
 }
 
 model Customer {
-  id        Int              @id @default(autoincrement())
-  profile   Profile          @relation(fields: [profileId], references: [id])
-  profileId Int
-  type      CustomerType
-  resource  CustomerResource
-  note      String?
-  orders    Order[]
+  id          Int              @id @default(autoincrement())
+  profile     Profile          @relation(fields: [profileId], references: [id])
+  profileId   Int
+  type        CustomerType
+  resource    CustomerResource
+  isPotential Boolean?         @default(false)
+  note        String?
+  orders      Order[]
 }
 
 model Commodity {

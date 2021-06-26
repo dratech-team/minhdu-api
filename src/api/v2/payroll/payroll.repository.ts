@@ -84,6 +84,7 @@ export class PayrollRepository implements InterfaceRepository<any> {
           employee: {
             include: {
               contracts: true,
+              profile: true,
               position: {include: {department: {include: {branch: true}}}},
             }
           }
