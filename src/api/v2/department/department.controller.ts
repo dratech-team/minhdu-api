@@ -30,7 +30,7 @@ export class DepartmentController {
   @Roles(UserType.ADMIN, UserType.HUMAN_RESOURCE)
   @Patch(':id')
   update(
-    @Param('id') id: string,
+    @Param('id') id: number,
     @Body() updateDepartmentDto: UpdateDepartmentDto
   ) {
     return this.departmentService.update(+id, updateDepartmentDto);

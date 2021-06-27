@@ -1,11 +1,10 @@
-import {BadRequestException, Injectable} from "@nestjs/common";
+import {BadRequestException, ConflictException, Injectable} from "@nestjs/common";
 import {PrismaService} from "../../../prisma.service";
 import {CreateEmployeeDto} from "./dto/create-employee.dto";
 import {UpdateEmployeeDto} from "./dto/update-employee.dto";
 import {ResponsePagination} from "../../../common/entities/response.pagination";
 import {Employee} from "@prisma/client";
 import {InterfaceRepository} from "../../../common/repository/interface.repository";
-import {firstMonth, lastMonth} from "../../../utils/datetime.util";
 
 @Injectable()
 export class EmployeeRepository implements InterfaceRepository<Employee> {
@@ -22,6 +21,9 @@ export class EmployeeRepository implements InterfaceRepository<Employee> {
       });
     } catch (err) {
       console.error(err);
+      if (err?.response?.code === "P2002") {
+        throw new ConflictException('CMND nhân viên đã tồn tại', err);
+      }
       throw new BadRequestException(err);
     }
   }
@@ -56,14 +58,14 @@ export class EmployeeRepository implements InterfaceRepository<Employee> {
   }
 
   async findBy(query: any) {
-   return  await this.prisma.employee.findMany({
+    return await this.prisma.employee.findMany({
       where: query,
       include: {payrolls: true, salaries: true}
     });
   }
 
   async findFirst(query: any) {
-   return  await this.prisma.employee.findFirst({
+    return await this.prisma.employee.findFirst({
       where: query,
       include: {payrolls: true, salaries: true}
     });
@@ -81,6 +83,8 @@ export class EmployeeRepository implements InterfaceRepository<Employee> {
           position: {include: {department: {include: {branch: true}}}},
           salaries: true,
           payrolls: true,
+          historySalaries: true,
+          workHistories: true,
         }
       });
     } catch (e) {

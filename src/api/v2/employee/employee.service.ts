@@ -6,28 +6,22 @@ import {BaseEmployeeService} from "./base-employee.service";
 import {ResponsePagination} from "../../../common/entities/response.pagination";
 import {Employee} from "@prisma/client";
 import {PositionService} from "../position/position.service";
+import {WorkHistoryService} from "../work-history/work-history.service";
 
 @Injectable()
 export class EmployeeService implements BaseEmployeeService {
   constructor(
     private readonly repository: EmployeeRepository,
     private readonly positionService: PositionService,
+    private readonly workHisService: WorkHistoryService,
   ) {
   }
 
   async create(body: CreateEmployeeDto) {
-    try {
-      const res = await this.positionService.findBranch(body.positionId);
-      body.code = await this.generateEmployeeCode(res.department.branch.code);
+    const res = await this.positionService.findBranch(body.positionId);
+    body.code = await this.generateEmployeeCode(res.department.branch.code);
 
-      return await this.repository.create(body);
-    } catch (err) {
-      console.error(err);
-      if (err?.response?.code === "P2002") {
-        throw new ConflictException('CMND nhân viên đã tồn tại', err);
-      }
-      throw new BadRequestException(err);
-    }
+    return await this.repository.create(body);
   }
 
   async findAll(
@@ -52,6 +46,14 @@ export class EmployeeService implements BaseEmployeeService {
   }
 
   async update(id: number, updates: UpdateEmployeeDto) {
+    if (updates.positionId) {
+      this.findOne(id).then(employee => {
+        this.workHisService.create(employee.positionId, id).then(_ => {
+          this.workHisService.create(updates.positionId, id);
+        });
+      });
+
+    }
     return this.repository.update(id, updates);
   }
 

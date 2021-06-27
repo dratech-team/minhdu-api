@@ -165,15 +165,16 @@ model Employee {
   workHistories   WorkHistory[]
   systemHistories SystemHistory[]
   relatives       Relative[]
-  historySalaries HistorySalary[]
+  historySalaries SalaryHistory[]
 }
 
 model WorkHistory {
-  id         Int        @id @default(autoincrement())
-  position   Position   @relation(fields: [positionId], references: [id])
+  id         Int       @id @default(autoincrement())
+  position   Position  @relation(fields: [positionId], references: [id])
   positionId Int
-  createdAt  DateTime?  @default(now())
-  employees  Employee[]
+  createdAt  DateTime? @default(now())
+  employee   Employee  @relation(fields: [employeeId], references: [id])
+  employeeId Int
 }
 
 model OvertimeTemplate {
@@ -287,8 +288,8 @@ model Salary {
   note          String?
   employee      Employee?      @relation(fields: [employeeId], references: [id])
   employeeId    Int?
-  HistorySalary HistorySalary?
-  payroll       Payroll?        @relation(fields: [payrollId], references: [id])
+  historySalary SalaryHistory?
+  payroll       Payroll?       @relation(fields: [payrollId], references: [id])
   payrollId     Int?
 }
 
@@ -303,12 +304,12 @@ model Payroll {
   createdAt      DateTime? @default(now())
 }
 
-model HistorySalary {
-  id         Int      @id @default(autoincrement())
-  datetime   DateTime
-  salary     Salary   @relation(fields: [salaryId], references: [id])
+model SalaryHistory {
+  id         Int       @id @default(autoincrement())
+  datetime   DateTime? @default(now())
+  salary     Salary    @relation(fields: [salaryId], references: [id])
   salaryId   Int
-  employee   Employee @relation(fields: [employeeId], references: [id])
+  employee   Employee  @relation(fields: [employeeId], references: [id])
   employeeId Int
 
 }

@@ -1,12 +1,10 @@
 import {BadRequestException, Injectable} from "@nestjs/common";
 import {WorkHistory} from "@prisma/client";
-import {InterfaceRepository} from "../../../common/repository/interface.repository";
 import {ResponsePagination} from "../../../common/entities/response.pagination";
 import {PrismaService} from "../../../prisma.service";
-import {CreateWorkHistoryDto} from "./dto/create-work-history.dto";
 
 @Injectable()
-export class WorkHistoryRepository implements InterfaceRepository<WorkHistory> {
+export class WorkHistoryRepository {
   constructor(private readonly prisma: PrismaService) {
   }
 
@@ -14,9 +12,11 @@ export class WorkHistoryRepository implements InterfaceRepository<WorkHistory> {
     return this.prisma.workHistory.count();
   }
 
-  async create(body: CreateWorkHistoryDto): Promise<WorkHistory> {
+  async create(positionId: number, employeeId: number): Promise<WorkHistory> {
     try {
-      return await this.prisma.workHistory.create({data: body});
+      return await this.prisma.workHistory.create({
+        data: {employeeId, positionId}
+      });
     } catch (err) {
       console.error(err);
       throw new BadRequestException(err);

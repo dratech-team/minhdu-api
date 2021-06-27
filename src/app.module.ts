@@ -1,4 +1,4 @@
-import {MiddlewareConsumer, Module, NestModule} from "@nestjs/common";
+import {Module} from "@nestjs/common";
 import {AppController} from "./app.controller";
 import {PrismaService} from "./prisma.service";
 import {BranchModule} from "./api/v2/branch/branch.module";
@@ -11,18 +11,17 @@ import {OrgChartModule} from './api/v2/org-chart/org-chart.module';
 import {SalaryModule} from './api/v2/salary/salary.module';
 import {ConfigModule} from "./core/config/config.module";
 import {ContractModule} from './api/v2/contract/contract.module';
-import {LoggerMiddleware} from "./core/middlewares/logger.middleware";
-import {PayrollController} from "./api/v2/payroll/payroll.controller";
 import {WorkHistoryModule} from './api/v2/work-history/work-history.module';
 import {NationModule} from './api/v2/nation/nation.module';
 import {ProvinceModule} from './api/v2/province/province.module';
 import {DistrictModule} from './api/v2/district/district.module';
 import {WardModule} from './api/v2/ward/ward.module';
 import {BankModule} from './api/v2/bank/bank.module';
-import { DegreeModule } from './api/v2/degree/degree.module';
+import {DegreeModule} from './api/v2/degree/degree.module';
 import {RelativeModule} from "./api/v2/relative/relative.module";
-import { CustomerModule } from './api/v2/customer/customer.module';
-import { HistorySalaryModule } from './api/v2/history-salary/history-salary.module';
+import {CustomerModule} from './api/v2/customer/customer.module';
+import {HistorySalaryModule} from './api/v2/history-salary/history-salary.module';
+import { SystemHistoryModule } from './api/v2/system-history/system-history.module';
 
 @Module({
   imports: [
@@ -45,7 +44,8 @@ import { HistorySalaryModule } from './api/v2/history-salary/history-salary.modu
     DegreeModule,
     RelativeModule,
     CustomerModule,
-    HistorySalaryModule
+    HistorySalaryModule,
+    SystemHistoryModule
   ],
   controllers: [AppController],
   providers: [PrismaService],
@@ -54,9 +54,5 @@ import { HistorySalaryModule } from './api/v2/history-salary/history-salary.modu
 /*
 * Các req cố ý sửa đổi, xoá thành công sẽ được ghi lại trong lịch sử db
 * */
-export class AppModule implements NestModule {
-  configure(consumer: MiddlewareConsumer): any {
-    consumer.apply(LoggerMiddleware).forRoutes(PayrollController);
-  }
-
+export class AppModule {
 }

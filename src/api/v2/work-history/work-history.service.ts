@@ -1,16 +1,13 @@
 import {Injectable} from '@nestjs/common';
-import {CreateWorkHistoryDto} from './dto/create-work-history.dto';
-import {UpdateWorkHistoryDto} from './dto/update-work-history.dto';
-import {BaseWorkHistoryService} from "./base-work-history.service";
 import {WorkHistoryRepository} from "./work-history.repository";
 
 @Injectable()
-export class WorkHistoryService implements BaseWorkHistoryService {
+export class WorkHistoryService {
   constructor(private readonly repository: WorkHistoryRepository) {
   }
 
-  create(createWorkHistoryDto: CreateWorkHistoryDto) {
-    return this.repository.create(createWorkHistoryDto);
+  create(positionId: number, employeeId: number) {
+    return this.repository.create(positionId, employeeId);
   }
 
   findAll(id: number, skip: number, take: number, search?: string) {
@@ -23,10 +20,6 @@ export class WorkHistoryService implements BaseWorkHistoryService {
 
   findOne(id: number) {
     return this.repository.findOne(id);
-  }
-
-  update(id: number, updateWorkHistoryDto: UpdateWorkHistoryDto) {
-    return this.repository.update(id, updateWorkHistoryDto);
   }
 
   remove(id: number) {

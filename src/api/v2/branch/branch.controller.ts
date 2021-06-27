@@ -36,7 +36,7 @@ export class BranchController {
   @Roles(UserType.ADMIN, UserType.HUMAN_RESOURCE)
   @Patch(':id')
   update(@Param('id') id: number, @Body() updateBranchDto: UpdateBranchDto) {
-    return this.branchService.update(id, updateBranchDto);
+    return this.branchService.update(+id, updateBranchDto);
   }
 
   @UseGuards(RolesGuard)

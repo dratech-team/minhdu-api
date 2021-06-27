@@ -1,4 +1,4 @@
-import {Body, Controller, Get, Param, Patch, Post, Query, UseGuards} from '@nestjs/common';
+import {Body, Controller, Get, Param, Patch, Post, Query, UseFilters, UseGuards} from '@nestjs/common';
 import {EmployeeService} from './employee.service';
 import {CreateEmployeeDto} from './dto/create-employee.dto';
 import {JwtAuthGuard} from "../../../core/guard/jwt-auth.guard";
@@ -8,8 +8,9 @@ import {Roles} from "../../../core/decorators/roles.decorator";
 import {UserType} from "../../../core/constants/role-type.constant";
 import {ReqProfile} from "../../../core/decorators/req-profile.decorator";
 import {UpdateEmployeeDto} from "./dto/update-employee.dto";
+import {ApiV2Constant} from "../../../common/constant/api.constant";
 
-@Controller('v2/employee')
+@Controller(ApiV2Constant.EMPLOYEE)
 @UseGuards(JwtAuthGuard, ApiKeyGuard, RolesGuard)
 export class EmployeeController {
   constructor(private readonly employeeService: EmployeeService) {

@@ -1,11 +1,11 @@
-import { Module } from '@nestjs/common';
-import { WorkHistoryService } from './work-history.service';
-import { WorkHistoryController } from './work-history.controller';
+import {Module} from '@nestjs/common';
+import {WorkHistoryService} from './work-history.service';
 import {WorkHistoryRepository} from "./work-history.repository";
 import {PrismaService} from "../../../prisma.service";
 
 @Module({
-  controllers: [WorkHistoryController],
-  providers: [PrismaService, WorkHistoryService, WorkHistoryRepository]
+  providers: [PrismaService, WorkHistoryService, WorkHistoryRepository],
+  exports: [WorkHistoryService]
 })
-export class WorkHistoryModule {}
+export class WorkHistoryModule {
+}

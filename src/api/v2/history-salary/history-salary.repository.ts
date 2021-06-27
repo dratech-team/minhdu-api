@@ -8,7 +8,7 @@ export class HistorySalaryRepository {
 
   async create(salaryId: number, employeeId: number) {
     try {
-      return await this.prisma.historySalary.create({
+      return await this.prisma.salaryHistory.create({
         data: {
           employeeId: employeeId,
           salaryId: salaryId,
