@@ -7,15 +7,12 @@ import {EmployeeService} from "../employee/employee.service";
 import {CreatePayrollDto} from "./dto/create-payroll.dto";
 import {firstMonth, lastDayOfMonth, lastMonth,} from "../../../utils/datetime.util";
 import {BasePayrollService} from "./base-payroll.service";
-import {SalaryService} from "../salary/salary.service";
-import {CreateSalariesDto} from "./dto/create-salaries.dto";
 
 @Injectable()
 export class PayrollService implements BasePayrollService {
   constructor(
     private readonly repository: PayrollRepository,
     private readonly employeeService: EmployeeService,
-    private readonly salaryService: SalaryService,
   ) {
   }
 
@@ -49,24 +46,6 @@ export class PayrollService implements BasePayrollService {
       console.error(err);
       throw new ConflictException(err);
     }
-  }
-
-  async createSalary(body: CreateSalariesDto) {
-    const current = await this.findOne(body.payrollId);
-
-    this.employeeService.findBy({
-      id: 1,
-      payrolls: {
-        some: {
-          createdAt: {
-            gte: firstMonth(current.createdAt),
-            lte: lastMonth(current.createdAt),
-          }
-        }
-      }
-    }).then(employees => {
-      console.log(employees);
-    });
   }
 
   /*
@@ -118,6 +97,7 @@ export class PayrollService implements BasePayrollService {
           manConfirmedAt: payroll.manConfirmedAt,
           paidAt: payroll.paidAt,
           createdAt: payroll.createdAt,
+          employee: payroll.employee
         };
       });
       return {
@@ -150,6 +130,10 @@ export class PayrollService implements BasePayrollService {
 
   findBy(query: any) {
     return this.repository.findBy(query);
+  }
+
+  findFirst(query: any) {
+    return this.repository.findFirst(query);
   }
 
   /*

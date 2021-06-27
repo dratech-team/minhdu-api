@@ -8,6 +8,10 @@ export class CreateSalaryDto extends ICreateSalaryDto {
   @IsNumber()
   readonly employeeId: number;
 
+  @IsOptional()
+  @IsArray()
+  readonly employeeIds?: number[];
+
   @Type(() => Number)
   @IsOptional()
   @IsNumber()

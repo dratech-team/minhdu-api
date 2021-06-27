@@ -8,7 +8,6 @@ import {Roles} from "../../../core/decorators/roles.decorator";
 import {UserType} from "../../../core/constants/role-type.constant";
 import {ReqProfile} from "../../../core/decorators/req-profile.decorator";
 import {UpdateEmployeeDto} from "./dto/update-employee.dto";
-import {CreateSalariesDto} from "../payroll/dto/create-salaries.dto";
 
 @Controller('v2/employee')
 @UseGuards(JwtAuthGuard, ApiKeyGuard, RolesGuard)

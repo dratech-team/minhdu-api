@@ -1,9 +1,9 @@
 import {BadRequestException, Injectable} from "@nestjs/common";
 import {PrismaService} from "../../../prisma.service";
 import {UpdatePayrollDto} from "./dto/update-payroll.dto";
-import {firstMonth, lastMonth} from "../../../utils/datetime.util";
 import {InterfaceRepository} from "../../../common/repository/interface.repository";
 import {CreatePayrollDto} from "./dto/create-payroll.dto";
+import {firstMonth, lastMonth} from "../../../utils/datetime.util";
 
 @Injectable()
 export class PayrollRepository implements InterfaceRepository<any> {
@@ -73,6 +73,17 @@ export class PayrollRepository implements InterfaceRepository<any> {
   async findBy(query: any): Promise<any[]> {
     try {
       return await this.prisma.payroll.findMany({
+        where: query,
+      });
+    } catch (err) {
+      console.error(err);
+      throw new BadRequestException(err);
+    }
+  }
+
+  async findFirst(query: any): Promise<any> {
+    try {
+      return await this.prisma.payroll.findFirst({
         where: query,
       });
     } catch (err) {

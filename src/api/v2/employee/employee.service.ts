@@ -43,6 +43,10 @@ export class EmployeeService implements BaseEmployeeService {
     return this.repository.findBy(query);
   }
 
+  findFirst(query: any) {
+    return this.repository.findFirst(query);
+  }
+
   async findOne(id: number) {
     return this.repository.findOne(id);
   }

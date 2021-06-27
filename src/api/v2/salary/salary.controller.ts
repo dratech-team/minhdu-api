@@ -1,8 +1,7 @@
-import {Body, Controller, Delete, Get, Param, ParseIntPipe, Patch, Post, Query} from '@nestjs/common';
+import {Body, Controller, Delete, Get, Param, Patch, Post} from '@nestjs/common';
 import {SalaryService} from './salary.service';
 import {CreateSalaryDto} from './dto/create-salary.dto';
 import {UpdateSalaryDto} from "./dto/update-salary.dto";
-import {ReqProfile} from "../../../core/decorators/req-profile.decorator";
 
 @Controller('v2/salary')
 export class SalaryController {

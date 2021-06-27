@@ -1,4 +1,5 @@
-import {ICreateSalaryDto} from "../../../../common/dtos/create-salary.dto";
 import {PartialType} from "@nestjs/mapped-types";
+import {CreateSalaryDto} from "./create-salary.dto";
 
-export class UpdateSalaryDto extends PartialType(ICreateSalaryDto) {}
+export class UpdateSalaryDto extends PartialType(CreateSalaryDto) {
+}

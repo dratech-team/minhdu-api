@@ -9,7 +9,6 @@ import {RolesGuard} from "../../../core/guard/role.guard";
 import {ApiKeyGuard} from "../../../core/guard/api-key-auth.guard";
 import {CreatePayrollDto} from "./dto/create-payroll.dto";
 import {ApiV2Constant} from "../../../common/constant/api.constant";
-import {CreateSalariesDto} from "./dto/create-salaries.dto";
 
 @Controller(ApiV2Constant.PAYROLL)
 @UseGuards(JwtAuthGuard, ApiKeyGuard, RolesGuard)
@@ -21,12 +20,6 @@ export class PayrollController {
   @Post()
   create(@Body() body: CreatePayrollDto) {
     return this.payrollService.create(body);
-  }
-
-  @Roles(UserType.ADMIN, UserType.HUMAN_RESOURCE, UserType.CAMP_ACCOUNTING)
-  @Post(':id/salaries')
-  createSalaries(@Body() body: CreateSalariesDto) {
-    return this.payrollService.createSalary(body);
   }
 
   @Get()

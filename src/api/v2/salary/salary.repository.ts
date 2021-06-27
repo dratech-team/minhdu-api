@@ -1,4 +1,5 @@
 import {BadRequestException, Injectable} from "@nestjs/common";
+import {SalaryType} from "@prisma/client";
 import {PrismaService} from "../../../prisma.service";
 import {CreateSalaryDto} from "./dto/create-salary.dto";
 import {UpdateSalaryDto} from "./dto/update-salary.dto";
@@ -64,16 +65,16 @@ export class SalaryRepository {
     return this.prisma.salary.findUnique({where: {id}});
   }
 
-  async update(id: number, updateSalaryDto: UpdateSalaryDto) {
-    return this.prisma.salary
-      .update({
+  async update(id: number, updates: UpdateSalaryDto) {
+    try {
+      return await this.prisma.salary.update({
         where: {id: id},
-        data: updateSalaryDto,
-      })
-      .catch((err) => {
-        console.error(err);
-        throw new BadRequestException(err);
+        data: updates,
       });
+    } catch (err) {
+      console.error(err);
+      throw new BadRequestException(err);
+    }
   }
 
   async remove(id: number) {

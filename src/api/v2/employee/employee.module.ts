@@ -12,7 +12,6 @@ import {PositionModule} from "../position/position.module";
 
 @Module({
   imports: [
-    SalaryModule,
     ConfigModule,
     BranchModule,
     PositionModule
@@ -23,7 +22,6 @@ import {PositionModule} from "../position/position.module";
     EmployeeRepository,
     EmployeeService,
     BranchRepository,
-    SalaryRepository
   ],
   exports: [EmployeeService]
 })

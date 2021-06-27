@@ -62,6 +62,13 @@ export class EmployeeRepository implements InterfaceRepository<Employee> {
     });
   }
 
+  async findFirst(query: any) {
+   return  await this.prisma.employee.findFirst({
+      where: query,
+      include: {payrolls: true, salaries: true}
+    });
+  }
+
   async findOne(id: number) {
     try {
       return await this.prisma.employee.findUnique({

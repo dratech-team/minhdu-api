@@ -1,8 +1,9 @@
 import {BadRequestException, Injectable} from "@nestjs/common";
-import {Salary} from "@prisma/client";
+import {Salary, SalaryType} from "@prisma/client";
 import {CreateSalaryDto} from "./dto/create-salary.dto";
 import {UpdateSalaryDto} from "./dto/update-salary.dto";
 import {SalaryRepository} from "./salary.repository";
+import {EmployeeService} from "../employee/employee.service";
 import {PayrollService} from "../payroll/payroll.service";
 import {firstMonth, lastMonth} from "../../../utils/datetime.util";
 
@@ -10,22 +11,61 @@ import {firstMonth, lastMonth} from "../../../utils/datetime.util";
 export class SalaryService {
   constructor(
     private readonly repository: SalaryRepository,
+    private readonly employeeService: EmployeeService,
+    private readonly payrollService: PayrollService,
   ) {
   }
 
   async create(body: CreateSalaryDto): Promise<Salary> {
     try {
-      // const current = await this.payrollService.findOne(body.payrollId);
-      // if (body.otherEmployeeIds.length !== 0) {
-      //   const payrolls = await this.payrollService.findBy({
-      //     employeeId: 1,
-      //     createdAt: {
-      //       gte: firstMonth(current.createdAt),
-      //       lte: lastMonth(current.createdAt),
-      //     }
-      //   });
-      //   console.log(payrolls);
-      // }
+      if (body.employeeIds.length > 0) {
+        if (
+          body.type === SalaryType.BASIC_ISNURANCE ||
+          body.type === SalaryType.BASIC ||
+          body.type === SalaryType.STAY ||
+          body.type === SalaryType.ALLOWANCE ||
+          body.type === SalaryType.ABSENT
+        ) {
+          throw new BadRequestException('Chức năng này chỉ được sử dụng để thêm công tăng ca. Vui lòng liên hệ admin');
+        }
+        body.employeeIds.forEach(id => {
+          this.employeeService.findOne(id).then(employee => {
+            this.payrollService.findFirst({
+              employeeId: employee.id,
+              createdAt: {
+                gte: firstMonth(body.datetime ?? new Date()),
+                lte: lastMonth(body.datetime ?? new Date()),
+              }
+            }).then(payroll => {
+              this.repository.create({
+                payrollId: payroll.id,
+                type: body.type,
+                note: body.note,
+                price: body.price,
+                title: body.title,
+                employeeId: employee.id,
+                datetime: body.datetime,
+                times: body.times,
+                forgot: body.forgot,
+                rate: body.rate,
+                unit: body.unit,
+              });
+            });
+          });
+        });
+      } else {
+        if ((body.type === SalaryType.ABSENT ||
+          body.type === SalaryType.OVERTIME ||
+          body.type === SalaryType.ALLOWANCE
+        ) && body.employeeId !== null
+        ) {
+          throw new BadRequestException('[Development] Các khoản vắng, tăng ca, phụ cấp thêm flexible theo từng tháng. Vui lòng không link với nhân viên. Th gà frontend này');
+        }
+        const employee = await this.employeeService.findOne(body.employeeId);
+        if (employee.salaries.filter(salary => salary.type === SalaryType.BASIC_ISNURANCE).length !== 0) {
+          throw new BadRequestException('Nhân viên này đã có lương cơ bản trích bảo hiểm. Vui lòng kiểm tra lại hoặc liên hệ admin để được hỗ trợ!!!');
+        }
+      }
       return await this.repository.create(body);
     } catch (err) {
       console.error(err);
