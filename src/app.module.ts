@@ -22,6 +22,7 @@ import {BankModule} from './api/v2/bank/bank.module';
 import { DegreeModule } from './api/v2/degree/degree.module';
 import {RelativeModule} from "./api/v2/relative/relative.module";
 import { CustomerModule } from './api/v2/customer/customer.module';
+import { HistorySalaryModule } from './api/v2/history-salary/history-salary.module';
 
 @Module({
   imports: [
@@ -43,7 +44,8 @@ import { CustomerModule } from './api/v2/customer/customer.module';
     BankModule,
     DegreeModule,
     RelativeModule,
-    CustomerModule
+    CustomerModule,
+    HistorySalaryModule
   ],
   controllers: [AppController],
   providers: [PrismaService],

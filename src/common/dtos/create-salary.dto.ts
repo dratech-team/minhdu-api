@@ -14,24 +14,24 @@ export class ICreateSalaryDto {
 
   @IsOptional()
   @IsEnum(DatetimeUnit)
-  readonly unit: DatetimeUnit;
+  readonly unit?: DatetimeUnit;
 
   @Type(() => Date)
   @IsOptional()
   @MaxDate(new Date(), {message: ValidatorMessage.datetime})
-  readonly datetime: Date;
+  readonly datetime?: Date;
 
   @IsOptional()
   @Type(() => Number)
-  readonly times: number;
+  readonly times?: number;
 
   @IsOptional()
   @Type(() => Boolean)
-  readonly forgot: boolean;
+  readonly forgot?: boolean;
 
   @IsOptional()
   @Type(() => Number)
-  readonly rate: number;
+  readonly rate?: number;
 
   @Type(() => Number)
   @IsOptional()
@@ -40,5 +40,5 @@ export class ICreateSalaryDto {
 
   @IsOptional()
   @IsString()
-  readonly note: string;
+  readonly note?: string;
 }

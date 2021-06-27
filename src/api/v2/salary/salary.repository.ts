@@ -1,5 +1,4 @@
 import {BadRequestException, Injectable} from "@nestjs/common";
-import {SalaryType} from "@prisma/client";
 import {PrismaService} from "../../../prisma.service";
 import {CreateSalaryDto} from "./dto/create-salary.dto";
 import {UpdateSalaryDto} from "./dto/update-salary.dto";
@@ -11,20 +10,7 @@ export class SalaryRepository {
 
   async create(body: CreateSalaryDto) {
     try {
-      return await this.prisma.salary.create({
-        data: {
-          type: body.type,
-          unit: body.unit,
-          note: body.note,
-          times: body.times,
-          datetime: body.datetime,
-          forgot: body.forgot,
-          rate: body.rate,
-          price: body.price,
-          title: body.title,
-          payrolls: {connect: {id: body.payrollId}},
-        }
-      });
+      return await this.prisma.salary.create({data: body});
     } catch (err) {
       console.error(err);
       throw new BadRequestException(err);
@@ -62,7 +48,10 @@ export class SalaryRepository {
   }
 
   async findOne(id: number) {
-    return this.prisma.salary.findUnique({where: {id}});
+    return this.prisma.salary.findUnique({
+      where: {id},
+      include: {payroll: true}
+    });
   }
 
   async update(id: number, updates: UpdateSalaryDto) {
@@ -75,6 +64,20 @@ export class SalaryRepository {
       console.error(err);
       throw new BadRequestException(err);
     }
+  }
+
+  async disconnect(id: number) {
+    return await this.prisma.salary.update({
+      where: {id: id},
+      data: {
+        employee: {
+          disconnect: true
+        },
+        payroll: {
+          disconnect: true,
+        }
+      },
+    });
   }
 
   async remove(id: number) {

@@ -6,6 +6,7 @@ import {SalaryRepository} from "./salary.repository";
 import {EmployeeService} from "../employee/employee.service";
 import {PayrollService} from "../payroll/payroll.service";
 import {firstMonth, lastMonth} from "../../../utils/datetime.util";
+import {HistorySalaryService} from "../history-salary/history-salary.service";
 
 @Injectable()
 export class SalaryService {
@@ -13,6 +14,7 @@ export class SalaryService {
     private readonly repository: SalaryRepository,
     private readonly employeeService: EmployeeService,
     private readonly payrollService: PayrollService,
+    private readonly hSalaryService: HistorySalaryService,
   ) {
   }
 
@@ -54,19 +56,25 @@ export class SalaryService {
           });
         });
       } else {
-        if ((body.type === SalaryType.ABSENT ||
-          body.type === SalaryType.OVERTIME ||
-          body.type === SalaryType.ALLOWANCE
-        ) && body.employeeId !== null
+        if (
+          body.type === SalaryType.BASIC ||
+          body.type === SalaryType.BASIC_ISNURANCE ||
+          body.type === SalaryType.STAY
         ) {
-          throw new BadRequestException('[Development] Các khoản vắng, tăng ca, phụ cấp thêm flexible theo từng tháng. Vui lòng không link với nhân viên. Th gà frontend này');
+          this.findOne(body.payrollId).then(payroll => {
+            this.employeeService.update(payroll.employeeId, {
+                salary: {
+                  title: body.title,
+                  type: body.type,
+                  price: body.price,
+                  note: body.note,
+                }
+              }
+            );
+          });
         }
-        const employee = await this.employeeService.findOne(body.employeeId);
-        if (employee.salaries.filter(salary => salary.type === SalaryType.BASIC_ISNURANCE).length !== 0) {
-          throw new BadRequestException('Nhân viên này đã có lương cơ bản trích bảo hiểm. Vui lòng kiểm tra lại hoặc liên hệ admin để được hỗ trợ!!!');
-        }
+        return await this.repository.create(body);
       }
-      return await this.repository.create(body);
     } catch (err) {
       console.error(err);
       throw new BadRequestException(err);
@@ -86,9 +94,29 @@ export class SalaryService {
     return this.repository.findOne(id);
   }
 
-  async update(id: number, updateSalaryDto: UpdateSalaryDto) {
+  async update(id: number, updates: UpdateSalaryDto) {
     try {
-      return await this.repository.update(id, updateSalaryDto);
+      return this.findOne(id).then(async salary => {
+        if (
+          salary.type === SalaryType.BASIC_ISNURANCE ||
+          salary.type === SalaryType.BASIC ||
+          salary.type === SalaryType.STAY
+        ) {
+          return await this.repository.create({
+            payrollId: salary.payroll.id,
+            type: updates.type,
+            note: updates.note,
+            price: updates.price,
+            title: updates.title,
+            employeeId: salary.employeeId,
+          }).then(_ => {
+            this.hSalaryService.create(salary.id, salary.employeeId);
+            this.repository.disconnect(id).then();
+          });
+        } else {
+          return await this.repository.update(id, updates);
+        }
+      });
     } catch (err) {
       throw new BadRequestException(err);
     }

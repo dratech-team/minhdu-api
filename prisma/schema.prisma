@@ -165,6 +165,7 @@ model Employee {
   workHistories   WorkHistory[]
   systemHistories SystemHistory[]
   relatives       Relative[]
+  historySalaries HistorySalary[]
 }
 
 model WorkHistory {
@@ -274,19 +275,21 @@ model Route {
 }
 
 model Salary {
-  id         Int           @id @default(autoincrement())
-  title      String
-  type       SalaryType
-  times      Float?
-  price      Float?
-  unit       DatetimeUnit? @default(DAY)
-  rate       Float?        @default(1)
-  datetime   DateTime?     @default(now())
-  forgot     Boolean?      @default(false)
-  note       String?
-  employee   Employee?     @relation(fields: [employeeId], references: [id])
-  employeeId Int?
-  payrolls   Payroll[]
+  id            Int            @id @default(autoincrement())
+  title         String
+  type          SalaryType
+  times         Float?
+  price         Float?
+  unit          DatetimeUnit?  @default(DAY)
+  rate          Float?         @default(1)
+  datetime      DateTime?      @default(now())
+  forgot        Boolean?       @default(false)
+  note          String?
+  employee      Employee?      @relation(fields: [employeeId], references: [id])
+  employeeId    Int?
+  HistorySalary HistorySalary?
+  payroll       Payroll?        @relation(fields: [payrollId], references: [id])
+  payrollId     Int?
 }
 
 model Payroll {
@@ -298,6 +301,16 @@ model Payroll {
   manConfirmedAt DateTime?
   paidAt         DateTime?
   createdAt      DateTime? @default(now())
+}
+
+model HistorySalary {
+  id         Int      @id @default(autoincrement())
+  datetime   DateTime
+  salary     Salary   @relation(fields: [salaryId], references: [id])
+  salaryId   Int
+  employee   Employee @relation(fields: [employeeId], references: [id])
+  employeeId Int
+
 }
 
 model SystemHistory {

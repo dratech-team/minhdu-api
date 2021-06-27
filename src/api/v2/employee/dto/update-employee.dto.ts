@@ -10,8 +10,8 @@ export class UpdateEmployeeDto extends PartialType(CreateEmployeeDto) {
   @IsOptional()
   @IsDate()
   @MaxDate(new Date(), {message: `leftAT ${ValidatorMessage.datetime}`})
-  readonly leftAt: Date;
+  readonly leftAt?: Date;
 
   @ValidateNested()
-  readonly salary: ICreateSalaryDto;
+  readonly salary?: ICreateSalaryDto;
 }
