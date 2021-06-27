@@ -98,7 +98,9 @@ export class EmployeeRepository implements InterfaceRepository<Employee> {
     try {
       return await this.prisma.employee.update({
         where: {id: id},
-        data: updates
+        data: {
+          salaries: {connect: {id: updates.salaryId}}
+        }
       });
     } catch (err) {
       console.error(err);

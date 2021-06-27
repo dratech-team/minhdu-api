@@ -20,7 +20,7 @@ export class SalaryService {
 
   async create(body: CreateSalaryDto): Promise<Salary> {
     try {
-      if (body.employeeIds.length > 0) {
+      if (body.employeeIds !== undefined) {
         if (
           body.type === SalaryType.BASIC_ISNURANCE ||
           body.type === SalaryType.BASIC ||
@@ -61,19 +61,11 @@ export class SalaryService {
           body.type === SalaryType.BASIC_ISNURANCE ||
           body.type === SalaryType.STAY
         ) {
-          this.findOne(body.payrollId).then(payroll => {
-            this.employeeService.update(payroll.employeeId, {
-                salary: {
-                  title: body.title,
-                  type: body.type,
-                  price: body.price,
-                  note: body.note,
-                }
-              }
-            );
+          return this.repository.create(body).then((salary) => {
+            this.employeeService.update(body.payrollId, {salaryId: salary.id}).then();
+            return salary;
           });
         }
-        return await this.repository.create(body);
       }
     } catch (err) {
       console.error(err);
@@ -91,32 +83,31 @@ export class SalaryService {
   }
 
   async findOne(id: number) {
-    return this.repository.findOne(id);
+    return await this.repository.findOne(id);
   }
 
   async update(id: number, updates: UpdateSalaryDto) {
     try {
-      return this.findOne(id).then(async salary => {
-        if (
-          salary.type === SalaryType.BASIC_ISNURANCE ||
-          salary.type === SalaryType.BASIC ||
-          salary.type === SalaryType.STAY
-        ) {
-          return await this.repository.create({
-            payrollId: salary.payroll.id,
-            type: updates.type,
-            note: updates.note,
-            price: updates.price,
-            title: updates.title,
-            employeeId: salary.employeeId,
-          }).then(_ => {
-            this.hSalaryService.create(salary.id, salary.employeeId);
-            this.repository.disconnect(id).then();
-          });
-        } else {
-          return await this.repository.update(id, updates);
-        }
-      });
+      const salary = await this.findOne(id);
+      if (
+        salary.type === SalaryType.BASIC_ISNURANCE ||
+        salary.type === SalaryType.BASIC ||
+        salary.type === SalaryType.STAY
+      ) {
+        const res = await this.repository.create({
+          payrollId: salary.payroll.id,
+          type: updates.type ?? salary.type,
+          note: updates.note ?? salary.note,
+          price: updates.price ?? salary.price,
+          title: updates.title ?? salary.title,
+          employeeId: salary.employeeId,
+        });
+        this.hSalaryService.create(res.id, salary.employeeId).then();
+        this.repository.disconnect(id).then();
+        return res;
+      } else {
+        return await this.repository.update(id, updates);
+      }
     } catch (err) {
       throw new BadRequestException(err);
     }

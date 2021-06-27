@@ -1,4 +1,4 @@
-import {BadRequestException, Injectable} from "@nestjs/common";
+import {BadRequestException, Injectable, NotFoundException} from "@nestjs/common";
 import {PrismaService} from "../../../prisma.service";
 import {CreateSalaryDto} from "./dto/create-salary.dto";
 import {UpdateSalaryDto} from "./dto/update-salary.dto";
@@ -48,10 +48,15 @@ export class SalaryRepository {
   }
 
   async findOne(id: number) {
-    return this.prisma.salary.findUnique({
-      where: {id},
-      include: {payroll: true}
-    });
+    try {
+      return await this.prisma.salary.findUnique({
+        where: {id},
+        include: {payroll: true}
+      });
+    } catch (err) {
+      console.error(err);
+      throw new NotFoundException(err);
+    }
   }
 
   async update(id: number, updates: UpdateSalaryDto) {

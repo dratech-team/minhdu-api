@@ -10,9 +10,8 @@ export class HistorySalaryRepository {
     try {
       return await this.prisma.salaryHistory.create({
         data: {
-          employeeId: employeeId,
           salaryId: salaryId,
-          datetime: new Date(),
+          employeeId: employeeId,
         }
       });
     } catch (err) {
