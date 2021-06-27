@@ -60,7 +60,7 @@ export class PayrollController {
   }
 
   @Delete(':id')
-  remove(@Param('id') id: string) {
+  remove(@Param('id') id: number) {
     return this.payrollService.remove(+id);
   }
 }

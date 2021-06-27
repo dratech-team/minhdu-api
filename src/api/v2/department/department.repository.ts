@@ -51,10 +51,12 @@ export class DepartmentRepository {
     });
   }
 
-  remove(id: number): void {
-    this.prisma.department.delete({where: {id: id}}).catch((e) => {
-      console.error(e);
-      throw new BadRequestException(e);
-    });
+  async remove(id: number) {
+    try {
+      return await this.prisma.department.delete({where: {id: id}});
+    } catch (err) {
+      console.error(err);
+      throw new BadRequestException(err);
+    }
   }
 }

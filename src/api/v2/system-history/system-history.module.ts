@@ -1,9 +1,10 @@
-import { Module } from '@nestjs/common';
-import { SystemHistoryService } from './system-history.service';
-import { SystemHistoryController } from './system-history.controller';
+import {Module} from '@nestjs/common';
+import {SystemHistoryService} from './system-history.service';
+import {PrismaService} from "../../../prisma.service";
 
 @Module({
-  controllers: [SystemHistoryController],
-  providers: [SystemHistoryService]
+  providers: [PrismaService, SystemHistoryService],
+  exports: [SystemHistoryService]
 })
-export class SystemHistoryModule {}
+export class SystemHistoryModule {
+}

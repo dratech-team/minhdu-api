@@ -63,8 +63,11 @@ export class PositionRepository {
   }
 
   async remove(id: number) {
-    return this.prisma.position.delete({where: {id: id}}).catch(err => {
-      throw new BadRequestException(`Chức vụ này đang được liên kết với nhiều nhân viên. Thao tác này sẽ xảy ra các trường hợp ngoài ý muốn. Vui lòng liên hệ admin. Chi tiết: ${err}`);
-    });
+    try {
+     return  await this.prisma.position.delete({where: {id}});
+    } catch (err) {
+      console.error(err);
+      throw new BadRequestException(err);
+    }
   }
 }

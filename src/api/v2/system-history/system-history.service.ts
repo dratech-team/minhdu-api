@@ -1,11 +1,28 @@
-import { Injectable } from '@nestjs/common';
-import { CreateSystemHistoryDto } from './dto/create-system-history.dto';
-import { UpdateSystemHistoryDto } from './dto/update-system-history.dto';
+import {BadRequestException, Injectable} from '@nestjs/common';
+import {ActivityType, AppEnum} from '@prisma/client';
+import {PrismaService} from "../../../prisma.service";
 
 @Injectable()
 export class SystemHistoryService {
-  create(createSystemHistoryDto: CreateSystemHistoryDto) {
-    return 'This action adds a new systemHistory';
+  constructor(private readonly prisma: PrismaService) {
+  }
+
+  async create(employeeId: number, ip: string, appName: AppEnum, object: string, activity: ActivityType, description: string) {
+    try {
+      return await this.prisma.systemHistory.create({
+        data: {
+          employeeId,
+          ip,
+          appName,
+          object,
+          activity,
+          description
+        }
+      });
+    } catch (err) {
+      console.error(err);
+      throw new BadRequestException(err);
+    }
   }
 
   findAll() {
@@ -16,7 +33,7 @@ export class SystemHistoryService {
     return `This action returns a #${id} systemHistory`;
   }
 
-  update(id: number, updateSystemHistoryDto: UpdateSystemHistoryDto) {
+  update(id: number) {
     return `This action updates a #${id} systemHistory`;
   }
 

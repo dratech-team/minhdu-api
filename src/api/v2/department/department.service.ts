@@ -36,7 +36,7 @@ export class DepartmentService implements BaseDepartmentService {
     return this.repository.update(id, updates);
   }
 
-  remove(id: number): void {
-    this.repository.remove(id);
+  async remove(id: number) {
+    return this.repository.remove(id);
   }
 }

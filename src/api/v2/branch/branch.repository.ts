@@ -49,7 +49,12 @@ export class BranchRepository {
     return this.prisma.branch.update({where: {id: id}, data: updates}).catch((e) => new BadRequestException(e));
   }
 
-  remove(id: number): void {
-    this.prisma.branch.delete({where: {id: id}}).catch(e => new BadRequestException(e));
+  async remove(id: number) {
+    try {
+      return await this.prisma.branch.delete({where: {id: id}});
+    } catch (err) {
+      console.error(err);
+      throw new BadRequestException(err);
+    }
   }
 }

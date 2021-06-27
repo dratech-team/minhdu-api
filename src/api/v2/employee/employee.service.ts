@@ -7,6 +7,7 @@ import {ResponsePagination} from "../../../common/entities/response.pagination";
 import {Employee} from "@prisma/client";
 import {PositionService} from "../position/position.service";
 import {WorkHistoryService} from "../work-history/work-history.service";
+import {SystemHistoryService} from "../system-history/system-history.service";
 
 @Injectable()
 export class EmployeeService implements BaseEmployeeService {

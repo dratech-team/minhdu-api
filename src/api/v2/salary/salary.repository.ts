@@ -81,9 +81,11 @@ export class SalaryRepository {
   }
 
   async remove(id: number) {
-    this.prisma.salary.delete({where: {id: id}}).catch((err) => {
+    try {
+      return await this.prisma.salary.delete({where: {id: id}});
+    } catch (err) {
       console.error(err);
       throw new BadRequestException(err);
-    });
+    }
   }
 }

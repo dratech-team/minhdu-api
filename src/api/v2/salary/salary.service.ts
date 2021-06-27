@@ -122,8 +122,8 @@ export class SalaryService {
     }
   }
 
-  async remove(id: number) {
-    await this.repository.remove(id);
+  remove(id: number) {
+    return this.repository.remove(id);
   }
 
   createHistory(): Promise<void> {

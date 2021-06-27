@@ -39,8 +39,8 @@ export class BranchService implements BaseBranchService {
     return this.repository.update(id, updates);
   }
 
-  remove(id: number): void {
-    this.repository.remove(id);
+  remove(id: number) {
+    return this.repository.remove(id);
   }
 
   generateCode(input: string): string {

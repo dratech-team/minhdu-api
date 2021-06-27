@@ -36,10 +36,12 @@ export class RelativeService {
     }
   }
 
-  remove(id: number) {
-    this.prisma.relative.delete({where: {id}}).catch(err => {
+  async remove(id: number) {
+    try {
+      return await this.prisma.relative.delete({where: {id}});
+    } catch (err) {
       console.error(err);
       throw new BadRequestException(err);
-    });
+    }
   }
 }
