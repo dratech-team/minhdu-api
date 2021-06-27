@@ -6,8 +6,8 @@ import {PrismaService} from "./prisma.service";
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
-  const logger = app.get(PrismaService);
-  app.useGlobalFilters(new LoggerFilter(logger));
+  // const logger = app.get(PrismaService);
+  // app.useGlobalFilters(new LoggerFilter(logger));
   app.useGlobalPipes(new ValidationPipe());
   app.enableCors();
   await app.listen(process.env.PORT || 3000);

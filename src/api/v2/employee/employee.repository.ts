@@ -23,8 +23,9 @@ export class EmployeeRepository implements InterfaceRepository<Employee> {
       console.error(err);
       if (err?.response?.code === "P2002") {
         throw new ConflictException('CMND nhân viên đã tồn tại', err);
+      } else {
+        throw new BadRequestException(err);
       }
-      throw new BadRequestException(err);
     }
   }
 
