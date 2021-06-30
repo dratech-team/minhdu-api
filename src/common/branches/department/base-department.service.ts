@@ -1,6 +1,6 @@
 import {CreateDepartmentDto} from "./dto/create-department.dto";
 import {Department} from "@prisma/client";
-import {ResponsePagination} from "../../../common/entities/response.pagination";
+import {ResponsePagination} from "../../entities/response.pagination";
 import {UpdateDepartmentDto} from "./dto/update-department.dto";
 
 export interface BaseDepartmentService {

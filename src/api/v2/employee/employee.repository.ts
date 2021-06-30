@@ -7,7 +7,7 @@ import {Employee} from "@prisma/client";
 import {InterfaceRepository} from "../../../common/repository/interface.repository";
 
 @Injectable()
-export class EmployeeRepository implements InterfaceRepository<Employee> {
+export class EmployeeRepository {
   constructor(private readonly prisma: PrismaService) {
   }
 
@@ -85,7 +85,19 @@ export class EmployeeRepository implements InterfaceRepository<Employee> {
           salaries: true,
           payrolls: true,
           historySalaries: true,
-          workHistories: true,
+          workHistories: {
+            include: {
+              position: {
+                include: {
+                  department: {
+                    include: {
+                      branch: true
+                    }
+                  }
+                }
+              }
+            }
+          },
         }
       });
     } catch (e) {
@@ -98,9 +110,33 @@ export class EmployeeRepository implements InterfaceRepository<Employee> {
     try {
       return await this.prisma.employee.update({
         where: {id: id},
-        data: {
-          salaries: {connect: {id: updates.salaryId}}
-        }
+        data: updates,
+        // data: {
+        //   salaries: {connect: {id: updates.salaryId}},
+        //   firstName: updates.firstName,
+        //   lastName: updates.lastName,
+        //   wardId: updates.wardId,
+        //   positionId: updates.positionId,
+        //   workedAt: updates.workedAt,
+        //   email: updates.email,
+        //   zalo: updates.zalo,
+        //   facebook: updates.facebook,
+        //   idCardAt: updates.idCardAt,
+        //   address: updates.address,
+        //   avt: updates.avt,
+        //   birthday: updates.birthday,
+        //   workPhone: updates.workPhone,
+        //   gender: updates.gender,
+        //   identify: updates.identify,
+        //   phone: updates.phone,
+        //   birthplace: updates.birthplace,
+        //   religion: updates.religion,
+        //   mst: updates.mst,
+        //   ethnicity: updates.ethnicity,
+        //   issuedBy: updates.issuedBy,
+        //   createdAt: updates.createdAt,
+        //   note: updates.note,
+        // }
       });
     } catch (err) {
       console.error(err);

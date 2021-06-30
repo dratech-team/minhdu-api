@@ -6,7 +6,7 @@ import {SalaryRepository} from "./salary.repository";
 import {EmployeeService} from "../employee/employee.service";
 import {PayrollService} from "../payroll/payroll.service";
 import {firstMonth, lastMonth} from "../../../utils/datetime.util";
-import {HistorySalaryService} from "../history-salary/history-salary.service";
+import {HistorySalaryService} from "../histories/history-salary/history-salary.service";
 
 @Injectable()
 export class SalaryService {
@@ -61,10 +61,11 @@ export class SalaryService {
           body.type === SalaryType.BASIC_ISNURANCE ||
           body.type === SalaryType.STAY
         ) {
-          return this.repository.create(body).then((salary) => {
-            this.employeeService.update(body.payrollId, {salaryId: salary.id}).then();
-            return salary;
-          });
+          const salary = await this.repository.create(body);
+          this.employeeService.update(body.payrollId, {salaryId: salary.id}).then();
+          return salary;
+        } else {
+          return await this.repository.create(body);
         }
       }
     } catch (err) {

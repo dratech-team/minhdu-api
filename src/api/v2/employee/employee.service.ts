@@ -1,13 +1,12 @@
-import {BadRequestException, ConflictException, Injectable} from "@nestjs/common";
+import {Injectable} from "@nestjs/common";
 import {CreateEmployeeDto} from "./dto/create-employee.dto";
 import {EmployeeRepository} from "./employee.repository";
 import {UpdateEmployeeDto} from "./dto/update-employee.dto";
 import {BaseEmployeeService} from "./base-employee.service";
 import {ResponsePagination} from "../../../common/entities/response.pagination";
 import {Employee} from "@prisma/client";
-import {PositionService} from "../position/position.service";
-import {WorkHistoryService} from "../work-history/work-history.service";
-import {SystemHistoryService} from "../system-history/system-history.service";
+import {PositionService} from "../../../common/branches/position/position.service";
+import {WorkHistoryService} from "../histories/work-history/work-history.service";
 
 @Injectable()
 export class EmployeeService implements BaseEmployeeService {
@@ -43,7 +42,7 @@ export class EmployeeService implements BaseEmployeeService {
   }
 
   async findOne(id: number) {
-    return this.repository.findOne(id);
+    return await this.repository.findOne(id);
   }
 
   async update(id: number, updates: UpdateEmployeeDto) {
@@ -53,9 +52,9 @@ export class EmployeeService implements BaseEmployeeService {
           this.workHisService.create(updates.positionId, id);
         });
       });
-
     }
-    return this.repository.update(id, updates);
+
+    return await this.repository.update(id, updates);
   }
 
   async remove(id: number) {

@@ -1,7 +1,7 @@
 import {BadRequestException, Injectable} from "@nestjs/common";
 import {WorkHistory} from "@prisma/client";
-import {ResponsePagination} from "../../../common/entities/response.pagination";
-import {PrismaService} from "../../../prisma.service";
+import {ResponsePagination} from "../../../../common/entities/response.pagination";
+import {PrismaService} from "../../../../prisma.service";
 
 @Injectable()
 export class WorkHistoryRepository {

@@ -17,14 +17,7 @@ export class BranchService implements BaseBranchService {
   }
 
   async findAll(): Promise<any> {
-    const branches = await this.repository.findAll();
-    return branches.map(branch => {
-      return {
-        id: branch.id,
-        name: branch.name,
-        departmentIds: branch.departments.map(department => department.id),
-      };
-    });
+    return  await this.repository.findAll();
   }
 
   findBy(query: any): Promise<[]> {

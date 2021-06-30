@@ -16,5 +16,4 @@ export class CreatePayrollDto {
   @IsDate()
   @MaxDate(new Date(), {message: ValidatorMessage.datetime})
   readonly createdAt: Date;
-
 }

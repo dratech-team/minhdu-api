@@ -3,12 +3,12 @@ import {EmployeeController} from './employee.controller';
 import {PrismaService} from "../../../prisma.service";
 import {ConfigModule} from "../../../core/config/config.module";
 import {EmployeeRepository} from "./employee.repository";
-import {BranchModule} from "../branch/branch.module";
-import {BranchRepository} from "../branch/branch.repository";
+import {BranchModule} from "../../../common/branches/branch/branch.module";
+import {BranchRepository} from "../../../common/branches/branch/branch.repository";
 import {EmployeeService} from "./employee.service";
-import {PositionModule} from "../position/position.module";
-import {WorkHistoryModule} from "../work-history/work-history.module";
-import {WorkHistoryRepository} from "../work-history/work-history.repository";
+import {PositionModule} from "../../../common/branches/position/position.module";
+import {WorkHistoryModule} from "../histories/work-history/work-history.module";
+import {WorkHistoryRepository} from "../histories/work-history/work-history.repository";
 
 @Module({
   imports: [

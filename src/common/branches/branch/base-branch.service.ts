@@ -1,6 +1,6 @@
 import {CreateBranchDto} from "./dto/create-branch.dto";
 import {Branch} from "@prisma/client";
-import {ResponsePagination} from "../../../common/entities/response.pagination";
+import {ResponsePagination} from "../../entities/response.pagination";
 import {UpdateBranchDto} from "./dto/update-branch.dto";
 
 export interface BaseBranchService {

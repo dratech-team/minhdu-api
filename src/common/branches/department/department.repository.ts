@@ -24,7 +24,7 @@ export class DepartmentRepository {
 
   async findAll(): Promise<any> {
     try {
-      return await this.prisma.department.findMany({include: {positions: {select: {id: true}}}});
+      return await this.prisma.department.findMany({include: {positions: true}});
     } catch (err) {
       console.error(err);
       throw new BadRequestException(err);

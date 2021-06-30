@@ -103,13 +103,14 @@ model Department {
 }
 
 model Position {
-  id            Int           @id @default(autoincrement())
+  id            Int                @id @default(autoincrement())
   name          String
   workday       Int
-  department    Department    @relation(fields: [departmentId], references: [id])
+  department    Department         @relation(fields: [departmentId], references: [id])
   departmentId  Int
   employees     Employee[]
   workHistories WorkHistory[]
+  templetes     OvertimeTemplate[]
 }
 
 // Hợp đồng
@@ -178,12 +179,14 @@ model WorkHistory {
 }
 
 model OvertimeTemplate {
-  id    Int           @id @default(autoincrement())
-  title String
-  type  SalaryType?   @default(OVERTIME)
-  price Float
-  unit  DatetimeUnit? @default(HOUR)
-  note  String?
+  id         Int           @id @default(autoincrement())
+  title      String
+  type       SalaryType?   @default(OVERTIME)
+  price      Float
+  unit       DatetimeUnit? @default(HOUR)
+  note       String?
+  position   Position      @relation(fields: [positionId], references: [id])
+  positionId Int
 }
 
 model Relative {

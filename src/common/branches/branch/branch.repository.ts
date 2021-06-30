@@ -28,11 +28,7 @@ export class BranchRepository {
         select: {
           id: true,
           name: true,
-          departments: {
-            select: {
-              id: true
-            }
-          },
+          departments: true,
         }
       });
     } catch (err) {
