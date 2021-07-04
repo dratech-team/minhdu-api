@@ -4,9 +4,10 @@ import {EmployeeRepository} from "./employee.repository";
 import {UpdateEmployeeDto} from "./dto/update-employee.dto";
 import {BaseEmployeeService} from "./base-employee.service";
 import {ResponsePagination} from "../../../common/entities/response.pagination";
-import {Employee} from "@prisma/client";
+import {Employee, GenderType} from "@prisma/client";
 import {PositionService} from "../../../common/branches/position/position.service";
 import {WorkHistoryService} from "../histories/work-history/work-history.service";
+import {searchName} from "../../../utils/search-name.util";
 
 @Injectable()
 export class EmployeeService implements BaseEmployeeService {
@@ -24,13 +25,40 @@ export class EmployeeService implements BaseEmployeeService {
     return await this.repository.create(body);
   }
 
+  // @ts-ignore
   async findAll(
     branchId: number,
     skip: number,
     take: number,
-    search?: string
+    code: string,
+    name: string,
+    gender: GenderType,
+    createdAt: Date,
+    isFlatSalary: boolean,
+    branch: string,
+    department: string,
+    position: string,
   ): Promise<ResponsePagination<Employee>> {
-    return await this.repository.findAll(branchId, skip, take, search);
+
+    const search = searchName(name);
+
+    if (branchId) {
+      branchId = Number(branchId);
+    }
+
+    if (skip) {
+      skip = Number(skip);
+    }
+
+    if (take) {
+      take = Number(take);
+    }
+
+    if (isFlatSalary) {
+      isFlatSalary = JSON.parse(String(isFlatSalary));
+    }
+
+    return await this.repository.findAll(branchId, skip, take, code, search?.firstName, search?.lastName, gender, createdAt, isFlatSalary, branch, department, position);
   }
 
   findBy(query: any) {

@@ -1,4 +1,4 @@
-import {Body, Controller, Delete, Get, Param, ParseIntPipe, Patch, Post, Query, Res, UseGuards} from '@nestjs/common';
+import {Body, Controller, Delete, Get, Param, Patch, Post, Query, Res, UseGuards} from '@nestjs/common';
 import {PayrollService} from './payroll.service';
 import {UpdatePayrollDto} from './dto/update-payroll.dto';
 import {Roles} from "../../../core/decorators/roles.decorator";
@@ -26,12 +26,18 @@ export class PayrollController {
   @Roles(UserType.ADMIN, UserType.HUMAN_RESOURCE, UserType.CAMP_ACCOUNTING)
   findAll(
     @ReqProfile() branchId: number,
-    @Query("skip", ParseIntPipe) skip: number,
-    @Query("take", ParseIntPipe) take: number,
-    @Query("search") search: string,
-    @Query("datetime") datetime: Date,
+    @Query("skip") skip: number,
+    @Query("take") take: number,
+    @Query("code") code: string,
+    @Query("name") name: string,
+    @Query("branch") branch: string,
+    @Query("department") department: string,
+    @Query("position") position: string,
+    @Query("createdAt") createdAt: Date,
+    @Query("isConfirm") isConfirm: boolean,
+    @Query("isPaid") isPaid: boolean,
   ) {
-    return this.payrollService.findAll(branchId, +skip, +take, search, datetime);
+    return this.payrollService.findAll(branchId, skip, take, code, name, branch, department, position, createdAt, isConfirm, isPaid);
   }
 
   // @Roles(UserType.ADMIN, UserType.HUMAN_RESOURCE, UserType.CAMP_ACCOUNTING)

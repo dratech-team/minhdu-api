@@ -3,8 +3,8 @@ import {PrismaService} from "../../../prisma.service";
 import {CreateEmployeeDto} from "./dto/create-employee.dto";
 import {UpdateEmployeeDto} from "./dto/update-employee.dto";
 import {ResponsePagination} from "../../../common/entities/response.pagination";
-import {Employee} from "@prisma/client";
-import {InterfaceRepository} from "../../../common/repository/interface.repository";
+import {Employee, GenderType} from "@prisma/client";
+import {firstMonth, lastMonth} from "../../../utils/datetime.util";
 
 @Injectable()
 export class EmployeeRepository {
@@ -33,19 +33,54 @@ export class EmployeeRepository {
     return await this.prisma.employee.count();
   }
 
-  async findAll(branchId: number, skip: number, take: number, search?: string): Promise<ResponsePagination<Employee>> {
-
-    const where = {
-      leftAt: null,
-      branchId,
-      code: {startsWith: search}
-    };
-
+  async findAll(
+    branchId: number,
+    skip: number,
+    take: number,
+    code: string,
+    firstName: string,
+    lastName: string,
+    gender: GenderType,
+    createdAt: Date,
+    isFlatSalary: boolean,
+    branch: string,
+    department: string,
+    position: string,
+  ): Promise<ResponsePagination<Employee>> {
     try {
       const [total, data] = await Promise.all([
-        this.prisma.employee.count({where, skip, take,}),
+        this.prisma.employee.count({
+          where: {
+            leftAt: null,
+            position: {department: {branch: {id: branchId}}}
+          },
+        }),
         this.prisma.employee.findMany({
-          where, skip, take,
+          where: {
+            leftAt: null,
+            position: {department: {branch: {id: branchId}}},
+            AND: {
+              code: {startsWith: code},
+              AND: {
+                firstName: {startsWith: firstName, mode: 'insensitive'},
+                lastName: {startsWith: lastName, mode: 'insensitive'},
+              },
+              gender: {in: gender},
+              isFlatSalary: {equals: isFlatSalary},
+              position:
+                {
+                  name: {startsWith: position, mode: 'insensitive'},
+                  department: {
+                    name: {startsWith: department, mode: 'insensitive'},
+                    branch: {
+                      name: {startsWith: branch, mode: 'insensitive'}
+                    }
+                  },
+                },
+            }
+          },
+          skip,
+          take,
           include: {
             position: {include: {department: {include: {branch: true}}}},
           }

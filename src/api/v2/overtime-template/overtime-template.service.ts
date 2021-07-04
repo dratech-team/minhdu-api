@@ -19,7 +19,19 @@ export class OvertimeTemplateService {
 
   async findAll() {
     try {
-      return await this.prisma.overtimeTemplate.findMany();
+      return await this.prisma.overtimeTemplate.findMany({
+        include: {
+          position: {
+            include: {
+              department: {
+                include: {
+                  branch: true,
+                }
+              }
+            }
+          }
+        }
+      });
     } catch (err) {
       console.error(err);
       throw new NotFoundException(err);
@@ -28,7 +40,20 @@ export class OvertimeTemplateService {
 
   async findOne(id: number) {
     try {
-      return await this.prisma.overtimeTemplate.findUnique({where: {id}});
+      return await this.prisma.overtimeTemplate.findUnique({
+        where: {id},
+        include: {
+          position: {
+            include: {
+              department: {
+                include: {
+                  branch: true
+                }
+              }
+            }
+          }
+        }
+      });
     } catch (err) {
       console.error(err);
       throw new NotFoundException(err);

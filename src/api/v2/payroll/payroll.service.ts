@@ -7,6 +7,7 @@ import {EmployeeService} from "../employee/employee.service";
 import {CreatePayrollDto} from "./dto/create-payroll.dto";
 import {firstMonth, lastDayOfMonth, lastMonth,} from "../../../utils/datetime.util";
 import {BasePayrollService} from "./base-payroll.service";
+import {searchName} from "../../../utils/search-name.util";
 
 @Injectable()
 export class PayrollService implements BasePayrollService {
@@ -74,22 +75,39 @@ export class PayrollService implements BasePayrollService {
     }
   }
 
+  // @ts-ignore
   async findAll(
     branchId: number,
     skip: number,
     take: number,
-    search?: string,
-    datetime?: Date
+    code: string,
+    name: string,
+    branch: string,
+    department: string,
+    position: string,
+    createdAt: Date,
+    isConfirm: boolean,
+    isPaid: boolean,
   ) {
     const checkExist = await this.generatePayroll(branchId);
     if (checkExist) {
-      const res = await this.repository.findAll(
-        branchId,
-        skip,
-        take,
-        search,
-        datetime
-      );
+
+      const search = searchName(name);
+
+      if (skip && take) {
+        skip = Number(skip);
+        take = Number(take);
+      }
+
+      if (isConfirm) {
+        isConfirm = JSON.parse(String(isConfirm));
+      }
+
+      if (isPaid) {
+        isPaid = JSON.parse(String(isPaid));
+      }
+
+      const res = await this.repository.findAll(branchId, skip, take, code, search?.firstName, search?.lastName, branch, department, position, createdAt, isConfirm, isPaid);
       const data = res?.data?.map((payroll) => {
         return {
           id: payroll.id,
