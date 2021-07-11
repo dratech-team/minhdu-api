@@ -1,7 +1,7 @@
-import { Injectable } from "@nestjs/common";
-import { optionalRequire } from "@nestjs/core/helpers/optional-require";
-import { Response } from "express";
-import { CoreResponse } from "../interfaces/coreResponse.interface";
+import {Injectable} from "@nestjs/common";
+import {optionalRequire} from "@nestjs/core/helpers/optional-require";
+import {Response} from "express";
+import {CoreResponse} from "../interfaces/coreResponse.interface";
 // import { CoreResponse } from "@/core/interfaces/coreResponse.interface";
 
 const moment = optionalRequire("moment");
@@ -46,7 +46,7 @@ export class ExportService {
     XLSX.utils.book_append_sheet(wb, ws, "Sheet 1");
 
     /* generate buffer */
-    const buf = XLSX.write(wb, { type: "buffer", bookType: "xlsx" });
+    const buf = XLSX.writeFile(wb, {type: "file", bookType: "xlsx"});
     response.header(
       "Content-Disposition",
       `attachment; filename=${result.excel.name} (${moment().format(
@@ -90,7 +90,7 @@ export class ExportService {
     }
 
     worksheet["!cols"] = objectMaxLength.map((w) => {
-      return { width: w };
+      return {width: w};
     });
   }
 

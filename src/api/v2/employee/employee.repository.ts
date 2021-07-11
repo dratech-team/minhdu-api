@@ -65,7 +65,7 @@ export class EmployeeRepository {
                 firstName: {startsWith: firstName, mode: 'insensitive'},
                 lastName: {startsWith: lastName, mode: 'insensitive'},
               },
-              gender: {in: gender},
+              gender: gender ? {equals: gender}: {},
               isFlatSalary: {equals: isFlatSalary},
               position:
                 {

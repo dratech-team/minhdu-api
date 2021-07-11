@@ -4,20 +4,20 @@ import {Type} from "class-transformer";
 export class UpdatePayrollDto {
   @IsOptional()
   @Type(() => Number)
-  readonly salaryId: number
+  readonly salaryId?: number
 
   @IsOptional()
   @Type(() => Date)
   @IsDate()
-  readonly accConfirmedAt: Date
+  accConfirmedAt?: Date;
 
   @IsOptional()
   @Type(() => Date)
   @IsDate()
-  readonly manConfirmedAt: Date;
+  manConfirmedAt?: Date;
 
   @IsOptional()
-  @Type(() => Boolean)
-  @IsBoolean()
-  readonly isPaid: boolean;
+  @Type(() => Date)
+  @IsDate()
+  paidAt?: Date;
 }

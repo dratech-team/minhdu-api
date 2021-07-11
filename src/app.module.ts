@@ -23,6 +23,11 @@ import {CustomerModule} from './api/v2/customer/customer.module';
 import {HistorySalaryModule} from './api/v2/histories/history-salary/history-salary.module';
 import { SystemHistoryModule } from './api/v2/histories/system-history/system-history.module';
 import { OvertimeTemplateModule } from './api/v2/overtime-template/overtime-template.module';
+import { OrderModule } from './api/v2/order/order.module';
+import { CommodityModule } from './api/v2/commodity/commodity.module';
+import { BillModule } from './api/v2/bill/bill.module';
+import { RouteModule } from './api/v2/route/route.module';
+import { LocationModule } from './api/v2/location/location.module';
 
 @Module({
   imports: [
@@ -47,7 +52,12 @@ import { OvertimeTemplateModule } from './api/v2/overtime-template/overtime-temp
     CustomerModule,
     HistorySalaryModule,
     SystemHistoryModule,
-    OvertimeTemplateModule
+    OvertimeTemplateModule,
+    OrderModule,
+    CommodityModule,
+    BillModule,
+    RouteModule,
+    LocationModule
   ],
   controllers: [AppController],
   providers: [PrismaService],

@@ -8,12 +8,16 @@ import {CreatePayrollDto} from "./dto/create-payroll.dto";
 import {firstMonth, lastDayOfMonth, lastMonth,} from "../../../utils/datetime.util";
 import {BasePayrollService} from "./base-payroll.service";
 import {searchName} from "../../../utils/search-name.util";
+import {ExportService} from "../../../core/services/export.service";
+import {CoreResponse} from "../../../core/interfaces/coreResponse.interface";
+import {Response} from "express";
 
 @Injectable()
 export class PayrollService implements BasePayrollService {
   constructor(
     private readonly repository: PayrollRepository,
     private readonly employeeService: EmployeeService,
+    private readonly exportService: ExportService,
   ) {
   }
 
@@ -42,7 +46,15 @@ export class PayrollService implements BasePayrollService {
           )} đã tồn tại.. Vui lòng kiểm tra kỹ lại trước khi thêm.. Tức cái lồng ngực á`
         );
       }
-      return this.repository.create(body);
+      const payroll = await this.repository.create(body);
+      if (payroll) {
+        this.employeeService.findOne(payroll.employeeId).then(payroll => {
+          payroll?.salaries?.map((salary) => {
+            this.update(payroll.id, {salaryId: salary.id}).then();
+          });
+        });
+      }
+      return payroll;
     } catch (err) {
       console.error(err);
       throw new ConflictException(err);
@@ -107,6 +119,10 @@ export class PayrollService implements BasePayrollService {
         isPaid = JSON.parse(String(isPaid));
       }
 
+      if (createdAt) {
+        createdAt = new Date(createdAt);
+      }
+
       const res = await this.repository.findAll(branchId, skip, take, code, search?.firstName, search?.lastName, branch, department, position, createdAt, isConfirm, isPaid);
       const data = res?.data?.map((payroll) => {
         return {
@@ -163,6 +179,22 @@ export class PayrollService implements BasePayrollService {
    * - Quỹ Xác nhận đã thanh toán phiếu lương
    * */
   async update(id: number, updates: UpdatePayrollDto) {
+    const payroll = await this.findOne(id);
+    if (payroll.isEdit) {
+      throw new BadRequestException('Phiếu lương đã được tạo vì vậy bạn không có quyền sửa. Vui lòng liên hệ admin để được hỗ trợ.');
+    }
+
+    if (updates.accConfirmedAt) {
+      updates.accConfirmedAt = new Date(updates.accConfirmedAt);
+    }
+
+    if (updates.manConfirmedAt) {
+      updates.manConfirmedAt = new Date(updates.manConfirmedAt);
+    }
+
+    if (updates.paidAt) {
+      updates.paidAt = new Date(updates.paidAt);
+    }
     return await this.repository.update(id, updates);
   }
 
@@ -301,5 +333,21 @@ export class PayrollService implements BasePayrollService {
       tax,
       total: Math.round(total / 1000) * 1000,
     };
+  }
+
+  exportExcel(response: Response, branchId: number) {
+    const result: CoreResponse = {
+      excel: {
+        name: 'aaaaa.xlsx',
+        data: [
+          {
+            hihihi: "asdasdas",
+            asdsad: "asdsad"
+          }
+        ],
+      }
+    };
+
+    return this.exportService.toExcel(response, result, 200);
   }
 }

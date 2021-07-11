@@ -220,6 +220,7 @@ CREATE TABLE "OvertimeTemplate" (
     "price" DOUBLE PRECISION NOT NULL,
     "unit" "DatetimeUnit" DEFAULT E'HOUR',
     "note" TEXT,
+    "positionId" INTEGER NOT NULL,
 
     PRIMARY KEY ("id")
 );
@@ -286,6 +287,7 @@ CREATE TABLE "Commodity" (
     "unit" "CommodityUnit" NOT NULL,
     "price" DOUBLE PRECISION NOT NULL,
     "amount" DOUBLE PRECISION NOT NULL,
+    "orderId" INTEGER,
 
     PRIMARY KEY ("id")
 );
@@ -294,12 +296,12 @@ CREATE TABLE "Commodity" (
 CREATE TABLE "Order" (
     "id" SERIAL NOT NULL,
     "customerId" INTEGER NOT NULL,
-    "paidAt" TIMESTAMP(3) NOT NULL,
+    "paidAt" TIMESTAMP(3),
     "createdAt" TIMESTAMP(3) NOT NULL,
-    "explain" TEXT NOT NULL,
-    "currency" "CurrencyUnit" NOT NULL,
-    "paidTotal" DOUBLE PRECISION NOT NULL,
-    "payType" "PaymentType" NOT NULL,
+    "explain" TEXT,
+    "currency" "CurrencyUnit" DEFAULT E'VND',
+    "paidTotal" DOUBLE PRECISION,
+    "payType" "PaymentType" DEFAULT E'CASH',
 
     PRIMARY KEY ("id")
 );
@@ -341,6 +343,7 @@ CREATE TABLE "Payroll" (
     "id" SERIAL NOT NULL,
     "employeeId" INTEGER NOT NULL,
     "accConfirmedAt" TIMESTAMP(3),
+    "isEdit" BOOLEAN DEFAULT false,
     "manConfirmedAt" TIMESTAMP(3),
     "paidAt" TIMESTAMP(3),
     "createdAt" TIMESTAMP(3) DEFAULT CURRENT_TIMESTAMP,
@@ -373,12 +376,6 @@ CREATE TABLE "SystemHistory" (
 );
 
 -- CreateTable
-CREATE TABLE "_CommodityToOrder" (
-    "A" INTEGER NOT NULL,
-    "B" INTEGER NOT NULL
-);
-
--- CreateTable
 CREATE TABLE "_OrderToRoute" (
     "A" INTEGER NOT NULL,
     "B" INTEGER NOT NULL
@@ -407,12 +404,6 @@ CREATE UNIQUE INDEX "Customer.identify_unique" ON "Customer"("identify");
 
 -- CreateIndex
 CREATE UNIQUE INDEX "SalaryHistory_salaryId_unique" ON "SalaryHistory"("salaryId");
-
--- CreateIndex
-CREATE UNIQUE INDEX "_CommodityToOrder_AB_unique" ON "_CommodityToOrder"("A", "B");
-
--- CreateIndex
-CREATE INDEX "_CommodityToOrder_B_index" ON "_CommodityToOrder"("B");
 
 -- CreateIndex
 CREATE UNIQUE INDEX "_OrderToRoute_AB_unique" ON "_OrderToRoute"("A", "B");
@@ -460,6 +451,9 @@ ALTER TABLE "WorkHistory" ADD FOREIGN KEY ("positionId") REFERENCES "Position"("
 ALTER TABLE "WorkHistory" ADD FOREIGN KEY ("employeeId") REFERENCES "Employee"("id") ON DELETE CASCADE ON UPDATE CASCADE;
 
 -- AddForeignKey
+ALTER TABLE "OvertimeTemplate" ADD FOREIGN KEY ("positionId") REFERENCES "Position"("id") ON DELETE CASCADE ON UPDATE CASCADE;
+
+-- AddForeignKey
 ALTER TABLE "Relative" ADD FOREIGN KEY ("wardId") REFERENCES "Ward"("id") ON DELETE CASCADE ON UPDATE CASCADE;
 
 -- AddForeignKey
@@ -467,6 +461,9 @@ ALTER TABLE "Relative" ADD FOREIGN KEY ("employeeId") REFERENCES "Employee"("id"
 
 -- AddForeignKey
 ALTER TABLE "Customer" ADD FOREIGN KEY ("wardId") REFERENCES "Ward"("id") ON DELETE CASCADE ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "Commodity" ADD FOREIGN KEY ("orderId") REFERENCES "Order"("id") ON DELETE SET NULL ON UPDATE CASCADE;
 
 -- AddForeignKey
 ALTER TABLE "Order" ADD FOREIGN KEY ("customerId") REFERENCES "Customer"("id") ON DELETE CASCADE ON UPDATE CASCADE;
@@ -491,12 +488,6 @@ ALTER TABLE "SalaryHistory" ADD FOREIGN KEY ("employeeId") REFERENCES "Employee"
 
 -- AddForeignKey
 ALTER TABLE "SystemHistory" ADD FOREIGN KEY ("employeeId") REFERENCES "Employee"("id") ON DELETE CASCADE ON UPDATE CASCADE;
-
--- AddForeignKey
-ALTER TABLE "_CommodityToOrder" ADD FOREIGN KEY ("A") REFERENCES "Commodity"("id") ON DELETE CASCADE ON UPDATE CASCADE;
-
--- AddForeignKey
-ALTER TABLE "_CommodityToOrder" ADD FOREIGN KEY ("B") REFERENCES "Order"("id") ON DELETE CASCADE ON UPDATE CASCADE;
 
 -- AddForeignKey
 ALTER TABLE "_OrderToRoute" ADD FOREIGN KEY ("A") REFERENCES "Order"("id") ON DELETE CASCADE ON UPDATE CASCADE;

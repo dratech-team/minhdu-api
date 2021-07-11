@@ -219,17 +219,17 @@ model Customer {
   firstName   String
   lastName    String
   avt         String?
-  gender      GenderType
+  gender      GenderType?
   phone       String
   workPhone   String?
   birthday    DateTime
-  birthplace  String
-  identify    String           @unique
-  idCardAt    DateTime
-  issuedBy    String
-  ward        Ward             @relation(fields: [wardId], references: [id])
-  wardId      Int
-  address     String
+  birthplace  String?
+  identify    String?
+  idCardAt    DateTime?
+  issuedBy    String?
+  ward        Ward?            @relation(fields: [wardId], references: [id])
+  wardId      Int?
+  address     String?
   email       String?
   religion    String?
   ethnicity   String?
@@ -242,40 +242,50 @@ model Customer {
 }
 
 model Commodity {
-  id     Int           @id @default(autoincrement())
-  code   String
-  name   String
-  unit   CommodityUnit
-  price  Float
-  amount Float
-  orders Order[]
+  id      Int           @id @default(autoincrement())
+  code    String
+  name    String
+  unit    CommodityUnit
+  price   Float
+  amount  Float
+  order   Order?        @relation(fields: [orderId], references: [id])
+  orderId Int?
 }
 
 model Order {
-  id          Int          @id @default(autoincrement())
-  customer    Customer     @relation(fields: [customerId], references: [id])
+  id          Int           @id @default(autoincrement())
+  customer    Customer      @relation(fields: [customerId], references: [id])
   customerId  Int
-  paidAt      DateTime
+  paidAt      DateTime?
   createdAt   DateTime
-  explain     String
-  currency    CurrencyUnit
-  paidTotal   Float
-  payType     PaymentType
-  commodities Commodity[]
+  explain     String?
+  currency    CurrencyUnit? @default(VND)
+  paidTotal   Float?
+  payType     PaymentType?  @default(CASH)
   routes      Route[]
+  commodities Commodity[]
 }
 
 model Route {
-  id         Int      @id @default(autoincrement())
+  id         Int        @id @default(autoincrement())
   name       String
   startedAt  DateTime
-  endedAt    DateTime
-  driver     Employee @relation(fields: [employeeId], references: [id])
-  employeeId Int
+  endedAt    DateTime?
+  employee   Employee?  @relation(fields: [employeeId], references: [id])
+  employeeId Int?
+  driver     String?
+  garage     String?
   orders     Order[]
   bsx        String
-  latitude   Float
-  longitude  Float
+  locations  Location[]
+}
+
+model Location {
+  id        Int    @id @default(autoincrement())
+  latitude  String
+  longitude String
+  routes    Route  @relation(fields: [routeId], references: [id])
+  routeId   Int
 }
 
 model Salary {
@@ -302,6 +312,7 @@ model Payroll {
   employee       Employee  @relation(fields: [employeeId], references: [id])
   employeeId     Int
   accConfirmedAt DateTime?
+  isEdit         Boolean?  @default(false)
   manConfirmedAt DateTime?
   paidAt         DateTime?
   createdAt      DateTime? @default(now())

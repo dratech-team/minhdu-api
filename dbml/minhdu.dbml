@@ -73,6 +73,7 @@ Table Ward {
   districtId Int [not null]
   Employee Employee [not null]
   Customer Customer [not null]
+  Relative Relative [not null]
 }
 
 Table Branch {
@@ -98,6 +99,7 @@ Table Position {
   departmentId Int [not null]
   employees Employee [not null]
   workHistories WorkHistory [not null]
+  templetes OvertimeTemplate [not null]
 }
 
 Table Contract {
@@ -151,8 +153,8 @@ Table Employee {
   degrees Degree [not null]
   workHistories WorkHistory [not null]
   systemHistories SystemHistory [not null]
-  salariesHistory SalaryHistory [not null]
   relatives Relative [not null]
+  historySalaries SalaryHistory [not null]
 }
 
 Table WorkHistory {
@@ -160,7 +162,8 @@ Table WorkHistory {
   position Position [not null]
   positionId Int [not null]
   createdAt DateTime [default: `now()`]
-  employees Employee [not null]
+  employee Employee [not null]
+  employeeId Int [not null]
 }
 
 Table OvertimeTemplate {
@@ -170,10 +173,28 @@ Table OvertimeTemplate {
   price Float [not null]
   unit DatetimeUnit [default: 'HOUR']
   note String
+  position Position [not null]
+  positionId Int [not null]
 }
 
 Table Relative {
   id Int [pk, increment]
+  firstName String [not null]
+  lastName String [not null]
+  gender GenderType [not null]
+  phone String [not null]
+  workPhone String
+  birthday DateTime [not null]
+  birthplace String [not null]
+  identify String [unique]
+  idCardAt DateTime
+  issuedBy String
+  ward Ward [not null]
+  wardId Int [not null]
+  address String [not null]
+  religion String
+  ethnicity String
+  mst String
   career String [not null]
   relationship RelationshipType [not null]
   sos Boolean [default: false]
@@ -186,17 +207,17 @@ Table Customer {
   firstName String [not null]
   lastName String [not null]
   avt String
-  gender GenderType [not null]
+  gender GenderType
   phone String [not null]
   workPhone String
   birthday DateTime [not null]
-  birthplace String [not null]
-  identify String [unique, not null]
-  idCardAt DateTime [not null]
-  issuedBy String [not null]
-  ward Ward [not null]
-  wardId Int [not null]
-  address String [not null]
+  birthplace String
+  identify String
+  idCardAt DateTime
+  issuedBy String
+  ward Ward
+  wardId Int
+  address String
   email String
   religion String
   ethnicity String
@@ -215,34 +236,44 @@ Table Commodity {
   unit CommodityUnit [not null]
   price Float [not null]
   amount Float [not null]
-  orders Order [not null]
+  order Order
+  orderId Int
 }
 
 Table Order {
   id Int [pk, increment]
   customer Customer [not null]
   customerId Int [not null]
-  paidAt DateTime [not null]
+  paidAt DateTime
   createdAt DateTime [not null]
-  explain String [not null]
-  currency CurrencyUnit [not null]
-  paidTotal Float [not null]
-  payType PaymentType [not null]
-  commodities Commodity [not null]
+  explain String
+  currency CurrencyUnit [default: 'VND']
+  paidTotal Float
+  payType PaymentType [default: 'CASH']
   routes Route [not null]
+  commodities Commodity [not null]
 }
 
 Table Route {
   id Int [pk, increment]
   name String [not null]
   startedAt DateTime [not null]
-  endedAt DateTime [not null]
-  driver Employee [not null]
-  employeeId Int [not null]
+  endedAt DateTime
+  employee Employee
+  employeeId Int
+  driver String
+  garage String
   orders Order [not null]
   bsx String [not null]
-  latitude Float [not null]
-  longitude Float [not null]
+  locations Location [not null]
+}
+
+Table Location {
+  id Int [pk, increment]
+  latitude String [not null]
+  longitude String [not null]
+  routes Route [not null]
+  routeId Int [not null]
 }
 
 Table Salary {
@@ -258,10 +289,9 @@ Table Salary {
   note String
   employee Employee
   employeeId Int
-  Payroll Payroll
+  historySalary SalaryHistory
+  payroll Payroll
   payrollId Int
-  SalaryHistory SalaryHistory
-  salaryHistoryId Int
 }
 
 Table Payroll {
@@ -270,9 +300,19 @@ Table Payroll {
   employee Employee [not null]
   employeeId Int [not null]
   accConfirmedAt DateTime
+  isEdit Boolean [default: false]
   manConfirmedAt DateTime
   paidAt DateTime
   createdAt DateTime [default: `now()`]
+}
+
+Table SalaryHistory {
+  id Int [pk, increment]
+  datetime DateTime [default: `now()`]
+  salary Salary [not null]
+  salaryId Int [not null]
+  employee Employee [not null]
+  employeeId Int [not null]
 }
 
 Table SystemHistory {
@@ -285,23 +325,6 @@ Table SystemHistory {
   activity ActivityType [not null]
   description String [not null]
   ip String
-}
-
-Table SalaryHistory {
-  id Int [pk, increment]
-  salaries Salary [not null]
-  employee Employee [not null]
-  employeeId Int [not null]
-}
-
-Table EmployeeToWorkHistory {
-  workhistoriesId Int [ref: > WorkHistory.id]
-  employeesId Int [ref: > Employee.id]
-}
-
-Table CommodityToOrder {
-  ordersId Int [ref: > Order.id]
-  commoditiesId Int [ref: > Commodity.id]
 }
 
 Table OrderToRoute {
@@ -458,22 +481,32 @@ Ref: Employee.positionId > Position.id
 
 Ref: WorkHistory.positionId > Position.id
 
+Ref: WorkHistory.employeeId > Employee.id
+
+Ref: OvertimeTemplate.positionId > Position.id
+
+Ref: Relative.wardId > Ward.id
+
 Ref: Relative.employeeId > Employee.id
 
 Ref: Customer.wardId > Ward.id
+
+Ref: Commodity.orderId > Order.id
 
 Ref: Order.customerId > Customer.id
 
 Ref: Route.employeeId > Employee.id
 
+Ref: Location.routeId > Route.id
+
 Ref: Salary.employeeId > Employee.id
 
 Ref: Salary.payrollId > Payroll.id
 
-Ref: Salary.salaryHistoryId > SalaryHistory.id
-
 Ref: Payroll.employeeId > Employee.id
 
-Ref: SystemHistory.employeeId > Employee.id
+Ref: SalaryHistory.salaryId - Salary.id
 
 Ref: SalaryHistory.employeeId > Employee.id
+
+Ref: SystemHistory.employeeId > Employee.id

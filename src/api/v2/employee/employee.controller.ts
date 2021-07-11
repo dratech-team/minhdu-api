@@ -34,7 +34,7 @@ export class EmployeeController {
     @Query("gender") gender?: GenderType,
     @Query("createdAt") createdAt?: Date,
     @Query("isFlatSalary") isFlatSalary?: boolean,
-    @ReqProfile() @Query("branch") branch?: string,
+    @Query("branch") branch?: string,
     @Query("department") department?: string,
     @Query("position") position?: string,
   ) {

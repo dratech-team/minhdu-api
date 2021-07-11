@@ -9,9 +9,10 @@ import {RolesGuard} from "../../../core/guard/role.guard";
 import {ApiKeyGuard} from "../../../core/guard/api-key-auth.guard";
 import {CreatePayrollDto} from "./dto/create-payroll.dto";
 import {ApiV2Constant} from "../../../common/constant/api.constant";
+import {Response} from "express";
 
 @Controller(ApiV2Constant.PAYROLL)
-@UseGuards(JwtAuthGuard, ApiKeyGuard, RolesGuard)
+// @UseGuards(JwtAuthGuard, ApiKeyGuard, RolesGuard)
 export class PayrollController {
   constructor(private readonly payrollService: PayrollService) {
   }
@@ -42,10 +43,8 @@ export class PayrollController {
 
   // @Roles(UserType.ADMIN, UserType.HUMAN_RESOURCE, UserType.CAMP_ACCOUNTING)
   @Get('/export')
-  async exportPayrolls(@Res() res, @ReqProfile() branchId: number,) {
-    // return await this.payrollService.print(branchId);
-    // return res.download(fileName);
-    // return this.payrollService.print(branchId);
+  async exportPayrolls(@Res() res: Response, @ReqProfile() branchId: number,) {
+    return this.payrollService.exportExcel(res, branchId);
   }
 
   @Roles(UserType.ADMIN, UserType.HUMAN_RESOURCE, UserType.CAMP_ACCOUNTING)

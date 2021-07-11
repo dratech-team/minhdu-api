@@ -20,7 +20,7 @@ export class EmployeeService implements BaseEmployeeService {
 
   async create(body: CreateEmployeeDto) {
     const res = await this.positionService.findBranch(body.positionId);
-    body.code = await this.generateEmployeeCode(res.department.branch.code);
+    body.code = await this.generateEmployeeCode(res?.department?.branch?.code);
 
     return await this.repository.create(body);
   }
@@ -58,6 +58,10 @@ export class EmployeeService implements BaseEmployeeService {
       isFlatSalary = JSON.parse(String(isFlatSalary));
     }
 
+    if (createdAt) {
+      createdAt = new Date(createdAt);
+    }
+
     return await this.repository.findAll(branchId, skip, take, code, search?.firstName, search?.lastName, gender, createdAt, isFlatSalary, branch, department, position);
   }
 
@@ -87,10 +91,6 @@ export class EmployeeService implements BaseEmployeeService {
 
   async remove(id: number) {
     return this.repository.remove(id);
-  }
-
-  connectSalary(employeeId: number, salaryId: number): void {
-    this.repository.connectSalary(employeeId, salaryId);
   }
 
   async generateEmployeeCode(branchCode: string): Promise<string> {

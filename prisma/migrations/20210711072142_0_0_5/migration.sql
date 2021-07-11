@@ -1,0 +1,11 @@
+-- DropIndex
+DROP INDEX "Customer.identify_unique";
+
+-- AlterTable
+ALTER TABLE "Customer" ALTER COLUMN "gender" DROP NOT NULL,
+ALTER COLUMN "birthplace" DROP NOT NULL,
+ALTER COLUMN "identify" DROP NOT NULL,
+ALTER COLUMN "idCardAt" DROP NOT NULL,
+ALTER COLUMN "issuedBy" DROP NOT NULL,
+ALTER COLUMN "wardId" DROP NOT NULL,
+ALTER COLUMN "address" DROP NOT NULL;

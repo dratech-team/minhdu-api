@@ -16,20 +16,17 @@ export class PayrollRepository implements InterfaceRepository<any> {
 
   async create(body: CreatePayrollDto) {
     try {
-      const payroll = await this.prisma.payroll.create({
+      return await this.prisma.payroll.create({
         data: {
           employeeId: body.employeeId,
           createdAt: body.createdAt,
         },
       });
-      return await this.prisma.payroll.update({
-        where: {id: payroll.id},
-        data: {
-          salaries: {connect: body.salaries.map(e => ({id: e.id}))}
-        }
-      });
     } catch (err) {
       console.error(err);
+      if (err.code === 'P2003') {
+        throw new BadRequestException('[DEVELOPMENT] Mã nhân viên không tồn tại ', err);
+      }
       throw new BadRequestException(err);
     }
   }
@@ -66,16 +63,16 @@ export class PayrollRepository implements InterfaceRepository<any> {
                     }
                   }
                 },
-                code: code,
+                code: {startsWith: code, mode: 'insensitive'},
                 AND: {
                   firstName: {startsWith: firstName, mode: 'insensitive'},
                   lastName: {startsWith: lastName, mode: 'insensitive'},
                 },
               },
-              createdAt: {
+              createdAt: createdAt ? {
                 gte: firstMonth(createdAt),
                 lte: lastMonth(createdAt),
-              },
+              } : {},
               manConfirmedAt: isConfirm ? {
                 notIn: null
               } : {
@@ -173,19 +170,14 @@ export class PayrollRepository implements InterfaceRepository<any> {
 
   async update(id: number, updates: UpdatePayrollDto) {
     try {
-      const payroll = await this.prisma.payroll.findUnique({where: {id}});
-      if (!payroll.accConfirmedAt) {
-        throw new BadRequestException('Phiếu lương đã được tạo vì vậy bạn không có quyền sửa. Vui lòng liên hệ admin để được hỗ trợ.');
-      }
       return await this.prisma.payroll.update({
         where: {id: id},
         data: {
-          salaries: updates.salaryId ? {connect: {id: updates.salaryId}} : {},
+          isEdit: !!updates.accConfirmedAt,
           accConfirmedAt: updates.accConfirmedAt,
-          paidAt: updates.isPaid ? new Date() : null,
-          manConfirmedAt: updates.manConfirmedAt ? new Date() : null,
-        },
-        include: {salaries: true}
+          paidAt: updates.paidAt,
+          manConfirmedAt: updates.manConfirmedAt,
+        }
       });
     } catch (e) {
       console.error(e);
