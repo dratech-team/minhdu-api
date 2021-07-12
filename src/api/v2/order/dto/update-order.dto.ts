@@ -18,4 +18,6 @@ export class UpdateOrderDto extends PartialType(CreateOrderDto) {
   @IsOptional()
   @IsEnum(PaymentType)
   readonly payType?: PaymentType;
+
+  debt?: number;
 }

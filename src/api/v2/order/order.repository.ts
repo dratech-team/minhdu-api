@@ -2,6 +2,8 @@ import {BadRequestException, Injectable} from "@nestjs/common";
 import {PrismaService} from "../../../prisma.service";
 import {CreateOrderDto} from "./dto/create-order.dto";
 import {UpdateOrderDto} from "./dto/update-order.dto";
+import {PaidEnum} from "./enums/paid.enum";
+import {PaymentType} from "@prisma/client";
 
 @Injectable()
 export class OrderRepository {
@@ -43,11 +45,30 @@ export class OrderRepository {
     }
   }
 
-  async findAll() {
+  async findAll(
+    skip: number,
+    take: number,
+    paidType?: PaidEnum,
+    firstName?: string,
+    lastName?: string,
+    payType?: PaymentType,
+  ) {
     try {
       const [total, data] = await Promise.all([
         this.prisma.order.count(),
         this.prisma.order.findMany({
+          skip, take,
+          where: {
+            paidAt: paidType === PaidEnum.PAID || paidType === PaidEnum.DEBT ? {not: null} : (paidType === PaidEnum.UNPAID ? {in: null} : {}),
+            debt: paidType === PaidEnum.DEBT ? {not: 0} : {},
+            customer: {
+              AND: {
+                firstName: {startsWith: firstName, mode: 'insensitive'},
+                lastName: {startsWith: lastName, mode: 'insensitive'},
+              },
+            },
+            payType: {in: payType}
+          },
           include: {commodities: true, customer: true}
         }),
       ]);
@@ -69,9 +90,10 @@ export class OrderRepository {
           createdAt: updates.createdAt,
           explain: updates.explain,
           payType: updates.payType,
-          paidAt: (!updates.paidAt && updates.paidTotal) ? new Date() : updates.paidAt,
+          paidAt: updates.paidAt,
           currency: updates.currency,
           paidTotal: updates.paidTotal,
+          debt: updates.debt,
         },
       });
     } catch (err) {
