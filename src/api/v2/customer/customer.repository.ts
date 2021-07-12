@@ -1,0 +1,102 @@
+import {BadRequestException, Injectable} from "@nestjs/common";
+import {PrismaService} from "../../../prisma.service";
+import {CreateCustomerDto} from "./dto/create-customer.dto";
+import {UpdateCustomerDto} from "./dto/update-customer.dto";
+import {CustomerResource, CustomerType} from "@prisma/client";
+
+@Injectable()
+export class CustomerRepository {
+  constructor(private readonly prisma: PrismaService) {
+  }
+
+  async create(body: CreateCustomerDto) {
+    try {
+      return await this.prisma.customer.create({data: body});
+    } catch (err) {
+      console.error(err);
+      throw new BadRequestException(err);
+    }
+  }
+
+  async findAll(
+    firstName?: string,
+    lastName?: string,
+    phone?: string,
+    nationId?: number,
+    type?: CustomerType,
+    resource?: CustomerResource,
+    isPotential?: boolean
+  ) {
+    try {
+      const [total, data] = await Promise.all([
+        this.prisma.customer.count(),
+        this.prisma.customer.findMany({
+          where: {
+            AND: {
+              firstName: {startsWith: firstName, mode: 'insensitive'},
+              lastName: {startsWith: firstName, mode: 'insensitive'},
+            },
+            phone: {startsWith: phone},
+            // ward: {district: {province: {nation: {id: nationId}}}},
+            type: {in: type},
+            resource: {in: resource},
+            isPotential: isPotential
+          },
+          include: {
+            ward: {
+              include: {
+                district: {
+                  include: {
+                    province: {
+                      include: {
+                        nation: true
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }),
+      ]);
+      return {
+        total,
+        data,
+      };
+
+    } catch (err) {
+      console.error(err);
+      throw new BadRequestException(err);
+    }
+  }
+
+  async findOne(id: number) {
+    try {
+      return await this.prisma.customer.findUnique({where: {id}});
+    } catch (err) {
+      console.error(err);
+      throw new BadRequestException(err);
+    }
+  }
+
+  async update(id: number, updates: UpdateCustomerDto) {
+    try {
+      return await this.prisma.customer.update({
+        where: {id},
+        data: updates,
+      });
+    } catch (err) {
+      console.error(err);
+      throw new BadRequestException(err);
+    }
+  }
+
+  async remove(id: number) {
+    try {
+      return await this.prisma.customer.delete({where: {id}});
+    } catch (err) {
+      console.error(err);
+      throw new BadRequestException(err);
+    }
+  }
+}

@@ -14,7 +14,7 @@ export class RouteRepository {
         data: {
           name: body.name,
           driver: body.driver,
-          employee: {connect: {id: body.employeeId}},
+          employee: body.employeeId ? {connect: {id: body.employeeId}} : {},
           garage: body.garage,
           bsx: body.bsx,
           startedAt: body.startedAt,
@@ -32,7 +32,13 @@ export class RouteRepository {
     try {
       const [total, data] = await Promise.all([
         this.prisma.route.count(),
-        this.prisma.route.findMany(),
+        this.prisma.route.findMany({
+          include: {
+            employee: true,
+            locations: true,
+            orders: true,
+          }
+        }),
       ]);
       return {total, data};
     } catch (err) {
@@ -43,7 +49,14 @@ export class RouteRepository {
 
   async findOne(id: number) {
     try {
-      return await this.prisma.route.findUnique({where: {id}});
+      return await this.prisma.route.findUnique({
+        where: {id},
+        include: {
+          orders: true,
+          locations: true,
+          employee: true
+        }
+      });
     } catch (err) {
       console.error(err);
       throw new BadRequestException(err);

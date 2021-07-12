@@ -34,6 +34,7 @@ export class OrderRepository {
         include: {
           commodities: true,
           customer: true,
+          routes: true,
         }
       });
     } catch (err) {

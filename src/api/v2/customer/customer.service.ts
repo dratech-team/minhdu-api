@@ -1,66 +1,51 @@
-import {BadRequestException, Injectable} from "@nestjs/common";
-import {PrismaService} from "../../../prisma.service";
+import {Injectable} from "@nestjs/common";
 import {CreateCustomerDto} from "./dto/create-customer.dto";
 import {UpdateCustomerDto} from "./dto/update-customer.dto";
+import {CustomerRepository} from "./customer.repository";
+import {CustomerResource, CustomerType} from "@prisma/client";
+import {searchName} from "../../../utils/search-name.util";
 
 @Injectable()
 export class CustomerService {
-  constructor(private readonly prisma: PrismaService) {
+  constructor(private readonly repository: CustomerRepository) {
   }
 
   async create(body: CreateCustomerDto) {
-    try {
-      return await this.prisma.customer.create({data: body});
-    } catch (err) {
-      console.error(err);
-      throw new BadRequestException(err);
-    }
+    return await this.repository.create(body);
   }
 
-  async findAll() {
-    try {
-      const [total, data] = await Promise.all([
-        this.prisma.customer.count(),
-        this.prisma.customer.findMany(),
-      ]);
-      return {
-        total,
-        data,
-      };
+  async findAll(
+    skip: number,
+    take: number,
+    name?: string,
+    phone?: string,
+    nationId?: number,
+    type?: CustomerType,
+    resource?: CustomerResource,
+    isPotential?: boolean
+  ) {
+    const search = searchName(name);
 
-    } catch (err) {
-      console.error(err);
-      throw new BadRequestException(err);
+    if (isPotential) {
+      isPotential = JSON.parse(String(isPotential));
     }
+
+    if (nationId) {
+      nationId = Number(nationId);
+    }
+
+    return await this.repository.findAll(search?.firstName, search?.lastName, phone, nationId, type, resource, isPotential);
   }
 
   async findOne(id: number) {
-    try {
-      return await this.prisma.customer.findUnique({where: {id}});
-    } catch (err) {
-      console.error(err);
-      throw new BadRequestException(err);
-    }
+    return await this.repository.findOne(id);
   }
 
   async update(id: number, updates: UpdateCustomerDto) {
-    try {
-      return await this.prisma.customer.update({
-        where: {id},
-        data: updates,
-      });
-    } catch (err) {
-      console.error(err);
-      throw new BadRequestException(err);
-    }
+    return await this.repository.update(id, updates);
   }
 
   async remove(id: number) {
-    try {
-      return await this.prisma.customer.delete({where: {id}});
-    } catch (err) {
-      console.error(err);
-      throw new BadRequestException(err);
-    }
+    return await this.repository.remove(id);
   }
 }

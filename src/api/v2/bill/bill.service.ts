@@ -18,6 +18,11 @@ export class BillService {
         this.prisma.order.findMany({
           where: {
             paidTotal: {not: null}
+          },
+          include: {
+            customer: true,
+            routes: true,
+            commodities: true,
           }
         })
       ]);
@@ -46,6 +51,10 @@ export class BillService {
     }
   }
 
+  async update() {
+
+  }
+
   remainingBalance(bill: Order | any) {
     const amount = bill.commodities.reduce((a: Commodity, b: Commodity) => {
       return a.price + b.price;
@@ -56,9 +65,3 @@ export class BillService {
     return bill.paidTotal - amount;
   }
 }
-
-Object.defineProperty(Array.prototype, "uniq", {
-  value: function uniq() {
-    return Array.from(new Set(this));
-  }
-});
