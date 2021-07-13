@@ -1,2 +1,0 @@
--- AlterTable
-ALTER TABLE "Commodity" ADD COLUMN     "gift" DOUBLE PRECISION DEFAULT 0;

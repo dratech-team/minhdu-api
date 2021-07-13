@@ -12,12 +12,12 @@ export class BillService {
       const [total, data] = await Promise.all([
         this.prisma.order.count({
           where: {
-            paidTotal: {not: null}
+            paidAt: {not: null}
           }
         }),
         this.prisma.order.findMany({
           where: {
-            paidTotal: {not: null}
+            paidAt: {not: null}
           },
           include: {
             customer: true,
@@ -38,11 +38,10 @@ export class BillService {
       const bill = await this.prisma.order.findFirst({
         where: {
           id: id,
-          paidTotal: {not: null}
+          paidAt: {not: null}
         },
         include: {commodities: true, customer: true}
       });
-      console.log(bill.commodities);
       const remaining = this.remainingBalance(bill);
       return {bill, remaining};
     } catch (err) {

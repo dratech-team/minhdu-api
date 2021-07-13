@@ -262,7 +262,6 @@ model Order {
   createdAt   DateTime
   explain     String?
   currency    CurrencyUnit? @default(VND)
-  paidTotal   Float?
   payType     PaymentType?
   debt        Float?        @default(0)
   routes      Route[]

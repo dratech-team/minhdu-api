@@ -6,6 +6,7 @@ import {CommodityService} from "../commodity/commodity.service";
 import {PaidEnum} from "./enums/paid.enum";
 import {Commodity, PaymentType} from "@prisma/client";
 import {searchName} from "../../../utils/search-name.util";
+import {UpdatePaidDto} from "./dto/update-paid.dto";
 
 @Injectable()
 export class OrderService {
@@ -13,6 +14,9 @@ export class OrderService {
   }
 
   async create(body: CreateOrderDto) {
+    /// TODO: Sau khi có được giá tiền sản phẩm thì cho công nợ là debt sẽ bằng tiền tổng giá trị sp của đơn hàng đó.
+    body.debt = this.commodityService.totalCommodity(body.commodityIds);
+
     return await this.repository.create(body);
   }
 
@@ -37,23 +41,22 @@ export class OrderService {
       createdAt: order.createdAt,
       explain: order.explain,
       currency: order.currency,
-      paidTotal: order.paidTotal,
       payType: order.payType,
       debt: order.debt,
       commodities: commodities,
       customer: order.customer,
-
     };
   }
 
   async update(id: number, updates: UpdateOrderDto) {
-    if (!updates.paidAt && updates.paidTotal) {
-      updates.paidAt = new Date();
-    }
-    const order = await this.findOne(id);
-    updates.debt = this.debtRemaining(order);
-
     return await this.repository.update(id, updates);
+  }
+
+  async paid(id: number, updates: UpdatePaidDto) {
+    const order = await this.findOne(id);
+
+    updates.debt = this.debtRemaining(order);
+    return await this.repository.paid(id, updates);
   }
 
   async remove(id: number) {

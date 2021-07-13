@@ -1,2 +1,0 @@
--- AlterTable
-ALTER TABLE "Order" ADD COLUMN     "debt" DOUBLE PRECISION DEFAULT 0;

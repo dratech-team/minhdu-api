@@ -4,6 +4,7 @@ import {CreateOrderDto} from "./dto/create-order.dto";
 import {UpdateOrderDto} from "./dto/update-order.dto";
 import {PaidEnum} from "./enums/paid.enum";
 import {PaymentType} from "@prisma/client";
+import {UpdatePaidDto} from "./dto/update-paid.dto";
 
 @Injectable()
 export class OrderRepository {
@@ -18,6 +19,7 @@ export class OrderRepository {
           createdAt: body.createdAt,
           explain: body.explain,
           currency: body.currency,
+          debt: body.debt,
           commodities: {
             connect: body.commodityIds.map(id => ({id}))
           }
@@ -89,11 +91,21 @@ export class OrderRepository {
           customerId: updates.customerId,
           createdAt: updates.createdAt,
           explain: updates.explain,
-          payType: updates.payType,
-          paidAt: updates.paidAt,
-          currency: updates.currency,
-          paidTotal: updates.paidTotal,
+        },
+      });
+    } catch (err) {
+      console.error(err);
+      throw new BadRequestException(err);
+    }
+  }
+
+  async paid(id: number, updates: UpdatePaidDto) {
+    try {
+      return await this.prisma.order.update({
+        where: {id},
+        data: {
           debt: updates.debt,
+          paidAt: updates.paidAt,
         },
       });
     } catch (err) {

@@ -27,6 +27,8 @@ export class CreateOrderDto {
   @ValidateNested()
   readonly commodity: CreateCommodityDto;
 
+  debt: number;
+
   @IsOptional()
   @IsArray()
   readonly commodityIds: number[];

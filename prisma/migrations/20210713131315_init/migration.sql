@@ -257,16 +257,16 @@ CREATE TABLE "Customer" (
     "firstName" TEXT NOT NULL,
     "lastName" TEXT NOT NULL,
     "avt" TEXT,
-    "gender" "GenderType" NOT NULL,
+    "gender" "GenderType",
     "phone" TEXT NOT NULL,
     "workPhone" TEXT,
     "birthday" TIMESTAMP(3) NOT NULL,
-    "birthplace" TEXT NOT NULL,
-    "identify" TEXT NOT NULL,
-    "idCardAt" TIMESTAMP(3) NOT NULL,
-    "issuedBy" TEXT NOT NULL,
-    "wardId" INTEGER NOT NULL,
-    "address" TEXT NOT NULL,
+    "birthplace" TEXT,
+    "identify" TEXT,
+    "idCardAt" TIMESTAMP(3),
+    "issuedBy" TEXT,
+    "wardId" INTEGER,
+    "address" TEXT,
     "email" TEXT,
     "religion" TEXT,
     "ethnicity" TEXT,
@@ -287,6 +287,8 @@ CREATE TABLE "Commodity" (
     "unit" "CommodityUnit" NOT NULL,
     "price" DOUBLE PRECISION NOT NULL,
     "amount" DOUBLE PRECISION NOT NULL,
+    "gift" DOUBLE PRECISION DEFAULT 0,
+    "more" DOUBLE PRECISION NOT NULL DEFAULT 0,
     "orderId" INTEGER,
 
     PRIMARY KEY ("id")
@@ -300,8 +302,8 @@ CREATE TABLE "Order" (
     "createdAt" TIMESTAMP(3) NOT NULL,
     "explain" TEXT,
     "currency" "CurrencyUnit" DEFAULT E'VND',
-    "paidTotal" DOUBLE PRECISION,
-    "payType" "PaymentType" DEFAULT E'CASH',
+    "payType" "PaymentType",
+    "debt" DOUBLE PRECISION DEFAULT 0,
 
     PRIMARY KEY ("id")
 );
@@ -311,11 +313,21 @@ CREATE TABLE "Route" (
     "id" SERIAL NOT NULL,
     "name" TEXT NOT NULL,
     "startedAt" TIMESTAMP(3) NOT NULL,
-    "endedAt" TIMESTAMP(3) NOT NULL,
-    "employeeId" INTEGER NOT NULL,
+    "endedAt" TIMESTAMP(3),
+    "employeeId" INTEGER,
+    "driver" TEXT,
+    "garage" TEXT,
     "bsx" TEXT NOT NULL,
-    "latitude" DOUBLE PRECISION NOT NULL,
-    "longitude" DOUBLE PRECISION NOT NULL,
+
+    PRIMARY KEY ("id")
+);
+
+-- CreateTable
+CREATE TABLE "Location" (
+    "id" SERIAL NOT NULL,
+    "latitude" TEXT NOT NULL,
+    "longitude" TEXT NOT NULL,
+    "routeId" INTEGER NOT NULL,
 
     PRIMARY KEY ("id")
 );
@@ -400,9 +412,6 @@ CREATE UNIQUE INDEX "Employee.identify_unique" ON "Employee"("identify");
 CREATE UNIQUE INDEX "Relative.identify_unique" ON "Relative"("identify");
 
 -- CreateIndex
-CREATE UNIQUE INDEX "Customer.identify_unique" ON "Customer"("identify");
-
--- CreateIndex
 CREATE UNIQUE INDEX "SalaryHistory_salaryId_unique" ON "SalaryHistory"("salaryId");
 
 -- CreateIndex
@@ -460,7 +469,7 @@ ALTER TABLE "Relative" ADD FOREIGN KEY ("wardId") REFERENCES "Ward"("id") ON DEL
 ALTER TABLE "Relative" ADD FOREIGN KEY ("employeeId") REFERENCES "Employee"("id") ON DELETE CASCADE ON UPDATE CASCADE;
 
 -- AddForeignKey
-ALTER TABLE "Customer" ADD FOREIGN KEY ("wardId") REFERENCES "Ward"("id") ON DELETE CASCADE ON UPDATE CASCADE;
+ALTER TABLE "Customer" ADD FOREIGN KEY ("wardId") REFERENCES "Ward"("id") ON DELETE SET NULL ON UPDATE CASCADE;
 
 -- AddForeignKey
 ALTER TABLE "Commodity" ADD FOREIGN KEY ("orderId") REFERENCES "Order"("id") ON DELETE SET NULL ON UPDATE CASCADE;
@@ -469,7 +478,10 @@ ALTER TABLE "Commodity" ADD FOREIGN KEY ("orderId") REFERENCES "Order"("id") ON 
 ALTER TABLE "Order" ADD FOREIGN KEY ("customerId") REFERENCES "Customer"("id") ON DELETE CASCADE ON UPDATE CASCADE;
 
 -- AddForeignKey
-ALTER TABLE "Route" ADD FOREIGN KEY ("employeeId") REFERENCES "Employee"("id") ON DELETE CASCADE ON UPDATE CASCADE;
+ALTER TABLE "Route" ADD FOREIGN KEY ("employeeId") REFERENCES "Employee"("id") ON DELETE SET NULL ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "Location" ADD FOREIGN KEY ("routeId") REFERENCES "Route"("id") ON DELETE CASCADE ON UPDATE CASCADE;
 
 -- AddForeignKey
 ALTER TABLE "Salary" ADD FOREIGN KEY ("employeeId") REFERENCES "Employee"("id") ON DELETE SET NULL ON UPDATE CASCADE;
