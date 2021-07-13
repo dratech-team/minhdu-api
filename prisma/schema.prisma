@@ -248,7 +248,8 @@ model Commodity {
   unit    CommodityUnit
   price   Float
   amount  Float
-  gift    Float? @default(0)
+  gift    Float?        @default(0)
+  more    Float         @default(0)
   order   Order?        @relation(fields: [orderId], references: [id])
   orderId Int?
 }
@@ -263,7 +264,7 @@ model Order {
   currency    CurrencyUnit? @default(VND)
   paidTotal   Float?
   payType     PaymentType?
-  debt        Float? @default(0)
+  debt        Float?        @default(0)
   routes      Route[]
   commodities Commodity[]
 }

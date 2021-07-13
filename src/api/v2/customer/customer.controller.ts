@@ -22,7 +22,7 @@ export class CustomerController {
     @Query("name") name?: string,
     @Query("phone") phone?: string,
     @Query("nationId") nationId?: number,
-    @Query("type") type?: CustomerType,
+    @Query("customerType") type?: CustomerType,
     @Query("resource") resource?: CustomerResource,
     @Query("isPotential") isPotential?: boolean,
   ) {

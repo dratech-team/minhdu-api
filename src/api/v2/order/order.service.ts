@@ -29,7 +29,21 @@ export class OrderService {
   }
 
   async findOne(id: number) {
-    return this.repository.findOne(id);
+    const order = await this.repository.findOne(id);
+    const commodities = order.commodities.map(commodity => this.commodityService.handleCommodity(commodity));
+    return {
+      id: order.id,
+      paidAt: order.paidAt,
+      createdAt: order.createdAt,
+      explain: order.explain,
+      currency: order.currency,
+      paidTotal: order.paidTotal,
+      payType: order.payType,
+      debt: order.debt,
+      commodities: commodities,
+      customer: order.customer,
+
+    };
   }
 
   async update(id: number, updates: UpdateOrderDto) {

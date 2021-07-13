@@ -38,9 +38,9 @@ export class CustomerRepository {
             },
             phone: {startsWith: phone},
             // ward: {district: {province: {nation: {id: nationId}}}},
-            type: {in: type},
-            resource: {in: resource},
-            isPotential: isPotential
+            type: type ? {in: type} : {},
+            resource: resource ? {in: resource} : {},
+            isPotential: isPotential ? {equals: isPotential} : {}
           },
           include: {
             ward: {

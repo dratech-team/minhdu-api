@@ -67,7 +67,7 @@ export class OrderRepository {
                 lastName: {startsWith: lastName, mode: 'insensitive'},
               },
             },
-            payType: {in: payType}
+            payType: payType ? {in: payType} : {}
           },
           include: {commodities: true, customer: true}
         }),
