@@ -16,7 +16,7 @@ export class ProvinceService {
   }
 
   findOne(id: number) {
-    return `This action returns a #${id} province`;
+    return this.repository.findOne(id);
   }
 
   update(id: number, updateProvinceDto: UpdateProvinceDto) {

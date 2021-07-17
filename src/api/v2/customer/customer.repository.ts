@@ -72,7 +72,29 @@ export class CustomerRepository {
 
   async findOne(id: number) {
     try {
-      return await this.prisma.customer.findUnique({where: {id}});
+      return await this.prisma.customer.findUnique({
+        where: {id},
+        include: {
+          orders: {
+            include: {
+              commodities: true
+            }
+          },
+          ward: {
+            include: {
+              district: {
+                include: {
+                  province: {
+                    include: {
+                      nation: true
+                    }
+                  }
+                }
+              }
+            }
+          },
+        }
+      });
     } catch (err) {
       console.error(err);
       throw new BadRequestException(err);

@@ -1,6 +1,6 @@
 import {PrismaService} from "../../../prisma.service";
 import {CreateProvinceDto} from "./dto/create-province.dto";
-import {Province} from "@prisma/client";
+import {Province, Ward} from "@prisma/client";
 import {BadRequestException, Injectable} from "@nestjs/common";
 
 @Injectable()
@@ -15,6 +15,10 @@ export class ProvinceRepository {
       console.log(err);
       throw new BadRequestException(err);
     }
+  }
+
+  async findOne(id: number): Promise<Province> {
+    return await this.prisma.province.findUnique({where: {id}});
   }
 
   async findAll(): Promise<Province[]> {

@@ -22,7 +22,8 @@ export class OrderRepository {
           debt: body.debt,
           commodities: {
             connect: body.commodityIds.map(id => ({id}))
-          }
+          },
+          wardId: body.destinationId,
         }
       });
     } catch (err) {
@@ -39,6 +40,19 @@ export class OrderRepository {
           commodities: true,
           customer: true,
           routes: true,
+          destination: {
+            include: {
+              district: {
+                include: {
+                  province: {
+                    include: {
+                      nation: true
+                    }
+                  }
+                }
+              }
+            }
+          }
         }
       });
     } catch (err) {
@@ -71,7 +85,23 @@ export class OrderRepository {
             },
             payType: payType ? {in: payType} : {}
           },
-          include: {commodities: true, customer: true}
+          include: {
+            commodities: true,
+            customer: true,
+            destination: {
+              include: {
+                district: {
+                  include: {
+                    province: {
+                      include: {
+                        nation: true
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
         }),
       ]);
       return {

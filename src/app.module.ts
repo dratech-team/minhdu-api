@@ -28,6 +28,7 @@ import { CommodityModule } from './api/v2/commodity/commodity.module';
 import { BillModule } from './api/v2/bill/bill.module';
 import { RouteModule } from './api/v2/route/route.module';
 import { LocationModule } from './api/v2/location/location.module';
+import { StatisticalModule } from './api/v2/statistical/statistical.module';
 
 @Module({
   imports: [
@@ -57,7 +58,8 @@ import { LocationModule } from './api/v2/location/location.module';
     CommodityModule,
     BillModule,
     RouteModule,
-    LocationModule
+    LocationModule,
+    StatisticalModule
   ],
   controllers: [AppController],
   providers: [PrismaService],

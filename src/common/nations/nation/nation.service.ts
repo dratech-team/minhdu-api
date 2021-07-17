@@ -17,7 +17,7 @@ export class NationService {
   }
 
   findOne(id: number) {
-    return `This action returns a #${id} nation`;
+    return this.repository.findOne(id);
   }
 
   update(id: number, updateNationDto: UpdateNationDto) {

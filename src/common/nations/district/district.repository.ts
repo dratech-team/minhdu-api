@@ -1,4 +1,4 @@
-import {District} from "@prisma/client";
+import {District, Province} from "@prisma/client";
 import {PrismaService} from "../../../prisma.service";
 import {CreateDistrictDto} from "./dto/create-district.dto";
 import {BadRequestException, Injectable} from "@nestjs/common";
@@ -15,6 +15,10 @@ export class DistrictRepository {
       console.error(err);
       throw new BadRequestException(err);
     }
+  }
+
+  async findOne(id: number): Promise<District> {
+    return await this.prisma.district.findUnique({where: {id}});
   }
 
   async findAll(): Promise<District[]> {

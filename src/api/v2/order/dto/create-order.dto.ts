@@ -33,6 +33,10 @@ export class CreateOrderDto {
   @IsArray()
   readonly commodityIds: number[];
 
+  @IsNotEmpty()
+  @IsNumber()
+  readonly destinationId: number;
+
   // @IsOptional()
   // @IsArray()
   // readonly routes: CreateRoutes;

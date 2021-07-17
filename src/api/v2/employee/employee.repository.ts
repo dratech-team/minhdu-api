@@ -65,24 +65,36 @@ export class EmployeeRepository {
                 firstName: {startsWith: firstName, mode: 'insensitive'},
                 lastName: {startsWith: lastName, mode: 'insensitive'},
               },
-              gender: gender ? {equals: gender}: {},
+              gender: gender ? {equals: gender} : {},
               isFlatSalary: {equals: isFlatSalary},
-              position:
-                {
-                  name: {startsWith: position, mode: 'insensitive'},
-                  department: {
-                    name: {startsWith: department, mode: 'insensitive'},
-                    branch: {
-                      name: {startsWith: branch, mode: 'insensitive'}
-                    }
-                  },
+              position: {
+                name: {startsWith: position, mode: 'insensitive'},
+                department: {
+                  name: {startsWith: department, mode: 'insensitive'},
+                  branch: {
+                    name: {startsWith: branch, mode: 'insensitive'}
+                  }
                 },
+              },
             }
           },
           skip,
           take,
           include: {
             position: {include: {department: {include: {branch: true}}}},
+            ward: {
+              include: {
+                district: {
+                  include: {
+                    province: {
+                      include: {
+                        nation: true
+                      }
+                    }
+                  }
+                }
+              }
+            },
           }
         })
       ]);
@@ -117,6 +129,19 @@ export class EmployeeRepository {
           relatives: true,
           banks: true,
           position: {include: {department: {include: {branch: true}}}},
+          ward: {
+            include: {
+              district: {
+                include: {
+                  province: {
+                    include: {
+                      nation: true
+                    }
+                  }
+                }
+              }
+            }
+          },
           salaries: true,
           payrolls: true,
           historySalaries: true,

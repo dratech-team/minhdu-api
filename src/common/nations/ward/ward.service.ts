@@ -17,7 +17,7 @@ export class WardService {
   }
 
   findOne(id: number) {
-    return `This action returns a #${id} ward`;
+    return this.repository.findOne(id);
   }
 
   update(id: number, updateWardDto: UpdateWardDto) {

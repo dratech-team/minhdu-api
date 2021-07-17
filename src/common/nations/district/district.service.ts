@@ -17,7 +17,7 @@ export class DistrictService {
   }
 
   findOne(id: number) {
-    return `This action returns a #${id} district`;
+    return this.repository.findOne(id);
   }
 
   update(id: number, updateDistrictDto: UpdateDistrictDto) {

@@ -1,4 +1,4 @@
-import {Nation} from "@prisma/client";
+import {District, Nation} from "@prisma/client";
 import {PrismaService} from "../../../prisma.service";
 import {CreateNationDto} from "./dto/create-nation.dto";
 import {Injectable} from "@nestjs/common";
@@ -16,16 +16,25 @@ export class NationRepository {
     return await this.prisma.nation.create({data: body});
   }
 
-  findAll(): Promise<Nation[]> {
-    return this.prisma.nation.findMany();
+  async findOne(id: number): Promise<Nation> {
+    return await this.prisma.nation.findUnique({where: {id}});
   }
 
-  // findBy(branchId: number, query: any): Promise<Nation[]> {
-  //   return this.prisma.nation.findMany();
-  // }
-
-  findOne(id: number): Promise<Nation> {
-    return Promise.resolve(undefined);
+  findAll(): Promise<Nation[]> {
+    return this.prisma.nation.findMany({
+      orderBy: {name: 'desc'},
+      include: {
+        provinces: {
+          include: {
+            districts: {
+              include: {
+                wards: true
+              }
+            }
+          }
+        }
+      }
+    });
   }
 
   remove(id: number): void {
