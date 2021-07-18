@@ -2,7 +2,7 @@ import {IsEnum, IsNumber, IsOptional} from "class-validator";
 import {Transform, Type} from "class-transformer";
 import {PaymentType} from "@prisma/client";
 
-export class UpdatePaidDto {
+export class PaymentCustomerDto {
   @IsOptional()
   @Type(() => Date)
   @Transform((val) => new Date(val.value))
@@ -11,7 +11,7 @@ export class UpdatePaidDto {
   @IsOptional()
   @Type(() => Number)
   @IsNumber()
-  paidTotal?: number = 0;
+  readonly paidTotal?: number;
 
   @IsOptional()
   @IsEnum(PaymentType)

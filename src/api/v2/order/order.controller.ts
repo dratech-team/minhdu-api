@@ -4,7 +4,6 @@ import {CreateOrderDto} from './dto/create-order.dto';
 import {UpdateOrderDto} from './dto/update-order.dto';
 import {PaidEnum} from "./enums/paid.enum";
 import {PaymentType} from '@prisma/client';
-import {UpdatePaidDto} from "./dto/update-paid.dto";
 
 @Controller('v2/order')
 export class OrderController {
@@ -35,11 +34,6 @@ export class OrderController {
   @Patch(':id')
   update(@Param('id') id: string, @Body() updateOrderDto: UpdateOrderDto) {
     return this.orderService.update(+id, updateOrderDto);
-  }
-
-  @Patch(':id/paid')
-  paid(@Param('id') id: string, @Body() updates: UpdatePaidDto) {
-    return this.orderService.paid(+id, updates);
   }
 
   @Delete(':id')

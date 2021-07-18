@@ -4,13 +4,14 @@ import {OrderController} from './order.controller';
 import {PrismaService} from "../../../prisma.service";
 import {OrderRepository} from "./order.repository";
 import {CommodityModule} from "../commodity/commodity.module";
-import {CommodityRepository} from "../commodity/commodity.repository";
 import {CommodityService} from "../commodity/commodity.service";
+import {CommodityRepository} from "../commodity/commodity.repository";
 
 @Module({
   imports: [CommodityModule],
   controllers: [OrderController],
-  providers: [OrderService, PrismaService, OrderRepository, CommodityService, CommodityRepository]
+  providers: [OrderService, PrismaService, OrderRepository, CommodityService, CommodityRepository],
+  exports: [OrderService],
 })
 export class OrderModule {
 }

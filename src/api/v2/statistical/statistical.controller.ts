@@ -1,19 +1,25 @@
-import {Controller, Get, Post, Body, Patch, Param, Delete, Query} from '@nestjs/common';
+import {Body, Controller, Delete, Get, Param, Patch, Query} from '@nestjs/common';
 import {StatisticalService} from './statistical.service';
-import {CreateStatisticalDto} from './dto/create-statistical.dto';
 import {UpdateStatisticalDto} from './dto/update-statistical.dto';
+import {NationType} from "./enums/nation-type.enum";
 
 @Controller('v2/statistical')
 export class StatisticalController {
   constructor(private readonly statisticalService: StatisticalService) {
   }
 
-  @Get('orders')
+  @Get('nation')
   statisticalOrders(
     @Query('startedAt') startedAt: Date,
     @Query('endedAt') endedAt: Date,
+    @Query('type') type: NationType,
   ) {
-    return this.statisticalService.statisticalOrders(new Date(startedAt), new Date(endedAt));
+    return this.statisticalService.statisticalNation(new Date(startedAt), new Date(endedAt), type);
+  }
+
+  @Get('customers')
+  statisticalCustomers() {
+    return this.statisticalService.statisticalCustomers();
   }
 
   @Get(':id')

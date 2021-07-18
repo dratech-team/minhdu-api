@@ -93,6 +93,15 @@ export class CustomerRepository {
               }
             }
           },
+          paymentHistories: {
+            include: {
+              order: {
+                select: {
+                  id: true
+                }
+              }
+            }
+          },
         }
       });
     } catch (err) {

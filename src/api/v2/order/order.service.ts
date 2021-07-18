@@ -4,9 +4,8 @@ import {UpdateOrderDto} from "./dto/update-order.dto";
 import {OrderRepository} from "./order.repository";
 import {CommodityService} from "../commodity/commodity.service";
 import {PaidEnum} from "./enums/paid.enum";
-import {Commodity, PaymentType} from "@prisma/client";
+import {PaymentType} from "@prisma/client";
 import {searchName} from "../../../utils/search-name.util";
-import {UpdatePaidDto} from "./dto/update-paid.dto";
 
 @Injectable()
 export class OrderService {
@@ -14,9 +13,6 @@ export class OrderService {
   }
 
   async create(body: CreateOrderDto) {
-    /// TODO: Sau khi có được giá tiền sản phẩm thì cho công nợ là debt sẽ bằng tiền tổng giá trị sp của đơn hàng đó.
-    body.debt = this.commodityService.totalCommodity(body.commodityIds);
-
     return await this.repository.create(body);
   }
 
@@ -37,12 +33,8 @@ export class OrderService {
     const commodities = order.commodities.map(commodity => this.commodityService.handleCommodity(commodity));
     return {
       id: order.id,
-      paidAt: order.paidAt,
       createdAt: order.createdAt,
       explain: order.explain,
-      currency: order.currency,
-      payType: order.payType,
-      debt: order.debt,
       commodities: commodities,
       customer: order.customer,
     };
@@ -52,21 +44,20 @@ export class OrderService {
     return await this.repository.update(id, updates);
   }
 
-  async paid(id: number, updates: UpdatePaidDto) {
-    const order = await this.findOne(id);
-
-    updates.debt = this.debtRemaining(order);
-    return await this.repository.paid(id, updates);
-  }
-
   async remove(id: number) {
     await this.repository.remove(id);
   }
 
-  debtRemaining(order: any) {
-    let totalCommodity = 0;
-    order.commodities.forEach((commodity: Commodity) => totalCommodity += commodity.price * commodity.amount);
+  /*
+  * Tổng tiền nhiều đơn hàng
+  * */
+  totalPayOrder(orders: any[]) {
+    return orders.map(order => {
+      const totalCommodity = order.commodities
+        ?.map((commodity) => this.commodityService.totalCommodity(commodity))
+        ?.reduce((a, b) => a + b, 0);
 
-    return order.paidTotal - totalCommodity;
+      return Math.round(totalCommodity / 1000) * 1000;
+    }).reduce((a, b) => a + b, 0);
   }
 }

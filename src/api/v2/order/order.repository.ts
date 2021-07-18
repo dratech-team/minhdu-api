@@ -18,12 +18,13 @@ export class OrderRepository {
           customerId: body.customerId,
           createdAt: body.createdAt,
           explain: body.explain,
-          currency: body.currency,
-          debt: body.debt,
           commodities: {
             connect: body.commodityIds.map(id => ({id}))
           },
           wardId: body.destinationId,
+        },
+        include: {
+          commodities: true
         }
       });
     } catch (err) {
@@ -75,15 +76,15 @@ export class OrderRepository {
         this.prisma.order.findMany({
           skip, take,
           where: {
-            paidAt: paidType === PaidEnum.PAID || paidType === PaidEnum.DEBT ? {not: null} : (paidType === PaidEnum.UNPAID ? {in: null} : {}),
-            debt: paidType === PaidEnum.DEBT ? {not: 0} : {},
+            // paidAt: paidType === PaidEnum.PAID || paidType === PaidEnum.DEBT ? {not: null} : (paidType === PaidEnum.UNPAID ? {in: null} : {}),
+            // debt: paidType === PaidEnum.DEBT ? {not: 0} : {},
             customer: {
               AND: {
                 firstName: {startsWith: firstName, mode: 'insensitive'},
                 lastName: {startsWith: lastName, mode: 'insensitive'},
               },
             },
-            payType: payType ? {in: payType} : {}
+            // payType: payType ? {in: payType} : {}
           },
           include: {
             commodities: true,
@@ -129,20 +130,21 @@ export class OrderRepository {
     }
   }
 
-  async paid(id: number, updates: UpdatePaidDto) {
-    try {
-      return await this.prisma.order.update({
-        where: {id},
-        data: {
-          debt: updates.debt,
-          paidAt: updates.paidAt,
-        },
-      });
-    } catch (err) {
-      console.error(err);
-      throw new BadRequestException(err);
-    }
-  }
+  // async paid(id: number, updates: UpdatePaidDto) {
+  //   try {
+  //     const order = await this.findOne(id);
+  //     return await this.prisma.order.update({
+  //       where: {id},
+  //       data: {
+  //         debt: order.debt + updates.paidTotal,
+  //         paidAt: updates.paidAt,
+  //       },
+  //     });
+  //   } catch (err) {
+  //     console.error(err);
+  //     throw new BadRequestException(err);
+  //   }
+  // }
 
   async remove(id: number) {
     try {

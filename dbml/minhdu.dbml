@@ -71,9 +71,10 @@ Table Ward {
   name String [not null]
   district District [not null]
   districtId Int [not null]
-  Employee Employee [not null]
-  Customer Customer [not null]
-  Relative Relative [not null]
+  employees Employee [not null]
+  customers Customer [not null]
+  relatives Relative [not null]
+  orders Order [not null]
 }
 
 Table Branch {
@@ -227,6 +228,20 @@ Table Customer {
   isPotential Boolean [default: false]
   note String
   orders Order [not null]
+  paymentHistories PaymentHistory [not null]
+}
+
+Table PaymentHistory {
+  id Int [pk, increment]
+  paidAt DateTime [default: `now()`]
+  currency CurrencyUnit [default: 'VND']
+  payType PaymentType [default: 'CASH']
+  total Float [not null]
+  customer Customer [not null]
+  customerId Int [not null]
+  note String
+  order Order
+  orderId Int
 }
 
 Table Commodity {
@@ -236,6 +251,8 @@ Table Commodity {
   unit CommodityUnit [not null]
   price Float [not null]
   amount Float [not null]
+  gift Float [default: 0]
+  more Float [not null, default: 0]
   order Order
   orderId Int
 }
@@ -244,14 +261,13 @@ Table Order {
   id Int [pk, increment]
   customer Customer [not null]
   customerId Int [not null]
-  paidAt DateTime
   createdAt DateTime [not null]
   explain String
-  currency CurrencyUnit [default: 'VND']
-  paidTotal Float
-  payType PaymentType [default: 'CASH']
   routes Route [not null]
   commodities Commodity [not null]
+  wardId Int
+  destination Ward
+  paymentHistories PaymentHistory [not null]
 }
 
 Table Route {
@@ -491,9 +507,15 @@ Ref: Relative.employeeId > Employee.id
 
 Ref: Customer.wardId > Ward.id
 
+Ref: PaymentHistory.customerId > Customer.id
+
+Ref: PaymentHistory.orderId > Order.id
+
 Ref: Commodity.orderId > Order.id
 
 Ref: Order.customerId > Customer.id
+
+Ref: Order.wardId > Ward.id
 
 Ref: Route.employeeId > Employee.id
 

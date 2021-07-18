@@ -26,6 +26,11 @@ export class DepartmentController {
     return this.departmentService.findAll();
   }
 
+  @Get()
+  findOne(@Param('id') id: number) {
+    return this.departmentService.findOne(+id);
+  }
+
   @UseGuards(RolesGuard)
   @Roles(UserType.ADMIN, UserType.HUMAN_RESOURCE)
   @Patch(':id')

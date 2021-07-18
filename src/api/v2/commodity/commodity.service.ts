@@ -47,15 +47,14 @@ export class CommodityService {
     };
   }
 
-  /// TODO: Tính tổng tiền của đơn hàng này dựa vào list id đơn hàng được truyền từ bên order
-  totalCommodity(ids: number[]) {
-    /// TODO: get thoong tin sản hẩm dựa vào id;
-    // return ids.map(id => this.findOne(id));
-
-    /// FIXME: Dummy data
-    return 0;
-    // return commodities.map((commodity) => {
-    //   return Math.ceil((commodity.price * commodity.amount) / (commodity.amount + commodity.more));
-    // }).reduce((a, b) => a + b, 0);
+  /*
+  * Tổng trị giá đơn hàng
+  * */
+  totalCommodity(commodity: Commodity): number {
+    if (commodity.more) {
+      return (commodity.amount * commodity.price) + (((commodity.amount + commodity.gift) / commodity.price) * commodity.more);
+    } else {
+      return commodity.amount * commodity.price;
+    }
   }
 }

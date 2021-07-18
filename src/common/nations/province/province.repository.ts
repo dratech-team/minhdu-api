@@ -22,6 +22,14 @@ export class ProvinceRepository {
   }
 
   async findAll(): Promise<Province[]> {
-    return await this.prisma.province.findMany();
+    return await this.prisma.province.findMany({
+      include: {
+        districts: {
+          include: {
+            wards: true
+          }
+        }
+      }
+    });
   }
 }

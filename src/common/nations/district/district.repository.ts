@@ -22,6 +22,10 @@ export class DistrictRepository {
   }
 
   async findAll(): Promise<District[]> {
-    return this.prisma.district.findMany();
+    return this.prisma.district.findMany({
+      include: {
+        wards: true
+      }
+    });
   }
 }

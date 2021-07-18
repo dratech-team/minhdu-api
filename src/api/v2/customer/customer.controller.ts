@@ -4,6 +4,7 @@ import {CreateCustomerDto} from './dto/create-customer.dto';
 import {UpdateCustomerDto} from './dto/update-customer.dto';
 import {ApiV2Constant} from "../../../common/constant/api.constant";
 import {CustomerResource, CustomerType} from '@prisma/client';
+import {CreatePaymentHistoryDto} from "../payment-history/dto/create-payment-history.dto";
 
 @Controller(ApiV2Constant.CUSTOMER)
 export class CustomerController {
@@ -42,5 +43,10 @@ export class CustomerController {
   @Delete(':id')
   remove(@Param('id') id: string) {
     return this.customerService.remove(+id);
+  }
+
+  @Patch(':id/payment')
+  payment(@Param('id') id: number, @Body() body: CreatePaymentHistoryDto) {
+    return this.customerService.payment(+id, body);
   }
 }

@@ -27,8 +27,6 @@ export class CreateOrderDto {
   @ValidateNested()
   readonly commodity: CreateCommodityDto;
 
-  debt: number;
-
   @IsOptional()
   @IsArray()
   readonly commodityIds: number[];
@@ -36,8 +34,4 @@ export class CreateOrderDto {
   @IsNotEmpty()
   @IsNumber()
   readonly destinationId: number;
-
-  // @IsOptional()
-  // @IsArray()
-  // readonly routes: CreateRoutes;
 }

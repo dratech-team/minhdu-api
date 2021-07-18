@@ -6,6 +6,7 @@ import {CommodityRepository} from "./commodity.repository";
 
 @Module({
   controllers: [CommodityController],
-  providers: [CommodityService, PrismaService, CommodityRepository]
+  providers: [CommodityService, PrismaService, CommodityRepository],
+  exports: [CommodityService]
 })
 export class CommodityModule {}
