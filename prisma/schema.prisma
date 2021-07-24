@@ -101,7 +101,7 @@ model Department {
   branch    Branch     @relation(fields: [branchId], references: [id])
   branchId  Int
   positions Position[]
-  holiday   Holiday?
+  holiday   Holiday[]
 }
 
 model Position {
@@ -353,6 +353,33 @@ model SalaryHistory {
   employeeId Int
 
 }
+
+// start medicine
+
+model Medicine {
+  id         Int          @id @default(autoincrement())
+  code       String
+  barcode    String?
+  name       String
+  provider   String?
+  expire     DateTime
+  price      Float // đơn giá trên 1 sp
+  discount   Float?
+  invoice    String?
+  unit       MedicineUnit
+  amount     Float
+  createdAt  DateTime?    @default(now())
+}
+
+enum MedicineUnit {
+  VIEN
+  LO
+  LIT
+  KG
+  BI
+}
+
+// end medicine
 
 model SystemHistory {
   id          Int          @id @default(autoincrement())

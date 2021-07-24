@@ -1,16 +1,16 @@
 import {BadRequestException, Injectable} from "@nestjs/common";
 import {PrismaService} from "../../../prisma.service";
-import {CreateHolidayDto} from "./dto/create-holiday.dto";
-import {UpdateHolidayDto} from "./dto/update-holiday.dto";
+import {CreateMedicineDto} from "./dto/create-medicine.dto";
+import {UpdateMedicineDto} from "./dto/update-medicine.dto";
 
 @Injectable()
-export class HolidayRepository {
+export class MedicineRepository {
   constructor(private readonly prisma: PrismaService) {
   }
 
-  async create(body: CreateHolidayDto) {
+  async create(body: CreateMedicineDto) {
     try {
-      return await this.prisma.holiday.create({data: body});
+      return await this.prisma.medicine.create({data: body});
     } catch (err) {
       console.error(err);
       throw new BadRequestException(err);
@@ -19,11 +19,7 @@ export class HolidayRepository {
 
   async findAll() {
     try {
-      return await this.prisma.holiday.findMany({
-        include: {
-          department: true
-        }
-      });
+      return await this.prisma.medicine.findMany();
     } catch (err) {
       console.error(err);
       throw new BadRequestException(err);
@@ -32,21 +28,16 @@ export class HolidayRepository {
 
   async findOne(id: number) {
     try {
-      return await this.prisma.holiday.findUnique({
-        where: {id},
-        include: {
-          department: true
-        }
-      });
+      return await this.prisma.medicine.findUnique({where: {id}});
     } catch (err) {
       console.error(err);
       throw new BadRequestException(err);
     }
   }
 
-  async update(id: number, updates: UpdateHolidayDto) {
+  async update(id: number, updates: UpdateMedicineDto) {
     try {
-      return await this.prisma.holiday.update({
+      return await this.prisma.medicine.update({
         where: {id},
         data: updates,
       });
@@ -58,7 +49,7 @@ export class HolidayRepository {
 
   async remove(id: number) {
     try {
-      await this.prisma.holiday.delete({where: {id}});
+      await this.prisma.medicine.delete({where: {id}});
     } catch (err) {
       console.error(err);
       throw new BadRequestException(err);

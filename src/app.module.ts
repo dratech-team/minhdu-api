@@ -31,6 +31,7 @@ import {LocationModule} from './api/v2/location/location.module';
 import {StatisticalModule} from './api/v2/statistical/statistical.module';
 import { PaymentHistoryModule } from './api/v2/payment-history/payment-history.module';
 import { HolidayModule } from './api/v2/holiday/holiday.module';
+import { MedicineModule } from './api/v2/medicine/medicine.module';
 
 @Module({
   imports: [
@@ -63,7 +64,8 @@ import { HolidayModule } from './api/v2/holiday/holiday.module';
     LocationModule,
     StatisticalModule,
     PaymentHistoryModule,
-    HolidayModule
+    HolidayModule,
+    MedicineModule
   ],
   controllers: [AppController],
   providers: [PrismaService],
