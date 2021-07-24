@@ -1,7 +1,7 @@
- generator client {
-   provider        = "prisma-client-js"
-   previewFeatures = ["selectRelationCount"]
- }
+generator client {
+  provider        = "prisma-client-js"
+  previewFeatures = ["selectRelationCount"]
+}
 
 //generator dbml {
 //  provider            = "prisma-dbml-generator"
@@ -101,6 +101,7 @@ model Department {
   branch    Branch     @relation(fields: [branchId], references: [id])
   branchId  Int
   positions Position[]
+  holiday   Holiday?
 }
 
 model Position {
@@ -168,6 +169,15 @@ model Employee {
   systemHistories SystemHistory[]
   relatives       Relative[]
   historySalaries SalaryHistory[]
+}
+
+model Holiday {
+  id           Int        @id @default(autoincrement())
+  name         String?
+  datetime     DateTime
+  rate         Float
+  department   Department @relation(fields: [departmentId], references: [id])
+  departmentId Int
 }
 
 model WorkHistory {

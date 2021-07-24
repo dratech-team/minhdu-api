@@ -49,10 +49,7 @@ export class CustomerService {
     const totalOrder = this.orderService.totalPayOrder(customer.orders);
     const totalPay = this.payHistoryService.totalPayment(customer.paymentHistories);
 
-    return {
-      customer: customer,
-      debt: totalPay - totalOrder,
-    };
+    return Object.assign(customer, {debt: totalPay - totalOrder});
   }
 
   async update(id: number, updates: UpdateCustomerDto) {
@@ -65,10 +62,10 @@ export class CustomerService {
 
   async payment(id: number, payment: CreatePaymentHistoryDto) {
     if (payment.orderId) {
-      const find = await this.findOne(id);
-      const found = find.customer?.orders?.map(order => order.id)?.includes(+payment.orderId);
+      const customer = await this.findOne(id);
+      const found = customer?.orders?.map(order => order.id)?.includes(+payment.orderId);
       if (!found) {
-        throw new BadRequestException(`Mã đơn hàng ${payment.orderId} Không thuộc khách hàng ${find.customer.lastName}. Vui lòng kiểm tra lại hoặc liên hệ admin để hỗ trợ.`);
+        throw new BadRequestException(`Mã đơn hàng ${payment.orderId} Không thuộc khách hàng ${customer.lastName}. Vui lòng kiểm tra lại hoặc liên hệ admin để hỗ trợ.`);
       }
     }
     return await this.payHistoryService.create(id, payment);
