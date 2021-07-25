@@ -24,24 +24,20 @@ export class CustomerService {
   async findAll(
     skip: number,
     take: number,
-    name?: string,
-    phone?: string,
-    nationId?: number,
-    type?: CustomerType,
-    resource?: CustomerResource,
-    isPotential?: boolean
+    name: string,
+    phone: string,
+    nationId: number,
+    type: CustomerType,
+    resource: CustomerResource,
+    isPotential: number
   ) {
     const search = searchName(name);
 
-    if (isPotential) {
-      isPotential = JSON.parse(String(isPotential));
-    }
+    // if (isPotential) {
+    //   isPotential = JSON.parse(String(isPotential));
+    // }
 
-    if (nationId) {
-      nationId = Number(nationId);
-    }
-
-    return await this.repository.findAll(search?.firstName, search?.lastName, phone, nationId, type, resource, isPotential);
+    return await this.repository.findAll(skip, take,  search?.firstName, search?.lastName, phone, nationId, type, resource, isPotential);
   }
 
   async findOne(id: number) {

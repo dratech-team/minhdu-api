@@ -19,28 +19,31 @@ export class CustomerRepository {
   }
 
   async findAll(
-    firstName?: string,
-    lastName?: string,
-    phone?: string,
-    nationId?: number,
-    type?: CustomerType,
-    resource?: CustomerResource,
-    isPotential?: boolean
+    skip: number,
+    take: number,
+    firstName: string,
+    lastName: string,
+    phone: string,
+    nationId: number,
+    type: CustomerType,
+    resource: CustomerResource,
+    isPotential: number
   ) {
     try {
       const [total, data] = await Promise.all([
         this.prisma.customer.count(),
         this.prisma.customer.findMany({
+          skip, take,
           where: {
             AND: {
               firstName: {startsWith: firstName, mode: 'insensitive'},
               lastName: {startsWith: firstName, mode: 'insensitive'},
             },
-            phone: {startsWith: phone},
+            phone: {startsWith: phone, mode: 'insensitive'},
             // ward: {district: {province: {nation: {id: nationId}}}},
             type: type ? {in: type} : {},
             resource: resource ? {in: resource} : {},
-            isPotential: isPotential ? {equals: isPotential} : {}
+            isPotential: isPotential ? {equals: isPotential !== 0} : {}
           },
           include: {
             ward: {
@@ -59,6 +62,7 @@ export class CustomerRepository {
           }
         }),
       ]);
+
       return {
         total,
         data,

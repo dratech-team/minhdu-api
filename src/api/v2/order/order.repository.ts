@@ -54,6 +54,7 @@ export class OrderRepository {
               }
             }
           },
+          paymentHistories: true
         }
       });
     } catch (err) {
@@ -101,7 +102,8 @@ export class OrderRepository {
                   }
                 }
               }
-            }
+            },
+            paymentHistories: true
           }
         }),
       ]);

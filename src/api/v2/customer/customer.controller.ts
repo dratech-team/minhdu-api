@@ -20,14 +20,14 @@ export class CustomerController {
   findAll(
     @Query("skip") skip: number,
     @Query("take") take: number,
-    @Query("name") name?: string,
-    @Query("phone") phone?: string,
-    @Query("nationId") nationId?: number,
-    @Query("customerType") type?: CustomerType,
-    @Query("resource") resource?: CustomerResource,
-    @Query("isPotential") isPotential?: boolean,
+    @Query("name") name: string,
+    @Query("phone") phone: string,
+    @Query("nationId") nationId: number,
+    @Query("customerType") type: CustomerType,
+    @Query("resource") resource: CustomerResource,
+    @Query("isPotential") isPotential: number,
   ) {
-    return this.customerService.findAll(+take, +skip, name, phone, +nationId, type, resource, isPotential);
+    return this.customerService.findAll(+skip, +take, name, phone, +nationId, type, resource, +isPotential);
   }
 
   @Get(':id')
