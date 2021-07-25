@@ -19,7 +19,12 @@ export class CommodityRepository {
 
   async findOne(id: number) {
     try {
-      return await this.prisma.commodity.findUnique({where: {id}});
+      return await this.prisma.commodity.findFirst({
+        where: {
+          id: id,
+          order: null,
+        },
+      });
     } catch (err) {
       console.error(err);
       throw new BadRequestException(err);

@@ -1,4 +1,4 @@
-import {Transform, Type} from "class-transformer";
+import {Type} from "class-transformer";
 import {
   IsBoolean,
   IsDate,
@@ -7,27 +7,26 @@ import {
   IsNumber,
   IsOptional,
   IsString,
-  MaxLength,
+  MaxDate,
   ValidateNested
 } from "class-validator";
 import {CreateProfileDto} from "../../../../common/dtos/create-profile.dto";
 import {CreateSocialDto} from "./create-social.dto";
+import {ValidatorMessage} from "../../../../common/constant/validator.constant";
 
-export class CreateEmployeeDto extends CreateProfileDto{
+export class CreateEmployeeDto extends CreateProfileDto {
   @IsOptional()
   code: string;
 
-  /// FIXME: Max date đang bị lỗi
-  @Type(() => Date)
   @IsNotEmpty()
-  // @MaxDate(new Date(), {message: `createdAt ${ValidatorMessage.datetime}`})
+  @Type(() => Date)
+  @MaxDate(new Date(), {message: `createdAt ${ValidatorMessage.datetime}`})
   @IsDate()
   readonly createdAt: Date
 
-  /// FIXME: Max date đang bị lỗi
   @Type(() => Date)
   @IsDate()
-  // @MaxDate(new Date(), {message: `workedAt ${ValidatorMessage.datetime}`})
+  @MaxDate(new Date(), {message: `workedAt ${ValidatorMessage.datetime}`})
   @IsNotEmpty()
   readonly workedAt: Date;
 

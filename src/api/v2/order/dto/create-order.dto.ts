@@ -10,9 +10,8 @@ export class CreateOrderDto {
   readonly customerId: number;
 
   @IsNotEmpty()
-  @IsDate()
   @Type(() => Date)
-  @Transform((val) => new Date(val.value))
+  @IsDate()
   readonly createdAt: Date;
 
   @IsOptional()

@@ -1,9 +1,11 @@
 import {CurrencyUnit, PaymentType} from "@prisma/client";
-import {IsArray, IsDate, IsEnum, IsNotEmpty, IsNumber, IsOptional, IsString, Min} from "class-validator";
+import {IsDate, IsEnum, IsNotEmpty, IsNumber, IsOptional, IsString, Min} from "class-validator";
 import {Type} from "class-transformer";
 
 export class CreatePaymentHistoryDto {
+
   @IsOptional()
+  @Type(() => Date)
   @IsDate()
   readonly paidAt: Date;
 

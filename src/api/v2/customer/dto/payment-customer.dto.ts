@@ -5,7 +5,6 @@ import {PaymentType} from "@prisma/client";
 export class PaymentCustomerDto {
   @IsOptional()
   @Type(() => Date)
-  @Transform((val) => new Date(val.value))
   readonly paidAt?: Date;
 
   @IsOptional()

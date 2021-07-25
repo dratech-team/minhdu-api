@@ -1,4 +1,4 @@
-import {Injectable} from '@nestjs/common';
+import {BadRequestException, Injectable} from '@nestjs/common';
 import {CreateCommodityDto} from './dto/create-commodity.dto';
 import {UpdateCommodityDto} from './dto/update-commodity.dto';
 import {CommodityRepository} from "./commodity.repository";
@@ -10,15 +10,24 @@ export class CommodityService {
   }
 
   async create(body: CreateCommodityDto) {
-    return await this.repository.create(body);
+    const created = await this.repository.create(body);
+    return this.handleCommodity(created);
   }
 
   async findAll() {
-    return await this.repository.findAll();
+    const found = await this.repository.findAll();
+    return {
+      total: found.total,
+      data: found.data.map(commodity => this.handleCommodity(commodity))
+    };
   }
 
   async findOne(id: number) {
-    return await this.repository.findOne(id);
+    const found = await this.repository.findOne(id);
+    if (!found) {
+      throw new BadRequestException('Error');
+    }
+    return this.handleCommodity(found);
   }
 
   async update(id: number, updates: UpdateCommodityDto) {
@@ -32,19 +41,12 @@ export class CommodityService {
 
   handleCommodity(commodity: Commodity) {
     const priceMore = Math.ceil((commodity.price * commodity.amount) / (commodity.amount + commodity.more));
-    return {
-      id: commodity.id,
-      code: commodity.code,
-      name: commodity.name,
-      unit: commodity.unit,
-      price: commodity.price,
-      amount: commodity.amount,
-      gift: commodity.gift,
+    return Object.assign(commodity, {
       more: {
-        commodityMore: commodity.more,
+        amount: commodity.more,
         price: priceMore,
       }
-    };
+    });
   }
 
   /*

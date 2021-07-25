@@ -31,13 +31,7 @@ export class OrderService {
   async findOne(id: number) {
     const order = await this.repository.findOne(id);
     const commodities = order.commodities.map(commodity => this.commodityService.handleCommodity(commodity));
-    return {
-      id: order.id,
-      createdAt: order.createdAt,
-      explain: order.explain,
-      commodities: commodities,
-      customer: order.customer,
-    };
+    return Object.assign(order, {commodities});
   }
 
   async update(id: number, updates: UpdateOrderDto) {

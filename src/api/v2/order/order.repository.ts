@@ -53,7 +53,7 @@ export class OrderRepository {
                 }
               }
             }
-          }
+          },
         }
       });
     } catch (err) {
