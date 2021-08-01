@@ -1,4 +1,4 @@
-import {Injectable} from '@nestjs/common';
+import {Injectable, Query} from '@nestjs/common';
 import {CreateRouteDto} from './dto/create-route.dto';
 import {UpdateRouteDto} from './dto/update-route.dto';
 import {RouteRepository} from "./route.repository";
@@ -12,8 +12,11 @@ export class RouteService {
     return await this.repository.create(body);
   }
 
-  async findAll() {
-    return await this.repository.findAll();
+  async findAll(
+    skip: number,
+    take: number,
+  ) {
+    return await this.repository.findAll(skip, take);
   }
 
   async findOne(id: number) {

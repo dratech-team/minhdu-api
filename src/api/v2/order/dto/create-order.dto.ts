@@ -1,7 +1,6 @@
 import {CurrencyUnit} from "@prisma/client";
-import {Transform, Type} from "class-transformer";
-import {IsArray, IsDate, IsEnum, IsNotEmpty, IsNumber, IsOptional, IsString, ValidateNested} from "class-validator";
-import {CreateCommodityDto} from "../../commodity/dto/create-commodity.dto";
+import {Type} from "class-transformer";
+import {IsArray, IsDate, IsEnum, IsNotEmpty, IsNumber, IsOptional, IsString} from "class-validator";
 
 export class CreateOrderDto {
   @IsOptional()
@@ -23,14 +22,16 @@ export class CreateOrderDto {
   readonly currency: CurrencyUnit;
 
   @IsOptional()
-  @ValidateNested()
-  readonly commodity: CreateCommodityDto;
-
-  @IsOptional()
   @IsArray()
   readonly commodityIds: number[];
 
   @IsNotEmpty()
+  @Type(() => Number)
   @IsNumber()
   readonly destinationId: number;
+
+  @IsNotEmpty()
+  @Type(() => Date)
+  @IsDate()
+  readonly deliveredAt: Date;
 }

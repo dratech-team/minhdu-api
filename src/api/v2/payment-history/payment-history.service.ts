@@ -10,11 +10,11 @@ export class PaymentHistoryService {
   }
 
   async create(customerId: number, body: CreatePaymentHistoryDto) {
-    return await this.repository.create(customerId ,body);
+    return await this.repository.create(customerId, body);
   }
 
-  async findAll() {
-    return await this.repository.findAll();
+  async findAll(customerId: number, skip: number, take: number) {
+    return await this.repository.findAll(customerId, skip, take);
   }
 
   async findOne(id: number) {
@@ -30,8 +30,6 @@ export class PaymentHistoryService {
   }
 
   totalPayment(payments: PaymentHistory[]) {
-    return payments?.map(pay => pay.total)?.reduce((a, b) => {
-      return a + b;
-    }, 0);
+    return Math.ceil(payments?.map(pay => pay.total)?.reduce((a, b) => a + b, 0));
   }
 }

@@ -19,11 +19,12 @@ export class OrderController {
   findAll(
     @Query("skip") skip: number,
     @Query("take") take: number,
+    @Query("customerId") customerId?: number,
     @Query("paidType") paidType?: PaidEnum,
     @Query("customer") customer?: string,
     @Query("payType") payType?: PaymentType,
   ) {
-    return this.orderService.findAll(+skip, +take, paidType, customer, payType);
+    return this.orderService.findAll(+skip, +take, customerId, paidType, customer, payType);
   }
 
   @Get(':id')

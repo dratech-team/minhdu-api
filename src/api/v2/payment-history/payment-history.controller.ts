@@ -1,21 +1,20 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete } from '@nestjs/common';
-import { PaymentHistoryService } from './payment-history.service';
-import { CreatePaymentHistoryDto } from './dto/create-payment-history.dto';
-import { UpdatePaymentHistoryDto } from './dto/update-payment-history.dto';
+import {Body, Controller, Delete, Get, Param, Patch, Query} from '@nestjs/common';
+import {PaymentHistoryService} from './payment-history.service';
+import {UpdatePaymentHistoryDto} from './dto/update-payment-history.dto';
 
 @Controller('v2/payment-history')
 export class PaymentHistoryController {
-  constructor(private readonly paymentHistoryService: PaymentHistoryService) {}
+  constructor(private readonly paymentHistoryService: PaymentHistoryService) {
+  }
 
-  // @Post()
-  // create(@Body() createPaymentHistoryDto: CreatePaymentHistoryDto) {
-  //   return this.paymentHistoryService.create(createPaymentHistoryDto);
-  // }
-
-  // @Get()
-  // findAll() {
-  //   return this.paymentHistoryService.findAll();
-  // }
+  @Get()
+  findAll(
+    @Query('customerId') customerId: number,
+    @Query("skip") skip: number,
+    @Query("take") take: number
+  ) {
+    return this.paymentHistoryService.findAll(+customerId, +skip, +take);
+  }
 
   @Get(':id')
   findOne(@Param('id') id: string) {

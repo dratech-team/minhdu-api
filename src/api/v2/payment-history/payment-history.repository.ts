@@ -27,9 +27,24 @@ export class PaymentHistoryRepository {
     }
   }
 
-  async findAll() {
+  async findAll(customerId: number, skip: number, take: number) {
     try {
-      return await this.prisma.paymentHistory.findMany();
+      const [total, data] = await Promise.all([
+        this.prisma.paymentHistory.count({
+          where: {
+            customer: {id: customerId}
+          }
+        }),
+        this.prisma.paymentHistory.findMany({
+          take, skip,
+          where: {
+            customer: {id: customerId}
+          }
+        })
+      ]);
+      return {
+        total, data
+      };
     } catch (err) {
       console.error(err);
       throw new BadRequestException(err);

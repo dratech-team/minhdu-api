@@ -43,6 +43,7 @@ export class CustomerRepository {
             // ward: {district: {province: {nation: {id: nationId}}}},
             type: type ? {in: type} : {},
             resource: resource ? {in: resource} : {},
+            /// FIXME: bug
             isPotential: isPotential ? {equals: isPotential !== 0} : {}
           },
           include: {

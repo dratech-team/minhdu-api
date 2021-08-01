@@ -28,11 +28,15 @@ export class RouteRepository {
     }
   }
 
-  async findAll() {
+  async findAll(
+    skip: number,
+    take: number,
+  ) {
     try {
       const [total, data] = await Promise.all([
         this.prisma.route.count(),
         this.prisma.route.findMany({
+          skip, take,
           include: {
             employee: true,
             locations: true,
@@ -52,9 +56,14 @@ export class RouteRepository {
       return await this.prisma.route.findUnique({
         where: {id},
         include: {
-          orders: true,
+          orders: {
+            include: {
+              customer: true,
+              destination: true
+            }
+          },
           locations: true,
-          employee: true
+          employee: true,
         }
       });
     } catch (err) {
@@ -63,11 +72,22 @@ export class RouteRepository {
     }
   }
 
+  /*
+  * Route thì set lại đơn hàng. Vì đơn hàng của nhiều khách hàng khác nhau có thể được chọn lại trên những xe khác nhau
+  * */
   async update(id: number, updates: UpdateRouteDto) {
     try {
       return await this.prisma.route.update({
         where: {id},
-        data: updates,
+        data: {
+          name: updates.name,
+          driver: updates.driver,
+          garage: updates.garage,
+          bsx: updates.bsx,
+          startedAt: updates.startedAt,
+          endedAt: updates.endedAt,
+          orders: {set: updates.orderIds.map(id => ({id: id}))},
+        },
       });
     } catch (err) {
       console.error(err);

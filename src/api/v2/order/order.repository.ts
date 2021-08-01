@@ -66,6 +66,7 @@ export class OrderRepository {
   async findAll(
     skip: number,
     take: number,
+    customerId?: number,
     paidType?: PaidEnum,
     firstName?: string,
     lastName?: string,
@@ -73,10 +74,26 @@ export class OrderRepository {
   ) {
     try {
       const [total, data] = await Promise.all([
-        this.prisma.order.count(),
+        this.prisma.order.count({
+          where: {
+            deliveredAt: null,
+            customerId: customerId ? {in: customerId} : {},
+            // paidAt: paidType === PaidEnum.PAID || paidType === PaidEnum.DEBT ? {not: null} : (paidType === PaidEnum.UNPAID ? {in: null} : {}),
+            // debt: paidType === PaidEnum.DEBT ? {not: 0} : {},
+            customer: {
+              AND: {
+                firstName: {startsWith: firstName, mode: 'insensitive'},
+                lastName: {startsWith: lastName, mode: 'insensitive'},
+              },
+            },
+            // payType: payType ? {in: payType} : {}
+          },
+        }),
         this.prisma.order.findMany({
           skip, take,
           where: {
+            deliveredAt: null,
+            customerId: customerId ? {in: customerId} : {},
             // paidAt: paidType === PaidEnum.PAID || paidType === PaidEnum.DEBT ? {not: null} : (paidType === PaidEnum.UNPAID ? {in: null} : {}),
             // debt: paidType === PaidEnum.DEBT ? {not: 0} : {},
             customer: {
@@ -116,6 +133,9 @@ export class OrderRepository {
     }
   }
 
+  /*
+  * Order thì Thêm mới hoặc xoá hàng hoá. 1 hàng hoá chỉ tồn tại cho 1 đơn hàng
+  * */
   async update(id: number, updates: UpdateOrderDto) {
     try {
       return await this.prisma.order.update({
@@ -124,6 +144,9 @@ export class OrderRepository {
           customerId: updates.customerId,
           createdAt: updates.createdAt,
           explain: updates.explain,
+          wardId: updates.destinationId,
+          deliveredAt: updates.deliveredAt,
+          commodities: {connect: updates.commodityIds.map((id => ({id: id})))}
         },
       });
     } catch (err) {
@@ -131,22 +154,6 @@ export class OrderRepository {
       throw new BadRequestException(err);
     }
   }
-
-  // async paid(id: number, updates: UpdatePaidDto) {
-  //   try {
-  //     const order = await this.findOne(id);
-  //     return await this.prisma.order.update({
-  //       where: {id},
-  //       data: {
-  //         debt: order.debt + updates.paidTotal,
-  //         paidAt: updates.paidAt,
-  //       },
-  //     });
-  //   } catch (err) {
-  //     console.error(err);
-  //     throw new BadRequestException(err);
-  //   }
-  // }
 
   async remove(id: number) {
     try {

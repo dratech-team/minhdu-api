@@ -1,4 +1,4 @@
-import {BadRequestException, Injectable} from "@nestjs/common";
+import {BadRequestException, Injectable, Query} from "@nestjs/common";
 import {CreateCustomerDto} from "./dto/create-customer.dto";
 import {UpdateCustomerDto} from "./dto/update-customer.dto";
 import {CustomerRepository} from "./customer.repository";
@@ -37,7 +37,7 @@ export class CustomerService {
     //   isPotential = JSON.parse(String(isPotential));
     // }
 
-    return await this.repository.findAll(skip, take,  search?.firstName, search?.lastName, phone, nationId, type, resource, isPotential);
+    return await this.repository.findAll(skip, take, search?.firstName, search?.lastName, phone, nationId, type, resource, isPotential);
   }
 
   async findOne(id: number) {

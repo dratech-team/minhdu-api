@@ -6,10 +6,15 @@ import {CommodityService} from "../commodity/commodity.service";
 import {PaidEnum} from "./enums/paid.enum";
 import {PaymentType} from "@prisma/client";
 import {searchName} from "../../../utils/search-name.util";
+import {PaymentHistoryService} from "../payment-history/payment-history.service";
 
 @Injectable()
 export class OrderService {
-  constructor(private readonly repository: OrderRepository, private readonly commodityService: CommodityService) {
+  constructor(
+    private readonly repository: OrderRepository,
+    private readonly commodityService: CommodityService,
+    private readonly paymentService: PaymentHistoryService,
+  ) {
   }
 
   async create(body: CreateOrderDto) {
@@ -19,19 +24,37 @@ export class OrderService {
   async findAll(
     skip: number,
     take: number,
+    customerId: number,
     paidType?: PaidEnum,
     customer?: string,
     payType?: PaymentType,
   ) {
     const search = searchName(customer);
 
-    return await this.repository.findAll(skip, take, paidType, search?.firstName, search?.lastName, payType);
+    const result = await this.repository.findAll(skip, take, customerId, paidType, search?.firstName, search?.lastName, payType);
+
+    return {
+      total: result.total,
+      data: result.data.map(order => {
+        return Object.assign(
+          order,
+          {commodityTotal: this.commodityService.totalCommodities(order.commodities)},
+          {paymentTotal: this.paymentService.totalPayment(order.paymentHistories)}
+        );
+      })
+    };
   }
 
   async findOne(id: number) {
     const order = await this.repository.findOne(id);
-    const commodities = order.commodities.map(commodity => this.commodityService.handleCommodity(commodity));
-    return Object.assign(order, {commodities});
+    /// Phương thức này fai đứng trước map commodities
+    const commodityTotal = this.commodityService.totalCommodities(order.commodities);
+    return Object.assign(
+      order,
+      {commodities: order.commodities.map(commodity => this.commodityService.handleCommodity(commodity))},
+      {commodityTotal: commodityTotal},
+      {paymentTotal: this.paymentService.totalPayment(order.paymentHistories)}
+    );
   }
 
   async update(id: number, updates: UpdateOrderDto) {

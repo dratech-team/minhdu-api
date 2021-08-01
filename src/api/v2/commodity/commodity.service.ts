@@ -39,6 +39,8 @@ export class CommodityService {
   }
 
 
+  /**
+   * Nếu có more thì giá trị trả về trong đơn hàng sẽ ở dạng này*/
   handleCommodity(commodity: Commodity) {
     const priceMore = Math.ceil((commodity.price * commodity.amount) / (commodity.amount + commodity.more));
     return Object.assign(commodity, {
@@ -59,4 +61,12 @@ export class CommodityService {
       return commodity.amount * commodity.price;
     }
   }
+
+  /*
+  * Tổng tiền nhiều đơn hàng
+  * */
+  totalCommodities(commodities: Commodity[]) {
+    return Math.ceil(commodities.map(commodity => this.totalCommodity(commodity)).reduce((a, b) => a + b, 0));
+  }
+
 }
