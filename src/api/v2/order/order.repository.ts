@@ -71,12 +71,13 @@ export class OrderRepository {
     firstName?: string,
     lastName?: string,
     payType?: PaymentType,
+    delivered?: number
   ) {
     try {
       const [total, data] = await Promise.all([
         this.prisma.order.count({
           where: {
-            deliveredAt: null,
+            deliveredAt: delivered === 1 ? {not: null} : null,
             customerId: customerId ? {in: customerId} : {},
             // paidAt: paidType === PaidEnum.PAID || paidType === PaidEnum.DEBT ? {not: null} : (paidType === PaidEnum.UNPAID ? {in: null} : {}),
             // debt: paidType === PaidEnum.DEBT ? {not: 0} : {},
@@ -92,7 +93,7 @@ export class OrderRepository {
         this.prisma.order.findMany({
           skip, take,
           where: {
-            deliveredAt: null,
+            deliveredAt: delivered === 1 ? {not: null} : null,
             customerId: customerId ? {in: customerId} : {},
             // paidAt: paidType === PaidEnum.PAID || paidType === PaidEnum.DEBT ? {not: null} : (paidType === PaidEnum.UNPAID ? {in: null} : {}),
             // debt: paidType === PaidEnum.DEBT ? {not: 0} : {},

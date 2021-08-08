@@ -29,9 +29,4 @@ export class CreateOrderDto {
   @Type(() => Number)
   @IsNumber()
   readonly destinationId: number;
-
-  @IsNotEmpty()
-  @Type(() => Date)
-  @IsDate()
-  readonly deliveredAt: Date;
 }

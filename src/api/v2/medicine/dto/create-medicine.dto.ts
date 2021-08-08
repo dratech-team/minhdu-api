@@ -29,7 +29,7 @@ export class CreateMedicineDto {
   @IsNumber()
   readonly price: number;
 
-  @IsNotEmpty()
+  @IsOptional()
   @Type(() => Number)
   @IsNumber()
   readonly discount: number;

@@ -1,4 +1,4 @@
-import {IsEnum, IsNumber, IsOptional} from "class-validator";
+import {IsDate, IsEnum, IsNumber, IsOptional} from "class-validator";
 import {Transform, Type} from "class-transformer";
 import {PaymentType} from "@prisma/client";
 

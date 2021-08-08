@@ -28,10 +28,11 @@ export class OrderService {
     paidType?: PaidEnum,
     customer?: string,
     payType?: PaymentType,
+    delivered?: number
   ) {
     const search = searchName(customer);
 
-    const result = await this.repository.findAll(skip, take, customerId, paidType, search?.firstName, search?.lastName, payType);
+    const result = await this.repository.findAll(skip, take, customerId, paidType, search?.firstName, search?.lastName, payType, delivered);
 
     return {
       total: result.total,

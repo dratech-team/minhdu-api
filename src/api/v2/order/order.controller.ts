@@ -23,8 +23,9 @@ export class OrderController {
     @Query("paidType") paidType?: PaidEnum,
     @Query("customer") customer?: string,
     @Query("payType") payType?: PaymentType,
+    @Query("delivered") delivered?: number,
   ) {
-    return this.orderService.findAll(+skip, +take, customerId, paidType, customer, payType);
+    return this.orderService.findAll(+skip, +take, customerId, paidType, customer, payType, +delivered);
   }
 
   @Get(':id')
