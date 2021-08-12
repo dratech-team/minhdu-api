@@ -93,6 +93,7 @@ model Branch {
   code        String       @unique
   name        String
   departments Department[]
+  Medicine    Medicine[]
 }
 
 model Department {
@@ -369,7 +370,9 @@ model Medicine {
   invoice   String?
   unit      MedicineUnit
   amount    Float
-  createdAt DateTime?    @default(now())
+  createdAt DateTime?    @default(now()) // ngayf nhap kho
+  branch    Branch?      @relation(fields: [branchId], references: [id]) // kho tong, kho con
+  branchId  Int?
 }
 
 enum MedicineUnit {

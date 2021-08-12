@@ -8,38 +8,33 @@ export class StatisticalRepository {
 
   async statisticalOrder(startedAt: Date, endedAt: Date) {
     try {
-      const orders = await this.prisma.order.findMany({
-        where: {
-          createdAt: {
-            gte: startedAt,
-            lte: endedAt,
-          }
-        },
-        include: {
-          destination: {
-            include: {
-              district: {
-                include: {
-                  province: {
-                    include: {
-                      nation: true
+      const [provinces, orders] = await Promise.all([
+        this.prisma.province.findMany(),
+        this.prisma.order.findMany({
+          where: {
+            createdAt: {
+              gte: startedAt,
+              lte: endedAt,
+            }
+          },
+          select: {
+            destination: {
+              select: {
+                district: {
+                  select: {
+                    province: {
+                      select: {
+                        id: true
+                      }
                     }
                   }
                 }
               }
             }
           }
-        }
-      });
-      const provinces = await this.prisma.province.findMany();
-
-      return provinces.map(province => {
-        const order = orders.filter(order => order.destination.district.province.id === province.id);
-        return {
-          name: province.name,
-          value: order.length ?? 0
-        };
-      });
+        })
+      ]);
+      return {provinces, orders};
     } catch (err) {
       console.error(err);
       throw  new BadRequestException(err);
@@ -48,31 +43,66 @@ export class StatisticalRepository {
 
   async statisticalCustomers() {
     try {
-      const customers = await this.prisma.customer.findMany({
-        include: {
-          ward: {
-            include: {
-              district: {
-                include: {
-                  province: true
+      const [provinces, customers] = await Promise.all([
+        this.prisma.province.findMany(),
+        this.prisma.customer.findMany({
+          include: {
+            ward: {
+              select: {
+                district: {
+                  select: {
+                    province: {
+                      select: {
+                        id: true
+                      }
+                    }
+                  }
                 }
+              }
+            },
+            orders: {
+              include: {
+                commodities: true
               }
             }
           }
-        }
-      });
+        }),
+      ]);
 
+      return {provinces, customers};
+    } catch (err) {
+      console.error(err);
+      throw new BadRequestException(err);
+    }
+  }
 
-      const provinces = await this.prisma.province.findMany();
-
-      return provinces.map(province => {
-        const customer = customers.filter(customer => customer.ward.district.province.id === province.id);
-
-        return {
-          name: province.name,
-          value: customer.length ?? 0
-        };
-      });
+  async commodities() {
+    try {
+      const [provinces, commodities] = await Promise.all([
+        this.prisma.province.findMany(),
+        this.prisma.commodity.findMany({
+          include: {
+            order: {
+              select: {
+                destination: {
+                  select: {
+                    district: {
+                      select: {
+                        province: {
+                          select: {
+                            id: true
+                          }
+                        }
+                      }
+                    }
+                  }
+                },
+              }
+            }
+          }
+        }),
+      ]);
+      return {provinces, commodities};
     } catch (err) {
       console.error(err);
       throw new BadRequestException(err);

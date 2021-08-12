@@ -1,0 +1,6 @@
+export enum CustomerType {
+  COMMODITY = 'COMMODITY',
+  COMMODITY_DETAIL = 'COMMODITY_DETAIL',
+  POTENTIAL = 'POTENTIAL',
+  DEBT = 'DEBT',
+}

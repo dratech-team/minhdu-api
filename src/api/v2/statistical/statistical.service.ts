@@ -1,7 +1,8 @@
 import {Injectable} from '@nestjs/common';
-import {UpdateStatisticalDto} from './dto/update-statistical.dto';
 import {StatisticalRepository} from "./statistical.repository";
 import {NationType} from "./enums/nation-type.enum";
+import {CustomerType} from "./enums/customer-type.enum";
+import {RouteType} from "./enums/route-type.enum";
 
 @Injectable()
 export class StatisticalService {
@@ -11,25 +12,115 @@ export class StatisticalService {
   async statisticalNation(startedAt: Date, endedAt: Date, type: NationType) {
     switch (type) {
       case NationType.ORDER:
-        return await this.repository.statisticalOrder(startedAt, endedAt);
-      case NationType.CUSTOMER:
-        return await this.repository.statisticalCustomers();
+        return await this.orders(startedAt, endedAt);
+      case NationType.COMMODITY:
+        return await this.commodities(false);
+      case NationType.COMMODITY_DETAIL:
+        return await this.commodities(true);
     }
   }
 
-  async statisticalCustomers() {
-    return await this.repository.statisticalCustomers();
+  async statisticalCustomer(type: CustomerType) {
+    switch (type) {
+      case CustomerType.POTENTIAL:
+        return await this.potentialCustomers();
+      case CustomerType.COMMODITY_DETAIL:
+        return await this.customers();
+      case CustomerType.DEBT:
+        return await this.debtCustomers();
+      default:
+        return;
+    }
   }
 
-  findOne(id: number) {
-    return `This action returns a #${id} statistical`;
+  async statisticalRoute(type: RouteType) {
+    switch (type) {
+      case RouteType.CUSTOMER:
+        return await this.routeCustomers();
+      case RouteType.MONEY:
+        return await this.customers();
+      case RouteType.TOTAL_COMMODITY:
+        return await this.debtCustomers();
+      default:
+        return;
+    }
   }
 
-  update(id: number, updateStatisticalDto: UpdateStatisticalDto) {
-    return `This action updates a #${id} statistical`;
+  async routeCustomers() {
+
+  }
+  async orders(startedAt: Date, endedAt: Date) {
+    const data = await this.repository.statisticalOrder(startedAt, endedAt);
+
+    return data.provinces.map(province => {
+      const order = data.orders.filter(order => order.destination.district.province.id === province.id);
+      return {
+        name: province.name,
+        value: order.length ?? 0
+      };
+    });
   }
 
-  remove(id: number) {
-    return `This action removes a #${id} statistical`;
+  async potentialCustomers() {
+    const data = await this.repository.statisticalCustomers();
+
+    return data.provinces.map(province => {
+      const customerPotential = data.customers.filter(customer => customer.ward.district.province.id === province.id && customer.isPotential);
+      return {
+        name: province.name,
+        series: [
+          {
+            name: "Tìm năng",
+            value: customerPotential.length
+          },
+          {
+            name: "Không tìm năng",
+            value: data.customers.length - customerPotential.length
+          }
+        ]
+      };
+    });
+  }
+
+  async customers() {
+    const data = await this.repository.statisticalCustomers();
+    return data.customers.map(customer => ({
+      name: customer.firstName + customer.lastName,
+      series: [
+        {
+          name: "Gà bán",
+          value: customer.orders.map(order => order.commodities.map((commodity) => commodity.amount + commodity.more).reduce((a, b) => a + b, 0)).reduce((x, y) => x + y, 0)
+        },
+        {
+          name: "Gà tặng",
+          value: customer.orders.map(order => order.commodities.map((commodity) => commodity.gift).reduce((a, b) => a + b, 0)).reduce((x, y) => x + y, 0)
+        },
+      ]
+    }));
+  }
+
+  async debtCustomers() {
+    return "Doing...";
+  }
+
+  async commodities(isDetail: boolean) {
+    const data = await this.repository.commodities();
+
+    return data.provinces.map(province => {
+      const commodities = data.commodities.filter(e => e.order.destination.district.province.id === province.id);
+      if (!isDetail) {
+        return {
+          name: province.name,
+          value: commodities.map(commodity => commodity.amount + commodity.more).reduce((a, b) => a + b, 0)
+        };
+      }
+      return {
+        name: province.name,
+        series: commodities.map(commodity => ({
+          name: commodity.name,
+          value: commodity.amount + commodity.more
+        }))
+      };
+    });
   }
 }
