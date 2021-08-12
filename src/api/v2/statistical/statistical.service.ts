@@ -56,7 +56,12 @@ export class StatisticalService {
       const order = data.orders.filter(order => order.destination.district.province.id === province.id);
       return {
         name: province.name,
-        value: order.length ?? 0
+        series:[
+          {
+            name: "Đơn hàng",
+            value: order.length ?? 0
+          }
+        ],
       };
     });
   }
