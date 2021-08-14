@@ -62,7 +62,8 @@ export class StatisticalRepository {
             },
             orders: {
               include: {
-                commodities: true
+                commodities: true,
+                paymentHistories: true,
               }
             }
           }
@@ -75,6 +76,7 @@ export class StatisticalRepository {
       throw new BadRequestException(err);
     }
   }
+
 
   async commodities() {
     try {

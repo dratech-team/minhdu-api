@@ -49,6 +49,7 @@ export class StatisticalService {
   async routeCustomers() {
 
   }
+
   async orders(startedAt: Date, endedAt: Date) {
     const data = await this.repository.statisticalOrder(startedAt, endedAt);
 
@@ -56,7 +57,7 @@ export class StatisticalService {
       const order = data.orders.filter(order => order.destination.district.province.id === province.id);
       return {
         name: province.name,
-        series:[
+        series: [
           {
             name: "Đơn hàng",
             value: order.length ?? 0
@@ -105,7 +106,28 @@ export class StatisticalService {
   }
 
   async debtCustomers() {
-    return "Doing...";
+    const data = await this.repository.statisticalCustomers();
+    return data.customers.map(customer => ({
+
+      name: customer.firstName + customer.lastName,
+      series: [
+        {
+          name: 'Khoản nợ',
+          /// khách hàng có nợ sẽ trả về số âm,
+          // thanh toán dư sẽ trả về số dương
+          // để hiển thị chart theo hai hướng nợ và thanh toán dư
+          value: customer.orders.forEach(order => {
+           const totalPricePayment = order.paymentHistories.map(paymentHistory => paymentHistory.total).reduce((a, b) => a + b, 0);
+           const totalPriceOrder = order.commodities.map(commodity => {
+             const totalPriceCommodity = commodity.price * commodity.amount;
+             const totalPriceMore = commodity.more *  Math.ceil((commodity.price * commodity.amount) / (commodity.amount + commodity.more));
+             return totalPriceCommodity + totalPriceMore;
+           }).reduce((a, b) => a + b, 0);
+           return   totalPricePayment - totalPriceOrder;
+          })
+        }
+      ]
+    }));
   }
 
   async commodities(isDetail: boolean) {
@@ -122,7 +144,7 @@ export class StatisticalService {
       return {
         name: province.name,
         series: commodities.map(commodity => ({
-          name: commodity.name,
+          name: commodity.code,
           value: commodity.amount + commodity.more
         }))
       };
