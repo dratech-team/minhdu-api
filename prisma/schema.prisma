@@ -94,6 +94,7 @@ model Branch {
   name        String
   departments Department[]
   Medicine    Medicine[]
+  Material    Material[]
 }
 
 model Department {
@@ -355,6 +356,21 @@ model SalaryHistory {
   employeeId Int
 
 }
+//start material
+model Material {
+  id        Int          @id @default(autoincrement())
+  name      String
+  provider  String?
+  expire    DateTime
+  price     Float // đơn giá trên 1 sp
+  discount  Float?
+  invoice   String?
+  amount    Float
+  createdAt DateTime?    @default(now()) // ngayf nhap kho
+  branch    Branch?      @relation(fields: [branchId], references: [id]) // kho tong, kho con
+  branchId  Int?
+}
+//end material
 
 // start medicine
 
