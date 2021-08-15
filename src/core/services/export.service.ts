@@ -25,9 +25,9 @@ export class ExportService {
 
     // Append headers & data
     if (result.excel.customHeaders) {
-      ws = XLSX.utils.sheet_add_aoa(wb, [result.excel.customHeaders]);
+      ws = XLSX.utils.sheet_add_aoa(wb, [result.excel.customHeaders], {origin: "A4"});
       XLSX.utils.sheet_add_json(ws, excelData, {
-        origin: "A2",
+        origin: "A5",
         skipHeader: true,
       });
     } else {
@@ -45,7 +45,7 @@ export class ExportService {
     XLSX.utils.book_append_sheet(wb, ws, "Sheet 1");
 
     /* generate buffer */
-    const buf = XLSX.writeFile(wb, {type: "file", bookType: "xlsx"});
+    const buf = XLSX.writeFile(wb, result.excel.name, {type: "file", bookType: "xlsx"});
     response.header(
       "Content-Disposition",
       `attachment; filename=${result.excel.name} (${moment().format(

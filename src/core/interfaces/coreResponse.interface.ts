@@ -5,7 +5,7 @@ export interface CoreResponse {
   message?: string,
   excel?: {
     name: string,
-    data: Record<any, any>[],
+    data: any[],
     customHeaders?: Array<string>,
   },
 }
