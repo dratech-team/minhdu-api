@@ -29,14 +29,30 @@ export class RouteRepository {
   }
 
   async findAll(
-    skip: number,
-    take: number,
+    skip?: number,
+    take?: number,
+    search?: Partial<CreateRouteDto>,
   ) {
     try {
       const [total, data] = await Promise.all([
-        this.prisma.route.count(),
+        this.prisma.route.count({
+          where: {
+            name: {startsWith: search.name},
+            // startedAt: {gte: startedAt ?? new Date("1/1/2020")},
+            // endedAt: {lte: endedAt ?? new Date()},
+            driver: {startsWith: search.driver},
+            bsx: {startsWith: search.bsx},
+          },
+        }),
         this.prisma.route.findMany({
           skip, take,
+          where: {
+            name: {startsWith: search.name},
+            // startedAt: startedAt ? {gte: startedAt} : {},
+            // endedAt: endedAt ? {lte: endedAt} : {},
+            driver: {startsWith: search.driver},
+            bsx: {startsWith: search.bsx},
+          },
           include: {
             employee: true,
             locations: true,
@@ -102,5 +118,9 @@ export class RouteRepository {
       console.error(err);
       throw new BadRequestException(err);
     }
+  }
+
+  async finds(search?: Partial<CreateRouteDto>){
+    return await this.prisma.route.findMany();
   }
 }
