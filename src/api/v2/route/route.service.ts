@@ -51,6 +51,9 @@ export class RouteService {
 
     const res = this.exportService.toExcel(response, {
       excel: {
+        /// TODO: Truyền vào title
+        title: "Danh sách tuyến đường XXXX",
+        customHeaders: [ "Tên tuyến đường", "Ngày khởi hành", "Ngày kết thúc", "Nhà xe", "Tên tài xế", "Biển số xe"],
         name: "data.xlsx",
         data: data.map(e => ({
           name: e.name,
@@ -60,7 +63,6 @@ export class RouteService {
           driver: e.driver,
           bsx: e.bsx
         })),
-        customHeaders: [ "Tên tuyến đường", "Ngày khởi hành", "Ngày kết thúc", "Nhà xe", "Tên tài xế", "Biển số xe"]
       }
     }, 200);
     console.log(res);

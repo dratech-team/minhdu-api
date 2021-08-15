@@ -2,6 +2,7 @@ import {Injectable} from "@nestjs/common";
 import {optionalRequire} from "@nestjs/core/helpers/optional-require";
 import {Response} from "express";
 import {CoreResponse} from "../interfaces/coreResponse.interface";
+import {WorkSheet} from "xlsx";
 
 const moment = optionalRequire("moment");
 const XLSX = require("xlsx");
@@ -13,21 +14,48 @@ export class ExportService {
     result: CoreResponse,
     respStatusCode: number
   ): any {
-    const excelData =
-      typeof result.excel.data["docs"] !== "undefined" &&
-      typeof result.excel.data["hasNextPage"] !== "undefined" &&
-      typeof result.excel.data["hasPrevPage"] !== "undefined"
-        ? result.excel.data["docs"]
-        : result.excel.data;
-    const dataSize = excelData ? Object.keys(excelData[0]).length : 0;
-    const wb = XLSX.utils.book_new();
-    let ws;
+    /*
+    * title: Tiêu đề của sheet
+    * header: tiêu đề của table
+    * data: Dữ liệu dạng json được truyền vào
+    * */
 
-    // Append headers & data
+    /*
+   * Get data đc truyền vào dưới dạng json
+   */
+    const excelData = result.excel.data;
+
+    /*
+    * Data size của mỗi ô đc tính theo length của header
+    */
+    const dataSize = excelData ? Object.keys(excelData[0]).length : 0;
+
+    const wb = XLSX.utils.book_new();
+    let ws: WorkSheet;
+
+    /*
+    * Gộp các ô thành tiêu đề của sheet
+    * s: start
+    * r: row
+    * c: column
+    * e: end
+    */
+
     if (result.excel.customHeaders) {
-      ws = XLSX.utils.sheet_add_aoa(wb, [result.excel.customHeaders], {origin: "A4"});
+
+      ///TODO: Thêm tiêu đề từ col 1 - 10 của row 1
+      // ws = XLSX.utils.cell_add_comment(wb, ws, "asdasd");
+
+      ws["!merges"] = [
+        {s: {r: 1, c: 0}, e: {r: 1, c: 10}}
+      ];
+
+      /*
+       * Append headers & data
+       */
+      ws = XLSX.utils.sheet_add_aoa(wb, [result.excel.customHeaders], {origin: "A5"});
       XLSX.utils.sheet_add_json(ws, excelData, {
-        origin: "A5",
+        origin: "A6",
         skipHeader: true,
       });
     } else {
