@@ -6,7 +6,7 @@ export interface CoreResponse {
   excel?: {
     title?: string,
     name: string,
-    data: any[],
     customHeaders?: Array<string>,
+    data: any[],
   },
 }
