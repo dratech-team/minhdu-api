@@ -83,7 +83,7 @@ export class ExportService {
       const value =  Object.values(json[i]);
       for (let j = 0; j < jsonKeys.length; j++) {
           const l = value[j] && typeof value[j] !== "object"? value[j].toString().length:
-            value[j] && typeof value[j] !== "object"?  20 : 0;
+            value[j] && typeof value[j] === "object"?  13 : 0;
           objectMaxLength[j] = objectMaxLength[j] >= l ? objectMaxLength[j] : l +2 ;
       }
 
