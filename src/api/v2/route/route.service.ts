@@ -48,9 +48,11 @@ export class RouteService {
 
   async export(response?: Response, search?: Partial<CreateRouteDto>) {
     const data = await this.repository.finds(search);
-
     const res = this.exportService.toExcel(response, {
       excel: {
+        title: search?.startedAt && search?.endedAt  ?
+          'Danh sách tuyến đường từ ngày '+ search?.startedAt+ ' đến ngày '+ search?.endedAt:
+            search?.startedAt ?  'Danh sách tuyến đường từ ngày '+ search?.startedAt + ' đến ngày '+ new Date() : 'Danh sách Tuyến đương',
         name: "data.xlsx",
         data: data.map(e => ({
           name: e.name,
@@ -60,9 +62,9 @@ export class RouteService {
           driver: e.driver,
           bsx: e.bsx
         })),
-        customHeaders: [ "Tên tuyến đường", "Ngày khởi hành", "Ngày kết thúc", "Nhà xe", "Tên tài xế", "Biển số xe"]
+        customHeaders: ["Tên tuyến đường", "Ngày khởi hành", "Ngày kết thúc", "Nhà xe", "Tên tài xế", "Biển số xe"]
       }
     }, 200);
-    console.log(res);
+
   }
 }

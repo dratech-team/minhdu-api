@@ -62,7 +62,8 @@ export class StatisticalRepository {
             },
             orders: {
               include: {
-                commodities: true
+                commodities: true,
+                paymentHistories: true,
               }
             }
           }

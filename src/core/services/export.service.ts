@@ -22,18 +22,30 @@ export class ExportService {
     const dataSize = excelData ? Object.keys(excelData[0]).length : 0;
     const wb = XLSX.utils.book_new();
     let ws;
-
-    // Append headers & data
+    let title;
+    // Append headers & data & title
     if (result.excel.customHeaders) {
-      ws = XLSX.utils.sheet_add_aoa(wb, [result.excel.customHeaders], {origin: "A4"});
+      ws = XLSX.utils.sheet_add_aoa(wb, [[result.excel.title],[[]], result.excel.customHeaders], {origin: "A2"});
       XLSX.utils.sheet_add_json(ws, excelData, {
         origin: "A5",
         skipHeader: true,
       });
     } else {
-      ws = XLSX.utils.json_to_sheet(excelData);
+      ws = XLSX.utils.sheet_add_aoa(wb, [[result.excel.title]],[[]], {origin: "A2"});
+        XLSX.utils.json_to_sheet(excelData, {
+        origin: 'A3',
+        skipHeader: true,
+      });
     }
-
+    /// styling title
+    ws['!merges'] = [{s:{r:1, c:0}, e:{ r:2 , c: dataSize -1} } ];
+    ws["A2"].s = {
+      font: {
+        sz: 24,
+        bold: true,
+        color: { rgb: "FFFFAA00" },
+      },
+    };
     // Auto filter
     ws["!autofilter"] = {
       ref: `A1:${ExportService.getExcelColumn(dataSize)}1`,
@@ -67,14 +79,14 @@ export class ExportService {
   ): void {
     const jsonKeys = header ? header : Object.keys(json[0]);
     const objectMaxLength = [];
-
     for (let i = 0; i < json.length; i++) {
       const value = json[i];
       for (let j = 0; j < jsonKeys.length; j++) {
-        if (typeof value[jsonKeys[j]] == "number") {
-          objectMaxLength[j] = 10;
+        if (typeof value.jsonKeys[j] == "number") {
+
+          objectMaxLength[j] = 15;
         } else {
-          const l = value[jsonKeys[j]] ? value[jsonKeys[j]].length : 0;
+          const l =  value.jsonKeys[j] ? value.jsonKeys[j].length : 0;
           objectMaxLength[j] = objectMaxLength[j] >= l ? objectMaxLength[j] : l;
         }
       }

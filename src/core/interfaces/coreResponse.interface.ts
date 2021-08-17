@@ -4,6 +4,7 @@ export interface CoreResponse {
   data?: any,
   message?: string,
   excel?: {
+    title?: string,
     name: string,
     data: any[],
     customHeaders?: Array<string>,

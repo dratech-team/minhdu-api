@@ -105,12 +105,32 @@ export class StatisticalService {
   }
 
   async debtCustomers() {
-    return "Doing...";
+    const data = await this.repository.statisticalCustomers();
+
+    return data.customers.map(customer => ({
+      name: customer.firstName + ' '+ customer.lastName,
+      series: [
+        {
+          name: 'Khoản nợ',
+          /// khách hàng có nợ sẽ trả về số âm,
+          // thanh toán dư sẽ trả về số dương
+          // để hiển thị chart theo hai hướng nợ và thanh toán dư
+          value: customer.orders.reduce((a, b) => {
+                 const totalPayment = b.paymentHistories.reduce( (a, b) => { return a + b.total;}, 0);
+                 const totalCommodity = b.commodities.reduce((a,b)=>{
+                        const totalCommodityBeforeGift = b.amount * b.price;
+                        const totalCommodityMore = b.more * Math.ceil((b.price * b.amount) / (b.amount + b.more));
+                        return totalCommodityBeforeGift + totalCommodityMore;
+                 },0);
+                 return totalPayment - totalCommodity;
+          }, 0)
+        }
+      ]
+    }));
   }
 
   async commodities(isDetail: boolean) {
     const data = await this.repository.commodities();
-
     return data.provinces.map(province => {
       const commodities = data.commodities.filter(e => e.order.destination.district.province.id === province.id);
       if (!isDetail) {
@@ -120,7 +140,7 @@ export class StatisticalService {
         };
       }
       return {
-        name: province.name,
+        name: province.code,
         series: commodities.map(commodity => ({
           name: commodity.name,
           value: commodity.amount + commodity.more
