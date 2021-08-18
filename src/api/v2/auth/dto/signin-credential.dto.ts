@@ -8,5 +8,10 @@ export class SignInCredentialDto {
   @IsString()
   @IsNotEmpty()
   password: string;
+
+
+  @IsString()
+  @IsNotEmpty()
+  app: string;
 }
 

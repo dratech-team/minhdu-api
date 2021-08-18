@@ -29,6 +29,7 @@ export class AuthService {
           role: body.role,
           employee: body.employeeId ? {connect: {id: body.employeeId}} : {},
           password: body.password,
+          app: body.app,
         }
       });
       return {status: 'Register Success!'};
@@ -64,13 +65,15 @@ export class AuthService {
           accountId: user.id,
           username: user.username,
           role: user.role,
-          branchId: branchId
+          branchId: branchId,
+          app: user.app,
         };
       } else {
         payload = {
           accountId: user.id,
           username: user.username,
           role: user.role,
+          app: user.app,
         };
       }
 
@@ -80,10 +83,12 @@ export class AuthService {
         id: user.id,
         role: user.role,
         branchId: branchId,
+        app: user.app,
         token,
       } : {
         id: user.id,
         role: user.role,
+        app: user.app,
         token,
       };
     } catch (err) {
