@@ -251,6 +251,7 @@ model Customer {
   isPotential      Boolean?         @default(false)
   note             String?
   orders           Order[]
+  debt             Float?   @default(0)
   paymentHistories PaymentHistory[]
 }
 

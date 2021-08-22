@@ -8,4 +8,6 @@ export class UpdateOrderDto extends PartialType(CreateOrderDto) {
   @Type(() => Date)
   @IsDate()
   readonly deliveredAt: Date;
+
+  totalOrder: number;
 }

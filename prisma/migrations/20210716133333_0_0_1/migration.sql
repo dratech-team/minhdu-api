@@ -1,5 +1,0 @@
--- AlterTable
-ALTER TABLE "Order" ADD COLUMN     "wardId" INTEGER;
-
--- AddForeignKey
-ALTER TABLE "Order" ADD FOREIGN KEY ("wardId") REFERENCES "Ward"("id") ON DELETE SET NULL ON UPDATE CASCADE;

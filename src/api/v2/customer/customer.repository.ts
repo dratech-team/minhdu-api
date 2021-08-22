@@ -2,7 +2,8 @@ import {BadRequestException, Injectable} from "@nestjs/common";
 import {PrismaService} from "../../../prisma.service";
 import {CreateCustomerDto} from "./dto/create-customer.dto";
 import {UpdateCustomerDto} from "./dto/update-customer.dto";
-import {CustomerResource, CustomerType} from "@prisma/client";
+import {Customer, CustomerResource, CustomerType} from "@prisma/client";
+import {CreatePaymentHistoryDto} from "../payment-history/dto/create-payment-history.dto";
 
 @Injectable()
 export class CustomerRepository {
@@ -130,6 +131,34 @@ export class CustomerRepository {
   async remove(id: number) {
     try {
       return await this.prisma.customer.delete({where: {id}});
+    } catch (err) {
+      console.error(err);
+      throw new BadRequestException(err);
+    }
+  }
+
+  async transactionDebt(customerId: Customer['id'], payment: CreatePaymentHistoryDto) {
+    try {
+      const customer = await this.findOne(customerId);
+
+      const createdPay = this.prisma.paymentHistory.create({
+        data: {
+          customerId: customerId,
+          orderId: payment.orderId ? Number(payment.orderId) : null,
+          currency: payment.currency,
+          paidAt: payment.paidAt,
+          total: +payment.total,
+          payType: payment.payType,
+          note: payment.note,
+        }
+      });
+
+      const updated = this.prisma.customer.update({
+        where: {id: customerId},
+        data: {debt: customer.debt + payment.total}
+      });
+
+      await this.prisma.$transaction([createdPay, updated]);
     } catch (err) {
       console.error(err);
       throw new BadRequestException(err);

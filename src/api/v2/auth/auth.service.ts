@@ -51,12 +51,12 @@ export class AuthService {
       });
       const branchId = user?.employee?.position?.department?.branchId;
       if (!user) {
-        throw new NotFoundException('username không tồn tại');
+        return  new NotFoundException('username không tồn tại');
       }
       const isValid = await bcrypt.compare(body.password, user.password);
 
       if (!isValid) {
-        throw new UnauthorizedException();
+        return new UnauthorizedException();
       }
 
       if (user.employee) {
@@ -64,7 +64,7 @@ export class AuthService {
           accountId: user.id,
           username: user.username,
           role: user.role,
-          branchId: branchId
+          branchId: branchId,
         };
       } else {
         payload = {
@@ -81,10 +81,12 @@ export class AuthService {
         role: user.role,
         branchId: branchId,
         token,
+        app: "SELL"
       } : {
         id: user.id,
         role: user.role,
         token,
+        app: "SELL"
       };
     } catch (err) {
       console.error(err);

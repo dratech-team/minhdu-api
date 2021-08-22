@@ -1,10 +1,10 @@
-import {Injectable} from "@nestjs/common";
+import {BadRequestException, Injectable} from "@nestjs/common";
 import {CreateOrderDto} from "./dto/create-order.dto";
 import {UpdateOrderDto} from "./dto/update-order.dto";
 import {OrderRepository} from "./order.repository";
 import {CommodityService} from "../commodity/commodity.service";
 import {PaidEnum} from "./enums/paid.enum";
-import {PaymentType} from "@prisma/client";
+import {Customer, PaymentType, PrismaPromise} from "@prisma/client";
 import {searchName} from "../../../utils/search-name.util";
 import {PaymentHistoryService} from "../payment-history/payment-history.service";
 
@@ -59,23 +59,23 @@ export class OrderService {
   }
 
   async update(id: number, updates: UpdateOrderDto) {
+    const found = await this.findOne(id);
+
+    // Đơn hàng giao thành công thì không được phép sửa
+    if (found.deliveredAt) {
+      return new BadRequestException('Không được sửa đơn hàng đã được giao thành công.');
+    }
+
+    // Đơn hàng được update lại hàng hóa thì phải tính lại tổng để update lại dư nợ
+    const commodities = await Promise.all(updates.commodityIds.map(async (commodityId) => {
+      return await this.findOne(commodityId);
+    }));
+    updates.totalOrder = this.commodityService.totalCommodities(commodities);
+
     return await this.repository.update(id, updates);
   }
 
   async remove(id: number) {
     await this.repository.remove(id);
-  }
-
-  /*
-  * Tổng tiền nhiều đơn hàng
-  * */
-  totalPayOrder(orders: any[]) {
-    return orders.map(order => {
-      const totalCommodity = order.commodities
-        ?.map((commodity) => this.commodityService.totalCommodity(commodity))
-        ?.reduce((a, b) => a + b, 0);
-
-      return Math.round(totalCommodity / 1000) * 1000;
-    }).reduce((a, b) => a + b, 0);
   }
 }
