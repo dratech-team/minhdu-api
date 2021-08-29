@@ -1,9 +1,17 @@
-import {CurrencyUnit, PaymentType} from "@prisma/client";
-import {IsDate, IsEnum, IsNotEmpty, IsNumber, IsOptional, IsString, Min} from "class-validator";
-import {Type} from "class-transformer";
+import { CurrencyUnit, PaymentType } from "@prisma/client";
+import {
+  IsArray,
+  IsDate,
+  IsEnum,
+  IsNotEmpty,
+  IsNumber,
+  IsOptional,
+  IsString,
+  Min,
+} from "class-validator";
+import { Type } from "class-transformer";
 
 export class CreatePaymentHistoryDto {
-
   @IsOptional()
   @Type(() => Date)
   @IsDate()
@@ -20,7 +28,7 @@ export class CreatePaymentHistoryDto {
   @IsNotEmpty()
   @IsNumber()
   @Type(() => Number)
-  @Min(10000, {message: 'Thanh toán ít nhất 10k. OK'})
+  @Min(10000, { message: "Thanh toán ít nhất 10k. OK" })
   readonly total: number;
 
   @IsOptional()
@@ -31,5 +39,4 @@ export class CreatePaymentHistoryDto {
   @IsOptional()
   @IsString()
   readonly note?: string;
-
 }

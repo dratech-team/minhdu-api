@@ -11,15 +11,7 @@ export class PaymentHistoryRepository {
   async create(customerId: number, body: CreatePaymentHistoryDto) {
     try {
       return await this.prisma.paymentHistory.create({
-        data: {
-          customerId: customerId,
-          orderId: body.orderId ? Number(body.orderId) : null,
-          currency: body.currency,
-          paidAt: body.paidAt,
-          total: +body.total,
-          payType: body.payType,
-          note: body.note,
-        }
+        data: Object.assign(body, {customerId}),
       });
     } catch (err) {
       console.error(err);
@@ -32,18 +24,20 @@ export class PaymentHistoryRepository {
       const [total, data] = await Promise.all([
         this.prisma.paymentHistory.count({
           where: {
-            customer: {id: customerId}
-          }
+            customer: {id: customerId},
+          },
         }),
         this.prisma.paymentHistory.findMany({
-          take, skip,
+          take,
+          skip,
           where: {
-            customer: {id: customerId}
-          }
-        })
+            customer: {id: customerId},
+          },
+        }),
       ]);
       return {
-        total, data
+        total,
+        data,
       };
     } catch (err) {
       console.error(err);
@@ -64,7 +58,7 @@ export class PaymentHistoryRepository {
     try {
       return await this.prisma.paymentHistory.update({
         where: {id},
-        data: updates
+        data: updates,
       });
     } catch (err) {
       console.error(err);

@@ -1,18 +1,17 @@
-import {BadRequestException, Injectable} from "@nestjs/common";
-import {PrismaService} from "../../../prisma.service";
-import {CreateCustomerDto} from "./dto/create-customer.dto";
-import {UpdateCustomerDto} from "./dto/update-customer.dto";
-import {Customer, CustomerResource, CustomerType} from "@prisma/client";
-import {CreatePaymentHistoryDto} from "../payment-history/dto/create-payment-history.dto";
+import { BadRequestException, Injectable } from "@nestjs/common";
+import { PrismaService } from "../../../prisma.service";
+import { CreateCustomerDto } from "./dto/create-customer.dto";
+import { UpdateCustomerDto } from "./dto/update-customer.dto";
+import { Customer, CustomerResource, CustomerType } from "@prisma/client";
+import { CreatePaymentHistoryDto } from "../payment-history/dto/create-payment-history.dto";
 
 @Injectable()
 export class CustomerRepository {
-  constructor(private readonly prisma: PrismaService) {
-  }
+  constructor(private readonly prisma: PrismaService) {}
 
   async create(body: CreateCustomerDto) {
     try {
-      return await this.prisma.customer.create({data: body});
+      return await this.prisma.customer.create({ data: body });
     } catch (err) {
       console.error(err);
       throw new BadRequestException(err);
@@ -34,18 +33,19 @@ export class CustomerRepository {
       const [total, data] = await Promise.all([
         this.prisma.customer.count(),
         this.prisma.customer.findMany({
-          skip, take,
+          skip,
+          take,
           where: {
             AND: {
-              firstName: {startsWith: firstName, mode: 'insensitive'},
-              lastName: {startsWith: firstName, mode: 'insensitive'},
+              firstName: { startsWith: firstName, mode: "insensitive" },
+              lastName: { startsWith: firstName, mode: "insensitive" },
             },
-            phone: {startsWith: phone, mode: 'insensitive'},
+            phone: { startsWith: phone, mode: "insensitive" },
             // ward: {district: {province: {nation: {id: nationId}}}},
-            type: type ? {in: type} : {},
-            resource: resource ? {in: resource} : {},
+            type: type ? { in: type } : {},
+            resource: resource ? { in: resource } : {},
             /// FIXME: bug
-            isPotential: isPotential ? {equals: isPotential !== 0} : {}
+            isPotential: isPotential ? { equals: isPotential !== 0 } : {},
           },
           include: {
             ward: {
@@ -54,14 +54,14 @@ export class CustomerRepository {
                   include: {
                     province: {
                       include: {
-                        nation: true
-                      }
-                    }
-                  }
-                }
-              }
-            }
-          }
+                        nation: true,
+                      },
+                    },
+                  },
+                },
+              },
+            },
+          },
         }),
       ]);
 
@@ -69,7 +69,6 @@ export class CustomerRepository {
         total,
         data,
       };
-
     } catch (err) {
       console.error(err);
       throw new BadRequestException(err);
@@ -79,12 +78,12 @@ export class CustomerRepository {
   async findOne(id: number) {
     try {
       return await this.prisma.customer.findUnique({
-        where: {id},
+        where: { id },
         include: {
           orders: {
             include: {
-              commodities: true
-            }
+              commodities: true,
+            },
           },
           ward: {
             include: {
@@ -92,23 +91,19 @@ export class CustomerRepository {
                 include: {
                   province: {
                     include: {
-                      nation: true
-                    }
-                  }
-                }
-              }
-            }
+                      nation: true,
+                    },
+                  },
+                },
+              },
+            },
           },
           paymentHistories: {
             include: {
-              order: {
-                select: {
-                  id: true
-                }
-              }
-            }
+              order: true,
+            },
           },
-        }
+        },
       });
     } catch (err) {
       console.error(err);
@@ -119,7 +114,7 @@ export class CustomerRepository {
   async update(id: number, updates: UpdateCustomerDto) {
     try {
       return await this.prisma.customer.update({
-        where: {id},
+        where: { id },
         data: updates,
       });
     } catch (err) {
@@ -130,32 +125,27 @@ export class CustomerRepository {
 
   async remove(id: number) {
     try {
-      return await this.prisma.customer.delete({where: {id}});
+      return await this.prisma.customer.delete({ where: { id } });
     } catch (err) {
       console.error(err);
       throw new BadRequestException(err);
     }
   }
 
-  async transactionDebt(customerId: Customer['id'], payment: CreatePaymentHistoryDto) {
+  async transactionDebt(
+    customerId: Customer["id"],
+    payment: CreatePaymentHistoryDto
+  ) {
     try {
       const customer = await this.findOne(customerId);
 
       const createdPay = this.prisma.paymentHistory.create({
-        data: {
-          customerId: customerId,
-          orderId: payment.orderId ? Number(payment.orderId) : null,
-          currency: payment.currency,
-          paidAt: payment.paidAt,
-          total: +payment.total,
-          payType: payment.payType,
-          note: payment.note,
-        }
+        data: Object.assign(payment, {customerId}),
       });
 
       const updated = this.prisma.customer.update({
-        where: {id: customerId},
-        data: {debt: customer.debt + payment.total}
+        where: { id: customerId },
+        data: { debt: customer.debt + payment.total },
       });
 
       await this.prisma.$transaction([createdPay, updated]);

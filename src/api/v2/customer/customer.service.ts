@@ -56,11 +56,11 @@ export class CustomerService {
     /// find an available customer by id
     const customer = await this.findOne(id);
 
-    /// Throw an error if order id no exist by this customer
-    const found = customer?.orders?.map(order => order.id)?.includes(+payment.orderId);
-    if (!found) {
-      return new BadRequestException(`Mã đơn hàng ${payment.orderId} Không thuộc khách hàng ${customer.lastName}. Vui lòng kiểm tra lại hoặc liên hệ admin để hỗ trợ.`);
-    }
+    // /// Throw an error if order id no exist by this customer
+    // const found = customer?.orders?.map(order => order.id)?.includes(+payment.orderId);
+    // if (!found) {
+    //   return new BadRequestException(`Mã đơn hàng ${payment.orderId} Không thuộc khách hàng ${customer.lastName}. Vui lòng kiểm tra lại hoặc liên hệ admin để hỗ trợ.`);
+    // }
     return await this.repository.transactionDebt(id, payment);
   }
 }

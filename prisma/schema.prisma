@@ -1,6 +1,5 @@
 generator client {
-  provider        = "prisma-client-js"
-  previewFeatures = ["selectRelationCount"]
+  provider = "prisma-client-js"
 }
 
 //generator dbml {
@@ -251,7 +250,7 @@ model Customer {
   isPotential      Boolean?         @default(false)
   note             String?
   orders           Order[]
-  debt             Float?   @default(0)
+  debt             Float?           @default(0)
   paymentHistories PaymentHistory[]
 }
 
@@ -264,8 +263,8 @@ model PaymentHistory {
   customer   Customer      @relation(fields: [customerId], references: [id])
   customerId Int
   note       String?
-  order      Order?        @relation(fields: [orderId], references: [id])
-  orderId    Int?
+  order      Order         @relation(fields: [orderId], references: [id])
+  orderId    Int
 }
 
 model Commodity {
