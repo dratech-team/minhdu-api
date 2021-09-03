@@ -7,64 +7,71 @@ import {Response} from 'express';
 
 @Injectable()
 export class RouteService {
-  constructor(private readonly repository: RouteRepository, private readonly exportService: ExportService) {
-  }
-
-  async create(body: CreateRouteDto) {
-    return await this.repository.create(body);
-  }
-
-  async findAll(
-    skip: number,
-    take: number,
-    name: string,
-    startedAt: Date,
-    endedAt: Date,
-    driver: string,
-    bsx: string,
-  ) {
-    if (startedAt) {
-      startedAt = new Date(startedAt);
+    constructor(private readonly repository: RouteRepository, private readonly exportService: ExportService) {
     }
 
-    if (endedAt) {
-      endedAt = new Date(endedAt);
+    async create(body: CreateRouteDto) {
+        return await this.repository.create(body);
     }
 
-    return await this.repository.findAll(skip, take, {name, startedAt, endedAt, driver, bsx});
-  }
+    async findAll(
+        skip: number,
+        take: number,
+        name: string,
+        startedAt: Date,
+        endedAt: Date,
+        driver: string,
+        bsx: string,
+    ) {
+        if (startedAt) {
+            startedAt = new Date(startedAt);
+        }
 
-  async findOne(id: number) {
-    return await this.repository.findOne(id);
-  }
+        if (endedAt) {
+            endedAt = new Date(endedAt);
+        }
 
-  async update(id: number, updates: UpdateRouteDto) {
-    return await this.repository.update(id, updates);
-  }
+        return await this.repository.findAll(skip, take, {name, startedAt, endedAt, driver, bsx});
+    }
 
-  async remove(id: number) {
-    return await this.repository.remove(id);
-  }
+    async findOne(id: number) {
+        return await this.repository.findOne(id);
+    }
 
-  async export(response?: Response, search?: Partial<CreateRouteDto>) {
-    const data = await this.repository.finds(search);
+    async update(id: number, updates: UpdateRouteDto) {
+        return await this.repository.update(id, updates);
+    }
 
-    const res = this.exportService.toExcel(response, {
-      excel: {
-        /// TODO: Truyền vào title
-        title: "Danh sách tuyến đường XXXX",
-        customHeaders: [ "Tên tuyến đường", "Ngày khởi hành", "Ngày kết thúc", "Nhà xe", "Tên tài xế", "Biển số xe"],
-        name: "data.xlsx",
-        data: data.map(e => ({
-          name: e.name,
-          startedAt: e.startedAt,
-          endedAt: e.endedAt,
-          garage: e.garage,
-          driver: e.driver,
-          bsx: e.bsx
-        })),
-      }
-    }, 200);
-    console.log(res);
-  }
+    async remove(id: number) {
+        return await this.repository.remove(id);
+    }
+
+    async export(response?: Response, search?: Partial<CreateRouteDto>) {
+        const data = await this.repository.finds(search);
+
+        const res = this.exportService.toExcel(response, {
+            excel: {
+                /// TODO: Truyền vào title
+                title: "Danh sách tuyến đường XXXX",
+                customHeaders: [
+                    {header: "Tên tuyến đường", key: "name"},
+                    {header: "Ngày khởi hành", key: "startedAt", numFmt: "dd/MM/yyyy"},
+                    {header: "Ngày kết thúc", key: "endedAt"},
+                    {header: "Nhà xe", key: "garage"},
+                    {header: "Tên tài xế", key: "driver"},
+                    {header: "Biển số xe", key: "bsx"},
+                ],
+                name: "data.xlsx",
+                data: data.map(e => ({
+                    name: e.name,
+                    startedAt: e.startedAt,
+                    endedAt: e.endedAt,
+                    garage: e.garage,
+                    driver: e.driver,
+                    bsx: e.bsx
+                })),
+            }
+        }, 200);
+        console.log(res);
+    }
 }
