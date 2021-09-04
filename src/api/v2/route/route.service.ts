@@ -1,18 +1,17 @@
-import {Injectable} from "@nestjs/common";
-import {CreateRouteDto} from "./dto/create-route.dto";
-import {UpdateRouteDto} from "./dto/update-route.dto";
-import {RouteRepository} from "./route.repository";
-import {ExportService} from "../../../core/services/export.service";
-import {Response} from "express";
-import {Route} from ".prisma/client";
+import { Injectable } from "@nestjs/common";
+import { CreateRouteDto } from "./dto/create-route.dto";
+import { UpdateRouteDto } from "./dto/update-route.dto";
+import { RouteRepository } from "./route.repository";
+import { ExportService } from "../../../core/services/export.service";
+import { Response } from "express";
+import { Route } from ".prisma/client";
 
 @Injectable()
 export class RouteService {
   constructor(
     private readonly repository: RouteRepository,
     private readonly exportService: ExportService
-  ) {
-  }
+  ) {}
 
   async create(body: CreateRouteDto) {
     return await this.repository.create(body);
@@ -59,33 +58,28 @@ export class RouteService {
   async export(response?: Response, search?: Partial<CreateRouteDto>) {
     const data = await this.repository.finds(search);
 
-    const res = this.exportService.toExcel<Route>(
+    const res = this.exportService.toExcel(
       response,
       {
-        excel: {
-          /// TODO: Truyền vào title
-          title: "Danh sách tuyến đường XXXX",
-          customHeaders: [
-            {header: "Tên tuyến đường", key: "name"},
-            {
-              header: "Ngày khởi hành",
-              key: "startedAt"
-            },
-            {header: "Ngày kết thúc", key: "endedAt"},
-            {header: "Nhà xe", key: "garage"},
-            {header: "Tên tài xế", key: "driver"},
-            {header: "Biển số xe", key: "bsx"},
-          ],
-          name: "data.xlsx",
-          data: data.map((e) => ({
-            name: e.name,
-            startedAt: e.startedAt,
-            endedAt: e.endedAt,
-            garage: e.garage,
-            driver: e.driver,
-            bsx: e.bsx,
-          })),
-        },
+        title: "Danh sách tuyến đường XXXX",
+        customHeaders: [
+          "Tên tuyến đường",
+          "Ngày khởi hành",
+          "Ngày kết thúc",
+          "Nhà xe",
+          "Tên tài xế",
+          "Biển số xe",
+        ],
+        customKeys: ["name", "startedAt", "endedAt", "garage", "driver", "bsx"],
+        name: "data.xlsx",
+        data: data.map((e) => ({
+          name: e.name,
+          startedAt: e.startedAt,
+          endedAt: e.endedAt,
+          garage: e.garage,
+          driver: e.driver,
+          bsx: e.bsx,
+        })),
       },
       200
     );

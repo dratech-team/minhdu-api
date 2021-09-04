@@ -41,12 +41,6 @@ export class PayrollController {
     return this.payrollService.findAll(branchId, skip, take, code, name, branch, department, position, createdAt, isConfirm, isPaid);
   }
 
-  // @Roles(UserType.ADMIN, UserType.HUMAN_RESOURCE, UserType.CAMP_ACCOUNTING)
-  @Get('/export')
-  async exportPayrolls(@Res() res: Response, @ReqProfile() branchId: number,) {
-    return this.payrollService.exportExcel(res, branchId);
-  }
-
   @Roles(UserType.ADMIN, UserType.HUMAN_RESOURCE, UserType.CAMP_ACCOUNTING)
   @Get(':id')
   findOne(

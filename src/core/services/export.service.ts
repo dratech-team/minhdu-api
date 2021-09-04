@@ -1,52 +1,39 @@
-import {Injectable} from "@nestjs/common";
-import {optionalRequire} from "@nestjs/core/helpers/optional-require";
-import {Response} from "express";
-import {CoreResponse} from "../interfaces/coreResponse.interface";
-import * as ExcelJS from 'exceljs';
-import {Column, Style, Worksheet} from 'exceljs';
+import { Injectable } from "@nestjs/common";
+import { optionalRequire } from "@nestjs/core/helpers/optional-require";
+import { Response } from "express";
+import { InputExcel } from "../interfaces/coreResponse.interface";
+import * as ExcelJS from "exceljs";
 
 const moment = optionalRequire("moment");
 
 @Injectable()
 export class ExportService {
-
-  toExcel<T>(
-    response: Response,
-    result: CoreResponse,
-    respStatusCode: number
-  ): any {
+  toExcel(response: Response, result: InputExcel, respStatusCode: number): any {
     const workbook = new ExcelJS.Workbook();
-    workbook.creator = 'Me';
-    workbook.lastModifiedBy = 'Her';
-    workbook.created = new Date(1985, 8, 30);
+    workbook.creator = "Me";
+    workbook.lastModifiedBy = "Her";
+    workbook.created = new Date();
     workbook.modified = new Date();
-    workbook.lastPrinted = new Date(2016, 9, 27);
+    workbook.lastPrinted = new Date();
 
-    const worksheet = workbook.addWorksheet(result.excel.title);
+    const worksheet = workbook.addWorksheet(result.title);
 
-    const header = this.autoFitColumnsHeader<T>(result.excel.data, worksheet, result.excel.customHeaders).map((data) => {
-      return Object.assign(
-        data,
-        {
-          style: {
-            alignment: {horizontal: 'center'},
-          }
-        }
-      );
+    worksheet.mergeCells("A1", "J2");
+    worksheet.getCell("C1").value = "Bảng lương tháng";
+
+    worksheet.getRow(4).values = result.customHeaders;
+
+    worksheet.columns = this.autoFitColumnsHeader(result);
+
+    result.data.map((e) => {
+      worksheet.addRow(e);
     });
 
-    // @ts-ignore
-    // worksheet.setColumnKey("A5", header);
-    worksheet.setColumnKey("A5", {header: header});
-    result.excel.data.map((data) => {
-      worksheet.insertRow(5, data);
-    });
-
-    const buf = workbook.xlsx.writeFile(result.excel.name);
+    const buf = workbook.xlsx.writeFile(result.name);
 
     response.header(
       "Content-Disposition",
-      `attachment; filename=${result.excel.name} (${moment().format(
+      `attachment; filename=${result.name} (${moment().format(
         "DD-MM-YYYY"
       )}).xlsx`
     );
@@ -57,30 +44,36 @@ export class ExportService {
     response.status(respStatusCode).send(buf);
   }
 
-  private autoFitColumnsHeader<T>(
-    json: T[],
-    worksheet: Worksheet,
-    header?: Array<Partial<Column>>
-  ) {
-    const jsonKeys = header.map(e => e.key);
+  private autoFitColumnsHeader(input: InputExcel) {
+    const jsonKeys = input.customKeys;
     const objectMaxLength = [];
+    const numFmt = [];
 
-    for (let i = 0; i < json.length; i++) {
-      const value = json[i];
+    for (let i = 0; i < input.data.length; i++) {
+      const value = input.data[i];
 
       for (let j = 0; j < jsonKeys.length; j++) {
         const l = value[jsonKeys[j]]?.length ?? 0;
         objectMaxLength[j] = objectMaxLength[j] >= l ? objectMaxLength[j] : l;
+
+        console.log(typeof value[jsonKeys[j]]);
+        if (typeof value[jsonKeys[j]].getMonth === "function") {
+          numFmt[j] = "dd/mm/yyyy";
+        }
       }
 
-      const key = header.map(e => e.header);
+      const key = input.customHeaders;
       for (let j = 0; j < key.length; j++) {
-        objectMaxLength[j] =
-          objectMaxLength[j] >= key[j].length
-            ? objectMaxLength[j]
-            : key[j].length;
+        objectMaxLength[j] = Math.max(...[+objectMaxLength[j], +key[j].length]);
       }
     }
-    return header.map((e, i) => (Object.assign(e, {width: objectMaxLength[i] + 5})));
+
+    return input.customHeaders.map((e, i: number) => {
+      return {
+        key: input.customKeys[i],
+        numFmt: numFmt[i],
+        width: objectMaxLength[i] + 5,
+      } as Partial<ExcelJS.Style>;
+    });
   }
 }
