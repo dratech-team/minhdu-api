@@ -8,7 +8,11 @@ const moment = optionalRequire("moment");
 
 @Injectable()
 export class ExportService {
-  toExcel(response: Response, result: InputExcel, respStatusCode: number): any {
+  async toExcel(
+    response: Response,
+    result: InputExcel,
+    respStatusCode: number
+  ) {
     const workbook = new ExcelJS.Workbook();
     workbook.creator = "Me";
     workbook.lastModifiedBy = "Her";
@@ -72,7 +76,7 @@ export class ExportService {
       });
     });
 
-    const buf = workbook.xlsx.writeFile(result.name);
+    const buf = await workbook.xlsx.writeBuffer();
 
     response.header(
       "Content-Disposition",
@@ -84,7 +88,7 @@ export class ExportService {
       "Content-Type",
       "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
     );
-    response.status(respStatusCode).send(buf);
+    return response.status(respStatusCode).send(buf);
   }
 
   private autoFitColumnsHeader(input: InputExcel) {

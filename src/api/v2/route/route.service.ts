@@ -56,9 +56,9 @@ export class RouteService {
   }
 
   async export(response?: Response, search?: Partial<CreateRouteDto>) {
-    const data = await this.repository.finds(search);
+    const data = await this.repository.findAll(null, null, search);
 
-    const res = this.exportService.toExcel(
+    return await this.exportService.toExcel(
       response,
       {
         title: "Danh sách tuyến đường XXXX",
@@ -72,7 +72,7 @@ export class RouteService {
         ],
         customKeys: ["name", "startedAt", "endedAt", "garage", "driver", "bsx"],
         name: "data.xlsx",
-        data: data.map((e) => ({
+        data: data.data.map((e) => ({
           name: e.name,
           startedAt: e.startedAt,
           endedAt: e.endedAt,
