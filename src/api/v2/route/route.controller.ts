@@ -59,7 +59,14 @@ export class RouteController {
   }
 
   @Get("/export/print")
-  async print(@Res() res) {
-    return this.routeService.export(res);
+  async print(
+    @Res() res,
+    @Query("name") name: string,
+    @Query("startedAt") startedAt: Date,
+    @Query("endedAt") endedAt: Date,
+    @Query("driver") driver: string,
+    @Query("bsx") bsx: string
+  ) {
+    return this.routeService.export(res, {name, startedAt, endedAt, driver, bsx});
   }
 }

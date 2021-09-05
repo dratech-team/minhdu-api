@@ -1,14 +1,13 @@
-import {BadRequestException, Injectable} from "@nestjs/common";
-import {PrismaService} from "../../../prisma.service";
-import {CreateOrderDto} from "./dto/create-order.dto";
-import {UpdateOrderDto} from "./dto/update-order.dto";
-import {PaidEnum} from "./enums/paid.enum";
-import {Customer, PaymentType, PrismaPromise} from "@prisma/client";
+import { BadRequestException, Injectable } from "@nestjs/common";
+import { PrismaService } from "../../../prisma.service";
+import { CreateOrderDto } from "./dto/create-order.dto";
+import { UpdateOrderDto } from "./dto/update-order.dto";
+import { PaidEnum } from "./enums/paid.enum";
+import { Customer, PaymentType, PrismaPromise } from "@prisma/client";
 
 @Injectable()
 export class OrderRepository {
-  constructor(private readonly prisma: PrismaService) {
-  }
+  constructor(private readonly prisma: PrismaService) {}
 
   async create(body: CreateOrderDto) {
     try {
@@ -18,16 +17,16 @@ export class OrderRepository {
           createdAt: body.createdAt,
           explain: body.explain,
           commodities: {
-            connect: body.commodityIds.map(id => ({id}))
+            connect: body.commodityIds.map((id) => ({ id })),
           },
           wardId: body.destinationId,
         },
         include: {
-          commodities: true
-        }
+          commodities: true,
+        },
       });
     } catch (err) {
-      console.error('order create', err);
+      console.error("order create", err);
       throw new BadRequestException(err);
     }
   }
@@ -35,7 +34,7 @@ export class OrderRepository {
   async findOne(id: number) {
     try {
       return await this.prisma.order.findUnique({
-        where: {id},
+        where: { id },
         include: {
           commodities: true,
           customer: true,
@@ -46,15 +45,15 @@ export class OrderRepository {
                 include: {
                   province: {
                     include: {
-                      nation: true
-                    }
-                  }
-                }
-              }
-            }
+                      nation: true,
+                    },
+                  },
+                },
+              },
+            },
           },
-          paymentHistories: true
-        }
+          paymentHistories: true,
+        },
       });
     } catch (err) {
       console.error(err);
@@ -75,31 +74,34 @@ export class OrderRepository {
     try {
       const [total, data] = await Promise.all([
         this.prisma.order.count({
+          skip: skip ?? 0,
+          take: take ?? -1,
           where: {
-            deliveredAt: delivered === 1 ? {not: null} : null,
-            customerId: customerId ? {in: customerId} : {},
+            deliveredAt: delivered === 1 ? { not: null } : null,
+            customerId: customerId ? { in: customerId } : {},
             // paidAt: paidType === PaidEnum.PAID || paidType === PaidEnum.DEBT ? {not: null} : (paidType === PaidEnum.UNPAID ? {in: null} : {}),
             // debt: paidType === PaidEnum.DEBT ? {not: 0} : {},
             customer: {
               AND: {
-                firstName: {startsWith: firstName, mode: 'insensitive'},
-                lastName: {startsWith: lastName, mode: 'insensitive'},
+                firstName: { startsWith: firstName, mode: "insensitive" },
+                lastName: { startsWith: lastName, mode: "insensitive" },
               },
             },
             // payType: payType ? {in: payType} : {}
           },
         }),
         this.prisma.order.findMany({
-          skip, take,
+          skip: skip ?? 0,
+          take: take ?? -1,
           where: {
-            deliveredAt: delivered === 1 ? {not: null} : null,
-            customerId: customerId ? {in: customerId} : {},
+            deliveredAt: delivered === 1 ? { not: null } : null,
+            customerId: customerId ? { in: customerId } : {},
             // paidAt: paidType === PaidEnum.PAID || paidType === PaidEnum.DEBT ? {not: null} : (paidType === PaidEnum.UNPAID ? {in: null} : {}),
             // debt: paidType === PaidEnum.DEBT ? {not: 0} : {},
             customer: {
               AND: {
-                firstName: {startsWith: firstName, mode: 'insensitive'},
-                lastName: {startsWith: lastName, mode: 'insensitive'},
+                firstName: { startsWith: firstName, mode: "insensitive" },
+                lastName: { startsWith: lastName, mode: "insensitive" },
               },
             },
             // payType: payType ? {in: payType} : {}
@@ -113,19 +115,21 @@ export class OrderRepository {
                   include: {
                     province: {
                       include: {
-                        nation: true
-                      }
-                    }
-                  }
-                }
-              }
+                        nation: true,
+                      },
+                    },
+                  },
+                },
+              },
             },
-            paymentHistories: true
-          }
+            paymentHistories: true,
+            
+          },
         }),
       ]);
       return {
-        total, data
+        total,
+        data,
       };
     } catch (err) {
       console.error(err);
@@ -134,23 +138,29 @@ export class OrderRepository {
   }
 
   /*
-  * Order thì Thêm mới hoặc xoá hàng hoá. 1 hàng hoá chỉ tồn tại cho 1 đơn hàng
-  * */
+   * Order thì Thêm mới hoặc xoá hàng hoá. 1 hàng hoá chỉ tồn tại cho 1 đơn hàng
+   * */
   async update(id: number, updates: UpdateOrderDto) {
     try {
       if (updates.totalOrder) {
         const updated = this.prisma.order.update({
-          where: {id},
+          where: { id },
           data: {
-            commodities: {connect: updates.commodityIds.map((id => ({id: id})))}
+            commodities: {
+              connect: updates.commodityIds.map((id) => ({ id: id })),
+            },
           },
         });
         // Nếu đơn hàng được cập nhật lại hàng hóa thì giá tiền sẽ thay đổi => Dư nợ thay đổi
-        return await this.transactionDebt(updated, updates.customerId, updates.totalOrder);
+        return await this.transactionDebt(
+          updated,
+          updates.customerId,
+          updates.totalOrder
+        );
       }
 
       return await this.prisma.order.update({
-        where: {id},
+        where: { id },
         data: {
           customerId: updates.customerId,
           createdAt: updates.createdAt,
@@ -167,20 +177,23 @@ export class OrderRepository {
 
   async remove(id: number) {
     try {
-      await this.prisma.order.delete({where: {id}});
+      await this.prisma.order.delete({ where: { id } });
     } catch (err) {
       console.error(err);
       throw new BadRequestException(err);
     }
   }
 
-  async transactionDebt(handle: PrismaPromise<any>, customerId: Customer['id'], newDebt: number) {
+  async transactionDebt(
+    handle: PrismaPromise<any>,
+    customerId: Customer["id"],
+    newDebt: number
+  ) {
     try {
-
       /// update debt customer for this order
       const updatedDebt = this.prisma.customer.update({
-        where: {id: customerId},
-        data: {debt: newDebt}
+        where: { id: customerId },
+        data: { debt: newDebt },
       });
 
       /// handle transaction
