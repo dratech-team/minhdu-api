@@ -1,7 +1,7 @@
-import {Injectable} from "@nestjs/common";
-import {optionalRequire} from "@nestjs/core/helpers/optional-require";
-import {Response} from "express";
-import {InputExcel} from "../interfaces/coreResponse.interface";
+import { Injectable } from "@nestjs/common";
+import { optionalRequire } from "@nestjs/core/helpers/optional-require";
+import { Response } from "express";
+import { InputExcel } from "../interfaces/coreResponse.interface";
 import * as ExcelJS from "exceljs";
 
 const moment = optionalRequire("moment");
@@ -19,9 +19,10 @@ export class ExportService {
     const worksheet = workbook.addWorksheet(result.title);
 
     /*
-    * Header
-    * */
-    worksheet.mergeCells("A1", "J2");
+     * Header
+     * */
+    const end = alphabet[result.customHeaders.length];
+    worksheet.mergeCells("A1", end + 2);
     worksheet.getCell("C1").value = result.title;
 
     // alignment
@@ -36,8 +37,8 @@ export class ExportService {
     };
 
     /*
-    * Title
-    * */
+     * Title
+     * */
     worksheet.getRow(4).values = result.customHeaders;
 
     // font
@@ -52,21 +53,23 @@ export class ExportService {
       vertical: "middle",
     };
 
-    // alignment
-    // for (let i = 0; i < result.customHeaders.length; i++) {
-    //   worksheet.getCell(alphabet[i] + i).style.fill = {
-    //     type: 'pattern',
-    //     pattern: 'darkGray',
-    //     fgColor: {argb: 'FFFFFF00'},
-    //     bgColor: {argb: 'FF0000FF'}
-    //   };
-    // }
+    // fill
+    worksheet.getRow(4).eachCell((cell, _) => {
+      if (cell.value) {
+        cell.fill = fill;
+      }
+    });
 
     worksheet.columns = this.autoFitColumnsHeader(result);
 
     result.data.map((e) => {
-      console.log(alphabet);
       worksheet.addRow(e);
+    });
+
+    worksheet.eachRow((row, _) => {
+      row.eachCell((cell, colNumber) => {
+        if (cell.value) row.getCell(colNumber).border = borders;
+      });
     });
 
     const buf = workbook.xlsx.writeFile(result.name);
@@ -117,4 +120,45 @@ export class ExportService {
   }
 }
 
-const alphabet = "abcdefghijklmnopqrstuvwxyz".toUpperCase().split(", ");
+const fill: ExcelJS.Fill = {
+  type: "pattern",
+  pattern: "darkGray",
+  fgColor: { argb: "FFFFFF00" },
+  bgColor: { argb: "FF0000FF" },
+};
+
+const borders: Partial<ExcelJS.Borders> = {
+  top: { style: "thin" },
+  left: { style: "thin" },
+  bottom: { style: "thin" },
+  right: { style: "thin" },
+};
+
+const alphabet = [
+  "A",
+  "B",
+  "C",
+  "D",
+  "E",
+  "F",
+  "G",
+  "H",
+  "I",
+  "J",
+  "K",
+  "L",
+  "M",
+  "N",
+  "O",
+  "P",
+  "Q",
+  "R",
+  "S",
+  "T",
+  "U",
+  "V",
+  "W",
+  "X",
+  "Y",
+  "Z",
+];
