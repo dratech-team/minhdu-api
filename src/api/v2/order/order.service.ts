@@ -1,15 +1,13 @@
-import { BadRequestException, Injectable } from "@nestjs/common";
-import { CreateOrderDto } from "./dto/create-order.dto";
-import { UpdateOrderDto } from "./dto/update-order.dto";
-import { OrderRepository } from "./order.repository";
-import { CommodityService } from "../commodity/commodity.service";
-import { PaidEnum } from "./enums/paid.enum";
-import { Customer, PaymentType, PrismaPromise } from "@prisma/client";
-import { searchName } from "../../../utils/search-name.util";
-import { PaymentHistoryService } from "../payment-history/payment-history.service";
-import { ExportService } from "src/core/services/export.service";
-import { CustomerService } from "../customer/customer.service";
-import { Response } from "express";
+import {BadRequestException, Injectable} from "@nestjs/common";
+import {CreateOrderDto} from "./dto/create-order.dto";
+import {UpdateOrderDto} from "./dto/update-order.dto";
+import {OrderRepository} from "./order.repository";
+import {CommodityService} from "../commodity/commodity.service";
+import {PaidEnum} from "./enums/paid.enum";
+import {PaymentType} from "@prisma/client";
+import {searchName} from "../../../utils/search-name.util";
+import {PaymentHistoryService} from "../payment-history/payment-history.service";
+import {Response} from "express";
 
 @Injectable()
 export class OrderService {
@@ -17,9 +15,8 @@ export class OrderService {
     private readonly repository: OrderRepository,
     private readonly commodityService: CommodityService,
     private readonly paymentService: PaymentHistoryService,
-    private readonly customerService: CustomerService,
-    private readonly exportService: ExportService
-  ) {}
+  ) {
+  }
 
   async create(body: CreateOrderDto) {
     return await this.repository.create(body);
@@ -80,8 +77,8 @@ export class OrderService {
           this.commodityService.handleCommodity(commodity)
         ),
       },
-      { commodityTotal: commodityTotal },
-      { paymentTotal: this.paymentService.totalPayment(order.paymentHistories) }
+      {commodityTotal: commodityTotal},
+      {paymentTotal: this.paymentService.totalPayment(order.paymentHistories)}
     );
   }
 
@@ -116,7 +113,7 @@ export class OrderService {
     search?: Partial<CreateOrderDto>
   ) {
     const data = await this.findAll(null, null, customerId);
-    const customer = await this.customerService.findOne(customerId);
+    // const customer = await this.customerService.findOne(customerId);
 
     // return await this.exportService.toExcel(
     //   response,

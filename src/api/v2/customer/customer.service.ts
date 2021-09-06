@@ -1,19 +1,15 @@
-import {BadRequestException, Injectable} from "@nestjs/common";
+import {Injectable} from "@nestjs/common";
 import {CreateCustomerDto} from "./dto/create-customer.dto";
 import {UpdateCustomerDto} from "./dto/update-customer.dto";
 import {CustomerRepository} from "./customer.repository";
 import {Customer, CustomerResource, CustomerType} from "@prisma/client";
 import {searchName} from "../../../utils/search-name.util";
-import {OrderService} from "../order/order.service";
-import {PaymentHistoryService} from "../payment-history/payment-history.service";
 import {CreatePaymentHistoryDto} from "../payment-history/dto/create-payment-history.dto";
 
 @Injectable()
 export class CustomerService {
   constructor(
     private readonly repository: CustomerRepository,
-    private readonly orderService: OrderService,
-    private readonly payHistoryService: PaymentHistoryService
   ) {
   }
 
