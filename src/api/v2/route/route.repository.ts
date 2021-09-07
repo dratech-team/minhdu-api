@@ -35,8 +35,8 @@ export class RouteRepository {
     try {
       const [total, data] = await Promise.all([
         this.prisma.route.count({
-          skip: skip ?? 0,
-          take: take ?? -1,
+          skip: skip,
+          take: take ,
           where: {
             name: { startsWith: search?.name },
             // startedAt: {gte: startedAt ?? new Date("1/1/2020")},
@@ -46,8 +46,11 @@ export class RouteRepository {
           },
         }),
         this.prisma.route.findMany({
-          skip: skip ?? 0,
-          take: take ?? -1,
+          skip: skip,
+          take: take,
+          orderBy: {
+            name: "asc"
+          },
           where: {
             name: { startsWith: search?.name },
             // startedAt: startedAt ? {gte: startedAt} : {},

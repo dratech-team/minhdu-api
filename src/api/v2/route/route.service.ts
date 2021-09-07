@@ -56,8 +56,7 @@ export class RouteService {
   }
 
   async export(response?: Response, search?: Partial<CreateRouteDto>) {
-    const data = await this.repository.findAll(null, null, search);
-
+    const data = await this.repository.findAll(undefined, undefined, search);
     return await this.exportService.toExcel(
       response,
       {

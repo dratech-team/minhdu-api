@@ -1,10 +1,9 @@
-import { Injectable } from "@nestjs/common";
-import { optionalRequire } from "@nestjs/core/helpers/optional-require";
-import { Response } from "express";
-import { InputExcel } from "../interfaces/coreResponse.interface";
+import {Injectable} from "@nestjs/common";
+import {optionalRequire} from "@nestjs/core/helpers/optional-require";
+import {Response} from "express";
+import {InputExcel} from "../interfaces/coreResponse.interface";
 import * as ExcelJS from "exceljs";
-
-const moment = optionalRequire("moment");
+import * as moment from "moment";
 
 @Injectable()
 export class ExportService {
@@ -25,7 +24,7 @@ export class ExportService {
     /*
      * Header
      * */
-    const end = alphabet[result.customHeaders.length];
+    const end = alphabet[result.customHeaders.length - 1];
     worksheet.mergeCells("A1", end + 2);
     worksheet.getCell("C1").value = result.title;
 
@@ -37,7 +36,7 @@ export class ExportService {
     // font
     worksheet.getCell("C1").style.font = {
       bold: true,
-      size: 24,
+      size: 18,
     };
 
     /*
@@ -104,7 +103,7 @@ export class ExportService {
         objectMaxLength[j] = objectMaxLength[j] >= l ? objectMaxLength[j] : l;
 
         if (typeof value[jsonKeys[j]].getMonth === "function") {
-          numFmt[j] = "dd/mm/yyyy";
+          numFmt[j] = "dd/mm/yy";
         }
       }
 
@@ -113,7 +112,6 @@ export class ExportService {
         objectMaxLength[j] = Math.max(...[+objectMaxLength[j], +key[j].length]);
       }
     }
-
     return input.customHeaders.map((e, i: number) => {
       return {
         key: input.customKeys[i],
@@ -126,16 +124,16 @@ export class ExportService {
 
 const fill: ExcelJS.Fill = {
   type: "pattern",
-  pattern: "darkGray",
-  fgColor: { argb: "FFFFFF00" },
-  bgColor: { argb: "FF0000FF" },
+  pattern: "solid",
+  fgColor: {argb: "bfbfbf"},
+  bgColor: {argb: "FF0000FF"},
 };
 
 const borders: Partial<ExcelJS.Borders> = {
-  top: { style: "thin" },
-  left: { style: "thin" },
-  bottom: { style: "thin" },
-  right: { style: "thin" },
+  top: {style: "thin"},
+  left: {style: "thin"},
+  bottom: {style: "thin"},
+  right: {style: "thin"},
 };
 
 const alphabet = [
