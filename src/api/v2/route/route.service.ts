@@ -2,15 +2,13 @@ import { Injectable } from "@nestjs/common";
 import { CreateRouteDto } from "./dto/create-route.dto";
 import { UpdateRouteDto } from "./dto/update-route.dto";
 import { RouteRepository } from "./route.repository";
-import { ExportService } from "../../../core/services/export.service";
 import { Response } from "express";
-import { Route } from ".prisma/client";
+import {exportExcel} from "../../../core/services/export.service";
 
 @Injectable()
 export class RouteService {
   constructor(
     private readonly repository: RouteRepository,
-    private readonly exportService: ExportService
   ) {}
 
   async create(body: CreateRouteDto) {
@@ -57,7 +55,7 @@ export class RouteService {
 
   async export(response?: Response, search?: Partial<CreateRouteDto>) {
     const data = await this.repository.findAll(undefined, undefined, search);
-    return await this.exportService.toExcel(
+    return await exportExcel(
       response,
       {
         title: "Danh sách tuyến đường XXXX",

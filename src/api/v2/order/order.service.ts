@@ -8,6 +8,8 @@ import {PaymentType} from "@prisma/client";
 import {searchName} from "../../../utils/search-name.util";
 import {PaymentHistoryService} from "../payment-history/payment-history.service";
 import {Response} from "express";
+import {CustomerService} from "../customer/customer.service";
+import {exportExcel} from "../../../core/services/export.service";
 
 @Injectable()
 export class OrderService {
@@ -15,6 +17,7 @@ export class OrderService {
     private readonly repository: OrderRepository,
     private readonly commodityService: CommodityService,
     private readonly paymentService: PaymentHistoryService,
+    private readonly customerService: CustomerService,
   ) {
   }
 
@@ -25,7 +28,6 @@ export class OrderService {
   async findAll(
     skip: number,
     take: number,
-    customerId: number,
     paidType?: PaidEnum,
     customer?: string,
     payType?: PaymentType,
@@ -36,7 +38,6 @@ export class OrderService {
     const result = await this.repository.findAll(
       skip,
       take,
-      customerId,
       paidType,
       search?.firstName,
       search?.lastName,
@@ -112,34 +113,36 @@ export class OrderService {
     customerId?: number,
     search?: Partial<CreateOrderDto>
   ) {
-    const data = await this.findAll(null, null, customerId);
-    // const customer = await this.customerService.findOne(customerId);
-
-    // return await this.exportService.toExcel(
-    //   response,
-    //   {
-    //     title: `Danh sách đơn hàng của ${
-    //       customer.firstName + customer.lastName
-    //     }`,
-    //     customHeaders: [
-    //       "Tên tuyến đường",
-    //       "Ngày khởi hành",
-    //       "Ngày kết thúc",
-    //       "Nhà xe",
-    //       "Tên tài xế",
-    //       "Biển số xe",
-    //     ],
-    //     customKeys: ["name", "startedAt", "endedAt", "garage", "driver", "bsx"],
-    //     name: "data.xlsx",
-    //     data: data.data.map((e) => ({
-    //       startedAt: e.commodities,
-    //       endedAt: e.endedAt,
-    //       garage: e.garage,
-    //       driver: e.driver,
-    //       bsx: e.bsx,
-    //     })),
-    //   },
-    //   200
-    // );
+    const data = await this.findAll(undefined, undefined);
+    console.log(data.data);
+    return await exportExcel(
+      response,
+      {
+        title: `Danh sách đơn hàng`,
+        customHeaders: [
+          "Khách hàng",
+          "Ngày tạo",
+          "Điểm đến",
+          "Tổng đơn hàng",
+          "Tổng Tiền hàng",
+          "Tổng tiền đã thanh toán",
+          "Tổng tiền chưa thanh toán",
+          "Diễn giả"
+        ],
+        customKeys: ["name", "createdAt", "destination", "lengthTotal", "commodityTotal", "payTotal", "debtTotal", "explain"],
+        name: "data.xlsx",
+        data: data.data.map((e) => ({
+          name: e.customer.firstName + e.customer.lastName,
+          createdAt: e.createdAt,
+          destination: `${e.destination.name}, ${e.destination.district.name}, ${e.destination.district.province.name}, ${e.destination.district.province.nation.name}`,
+          lengthTotal: e.commodities.length,
+          commodityTotal: this.commodityService.totalCommodities(e.commodities),
+          payTotal: this.paymentService.totalPayment(e.paymentHistories),
+          debtTotal: this.paymentService.totalPayment(e.paymentHistories) - this.commodityService.totalCommodities(e.commodities),
+          explain: e.explain,
+        })),
+      },
+      200
+    );
   }
 }

@@ -28,7 +28,6 @@ export class OrderController {
   findAll(
     @Query("skip") skip: number,
     @Query("take") take: number,
-    @Query("customerId") customerId?: number,
     @Query("paidType") paidType?: PaidEnum,
     @Query("customer") customer?: string,
     @Query("payType") payType?: PaymentType,
@@ -37,7 +36,6 @@ export class OrderController {
     return this.orderService.findAll(
       +skip,
       +take,
-      customerId,
       paidType,
       customer,
       payType,
@@ -61,7 +59,7 @@ export class OrderController {
   }
 
   @Get("/export/print")
-  async print(@Res() res, @Query("customerId") customerId?: number) {
-    return this.orderService.export(res, customerId);
+  async print(@Res() res) {
+    return this.orderService.export(res);
   }
 }

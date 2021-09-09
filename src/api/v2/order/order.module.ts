@@ -8,10 +8,11 @@ import {CommodityService} from "../commodity/commodity.service";
 import {CommodityRepository} from "../commodity/commodity.repository";
 import {PaymentHistoryRepository} from "../payment-history/payment-history.repository";
 import {PaymentHistoryService} from "../payment-history/payment-history.service";
-import {ExportService} from "src/core/services/export.service";
+import {CustomerModule} from "../customer/customer.module";
+import {CustomerRepository} from "../customer/customer.repository";
 
 @Module({
-  imports: [CommodityModule],
+  imports: [CommodityModule, CustomerModule],
   controllers: [OrderController],
   providers: [
     OrderService,
@@ -21,7 +22,7 @@ import {ExportService} from "src/core/services/export.service";
     CommodityRepository,
     PaymentHistoryRepository,
     PaymentHistoryService,
-    ExportService,
+    CustomerRepository
   ],
   exports: [OrderService],
 })

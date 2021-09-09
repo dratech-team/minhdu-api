@@ -1,6 +1,9 @@
 {
   "name": "minhdu-api",
   "version": "0.0.1",
+  "prisma": {
+    "seed": "ts-node prisma/seed.ts"
+  },
   "description": "Dratech - Giải pháp thiết kế phần mềm tối ưu",
   "author": "DRATECH",
   "private": true,
