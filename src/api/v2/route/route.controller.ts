@@ -7,11 +7,12 @@ import {
   Param,
   Delete,
   Query,
-  Res,
+  Res, Header,
 } from "@nestjs/common";
 import {RouteService} from "./route.service";
 import {CreateRouteDto} from "./dto/create-route.dto";
 import {UpdateRouteDto} from "./dto/update-route.dto";
+import * as moment from "moment";
 
 @Controller("v2/route")
 export class RouteController {
@@ -25,7 +26,7 @@ export class RouteController {
 
   @Get()
   findAll(
-    @Query("skip") skip: number,
+    @Query() skip: number,
     @Query("take") take: number,
     @Query("name") name: string,
     @Query("startedAt") startedAt: Date,
@@ -36,11 +37,13 @@ export class RouteController {
     return this.routeService.findAll(
       +skip,
       +take,
-      name,
-      startedAt,
-      endedAt,
-      driver,
-      bsx
+      {
+        name,
+        startedAt,
+        endedAt,
+        driver,
+        bsx
+      }
     );
   }
 

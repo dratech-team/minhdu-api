@@ -3,13 +3,12 @@ import {CreateOrderDto} from "./dto/create-order.dto";
 import {UpdateOrderDto} from "./dto/update-order.dto";
 import {OrderRepository} from "./order.repository";
 import {CommodityService} from "../commodity/commodity.service";
-import {PaidEnum} from "./enums/paid.enum";
-import {PaymentType} from "@prisma/client";
 import {searchName} from "../../../utils/search-name.util";
 import {PaymentHistoryService} from "../payment-history/payment-history.service";
 import {Response} from "express";
 import {CustomerService} from "../customer/customer.service";
 import {exportExcel} from "../../../core/services/export.service";
+import {SearchOrderDto} from "./dto/search-order.dto";
 
 @Injectable()
 export class OrderService {
@@ -28,21 +27,18 @@ export class OrderService {
   async findAll(
     skip: number,
     take: number,
-    paidType?: PaidEnum,
-    customer?: string,
-    payType?: PaymentType,
-    delivered?: number
+    search?: Partial<SearchOrderDto>,
   ) {
-    const search = searchName(customer);
+    const name = searchName(search?.customer);
 
     const result = await this.repository.findAll(
       skip,
       take,
-      paidType,
-      search?.firstName,
-      search?.lastName,
-      payType,
-      delivered
+      search?.paidType,
+      name?.firstName,
+      name?.lastName,
+      search?.payType,
+      search?.delivered
     );
 
     return {
@@ -111,10 +107,9 @@ export class OrderService {
   async export(
     response?: Response,
     customerId?: number,
-    search?: Partial<CreateOrderDto>
+    search?: Partial<SearchOrderDto>
   ) {
-    const data = await this.findAll(undefined, undefined);
-    console.log(data.data);
+    const data = await this.findAll(undefined, undefined, search);
     return await exportExcel(
       response,
       {
@@ -130,7 +125,7 @@ export class OrderService {
           "Diễn giả"
         ],
         customKeys: ["name", "createdAt", "destination", "lengthTotal", "commodityTotal", "payTotal", "debtTotal", "explain"],
-        name: "data.xlsx",
+        name: "data",
         data: data.data.map((e) => ({
           name: e.customer.firstName + e.customer.lastName,
           createdAt: e.createdAt,

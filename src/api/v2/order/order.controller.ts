@@ -9,15 +9,16 @@ import {
   Query,
   Res,
 } from "@nestjs/common";
-import { OrderService } from "./order.service";
-import { CreateOrderDto } from "./dto/create-order.dto";
-import { UpdateOrderDto } from "./dto/update-order.dto";
-import { PaidEnum } from "./enums/paid.enum";
-import { PaymentType } from "@prisma/client";
+import {OrderService} from "./order.service";
+import {CreateOrderDto} from "./dto/create-order.dto";
+import {UpdateOrderDto} from "./dto/update-order.dto";
+import {PaidEnum} from "./enums/paid.enum";
+import {PaymentType} from "@prisma/client";
 
 @Controller("v2/order")
 export class OrderController {
-  constructor(private readonly orderService: OrderService) {}
+  constructor(private readonly orderService: OrderService) {
+  }
 
   @Post()
   create(@Body() createOrderDto: CreateOrderDto) {
@@ -36,10 +37,7 @@ export class OrderController {
     return this.orderService.findAll(
       +skip,
       +take,
-      paidType,
-      customer,
-      payType,
-      +delivered
+      {paidType, customer, payType, delivered: +delivered}
     );
   }
 

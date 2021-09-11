@@ -73,16 +73,20 @@ export async function exportExcel(
 
   const buf = await workbook.xlsx.writeBuffer();
 
-  response.header(
+  response.setHeader(
     "Content-Disposition",
-    `attachment; filename=${result.name} (${moment().format(
+    `${result.name} (${moment().format(
       "DD-MM-YYYY"
     )}).xlsx`
   );
-  response.header(
+
+  response.setHeader(
     "Content-Type",
     "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
   );
+
+  response.setHeader("Access-Control-Expose-Headers", "*");
+
   return response.status(respStatusCode).send(buf);
 }
 

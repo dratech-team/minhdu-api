@@ -1,15 +1,17 @@
-import { Injectable } from "@nestjs/common";
-import { CreateRouteDto } from "./dto/create-route.dto";
-import { UpdateRouteDto } from "./dto/update-route.dto";
-import { RouteRepository } from "./route.repository";
-import { Response } from "express";
+import {Injectable} from "@nestjs/common";
+import {CreateRouteDto} from "./dto/create-route.dto";
+import {UpdateRouteDto} from "./dto/update-route.dto";
+import {RouteRepository} from "./route.repository";
+import {Response} from "express";
 import {exportExcel} from "../../../core/services/export.service";
+import {SearchRouteDto} from "./dto/search-route.dto";
 
 @Injectable()
 export class RouteService {
   constructor(
     private readonly repository: RouteRepository,
-  ) {}
+  ) {
+  }
 
   async create(body: CreateRouteDto) {
     return await this.repository.create(body);
@@ -18,27 +20,9 @@ export class RouteService {
   async findAll(
     skip: number,
     take: number,
-    name: string,
-    startedAt: Date,
-    endedAt: Date,
-    driver: string,
-    bsx: string
+    search: Partial<SearchRouteDto>
   ) {
-    if (startedAt) {
-      startedAt = new Date(startedAt);
-    }
-
-    if (endedAt) {
-      endedAt = new Date(endedAt);
-    }
-
-    return await this.repository.findAll(skip, take, {
-      name,
-      startedAt,
-      endedAt,
-      driver,
-      bsx,
-    });
+    return await this.repository.findAll(skip, take, search);
   }
 
   async findOne(id: number) {
@@ -68,7 +52,7 @@ export class RouteService {
           "Biển số xe",
         ],
         customKeys: ["name", "startedAt", "endedAt", "garage", "driver", "bsx"],
-        name: "data.xlsx",
+        name: "Danh sách tuyến đường",
         data: data.data.map((e) => ({
           name: e.name,
           startedAt: e.startedAt,

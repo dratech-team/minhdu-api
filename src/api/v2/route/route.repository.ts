@@ -1,11 +1,13 @@
-import { BadRequestException, Injectable } from "@nestjs/common";
-import { PrismaService } from "../../../prisma.service";
-import { CreateRouteDto } from "./dto/create-route.dto";
-import { UpdateRouteDto } from "./dto/update-route.dto";
+import {BadRequestException, Injectable} from "@nestjs/common";
+import {PrismaService} from "../../../prisma.service";
+import {CreateRouteDto} from "./dto/create-route.dto";
+import {UpdateRouteDto} from "./dto/update-route.dto";
+import {SearchRouteDto} from "./dto/search-route.dto";
 
 @Injectable()
 export class RouteRepository {
-  constructor(private readonly prisma: PrismaService) {}
+  constructor(private readonly prisma: PrismaService) {
+  }
 
   async create(body: CreateRouteDto) {
     try {
@@ -13,12 +15,12 @@ export class RouteRepository {
         data: {
           name: body.name,
           driver: body.driver,
-          employee: body.employeeId ? { connect: { id: body.employeeId } } : {},
+          employee: body.employeeId ? {connect: {id: body.employeeId}} : {},
           garage: body.garage,
           bsx: body.bsx,
           startedAt: body.startedAt,
           endedAt: body.endedAt,
-          orders: { connect: body?.orderIds?.map((id) => ({ id: id })) },
+          orders: {connect: body?.orderIds?.map((id) => ({id: id}))},
         },
       });
     } catch (err) {
@@ -30,19 +32,19 @@ export class RouteRepository {
   async findAll(
     skip?: number,
     take?: number,
-    search?: Partial<CreateRouteDto>
+    search?: Partial<SearchRouteDto>
   ) {
     try {
       const [total, data] = await Promise.all([
         this.prisma.route.count({
           skip: skip,
-          take: take ,
+          take: take,
           where: {
-            name: { startsWith: search?.name },
+            name: {startsWith: search?.name},
             // startedAt: {gte: startedAt ?? new Date("1/1/2020")},
             // endedAt: {lte: endedAt ?? new Date()},
-            driver: { startsWith: search?.driver },
-            bsx: { startsWith: search?.bsx },
+            driver: {startsWith: search?.driver},
+            bsx: {startsWith: search?.bsx},
           },
         }),
         this.prisma.route.findMany({
@@ -52,11 +54,11 @@ export class RouteRepository {
             name: "asc"
           },
           where: {
-            name: { startsWith: search?.name },
+            name: {startsWith: search?.name},
             // startedAt: startedAt ? {gte: startedAt} : {},
             // endedAt: endedAt ? {lte: endedAt} : {},
-            driver: { startsWith: search?.driver },
-            bsx: { startsWith: search?.bsx },
+            driver: {startsWith: search?.driver},
+            bsx: {startsWith: search?.bsx},
           },
           include: {
             employee: true,
@@ -65,7 +67,7 @@ export class RouteRepository {
           },
         }),
       ]);
-      return { total, data };
+      return {total, data};
     } catch (err) {
       console.error(err);
       throw new BadRequestException(err);
@@ -75,7 +77,7 @@ export class RouteRepository {
   async findOne(id: number) {
     try {
       return await this.prisma.route.findUnique({
-        where: { id },
+        where: {id},
         include: {
           orders: {
             include: {
@@ -99,7 +101,7 @@ export class RouteRepository {
   async update(id: number, updates: UpdateRouteDto) {
     try {
       return await this.prisma.route.update({
-        where: { id },
+        where: {id},
         data: {
           name: updates.name,
           driver: updates.driver,
@@ -107,7 +109,7 @@ export class RouteRepository {
           bsx: updates.bsx,
           startedAt: updates.startedAt,
           endedAt: updates.endedAt,
-          orders: { set: updates.orderIds.map((id) => ({ id: id })) },
+          orders: {set: updates.orderIds.map((id) => ({id: id}))},
         },
       });
     } catch (err) {
@@ -118,7 +120,7 @@ export class RouteRepository {
 
   async remove(id: number) {
     try {
-      await this.prisma.route.delete({ where: { id } });
+      await this.prisma.route.delete({where: {id}});
     } catch (err) {
       console.error(err);
       throw new BadRequestException(err);
