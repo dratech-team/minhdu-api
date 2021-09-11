@@ -35,8 +35,6 @@ export class BillService {
     const amount = bill.commodities.reduce((a: Commodity, b: Commodity) => {
       return a.price + b.price;
     }, 0);
-    console.log(amount);
-    console.log(bill.paidTotal - amount);
     let a = [];
     return bill.paidTotal - amount;
   }

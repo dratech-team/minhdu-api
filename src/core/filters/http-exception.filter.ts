@@ -10,7 +10,7 @@ export class HttpExceptionFilter extends CustomException<HttpException> {
     const message = response['message'] ?? "Lỗi không xác định. Vui lòng nhấn 'Gửi' để gửi báo cáo đến nhà phát triển. Xin cảm ơn.";
     const statusCode = response['statusCode'];
 
-    console.log("[HTTP-EXCEPTION]", response);
+    console.error("[HTTP-EXCEPTION]", response);
     this.send(exception, host, {
       statusCode,
       errorCode,

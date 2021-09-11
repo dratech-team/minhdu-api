@@ -7,7 +7,7 @@ import {
   Param,
   Delete,
   Query,
-  Res, Header,
+  Res, Header, ParseBoolPipe,
 } from "@nestjs/common";
 import {RouteService} from "./route.service";
 import {CreateRouteDto} from "./dto/create-route.dto";
@@ -26,13 +26,13 @@ export class RouteController {
 
   @Get()
   findAll(
-    @Query() skip: number,
+    @Query("skip") skip: number,
     @Query("take") take: number,
     @Query("name") name: string,
     @Query("startedAt") startedAt: Date,
     @Query("endedAt") endedAt: Date,
     @Query("driver") driver: string,
-    @Query("bsx") bsx: string
+    @Query("bsx") bsx: string,
   ) {
     return this.routeService.findAll(
       +skip,
@@ -65,12 +65,12 @@ export class RouteController {
   @Get("/export/print")
   async print(
     @Res() res,
-    @Query("name") name: string,
-    @Query("startedAt") startedAt: Date,
-    @Query("endedAt") endedAt: Date,
-    @Query("driver") driver: string,
-    @Query("bsx") bsx: string
+    // @Query("name") name: string,
+    // @Query("startedAt") startedAt: Date,
+    // @Query("endedAt") endedAt: Date,
+    // @Query("driver") driver: string,
+    // @Query("bsx") bsx: string
   ) {
-    return this.routeService.export(res, {name, startedAt, endedAt, driver, bsx});
+    return this.routeService.export(res);
   }
 }

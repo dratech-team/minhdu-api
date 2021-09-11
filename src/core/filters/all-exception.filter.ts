@@ -5,7 +5,7 @@ import { MongoError } from "mongodb";
 @Catch()
 export class AllExceptionFilter extends CustomException<MongoError> {
   catch(exception: any, host: ArgumentsHost) {
-    console.log("[AllExceptionFilter]", exception);
+    console.error("[AllExceptionFilter]", exception);
     const statusCode =
       exception && exception.getStatus ? exception.getStatus() : 500;
 

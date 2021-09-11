@@ -85,7 +85,6 @@ export function mongoMorgan(
 
     try {
       if (!mongoCollection) {
-        console.log("COLLECTION NOT CONNECTED");
         return;
       }
 

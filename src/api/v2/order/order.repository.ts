@@ -1,13 +1,14 @@
-import { BadRequestException, Injectable } from "@nestjs/common";
-import { PrismaService } from "../../../prisma.service";
-import { CreateOrderDto } from "./dto/create-order.dto";
-import { UpdateOrderDto } from "./dto/update-order.dto";
-import { PaidEnum } from "./enums/paid.enum";
-import { Customer, PaymentType, PrismaPromise } from "@prisma/client";
+import {BadRequestException, Injectable} from "@nestjs/common";
+import {PrismaService} from "../../../prisma.service";
+import {CreateOrderDto} from "./dto/create-order.dto";
+import {UpdateOrderDto} from "./dto/update-order.dto";
+import {PaidEnum} from "./enums/paid.enum";
+import {Customer, PaymentType, PrismaPromise} from "@prisma/client";
 
 @Injectable()
 export class OrderRepository {
-  constructor(private readonly prisma: PrismaService) {}
+  constructor(private readonly prisma: PrismaService) {
+  }
 
   async create(body: CreateOrderDto) {
     try {
@@ -17,7 +18,7 @@ export class OrderRepository {
           createdAt: body.createdAt,
           explain: body.explain,
           commodities: {
-            connect: body.commodityIds.map((id) => ({ id })),
+            connect: body.commodityIds.map((id) => ({id})),
           },
           wardId: body.destinationId,
         },
@@ -34,7 +35,7 @@ export class OrderRepository {
   async findOne(id: number) {
     try {
       return await this.prisma.order.findUnique({
-        where: { id },
+        where: {id},
         include: {
           commodities: true,
           customer: true,
@@ -76,13 +77,13 @@ export class OrderRepository {
           skip: skip,
           take: take,
           where: {
-            deliveredAt: delivered === 1 ? { not: null } : null,
+            deliveredAt: delivered === 1 ? {not: null} : null,
             // paidAt: paidType === PaidEnum.PAID || paidType === PaidEnum.DEBT ? {not: null} : (paidType === PaidEnum.UNPAID ? {in: null} : {}),
             // debt: paidType === PaidEnum.DEBT ? {not: 0} : {},
             customer: {
               AND: {
-                firstName: { startsWith: firstName, mode: "insensitive" },
-                lastName: { startsWith: lastName, mode: "insensitive" },
+                firstName: {startsWith: firstName, mode: "insensitive"},
+                lastName: {startsWith: lastName, mode: "insensitive"},
               },
             },
             // payType: payType ? {in: payType} : {}
@@ -92,13 +93,13 @@ export class OrderRepository {
           skip: skip,
           take: take,
           where: {
-            deliveredAt: delivered === 1 ? { not: null } : null,
+            deliveredAt: delivered === 1 ? {not: null} : null,
             // paidAt: paidType === PaidEnum.PAID || paidType === PaidEnum.DEBT ? {not: null} : (paidType === PaidEnum.UNPAID ? {in: null} : {}),
             // debt: paidType === PaidEnum.DEBT ? {not: 0} : {},
             customer: {
               AND: {
-                firstName: { startsWith: firstName, mode: "insensitive" },
-                lastName: { startsWith: lastName, mode: "insensitive" },
+                firstName: {startsWith: firstName, mode: "insensitive"},
+                lastName: {startsWith: lastName, mode: "insensitive"},
               },
             },
             // payType: payType ? {in: payType} : {}
@@ -120,7 +121,7 @@ export class OrderRepository {
               },
             },
             paymentHistories: true,
-            
+
           },
         }),
       ]);
@@ -139,32 +140,9 @@ export class OrderRepository {
    * */
   async update(id: number, updates: UpdateOrderDto) {
     try {
-      if (updates.totalOrder) {
-        const updated = this.prisma.order.update({
-          where: { id },
-          data: {
-            commodities: {
-              connect: updates.commodityIds.map((id) => ({ id: id })),
-            },
-          },
-        });
-        // Nếu đơn hàng được cập nhật lại hàng hóa thì giá tiền sẽ thay đổi => Dư nợ thay đổi
-        return await this.transactionDebt(
-          updated,
-          updates.customerId,
-          updates.totalOrder
-        );
-      }
-
       return await this.prisma.order.update({
-        where: { id },
-        data: {
-          customerId: updates.customerId,
-          createdAt: updates.createdAt,
-          explain: updates.explain,
-          wardId: updates.destinationId,
-          deliveredAt: updates.deliveredAt,
-        },
+        where: {id},
+        data: updates,
       });
     } catch (err) {
       console.error(err);
@@ -174,7 +152,7 @@ export class OrderRepository {
 
   async remove(id: number) {
     try {
-      await this.prisma.order.delete({ where: { id } });
+      await this.prisma.order.delete({where: {id}});
     } catch (err) {
       console.error(err);
       throw new BadRequestException(err);
@@ -189,8 +167,8 @@ export class OrderRepository {
     try {
       /// update debt customer for this order
       const updatedDebt = this.prisma.customer.update({
-        where: { id: customerId },
-        data: { debt: newDebt },
+        where: {id: customerId},
+        data: {debt: newDebt},
       });
 
       /// handle transaction

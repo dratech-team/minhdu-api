@@ -6,9 +6,9 @@ import {CommodityService} from "../commodity/commodity.service";
 import {searchName} from "../../../utils/search-name.util";
 import {PaymentHistoryService} from "../payment-history/payment-history.service";
 import {Response} from "express";
-import {CustomerService} from "../customer/customer.service";
 import {exportExcel} from "../../../core/services/export.service";
 import {SearchOrderDto} from "./dto/search-order.dto";
+import {FullOrder} from "./entities/order.entity";
 
 @Injectable()
 export class OrderService {
@@ -16,7 +16,6 @@ export class OrderService {
     private readonly repository: OrderRepository,
     private readonly commodityService: CommodityService,
     private readonly paymentService: PaymentHistoryService,
-    private readonly customerService: CustomerService,
   ) {
   }
 
@@ -83,25 +82,20 @@ export class OrderService {
     const found = await this.findOne(id);
 
     // Đơn hàng giao thành công thì không được phép sửa
-    if (found.deliveredAt) {
+    if (found.deliveredAt && !updates.hide) {
       return new BadRequestException(
         "Không được sửa đơn hàng đã được giao thành công."
       );
     }
-
-    // Đơn hàng được update lại hàng hóa thì phải tính lại tổng để update lại dư nợ
-    const commodities = await Promise.all(
-      updates.commodityIds.map(async (commodityId) => {
-        return await this.findOne(commodityId);
-      })
-    );
-    updates.totalOrder = this.commodityService.totalCommodities(commodities);
-
     return await this.repository.update(id, updates);
   }
 
   async remove(id: number) {
     await this.repository.remove(id);
+  }
+
+  orderTotal(orders: FullOrder[]): number {
+    return orders.map(order => this.commodityService.totalCommodities(order.commodities)).reduce((a, b) => a + b, 0);
   }
 
   async export(

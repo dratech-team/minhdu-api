@@ -33,7 +33,7 @@ export class AuthService {
       });
       return {status: 'Register Success!'};
     } catch (e) {
-      console.log(e);
+      console.error(e);
       if (e.code === 'P2002') {
         throw new ConflictException(`Username ${body.username} đã tồn tại.`);
       } else {

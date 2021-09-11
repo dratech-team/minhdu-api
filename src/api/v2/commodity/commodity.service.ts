@@ -66,7 +66,8 @@ export class CommodityService {
   * Tổng tiền nhiều đơn hàng
   * */
   totalCommodities(commodities: any[]) {
-    return commodities.map(commodity => this.totalCommodity(commodity)).reduce((a, b) => a + b, 0);
+    return commodities.map(commodity => {
+      return this.totalCommodity(commodity);
+    }).reduce((a, b) => a + b, 0);
   }
-
 }

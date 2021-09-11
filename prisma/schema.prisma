@@ -250,7 +250,7 @@ model Customer {
   isPotential      Boolean?         @default(false)
   note             String?
   orders           Order[]
-  debt             Float?           @default(0)
+  debt             Float?
   paymentHistories PaymentHistory[]
 }
 
@@ -290,6 +290,7 @@ model Order {
   commodities      Commodity[]
   wardId           Int?
   deliveredAt      DateTime?
+  hide              Boolean?  @default(false)
   destination      Ward?            @relation(fields: [wardId], references: [id])
   paymentHistories PaymentHistory[]
 }

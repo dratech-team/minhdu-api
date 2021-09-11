@@ -12,7 +12,7 @@ export class ProvinceRepository {
     try {
       return await this.prisma.province.create({data: body});
     } catch (err) {
-      console.log(err);
+      console.error(err);
       throw new BadRequestException(err);
     }
   }

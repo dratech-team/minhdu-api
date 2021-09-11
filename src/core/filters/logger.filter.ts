@@ -10,9 +10,6 @@ export class LoggerFilter implements ExceptionFilter {
     const ctx = host.switchToHttp();
     const request = ctx.getRequest<Request>();
     const response = ctx.getResponse<Response>();
-
-    console.log(response.statusCode);
-    console.log(status);
     response
       .json({
         statusCode: status,

@@ -10,6 +10,4 @@ async function main() {
       role: Role.SALESMAN,
     }
   });
-
-  console.log(acc);
 }

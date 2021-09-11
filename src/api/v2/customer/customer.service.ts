@@ -5,11 +5,16 @@ import {CustomerRepository} from "./customer.repository";
 import {Customer, CustomerResource, CustomerType} from "@prisma/client";
 import {searchName} from "../../../utils/search-name.util";
 import {CreatePaymentHistoryDto} from "../payment-history/dto/create-payment-history.dto";
+import {CommodityService} from "../commodity/commodity.service";
+import {PaymentHistoryService} from "../payment-history/payment-history.service";
+import {OrderService} from "../order/order.service";
 
 @Injectable()
 export class CustomerService {
   constructor(
     private readonly repository: CustomerRepository,
+    private readonly paymentService: PaymentHistoryService,
+    private readonly orderService: OrderService,
   ) {
   }
 
@@ -28,16 +33,16 @@ export class CustomerService {
     isPotential: number
   ) {
     const search = searchName(name);
-
-    // if (isPotential) {
-    //   isPotential = JSON.parse(String(isPotential));
-    // }
-
     return await this.repository.findAll(skip, take, search?.firstName, search?.lastName, phone, nationId, type, resource, isPotential);
   }
 
   async findOne(id: number) {
-    return await this.repository.findOne(id);
+    const customer = await this.repository.findOne(id);
+    const order = this.orderService.orderTotal(customer.orders);
+
+    const payment = this.paymentService.totalPayment(customer.paymentHistories);
+    const debt = payment - order;
+    return Object.assign(customer, {debt});
   }
 
   async update(id: number, updates: UpdateCustomerDto) {
@@ -49,14 +54,6 @@ export class CustomerService {
   }
 
   async payment(id: Customer['id'], payment: CreatePaymentHistoryDto) {
-    /// find an available customer by id
-    const customer = await this.findOne(id);
-
-    // /// Throw an error if order id no exist by this customer
-    // const found = customer?.orders?.map(order => order.id)?.includes(+payment.orderId);
-    // if (!found) {
-    //   return new BadRequestException(`Mã đơn hàng ${payment.orderId} Không thuộc khách hàng ${customer.lastName}. Vui lòng kiểm tra lại hoặc liên hệ admin để hỗ trợ.`);
-    // }
-    return await this.repository.transactionDebt(id, payment);
+    return await this.repository.payment(id, payment);
   }
 }
