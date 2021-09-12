@@ -1,4 +1,4 @@
-import {Injectable} from "@nestjs/common";
+import {BadRequestException, Injectable} from "@nestjs/common";
 import {CreateRouteDto} from "./dto/create-route.dto";
 import {UpdateRouteDto} from "./dto/update-route.dto";
 import {RouteRepository} from "./route.repository";
@@ -30,6 +30,10 @@ export class RouteService {
   }
 
   async update(id: number, updates: UpdateRouteDto) {
+    const found = await this.findOne(id);
+    if (found.endedAt) {
+      throw new BadRequestException("Chuyến xe này đã kết thúc. Bạn không có được phép sửa..");
+    }
     return await this.repository.update(id, updates);
   }
 
