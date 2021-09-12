@@ -58,33 +58,42 @@ model Nation {
 }
 
 model Province {
-  id        Int        @id @default(autoincrement())
-  code      String?
-  name      String
-  nation    Nation     @relation(fields: [nationId], references: [id])
-  nationId  Int
-  districts District[]
+  id            Int        @id @default(autoincrement())
+  code          String
+  codename      String
+  divisionType String
+  phoneCode    String
+  name          String
+  nation        Nation     @relation(fields: [nationId], references: [id])
+  nationId      Int
+  districts     District[]
 }
 
 model District {
-  id         Int      @id @default(autoincrement())
-  code       String?
-  name       String
-  province   Province @relation(fields: [provinceId], references: [id])
-  provinceId Int
-  wards      Ward[]
+  id             Int      @id @default(autoincrement())
+  code           String
+  codename       String
+  divisionType  String
+  shortCodename String
+  name           String
+  province       Province @relation(fields: [provinceId], references: [id])
+  provinceId     Int
+  wards          Ward[]
 }
 
 model Ward {
-  id         Int        @id @default(autoincrement())
-  code       String?
-  name       String
-  district   District   @relation(fields: [districtId], references: [id])
-  districtId Int
-  employees  Employee[]
-  customers  Customer[]
-  relatives  Relative[]
-  orders     Order[]
+  id             Int        @id @default(autoincrement())
+  code           String
+  codename       String
+  divisionType  String
+  shortCodename String
+  name           String
+  district       District   @relation(fields: [districtId], references: [id])
+  districtId     Int
+  employees      Employee[]
+  customers      Customer[]
+  relatives      Relative[]
+  orders         Order[]
 }
 
 model Branch {
@@ -290,7 +299,7 @@ model Order {
   commodities      Commodity[]
   wardId           Int?
   deliveredAt      DateTime?
-  hide              Boolean?  @default(false)
+  hide             Boolean?         @default(false)
   destination      Ward?            @relation(fields: [wardId], references: [id])
   paymentHistories PaymentHistory[]
 }

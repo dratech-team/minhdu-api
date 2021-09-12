@@ -2,9 +2,21 @@ import {IsNotEmpty, IsNumber, IsOptional, IsString} from "class-validator";
 import {Type} from "class-transformer";
 
 export class CreateDistrictDto {
-  @IsOptional()
+  @IsNotEmpty()
   @IsString()
   readonly code: string;
+
+  @IsNotEmpty()
+  @IsString()
+  readonly codename: string;
+
+  @IsNotEmpty()
+  @IsString()
+  readonly divisionType: string;
+
+  @IsNotEmpty()
+  @IsString()
+  readonly shortCodename: string;
 
   @IsNotEmpty()
   @IsString()

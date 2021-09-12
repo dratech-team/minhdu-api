@@ -2,13 +2,25 @@ import {IsNotEmpty, IsNumber, IsOptional, IsString} from "class-validator";
 import {Type} from "class-transformer";
 
 export class CreateWardDto {
-  @IsOptional()
+  @IsNotEmpty()
+  @IsString()
+  readonly name: string;
+
+  @IsNotEmpty()
   @IsString()
   readonly code: string;
 
   @IsNotEmpty()
   @IsString()
-  readonly name: string;
+  readonly codename: string;
+
+  @IsNotEmpty()
+  @IsString()
+  readonly shortCodename: string;
+
+  @IsNotEmpty()
+  @IsString()
+  readonly divisionType: string;
 
   @IsNotEmpty()
   @Type(() => Number)

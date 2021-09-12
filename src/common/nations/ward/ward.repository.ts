@@ -8,7 +8,7 @@ export class WardRepository {
   constructor(private readonly prisma: PrismaService) {
   }
 
-  async create(body: CreateWardDto): Promise<Ward> {
+  async create(body: CreateWardDto) {
     try {
       return await this.prisma.ward.create({data: body});
     } catch (err) {
