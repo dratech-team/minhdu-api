@@ -82,7 +82,7 @@ export class OrderService {
     const found = await this.findOne(id);
 
     // Đơn hàng giao thành công thì không được phép sửa
-    if (found.deliveredAt && !updates.hide) {
+    if (found.deliveredAt && (updates.hide === undefined || updates.hide === null)) {
       return new BadRequestException(
         "Không được sửa đơn hàng đã được giao thành công."
       );

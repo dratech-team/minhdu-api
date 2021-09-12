@@ -1,4 +1,4 @@
-import {Body, Controller, Delete, Get, Param, Patch, Post, Query} from '@nestjs/common';
+import {Body, Controller, Delete, Get, Param, ParseArrayPipe, Patch, Post, Query, Res} from '@nestjs/common';
 import {CustomerService} from './customer.service';
 import {CreateCustomerDto} from './dto/create-customer.dto';
 import {UpdateCustomerDto} from './dto/update-customer.dto';
@@ -27,7 +27,14 @@ export class CustomerController {
     @Query("resource") resource: CustomerResource,
     @Query("isPotential") isPotential: number,
   ) {
-    return this.customerService.findAll(+skip, +take, name, phone, +nationId, type, resource, +isPotential);
+    return this.customerService.findAll(+skip, +take, {
+      name,
+      phone,
+      nationId: +nationId,
+      type,
+      resource,
+      isPotential: +isPotential
+    });
   }
 
   @Get(':id')
@@ -43,6 +50,29 @@ export class CustomerController {
   @Delete(':id')
   remove(@Param('id') id: string) {
     return this.customerService.remove(+id);
+  }
+
+  @Get("/export/print")
+  export(
+    @Res() res,
+    @Query("name") name: string,
+    @Query("phone") phone: string,
+    @Query("nationId") nationId: number,
+    @Query("customerType") type: CustomerType,
+    @Query("resource") resource: CustomerResource,
+    @Query("isPotential") isPotential: number,
+  ) {
+    return this.customerService.export(
+      res,
+      {
+        name,
+        phone,
+        nationId: +nationId,
+        type,
+        resource,
+        isPotential: +isPotential
+      },
+    );
   }
 
   @Patch(':id/payment')
