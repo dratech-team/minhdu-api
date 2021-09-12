@@ -2,8 +2,9 @@ import {BadRequestException, Injectable} from "@nestjs/common";
 import {PrismaService} from "../../../prisma.service";
 import {CreateOrderDto} from "./dto/create-order.dto";
 import {UpdateOrderDto} from "./dto/update-order.dto";
-import {PaidEnum} from "./enums/paid.enum";
-import {Customer, PaymentType, PrismaPromise} from "@prisma/client";
+import {Customer, PrismaPromise} from "@prisma/client";
+import {SearchOrderDto} from "./dto/search-order.dto";
+import {searchName} from "../../../utils/search-name.util";
 
 @Injectable()
 export class OrderRepository {
@@ -65,25 +66,22 @@ export class OrderRepository {
   async findAll(
     skip: number,
     take: number,
-    paidType?: PaidEnum,
-    firstName?: string,
-    lastName?: string,
-    payType?: PaymentType,
-    delivered?: number
+    search?: Partial<SearchOrderDto>,
   ) {
     try {
+      const name = searchName(search?.customer);
       const [total, data] = await Promise.all([
         this.prisma.order.count({
           skip: skip,
           take: take,
           where: {
-            deliveredAt: delivered === 1 ? {not: null} : null,
+            deliveredAt: search?.delivered === 1 ? {not: null} : (search?.delivered === 0 ? null : undefined),
             // paidAt: paidType === PaidEnum.PAID || paidType === PaidEnum.DEBT ? {not: null} : (paidType === PaidEnum.UNPAID ? {in: null} : {}),
             // debt: paidType === PaidEnum.DEBT ? {not: 0} : {},
             customer: {
               AND: {
-                firstName: {startsWith: firstName, mode: "insensitive"},
-                lastName: {startsWith: lastName, mode: "insensitive"},
+                firstName: {startsWith: name?.firstName, mode: "insensitive"},
+                lastName: {startsWith: name?.lastName, mode: "insensitive"},
               },
             },
             // payType: payType ? {in: payType} : {}
@@ -93,13 +91,13 @@ export class OrderRepository {
           skip: skip,
           take: take,
           where: {
-            deliveredAt: delivered === 1 ? {not: null} : null,
+            deliveredAt: search?.delivered === 1 ? {not: null} : (search?.delivered === 0 ? null : undefined),
             // paidAt: paidType === PaidEnum.PAID || paidType === PaidEnum.DEBT ? {not: null} : (paidType === PaidEnum.UNPAID ? {in: null} : {}),
             // debt: paidType === PaidEnum.DEBT ? {not: 0} : {},
             customer: {
               AND: {
-                firstName: {startsWith: firstName, mode: "insensitive"},
-                lastName: {startsWith: lastName, mode: "insensitive"},
+                firstName: {startsWith: name?.firstName, mode: "insensitive"},
+                lastName: {startsWith: name?.lastName, mode: "insensitive"},
               },
             },
             // payType: payType ? {in: payType} : {}

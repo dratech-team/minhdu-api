@@ -21,7 +21,6 @@ import {DegreeModule} from './api/v2/degree/degree.module';
 import {RelativeModule} from "./api/v2/relative/relative.module";
 import {CustomerModule} from './api/v2/customer/customer.module';
 import {HistorySalaryModule} from './api/v2/histories/history-salary/history-salary.module';
-import {SystemHistoryModule} from './api/v2/histories/system-history/system-history.module';
 import {OvertimeTemplateModule} from './api/v2/overtime-template/overtime-template.module';
 import {OrderModule} from './api/v2/order/order.module';
 import {CommodityModule} from './api/v2/commodity/commodity.module';
@@ -55,7 +54,6 @@ import { MedicineModule } from './api/v2/medicine/medicine.module';
     RelativeModule,
     CustomerModule,
     HistorySalaryModule,
-    SystemHistoryModule,
     OvertimeTemplateModule,
     OrderModule,
     CommodityModule,
@@ -70,9 +68,5 @@ import { MedicineModule } from './api/v2/medicine/medicine.module';
   controllers: [AppController],
   providers: [PrismaService],
 })
-
-/*
-* Các req cố ý sửa đổi, xoá thành công sẽ được ghi lại trong lịch sử db
-* */
 export class AppModule {
 }

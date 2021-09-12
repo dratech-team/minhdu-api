@@ -3,7 +3,7 @@ import {
   Controller,
   Delete,
   Get,
-  Param,
+  Param, ParseBoolPipe,
   Patch,
   Post,
   Query,
@@ -14,6 +14,7 @@ import {CreateOrderDto} from "./dto/create-order.dto";
 import {UpdateOrderDto} from "./dto/update-order.dto";
 import {PaidEnum} from "./enums/paid.enum";
 import {PaymentType} from "@prisma/client";
+import {ReqProfile} from "../../../core/decorators/req-profile.decorator";
 
 @Controller("v2/order")
 export class OrderController {
@@ -32,8 +33,10 @@ export class OrderController {
     @Query("paidType") paidType?: PaidEnum,
     @Query("customer") customer?: string,
     @Query("payType") payType?: PaymentType,
-    @Query("delivered") delivered?: number
+    @Query("delivered") delivered?: number,
+    @ReqProfile() useasdr?: any,
   ) {
+    console.log(useasdr);
     return this.orderService.findAll(
       +skip,
       +take,

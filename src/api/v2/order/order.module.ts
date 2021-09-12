@@ -22,7 +22,7 @@ import {CustomerRepository} from "../customer/customer.repository";
     CommodityRepository,
     PaymentHistoryRepository,
     PaymentHistoryService,
-    CustomerRepository
+    CustomerRepository,
   ],
   exports: [OrderService],
 })

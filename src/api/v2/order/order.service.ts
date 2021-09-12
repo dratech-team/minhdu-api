@@ -3,7 +3,6 @@ import {CreateOrderDto} from "./dto/create-order.dto";
 import {UpdateOrderDto} from "./dto/update-order.dto";
 import {OrderRepository} from "./order.repository";
 import {CommodityService} from "../commodity/commodity.service";
-import {searchName} from "../../../utils/search-name.util";
 import {PaymentHistoryService} from "../payment-history/payment-history.service";
 import {Response} from "express";
 import {exportExcel} from "../../../core/services/export.service";
@@ -28,17 +27,7 @@ export class OrderService {
     take: number,
     search?: Partial<SearchOrderDto>,
   ) {
-    const name = searchName(search?.customer);
-
-    const result = await this.repository.findAll(
-      skip,
-      take,
-      search?.paidType,
-      name?.firstName,
-      name?.lastName,
-      search?.payType,
-      search?.delivered
-    );
+    const result = await this.repository.findAll(skip, take, search);
 
     return {
       total: result.total,
@@ -91,6 +80,10 @@ export class OrderService {
   }
 
   async remove(id: number) {
+    const order = await this.findOne(id);
+    if (order.deliveredAt) {
+      throw new BadRequestException("Đơn hàng đã giao thành công. Bạn không được phép xóa.");
+    }
     await this.repository.remove(id);
   }
 
