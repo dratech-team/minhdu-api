@@ -4,10 +4,10 @@ import {EmployeeRepository} from "./employee.repository";
 import {UpdateEmployeeDto} from "./dto/update-employee.dto";
 import {BaseEmployeeService} from "./base-employee.service";
 import {ResponsePagination} from "../../../common/entities/response.pagination";
-import {Employee, GenderType} from "@prisma/client";
+import {Employee} from "@prisma/client";
 import {PositionService} from "../../../common/branches/position/position.service";
 import {WorkHistoryService} from "../histories/work-history/work-history.service";
-import {searchName} from "../../../utils/search-name.util";
+import {SearchEmployeeDto} from "./dto/search-employee.dto";
 
 @Injectable()
 export class EmployeeService implements BaseEmployeeService {
@@ -30,39 +30,9 @@ export class EmployeeService implements BaseEmployeeService {
     branchId: number,
     skip: number,
     take: number,
-    code: string,
-    name: string,
-    gender: GenderType,
-    createdAt: Date,
-    isFlatSalary: boolean,
-    branch: string,
-    department: string,
-    position: string,
+    search?: Partial<SearchEmployeeDto>
   ): Promise<ResponsePagination<Employee>> {
-
-    const search = searchName(name);
-
-    if (branchId) {
-      branchId = Number(branchId);
-    }
-
-    if (skip) {
-      skip = Number(skip);
-    }
-
-    if (take) {
-      take = Number(take);
-    }
-
-    if (isFlatSalary) {
-      isFlatSalary = JSON.parse(String(isFlatSalary));
-    }
-
-    if (createdAt) {
-      createdAt = new Date(createdAt);
-    }
-
-    return await this.repository.findAll(branchId, skip, take, code, search?.firstName, search?.lastName, gender, createdAt, isFlatSalary, branch, department, position);
+    return await this.repository.findAll(+branchId, +skip, +take, search);
   }
 
   findBy(query: any) {
@@ -78,7 +48,8 @@ export class EmployeeService implements BaseEmployeeService {
   }
 
   async update(id: number, updates: UpdateEmployeeDto) {
-    if (updates.positionId) {
+    const found = await this.findOne(id);
+    if (updates.positionId && found.positionId !== updates.positionId) {
       this.findOne(id).then(employee => {
         this.workHisService.create(employee.positionId, id).then(_ => {
           this.workHisService.create(updates.positionId, id);

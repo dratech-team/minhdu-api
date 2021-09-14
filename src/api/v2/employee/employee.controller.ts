@@ -33,12 +33,22 @@ export class EmployeeController {
     @Query("name") name?: string,
     @Query("gender") gender?: GenderType,
     @Query("createdAt") createdAt?: Date,
-    @Query("isFlatSalary") isFlatSalary?: boolean,
+    @Query("isFlatSalary") isFlatSalary?: number,
     @Query("branch") branch?: string,
     @Query("department") department?: string,
     @Query("position") position?: string,
   ) {
-    return this.employeeService.findAll(branchId, skip, take, code, name, gender, createdAt, isFlatSalary, branch, department, position);
+    return this.employeeService.findAll(branchId, skip, take, {
+      code,
+      name,
+      gender,
+      createdAt,
+      isFlatSalary: +isFlatSalary,
+      branch,
+      department,
+      position
+    })
+      ;
   }
 
   @Get(':id')

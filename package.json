@@ -27,7 +27,7 @@
     "generate": "prisma generate",
     "push": "prisma db push",
     "docs": "npx @compodoc/compodoc -p tsconfig.json -s",
-    "seed": "npx prisma db seed --preview-feature"
+    "seed": "npx prisma db seed"
   },
   "dependencies": {
     "@nestjs/axios": "0.0.1",

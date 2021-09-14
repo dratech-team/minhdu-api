@@ -1,18 +1,19 @@
-import {BadRequestException, Injectable} from "@nestjs/common";
-import {PrismaService} from "../../../prisma.service";
-import {CreateCustomerDto} from "./dto/create-customer.dto";
-import {UpdateCustomerDto} from "./dto/update-customer.dto";
-import {Customer, CustomerResource, CustomerType} from "@prisma/client";
-import {CreatePaymentHistoryDto} from "../payment-history/dto/create-payment-history.dto";
+import { BadRequestException, Injectable } from "@nestjs/common";
+import { Customer } from "@prisma/client";
+import { searchName } from "src/utils/search-name.util";
+import { PrismaService } from "../../../prisma.service";
+import { CreatePaymentHistoryDto } from "../payment-history/dto/create-payment-history.dto";
+import { CreateCustomerDto } from "./dto/create-customer.dto";
+import { SearchCustomerDto } from "./dto/search-customer.dto";
+import { UpdateCustomerDto } from "./dto/update-customer.dto";
 
 @Injectable()
 export class CustomerRepository {
-  constructor(private readonly prisma: PrismaService) {
-  }
+  constructor(private readonly prisma: PrismaService) {}
 
   async create(body: CreateCustomerDto) {
     try {
-      return await this.prisma.customer.create({data: body});
+      return await this.prisma.customer.create({ data: body });
     } catch (err) {
       console.error(err);
       throw new BadRequestException(err);
@@ -22,15 +23,11 @@ export class CustomerRepository {
   async findAll(
     skip: number,
     take: number,
-    firstName: string,
-    lastName: string,
-    phone: string,
-    nationId: number,
-    type: CustomerType,
-    resource: CustomerResource,
-    isPotential: number
+    search?: Partial<SearchCustomerDto>
   ) {
     try {
+      const name = searchName(search?.name);
+
       const [total, data] = await Promise.all([
         this.prisma.customer.count(),
         this.prisma.customer.findMany({
@@ -38,15 +35,17 @@ export class CustomerRepository {
           take,
           where: {
             AND: {
-              firstName: {startsWith: firstName, mode: "insensitive"},
-              lastName: {startsWith: firstName, mode: "insensitive"},
+              firstName: { startsWith: name?.firstName, mode: "insensitive" },
+              lastName: { startsWith: name?.lastName, mode: "insensitive" },
             },
-            phone: {startsWith: phone, mode: "insensitive"},
+            phone: { startsWith: search?.phone, mode: "insensitive" },
             // ward: {district: {province: {nation: {id: nationId}}}},
-            type: type ? {in: type} : {},
-            resource: resource ? {in: resource} : {},
+            type: search?.type ? { in: search?.type } : {},
+            resource: search?.resource ? { in: search?.resource } : {},
             /// FIXME: bug
-            isPotential: isPotential ? {equals: isPotential !== 0} : {},
+            isPotential: search?.isPotential
+              ? { equals: search?.isPotential !== 0 }
+              : {},
           },
           include: {
             ward: {
@@ -65,7 +64,7 @@ export class CustomerRepository {
           },
         }),
       ]);
-      return {total, data};
+      return { total, data };
     } catch (err) {
       console.error(err);
       throw new BadRequestException(err);
@@ -75,11 +74,11 @@ export class CustomerRepository {
   async findOne(id: number) {
     try {
       return await this.prisma.customer.findUnique({
-        where: {id},
+        where: { id },
         include: {
           orders: {
             where: {
-              hide: false
+              hide: false,
             },
             include: {
               commodities: true,
@@ -114,7 +113,7 @@ export class CustomerRepository {
   async update(id: number, updates: UpdateCustomerDto) {
     try {
       return await this.prisma.customer.update({
-        where: {id},
+        where: { id },
         data: updates,
       });
     } catch (err) {
@@ -125,20 +124,17 @@ export class CustomerRepository {
 
   async remove(id: number) {
     try {
-      return await this.prisma.customer.delete({where: {id}});
+      return await this.prisma.customer.delete({ where: { id } });
     } catch (err) {
       console.error(err);
       throw new BadRequestException(err);
     }
   }
 
-  async payment(
-    customerId: Customer["id"],
-    payment: CreatePaymentHistoryDto
-  ) {
+  async payment(customerId: Customer["id"], payment: CreatePaymentHistoryDto) {
     try {
       return this.prisma.paymentHistory.create({
-        data: Object.assign(payment, {customerId}),
+        data: Object.assign(payment, { customerId }),
       });
     } catch (err) {
       console.error(err);

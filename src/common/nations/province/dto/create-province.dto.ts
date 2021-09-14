@@ -1,10 +1,11 @@
-import {IsNotEmpty, IsNumber, IsOptional, IsString} from "class-validator";
+import {IsNotEmpty, IsNumber, IsOptional, IsString, ValidateNested} from "class-validator";
 import {Type} from "class-transformer";
+import { CreateDistrictDto } from "../../district/dto/create-district.dto";
 
 export class CreateProvinceDto {
   @IsNotEmpty()
   @IsString()
-  readonly code: string;
+  readonly code: number;
 
   @IsNotEmpty()
   @IsString()
@@ -16,7 +17,7 @@ export class CreateProvinceDto {
 
   @IsNotEmpty()
   @IsString()
-  readonly phoneCode: string;
+  readonly phoneCode: number;
 
   @IsNotEmpty()
   @IsString()
@@ -26,4 +27,7 @@ export class CreateProvinceDto {
   @Type(() => Number)
   @IsNumber()
   readonly nationId: number;
+
+  @ValidateNested()
+  readonly districts?: CreateDistrictDto[];
 }

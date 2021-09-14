@@ -1,20 +1,20 @@
+import {HttpService} from "@nestjs/axios";
+import {BadRequestException, Injectable} from "@nestjs/common";
+import {Province} from "@prisma/client";
 import {PrismaService} from "../../../prisma.service";
 import {CreateProvinceDto} from "./dto/create-province.dto";
-import {Province} from "@prisma/client";
-import {BadRequestException, Injectable} from "@nestjs/common";
-import {map} from "rxjs/operators";
-import {HttpService} from "@nestjs/axios";
 
 @Injectable()
 export class ProvinceRepository {
-  constructor(private readonly prisma: PrismaService, private readonly http: HttpService) {
+  constructor(
+    private readonly prisma: PrismaService,
+    private readonly http: HttpService
+  ) {
   }
 
-  async create(body: CreateProvinceDto): Promise<Province> {
+  async create(body: CreateProvinceDto) {
     try {
-      return await this.prisma.province.create({
-        data: body,
-      });
+      return await this.prisma.province.create({data: body});
     } catch (err) {
       console.error(err);
       throw new BadRequestException(err);
@@ -30,10 +30,10 @@ export class ProvinceRepository {
       include: {
         districts: {
           include: {
-            wards: true
-          }
-        }
-      }
+            wards: true,
+          },
+        },
+      },
     });
   }
 }

@@ -1,32 +1,27 @@
-import {BadRequestException, Injectable} from "@nestjs/common";
-import {CreateOrderDto} from "./dto/create-order.dto";
-import {UpdateOrderDto} from "./dto/update-order.dto";
-import {OrderRepository} from "./order.repository";
-import {CommodityService} from "../commodity/commodity.service";
-import {PaymentHistoryService} from "../payment-history/payment-history.service";
-import {Response} from "express";
-import {exportExcel} from "../../../core/services/export.service";
-import {SearchOrderDto} from "./dto/search-order.dto";
-import {FullOrder} from "./entities/order.entity";
+import { BadRequestException, Injectable } from "@nestjs/common";
+import { CreateOrderDto } from "./dto/create-order.dto";
+import { UpdateOrderDto } from "./dto/update-order.dto";
+import { OrderRepository } from "./order.repository";
+import { CommodityService } from "../commodity/commodity.service";
+import { PaymentHistoryService } from "../payment-history/payment-history.service";
+import { Response } from "express";
+import { exportExcel } from "../../../core/services/export.service";
+import { SearchOrderDto } from "./dto/search-order.dto";
+import { FullOrder } from "./entities/order.entity";
 
 @Injectable()
 export class OrderService {
   constructor(
     private readonly repository: OrderRepository,
     private readonly commodityService: CommodityService,
-    private readonly paymentService: PaymentHistoryService,
-  ) {
-  }
+    private readonly paymentService: PaymentHistoryService
+  ) {}
 
   async create(body: CreateOrderDto) {
     return await this.repository.create(body);
   }
 
-  async findAll(
-    skip: number,
-    take: number,
-    search?: Partial<SearchOrderDto>,
-  ) {
+  async findAll(skip: number, take: number, search?: Partial<SearchOrderDto>) {
     const result = await this.repository.findAll(skip, take, search);
 
     return {
@@ -51,6 +46,9 @@ export class OrderService {
 
   async findOne(id: number) {
     const order = await this.repository.findOne(id);
+    if (!order) {
+      throw new BadRequestException(`Not found id ${id}`);
+    }
     /// Phương thức này fai đứng trước map commodities
     const commodityTotal = this.commodityService.totalCommodities(
       order.commodities
@@ -62,8 +60,8 @@ export class OrderService {
           this.commodityService.handleCommodity(commodity)
         ),
       },
-      {commodityTotal: commodityTotal},
-      {paymentTotal: this.paymentService.totalPayment(order.paymentHistories)}
+      { commodityTotal: commodityTotal },
+      { paymentTotal: this.paymentService.totalPayment(order.paymentHistories) }
     );
   }
 
@@ -71,7 +69,11 @@ export class OrderService {
     const found = await this.findOne(id);
 
     // Đơn hàng giao thành công thì không được phép sửa
-    if (found.deliveredAt && (updates.hide === undefined || updates.hide === null)) {
+    if (
+      found.deliveredAt &&
+      !updates.deliveredAt &&
+      (updates.hide === undefined || updates.hide === null)
+    ) {
       return new BadRequestException(
         "Không được sửa đơn hàng đã được giao thành công."
       );
@@ -82,13 +84,17 @@ export class OrderService {
   async remove(id: number) {
     const order = await this.findOne(id);
     if (order.deliveredAt) {
-      throw new BadRequestException("Đơn hàng đã giao thành công. Bạn không được phép xóa.");
+      throw new BadRequestException(
+        "Đơn hàng đã giao thành công. Bạn không được phép xóa."
+      );
     }
     await this.repository.remove(id);
   }
 
   orderTotal(orders: FullOrder[]): number {
-    return orders.map(order => this.commodityService.totalCommodities(order.commodities)).reduce((a, b) => a + b, 0);
+    return orders
+      .map((order) => this.commodityService.totalCommodities(order.commodities))
+      .reduce((a, b) => a + b, 0);
   }
 
   async export(
@@ -109,9 +115,18 @@ export class OrderService {
           "Tổng Tiền hàng",
           "Tổng tiền đã thanh toán",
           "Tổng tiền chưa thanh toán",
-          "Diễn giả"
+          "Diễn giả",
         ],
-        customKeys: ["name", "createdAt", "destination", "lengthTotal", "commodityTotal", "payTotal", "debtTotal", "explain"],
+        customKeys: [
+          "name",
+          "createdAt",
+          "destination",
+          "lengthTotal",
+          "commodityTotal",
+          "payTotal",
+          "debtTotal",
+          "explain",
+        ],
         name: "data",
         data: data.data.map((e) => ({
           name: e.customer.firstName + e.customer.lastName,
@@ -120,7 +135,9 @@ export class OrderService {
           lengthTotal: e.commodities.length,
           commodityTotal: this.commodityService.totalCommodities(e.commodities),
           payTotal: this.paymentService.totalPayment(e.paymentHistories),
-          debtTotal: this.paymentService.totalPayment(e.paymentHistories) - this.commodityService.totalCommodities(e.commodities),
+          debtTotal:
+            this.paymentService.totalPayment(e.paymentHistories) -
+            this.commodityService.totalCommodities(e.commodities),
           explain: e.explain,
         })),
       },

@@ -30,8 +30,7 @@ export class CustomerService {
     take: number,
     search?: Partial<SearchCustomerDto>,
   ) {
-    const name = searchName(search?.name);
-    return await this.repository.findAll(skip, take, name?.firstName, name?.lastName, search?.phone, search?.nationId, search?.type, search?.resource, search?.isPotential);
+    return await this.repository.findAll(skip, take, search);
   }
 
   async findOne(id: number) {

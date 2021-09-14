@@ -31,7 +31,7 @@ export class RouteService {
 
   async update(id: number, updates: UpdateRouteDto) {
     const found = await this.findOne(id);
-    if (found.endedAt) {
+    if (found.endedAt && !updates.endedAt) {
       throw new BadRequestException("Chuyến xe này đã kết thúc. Bạn không có được phép sửa..");
     }
     return await this.repository.update(id, updates);

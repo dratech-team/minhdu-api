@@ -3,8 +3,9 @@ import {PrismaService} from "../../../prisma.service";
 import {CreateEmployeeDto} from "./dto/create-employee.dto";
 import {UpdateEmployeeDto} from "./dto/update-employee.dto";
 import {ResponsePagination} from "../../../common/entities/response.pagination";
-import {Employee, GenderType} from "@prisma/client";
-import {firstMonth, lastMonth} from "../../../utils/datetime.util";
+import {Employee} from "@prisma/client";
+import {SearchEmployeeDto} from "./dto/search-employee.dto";
+import {searchName} from "../../../utils/search-name.util";
 
 @Injectable()
 export class EmployeeRepository {
@@ -37,49 +38,41 @@ export class EmployeeRepository {
     branchId: number,
     skip: number,
     take: number,
-    code: string,
-    firstName: string,
-    lastName: string,
-    gender: GenderType,
-    createdAt: Date,
-    isFlatSalary: boolean,
-    branch: string,
-    department: string,
-    position: string,
+    search?: Partial<SearchEmployeeDto>
   ): Promise<ResponsePagination<Employee>> {
     try {
+      const name = searchName(search?.name);
+
       const [total, data] = await Promise.all([
         this.prisma.employee.count({
+          skip: skip ?? undefined,
+          take: take ?? undefined,
           where: {
             leftAt: null,
-            position: {department: {branch: {id: branchId}}}
+            position: branchId ? {department: {branch: {id: branchId}}} : {},
+            code: {startsWith: search?.code, mode: 'insensitive'},
+            AND: {
+              firstName: {startsWith: name?.firstName, mode: 'insensitive'},
+              lastName: {startsWith: name?.lastName, mode: 'insensitive'},
+            },
+            gender: search?.gender ? {equals: search?.gender} : {},
+            isFlatSalary: search?.isFlatSalary === 1 ? true : (search?.isFlatSalary === 0 ? false : undefined),
           },
         }),
         this.prisma.employee.findMany({
+          skip: skip ?? undefined,
+          take: take ?? undefined,
           where: {
             leftAt: null,
-            position: {department: {branch: {id: branchId}}},
+            position: branchId ? {department: {branch: {id: branchId}}} : {},
+            code: {startsWith: search?.code, mode: 'insensitive'},
             AND: {
-              code: {startsWith: code},
-              AND: {
-                firstName: {startsWith: firstName, mode: 'insensitive'},
-                lastName: {startsWith: lastName, mode: 'insensitive'},
-              },
-              gender: gender ? {equals: gender} : {},
-              isFlatSalary: {equals: isFlatSalary},
-              position: {
-                name: {startsWith: position, mode: 'insensitive'},
-                department: {
-                  name: {startsWith: department, mode: 'insensitive'},
-                  branch: {
-                    name: {startsWith: branch, mode: 'insensitive'}
-                  }
-                },
-              },
-            }
+              firstName: {startsWith: name?.firstName, mode: 'insensitive'},
+              lastName: {startsWith: name?.lastName, mode: 'insensitive'},
+            },
+            gender: search?.gender ? {equals: search?.gender} : {},
+            isFlatSalary: search?.isFlatSalary === 1 ? true : (search?.isFlatSalary === 0 ? false : undefined),
           },
-          skip,
-          take,
           include: {
             position: {include: {department: {include: {branch: true}}}},
             ward: {

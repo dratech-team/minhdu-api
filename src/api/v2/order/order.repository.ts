@@ -83,6 +83,7 @@ export class OrderRepository {
                 firstName: {startsWith: name?.firstName, mode: "insensitive"},
                 lastName: {startsWith: name?.lastName, mode: "insensitive"},
               },
+              id: search?.customerId,
             },
             // payType: payType ? {in: payType} : {}
           },
@@ -99,6 +100,7 @@ export class OrderRepository {
                 firstName: {startsWith: name?.firstName, mode: "insensitive"},
                 lastName: {startsWith: name?.lastName, mode: "insensitive"},
               },
+              id: search?.customerId,
             },
             // payType: payType ? {in: payType} : {}
           },

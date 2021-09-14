@@ -4,7 +4,7 @@ import {Type} from "class-transformer";
 export class CreateDistrictDto {
   @IsNotEmpty()
   @IsString()
-  readonly code: string;
+  readonly code: number;
 
   @IsNotEmpty()
   @IsString()
@@ -13,10 +13,6 @@ export class CreateDistrictDto {
   @IsNotEmpty()
   @IsString()
   readonly divisionType: string;
-
-  @IsNotEmpty()
-  @IsString()
-  readonly shortCodename: string;
 
   @IsNotEmpty()
   @IsString()

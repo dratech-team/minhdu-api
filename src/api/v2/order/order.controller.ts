@@ -31,16 +31,15 @@ export class OrderController {
     @Query("skip") skip: number,
     @Query("take") take: number,
     @Query("paidType") paidType?: PaidEnum,
+    @Query("customerId") customerId?: number,
     @Query("customer") customer?: string,
     @Query("payType") payType?: PaymentType,
     @Query("delivered") delivered?: number,
-    @ReqProfile() useasdr?: any,
   ) {
-    console.log(useasdr);
     return this.orderService.findAll(
       +skip,
       +take,
-      {paidType, customer, payType, delivered: +delivered}
+      {paidType, customerId: +customerId, customer, payType, delivered: +delivered}
     );
   }
 

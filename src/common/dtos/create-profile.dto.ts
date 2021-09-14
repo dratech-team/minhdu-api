@@ -10,18 +10,20 @@ import {
   MaxDate,
   MinLength
 } from "class-validator";
-import {Type} from "class-transformer";
+import {Type, Transform} from "class-transformer";
 import {ValidatorMessage} from "../constant/validator.constant";
 
 export class CreateProfileDto {
   @IsNotEmpty()
   @IsString()
   @MinLength(2)
+  @Transform((val) => val.value.trim())
   readonly firstName: string;
 
   @IsNotEmpty()
   @IsString()
   @MinLength(2)
+  @Transform((val) => val.value.trim())
   readonly lastName: string;
 
   @IsNotEmpty()

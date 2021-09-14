@@ -1,14 +1,13 @@
-import {Module} from '@nestjs/common';
-import {WardService} from './ward.service';
-import {WardController} from './ward.controller';
-import {PrismaService} from "../../../prisma.service";
-import {WardRepository} from "./ward.repository";
-import {HttpModule} from "@nestjs/axios";
+import { HttpModule } from "@nestjs/axios";
+import { Module } from "@nestjs/common";
+import { PrismaService } from "../../../prisma.service";
+import { WardController } from "./ward.controller";
+import { WardRepository } from "./ward.repository";
+import { WardService } from "./ward.service";
 
 @Module({
   imports: [HttpModule],
   controllers: [WardController],
-  providers: [PrismaService, WardService, WardRepository]
+  providers: [PrismaService, WardService, WardRepository],
 })
-export class WardModule {
-}
+export class WardModule {}
