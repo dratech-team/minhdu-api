@@ -1,17 +1,18 @@
 import {GenderType} from "@prisma/client";
 import {
   IsDate,
-  IsEmail,
   IsEnum,
   IsNotEmpty,
-  IsNumber, IsOptional,
+  IsNumber,
+  IsOptional,
   IsPhoneNumber,
   IsString,
   MaxDate,
   MinLength
 } from "class-validator";
-import {Type, Transform} from "class-transformer";
+import {Transform, Type} from "class-transformer";
 import {ValidatorMessage} from "../constant/validator.constant";
+import {tomorrowDate} from "../../utils/datetime.util";
 
 export class CreateProfileDto {
   @IsNotEmpty()
@@ -43,7 +44,7 @@ export class CreateProfileDto {
   @IsNotEmpty()
   @Type(() => Date)
   @IsDate()
-  @MaxDate(new Date(), {message: `birthday profile ${ValidatorMessage.datetime}`})
+  @MaxDate(tomorrowDate(), {message: `birthday profile ${ValidatorMessage.datetime}`})
   readonly birthday: Date;
 
   @IsNotEmpty()
@@ -57,7 +58,7 @@ export class CreateProfileDto {
   @IsNotEmpty()
   @Type(() => Date)
   @IsDate()
-  @MaxDate(new Date(), {message: `birthday profile ${ValidatorMessage.datetime}`})
+  @MaxDate(tomorrowDate(), {message: `birthday profile ${ValidatorMessage.datetime}`})
   readonly idCardAt: Date;
 
   @IsNotEmpty()

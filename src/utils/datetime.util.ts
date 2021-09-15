@@ -17,3 +17,7 @@ export function lastDayOfMonth(datetime: string | Date): number {
 
   return moment(datetime).endOf('month').date();
 }
+
+export function tomorrowDate() {
+  return moment(new Date).add(1, 'day').toDate();
+}

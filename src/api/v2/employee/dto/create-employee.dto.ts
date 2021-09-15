@@ -13,6 +13,7 @@ import {
 import {CreateProfileDto} from "../../../../common/dtos/create-profile.dto";
 import {CreateSocialDto} from "./create-social.dto";
 import {ValidatorMessage} from "../../../../common/constant/validator.constant";
+import {tomorrowDate} from "../../../../utils/datetime.util";
 
 export class CreateEmployeeDto extends CreateProfileDto {
   @IsOptional()
@@ -20,13 +21,13 @@ export class CreateEmployeeDto extends CreateProfileDto {
 
   @IsNotEmpty()
   @Type(() => Date)
-  @MaxDate(new Date(), {message: `createdAt ${ValidatorMessage.datetime}`})
+  @MaxDate(tomorrowDate(), {message: `createdAt ${ValidatorMessage.datetime}`})
   @IsDate()
   readonly createdAt: Date
 
   @Type(() => Date)
   @IsDate()
-  @MaxDate(new Date(), {message: `workedAt ${ValidatorMessage.datetime}`})
+  @MaxDate(tomorrowDate(), {message: `workedAt ${ValidatorMessage.datetime}`})
   @IsNotEmpty()
   readonly workedAt: Date;
 

@@ -2,6 +2,7 @@ import {IsEnum, IsNotEmpty, IsNumber, IsOptional, IsString, MaxDate} from "class
 import {Type} from "class-transformer";
 import {DatetimeUnit, SalaryType} from "@prisma/client";
 import {ValidatorMessage} from "../constant/validator.constant";
+import {tomorrowDate} from "src/utils/datetime.util";
 
 export class ICreateSalaryDto {
   @IsOptional()
@@ -18,7 +19,7 @@ export class ICreateSalaryDto {
 
   @Type(() => Date)
   @IsOptional()
-  @MaxDate(new Date(), {message: ValidatorMessage.datetime})
+  @MaxDate(tomorrowDate(), {message: ValidatorMessage.datetime})
   readonly datetime?: Date;
 
   @IsOptional()
