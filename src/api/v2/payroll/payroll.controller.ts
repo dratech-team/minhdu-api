@@ -6,6 +6,7 @@ import {UserType} from "../../../core/constants/role-type.constant";
 import {ReqProfile} from "../../../core/decorators/req-profile.decorator";
 import {CreatePayrollDto} from "./dto/create-payroll.dto";
 import {ApiV2Constant} from "../../../common/constant/api.constant";
+import {ParseDatetimePipe} from 'src/core/pipe/datetime.pipe';
 
 @Controller(ApiV2Constant.PAYROLL)
 // @UseGuards(JwtAuthGuard, ApiKeyGuard, RolesGuard)
@@ -30,11 +31,11 @@ export class PayrollController {
     @Query("branch") branch: string,
     @Query("department") department: string,
     @Query("position") position: string,
-    @Query("createdAt") createdAt: Date,
+    @Query("createdAt", ParseDatetimePipe) createdAt: any,
     @Query("isConfirm") isConfirm: number,
     @Query("isPaid") isPaid: number,
   ) {
-    return this.payrollService.findAll(branchId, +skip, +take, {
+    return this.payrollService.findAll(+branchId, +skip, +take, {
       code,
       name,
       branch,

@@ -3,14 +3,13 @@ import {DatetimeUnit, Salary, SalaryType} from "@prisma/client";
 import * as moment from "moment";
 import {firstMonth, lastDayOfMonth, lastMonth} from "../../../utils/datetime.util";
 import {EmployeeService} from "../employee/employee.service";
-import {BasePayrollService} from "./base-payroll.service";
 import {CreatePayrollDto} from "./dto/create-payroll.dto";
 import {UpdatePayrollDto} from "./dto/update-payroll.dto";
 import {PayrollRepository} from "./payroll.repository";
 import {SearchPayrollDto} from "./dto/search-payroll.dto";
 
 @Injectable()
-export class PayrollService implements BasePayrollService {
+export class PayrollService {
   constructor(
     private readonly repository: PayrollRepository,
     private readonly employeeService: EmployeeService,
@@ -61,24 +60,13 @@ export class PayrollService implements BasePayrollService {
    * Kiểm tra phiếu lương của từng nhân viên đã tồn tại trong tháng này chưa?. Nếu chưa thì sẽ khởi tạo. Sau khi khởi
    * tạo xong hết danh sách nhân viên thì sẽ trả về true
    * */
-  async generatePayroll(branchId: number): Promise<boolean> {
+  async generatePayroll(employee) {
     try {
-      const employees = await this.employeeService.findBy({
-        position: {department: {branch: {id: branchId}}},
+      return await this.repository.create({
+        employeeId: employee.id,
+        salaries: employee.salaries,
+        createdAt: new Date(),
       });
-
-      for (let i = 0; i < employees.length; i++) {
-        const exist = await this.checkCurrentExist(new Date(), employees[i].id);
-
-        if (!exist) {
-          await this.repository.create({
-            employeeId: employees[i].id,
-            salaries: employees[i].salaries,
-            createdAt: new Date(),
-          });
-        }
-      }
-      return true;
     } catch (err) {
       console.error(err);
       throw new BadRequestException(err);
@@ -92,45 +80,25 @@ export class PayrollService implements BasePayrollService {
     take: number,
     search?: Partial<SearchPayrollDto>,
   ) {
-    const checkExist = await this.generatePayroll(branchId);
-    if (checkExist) {
-      const res = await this.repository.findAll(branchId, skip, take, search);
-      const data = res?.data?.map((payroll) => {
-        return {
-          id: payroll.id,
-          accConfirmedAt: payroll.accConfirmedAt,
-          manConfirmedAt: payroll.manConfirmedAt,
-          paidAt: payroll.paidAt,
-          createdAt: payroll.createdAt,
-          employee: payroll.employee,
-        };
-      });
-      return {
-        total: res.total,
-        data,
-      };
-    } else {
-      throw new BadRequestException(
-        "Có Lỗi xảy ra ở payroll service. Vui lòng liên hệ developer để khắc phục. Xin cảm ơn"
-      );
+    const employee = await this.employeeService.findAll(branchId, undefined, undefined);
+
+    /**
+     * generate payroll in this month if it not exist
+     */
+    for (let i = 0; i < employee.data.length; i++) {
+      if (!await this.checkCurrentExist(new Date(), employee.data[i].id)) {
+        await this.generatePayroll(employee.data[i]);
+      }
     }
+    return await this.repository.findAll(branchId, skip, take, search);
   }
 
   async findOne(id: number): Promise<any> {
     const res = await this.repository.findOne(id);
-    return {
-      id: res.id,
-      accConfirmedAt: res.accConfirmedAt,
-      manConfirmedAt: res.manConfirmedAt,
-      paidAt: res.paidAt,
-      createdAt: res.createdAt,
-      salaries: res.salaries,
-      employee: res.employee,
-      payslip:
-        res.manConfirmedAt !== null && res.salaries.length !== 0
-          ? this.totalSalary(res)
-          : null,
-    };
+    const payslip = res.manConfirmedAt !== null && res.salaries.length !== 0
+      ? this.totalSalary(res)
+      : null;
+    return Object.assign(res, {payslip});
   }
 
   findBy(query: any) {
@@ -157,17 +125,6 @@ export class PayrollService implements BasePayrollService {
       );
     }
 
-    if (updates.accConfirmedAt) {
-      updates.accConfirmedAt = new Date(updates.accConfirmedAt);
-    }
-
-    if (updates.manConfirmedAt) {
-      updates.manConfirmedAt = new Date(updates.manConfirmedAt);
-    }
-
-    if (updates.paidAt) {
-      updates.paidAt = new Date(updates.paidAt);
-    }
     return await this.repository.update(id, updates);
   }
 
@@ -275,7 +232,7 @@ export class PayrollService implements BasePayrollService {
     }
 
     const basic = payroll.salaries.find(
-      (salary) => salary.type === SalaryType.BASIC_ISNURANCE
+      (salary) => salary.type === SalaryType.BASIC_INSNURANCE
     );
     if (basic !== undefined) {
       tax = payroll.employee.contracts !== 0 ? basic.price * 0.115 : 0;

@@ -1,14 +1,13 @@
 import {BadRequestException, Injectable} from "@nestjs/common";
 import {PrismaService} from "../../../prisma.service";
 import {UpdatePayrollDto} from "./dto/update-payroll.dto";
-import {InterfaceRepository} from "../../../common/repository/interface.repository";
 import {CreatePayrollDto} from "./dto/create-payroll.dto";
 import {firstMonth, lastMonth} from "../../../utils/datetime.util";
 import {searchName} from "../../../utils/search-name.util";
 import {SearchPayrollDto} from "./dto/search-payroll.dto";
 
 @Injectable()
-export class PayrollRepository implements InterfaceRepository<any> {
+export class PayrollRepository {
   constructor(private readonly prisma: PrismaService) {
   }
 
@@ -21,6 +20,11 @@ export class PayrollRepository implements InterfaceRepository<any> {
       return await this.prisma.payroll.create({
         data: {
           employeeId: body.employeeId,
+          salaries: {
+            createMany: {
+              data: body.salaries,
+            },
+          },
           createdAt: body.createdAt,
         },
       });
@@ -46,43 +50,41 @@ export class PayrollRepository implements InterfaceRepository<any> {
       const [total, payrolls] = await Promise.all([
         this.prisma.payroll.count({where: {employee: {leftAt: null}}}),
         this.prisma.payroll.findMany({
+          take: take ?? undefined,
+          skip: skip ?? undefined,
           where: {
-            AND: {
-              employee: {
-                leftAt: null,
-                position: {
-                  name: {startsWith: search?.position, mode: 'insensitive'},
-                  department: {
-                    name: {startsWith: search?.department, mode: 'insensitive'},
-                    branch: {
-                      name: {startsWith: search?.branch, mode: 'insensitive'},
-                    }
+            employee: {
+              leftAt: null,
+              position: {
+                name: {startsWith: search?.position, mode: 'insensitive'},
+                department: {
+                  name: {startsWith: search?.department, mode: 'insensitive'},
+                  branch: {
+                    name: {startsWith: search?.branch, mode: 'insensitive'},
                   }
-                },
-                code: {startsWith: search?.code, mode: 'insensitive'},
-                AND: {
-                  firstName: {startsWith: name?.firstName, mode: 'insensitive'},
-                  lastName: {startsWith: name?.lastName, mode: 'insensitive'},
-                },
+                }
               },
-              createdAt: search?.createdAt ? {
-                gte: firstMonth(search?.createdAt),
-                lte: lastMonth(search?.createdAt),
-              } : {},
-              manConfirmedAt: search?.isConfirm === 1 ? {
-                notIn: null
-              } : {
-                in: null
+              code: {startsWith: search?.code, mode: 'insensitive'},
+              AND: {
+                firstName: {startsWith: name?.firstName, mode: 'insensitive'},
+                lastName: {startsWith: name?.lastName, mode: 'insensitive'},
               },
-              paidAt: search?.isPaid === 1 ? {
-                notIn: null
-              } : {
-                in: null
-              },
-            }
+            },
+            createdAt: {
+              gte: firstMonth(search?.createdAt ?? new Date()),
+              lte: lastMonth(search?.createdAt ?? new Date()),
+            },
+            manConfirmedAt: search?.isConfirm === 1 ? {
+              notIn: null
+            } : {
+              in: null
+            },
+            paidAt: search?.isPaid === 1 ? {
+              notIn: null
+            } : {
+              in: null
+            },
           },
-          take,
-          skip,
           include: {
             salaries: true,
             employee: {
@@ -170,9 +172,9 @@ export class PayrollRepository implements InterfaceRepository<any> {
         where: {id: id},
         data: {
           isEdit: !!updates.accConfirmedAt,
-          accConfirmedAt: updates.accConfirmedAt,
-          paidAt: updates.paidAt,
-          manConfirmedAt: updates.manConfirmedAt,
+          accConfirmedAt: updates.accConfirmedAt ?? undefined,
+          paidAt: updates.paidAt ?? undefined,
+          manConfirmedAt: updates.manConfirmedAt ?? undefined,
         }
       });
     } catch (e) {

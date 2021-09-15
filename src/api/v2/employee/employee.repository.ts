@@ -39,14 +39,12 @@ export class EmployeeRepository {
     skip: number,
     take: number,
     search?: Partial<SearchEmployeeDto>
-  ): Promise<ResponsePagination<Employee>> {
+  ) {
     try {
       const name = searchName(search?.name);
 
       const [total, data] = await Promise.all([
         this.prisma.employee.count({
-          skip: skip ?? undefined,
-          take: take ?? undefined,
           where: {
             leftAt: null,
             position: branchId ? {department: {branch: {id: branchId}}} : {},
@@ -88,6 +86,7 @@ export class EmployeeRepository {
                 }
               }
             },
+            salaries: true
           }
         })
       ]);

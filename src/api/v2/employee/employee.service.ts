@@ -31,8 +31,8 @@ export class EmployeeService implements BaseEmployeeService {
     skip: number,
     take: number,
     search?: Partial<SearchEmployeeDto>
-  ): Promise<ResponsePagination<Employee>> {
-    return await this.repository.findAll(+branchId, +skip, +take, search);
+  ) {
+    return await this.repository.findAll(branchId, skip, take, search);
   }
 
   findBy(query: any) {

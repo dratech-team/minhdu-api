@@ -53,7 +53,7 @@ export class SalaryService {
       } else {
         if (
           body.type === SalaryType.BASIC ||
-          body.type === SalaryType.BASIC_ISNURANCE ||
+          body.type === SalaryType.BASIC_INSNURANCE ||
           body.type === SalaryType.STAY
         ) {
           const salary = await this.repository.create(body);
@@ -86,7 +86,7 @@ export class SalaryService {
     try {
       const salary = await this.findOne(id);
       if (
-        salary.type === SalaryType.BASIC_ISNURANCE ||
+        salary.type === SalaryType.BASIC_INSNURANCE ||
         salary.type === SalaryType.BASIC ||
         salary.type === SalaryType.STAY
       ) {
