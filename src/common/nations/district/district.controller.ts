@@ -1,11 +1,12 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete } from '@nestjs/common';
-import { DistrictService } from './district.service';
-import { CreateDistrictDto } from './dto/create-district.dto';
-import { UpdateDistrictDto } from './dto/update-district.dto';
+import {Controller, Get, Post, Body, Patch, Param, Delete, Query} from '@nestjs/common';
+import {DistrictService} from './district.service';
+import {CreateDistrictDto} from './dto/create-district.dto';
+import {UpdateDistrictDto} from './dto/update-district.dto';
 
 @Controller('v2/district')
 export class DistrictController {
-  constructor(private readonly districtService: DistrictService) {}
+  constructor(private readonly districtService: DistrictService) {
+  }
 
   @Post()
   create(@Body() createDistrictDto: CreateDistrictDto) {
@@ -13,8 +14,10 @@ export class DistrictController {
   }
 
   @Get()
-  findAll() {
-    return this.districtService.findAll();
+  findAll(
+    @Query("provinceId") provinceId: number
+  ) {
+    return this.districtService.findAll(+provinceId);
   }
 
   @Get(':id')

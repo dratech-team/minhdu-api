@@ -1,4 +1,4 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete } from '@nestjs/common';
+import {Controller, Get, Post, Body, Patch, Param, Delete, Query} from '@nestjs/common';
 import { WardService } from './ward.service';
 import { CreateWardDto } from './dto/create-ward.dto';
 import { UpdateWardDto } from './dto/update-ward.dto';
@@ -13,8 +13,10 @@ export class WardController {
   }
 
   @Get()
-  findAll() {
-    return this.wardService.findAll();
+  findAll(
+    @Query("districtId") districtId: number
+  ) {
+    return this.wardService.findAll(+districtId);
   }
 
   @Get(':id')

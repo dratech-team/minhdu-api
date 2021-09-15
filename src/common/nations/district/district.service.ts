@@ -1,4 +1,4 @@
-import {Injectable} from "@nestjs/common";
+import {BadRequestException, Injectable} from "@nestjs/common";
 import {CreateDistrictDto} from "./dto/create-district.dto";
 import {UpdateDistrictDto} from "./dto/update-district.dto";
 import {DistrictRepository} from "./district.repository";
@@ -14,8 +14,11 @@ export class DistrictService {
     return await this.repository.create(createDistrictDto);
   }
 
-  async findAll() {
-    return await this.repository.findAll();
+  async findAll(provinceId: number) {
+    if(!provinceId) {
+      throw new BadRequestException("Vui lòng truyền vào provinceId. Example: {{url}}/v2/district?provinceId={id}");
+    }
+    return await this.repository.findAll(provinceId);
   }
 
   async findOne(id: number) {

@@ -21,7 +21,11 @@ export class WardRepository {
     return await this.prisma.ward.findUnique({where: {id}});
   }
 
-  async findAll(): Promise<Ward[]> {
-    return this.prisma.ward.findMany();
+  async findAll(districtId: number): Promise<Ward[]> {
+    return this.prisma.ward.findMany({
+      where: {
+        districtId
+      }
+    });
   }
 }

@@ -119,7 +119,23 @@ export class EmployeeRepository {
         include: {
           degrees: true,
           contracts: true,
-          relatives: true,
+          relatives: {
+            include: {
+              ward: {
+                include: {
+                  district: {
+                    include: {
+                      province: {
+                        include: {
+                          nation: true
+                        }
+                      }
+                    }
+                  }
+                }
+              },
+            }
+          },
           banks: true,
           position: {include: {department: {include: {branch: true}}}},
           ward: {

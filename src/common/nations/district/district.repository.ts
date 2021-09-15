@@ -21,8 +21,11 @@ export class DistrictRepository {
     return await this.prisma.district.findUnique({where: {id}});
   }
 
-  async findAll(): Promise<District[]> {
+  async findAll(provinceId: number): Promise<District[]> {
     return this.prisma.district.findMany({
+      where: {
+        provinceId
+      },
       include: {
         wards: true
       }
