@@ -54,7 +54,8 @@ export class EmployeeRepository {
               lastName: {startsWith: name?.lastName, mode: 'insensitive'},
             },
             gender: search?.gender ? {equals: search?.gender} : {},
-            isFlatSalary: search?.isFlatSalary === 1 ? true : (search?.isFlatSalary === 0 ? false : undefined),
+            isFlatSalary: search?.isFlatSalary,
+            createdAt: search?.createdAt,
           },
         }),
         this.prisma.employee.findMany({
@@ -69,7 +70,8 @@ export class EmployeeRepository {
               lastName: {startsWith: name?.lastName, mode: 'insensitive'},
             },
             gender: search?.gender ? {equals: search?.gender} : {},
-            isFlatSalary: search?.isFlatSalary === 1 ? true : (search?.isFlatSalary === 0 ? false : undefined),
+            isFlatSalary: search?.isFlatSalary,
+            createdAt: search?.createdAt,
           },
           include: {
             position: {include: {department: {include: {branch: true}}}},

@@ -1,18 +1,17 @@
-import {Body, Controller, Get, Param, Patch, Post, Query, UseGuards} from '@nestjs/common';
+import {Body, Controller, Get, Param, Patch, Post, Query} from '@nestjs/common';
 import {EmployeeService} from './employee.service';
 import {CreateEmployeeDto} from './dto/create-employee.dto';
-import {JwtAuthGuard} from "../../../core/guard/jwt-auth.guard";
-import {ApiKeyGuard} from "../../../core/guard/api-key-auth.guard";
-import {RolesGuard} from "../../../core/guard/role.guard";
 import {Roles} from "../../../core/decorators/roles.decorator";
 import {UserType} from "../../../core/constants/role-type.constant";
 import {ReqProfile} from "../../../core/decorators/req-profile.decorator";
 import {UpdateEmployeeDto} from "./dto/update-employee.dto";
 import {ApiV2Constant} from "../../../common/constant/api.constant";
 import {GenderType} from '@prisma/client';
+import {ParseDatetimePipe} from "../../../core/pipe/datetime.pipe";
+import {CustomParseBooleanPipe} from 'src/core/pipe/custom-boolean.pipe';
 
 @Controller(ApiV2Constant.EMPLOYEE)
-@UseGuards(JwtAuthGuard, ApiKeyGuard, RolesGuard)
+// @UseGuards(JwtAuthGuard, ApiKeyGuard, RolesGuard)
 export class EmployeeController {
   constructor(private readonly employeeService: EmployeeService) {
   }
@@ -32,8 +31,8 @@ export class EmployeeController {
     @Query("code") code?: string,
     @Query("name") name?: string,
     @Query("gender") gender?: GenderType,
-    @Query("createdAt") createdAt?: Date,
-    @Query("isFlatSalary") isFlatSalary?: number,
+    @Query("createdAt", ParseDatetimePipe) createdAt?: any,
+    @Query("isFlatSalary", CustomParseBooleanPipe) isFlatSalary?: any,
     @Query("branch") branch?: string,
     @Query("department") department?: string,
     @Query("position") position?: string,
@@ -43,7 +42,7 @@ export class EmployeeController {
       name,
       gender,
       createdAt,
-      isFlatSalary: +isFlatSalary,
+      isFlatSalary,
       branch,
       department,
       position

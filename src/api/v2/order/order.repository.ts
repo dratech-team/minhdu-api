@@ -72,19 +72,17 @@ export class OrderRepository {
       const name = searchName(search?.customer);
       const [total, data] = await Promise.all([
         this.prisma.order.count({
-          skip: skip,
-          take: take,
           where: {
             deliveredAt: search?.delivered === 1 ? {not: null} : (search?.delivered === 0 ? null : undefined),
             // paidAt: paidType === PaidEnum.PAID || paidType === PaidEnum.DEBT ? {not: null} : (paidType === PaidEnum.UNPAID ? {in: null} : {}),
             // debt: paidType === PaidEnum.DEBT ? {not: 0} : {},
             customer: {
               AND: {
-                firstName: {startsWith: name?.firstName, mode: "insensitive"},
-                lastName: {startsWith: name?.lastName, mode: "insensitive"},
+                firstName: name?.firstName,
+                lastName: name?.lastName,
               },
-              id: search?.customerId,
-            },
+              id: search?.customerId ? {equals: search?.customerId} : {}
+            }
             // payType: payType ? {in: payType} : {}
           },
         }),
@@ -97,11 +95,11 @@ export class OrderRepository {
             // debt: paidType === PaidEnum.DEBT ? {not: 0} : {},
             customer: {
               AND: {
-                firstName: {startsWith: name?.firstName, mode: "insensitive"},
-                lastName: {startsWith: name?.lastName, mode: "insensitive"},
+                firstName: name?.firstName,
+                lastName: name?.lastName,
               },
-              id: search?.customerId,
-            },
+              id: search?.customerId ? {equals: search?.customerId} : {}
+            }
             // payType: payType ? {in: payType} : {}
           },
           include: {

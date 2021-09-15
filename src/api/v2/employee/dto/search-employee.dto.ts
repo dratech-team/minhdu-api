@@ -5,7 +5,7 @@ export interface SearchEmployeeDto {
   name: string,
   gender: GenderType,
   createdAt: Date,
-  isFlatSalary: number, // 0 | 1
+  isFlatSalary: boolean, // 0 | 1
   branch: string,
   department: string,
   position: string,
