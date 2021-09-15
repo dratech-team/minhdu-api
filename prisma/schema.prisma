@@ -492,7 +492,7 @@ enum FormalityType {
 }
 
 enum SalaryType {
-  BASIC_ISNURANCE
+  BASIC_INSNURANCE
   BASIC
   STAY
   ALLOWANCE

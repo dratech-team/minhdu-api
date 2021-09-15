@@ -20,41 +20,36 @@ export class SalaryService {
 
   async create(body: CreateSalaryDto): Promise<Salary> {
     try {
-      if (body.employeeIds !== undefined) {
-        if (
-          body.type === SalaryType.BASIC_ISNURANCE ||
-          body.type === SalaryType.BASIC ||
-          body.type === SalaryType.STAY ||
-          body.type === SalaryType.ALLOWANCE ||
-          body.type === SalaryType.ABSENT
-        ) {
-          throw new BadRequestException('Chức năng này chỉ được sử dụng để thêm công tăng ca. Vui lòng liên hệ admin');
-        }
-        body.employeeIds.forEach(id => {
-          this.employeeService.findOne(id).then(employee => {
-            this.payrollService.findFirst({
-              employeeId: employee.id,
-              createdAt: {
-                gte: firstMonth(body.datetime ?? new Date()),
-                lte: lastMonth(body.datetime ?? new Date()),
-              }
-            }).then(payroll => {
-              this.repository.create({
-                payrollId: payroll.id,
-                type: body.type,
-                note: body.note,
-                price: body.price,
-                title: body.title,
+      if (body.employeeIds && body.employeeIds.length) {
+        if (body.type === SalaryType.OVERTIME) {
+          body.employeeIds.forEach(id => {
+            this.employeeService.findOne(id).then(employee => {
+              this.payrollService.findFirst({
                 employeeId: employee.id,
-                datetime: body.datetime,
-                times: body.times,
-                forgot: body.forgot,
-                rate: body.rate,
-                unit: body.unit,
+                createdAt: {
+                  gte: firstMonth(body.datetime ?? new Date()),
+                  lte: lastMonth(body.datetime ?? new Date()),
+                }
+              }).then(payroll => {
+                this.repository.create({
+                  payrollId: payroll.id,
+                  type: body.type,
+                  note: body.note,
+                  price: body.price,
+                  title: body.title,
+                  employeeId: employee.id,
+                  datetime: body.datetime,
+                  times: body.times,
+                  forgot: body.forgot,
+                  rate: body.rate,
+                  unit: body.unit,
+                });
               });
             });
           });
-        });
+        } else {
+          throw new BadRequestException('Chức năng này chỉ được sử dụng để thêm công tăng ca. Vui lòng liên hệ admin');
+        }
       } else {
         if (
           body.type === SalaryType.BASIC ||

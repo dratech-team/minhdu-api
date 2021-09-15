@@ -1,29 +1,21 @@
-import {
-  BadRequestException,
-  ConflictException,
-  Injectable
-} from "@nestjs/common";
-import { DatetimeUnit, Payroll, Salary, SalaryType } from "@prisma/client";
+import {BadRequestException, ConflictException, Injectable} from "@nestjs/common";
+import {DatetimeUnit, Salary, SalaryType} from "@prisma/client";
 import * as moment from "moment";
-import { InputExcel } from "../../../core/interfaces/coreResponse.interface";
-import {
-  firstMonth,
-  lastDayOfMonth,
-  lastMonth
-} from "../../../utils/datetime.util";
-import { searchName } from "../../../utils/search-name.util";
-import { EmployeeService } from "../employee/employee.service";
-import { BasePayrollService } from "./base-payroll.service";
-import { CreatePayrollDto } from "./dto/create-payroll.dto";
-import { UpdatePayrollDto } from "./dto/update-payroll.dto";
-import { PayrollRepository } from "./payroll.repository";
+import {firstMonth, lastDayOfMonth, lastMonth} from "../../../utils/datetime.util";
+import {EmployeeService} from "../employee/employee.service";
+import {BasePayrollService} from "./base-payroll.service";
+import {CreatePayrollDto} from "./dto/create-payroll.dto";
+import {UpdatePayrollDto} from "./dto/update-payroll.dto";
+import {PayrollRepository} from "./payroll.repository";
+import {SearchPayrollDto} from "./dto/search-payroll.dto";
 
 @Injectable()
 export class PayrollService implements BasePayrollService {
   constructor(
     private readonly repository: PayrollRepository,
     private readonly employeeService: EmployeeService,
-  ) {}
+  ) {
+  }
 
   async checkCurrentExist(date: Date, employeeId: number): Promise<boolean> {
     const first = firstMonth(date);
@@ -54,7 +46,7 @@ export class PayrollService implements BasePayrollService {
       if (payroll) {
         this.employeeService.findOne(payroll.employeeId).then((payroll) => {
           payroll?.salaries?.map((salary) => {
-            this.update(payroll.id, { salaryId: salary.id }).then();
+            this.update(payroll.id, {salaryId: salary.id}).then();
           });
         });
       }
@@ -72,7 +64,7 @@ export class PayrollService implements BasePayrollService {
   async generatePayroll(branchId: number): Promise<boolean> {
     try {
       const employees = await this.employeeService.findBy({
-        position: { department: { branch: { id: branchId } } },
+        position: {department: {branch: {id: branchId}}},
       });
 
       for (let i = 0; i < employees.length; i++) {
@@ -98,50 +90,11 @@ export class PayrollService implements BasePayrollService {
     branchId: number,
     skip: number,
     take: number,
-    code: string,
-    name: string,
-    branch: string,
-    department: string,
-    position: string,
-    createdAt: Date,
-    isConfirm: boolean,
-    isPaid: boolean
+    search?: Partial<SearchPayrollDto>,
   ) {
     const checkExist = await this.generatePayroll(branchId);
     if (checkExist) {
-      const search = searchName(name);
-
-      if (skip && take) {
-        skip = Number(skip);
-        take = Number(take);
-      }
-
-      if (isConfirm) {
-        isConfirm = JSON.parse(String(isConfirm));
-      }
-
-      if (isPaid) {
-        isPaid = JSON.parse(String(isPaid));
-      }
-
-      if (createdAt) {
-        createdAt = new Date(createdAt);
-      }
-
-      const res = await this.repository.findAll(
-        branchId,
-        skip,
-        take,
-        code,
-        search?.firstName,
-        search?.lastName,
-        branch,
-        department,
-        position,
-        createdAt,
-        isConfirm,
-        isPaid
-      );
+      const res = await this.repository.findAll(branchId, skip, take, search);
       const data = res?.data?.map((payroll) => {
         return {
           id: payroll.id,

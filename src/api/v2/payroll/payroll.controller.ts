@@ -1,15 +1,11 @@
-import {Body, Controller, Delete, Get, Param, Patch, Post, Query, Res, UseGuards} from '@nestjs/common';
+import {Body, Controller, Delete, Get, Param, Patch, Post, Query} from '@nestjs/common';
 import {PayrollService} from './payroll.service';
 import {UpdatePayrollDto} from './dto/update-payroll.dto';
 import {Roles} from "../../../core/decorators/roles.decorator";
 import {UserType} from "../../../core/constants/role-type.constant";
 import {ReqProfile} from "../../../core/decorators/req-profile.decorator";
-import {JwtAuthGuard} from "../../../core/guard/jwt-auth.guard";
-import {RolesGuard} from "../../../core/guard/role.guard";
-import {ApiKeyGuard} from "../../../core/guard/api-key-auth.guard";
 import {CreatePayrollDto} from "./dto/create-payroll.dto";
 import {ApiV2Constant} from "../../../common/constant/api.constant";
-import {Response} from "express";
 
 @Controller(ApiV2Constant.PAYROLL)
 // @UseGuards(JwtAuthGuard, ApiKeyGuard, RolesGuard)
@@ -35,10 +31,19 @@ export class PayrollController {
     @Query("department") department: string,
     @Query("position") position: string,
     @Query("createdAt") createdAt: Date,
-    @Query("isConfirm") isConfirm: boolean,
-    @Query("isPaid") isPaid: boolean,
+    @Query("isConfirm") isConfirm: number,
+    @Query("isPaid") isPaid: number,
   ) {
-    return this.payrollService.findAll(branchId, skip, take, code, name, branch, department, position, createdAt, isConfirm, isPaid);
+    return this.payrollService.findAll(branchId, +skip, +take, {
+      code,
+      name,
+      branch,
+      department,
+      position,
+      createdAt,
+      isConfirm,
+      isPaid
+    });
   }
 
   @Roles(UserType.ADMIN, UserType.HUMAN_RESOURCE, UserType.CAMP_ACCOUNTING)

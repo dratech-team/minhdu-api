@@ -4,6 +4,8 @@ import {UpdatePayrollDto} from "./dto/update-payroll.dto";
 import {InterfaceRepository} from "../../../common/repository/interface.repository";
 import {CreatePayrollDto} from "./dto/create-payroll.dto";
 import {firstMonth, lastMonth} from "../../../utils/datetime.util";
+import {searchName} from "../../../utils/search-name.util";
+import {SearchPayrollDto} from "./dto/search-payroll.dto";
 
 @Injectable()
 export class PayrollRepository implements InterfaceRepository<any> {
@@ -36,17 +38,11 @@ export class PayrollRepository implements InterfaceRepository<any> {
     branchId: number,
     skip: number,
     take: number,
-    code: string,
-    firstName: string,
-    lastName: string,
-    branch: string,
-    department: string,
-    position: string,
-    createdAt: Date,
-    isConfirm: boolean,
-    isPaid: boolean,
+    search?: Partial<SearchPayrollDto>,
   ) {
     try {
+      const name = searchName(search?.name);
+
       const [total, payrolls] = await Promise.all([
         this.prisma.payroll.count({where: {employee: {leftAt: null}}}),
         this.prisma.payroll.findMany({
@@ -55,30 +51,30 @@ export class PayrollRepository implements InterfaceRepository<any> {
               employee: {
                 leftAt: null,
                 position: {
-                  name: {startsWith: position, mode: 'insensitive'},
+                  name: {startsWith: search?.position, mode: 'insensitive'},
                   department: {
-                    name: {startsWith: department, mode: 'insensitive'},
+                    name: {startsWith: search?.department, mode: 'insensitive'},
                     branch: {
-                      name: {startsWith: branch, mode: 'insensitive'},
+                      name: {startsWith: search?.branch, mode: 'insensitive'},
                     }
                   }
                 },
-                code: {startsWith: code, mode: 'insensitive'},
+                code: {startsWith: search?.code, mode: 'insensitive'},
                 AND: {
-                  firstName: {startsWith: firstName, mode: 'insensitive'},
-                  lastName: {startsWith: lastName, mode: 'insensitive'},
+                  firstName: {startsWith: name?.firstName, mode: 'insensitive'},
+                  lastName: {startsWith: name?.lastName, mode: 'insensitive'},
                 },
               },
-              createdAt: createdAt ? {
-                gte: firstMonth(createdAt),
-                lte: lastMonth(createdAt),
+              createdAt: search?.createdAt ? {
+                gte: firstMonth(search?.createdAt),
+                lte: lastMonth(search?.createdAt),
               } : {},
-              manConfirmedAt: isConfirm ? {
+              manConfirmedAt: search?.isConfirm === 1 ? {
                 notIn: null
               } : {
                 in: null
               },
-              paidAt: isPaid ? {
+              paidAt: search?.isPaid === 1 ? {
                 notIn: null
               } : {
                 in: null
