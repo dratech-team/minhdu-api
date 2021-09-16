@@ -5,6 +5,7 @@ import {UpdateOrderDto} from "./dto/update-order.dto";
 import {Customer, PrismaPromise} from "@prisma/client";
 import {SearchOrderDto} from "./dto/search-order.dto";
 import {searchName} from "../../../utils/search-name.util";
+import {OmitType} from "@nestjs/mapped-types";
 
 @Injectable()
 export class OrderRepository {
@@ -138,9 +139,19 @@ export class OrderRepository {
    * */
   async update(id: number, updates: UpdateOrderDto) {
     try {
+      if (updates.commodityIds && updates.commodityIds.length) {
+        await this.prisma.order.update({
+          where: {id},
+          data: {
+            commodities: {
+              set: updates.commodityIds.map((id) => ({id})),
+            }
+          },
+        });
+      }
       return await this.prisma.order.update({
         where: {id},
-        data: updates,
+        data: updates
       });
     } catch (err) {
       console.error(err);
