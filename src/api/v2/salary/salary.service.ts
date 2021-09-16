@@ -19,53 +19,37 @@ export class SalaryService {
   }
 
   async create(body: CreateSalaryDto): Promise<Salary> {
-    try {
-      if (body.employeeIds && body.employeeIds.length) {
-        if (body.type === SalaryType.OVERTIME) {
-          body.employeeIds.forEach(id => {
-            this.employeeService.findOne(id).then(employee => {
-              this.payrollService.findFirst({
-                employeeId: employee.id,
-                createdAt: {
-                  gte: firstMonth(body.datetime ?? new Date()),
-                  lte: lastMonth(body.datetime ?? new Date()),
-                }
-              }).then(payroll => {
-                this.repository.create({
-                  payrollId: payroll.id,
-                  type: body.type,
-                  note: body.note,
-                  price: body.price,
-                  title: body.title,
-                  employeeId: employee.id,
-                  datetime: body.datetime,
-                  times: body.times,
-                  forgot: body.forgot,
-                  rate: body.rate,
-                  unit: body.unit,
-                });
-              });
-            });
-          });
-        } else {
-          throw new BadRequestException('Chức năng này chỉ được sử dụng để thêm công tăng ca. Vui lòng liên hệ admin');
-        }
-      } else {
+    if (body.employeeIds && body.employeeIds.length && body.type === SalaryType.OVERTIME) {
+      const employees = await Promise.all(body.employeeIds.map(async (employeeId) => await this.employeeService.findOne(employeeId)));
+
+      for (let i = 0; i < employees.length; i++) {
+        // get payroll để lấy thông tin
+        const payroll = await this.payrollService.findFirst({
+          employeeId: employees[i].id,
+          createdAt: {
+            gte: firstMonth(body.datetime ?? new Date()),
+            lte: lastMonth(body.datetime ?? new Date()),
+          }
+        });
+        // Tạo overtime trong payroll cho nhân viên
+        await this.repository.create(Object.assign(body, {payrollId: payroll.id, employeeId: employees[i].id}));
+      }
+    } else {
+      const employee = await this.employeeService.findOne(body.employeeId);
+      if (body.type === SalaryType.BASIC && employee.salaries.map(salary => salary.type).includes(SalaryType.BASIC)) {
+        throw new BadRequestException(`Lương cơ bản của nhân viên ${employee.firstName + employee.lastName} đã tồn tại. Vui lòng không thêm`);
+      }
+      return await this.repository.create(body).then((salary) => {
+        // Nếu lương là lương cơ bản, bảo hiểm, ở lại thì sẽ update lại lương cho nhân viên đó
         if (
           body.type === SalaryType.BASIC ||
-          body.type === SalaryType.BASIC_INSNURANCE ||
+          body.type === SalaryType.BASIC_INSURANCE ||
           body.type === SalaryType.STAY
         ) {
-          const salary = await this.repository.create(body);
-          this.employeeService.update(body.payrollId, {salaryId: salary.id}).then();
-          return salary;
-        } else {
-          return await this.repository.create(body);
+          this.employeeService.update(body.employeeId, {salaryId: salary.id});
         }
-      }
-    } catch (err) {
-      console.error(err);
-      throw new BadRequestException(err);
+        return salary;
+      });
     }
   }
 
@@ -83,30 +67,25 @@ export class SalaryService {
   }
 
   async update(id: number, updates: UpdateSalaryDto) {
-    try {
-      const salary = await this.findOne(id);
+    const salary = await this.findOne(id);
+
+    const payroll = await this.payrollService.findOne(salary.payrollId);
+    if (payroll.paidAt) {
+      throw new BadRequestException("Bảng lương đã thanh toán không được phép sửa");
+    }
+    return await this.repository.update(id, updates).then(salary => {
+      /**
+       * Nếu lương update là insnurance / basic / stay thì sẽ cập nhật lịch sử lương của nhân viên đó
+       * */
       if (
-        salary.type === SalaryType.BASIC_INSNURANCE ||
+        salary.type === SalaryType.BASIC_INSURANCE ||
         salary.type === SalaryType.BASIC ||
         salary.type === SalaryType.STAY
       ) {
-        const res = await this.repository.create({
-          payrollId: salary.payroll.id,
-          type: updates.type ?? salary.type,
-          note: updates.note ?? salary.note,
-          price: updates.price ?? salary.price,
-          title: updates.title ?? salary.title,
-          employeeId: salary.employeeId,
-        });
-        this.hSalaryService.create(res.id, salary.employeeId).then();
-        this.repository.disconnect(id).then();
-        return res;
-      } else {
-        return await this.repository.update(id, updates);
+        this.hSalaryService.create(id, salary.employeeId);
       }
-    } catch (err) {
-      throw new BadRequestException(err);
-    }
+      return salary;
+    });
   }
 
   remove(id: number) {

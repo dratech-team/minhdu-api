@@ -232,7 +232,7 @@ export class PayrollService {
     }
 
     const basic = payroll.salaries.find(
-      (salary) => salary.type === SalaryType.BASIC_INSNURANCE
+      (salary) => salary.type === SalaryType.BASIC_INSURANCE
     );
     if (basic !== undefined) {
       tax = payroll.employee.contracts !== 0 ? basic.price * 0.115 : 0;
