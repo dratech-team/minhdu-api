@@ -28,5 +28,5 @@ export class CreateOrderDto {
   @IsNotEmpty()
   @Type(() => Number)
   @IsNumber()
-  readonly destinationId?: number;
+  readonly wardId?: number;
 }

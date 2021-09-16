@@ -22,7 +22,7 @@ export class OrderRepository {
           commodities: {
             connect: body.commodityIds.map((id) => ({id})),
           },
-          wardId: body.destinationId,
+          wardId: body.wardId,
         },
         include: {
           commodities: true,
@@ -139,19 +139,19 @@ export class OrderRepository {
    * */
   async update(id: number, updates: UpdateOrderDto) {
     try {
-      if (updates.commodityIds && updates.commodityIds.length) {
-        await this.prisma.order.update({
-          where: {id},
-          data: {
-            commodities: {
-              set: updates.commodityIds.map((id) => ({id})),
-            }
-          },
-        });
-      }
       return await this.prisma.order.update({
         where: {id},
-        data: updates
+        data: {
+          commodities: {connect: updates.commodityIds.map((id) => ({id}))},
+          deliveredAt: updates.deliveredAt,
+          hide: updates.hide,
+          createdAt: updates.createdAt,
+          explain: updates.explain,
+          wardId: updates.wardId,
+        },
+        include: {
+          commodities: true
+        }
       });
     } catch (err) {
       console.error(err);
