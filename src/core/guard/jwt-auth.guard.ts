@@ -7,14 +7,14 @@ import {AuthGuard} from "@nestjs/passport";
 @Injectable()
 export class JwtAuthGuard extends AuthGuard("jwt") {
   canActivate(context: ExecutionContext) {
-    // Add your custom authentication logic here
-    // for example, call super.logIn(request) to establish a session.
     return super.canActivate(context);
   }
 
-  handleRequest(err, user, info) {
-    // You can throw an exception based on either "info" or "err" arguments
-    //handle hạn token session ....
+  handleRequest(err: any, user: any, info: any, context: any, status?: any) {
+    /// TODO: check exp token
+    // if (!moment(new Date()).isBefore(new Date(user.exp))) {
+    //   throw new UnauthorizedException();
+    // }
     if (err || !user) {
       throw err || new UnauthorizedException();
     }

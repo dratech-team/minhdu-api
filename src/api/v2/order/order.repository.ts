@@ -5,7 +5,6 @@ import {UpdateOrderDto} from "./dto/update-order.dto";
 import {Customer, PrismaPromise} from "@prisma/client";
 import {SearchOrderDto} from "./dto/search-order.dto";
 import {searchName} from "../../../utils/search-name.util";
-import {OmitType} from "@nestjs/mapped-types";
 
 @Injectable()
 export class OrderRepository {
@@ -88,8 +87,8 @@ export class OrderRepository {
           },
         }),
         this.prisma.order.findMany({
-          skip: skip,
-          take: take,
+          skip: skip || undefined,
+          take: take || undefined,
           where: {
             deliveredAt: search?.delivered === 1 ? {not: null} : (search?.delivered === 0 ? null : undefined),
             // paidAt: paidType === PaidEnum.PAID || paidType === PaidEnum.DEBT ? {not: null} : (paidType === PaidEnum.UNPAID ? {in: null} : {}),

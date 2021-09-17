@@ -1,12 +1,22 @@
-import {Body, Controller, Delete, Get, Param, Patch, Post, Query, Res,} from "@nestjs/common";
+import {Body, Controller, Delete, Get, Param, Patch, Post, Query, Res, UseGuards,} from "@nestjs/common";
 import {OrderService} from "./order.service";
 import {CreateOrderDto} from "./dto/create-order.dto";
 import {UpdateOrderDto} from "./dto/update-order.dto";
 import {PaidEnum} from "./enums/paid.enum";
 import {PaymentType} from "@prisma/client";
 import {CustomParseBooleanPipe} from "../../../core/pipe/custom-boolean.pipe";
+import {ReqProfile} from "../../../core/decorators/req-profile.decorator";
+import {JwtAuthGuard} from "../../../core/guard/jwt-auth.guard";
+import {ApiKeyGuard} from "../../../core/guard/api-key-auth.guard";
+import {ProfileEntity} from "../../../common/entities/profile.entity";
+import {RolesGuard} from "../../../core/guard/role.guard";
+import {Roles} from "../../../core/decorators/roles.decorator";
+import {UserType} from "../../../core/constants/role-type.constant";
+import {LoggerGuard} from "../../../core/guard/logger.guard";
+import {ApiV2Constant} from "../../../common/constant/api.constant";
 
-@Controller("v2/order")
+@UseGuards(JwtAuthGuard, ApiKeyGuard)
+@Controller(ApiV2Constant.ORDER)
 export class OrderController {
   constructor(private readonly orderService: OrderService) {
   }
@@ -18,6 +28,7 @@ export class OrderController {
 
   @Get()
   findAll(
+    @ReqProfile() profile: ProfileEntity,
     @Query("skip") skip: number,
     @Query("take") take: number,
     @Query("paidType") paidType?: PaidEnum,
@@ -29,7 +40,8 @@ export class OrderController {
     return this.orderService.findAll(
       +skip,
       +take,
-      {paidType, customerId: +customerId, customer, payType, delivered: +delivered}
+      {paidType, customerId: +customerId, customer, payType, delivered: +delivered},
+      profile,
     );
   }
 
@@ -38,9 +50,11 @@ export class OrderController {
     return this.orderService.findOne(+id);
   }
 
+  @UseGuards(RolesGuard, LoggerGuard)
+  @Roles(UserType.ADMIN, UserType.HUMAN_RESOURCE)
   @Patch(":id")
-  update(@Param("id") id: string, @Body() updateOrderDto: UpdateOrderDto) {
-    return this.orderService.update(+id, updateOrderDto);
+  update(@ReqProfile() profile: ProfileEntity, @Param("id") id: string, @Body() updateOrderDto: UpdateOrderDto) {
+    return this.orderService.update(+id, updateOrderDto, profile);
   }
 
   @Delete(":id")

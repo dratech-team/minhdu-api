@@ -1,27 +1,29 @@
-import { BadRequestException, Injectable } from "@nestjs/common";
-import { CreateOrderDto } from "./dto/create-order.dto";
-import { UpdateOrderDto } from "./dto/update-order.dto";
-import { OrderRepository } from "./order.repository";
-import { CommodityService } from "../commodity/commodity.service";
-import { PaymentHistoryService } from "../payment-history/payment-history.service";
-import { Response } from "express";
-import { exportExcel } from "../../../core/services/export.service";
-import { SearchOrderDto } from "./dto/search-order.dto";
-import { FullOrder } from "./entities/order.entity";
+import {BadRequestException, Injectable} from "@nestjs/common";
+import {CreateOrderDto} from "./dto/create-order.dto";
+import {UpdateOrderDto} from "./dto/update-order.dto";
+import {OrderRepository} from "./order.repository";
+import {CommodityService} from "../commodity/commodity.service";
+import {PaymentHistoryService} from "../payment-history/payment-history.service";
+import {Response} from "express";
+import {exportExcel} from "../../../core/services/export.service";
+import {SearchOrderDto} from "./dto/search-order.dto";
+import {FullOrder} from "./entities/order.entity";
+import {ProfileEntity} from "../../../common/entities/profile.entity";
 
 @Injectable()
 export class OrderService {
   constructor(
     private readonly repository: OrderRepository,
     private readonly commodityService: CommodityService,
-    private readonly paymentService: PaymentHistoryService
-  ) {}
+    private readonly paymentService: PaymentHistoryService,
+  ) {
+  }
 
   async create(body: CreateOrderDto) {
     return await this.repository.create(body);
   }
 
-  async findAll(skip: number, take: number, search?: Partial<SearchOrderDto>) {
+  async findAll(skip: number, take: number, search?: Partial<SearchOrderDto>, profile?: ProfileEntity) {
     const result = await this.repository.findAll(skip, take, search);
 
     return {
@@ -60,12 +62,12 @@ export class OrderService {
           this.commodityService.handleCommodity(commodity)
         ),
       },
-      { commodityTotal: commodityTotal },
-      { paymentTotal: this.paymentService.totalPayment(order.paymentHistories) }
+      {commodityTotal: commodityTotal},
+      {paymentTotal: this.paymentService.totalPayment(order.paymentHistories)}
     );
   }
 
-  async update(id: number, updates: UpdateOrderDto) {
+  async update(id: number, updates: UpdateOrderDto, profile?: ProfileEntity) {
     const found = await this.findOne(id);
 
     // Đơn hàng giao thành công thì không được phép sửa
@@ -78,6 +80,7 @@ export class OrderService {
         "Không được sửa đơn hàng đã được giao thành công."
       );
     }
+
     return await this.repository.update(id, updates);
   }
 

@@ -10,9 +10,10 @@ import {PaymentHistoryRepository} from "../payment-history/payment-history.repos
 import {PaymentHistoryService} from "../payment-history/payment-history.service";
 import {CustomerModule} from "../customer/customer.module";
 import {CustomerRepository} from "../customer/customer.repository";
+import {ConfigModule} from "../../../core/config/config.module";
 
 @Module({
-  imports: [CommodityModule, CustomerModule],
+  imports: [CommodityModule, CustomerModule, ConfigModule],
   controllers: [OrderController],
   providers: [
     OrderService,

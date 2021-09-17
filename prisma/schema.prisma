@@ -173,7 +173,6 @@ model Employee {
   contracts       Contract[]
   degrees         Degree[]
   workHistories   WorkHistory[]
-  systemHistories SystemHistory[]
   relatives       Relative[]
   historySalaries SalaryHistory[]
 }
@@ -396,13 +395,11 @@ enum MedicineUnit {
 model SystemHistory {
   id          Int          @id @default(autoincrement())
   appName     AppEnum
-  employee    Employee     @relation(fields: [employeeId], references: [id])
-  employeeId  Int
-  createdAt   DateTime?    @default(now())
-  object      String
-  activity    ActivityType
+  name        String
+  activity    String
   description String
   ip          String?
+  createdAt   DateTime?    @default(now())
 }
 
 enum CurrencyUnit {
@@ -427,14 +424,20 @@ enum DegreeStatus {
 }
 
 enum ActivityType {
+  UNKNOWN
   CREATE
   UPDATE
+  PATCH
+  FIND_ALL
+  FIND_ONE
   DELETE
 }
 
 enum AppEnum {
+  UNKNOWN
   HUMAN_RESOURCE
-  BUSSINESS
+  SELL
+  WAREHOUSE
 }
 
 enum RelationshipType {

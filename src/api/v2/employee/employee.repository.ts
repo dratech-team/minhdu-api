@@ -59,8 +59,8 @@ export class EmployeeRepository {
           },
         }),
         this.prisma.employee.findMany({
-          skip: skip ?? undefined,
-          take: take ?? undefined,
+          skip: skip || undefined,
+          take: take || undefined,
           where: {
             leftAt: null,
             position: branchId ? {department: {branch: {id: branchId}}} : {},
