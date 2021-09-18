@@ -7,6 +7,7 @@ import {CreatePayrollDto} from "./dto/create-payroll.dto";
 import {UpdatePayrollDto} from "./dto/update-payroll.dto";
 import {PayrollRepository} from "./payroll.repository";
 import {SearchPayrollDto} from "./dto/search-payroll.dto";
+import {ProfileEntity} from "../../../common/entities/profile.entity";
 
 @Injectable()
 export class PayrollService {
@@ -75,12 +76,12 @@ export class PayrollService {
 
   // @ts-ignore
   async findAll(
-    branchId: number,
+    user: ProfileEntity,
     skip: number,
     take: number,
     search?: Partial<SearchPayrollDto>,
   ) {
-    const employee = await this.employeeService.findAll(branchId, undefined, undefined);
+    const employee = await this.employeeService.findAll(user, undefined, undefined);
 
     /**
      * generate payroll in this month if it not exist
@@ -90,7 +91,7 @@ export class PayrollService {
         await this.generatePayroll(employee.data[i]);
       }
     }
-    return await this.repository.findAll(branchId, skip, take, search);
+    return await this.repository.findAll(user, skip, take, search);
   }
 
   async findOne(id: number): Promise<any> {

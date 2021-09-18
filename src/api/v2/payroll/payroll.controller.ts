@@ -1,4 +1,4 @@
-import {Body, Controller, Delete, Get, Param, Patch, Post, Query} from '@nestjs/common';
+import {Body, Controller, Delete, Get, Param, Patch, Post, Query, UseGuards} from '@nestjs/common';
 import {PayrollService} from './payroll.service';
 import {UpdatePayrollDto} from './dto/update-payroll.dto';
 import {Roles} from "../../../core/decorators/roles.decorator";
@@ -7,6 +7,9 @@ import {ReqProfile} from "../../../core/decorators/req-profile.decorator";
 import {CreatePayrollDto} from "./dto/create-payroll.dto";
 import {ApiV2Constant} from "../../../common/constant/api.constant";
 import {ParseDatetimePipe} from 'src/core/pipe/datetime.pipe';
+import {RolesGuard} from "../../../core/guard/role.guard";
+import {LoggerGuard} from "../../../core/guard/logger.guard";
+import {ProfileEntity} from "../../../common/entities/profile.entity";
 
 @Controller(ApiV2Constant.PAYROLL)
 // @UseGuards(JwtAuthGuard, ApiKeyGuard, RolesGuard)
@@ -14,6 +17,7 @@ export class PayrollController {
   constructor(private readonly payrollService: PayrollService) {
   }
 
+  @UseGuards(RolesGuard, LoggerGuard)
   @Roles(UserType.ADMIN, UserType.HUMAN_RESOURCE, UserType.CAMP_ACCOUNTING)
   @Post()
   create(@Body() body: CreatePayrollDto) {
@@ -23,7 +27,7 @@ export class PayrollController {
   @Get()
   @Roles(UserType.ADMIN, UserType.HUMAN_RESOURCE, UserType.CAMP_ACCOUNTING)
   findAll(
-    @ReqProfile() branchId: number,
+    @ReqProfile() user: ProfileEntity,
     @Query("skip") skip: number,
     @Query("take") take: number,
     @Query("code") code: string,
@@ -35,7 +39,7 @@ export class PayrollController {
     @Query("isConfirm") isConfirm: number,
     @Query("isPaid") isPaid: number,
   ) {
-    return this.payrollService.findAll(+branchId, +skip, +take, {
+    return this.payrollService.findAll(user, +skip, +take, {
       code,
       name,
       branch,
@@ -55,8 +59,9 @@ export class PayrollController {
     return this.payrollService.findOne(+id);
   }
 
-  @Patch(':id')
+  @UseGuards(RolesGuard, LoggerGuard)
   @Roles(UserType.ADMIN, UserType.HUMAN_RESOURCE, UserType.CAMP_ACCOUNTING)
+  @Patch(':id')
   update(
     @Param('id') id: number,
     @Body() updatePayrollDto: UpdatePayrollDto
@@ -64,6 +69,7 @@ export class PayrollController {
     return this.payrollService.update(+id, updatePayrollDto);
   }
 
+  @UseGuards(RolesGuard, LoggerGuard)
   @Delete(':id')
   remove(@Param('id') id: number) {
     return this.payrollService.remove(+id);

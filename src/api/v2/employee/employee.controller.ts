@@ -1,4 +1,4 @@
-import {Body, Controller, Get, Param, Patch, Post, Query} from '@nestjs/common';
+import {Body, Controller, Delete, Get, Param, Patch, Post, Query, UseGuards} from '@nestjs/common';
 import {EmployeeService} from './employee.service';
 import {CreateEmployeeDto} from './dto/create-employee.dto';
 import {Roles} from "../../../core/decorators/roles.decorator";
@@ -9,15 +9,21 @@ import {ApiV2Constant} from "../../../common/constant/api.constant";
 import {GenderType} from '@prisma/client';
 import {ParseDatetimePipe} from "../../../core/pipe/datetime.pipe";
 import {CustomParseBooleanPipe} from 'src/core/pipe/custom-boolean.pipe';
+import {JwtAuthGuard} from "../../../core/guard/jwt-auth.guard";
+import {ApiKeyGuard} from "../../../core/guard/api-key-auth.guard";
+import {RolesGuard} from "../../../core/guard/role.guard";
+import {LoggerGuard} from "../../../core/guard/logger.guard";
+import {ProfileEntity} from "../../../common/entities/profile.entity";
 
+@UseGuards(JwtAuthGuard, ApiKeyGuard, RolesGuard)
 @Controller(ApiV2Constant.EMPLOYEE)
-// @UseGuards(JwtAuthGuard, ApiKeyGuard, RolesGuard)
 export class EmployeeController {
   constructor(private readonly employeeService: EmployeeService) {
   }
 
-  @Post()
+  @UseGuards(RolesGuard, LoggerGuard)
   @Roles(UserType.ADMIN, UserType.HUMAN_RESOURCE)
+  @Post()
   create(@Body() createEmployeeDto: CreateEmployeeDto) {
     return this.employeeService.create(createEmployeeDto);
   }
@@ -25,7 +31,7 @@ export class EmployeeController {
   @Get()
   @Roles(UserType.ADMIN, UserType.HUMAN_RESOURCE, UserType.CAMP_ACCOUNTING)
   findAll(
-    @ReqProfile() branchId?: number,
+    @ReqProfile() branchId?: ProfileEntity,
     @Query("skip") skip?: number,
     @Query("take") take?: number,
     @Query("code") code?: string,
@@ -50,22 +56,23 @@ export class EmployeeController {
       ;
   }
 
-  @Get(':id')
   @Roles(UserType.ADMIN, UserType.HUMAN_RESOURCE, UserType.CAMP_ACCOUNTING)
+  @Get(':id')
   findOne(@Param('id') id: number) {
     return this.employeeService.findOne(+id);
   }
 
-  @Patch(':id')
+  @UseGuards(RolesGuard, LoggerGuard)
   @Roles(UserType.ADMIN, UserType.HUMAN_RESOURCE)
+  @Patch(':id')
   update(@Param('id') id: number, @Body() updateEmployeeDto: UpdateEmployeeDto) {
     return this.employeeService.update(+id, updateEmployeeDto);
   }
 
 
-  // @Delete(':id')
-  // @Roles(UserType.ADMIN, UserType.HUMAN_RESOURCE)
-  // remove(@Param('id') id: string) {
-  //   return this.employeeService.remove(id);
-  // }
+  @Delete(':id')
+  @Roles(UserType.ADMIN, UserType.HUMAN_RESOURCE)
+  remove(@Param('id') id: number) {
+    return this.employeeService.remove(+id);
+  }
 }

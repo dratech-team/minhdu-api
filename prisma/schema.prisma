@@ -17,12 +17,13 @@ datasource db {
 }
 
 model Account {
-  id         Int       @id @default(autoincrement())
-  username   String    @unique
-  password   String
-  employee   Employee? @relation(fields: [employeeId], references: [id])
-  employeeId Int?
-  role       Role
+  id       Int        @id @default(autoincrement())
+  username String     @unique
+  password String
+  branch   Branch?    @relation(fields: [branchId], references: [id])
+  branchId Int?
+  role     Role
+  Employee Employee[]
 }
 
 model Degree {
@@ -70,28 +71,28 @@ model Province {
 }
 
 model District {
-  id            Int      @id @default(autoincrement())
-  code          Int
-  codename      String
-  divisionType  String
-  name          String
-  province      Province @relation(fields: [provinceId], references: [id])
-  provinceId    Int
-  wards         Ward[]
+  id           Int      @id @default(autoincrement())
+  code         Int
+  codename     String
+  divisionType String
+  name         String
+  province     Province @relation(fields: [provinceId], references: [id])
+  provinceId   Int
+  wards        Ward[]
 }
 
 model Ward {
-  id            Int        @id @default(autoincrement())
-  code          Int
-  codename      String
-  divisionType  String
-  name          String
-  district      District   @relation(fields: [districtId], references: [id])
-  districtId    Int
-  employees     Employee[]
-  customers     Customer[]
-  relatives     Relative[]
-  orders        Order[]
+  id           Int        @id @default(autoincrement())
+  code         Int
+  codename     String
+  divisionType String
+  name         String
+  district     District   @relation(fields: [districtId], references: [id])
+  districtId   Int
+  employees    Employee[]
+  customers    Customer[]
+  relatives    Relative[]
+  orders       Order[]
 }
 
 model Branch {
@@ -100,6 +101,7 @@ model Branch {
   name        String
   departments Department[]
   Medicine    Medicine[]
+  Account     Account[]
 }
 
 model Department {
@@ -156,17 +158,17 @@ model Employee {
   religion        String?
   ethnicity       String?
   mst             String?
-  createdAt       DateTime //Ngày thử việc (vào làm)
+  createdAt       DateTime?       @default(now()) //Ngày thử việc (vào làm)
   workedAt        DateTime? //Ngày làm chính thức
   leftAt          DateTime?
-  isFlatSalary    Boolean
+  isFlatSalary    Boolean?        @default(false)
   position        Position        @relation(fields: [positionId], references: [id])
   positionId      Int
   note            String?
   facebook        String?
   zalo            String?
   banks           Bank[]
-  account         Account?
+  account         Account?        @relation(fields: [accountId], references: [id])
   routes          Route[]
   salaries        Salary[]
   payrolls        Payroll[]
@@ -175,6 +177,7 @@ model Employee {
   workHistories   WorkHistory[]
   relatives       Relative[]
   historySalaries SalaryHistory[]
+  accountId       Int?
 }
 
 model Holiday {
@@ -291,6 +294,7 @@ model Order {
   customer         Customer         @relation(fields: [customerId], references: [id])
   customerId       Int
   createdAt        DateTime
+  createdBy        String?
   explain          String?
   routes           Route[]
   commodities      Commodity[]
@@ -393,13 +397,13 @@ enum MedicineUnit {
 // end medicine
 
 model SystemHistory {
-  id          Int          @id @default(autoincrement())
+  id          Int       @id @default(autoincrement())
   appName     AppEnum
   name        String
   activity    String
   description String
   ip          String?
-  createdAt   DateTime?    @default(now())
+  createdAt   DateTime? @default(now())
 }
 
 enum CurrencyUnit {

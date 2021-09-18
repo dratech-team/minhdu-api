@@ -10,9 +10,10 @@ import {PaymentHistoryRepository} from "../payment-history/payment-history.repos
 import {OrderRepository} from "../order/order.repository";
 import {CommodityService} from "../commodity/commodity.service";
 import {CommodityRepository} from "../commodity/commodity.repository";
+import {ConfigModule} from "../../../core/config/config.module";
 
 @Module({
-  imports: [PaymentHistoryModule],
+  imports: [PaymentHistoryModule, ConfigModule],
   controllers: [CustomerController],
   providers: [
     PrismaService,

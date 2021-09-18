@@ -1,4 +1,4 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete } from '@nestjs/common';
+import { Controller, Get, Post, Body, Patch, Param, Delete, Query } from '@nestjs/common';
 import { LoggerService } from './logger.service';
 import { CreateLoggerDto } from './dto/create-logger.dto';
 import { UpdateLoggerDto } from './dto/update-logger.dto';
@@ -13,8 +13,11 @@ export class LoggerController {
   }
 
   @Get()
-  findAll() {
-    return this.loggerService.findAll();
+  findAll(
+    @Query("take") take: number,
+    @Query("skip") skip: number,
+  ) {
+    return this.loggerService.findAll(+take, +skip);
   }
 
   @Get(':id')

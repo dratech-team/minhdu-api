@@ -5,6 +5,7 @@ import {CreatePayrollDto} from "./dto/create-payroll.dto";
 import {firstMonth, lastMonth} from "../../../utils/datetime.util";
 import {searchName} from "../../../utils/search-name.util";
 import {SearchPayrollDto} from "./dto/search-payroll.dto";
+import {ProfileEntity} from "../../../common/entities/profile.entity";
 
 @Injectable()
 export class PayrollRepository {
@@ -39,7 +40,7 @@ export class PayrollRepository {
 
   // @ts-ignore
   async findAll(
-    branchId: number,
+    user: ProfileEntity,
     skip: number,
     take: number,
     search?: Partial<SearchPayrollDto>,

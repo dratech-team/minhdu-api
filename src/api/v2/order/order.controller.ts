@@ -1,14 +1,12 @@
-import {Body, Controller, Delete, Get, Param, Patch, Post, Query, Res, UseGuards,} from "@nestjs/common";
+import {Body, Controller, Delete, Get, Param, ParseBoolPipe, Patch, Post, Query, Res, UseGuards,} from "@nestjs/common";
 import {OrderService} from "./order.service";
 import {CreateOrderDto} from "./dto/create-order.dto";
 import {UpdateOrderDto} from "./dto/update-order.dto";
 import {PaidEnum} from "./enums/paid.enum";
 import {PaymentType} from "@prisma/client";
 import {CustomParseBooleanPipe} from "../../../core/pipe/custom-boolean.pipe";
-import {ReqProfile} from "../../../core/decorators/req-profile.decorator";
 import {JwtAuthGuard} from "../../../core/guard/jwt-auth.guard";
 import {ApiKeyGuard} from "../../../core/guard/api-key-auth.guard";
-import {ProfileEntity} from "../../../common/entities/profile.entity";
 import {RolesGuard} from "../../../core/guard/role.guard";
 import {Roles} from "../../../core/decorators/roles.decorator";
 import {UserType} from "../../../core/constants/role-type.constant";
@@ -21,6 +19,8 @@ export class OrderController {
   constructor(private readonly orderService: OrderService) {
   }
 
+  @UseGuards(RolesGuard, LoggerGuard)
+  @Roles(UserType.ADMIN)
   @Post()
   create(@Body() createOrderDto: CreateOrderDto) {
     return this.orderService.create(createOrderDto);
@@ -28,7 +28,6 @@ export class OrderController {
 
   @Get()
   findAll(
-    @ReqProfile() profile: ProfileEntity,
     @Query("skip") skip: number,
     @Query("take") take: number,
     @Query("paidType") paidType?: PaidEnum,
@@ -41,7 +40,6 @@ export class OrderController {
       +skip,
       +take,
       {paidType, customerId: +customerId, customer, payType, delivered: +delivered},
-      profile,
     );
   }
 
@@ -51,12 +49,21 @@ export class OrderController {
   }
 
   @UseGuards(RolesGuard, LoggerGuard)
-  @Roles(UserType.ADMIN, UserType.HUMAN_RESOURCE)
+  @Roles(UserType.ADMIN)
   @Patch(":id")
-  update(@ReqProfile() profile: ProfileEntity, @Param("id") id: string, @Body() updateOrderDto: UpdateOrderDto) {
-    return this.orderService.update(+id, updateOrderDto, profile);
+  update(@Param("id") id: string, @Body() updateOrderDto: UpdateOrderDto) {
+    return this.orderService.update(+id, updateOrderDto);
   }
 
+  @UseGuards(RolesGuard, LoggerGuard)
+  @Roles(UserType.ADMIN)
+  @Patch("hide/:id")
+  updateHide(@Param("id") id: string, @Query("hide", ParseBoolPipe) hide: boolean) {
+    return this.orderService.updateHide(+id, hide);
+  }
+
+  @UseGuards(RolesGuard, LoggerGuard)
+  @Roles(UserType.ADMIN)
   @Delete(":id")
   remove(@Param("id") id: string) {
     return this.orderService.remove(+id);

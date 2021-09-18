@@ -8,7 +8,6 @@ import {Response} from "express";
 import {exportExcel} from "../../../core/services/export.service";
 import {SearchOrderDto} from "./dto/search-order.dto";
 import {FullOrder} from "./entities/order.entity";
-import {ProfileEntity} from "../../../common/entities/profile.entity";
 
 @Injectable()
 export class OrderService {
@@ -23,7 +22,7 @@ export class OrderService {
     return await this.repository.create(body);
   }
 
-  async findAll(skip: number, take: number, search?: Partial<SearchOrderDto>, profile?: ProfileEntity) {
+  async findAll(skip: number, take: number, search?: Partial<SearchOrderDto>) {
     const result = await this.repository.findAll(skip, take, search);
 
     return {
@@ -67,21 +66,28 @@ export class OrderService {
     );
   }
 
-  async update(id: number, updates: UpdateOrderDto, profile?: ProfileEntity) {
+  async update(id: number, updates: UpdateOrderDto) {
     const found = await this.findOne(id);
 
     // Đơn hàng giao thành công thì không được phép sửa
-    if (
-      found.deliveredAt &&
-      !updates.deliveredAt &&
-      (updates.hide === undefined || updates.hide === null)
-    ) {
+    if (found.deliveredAt) {
       return new BadRequestException(
         "Không được sửa đơn hàng đã được giao thành công."
       );
     }
-
+    // // Nếu mặt hàng được liên kết với một dơn hàng khác trước đó và khác với đơn hàng hiện tại thì không được liên kết nó cho đơn hàng khác
+    // for (let i = 0; i < updates.commodityIds.length; i++) {
+    //   const commodity = await this.commodityService.findOne(updates.commodityIds[i]);
+    //   if (commodity.orderId && commodity.orderId !== id) {
+    //     const order = await this.findOne(commodity.orderId);
+    //     return new BadRequestException(`Mặt hàng ${commodity.name} đã được liên kết với đơn hàng ${order.id} được tạo vào ngày ${order.createdAt}. Vui lòng hủy liên kết mặt hàng này cho đơn hàng ${order.id} trước khi liên kết nó với đơn hàng khác `)
+    //   }
+    // }
     return await this.repository.update(id, updates);
+  }
+
+  updateHide(id: number, hide: boolean) {
+    return this.repository.update(id, {hide: hide});
   }
 
   async remove(id: number) {

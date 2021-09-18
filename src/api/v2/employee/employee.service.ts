@@ -8,6 +8,7 @@ import {Employee} from "@prisma/client";
 import {PositionService} from "../../../common/branches/position/position.service";
 import {WorkHistoryService} from "../histories/work-history/work-history.service";
 import {SearchEmployeeDto} from "./dto/search-employee.dto";
+import {ProfileEntity} from "../../../common/entities/profile.entity";
 
 @Injectable()
 export class EmployeeService implements BaseEmployeeService {
@@ -27,7 +28,7 @@ export class EmployeeService implements BaseEmployeeService {
 
   // @ts-ignore
   async findAll(
-    branchId: number,
+    branchId: ProfileEntity,
     skip: number,
     take: number,
     search?: Partial<SearchEmployeeDto>

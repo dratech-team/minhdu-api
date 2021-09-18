@@ -1,6 +1,7 @@
 import {SignInCredentialDto} from "./signin-credential.dto";
-import {IsEnum, IsNotEmpty, IsNumber, IsOptional, IsString} from "class-validator";
-import { Role } from "@prisma/client";
+import {IsEnum, IsNotEmpty, IsNumber, IsOptional} from "class-validator";
+import {Role} from "@prisma/client";
+import {Type} from "class-transformer";
 
 export class SignupCredentialDto extends SignInCredentialDto {
   @IsNotEmpty()
@@ -8,6 +9,7 @@ export class SignupCredentialDto extends SignInCredentialDto {
   role: Role;
 
   @IsOptional()
+  @Type(() => Number)
   @IsNumber()
-  employeeId: number;
+  branchId: number;
 }

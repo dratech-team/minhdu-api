@@ -2,10 +2,9 @@ import {BadRequestException, ConflictException, Injectable} from "@nestjs/common
 import {PrismaService} from "../../../prisma.service";
 import {CreateEmployeeDto} from "./dto/create-employee.dto";
 import {UpdateEmployeeDto} from "./dto/update-employee.dto";
-import {ResponsePagination} from "../../../common/entities/response.pagination";
-import {Employee} from "@prisma/client";
 import {SearchEmployeeDto} from "./dto/search-employee.dto";
 import {searchName} from "../../../utils/search-name.util";
+import {ProfileEntity} from "../../../common/entities/profile.entity";
 
 @Injectable()
 export class EmployeeRepository {
@@ -35,19 +34,18 @@ export class EmployeeRepository {
   }
 
   async findAll(
-    branchId: number,
+    user: ProfileEntity,
     skip: number,
     take: number,
     search?: Partial<SearchEmployeeDto>
   ) {
     try {
       const name = searchName(search?.name);
-
       const [total, data] = await Promise.all([
         this.prisma.employee.count({
           where: {
             leftAt: null,
-            position: branchId ? {department: {branch: {id: branchId}}} : {},
+            // position: branchId ? {department: {branch: {id: branchId}}} : {},
             code: {startsWith: search?.code, mode: 'insensitive'},
             AND: {
               firstName: {startsWith: name?.firstName, mode: 'insensitive'},
@@ -63,7 +61,7 @@ export class EmployeeRepository {
           take: take || undefined,
           where: {
             leftAt: null,
-            position: branchId ? {department: {branch: {id: branchId}}} : {},
+            position: user?.branchId ? {department: {branch: {id: user?.branchId}}} : {},
             code: {startsWith: search?.code, mode: 'insensitive'},
             AND: {
               firstName: {startsWith: name?.firstName, mode: 'insensitive'},
@@ -75,19 +73,7 @@ export class EmployeeRepository {
           },
           include: {
             position: {include: {department: {include: {branch: true}}}},
-            ward: {
-              include: {
-                district: {
-                  include: {
-                    province: {
-                      include: {
-                        nation: true
-                      }
-                    }
-                  }
-                }
-              }
-            },
+            ward: {include: {district: {include: {province: {include: {nation: true}}}}}},
             salaries: true
           }
         })
@@ -180,33 +166,7 @@ export class EmployeeRepository {
     try {
       return await this.prisma.employee.update({
         where: {id: id},
-        data: updates,
-        // data: {
-        //   salaries: {connect: {id: updates.salaryId}},
-        //   firstName: updates.firstName,
-        //   lastName: updates.lastName,
-        //   wardId: updates.wardId,
-        //   positionId: updates.positionId,
-        //   workedAt: updates.workedAt,
-        //   email: updates.email,
-        //   zalo: updates.zalo,
-        //   facebook: updates.facebook,
-        //   idCardAt: updates.idCardAt,
-        //   address: updates.address,
-        //   avt: updates.avt,
-        //   birthday: updates.birthday,
-        //   workPhone: updates.workPhone,
-        //   gender: updates.gender,
-        //   identify: updates.identify,
-        //   phone: updates.phone,
-        //   birthplace: updates.birthplace,
-        //   religion: updates.religion,
-        //   mst: updates.mst,
-        //   ethnicity: updates.ethnicity,
-        //   issuedBy: updates.issuedBy,
-        //   createdAt: updates.createdAt,
-        //   note: updates.note,
-        // }
+        data: updates
       });
     } catch (err) {
       console.error(err);
@@ -216,10 +176,16 @@ export class EmployeeRepository {
 
   /* Nghỉ việc */
   async remove(id: number) {
-    this.prisma.employee.delete({where: {id: id}}).catch(err => {
-      console.error(err);
+    try {
+      await this.prisma.employee.update({
+        where: {id},
+        data: {
+          leftAt: new Date(),
+        }
+      });
+    } catch (err) {
       throw new BadRequestException(err);
-    });
+    }
   }
 
   connectSalary(employeeId: number, salaryId: number) {

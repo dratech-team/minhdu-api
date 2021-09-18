@@ -1,6 +1,6 @@
 import {PrismaClient, Role} from "@prisma/client";
-import {map} from "rxjs/operators";
 import {HttpService} from "@nestjs/axios";
+import * as faker from "faker";
 
 const prisma = new PrismaClient();
 const http = new HttpService();
@@ -29,65 +29,96 @@ async function main() {
     },
   });
 
-  const url = "https://provinces.open-api.vn/api/?depth=3";
-  const provinces = await http
-    .get(url)
-    .pipe(map((e) => e.data))
-    .toPromise();
-
-  for (let i = 0; i < provinces.length; i++) {
-    const province = await this.prisma.province.create({
+  for (let i = 0; i < 10; i++) {
+    // province
+    const province = await prisma.province.create({
       data: {
-        code: provinces[i].code,
-        name: provinces[i].name,
-        codename: provinces[i].codename,
-        divisionType: provinces[i].division_type,
-        nationId: 1,
-        phoneCode: provinces[i].phone_code,
+        name: faker.address.city,
+        code: i,
+        nationId: nation.id,
+        codename: faker.address.zipCode,
+        divisionType: "divisionType",
+        phoneCode: 123,
       },
     });
-    console.log("created province", province.id);
-    const districtUrl = `https://provinces.open-api.vn/api/p/${province.code}/?depth=2`;
 
-    const district = await http
-      .get(districtUrl)
-      .pipe(map((e) => e.data))
-      .toPromise();
-
-    console.log("created province", province.codename);
-
-    for (let i = 0; i < district.districts.length; i++) {
-      const createdDistrict = await prisma.district.create({
+    for (let i = 0; i < 10; i++) {
+      const district = await prisma.district.create({
         data: {
-          code: district.districts[i].code,
-          codename: district.districts[i].codename,
-          divisionType: district.districts[i].division_type,
-          name: district.districts[i].name,
+          name: faker.address.streetName,
+          code: i,
           provinceId: province.id,
+          codename: faker.address.zipCode,
+          divisionType: "divisionType",
+        },
+      });
+
+      for (let i = 0; i < 10; i++) {
+        const ward = await prisma.ward.create({
+          data: {
+            name: faker.address.streetAddress,
+            code: i,
+            districtId: district.id,
+            codename: faker.address.zipCode,
+            divisionType: "divisionType",
+          },
+        });
+      }
+    }
+
+  }
+
+  for (let i = 0; i < 10; i++) {
+    const branch = await prisma.branch.create({
+      data: {
+        code: "PN" + i,
+        name: faker.company.companyName,
+      }
+    });
+    for (let i = 0; i < 10; i++) {
+      const department = await prisma.department.create({
+        data: {
+          name: faker.company.companySuffix,
+          branchId: branch.id,
         }
       });
-      console.log("created district", createdDistrict.codename);
-
-      const wardUrl = `https://provinces.open-api.vn/api/d/${createdDistrict.code}/?depth=2`;
-
-      const ward = await http
-        .get(wardUrl)
-        .pipe(map((e) => e.data))
-        .toPromise();
-      console.log("createdDistrict.id", createdDistrict.id);
-      for (let i = 0; i < ward.wards.length; i++) {
-        const createdWard = await prisma.ward.create({
+      for (let i = 0; i < 10; i++) {
+        const position = await prisma.position.create({
           data: {
-            code: ward.wards[i].code,
-            codename: ward.wards[i].codename,
-            divisionType: ward.wards[i].division_type,
-            name: ward.wards[i].name,
-            districtId: createdDistrict.id,
+            name: faker.company.bsBuzz,
+            departmentId: department.id,
+            workday: Math.floor(Math.random() * (30 - 26) + 26),
           }
         });
-
-        console.log("created ward", createdWard.codename);
       }
     }
   }
+
+  for (let i = 0; i < 1000; i++) {
+    const ward = await prisma.ward.findUnique({where: {id: Math.floor(Math.random() * (30 - 10) + 10)}});
+    const position = await prisma.position.findUnique({where: {id: Math.floor(Math.random() * (30 - 10) + 10)}});
+    const employee = await prisma.employee.create({
+      data: {
+        code: `MD0000${i}`,
+        firstName: faker.name.firstName,
+        lastName: faker.name.lastName,
+        gender: "MALE",
+        phone: faker.phone.phoneNumber,
+        birthday: faker.dae.soon,
+        birthplace: "cc",
+        identify: `123456${i}`,
+        idCardAt: faker.dae.soon,
+        issuedBy: faker.address.streetAddress,
+        address: faker.address.streetAddress,
+        wardId: ward.id,
+        positionId: position.id,
+        isFlatSalary: i % 2 === 0,
+        ethnicity: "Khong",
+        religion: "Deo",
+        createdAt: faker.dae.soon,
+      }
+    });
+  }
 }
+
+main().catch(err => console.error(err));

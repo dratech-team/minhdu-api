@@ -28,7 +28,7 @@ export class ProvinceRepository {
             name: provinces[i].name,
             codename: provinces[i].codename,
             divisionType: provinces[i].division_type,
-            nationId: 1,
+            nationId: 4,
             phoneCode: provinces[i].phone_code,
           },
         });

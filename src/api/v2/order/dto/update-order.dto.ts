@@ -13,6 +13,4 @@ export class UpdateOrderDto extends PartialType(CreateOrderDto) {
   @Type(() => Boolean)
   @IsBoolean()
   readonly hide: boolean;
-
-  totalOrder: number;
 }

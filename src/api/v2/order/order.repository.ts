@@ -136,17 +136,17 @@ export class OrderRepository {
   /*
    * Order thì Thêm mới hoặc xoá hàng hoá. 1 hàng hoá chỉ tồn tại cho 1 đơn hàng
    * */
-  async update(id: number, updates: UpdateOrderDto) {
+  async update(id: number, updates: Partial<UpdateOrderDto>) {
     try {
       return await this.prisma.order.update({
         where: {id},
         data: {
-          commodities: {connect: updates.commodityIds.map((id) => ({id}))},
-          deliveredAt: updates.deliveredAt,
-          hide: updates.hide,
-          createdAt: updates.createdAt,
-          explain: updates.explain,
-          wardId: updates.wardId,
+          commodities: {connect: updates?.commodityIds?.map((id) => ({id}))},
+          deliveredAt: updates?.deliveredAt,
+          hide: updates?.hide,
+          createdAt: updates?.createdAt,
+          explain: updates?.explain,
+          wardId: updates?.wardId,
         },
         include: {
           commodities: true
