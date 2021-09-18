@@ -17,13 +17,13 @@ datasource db {
 }
 
 model Account {
-  id       Int        @id @default(autoincrement())
-  username String     @unique
+  id       Int      @id @default(autoincrement())
+  username String   @unique
   password String
-  branch   Branch?    @relation(fields: [branchId], references: [id])
+  branch   Branch?  @relation(fields: [branchId], references: [id])
   branchId Int?
   role     Role
-  Employee Employee[]
+  appName      AppEnum?
 }
 
 model Degree {
@@ -168,7 +168,6 @@ model Employee {
   facebook        String?
   zalo            String?
   banks           Bank[]
-  account         Account?        @relation(fields: [accountId], references: [id])
   routes          Route[]
   salaries        Salary[]
   payrolls        Payroll[]
@@ -177,7 +176,6 @@ model Employee {
   workHistories   WorkHistory[]
   relatives       Relative[]
   historySalaries SalaryHistory[]
-  accountId       Int?
 }
 
 model Holiday {

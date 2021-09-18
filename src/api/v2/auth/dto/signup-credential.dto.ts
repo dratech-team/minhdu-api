@@ -1,6 +1,6 @@
 import {SignInCredentialDto} from "./signin-credential.dto";
 import {IsEnum, IsNotEmpty, IsNumber, IsOptional} from "class-validator";
-import {Role} from "@prisma/client";
+import {AppEnum, Role} from "@prisma/client";
 import {Type} from "class-transformer";
 
 export class SignupCredentialDto extends SignInCredentialDto {
@@ -12,4 +12,8 @@ export class SignupCredentialDto extends SignInCredentialDto {
   @Type(() => Number)
   @IsNumber()
   branchId: number;
+
+  @IsOptional()
+  @IsEnum(AppEnum)
+  appName: AppEnum;
 }

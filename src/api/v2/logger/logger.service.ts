@@ -2,6 +2,7 @@ import {Injectable, Query} from '@nestjs/common';
 import {CreateLoggerDto} from './dto/create-logger.dto';
 import {UpdateLoggerDto} from './dto/update-logger.dto';
 import {PrismaService} from "../../../prisma.service";
+import {ProfileEntity} from "../../../common/entities/profile.entity";
 
 @Injectable()
 export class LoggerService {
@@ -12,13 +13,19 @@ export class LoggerService {
     return this.prisma.systemHistory.create({data: createLoggerDto});
   }
 
-  async findAll(take: number, skip: number) {
-    let activity: string;
+  async findAll(profile: ProfileEntity, take: number, skip: number) {
     const [total, data] = await Promise.all([
-      this.prisma.systemHistory.count(),
+      this.prisma.systemHistory.count({
+        where: {
+          appName: profile?.appName
+        }
+      }),
       this.prisma.systemHistory.findMany({
         take: take || undefined,
-        skip: skip || undefined
+        skip: skip || undefined,
+        where: {
+          appName: profile?.appName
+        }
       }),
     ]);
     return {total, data};
