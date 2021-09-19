@@ -42,12 +42,12 @@ export class AuthService {
         include: {branch: true},
       });
       if (!user) {
-        return new NotFoundException('username không tồn tại');
+        throw new NotFoundException('username không tồn tại');
       }
       const isValid = await bcrypt.compare(body.password, user.password);
 
       if (!isValid) {
-        return new UnauthorizedException();
+        throw new UnauthorizedException();
       }
 
       const token = this.jwtService.sign(user);

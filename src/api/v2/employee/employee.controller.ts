@@ -21,39 +21,40 @@ export class EmployeeController {
   constructor(private readonly employeeService: EmployeeService) {
   }
 
-  @UseGuards(RolesGuard, LoggerGuard)
+  @UseGuards(LoggerGuard)
   @Roles(UserType.ADMIN, UserType.HUMAN_RESOURCE)
   @Post()
   create(@Body() createEmployeeDto: CreateEmployeeDto) {
     return this.employeeService.create(createEmployeeDto);
   }
 
-  @Get()
   @Roles(UserType.ADMIN, UserType.HUMAN_RESOURCE, UserType.CAMP_ACCOUNTING)
+  @Get()
   findAll(
-    @ReqProfile() branchId?: ProfileEntity,
-    @Query("skip") skip?: number,
-    @Query("take") take?: number,
-    @Query("code") code?: string,
-    @Query("name") name?: string,
-    @Query("gender") gender?: GenderType,
-    @Query("createdAt", ParseDatetimePipe) createdAt?: any,
-    @Query("isFlatSalary", CustomParseBooleanPipe) isFlatSalary?: any,
-    @Query("branch") branch?: string,
-    @Query("department") department?: string,
-    @Query("position") position?: string,
+    @ReqProfile() branchId: ProfileEntity,
+    @Query("skip") skip: number,
+    @Query("take") take: number,
+    @Query("code") code: string,
+    @Query("name") name: string,
+    @Query("gender") gender: GenderType,
+    @Query("createdAt", ParseDatetimePipe) createdAt: any,
+    @Query("workedAt", ParseDatetimePipe) workedAt: any,
+    @Query("isFlatSalary", CustomParseBooleanPipe) isFlatSalary: any,
+    @Query("branch") branch: string,
+    @Query("department") department: string,
+    @Query("position") position: string,
   ) {
     return this.employeeService.findAll(branchId, skip, take, {
       code,
       name,
       gender,
       createdAt,
+      workedAt,
       isFlatSalary,
       branch,
       department,
       position
-    })
-      ;
+    });
   }
 
   @Roles(UserType.ADMIN, UserType.HUMAN_RESOURCE, UserType.CAMP_ACCOUNTING)
@@ -62,16 +63,16 @@ export class EmployeeController {
     return this.employeeService.findOne(+id);
   }
 
-  @UseGuards(RolesGuard, LoggerGuard)
+  @UseGuards(LoggerGuard)
   @Roles(UserType.ADMIN, UserType.HUMAN_RESOURCE)
   @Patch(':id')
   update(@Param('id') id: number, @Body() updateEmployeeDto: UpdateEmployeeDto) {
     return this.employeeService.update(+id, updateEmployeeDto);
   }
 
-
-  @Delete(':id')
+  @UseGuards(LoggerGuard)
   @Roles(UserType.ADMIN, UserType.HUMAN_RESOURCE)
+  @Delete(':id')
   remove(@Param('id') id: number) {
     return this.employeeService.remove(+id);
   }

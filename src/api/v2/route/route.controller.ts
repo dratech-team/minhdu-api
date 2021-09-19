@@ -13,6 +13,7 @@ import {RouteService} from "./route.service";
 import {CreateRouteDto} from "./dto/create-route.dto";
 import {UpdateRouteDto} from "./dto/update-route.dto";
 import * as moment from "moment";
+import {ParseDatetimePipe} from "../../../core/pipe/datetime.pipe";
 
 @Controller("v2/route")
 export class RouteController {
@@ -29,8 +30,8 @@ export class RouteController {
     @Query("skip") skip: number,
     @Query("take") take: number,
     @Query("name") name: string,
-    @Query("startedAt") startedAt: Date,
-    @Query("endedAt") endedAt: Date,
+    @Query("startedAt", ParseDatetimePipe) startedAt: any,
+    @Query("endedAt", ParseDatetimePipe) endedAt: any,
     @Query("driver") driver: string,
     @Query("bsx") bsx: string,
   ) {

@@ -2,6 +2,7 @@ import {BadRequestException, Injectable} from "@nestjs/common";
 import {PrismaService} from "../../../prisma.service";
 import {CreateHolidayDto} from "./dto/create-holiday.dto";
 import {UpdateHolidayDto} from "./dto/update-holiday.dto";
+import {SearchHolidayDto} from "./dto/search-holiday.dto";
 
 @Injectable()
 export class HolidayRepository {
@@ -17,13 +18,25 @@ export class HolidayRepository {
     }
   }
 
-  async findAll() {
+  async findAll(take: number, skip: number, search: Partial<SearchHolidayDto>) {
     try {
-      return await this.prisma.holiday.findMany({
-        include: {
-          department: true
-        }
-      });
+      const [total, data] = await Promise.all([
+        this.prisma.holiday.count(),
+        this.prisma.holiday.findMany({
+          take: take || undefined,
+          skip: skip || undefined,
+          where: {
+            name: {startsWith: search?.name},
+            datetime: search?.datetime || undefined,
+            rate: search?.rate || undefined,
+            department: {name: {startsWith: search?.department}}
+          },
+          include: {
+            department: true
+          }
+        })
+      ]);
+      return {total, data};
     } catch (err) {
       console.error(err);
       throw new BadRequestException(err);

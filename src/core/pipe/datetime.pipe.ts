@@ -1,15 +1,17 @@
-import {ArgumentMetadata, BadRequestException, Injectable, PipeTransform} from '@nestjs/common';
-import {isDate} from "moment";
+import {ArgumentMetadata, Injectable, PipeTransform} from '@nestjs/common';
 
 @Injectable()
 export class ParseDatetimePipe implements PipeTransform {
-  transform(value: string, metadata: ArgumentMetadata) {
+  transform(value: any, metadata: ArgumentMetadata) {
+
     if (value) {
-      if (!isDate(value)) {
-        throw new BadRequestException("createAt Không đúng định dạng datetime");
-      }
+      // if (!(typeof (value as any).getMonth === 'function')) {
+      //   console.log(value);
+      //   throw new BadRequestException("Không đúng định dạng datetime");
+      // }
       return new Date(value);
+    } else {
+      return undefined;
     }
-    return undefined;
   }
 }

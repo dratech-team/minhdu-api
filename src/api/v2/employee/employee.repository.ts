@@ -37,7 +37,7 @@ export class EmployeeRepository {
     user: ProfileEntity,
     skip: number,
     take: number,
-    search?: Partial<SearchEmployeeDto>
+    search: Partial<SearchEmployeeDto>
   ) {
     try {
       const name = searchName(search?.name);
@@ -45,15 +45,16 @@ export class EmployeeRepository {
         this.prisma.employee.count({
           where: {
             leftAt: null,
-            // position: branchId ? {department: {branch: {id: branchId}}} : {},
-            code: {startsWith: search?.code, mode: 'insensitive'},
+            position: user?.branchId ? {department: {branch: {id: user?.branchId}}} : {},
+            code: {contains: search?.code, mode: 'insensitive'},
             AND: {
-              firstName: {startsWith: name?.firstName, mode: 'insensitive'},
-              lastName: {startsWith: name?.lastName, mode: 'insensitive'},
+              firstName: {contains: name?.firstName, mode: 'insensitive'},
+              lastName: {contains: name?.lastName, mode: 'insensitive'},
             },
             gender: search?.gender ? {equals: search?.gender} : {},
             isFlatSalary: search?.isFlatSalary,
             createdAt: search?.createdAt,
+            workedAt: search?.workedAt
           },
         }),
         this.prisma.employee.findMany({
@@ -70,6 +71,7 @@ export class EmployeeRepository {
             gender: search?.gender ? {equals: search?.gender} : {},
             isFlatSalary: search?.isFlatSalary,
             createdAt: search?.createdAt,
+            workedAt: search?.workedAt
           },
           include: {
             position: {include: {department: {include: {branch: true}}}},

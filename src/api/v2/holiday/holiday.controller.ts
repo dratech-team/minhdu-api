@@ -1,11 +1,13 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete } from '@nestjs/common';
-import { HolidayService } from './holiday.service';
-import { CreateHolidayDto } from './dto/create-holiday.dto';
-import { UpdateHolidayDto } from './dto/update-holiday.dto';
+import {Controller, Get, Post, Body, Patch, Param, Delete, Query} from '@nestjs/common';
+import {HolidayService} from './holiday.service';
+import {CreateHolidayDto} from './dto/create-holiday.dto';
+import {UpdateHolidayDto} from './dto/update-holiday.dto';
+import {ParseDatetimePipe} from "../../../core/pipe/datetime.pipe";
 
 @Controller('v2/holiday')
 export class HolidayController {
-  constructor(private readonly holidayService: HolidayService) {}
+  constructor(private readonly holidayService: HolidayService) {
+  }
 
   @Post()
   create(@Body() createHolidayDto: CreateHolidayDto) {
@@ -13,8 +15,20 @@ export class HolidayController {
   }
 
   @Get()
-  findAll() {
-    return this.holidayService.findAll();
+  findAll(
+    @Query("take") take: number,
+    @Query("skip") skip: number,
+    @Query("name") name: string,
+    @Query("datetime", ParseDatetimePipe) datetime: any,
+    @Query("rate", ParseDatetimePipe) rate: number,
+    @Query("department") department: string,
+  ) {
+    return this.holidayService.findAll(+take, +skip, {
+      name,
+      datetime,
+      rate: +rate,
+      department,
+    });
   }
 
   @Get(':id')

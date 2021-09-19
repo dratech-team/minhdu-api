@@ -40,25 +40,22 @@ export class RouteRepository {
           skip: skip,
           take: take,
           where: {
-            name: {startsWith: search?.name},
-            // startedAt: {gte: startedAt ?? new Date("1/1/2020")},
-            // endedAt: {lte: endedAt ?? new Date()},
-            driver: {startsWith: search?.driver},
-            bsx: {startsWith: search?.bsx},
+            name: {contains: search?.name},
+            startedAt: {gte: search?.startedAt},
+            endedAt: {lte: search?.endedAt},
+            driver: {contains: search?.driver || undefined},
+            bsx: {contains: search?.bsx},
           },
         }),
         this.prisma.route.findMany({
           skip: skip,
           take: take,
-          orderBy: {
-            name: "asc"
-          },
           where: {
-            name: {startsWith: search?.name},
-            // startedAt: startedAt ? {gte: startedAt} : {},
-            // endedAt: endedAt ? {lte: endedAt} : {},
-            driver: {startsWith: search?.driver},
-            bsx: {startsWith: search?.bsx},
+            name: {contains: search?.name},
+            startedAt: {gte: search?.startedAt},
+            endedAt: {lte: search?.endedAt},
+            driver: {contains: search?.driver || undefined},
+            bsx: {contains: search?.bsx},
           },
           include: {
             employee: true,

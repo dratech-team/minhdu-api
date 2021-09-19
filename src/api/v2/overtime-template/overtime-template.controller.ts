@@ -1,8 +1,9 @@
-import {Body, Controller, Delete, Get, Param, Patch, Post} from '@nestjs/common';
+import {Body, Controller, Delete, Get, Param, Patch, Post, Query} from '@nestjs/common';
 import {OvertimeTemplateService} from './overtime-template.service';
 import {CreateOvertimeTemplateDto} from './dto/create-overtime-template.dto';
 import {UpdateOvertimeTemplateDto} from './dto/update-overtime-template.dto';
 import {ApiV2Constant} from "../../../common/constant/api.constant";
+import {SalaryType} from "@prisma/client";
 
 @Controller(ApiV2Constant.OVERTIME_TEMPLATE)
 export class OvertimeTemplateController {
@@ -15,8 +16,20 @@ export class OvertimeTemplateController {
   }
 
   @Get()
-  findAll() {
-    return this.service.findAll();
+  findAll(
+    @Query("take") take: number,
+    @Query("skip") skip: number,
+    @Query("title") title: string,
+    @Query("type") type: SalaryType,
+    @Query("price") price: number,
+    @Query("branch") branch: string,
+  ) {
+    return this.service.findAll(+take, +skip, {
+      title,
+      type,
+      price: +price,
+      branch,
+    });
   }
 
   @Get(':id')

@@ -5,6 +5,7 @@ import {RouteRepository} from "./route.repository";
 import {Response} from "express";
 import {exportExcel} from "../../../core/services/export.service";
 import {SearchRouteDto} from "./dto/search-route.dto";
+import moment from "moment";
 
 @Injectable()
 export class RouteService {
@@ -31,8 +32,8 @@ export class RouteService {
 
   async update(id: number, updates: UpdateRouteDto) {
     const found = await this.findOne(id);
-    if (found.endedAt && !updates.endedAt) {
-      throw new BadRequestException("Chuyến xe này đã kết thúc. Bạn không có được phép sửa..");
+    if (found.endedAt) {
+      throw new BadRequestException("Chuyến xe này đã kết thúc. Bạn không có được phép sửa đơn hàng..");
     }
     return await this.repository.update(id, updates);
   }

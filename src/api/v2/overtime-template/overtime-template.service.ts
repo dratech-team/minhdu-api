@@ -2,6 +2,7 @@ import {BadRequestException, Injectable, NotFoundException} from '@nestjs/common
 import {CreateOvertimeTemplateDto} from './dto/create-overtime-template.dto';
 import {UpdateOvertimeTemplateDto} from './dto/update-overtime-template.dto';
 import {PrismaService} from "../../../prisma.service";
+import {SearchOvertimeTemplateDto} from "./dto/search-overtime-template.dto";
 
 @Injectable()
 export class OvertimeTemplateService {
@@ -17,21 +18,32 @@ export class OvertimeTemplateService {
     }
   }
 
-  async findAll() {
+  async findAll(take: number, skip: number, search: Partial<SearchOvertimeTemplateDto>) {
     try {
-      return await this.prisma.overtimeTemplate.findMany({
-        include: {
-          position: {
-            include: {
-              department: {
-                include: {
-                  branch: true,
-                }
-              }
-            }
+      const [total, data] = await Promise.all([
+        this.prisma.overtimeTemplate.count({
+          where: {
+            title: search?.title,
+            type: search?.type || undefined,
+            price: {equals: search?.price || undefined},
+            position: search?.branch ? {department: {branch: {name: {contains: search?.branch}}}} : {},
+          },
+        }),
+        this.prisma.overtimeTemplate.findMany({
+          take: take || undefined,
+          skip: skip || undefined,
+          where: {
+            title: search?.title,
+            type: search?.type || undefined,
+            price: {equals: search?.price || undefined},
+            position: search?.branch ? {department: {branch: {name: {contains: search?.branch}}}} : {},
+          },
+          include: {
+            position: {include: {department: {include: {branch: true}}}}
           }
-        }
-      });
+        })
+      ]);
+      return {total, data};
     } catch (err) {
       console.error(err);
       throw new NotFoundException(err);
