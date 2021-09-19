@@ -58,7 +58,7 @@ export class OrderController {
   @UseGuards(RolesGuard, LoggerGuard)
   @Roles(UserType.ADMIN)
   @Patch("hide/:id")
-  updateHide(@Param("id") id: string, @Query("hide", ParseBoolPipe) hide: boolean) {
+  updateHide(@Param("id") id: string, @Body("hide", ParseBoolPipe) hide: boolean) {
     return this.orderService.updateHide(+id, hide);
   }
 
