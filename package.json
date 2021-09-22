@@ -45,7 +45,7 @@
     "@nestjs/websockets": "^7.6.15",
     "@prisma/client": "3.0.2",
     "@types/mongoose-paginate": "^5.0.8",
-    "@types/passport": "1.0.6",
+    "@types/passport": "1.0.7",
     "basic-auth-token": "^0.4.2",
     "bcrypt": "5.0.1",
     "carrier": "^0.3.0",
