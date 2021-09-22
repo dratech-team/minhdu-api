@@ -7,6 +7,7 @@ import {searchName} from "../../../utils/search-name.util";
 import {SearchPayrollDto} from "./dto/search-payroll.dto";
 import {ProfileEntity} from "../../../common/entities/profile.entity";
 import {Employee, Payroll} from "@prisma/client";
+import { OnePayroll } from "./entities/payroll.entity";
 
 @Injectable()
 export class PayrollRepository {
@@ -68,21 +69,13 @@ export class PayrollRepository {
                             gte: firstMonth(search?.createdAt ?? new Date()),
                             lte: lastMonth(search?.createdAt ?? new Date()),
                         },
-                        manConfirmedAt: search?.isConfirm === 1 ? {
-                            notIn: null
-                        } : {
-                            in: null
-                        },
-                        paidAt: search?.isPaid === 1 ? {
-                            notIn: null
-                        } : {
-                            in: null
-                        },
+                        paidAt: null
                     },
                     include: {
                         salaries: true,
                         employee: {
                             include: {
+                                contracts: true,
                                 position: {include: {department: {include: {branch: true}}}},
                             }
                         },
@@ -131,7 +124,7 @@ export class PayrollRepository {
         }
     }
 
-    async findOne(id: number): Promise<any> {
+    async findOne(id: number): Promise<OnePayroll> {
         try {
             return await this.prisma.payroll.findUnique({
                 where: {id: id},

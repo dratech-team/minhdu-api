@@ -12,7 +12,6 @@ import {ProfileEntity} from "../../../common/entities/profile.entity";
 export class EmployeeService implements BaseEmployeeService {
   constructor(
     private readonly repository: EmployeeRepository,
-    private readonly positionService: PositionService,
     private readonly workHisService: WorkHistoryService,
   ) {
   }

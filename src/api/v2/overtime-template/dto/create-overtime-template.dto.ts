@@ -16,6 +16,11 @@ export class CreateOvertimeTemplateDto {
   @IsNumber()
   readonly price: number;
 
+  @IsNotEmpty()
+  @Type(() => Number)
+  @IsNumber()
+  readonly rate: number;
+
   @IsOptional()
   @IsEnum(DatetimeUnit)
   readonly unit?: DatetimeUnit;

@@ -1,4 +1,4 @@
-import {Body, Controller, Delete, Get, Param, Patch, Post, Query} from '@nestjs/common';
+import {Body, Controller, Delete, Get, Param, ParseIntPipe, Patch, Post, Query} from '@nestjs/common';
 import {OvertimeTemplateService} from './overtime-template.service';
 import {CreateOvertimeTemplateDto} from './dto/create-overtime-template.dto';
 import {UpdateOvertimeTemplateDto} from './dto/update-overtime-template.dto';

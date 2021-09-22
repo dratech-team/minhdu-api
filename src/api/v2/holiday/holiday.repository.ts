@@ -32,7 +32,11 @@ export class HolidayRepository {
             department: {name: {startsWith: search?.department}}
           },
           include: {
-            department: true
+            department: {
+              include: {
+                branch: true
+              }
+            }
           }
         })
       ]);

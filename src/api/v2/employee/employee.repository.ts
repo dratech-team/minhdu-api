@@ -46,6 +46,7 @@ export class EmployeeRepository {
                     where: {
                         leftAt: null,
                         position: user?.branchId ? {department: {branch: {id: user?.branchId}}} : {},
+                        positionId: search?.positionId || undefined,
                         code: {contains: search?.code, mode: 'insensitive'},
                         AND: {
                             firstName: {contains: name?.firstName, mode: 'insensitive'},
@@ -63,6 +64,7 @@ export class EmployeeRepository {
                     where: {
                         leftAt: null,
                         position: user?.branchId ? {department: {branch: {id: user?.branchId}}} : {},
+                        positionId: search?.positionId || undefined,
                         code: {startsWith: search?.code, mode: 'insensitive'},
                         AND: {
                             firstName: {startsWith: name?.firstName, mode: 'insensitive'},

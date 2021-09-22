@@ -132,7 +132,7 @@ model Contract {
   name       String
   position   String
   createdAt  DateTime
-  expiredAt  DateTime
+  expiredAt  DateTime?
   employee   Employee     @relation(fields: [employeeId], references: [id])
   employeeId Int
 }
@@ -144,13 +144,13 @@ model Employee {
   lastName        String
   avt             String?
   gender          GenderType
-  phone           String
+  phone           String?
   workPhone       String?
   birthday        DateTime
-  birthplace      String
-  identify        String          @unique
-  idCardAt        DateTime
-  issuedBy        String
+  birthplace      String?
+  identify        String?         @unique
+  idCardAt        DateTime?
+  issuedBy        String?
   ward            Ward            @relation(fields: [wardId], references: [id])
   wardId          Int
   address         String
@@ -200,6 +200,7 @@ model OvertimeTemplate {
   title      String
   type       SalaryType?   @default(OVERTIME)
   price      Float
+  rate       Float?         @default(1)
   unit       DatetimeUnit? @default(HOUR)
   note       String?
   position   Position      @relation(fields: [positionId], references: [id])
@@ -207,27 +208,27 @@ model OvertimeTemplate {
 }
 
 model Relative {
-  id           Int              @id @default(autoincrement())
+  id           Int               @id @default(autoincrement())
   firstName    String
   lastName     String
   gender       GenderType
-  phone        String
+  phone        String?
   workPhone    String?
-  birthday     DateTime
-  birthplace   String
-  identify     String?          @unique
+  birthday     DateTime?
+  birthplace   String?
+  identify     String?           @unique
   idCardAt     DateTime?
   issuedBy     String?
-  ward         Ward             @relation(fields: [wardId], references: [id])
+  ward         Ward              @relation(fields: [wardId], references: [id])
   wardId       Int
-  address      String
+  address      String?
   religion     String?
   ethnicity    String?
   mst          String?
-  career       String
-  relationship RelationshipType
-  sos          Boolean?         @default(false)
-  employee     Employee         @relation(fields: [employeeId], references: [id])
+  career       String?
+  relationship RelationshipType?
+  sos          Boolean?          @default(false)
+  employee     Employee          @relation(fields: [employeeId], references: [id])
   employeeId   Int
 }
 
@@ -346,7 +347,7 @@ model Payroll {
   employee       Employee  @relation(fields: [employeeId], references: [id])
   employeeId     Int
   accConfirmedAt DateTime?
-  isEdit         Boolean?  @default(false)
+  isEdit         Boolean?  @default(true)
   manConfirmedAt DateTime?
   paidAt         DateTime?
   createdAt      DateTime? @default(now())
