@@ -3,11 +3,6 @@ import {Type} from "class-transformer";
 import {IsArray, IsNumber, IsOptional,} from "class-validator";
 
 export class CreateSalaryDto extends ICreateSalaryDto {
-    @IsOptional()
-    @Type(() => Number)
-    @IsNumber()
-    readonly employeeId?: number;
-
     @Type(() => Number)
     @IsOptional()
     @IsNumber()

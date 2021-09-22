@@ -10,12 +10,27 @@ export class SalaryRepository {
     }
 
     async create(body: CreateSalaryDto) {
-        console.log(body);
         try {
             return await this.prisma.salary.create({data: body});
         } catch (err) {
             console.error(err);
             throw new BadRequestException("Thất bại", err);
+        }
+    }
+
+    async disConnectToPayroll(id: number) {
+        try {
+            return this.prisma.salary.update({
+                where: {id},
+                data: {
+                    payroll: {
+                        disconnect: true
+                    }
+                }
+            });
+        } catch (err) {
+            console.error(err);
+            throw new BadRequestException(err);
         }
     }
 

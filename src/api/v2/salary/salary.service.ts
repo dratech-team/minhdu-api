@@ -6,9 +6,8 @@ import {SalaryRepository} from "./salary.repository";
 import {EmployeeService} from "../employee/employee.service";
 import {PayrollService} from "../payroll/payroll.service";
 import {firstMonth, lastMonth} from "../../../utils/datetime.util";
-import {HistorySalaryService} from "../histories/history-salary/history-salary.service";
-import {OmitType} from "@nestjs/swagger";
 import {OneSalary} from "./entities/salary.entity";
+import {HistorySalaryService} from "../histories/history-salary/history-salary.service";
 
 @Injectable()
 export class SalaryService {
@@ -16,6 +15,7 @@ export class SalaryService {
         private readonly repository: SalaryRepository,
         private readonly employeeService: EmployeeService,
         private readonly payrollService: PayrollService,
+        private readonly hSalaryService: HistorySalaryService,
     ) {
     }
 
@@ -36,20 +36,8 @@ export class SalaryService {
                     throw new BadRequestException(`Bảng lương tháng ${new Date().getMonth()} của nhân viên ${employees[i].lastName} không tồn tại. `);
                 }
                 // Tạo overtime trong payroll cho nhân viên
-                const salary = Object.assign(body, {payrollId: payroll.id, employeeId: employees[i].id});
-                await this.repository.create({
-                    employeeId: salary.employeeId,
-                    title: salary.title,
-                    datetime: salary.datetime,
-                    forgot: salary.forgot,
-                    note: salary.note,
-                    payrollId: salary.payrollId,
-                    type: salary.type,
-                    price: salary.price,
-                    rate: salary.rate,
-                    times: salary.times,
-                    unit: salary.unit
-                });
+                const salary = Object.assign(body, {payrollId: payroll.id});
+                await this.repository.create(this.mapToSalary(salary));
             }
         } else {
             const payroll = await this.payrollService.findOne(body.payrollId);
@@ -57,18 +45,7 @@ export class SalaryService {
             if (payroll.salaries.map(salary => salary.type).includes(SalaryType.BASIC)) {
                 throw new BadRequestException(`Lương cơ bản của nhân viên ${payroll.employee.firstName + payroll.employee.lastName} đã tồn tại. Vui lòng không thêm`);
             }
-            return await this.repository.create({
-                title: body.title,
-                datetime: new Date(body.datetime),
-                forgot: body.forgot,
-                note: body.note,
-                payrollId: body.payrollId,
-                type: body.type,
-                price: body.price,
-                rate: body.rate,
-                times: body.times,
-                unit: body.unit
-            });
+            return await this.repository.create(this.mapToSalary(body));
         }
     }
 
@@ -88,15 +65,14 @@ export class SalaryService {
     async update(id: number, updates: UpdateSalaryDto) {
         const salary = await this.findOne(id);
 
-        const payroll = await this.payrollService.findOne(salary.payrollId);
-        if (payroll.paidAt) {
+        if (salary.payroll.paidAt) {
             throw new BadRequestException("Bảng lương đã thanh toán không được phép sửa");
         }
 
-        // Nếu lương đc update là BASIC, STAY, BASIC_INSURANCE thì sẽ tạo ra cái mới để lưu lại lịch sử lương. Những loại còn lại sẽ update
-        if (salary.type === SalaryType.BASIC || salary.type === SalaryType.STAY || salary.type === SalaryType.BASIC_INSURANCE) {
-            return this.create(Object.assign(salary, updates));
-        }
+        /// TODO: handle salary history
+        // if (salary.type === SalaryType.BASIC || salary.type === SalaryType.STAY || salary.type === SalaryType.BASIC_INSURANCE) {
+        //     await this.hSalaryService.create(id, salary.payroll.employeeId);
+        // }
         return await this.repository.update(id, updates);
     }
 
@@ -108,7 +84,19 @@ export class SalaryService {
         return this.repository.remove(id);
     }
 
-    createHistory(): Promise<void> {
-        return Promise.resolve(undefined);
+    mapToSalary(body: CreateSalaryDto) {
+        return {
+            title: body.title,
+            type: body.type,
+            unit: body.unit,
+            datetime: body.datetime,
+            times: body.times,
+            forgot: body.forgot,
+            rate: body.rate,
+            price: body.price,
+            note: body.note,
+            payrollId: body.payrollId,
+
+        };
     }
 }

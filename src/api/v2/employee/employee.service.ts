@@ -3,8 +3,6 @@ import {CreateEmployeeDto} from "./dto/create-employee.dto";
 import {EmployeeRepository} from "./employee.repository";
 import {UpdateEmployeeDto} from "./dto/update-employee.dto";
 import {BaseEmployeeService} from "./base-employee.service";
-import {ResponsePagination} from "../../../common/entities/response.pagination";
-import {Employee} from "@prisma/client";
 import {PositionService} from "../../../common/branches/position/position.service";
 import {WorkHistoryService} from "../histories/work-history/work-history.service";
 import {SearchEmployeeDto} from "./dto/search-employee.dto";
@@ -20,8 +18,8 @@ export class EmployeeService implements BaseEmployeeService {
   }
 
   async create(body: CreateEmployeeDto) {
-    const res = await this.positionService.findBranch(body.positionId);
-    body.code = await this.generateEmployeeCode(res?.department?.branch?.code);
+    // const res = await this.positionService.findBranch(body.positionId);
+    // body.code = await this.generateEmployeeCode(res?.department?.branch?.code);
 
     return await this.repository.create(body);
   }

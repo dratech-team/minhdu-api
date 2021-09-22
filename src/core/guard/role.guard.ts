@@ -1,7 +1,7 @@
 import {CanActivate, ExecutionContext, Injectable} from "@nestjs/common";
 import {Observable} from "rxjs";
 import {Reflector} from "@nestjs/core";
-import {UserType} from "../constants/role-type.constant";
+import {Role} from "@prisma/client";
 
 @Injectable()
 export class RolesGuard implements CanActivate {
@@ -16,7 +16,7 @@ export class RolesGuard implements CanActivate {
     return this.validateRolesRequest(request, roles);
   }
 
-  validateRolesRequest(request, roles: UserType[]): boolean {
+  validateRolesRequest(request, roles: Role[]): boolean {
     return roles.includes(request?.user?.role);
   }
 }

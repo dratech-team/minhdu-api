@@ -8,6 +8,7 @@ export interface SearchEmployeeDto {
   workedAt: Date,
   isFlatSalary: boolean, // 0 | 1
   branch: string,
+  branchId: number,
   department: string,
   position: string,
 }

@@ -3,13 +3,12 @@ import {OrderService} from "./order.service";
 import {CreateOrderDto} from "./dto/create-order.dto";
 import {UpdateOrderDto} from "./dto/update-order.dto";
 import {PaidEnum} from "./enums/paid.enum";
-import {PaymentType} from "@prisma/client";
+import {PaymentType, Role} from "@prisma/client";
 import {CustomParseBooleanPipe} from "../../../core/pipe/custom-boolean.pipe";
 import {JwtAuthGuard} from "../../../core/guard/jwt-auth.guard";
 import {ApiKeyGuard} from "../../../core/guard/api-key-auth.guard";
 import {RolesGuard} from "../../../core/guard/role.guard";
 import {Roles} from "../../../core/decorators/roles.decorator";
-import {UserType} from "../../../core/constants/role-type.constant";
 import {LoggerGuard} from "../../../core/guard/logger.guard";
 import {ApiV2Constant} from "../../../common/constant/api.constant";
 
@@ -20,7 +19,7 @@ export class OrderController {
   }
 
   @UseGuards(RolesGuard, LoggerGuard)
-  @Roles(UserType.ADMIN)
+  @Roles(Role.ADMIN)
   @Post()
   create(@Body() createOrderDto: CreateOrderDto) {
     return this.orderService.create(createOrderDto);
@@ -49,21 +48,21 @@ export class OrderController {
   }
 
   @UseGuards(RolesGuard, LoggerGuard)
-  @Roles(UserType.ADMIN)
+  @Roles(Role.ADMIN)
   @Patch(":id")
   update(@Param("id") id: string, @Body() updateOrderDto: UpdateOrderDto) {
     return this.orderService.update(+id, updateOrderDto);
   }
 
   @UseGuards(RolesGuard, LoggerGuard)
-  @Roles(UserType.ADMIN)
+  @Roles(Role.ADMIN)
   @Patch("hide/:id")
   updateHide(@Param("id") id: string, @Body("hide", ParseBoolPipe) hide: boolean) {
     return this.orderService.updateHide(+id, hide);
   }
 
   @UseGuards(RolesGuard, LoggerGuard)
-  @Roles(UserType.ADMIN)
+  @Roles(Role.ADMIN)
   @Delete(":id")
   remove(@Param("id") id: string) {
     return this.orderService.remove(+id);

@@ -23,7 +23,7 @@ model Account {
   branch   Branch?  @relation(fields: [branchId], references: [id])
   branchId Int?
   role     Role
-  appName      AppEnum?
+  appName  AppEnum?
 }
 
 model Degree {
@@ -97,8 +97,8 @@ model Ward {
 
 model Branch {
   id          Int          @id @default(autoincrement())
-  code        String       @unique
-  name        String
+  code        String?      @unique
+  name        String       @unique
   departments Department[]
   Medicine    Medicine[]
   Account     Account[]
@@ -139,7 +139,7 @@ model Contract {
 
 model Employee {
   id              Int             @id @default(autoincrement())
-  code            String          @unique
+  code            String?         @unique
   firstName       String
   lastName        String
   avt             String?
@@ -518,17 +518,17 @@ enum GenderType {
 enum Role {
   ADMIN
   CHIEF_ACCOUNTANT
-  ACCOUNTANT_CASH_FUND
+  ACCOUNTANT_CASH_FUND // Quy tien mat
   ACCOUNTANT_MODERATION
-  SALESMAN
-  SALESMAN_EGG
-  IMPORTER_EXPORTER
-  CONSTRUCTION_DEPARTMENT
+  SALESMAN // ban hang
+  SALESMAN_EGG // ban trung
+  IMPORTER_EXPORTER // xuat nhap khau
+  CONSTRUCTION_DEPARTMENT //cong trinh
   HUMAN_RESOURCE
-  CAMP_ACCOUNTING
-  CAMP_MANAGEMENT
-  CAMP_DIRECTOR
-  HATCHERY_ACCOUNTING
-  HATCHERY_MANAGEMENT
-  NONE
+  CAMP_ACCOUNTING // ke toan
+  CAMP_MANAGER // quan ly trai
+  CAMP_DIRECTOR //giam doc trai
+  HATCHERY_ACCOUNTING // ke toan trai ap
+  HATCHERY_MANAGEMENT // quan ly trai ap
+  NONE // deo co chuc vu
 }

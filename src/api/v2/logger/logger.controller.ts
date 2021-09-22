@@ -8,7 +8,7 @@ import {JwtAuthGuard} from "../../../core/guard/jwt-auth.guard";
 import {ApiKeyGuard} from "../../../core/guard/api-key-auth.guard";
 import {RolesGuard} from "../../../core/guard/role.guard";
 import {Roles} from "../../../core/decorators/roles.decorator";
-import {UserType} from "../../../core/constants/role-type.constant";
+import {Role} from "@prisma/client";
 
 @UseGuards(JwtAuthGuard, ApiKeyGuard)
 @Controller('v2/logger')
@@ -22,7 +22,7 @@ export class LoggerController {
   }
 
   @UseGuards(RolesGuard)
-  @Roles(UserType.ADMIN, UserType.SALESMAN)
+  @Roles(Role.ADMIN, Role.SALESMAN)
   @Get()
   findAll(
     @ReqProfile() profile: ProfileEntity,

@@ -1,5 +1,5 @@
 import {BadRequestException, ConflictException, Injectable} from "@nestjs/common";
-import {DatetimeUnit, Payroll, Salary, SalaryType} from "@prisma/client";
+import {DatetimeUnit, Employee, Payroll, Role, Salary, SalaryType} from "@prisma/client";
 import * as moment from "moment";
 import {firstMonth, lastDayOfMonth, lastMonth} from "../../../utils/datetime.util";
 import {EmployeeService} from "../employee/employee.service";
@@ -18,81 +18,43 @@ export class PayrollService {
     ) {
     }
 
-    async checkCurrentExist(date: Date, employeeId: number): Promise<boolean> {
-        const first = firstMonth(date);
-        const last = lastMonth(date);
-
-        const payroll = await this.repository.findMany({
-            first,
-            last,
-            employeeId: employeeId,
-        });
-        return payroll !== null;
-    }
-
     async create(body: CreatePayrollDto) {
         try {
-            const exist = await this.checkCurrentExist(
-                body.createdAt,
-                body.employeeId
-            );
-            if (exist) {
-                throw new ConflictException(
-                    `Phiếu lương tháng ${moment(body.createdAt).format(
-                        "MM/yyyy"
-                    )} đã tồn tại.. Vui lòng kiểm tra kỹ lại trước khi thêm.. Tức cái lồng ngực á`
-                );
-            }
-            const payroll = await this.repository.create(body);
-            // if (payroll) {
-            //     this.employeeService.findOne(payroll.employeeId).then((payroll) => {
-            //         payroll?.salaries?.map((salary) => {
-            //             this.update(payroll.id, {salaryId: salary.id}).then();
-            //         });
-            //     });
-            // }
-            return payroll;
+            throw new BadRequestException("Phiếu lương sẽ được hệ thống tự động khởi tạo khi đến tháng mới");
         } catch (err) {
             console.error(err);
             throw new ConflictException(err);
         }
     }
 
-    /*
-     * Kiểm tra phiếu lương của từng nhân viên đã tồn tại trong tháng này chưa?. Nếu chưa thì sẽ khởi tạo. Sau khi khởi
-     * tạo xong hết danh sách nhân viên thì sẽ trả về true
-     * */
-    async generatePayroll(employee) {
-        try {
-            return await this.repository.create({
-                employeeId: employee.id,
-                salaries: employee.salaries,
-                createdAt: new Date(),
-            });
-        } catch (err) {
-            console.error(err);
-            throw new BadRequestException(err);
-        }
-    }
-
-    // @ts-ignore
     async findAll(
         user: ProfileEntity,
         skip: number,
         take: number,
         search?: Partial<SearchPayrollDto>,
     ) {
-        const employee = await this.employeeService.findAll(user, undefined, undefined);
+        const employee = await this.employeeService.findAll(user, undefined, undefined, {branchId: user.branchId});
 
-        /**
-         * generate payroll in this month if it not exist
-         */
-        for (let i = 0; i < employee.data.length; i++) {
-            if (!await this.checkCurrentExist(new Date(), employee.data[i].id)) {
-                await this.generatePayroll(employee.data[i]);
+        ///
+        await Promise.all(employee.data.map(async (employee) => {
+            const payroll = await this.repository.findThisMonthForEmployeeId(employee.id);
+            if (payroll.length > 1) {
+                throw new BadRequestException(`Có gì đó không đúng. Nhân viên ${employee.lastName} tồn tại ${payroll.length} trong tháng này. Vui lòng xoá bớt 1 phiếu lương hoặc liên hệ admin để hỗ trợ. Xin cảm ơn.`);
             }
-        }
-        return await this.repository.findAll(user, skip, take, search);
+            if (payroll.length === 0) {
+                await this.repository.create({employeeId: employee.id, createdAt: new Date()});
+            }
+        }));
+        const data = await this.repository.findAll(user, skip, take, search);
+        const payrolls = data.data.map(payroll => {
+            if (payroll.manConfirmedAt) {
+                return Object.assign(payroll, {total: this.totalSalary(payroll)});
+            } else {
+                return payroll;
+            }
+        });
+
+        return {total: data.total, data: payrolls};
     }
 
     async findOne(id: number): Promise<OnePayroll> {
@@ -100,11 +62,7 @@ export class PayrollService {
         const payslip = res.manConfirmedAt !== null && res.salaries.length !== 0
             ? this.totalSalary(res)
             : null;
-        return Object.assign(res, {payslip});
-    }
-
-    findBy(query: any) {
-        return this.repository.findBy(query);
+        return Object.assign(res, {payslip, actualDay: this.totalSalary(res).actualDay});
     }
 
     async findFirst(query: any): Promise<Payroll> {
@@ -130,12 +88,17 @@ export class PayrollService {
         return await this.repository.update(id, updates);
     }
 
-    async confirmPayroll(id: number, isConfirm: boolean) {
-        const found = await this.findOne(id);
-        if (!isConfirm) {
-            throw new BadRequestException(`Phiếu lương của nhân viên ${found.employee.firstName + found.employee.lastName} đã được xác nhận.`);
+    async confirmPayroll(user: ProfileEntity, id: number) {
+        switch (user.role) {
+            case Role.CAMP_ACCOUNTING:
+                return await this.repository.update(id, {accConfirmedAt: new Date()});
+            case Role.CAMP_MANAGER:
+                return await this.repository.update(id, {manConfirmedAt: new Date()});
+            case Role.ACCOUNTANT_CASH_FUND:
+                return await this.repository.update(id, {paidAt: new Date()});
+            default:
+                throw new BadRequestException("Bạn không có quyền xác nhận phiếu lương. Cảm ơn.");
         }
-        return await this.repository.update(id, {manConfirmedAt: new Date()});
     }
 
     async remove(id: number) {
@@ -189,17 +152,16 @@ export class PayrollService {
         let lateTime = 0;
         let daySalary = 0;
         let total = 0;
-        /*
-         * Nếu tháng này nghỉ ngang thì sẽ lấy ngày hôm nay (lúc lập phiếu lương)*/
+
+        /// TH nhân viên nghỉ ngang. Thì sẽ confirm phiếu lương => phiếu lương không được sửa nữa. và lấy ngày hiện tại
         let actualDay =
-            (!payroll.isEdit
-                ? new Date().getDate()
-                : lastDayOfMonth(payroll.createdAt)) -
-            this.totalAbsent(payroll.salaries);
+            !payroll.isEdit
+                ? new Date().getDate() : lastDayOfMonth(payroll.createdAt) -
+                this.totalAbsent(payroll.salaries);
 
         if (
             payroll.employee.isFlatSalary &&
-            this.totalAbsent(payroll.salaries) === 0
+            this.totalAbsent(payroll.salaries) === 0 && !payroll.isEdit
         ) {
             actualDay = 30;
         }

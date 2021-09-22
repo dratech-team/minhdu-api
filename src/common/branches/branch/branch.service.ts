@@ -11,7 +11,8 @@ export class BranchService implements BaseBranchService {
   }
 
   async create(body: CreateBranchDto): Promise<Branch> {
-    body.code = this.generateCode(body.name);
+    /// FIXME: generate code
+    // body.code = this.generateCode(body.name);
 
     return await this.repository.create(body);
   }

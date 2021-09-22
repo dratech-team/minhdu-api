@@ -9,9 +9,6 @@ export class CreatePayrollDto {
   @IsNumber()
   readonly employeeId: number;
 
-  @IsOptional()
-  readonly salaries: Salary[];
-
   @IsNotEmpty()
   @Type(() => Date)
   @IsDate()
