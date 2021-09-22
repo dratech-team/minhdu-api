@@ -3,7 +3,7 @@ import {OvertimeTemplateService} from './overtime-template.service';
 import {CreateOvertimeTemplateDto} from './dto/create-overtime-template.dto';
 import {UpdateOvertimeTemplateDto} from './dto/update-overtime-template.dto';
 import {ApiV2Constant} from "../../../common/constant/api.constant";
-import {SalaryType} from "@prisma/client";
+import {DatetimeUnit} from "@prisma/client";
 
 @Controller(ApiV2Constant.OVERTIME_TEMPLATE)
 export class OvertimeTemplateController {
@@ -20,15 +20,15 @@ export class OvertimeTemplateController {
     @Query("take") take: number,
     @Query("skip") skip: number,
     @Query("title") title: string,
-    @Query("type") type: SalaryType,
     @Query("price") price: number,
-    @Query("branch") branch: string,
+    @Query("department") department: string,
+    @Query("unit") unit: DatetimeUnit,
   ) {
     return this.service.findAll(+take, +skip, {
       title,
-      type,
       price: +price,
-      branch,
+      department,
+      unit,
     });
   }
 

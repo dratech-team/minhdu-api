@@ -92,8 +92,8 @@ export class ProvinceRepository {
         districts: {
           include: {
             wards: true,
-          },
-        },
+          }
+        }
       },
     });
   }

@@ -3,6 +3,7 @@ import {PrismaService} from "../../../prisma.service";
 import {CreatePositionDto} from "./dto/create-position.dto";
 import {Position} from "@prisma/client";
 import {UpdatePositionDto} from "./dto/update-position.dto";
+import {OnePosition} from "./entities/position.entity";
 
 @Injectable()
 export class PositionRepository {
@@ -33,9 +34,16 @@ export class PositionRepository {
     }
   }
 
-  async findOne(id: number) {
+  async findOne(id: number): Promise<OnePosition> {
     try {
-      return await this.prisma.position.findUnique({where: {id: id}});
+      return await this.prisma.position.findUnique({
+        where: {id: id},
+        include: {
+          employees: true,
+          workHistories: true,
+          templates: true
+        }
+      });
     } catch (e) {
       console.error(e);
       throw new BadRequestException(e);
@@ -64,7 +72,7 @@ export class PositionRepository {
 
   async remove(id: number) {
     try {
-     return  await this.prisma.position.delete({where: {id}});
+      return await this.prisma.position.delete({where: {id}});
     } catch (err) {
       console.error(err);
       throw new BadRequestException(err);

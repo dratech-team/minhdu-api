@@ -8,6 +8,7 @@ import {UpdatePayrollDto} from "./dto/update-payroll.dto";
 import {PayrollRepository} from "./payroll.repository";
 import {SearchPayrollDto} from "./dto/search-payroll.dto";
 import {ProfileEntity} from "../../../common/entities/profile.entity";
+import {OnePayroll} from "./entities/payroll.entity";
 
 @Injectable()
 export class PayrollService {
@@ -94,7 +95,7 @@ export class PayrollService {
     return await this.repository.findAll(user, skip, take, search);
   }
 
-  async findOne(id: number): Promise<any> {
+  async findOne(id: number): Promise<OnePayroll> {
     const res = await this.repository.findOne(id);
     const payslip = res.manConfirmedAt !== null && res.salaries.length !== 0
       ? this.totalSalary(res)
@@ -127,6 +128,14 @@ export class PayrollService {
     }
 
     return await this.repository.update(id, updates);
+  }
+
+  async confirmPayroll(id: number, isConfirm: boolean) {
+    const found = await this.findOne(id);
+    if (!isConfirm) {
+      throw new BadRequestException(`Phiếu lương của nhân viên ${found.employee.firstName + found.employee.lastName} đã được xác nhận.`)
+    }
+    return await this.repository.update(id, {manConfirmedAt: new Date()});
   }
 
   async remove(id: number) {

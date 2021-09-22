@@ -6,11 +6,13 @@ export class UpdatePayrollDto {
   @Type(() => Number)
   readonly salaryId?: number
 
+  /// TODO: Tạo endpoint mới cho việc này
   @IsOptional()
   @Type(() => Date)
   @IsDate()
   accConfirmedAt?: Date;
 
+  /// TODO: Tạo endpoint mới cho việc này
   @IsOptional()
   @Type(() => Date)
   @IsDate()

@@ -121,7 +121,7 @@ model Position {
   departmentId  Int
   employees     Employee[]
   workHistories WorkHistory[]
-  templetes     OvertimeTemplate[]
+  templates     OvertimeTemplate[]
 }
 
 // Hợp đồng

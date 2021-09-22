@@ -1,8 +1,9 @@
-import {SalaryType} from "@prisma/client";
+import {DatetimeUnit, SalaryType} from "@prisma/client";
 
 export interface SearchOvertimeTemplateDto {
   title: string;
-  type: SalaryType;
+  // type: SalaryType;
   price: number;
-  branch: string;
+  department: string;
+  unit: DatetimeUnit;
 }

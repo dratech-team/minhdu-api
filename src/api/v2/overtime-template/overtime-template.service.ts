@@ -20,23 +20,38 @@ export class OvertimeTemplateService {
 
   async findAll(take: number, skip: number, search: Partial<SearchOvertimeTemplateDto>) {
     try {
+      console.log(search)
       const [total, data] = await Promise.all([
         this.prisma.overtimeTemplate.count({
           where: {
-            title: search?.title,
-            type: search?.type || undefined,
-            price: {equals: search?.price || undefined},
-            position: search?.branch ? {department: {branch: {name: {contains: search?.branch}}}} : {},
+            title: {startsWith: search?.title, mode: "insensitive"},
+            price: search?.price ? {in: search?.price} : {},
+            position: search?.department ? {
+              department: {
+                name: {
+                  startsWith: search?.department,
+                  mode: "insensitive"
+                }
+              }
+            } : {},
+            unit: search?.unit || undefined,
           },
         }),
         this.prisma.overtimeTemplate.findMany({
           take: take || undefined,
           skip: skip || undefined,
           where: {
-            title: search?.title,
-            type: search?.type || undefined,
-            price: {equals: search?.price || undefined},
-            position: search?.branch ? {department: {branch: {name: {contains: search?.branch}}}} : {},
+            title: {startsWith: search?.title, mode: "insensitive"},
+            price: search?.price ? {in: search?.price} : {},
+            position: search?.department ? {
+              department: {
+                name: {
+                  startsWith: search?.department,
+                  mode: "insensitive"
+                }
+              }
+            } : {},
+            unit: search?.unit || undefined,
           },
           include: {
             position: {include: {department: {include: {branch: true}}}}

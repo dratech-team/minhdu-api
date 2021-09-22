@@ -1,4 +1,4 @@
-import {Body, Controller, Delete, Get, Param, Patch, Post, Query, UseGuards} from '@nestjs/common';
+import {Body, Controller, Delete, Get, Param, ParseBoolPipe, Patch, Post, Query, UseGuards} from '@nestjs/common';
 import {PayrollService} from './payroll.service';
 import {UpdatePayrollDto} from './dto/update-payroll.dto';
 import {Roles} from "../../../core/decorators/roles.decorator";
@@ -10,14 +10,16 @@ import {ParseDatetimePipe} from 'src/core/pipe/datetime.pipe';
 import {RolesGuard} from "../../../core/guard/role.guard";
 import {LoggerGuard} from "../../../core/guard/logger.guard";
 import {ProfileEntity} from "../../../common/entities/profile.entity";
+import {ApiKeyGuard} from "../../../core/guard/api-key-auth.guard";
+import {JwtAuthGuard} from "../../../core/guard/jwt-auth.guard";
 
 @Controller(ApiV2Constant.PAYROLL)
-// @UseGuards(JwtAuthGuard, ApiKeyGuard, RolesGuard)
+@UseGuards(JwtAuthGuard, ApiKeyGuard, RolesGuard)
 export class PayrollController {
   constructor(private readonly payrollService: PayrollService) {
   }
 
-  @UseGuards(RolesGuard, LoggerGuard)
+  @UseGuards(LoggerGuard)
   @Roles(UserType.ADMIN, UserType.HUMAN_RESOURCE, UserType.CAMP_ACCOUNTING)
   @Post()
   create(@Body() body: CreatePayrollDto) {
@@ -59,7 +61,7 @@ export class PayrollController {
     return this.payrollService.findOne(+id);
   }
 
-  @UseGuards(RolesGuard, LoggerGuard)
+  @UseGuards(LoggerGuard)
   @Roles(UserType.ADMIN, UserType.HUMAN_RESOURCE, UserType.CAMP_ACCOUNTING)
   @Patch(':id')
   update(
@@ -69,7 +71,17 @@ export class PayrollController {
     return this.payrollService.update(+id, updatePayrollDto);
   }
 
-  @UseGuards(RolesGuard, LoggerGuard)
+  @UseGuards(LoggerGuard)
+  @Roles(UserType.ADMIN, UserType.HUMAN_RESOURCE, UserType.CAMP_ACCOUNTING)
+  @Patch(':id/confirm')
+  confirmPayroll(
+    @Param('id') id: number,
+    @Body("isConfirm", ParseBoolPipe) isConfirm: boolean
+  ) {
+    return this.payrollService.confirmPayroll(+id, isConfirm);
+  }
+
+  @UseGuards(LoggerGuard)
   @Delete(':id')
   remove(@Param('id') id: number) {
     return this.payrollService.remove(+id);

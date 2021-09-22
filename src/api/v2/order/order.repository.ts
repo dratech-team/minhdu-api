@@ -118,8 +118,7 @@ export class OrderRepository {
                 },
               },
             },
-            paymentHistories: true,
-
+            paymentHistories: true
           },
         }),
       ]);
