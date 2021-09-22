@@ -1,7 +1,7 @@
 import {
   BadRequestException,
   Injectable,
-  NotFoundException
+  NotFoundException,
 } from "@nestjs/common";
 import { PrismaService } from "../../../prisma.service";
 import { CreateOvertimeTemplateDto } from "./dto/create-overtime-template.dto";
@@ -33,6 +33,7 @@ export class OvertimeTemplateService {
             title: { startsWith: search?.title, mode: "insensitive" },
             price: search?.price ? { in: search?.price } : {},
             unit: search?.unit || undefined,
+            positionId: search?.positionId || undefined,
           },
         }),
         this.prisma.overtimeTemplate.findMany({
@@ -42,6 +43,7 @@ export class OvertimeTemplateService {
             title: { startsWith: search?.title, mode: "insensitive" },
             price: search?.price ? { in: search?.price } : {},
             unit: search?.unit || undefined,
+            positionId: search?.positionId || undefined,
           },
           include: {
             position: {
