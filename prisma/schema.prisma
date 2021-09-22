@@ -169,7 +169,6 @@ model Employee {
   zalo            String?
   banks           Bank[]
   routes          Route[]
-  salaries        Salary[]
   payrolls        Payroll[]
   contracts       Contract[]
   degrees         Degree[]
@@ -336,8 +335,6 @@ model Salary {
   datetime      DateTime?      @default(now())
   forgot        Boolean?       @default(false)
   note          String?
-  employee      Employee?      @relation(fields: [employeeId], references: [id])
-  employeeId    Int?
   historySalary SalaryHistory?
   payroll       Payroll?       @relation(fields: [payrollId], references: [id])
   payrollId     Int?

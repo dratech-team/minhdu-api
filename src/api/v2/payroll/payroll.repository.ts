@@ -6,6 +6,7 @@ import {firstMonth, lastMonth} from "../../../utils/datetime.util";
 import {searchName} from "../../../utils/search-name.util";
 import {SearchPayrollDto} from "./dto/search-payroll.dto";
 import {ProfileEntity} from "../../../common/entities/profile.entity";
+import {Payroll} from "@prisma/client";
 
 @Injectable()
 export class PayrollRepository {
@@ -118,7 +119,7 @@ export class PayrollRepository {
     }
   }
 
-  async findFirst(query: any): Promise<any> {
+  async findFirst(query: any): Promise<Payroll> {
     try {
       return await this.prisma.payroll.findFirst({
         where: query,

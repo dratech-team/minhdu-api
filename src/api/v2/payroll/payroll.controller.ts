@@ -73,7 +73,7 @@ export class PayrollController {
 
   @UseGuards(LoggerGuard)
   @Roles(UserType.ADMIN, UserType.HUMAN_RESOURCE, UserType.CAMP_ACCOUNTING)
-  @Patch(':id/confirm')
+  @Patch('confirm/:id')
   confirmPayroll(
     @Param('id') id: number,
     @Body("isConfirm", ParseBoolPipe) isConfirm: boolean
