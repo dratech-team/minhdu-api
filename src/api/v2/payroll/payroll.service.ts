@@ -95,8 +95,7 @@ export class PayrollService {
 
   async export(response: Response, user: ProfileEntity) {
     const payroll = await this.findAll(user, undefined, undefined);
-    const keys = Object.assign(payroll.data[0], payroll.data[0].payslip);
-    console.log("get key ", Object.keys(keys));
+    
     return exportExcel(
       response,
       {
@@ -107,6 +106,7 @@ export class PayrollService {
           "MM/yyyy"
         )}`,
         customHeaders: [],
+        customKeys: ["employee", "basic", "stay", "allowance", "overtime", "workday", "actualDay"],
         data: payroll.data,
       },
       200
