@@ -10,7 +10,7 @@ import {RolesGuard} from "../../../core/guard/role.guard";
 import {Roles} from "../../../core/decorators/roles.decorator";
 import {Role} from "@prisma/client";
 
-@UseGuards(JwtAuthGuard, ApiKeyGuard)
+@UseGuards(JwtAuthGuard, ApiKeyGuard, RolesGuard)
 @Controller('v2/logger')
 export class LoggerController {
   constructor(private readonly loggerService: LoggerService) {
@@ -21,8 +21,7 @@ export class LoggerController {
     return this.loggerService.create(createLoggerDto);
   }
 
-  @UseGuards(RolesGuard)
-  @Roles(Role.ADMIN, Role.SALESMAN)
+  @Roles(Role.ADMIN, Role.HUMAN_RESOURCE)
   @Get()
   findAll(
     @ReqProfile() profile: ProfileEntity,

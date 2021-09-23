@@ -10,7 +10,6 @@ export class SalaryRepository {
     }
 
     async create(body: CreateSalaryDto) {
-        console.log(body)
         try {
             return await this.prisma.salary.create({data: body});
         } catch (err) {

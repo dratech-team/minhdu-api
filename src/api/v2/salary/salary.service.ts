@@ -57,9 +57,11 @@ export class SalaryService {
       }
     } else {
       const payroll = await this.payrollService.findOne(body.payrollId);
-
       if (
-        payroll.salaries.map((salary) => salary.type).includes(SalaryType.BASIC)
+        payroll.salaries
+          .map((salary) => salary.type)
+          .includes(SalaryType.BASIC) &&
+        body.type === SalaryType.BASIC
       ) {
         throw new BadRequestException(
           `Lương cơ bản của nhân viên ${
