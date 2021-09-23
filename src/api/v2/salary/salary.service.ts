@@ -56,10 +56,11 @@ export class SalaryService {
         await this.repository.create(this.mapToSalary(salary));
       }
     } else {
-     
       const payroll = await this.payrollService.findOne(body.payrollId);
 
-      if (body.type === SalaryType.BASIC) {
+      if (
+        payroll.salaries.map((salary) => salary.type).includes(SalaryType.BASIC)
+      ) {
         throw new BadRequestException(
           `Lương cơ bản của nhân viên ${
             payroll.employee.firstName + payroll.employee.lastName
