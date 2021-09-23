@@ -5,25 +5,22 @@ import {
 } from "@nestjs/common";
 import {
   DatetimeUnit,
-  Employee,
   Payroll,
   Role,
   Salary,
   SalaryType,
 } from "@prisma/client";
-import * as moment from "moment";
-import {
-  firstMonth,
-  lastDayOfMonth,
-  lastMonth,
-} from "../../../utils/datetime.util";
+import { exportExcel } from "src/core/services/export.service";
+import { ProfileEntity } from "../../../common/entities/profile.entity";
+import { lastDayOfMonth } from "../../../utils/datetime.util";
 import { EmployeeService } from "../employee/employee.service";
 import { CreatePayrollDto } from "./dto/create-payroll.dto";
-import { UpdatePayrollDto } from "./dto/update-payroll.dto";
-import { PayrollRepository } from "./payroll.repository";
 import { SearchPayrollDto } from "./dto/search-payroll.dto";
-import { ProfileEntity } from "../../../common/entities/profile.entity";
+import { UpdatePayrollDto } from "./dto/update-payroll.dto";
 import { OnePayroll } from "./entities/payroll.entity";
+import { PayrollRepository } from "./payroll.repository";
+import { Response } from "express";
+import * as moment from "moment";
 
 @Injectable()
 export class PayrollService {
@@ -76,28 +73,44 @@ export class PayrollService {
       })
     );
     const data = await this.repository.findAll(user, skip, take, search);
-    console.log(data)
-    const payrolls = data.data.map((payroll) => {
-      if (payroll.manConfirmedAt) {
-        return Object.assign(payroll, { payslip: this.totalSalary(payroll) });
-      } else {
-        return payroll;
-      }
-    });
+    const payrolls = data.data.map((payroll) =>
+      this.mapPayrollToPayslip(payroll)
+    );
 
     return { total: data.total, data: payrolls };
   }
 
+  mapPayrollToPayslip(payroll) {
+    return Object.assign(payroll, {
+      payslip: payroll.manConfirmedAt ? this.totalSalary(payroll) : null,
+    });
+  }
+
   async findOne(id: number): Promise<OnePayroll> {
     const res = await this.repository.findOne(id);
-    const payslip =
-      res.manConfirmedAt !== null && res.salaries.length !== 0
-        ? this.totalSalary(res)
-        : null;
-    return Object.assign(res, {
-      payslip,
+    return Object.assign(this.mapPayrollToPayslip(res), {
       actualDay: this.totalSalary(res).actualDay,
     });
+  }
+
+  async export(response: Response, user: ProfileEntity) {
+    const payroll = await this.findAll(user, undefined, undefined);
+    const keys = Object.assign(payroll.data[0], payroll.data[0].payslip);
+    console.log("get key ", Object.keys(keys));
+    return exportExcel(
+      response,
+      {
+        name: `Bảng lương tháng ${moment(payroll.data[0].createdAt).format(
+          "MM/yyyy"
+        )}`,
+        title: `Bảng lương tháng ${moment(payroll.data[0].createdAt).format(
+          "MM/yyyy"
+        )}`,
+        customHeaders: [],
+        data: payroll.data,
+      },
+      200
+    );
   }
 
   async findFirst(query: any): Promise<Payroll> {
@@ -179,7 +192,7 @@ export class PayrollService {
    * 2. actual < workday                  => result = [(basics + stays) / workday] x actual + allowances
    * 3. isFlat === true && absents !== 0  => actual = workday (Dù tháng đó có bao nhiêu ngày đi chăng nữa). else quay lại 1 & 2
    * */
-  totalSalary(payroll: OnePayroll) {
+  totalSalary(payroll: OnePayroll): TotalSalary {
     let basicSalary = 0;
     let tax = 0;
     let staySalary = 0;
@@ -275,3 +288,17 @@ export class PayrollService {
     };
   }
 }
+
+type TotalSalary = {
+  basic: number;
+  stay: number;
+  overtime: number;
+  allowance: number;
+  deduction: number;
+  daySalary: number;
+  actualDay: number;
+  workday: number;
+  salaryActual: number;
+  tax: number;
+  total: number;
+};
