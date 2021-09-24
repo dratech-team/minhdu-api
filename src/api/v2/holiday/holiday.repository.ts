@@ -1,17 +1,16 @@
-import {BadRequestException, Injectable} from "@nestjs/common";
-import {PrismaService} from "../../../prisma.service";
-import {CreateHolidayDto} from "./dto/create-holiday.dto";
-import {UpdateHolidayDto} from "./dto/update-holiday.dto";
-import {SearchHolidayDto} from "./dto/search-holiday.dto";
+import { BadRequestException, Injectable } from "@nestjs/common";
+import { PrismaService } from "../../../prisma.service";
+import { CreateHolidayDto } from "./dto/create-holiday.dto";
+import { UpdateHolidayDto } from "./dto/update-holiday.dto";
+import { SearchHolidayDto } from "./dto/search-holiday.dto";
 
 @Injectable()
 export class HolidayRepository {
-  constructor(private readonly prisma: PrismaService) {
-  }
+  constructor(private readonly prisma: PrismaService) {}
 
   async create(body: CreateHolidayDto) {
     try {
-      return await this.prisma.holiday.create({data: body});
+      return await this.prisma.holiday.create({ data: body });
     } catch (err) {
       console.error(err);
       throw new BadRequestException(err);
@@ -26,21 +25,16 @@ export class HolidayRepository {
           take: take || undefined,
           skip: skip || undefined,
           where: {
-            name: {startsWith: search?.name},
+            name: { startsWith: search?.name },
             datetime: search?.datetime || undefined,
             rate: search?.rate || undefined,
-            department: {name: {startsWith: search?.department}}
           },
           include: {
-            department: {
-              include: {
-                branch: true
-              }
-            }
-          }
-        })
+            position: true
+          },
+        }),
       ]);
-      return {total, data};
+      return { total, data };
     } catch (err) {
       console.error(err);
       throw new BadRequestException(err);
@@ -50,10 +44,10 @@ export class HolidayRepository {
   async findOne(id: number) {
     try {
       return await this.prisma.holiday.findUnique({
-        where: {id},
+        where: { id },
         include: {
-          department: true
-        }
+          position: true,
+        },
       });
     } catch (err) {
       console.error(err);
@@ -64,7 +58,7 @@ export class HolidayRepository {
   async update(id: number, updates: UpdateHolidayDto) {
     try {
       return await this.prisma.holiday.update({
-        where: {id},
+        where: { id },
         data: updates,
       });
     } catch (err) {
@@ -75,7 +69,7 @@ export class HolidayRepository {
 
   async remove(id: number) {
     try {
-      await this.prisma.holiday.delete({where: {id}});
+      await this.prisma.holiday.delete({ where: { id } });
     } catch (err) {
       console.error(err);
       throw new BadRequestException(err);

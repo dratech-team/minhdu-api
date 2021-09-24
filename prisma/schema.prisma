@@ -96,32 +96,25 @@ model Ward {
 }
 
 model Branch {
-  id          Int          @id @default(autoincrement())
-  code        String?      @unique
-  name        String       @unique
-  departments Department[]
-  Medicine    Medicine[]
-  Account     Account[]
-}
-
-model Department {
   id        Int        @id @default(autoincrement())
-  name      String
-  branch    Branch     @relation(fields: [branchId], references: [id])
-  branchId  Int
+  code      String?    @unique
+  name      String     @unique
+  medicine  Medicine[]
+  cccount   Account[]
   positions Position[]
-  holiday   Holiday[]
+  employee  Employee[]
 }
 
 model Position {
-  id            Int                @id @default(autoincrement())
-  name          String
-  workday       Int
-  department    Department         @relation(fields: [departmentId], references: [id])
-  departmentId  Int
-  employees     Employee[]
-  workHistories WorkHistory[]
-  templates     OvertimeTemplate[]
+  id             Int                @id @default(autoincrement())
+  name           String             @unique
+  workday        Int?
+  branches       Branch[]
+  employees      Employee[]
+  workHistories  WorkHistory[]
+  templates      OvertimeTemplate[]
+  Holiday        Holiday[]
+  basicTemplates BasicTemplate[]
 }
 
 // Hợp đồng
@@ -151,6 +144,7 @@ model Employee {
   identify        String?         @unique
   idCardAt        DateTime?
   issuedBy        String?
+  workday         Int?
   ward            Ward            @relation(fields: [wardId], references: [id])
   wardId          Int
   address         String
@@ -164,6 +158,8 @@ model Employee {
   isFlatSalary    Boolean?        @default(false)
   position        Position        @relation(fields: [positionId], references: [id])
   positionId      Int
+  branch          Branch          @relation(fields: [branchId], references: [id])
+  branchId        Int
   note            String?
   facebook        String?
   zalo            String?
@@ -178,12 +174,12 @@ model Employee {
 }
 
 model Holiday {
-  id           Int        @id @default(autoincrement())
-  name         String?
-  datetime     DateTime
-  rate         Float
-  department   Department @relation(fields: [departmentId], references: [id])
-  departmentId Int
+  id         Int      @id @default(autoincrement())
+  name       String?
+  datetime   DateTime
+  rate       Float
+  position   Position @relation(fields: [positionId], references: [id])
+  positionId Int
 }
 
 model WorkHistory {
@@ -200,11 +196,19 @@ model OvertimeTemplate {
   title      String
   type       SalaryType?   @default(OVERTIME)
   price      Float
-  rate       Float?         @default(1)
+  rate       Float?        @default(1)
   unit       DatetimeUnit? @default(HOUR)
   note       String?
   position   Position      @relation(fields: [positionId], references: [id])
   positionId Int
+}
+
+model BasicTemplate {
+  id         Int       @id @default(autoincrement())
+  title      String?   @default("Lương cơ bản")
+  price      Float
+  position   Position? @relation(fields: [positionId], references: [id])
+  positionId Int?
 }
 
 model Relative {

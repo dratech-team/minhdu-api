@@ -75,49 +75,6 @@ async function main() {
         name: faker.company.companyName,
       }
     });
-    for (let i = 0; i < 10; i++) {
-      const department = await prisma.department.create({
-        data: {
-          name: faker.company.companySuffix,
-          branchId: branch.id,
-        }
-      });
-      for (let i = 0; i < 10; i++) {
-        const position = await prisma.position.create({
-          data: {
-            name: faker.company.bsBuzz,
-            departmentId: department.id,
-            workday: Math.floor(Math.random() * (30 - 26) + 26),
-          }
-        });
-      }
-    }
-  }
-
-  for (let i = 0; i < 1000; i++) {
-    const ward = await prisma.ward.findUnique({where: {id: Math.floor(Math.random() * (30 - 10) + 10)}});
-    const position = await prisma.position.findUnique({where: {id: Math.floor(Math.random() * (30 - 10) + 10)}});
-    const employee = await prisma.employee.create({
-      data: {
-        code: `MD0000${i}`,
-        firstName: faker.name.firstName,
-        lastName: faker.name.lastName,
-        gender: "MALE",
-        phone: faker.phone.phoneNumber,
-        birthday: faker.dae.soon,
-        birthplace: "cc",
-        identify: `123456${i}`,
-        idCardAt: faker.dae.soon,
-        issuedBy: faker.address.streetAddress,
-        address: faker.address.streetAddress,
-        wardId: ward.id,
-        positionId: position.id,
-        isFlatSalary: i % 2 === 0,
-        ethnicity: "Khong",
-        religion: "Deo",
-        createdAt: faker.dae.soon,
-      }
-    });
   }
 }
 

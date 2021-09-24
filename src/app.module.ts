@@ -2,7 +2,6 @@ import {Module} from "@nestjs/common";
 import {AppController} from "./app.controller";
 import {PrismaService} from "./prisma.service";
 import {BranchModule} from "./common/branches/branch/branch.module";
-import {DepartmentModule} from './common/branches/department/department.module';
 import {PositionModule} from './common/branches/position/position.module';
 import {EmployeeModule} from './api/v2/employee/employee.module';
 import {AuthModule} from './api/v2/auth/auth.module';
@@ -32,11 +31,11 @@ import {PaymentHistoryModule} from './api/v2/payment-history/payment-history.mod
 import {HolidayModule} from './api/v2/holiday/holiday.module';
 import {MedicineModule} from './api/v2/medicine/medicine.module';
 import { LoggerModule } from './api/v2/logger/logger.module';
+import { BasicTemplateModule } from './api/v2/basic-template/basic-template.module';
 
 @Module({
   imports: [
     BranchModule,
-    DepartmentModule,
     PositionModule,
     EmployeeModule,
     AuthModule,
@@ -65,7 +64,8 @@ import { LoggerModule } from './api/v2/logger/logger.module';
     PaymentHistoryModule,
     HolidayModule,
     MedicineModule,
-    LoggerModule
+    LoggerModule,
+    BasicTemplateModule
   ],
   controllers: [AppController],
   providers: [PrismaService],

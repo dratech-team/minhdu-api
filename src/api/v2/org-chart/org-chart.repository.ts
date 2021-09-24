@@ -12,13 +12,6 @@ export class OrgChartRepository {
         id: true,
         code: true,
         name: true,
-        departments: {
-          select: {
-            id: true,
-            name: true,
-            positions: true
-          }
-        }
       }
     });
   }

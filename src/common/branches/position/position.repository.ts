@@ -1,27 +1,35 @@
-import {BadRequestException, ConflictException, Injectable, NotFoundException} from "@nestjs/common";
-import {PrismaService} from "../../../prisma.service";
-import {CreatePositionDto} from "./dto/create-position.dto";
-import {Position} from "@prisma/client";
-import {UpdatePositionDto} from "./dto/update-position.dto";
-import {OnePosition} from "./entities/position.entity";
+import {
+  BadRequestException,
+  ConflictException,
+  Injectable,
+  NotFoundException,
+} from "@nestjs/common";
+import { PrismaService } from "../../../prisma.service";
+import { CreatePositionDto } from "./dto/create-position.dto";
+import { Position } from "@prisma/client";
+import { UpdatePositionDto } from "./dto/update-position.dto";
+import { OnePosition } from "./entities/position.entity";
 
 @Injectable()
 export class PositionRepository {
-  constructor(private readonly prisma: PrismaService) {
-  }
+  constructor(private readonly prisma: PrismaService) {}
 
   async create(body: CreatePositionDto): Promise<Position> {
     try {
-      return await this.prisma.position.create({data: body});
+      return await this.prisma.position.create({
+        data: {
+          name: body.name,
+          workday: body.workday,
+        },
+      });
     } catch (e) {
-      console.error(e);
-      if (e?.code == "P2025") {
-        throw new NotFoundException(`Không tìm thấy phòng ban ${body?.departmentId}. Chi tiết: ${e?.meta?.cause}`);
-      } else if (e?.code == "P2002") {
-        throw new ConflictException('Tên chức vụ không được phép trùng nhau. Vui lòng thử lại');
-      } else {
-        throw new BadRequestException(e);
-      }
+      const found = await this.prisma.position.findFirst({
+        where: { name: body.name },
+      });
+      return await this.prisma.position.update({
+        where: { id: found.id },
+        data: { workday: body.workday },
+      });
     }
   }
 
@@ -34,15 +42,29 @@ export class PositionRepository {
     }
   }
 
+  async findMany(search: CreatePositionDto): Promise<Position[]> {
+    try {
+      return await this.prisma.position.findMany({
+        where: {
+          name: search.name,
+          workday: search.workday,
+        },
+      });
+    } catch (e) {
+      console.error(e);
+      throw new BadRequestException(e);
+    }
+  }
+
   async findOne(id: number): Promise<OnePosition> {
     try {
       return await this.prisma.position.findUnique({
-        where: {id: id},
+        where: { id: id },
         include: {
           employees: true,
           workHistories: true,
-          templates: true
-        }
+          templates: true,
+        },
       });
     } catch (e) {
       console.error(e);
@@ -53,8 +75,8 @@ export class PositionRepository {
   async findBranch(id: number): Promise<any> {
     try {
       return await this.prisma.position.findFirst({
-        where: {id: id},
-        select: {department: {select: {branch: {select: {code: true}}}}}
+        where: { id: id },
+        include: { branches: true },
       });
     } catch (err) {
       console.error(err);
@@ -64,7 +86,10 @@ export class PositionRepository {
 
   async update(id: number, updates: UpdatePositionDto) {
     try {
-      return await this.prisma.position.update({where: {id: id}, data: updates});
+      return await this.prisma.position.update({
+        where: { id: id },
+        data: updates,
+      });
     } catch (e) {
       throw new BadRequestException(e);
     }
@@ -72,7 +97,7 @@ export class PositionRepository {
 
   async remove(id: number) {
     try {
-      return await this.prisma.position.delete({where: {id}});
+      return await this.prisma.position.delete({ where: { id } });
     } catch (err) {
       console.error(err);
       throw new BadRequestException(err);

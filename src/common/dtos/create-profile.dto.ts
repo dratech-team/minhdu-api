@@ -31,7 +31,7 @@ export class CreateProfileDto {
     @IsEnum(GenderType)
     readonly gender: GenderType;
 
-    @IsNotEmpty()
+    @IsOptional()
     @IsString()
     @IsPhoneNumber('VN')
     readonly phone: string;
@@ -47,22 +47,22 @@ export class CreateProfileDto {
     @MaxDate(tomorrowDate(), {message: `birthday profile ${ValidatorMessage.datetime}`})
     readonly birthday: Date;
 
-    @IsNotEmpty()
+    @IsOptional()
     @IsString()
     readonly birthplace: string;
 
-    @IsNotEmpty()
+    @IsOptional()
     @IsString()
     @MaxLength(9 | 12)
     readonly identify: string;
 
-    @IsNotEmpty()
+    @IsOptional()
     @Type(() => Date)
     @IsDate()
     @MaxDate(tomorrowDate(), {message: `birthday profile ${ValidatorMessage.datetime}`})
     readonly idCardAt: Date;
 
-    @IsNotEmpty()
+    @IsOptional()
     @IsString()
     readonly issuedBy: string;
 

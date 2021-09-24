@@ -95,7 +95,6 @@ export class PayrollService {
 
   async export(response: Response, user: ProfileEntity) {
     const payroll = await this.findAll(user, undefined, undefined);
-    
     return exportExcel(
       response,
       {
@@ -106,7 +105,15 @@ export class PayrollService {
           "MM/yyyy"
         )}`,
         customHeaders: [],
-        customKeys: ["employee", "basic", "stay", "allowance", "overtime", "workday", "actualDay"],
+        customKeys: [
+          "employee",
+          "basic",
+          "stay",
+          "allowance",
+          "overtime",
+          "workday",
+          "actualDay",
+        ],
         data: payroll.data,
       },
       200
@@ -169,13 +176,12 @@ export class PayrollService {
               absent += salaries[i].times;
             }
           } else {
-            late += salaries[i].times;
+            absent += Math.floor(salaries[i].times / 8);
+            late += salaries[i].times % 8;
           }
-
-          break;
       }
     }
-    return absent + late;
+    return { absent, late };
   }
 
   /*
@@ -192,25 +198,27 @@ export class PayrollService {
    * 2. actual < workday                  => result = [(basics + stays) / workday] x actual + allowances
    * 3. isFlat === true && absents !== 0  => actual = workday (Dù tháng đó có bao nhiêu ngày đi chăng nữa). else quay lại 1 & 2
    * */
+  /// TODO: handle holiday
   totalSalary(payroll: OnePayroll): TotalSalary {
     let basicSalary = 0;
     let tax = 0;
     let staySalary = 0;
     let allowanceSalary = 0;
-    let overtime = 0;
+    let overtimeSalary = 0;
     let absentTime = 0;
-    let lateTime = 0;
+    let lateTime = this.totalAbsent(payroll.salaries).late;
     let daySalary = 0;
     let total = 0;
 
     /// TH nhân viên nghỉ ngang. Thì sẽ confirm phiếu lương => phiếu lương không được sửa nữa. và lấy ngày hiện tại
     let actualDay = !payroll.isEdit
       ? new Date().getDate()
-      : lastDayOfMonth(payroll.createdAt) - this.totalAbsent(payroll.salaries);
+      : lastDayOfMonth(payroll.createdAt) -
+        this.totalAbsent(payroll.salaries).absent;
 
     if (
       payroll.employee.isFlatSalary &&
-      this.totalAbsent(payroll.salaries) === 0 &&
+      this.totalAbsent(payroll.salaries).absent === 0 &&
       !payroll.isEdit
     ) {
       actualDay = 30;
@@ -225,10 +233,7 @@ export class PayrollService {
           staySalary += payroll.salaries[i].price;
           break;
         case SalaryType.ALLOWANCE:
-          if (
-            payroll.salaries[i].times === null &&
-            payroll.salaries[i].datetime === null
-          ) {
+          if (!payroll.salaries[i].times && !payroll.salaries[i].datetime) {
             payroll.salaries[i].times = 1;
           }
           allowanceSalary +=
@@ -237,33 +242,33 @@ export class PayrollService {
         case SalaryType.OVERTIME:
           /*
            * Nếu lương x2 thì tính thêm 1 ngày vì ngày hiện tại vẫn đi làm*/
-          overtime += payroll.salaries[i].price - 1;
+          overtimeSalary +=
+            payroll.salaries[i].times * payroll.salaries[i].price;
           break;
-        case SalaryType.ABSENT:
-          if (payroll.salaries[i].unit === DatetimeUnit.HOUR) {
-            lateTime += payroll.salaries[i].times;
-          }
-          break;
+        // case SalaryType.ABSENT:
+        //   if (payroll.salaries[i].unit === DatetimeUnit.HOUR) {
+        //     lateTime += payroll.salaries[i].times;
+        //   }
+        //   break;
       }
     }
-    if (actualDay >= payroll.employee.position.workday) {
-      daySalary = basicSalary / payroll.employee.position.workday;
+    if (actualDay >= payroll.employee.workday) {
+      daySalary = basicSalary / payroll.employee.workday;
     } else {
-      daySalary =
-        (basicSalary + staySalary) / payroll.employee.position.workday;
+      daySalary = (basicSalary + staySalary) / payroll.employee.workday;
     }
 
     const basic = payroll.salaries.find(
       (salary) => salary.type === SalaryType.BASIC_INSURANCE
     );
-    if (basic !== undefined) {
+    if (basic) {
       tax = payroll.employee.contracts.length !== 0 ? basic.price * 0.115 : 0;
     }
 
     const deduction = (daySalary / 8) * lateTime + daySalary * absentTime;
-    const allowanceOvertime = daySalary * overtime;
+    const allowanceOvertime = daySalary * overtimeSalary;
 
-    if (actualDay >= payroll.employee.position.workday) {
+    if (actualDay >= payroll.employee.workday) {
       total =
         daySalary * actualDay +
         allowanceSalary +
@@ -276,12 +281,12 @@ export class PayrollService {
     return {
       basic: Math.ceil(basicSalary),
       stay: Math.ceil(staySalary),
-      overtime,
+      overtime: overtimeSalary,
       allowance: Math.ceil(allowanceSalary + allowanceOvertime),
       deduction,
       daySalary,
       actualDay,
-      workday: payroll.employee.position.workday,
+      workday: payroll.employee.workday,
       salaryActual: Math.ceil(daySalary * actualDay),
       tax,
       total: Math.round(total / 1000) * 1000,

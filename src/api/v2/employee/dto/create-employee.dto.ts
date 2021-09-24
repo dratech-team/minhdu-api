@@ -1,4 +1,4 @@
-import {Type} from "class-transformer";
+import { Type } from "class-transformer";
 import {
   IsBoolean,
   IsDate,
@@ -10,40 +10,48 @@ import {
   MaxDate,
   ValidateNested
 } from "class-validator";
-import {CreateProfileDto} from "../../../../common/dtos/create-profile.dto";
-import {CreateSocialDto} from "./create-social.dto";
-import {ValidatorMessage} from "../../../../common/constant/validator.constant";
-import {tomorrowDate} from "../../../../utils/datetime.util";
+import { ValidatorMessage } from "../../../../common/constant/validator.constant";
+import { CreateProfileDto } from "../../../../common/dtos/create-profile.dto";
+import { tomorrowDate } from "../../../../utils/datetime.util";
+import { CreateSocialDto } from "./create-social.dto";
 
 export class CreateEmployeeDto extends CreateProfileDto {
   @IsOptional()
   code: string;
 
-  @IsNotEmpty()
-  @Type(() => Date)
-  @MaxDate(tomorrowDate(), {message: `createdAt ${ValidatorMessage.datetime}`})
-  @IsDate()
-  readonly createdAt: Date
-
-  @Type(() => Date)
-  @IsDate()
-  @MaxDate(tomorrowDate(), {message: `workedAt ${ValidatorMessage.datetime}`})
-  @IsNotEmpty()
-  readonly workedAt: Date;
-
   @IsOptional()
-  @IsString()
-  qrCode: string;
+  @Type(() => Date)
+  @MaxDate(tomorrowDate(), {
+    message: `createdAt ${ValidatorMessage.datetime}`,
+  })
+  @IsDate()
+  readonly createdAt: Date;
+
+  @Type(() => Date)
+  @IsDate()
+  @MaxDate(tomorrowDate(), { message: `workedAt ${ValidatorMessage.datetime}` })
+  @IsOptional()
+  readonly workedAt: Date;
 
   @Type(() => Boolean)
   @IsNotEmpty()
   @IsBoolean()
-  readonly isFlatSalary: boolean
+  readonly isFlatSalary: boolean;
+
+  @Type(() => Number)
+  @IsNotEmpty()
+  @IsNumber()
+  readonly branchId: number;
 
   @Type(() => Number)
   @IsNotEmpty()
   @IsNumber()
   readonly positionId: number;
+
+  @Type(() => Number)
+  @IsNotEmpty()
+  @IsNumber()
+  readonly workday: number;
 
   @IsOptional()
   @ValidateNested()
@@ -57,4 +65,3 @@ export class CreateEmployeeDto extends CreateProfileDto {
   @IsString()
   readonly note: string;
 }
-

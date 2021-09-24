@@ -19,5 +19,5 @@ export class CreateHolidayDto {
   @IsNotEmpty()
   @Type(() => Number)
   @IsNumber()
-  readonly departmentId: number;
+  readonly positionId: number;
 }

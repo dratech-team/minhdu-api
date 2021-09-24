@@ -57,16 +57,9 @@ export class SalaryService {
       }
     } else {
       const payroll = await this.payrollService.findOne(body.payrollId);
-      if (
-        payroll.salaries
-          .map((salary) => salary.type)
-          .includes(SalaryType.BASIC) &&
-        body.type === SalaryType.BASIC
-      ) {
+      if (payroll.salaries.map((salary) => salary.title).includes(body.title)) {
         throw new BadRequestException(
-          `Lương cơ bản của nhân viên ${
-            payroll.employee.firstName + payroll.employee.lastName
-          } đã tồn tại. Vui lòng không thêm`
+          `${body.title} đã tồn tại. Vui lòng không thêm`
         );
       }
       return await this.repository.create(this.mapToSalary(body));

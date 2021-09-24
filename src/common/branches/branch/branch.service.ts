@@ -1,28 +1,26 @@
-import {Injectable} from '@nestjs/common';
-import {CreateBranchDto} from './dto/create-branch.dto';
-import {Branch} from '@prisma/client';
-import {BranchRepository} from "./branch.repository";
-import {UpdateBranchDto} from "./dto/update-branch.dto";
-import {BaseBranchService} from "./base-branch.service";
+import { Injectable } from "@nestjs/common";
+import { CreateBranchDto } from "./dto/create-branch.dto";
+import { Branch } from "@prisma/client";
+import { BranchRepository } from "./branch.repository";
+import { UpdateBranchDto } from "./dto/update-branch.dto";
+import { BaseBranchService } from "./base-branch.service";
 
 @Injectable()
 export class BranchService implements BaseBranchService {
-  constructor(private readonly repository: BranchRepository) {
-  }
+  constructor(private readonly repository: BranchRepository) {}
 
   async create(body: CreateBranchDto): Promise<Branch> {
-    /// FIXME: generate code
-    // body.code = this.generateCode(body.name);
-
-    return await this.repository.create(body);
+    if (!(await this.findBy(body)).length) {
+      return await this.repository.create(body);
+    }
   }
 
   async findAll(): Promise<any> {
-    return  await this.repository.findAll();
+    return await this.repository.findAll();
   }
 
-  findBy(query: any): Promise<[]> {
-    return Promise.resolve([]);
+  async findBy(query: CreateBranchDto): Promise<Branch[]> {
+    return await this.repository.findMany(query);
   }
 
   findOne(id: number) {
@@ -38,7 +36,6 @@ export class BranchService implements BaseBranchService {
   }
 
   generateCode(input: string): string {
-
     // Xoa dau cach thua VA xoa Unico
     input.trim();
     input.replace(/\s+/g, " ");
@@ -54,9 +51,11 @@ export class BranchService implements BaseBranchService {
     while (kq.length <= 2) kq += "1";
     if (kq.length > 3) kq = kq.slice(kq.length - 3);
     // Xoa dau
-    kq = kq.normalize('NFD')
-      .replace(/[\u0300-\u036f]/g, '')
-      .replace(/đ/g, 'd').replace(/Đ/g, 'D');
+    kq = kq
+      .normalize("NFD")
+      .replace(/[\u0300-\u036f]/g, "")
+      .replace(/đ/g, "d")
+      .replace(/Đ/g, "D");
     return kq.toUpperCase();
   }
 }

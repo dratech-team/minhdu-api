@@ -17,9 +17,6 @@ export class EmployeeService implements BaseEmployeeService {
   }
 
   async create(body: CreateEmployeeDto) {
-    // const res = await this.positionService.findBranch(body.positionId);
-    // body.code = await this.generateEmployeeCode(res?.department?.branch?.code);
-
     return await this.repository.create(body);
   }
 

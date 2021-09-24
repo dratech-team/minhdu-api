@@ -47,7 +47,7 @@ export class OvertimeTemplateService {
           },
           include: {
             position: {
-              include: { department: { include: { branch: true } } },
+              include: { branches: true },
             },
           },
         }),
@@ -66,11 +66,7 @@ export class OvertimeTemplateService {
         include: {
           position: {
             include: {
-              department: {
-                include: {
-                  branch: true,
-                },
-              },
+              branches: true,
             },
           },
         },

@@ -1,10 +1,17 @@
-import {Employee, OvertimeTemplate, Position, WorkHistory} from "@prisma/client";
-import {FullDepartment} from "../../department/entities/department.entity";
+import {
+  Branch,
+  Employee,
+  OvertimeTemplate,
+  Position,
+  WorkHistory,
+} from "@prisma/client";
 
 export interface FullPosition extends Position {
-  department: FullDepartment[];
+  branches: Branch[];
 }
 
-export type OnePosition =
-  Position
-  & { employees: Employee[], workHistories: WorkHistory[], templates: OvertimeTemplate[] }
+export type OnePosition = Position & {
+  employees: Employee[];
+  workHistories: WorkHistory[];
+  templates: OvertimeTemplate[];
+};
