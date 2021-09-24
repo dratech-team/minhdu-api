@@ -72,9 +72,8 @@ export class PayrollRepository {
             employee: {
               include: {
                 contracts: true,
-                position: {
-                  include: { branches: true },
-                },
+                position: true,
+                branch: true,
               },
             },
           },

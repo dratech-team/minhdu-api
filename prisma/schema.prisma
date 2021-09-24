@@ -204,11 +204,14 @@ model OvertimeTemplate {
 }
 
 model BasicTemplate {
-  id         Int       @id @default(autoincrement())
-  title      String?   @default("Lương cơ bản")
+  id         Int         @id @default(autoincrement())
+  title      String?     @default("Lương cơ bản trích BH")
   price      Float
-  position   Position? @relation(fields: [positionId], references: [id])
+  type       SalaryType? @default(BASIC)
+  position   Position?   @relation(fields: [positionId], references: [id])
   positionId Int?
+
+  @@unique([title, price])
 }
 
 model Relative {

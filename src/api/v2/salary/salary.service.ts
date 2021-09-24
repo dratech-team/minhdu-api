@@ -56,6 +56,7 @@ export class SalaryService {
         await this.repository.create(this.mapToSalary(salary));
       }
     } else {
+      console.log(body)
       const payroll = await this.payrollService.findOne(body.payrollId);
       if (payroll.salaries.map((salary) => salary.title).includes(body.title)) {
         throw new BadRequestException(

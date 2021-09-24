@@ -41,6 +41,6 @@ export class BasicTemplateService {
   }
 
   async remove(id: number) {
-    return `This action removes a #${id} basicTemplate`;
+    return await this.prisma.basicTemplate.delete({ where: { id } });
   }
 }

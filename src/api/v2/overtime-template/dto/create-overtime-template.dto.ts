@@ -16,7 +16,7 @@ export class CreateOvertimeTemplateDto {
   @IsNumber()
   readonly price: number;
 
-  @IsNotEmpty()
+  @IsOptional()
   @Type(() => Number)
   @IsNumber()
   readonly rate: number;
