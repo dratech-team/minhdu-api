@@ -35,17 +35,19 @@ export class PayrollRepository {
           // get payroll của tháng trước để lấy lương cơ bản, bảo hiểm, ở lại
           this.findByEmployeeId(currentPayroll.employeeId, lastMonth).then(
             (lastPayroll: FullPayroll) => {
-              // filter payroll của tháng trước để lấy lương cơ bản, bảo hiểm, ở lại
-              const salaries = lastPayroll.salaries.filter((salary) => {
-                return (
-                  salary.type === SalaryType.BASIC ||
-                  salary.type === SalaryType.BASIC_INSURANCE ||
-                  salary.type === SalaryType.STAY
-                );
-              });
-              // tự thêm vào tháng này
-              if (!currentPayroll.salaries.length) {
-                this.prisma.salary.createMany({ data: salaries });
+              if (lastPayroll) {
+                // filter payroll của tháng trước để lấy lương cơ bản, bảo hiểm, ở lại
+                const salaries = lastPayroll.salaries.filter((salary) => {
+                  return (
+                    salary.type === SalaryType.BASIC ||
+                    salary.type === SalaryType.BASIC_INSURANCE ||
+                    salary.type === SalaryType.STAY
+                  );
+                });
+                // tự thêm vào tháng này
+                if (!currentPayroll.salaries.length) {
+                  this.prisma.salary.createMany({ data: salaries });
+                }
               }
             }
           );

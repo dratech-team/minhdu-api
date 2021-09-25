@@ -17,8 +17,23 @@ export class EmployeeRepository {
   x;
   async create(body: CreateEmployeeDto) {
     try {
+      /// get position
+      const position = await this.prisma.position.findUnique({
+        where: { id: body.positionId },
+      });
+
+      /// get name position
+      body.contract.position = position.name;
+
+      /// them contract vào trong body để tạo mới khi thêm nhân viên
+      const data = Object.assign(body, {
+        contracts: { create: body.contract },
+      });
+      /// xoá contract cũ trong body
+      delete data.contract;
+
       return await this.prisma.employee.create({
-        data: body,
+        data: data,
         include: {
           position: { include: { branches: true } },
         },

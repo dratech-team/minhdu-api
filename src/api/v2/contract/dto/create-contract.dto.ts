@@ -1,35 +1,39 @@
-import {ContractType} from "@prisma/client";
-import {IsDate, IsEnum, IsNotEmpty, IsNumber, IsOptional, IsString, MaxDate} from "class-validator";
-import {Type} from "class-transformer";
-import {ValidatorMessage} from "../../../../common/constant/validator.constant";
-import {tomorrowDate} from "../../../../utils/datetime.util";
+import { ContractType } from "@prisma/client";
+import {
+  IsDate,
+  IsEnum,
+  IsNotEmpty,
+  IsNumber,
+  IsOptional,
+  IsString,
+  MaxDate,
+} from "class-validator";
+import { Type } from "class-transformer";
+import { ValidatorMessage } from "../../../../common/constant/validator.constant";
+import { tomorrowDate } from "../../../../utils/datetime.util";
 
 export class CreateContractDto {
-  @IsNotEmpty()
-  @IsString()
-  readonly contractId: string;
-
-  @IsNotEmpty()
+  @IsOptional()
   @IsEnum(ContractType)
   readonly type: ContractType;
 
-  @IsNotEmpty()
+  @IsOptional()
   @IsString()
   readonly name: string;
 
-  @IsNotEmpty()
+  @IsOptional()
   @IsString()
-  readonly position: string;
+  position: string;
 
   @Type(() => Date)
   @IsDate()
-  @MaxDate(tomorrowDate(), {message: ValidatorMessage.datetime})
+  @MaxDate(tomorrowDate(), { message: ValidatorMessage.datetime })
   readonly createdAt: Date;
 
   @IsOptional()
   @Type(() => Date)
   @IsDate()
-  @MaxDate(tomorrowDate(), {message: ValidatorMessage.datetime})
+  @MaxDate(tomorrowDate(), { message: ValidatorMessage.datetime })
   readonly expiredAt: Date;
 
   @IsNotEmpty()

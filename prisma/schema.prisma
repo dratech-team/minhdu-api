@@ -121,14 +121,14 @@ model Position {
 
 // Hợp đồng
 model Contract {
-  id         Int          @id @default(autoincrement())
+  id         Int           @id @default(autoincrement())
   contractId String?
-  type       ContractType
-  name       String
+  type       ContractType? @default(LIMITED)
+  name       String?
   position   String
   createdAt  DateTime
   expiredAt  DateTime?
-  employee   Employee     @relation(fields: [employeeId], references: [id])
+  employee   Employee      @relation(fields: [employeeId], references: [id])
   employeeId Int
 }
 
@@ -176,10 +176,10 @@ model Employee {
 }
 
 model Holiday {
-  id       Int        @id @default(autoincrement())
-  name     String?
-  datetime DateTime
-  rate     Float
+  id        Int        @id @default(autoincrement())
+  name      String?
+  datetime  DateTime
+  rate      Float
   positions Position[]
 }
 

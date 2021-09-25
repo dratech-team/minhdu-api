@@ -8,11 +8,12 @@ import {
   IsOptional,
   IsString,
   MaxDate,
-  ValidateNested
+  ValidateNested,
 } from "class-validator";
 import { ValidatorMessage } from "../../../../common/constant/validator.constant";
 import { CreateProfileDto } from "../../../../common/dtos/create-profile.dto";
 import { tomorrowDate } from "../../../../utils/datetime.util";
+import { CreateContractDto } from "../../contract/dto/create-contract.dto";
 import { CreateSocialDto } from "./create-social.dto";
 
 export class CreateEmployeeDto extends CreateProfileDto {
@@ -64,4 +65,7 @@ export class CreateEmployeeDto extends CreateProfileDto {
   @IsOptional()
   @IsString()
   readonly note: string;
+
+  @IsOptional()
+  contract: CreateContractDto;
 }

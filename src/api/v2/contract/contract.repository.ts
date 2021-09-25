@@ -1,24 +1,33 @@
-import {Injectable} from "@nestjs/common";
-import {Contract} from "@prisma/client";
-import {InterfaceRepository} from "../../../common/repository/interface.repository";
-import {ResponsePagination} from "../../../common/entities/response.pagination";
-import {PrismaService} from "../../../prisma.service";
-import {CreateContractDto} from "./dto/create-contract.dto";
+import { Injectable } from "@nestjs/common";
+import { Contract } from "@prisma/client";
+import { InterfaceRepository } from "../../../common/repository/interface.repository";
+import { ResponsePagination } from "../../../common/entities/response.pagination";
+import { PrismaService } from "../../../prisma.service";
+import { CreateContractDto } from "./dto/create-contract.dto";
 
 @Injectable()
 export class ContractRepository implements InterfaceRepository<Contract> {
-  constructor(private readonly prisma: PrismaService) {
-  }
+  constructor(private readonly prisma: PrismaService) {}
 
   async count(): Promise<number> {
     return await this.prisma.contract.count();
   }
 
-  create(body: CreateContractDto): Promise<Contract> {
-    return this.prisma.contract.create({data: body});
+  async create(body: CreateContractDto): Promise<Contract> {
+    const employee = await this.prisma.employee.findUnique({
+      where: { id: body.employeeId },
+      include: { position: true },
+    });
+    body.position = employee.position.name;
+    return this.prisma.contract.create({ data: body });
   }
 
-  findAll(branchId: number, skip: number, take: number, search?: string): Promise<ResponsePagination<Contract>> {
+  findAll(
+    branchId: number,
+    skip: number,
+    take: number,
+    search?: string
+  ): Promise<ResponsePagination<Contract>> {
     return Promise.resolve(undefined);
   }
 
@@ -30,11 +39,9 @@ export class ContractRepository implements InterfaceRepository<Contract> {
     return Promise.resolve(undefined);
   }
 
-  remove(id: number): void {
-  }
+  remove(id: number): void {}
 
   update(id: number, updates: any): Promise<Contract> {
     return Promise.resolve(undefined);
   }
-
 }

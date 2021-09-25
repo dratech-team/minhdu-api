@@ -10,6 +10,8 @@ import {
   Salary,
   SalaryType,
 } from "@prisma/client";
+import { Response } from "express";
+import * as moment from "moment";
 import { exportExcel } from "src/core/services/export.service";
 import { ProfileEntity } from "../../../common/entities/profile.entity";
 import { lastDayOfMonth } from "../../../utils/datetime.util";
@@ -19,9 +21,6 @@ import { SearchPayrollDto } from "./dto/search-payroll.dto";
 import { UpdatePayrollDto } from "./dto/update-payroll.dto";
 import { OnePayroll } from "./entities/payroll.entity";
 import { PayrollRepository } from "./payroll.repository";
-import { Response } from "express";
-import * as moment from "moment";
-import { SalaryService } from "../salary/salary.service";
 
 @Injectable()
 export class PayrollService {
@@ -205,10 +204,11 @@ export class PayrollService {
     let total = 0;
 
     /// TH nhân viên nghỉ ngang. Thì sẽ confirm phiếu lương => phiếu lương không được sửa nữa. và lấy ngày hiện tại
-    let actualDay = !payroll.isEdit
-      ? new Date().getDate()
-      : lastDayOfMonth(payroll.createdAt) -
-        this.totalAbsent(payroll.salaries).absent;
+    let actualDay = 31;
+    //  !payroll.isEdit
+    //   ? new Date().getDate()
+    //   : lastDayOfMonth(payroll.createdAt) -
+    //     this.totalAbsent(payroll.salaries).absent;
 
     if (
       payroll.employee.isFlatSalary &&
@@ -220,24 +220,33 @@ export class PayrollService {
 
     for (let i = 0; i < payroll.salaries.length; i++) {
       switch (payroll.salaries[i].type) {
-        case SalaryType.BASIC:
+        case SalaryType.BASIC: {
           basicSalary += payroll.salaries[i].price;
           break;
-        case SalaryType.STAY:
+        }
+        case SalaryType.BASIC_INSURANCE: {
+          basicSalary += payroll.salaries[i].price;
+          break;
+        }
+        case SalaryType.STAY: {
           staySalary += payroll.salaries[i].price;
           break;
-        case SalaryType.ALLOWANCE:
+        }
+        case SalaryType.ALLOWANCE: {
           if (!payroll.salaries[i].times && !payroll.salaries[i].datetime) {
             payroll.salaries[i].times = 1;
           }
           allowanceSalary +=
             payroll.salaries[i].times * payroll.salaries[i].price;
           break;
+        }
         case SalaryType.OVERTIME:
-          /*
-           * Nếu lương x2 thì tính thêm 1 ngày vì ngày hiện tại vẫn đi làm*/
-          overtimeSalary +=
-            payroll.salaries[i].times * payroll.salaries[i].price;
+          {
+            /*
+             * Nếu lương x2 thì tính thêm 1 ngày vì ngày hiện tại vẫn đi làm*/
+            overtimeSalary +=
+              payroll.salaries[i].times * payroll.salaries[i].price;
+          }
           break;
         // case SalaryType.ABSENT:
         //   if (payroll.salaries[i].unit === DatetimeUnit.HOUR) {
@@ -273,7 +282,6 @@ export class PayrollService {
       total = daySalary * actualDay + allowanceSalary + allowanceOvertime - tax;
     }
 
-    console.log("actualDay", actualDay);
     return {
       basic: Math.ceil(basicSalary),
       stay: Math.ceil(staySalary),
