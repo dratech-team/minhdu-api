@@ -21,6 +21,7 @@ import { OnePayroll } from "./entities/payroll.entity";
 import { PayrollRepository } from "./payroll.repository";
 import { Response } from "express";
 import * as moment from "moment";
+import { SalaryService } from "../salary/salary.service";
 
 @Injectable()
 export class PayrollService {
@@ -56,16 +57,18 @@ export class PayrollService {
     ///
     await Promise.all(
       employee.data.map(async (employee) => {
-        const payroll = await this.repository.findThisMonthForEmployeeId(
-          employee.id
+        const payroll = await this.repository.findByEmployeeId(employee.id);
+
+        const lastMonth = moment(new Date())
+          .subtract(1, "months")
+          .endOf("month")
+          .toDate();
+        const lastPayroll = await this.repository.findByEmployeeId(
+          employee.id,
+          lastMonth
         );
-        if (payroll.length > 1) {
-          throw new BadRequestException(
-            `Có gì đó không đúng. Nhân viên ${employee.lastName} tồn tại ${payroll.length} trong tháng này. Vui lòng xoá bớt 1 phiếu lương hoặc liên hệ admin để hỗ trợ. Xin cảm ơn.`
-          );
-        }
-        if (payroll.length === 0) {
-          await this.repository.create({
+        if (!payroll) {
+          const payroll = await this.repository.create({
             employeeId: employee.id,
             createdAt: new Date(),
           });
@@ -88,9 +91,11 @@ export class PayrollService {
 
   async findOne(id: number): Promise<OnePayroll> {
     const res = await this.repository.findOne(id);
-    return Object.assign(this.mapPayrollToPayslip(res), {
+    const a = Object.assign(this.mapPayrollToPayslip(res), {
       actualDay: this.totalSalary(res).actualDay,
     });
+    console.log("a", a);
+    return a;
   }
 
   async export(response: Response, user: ProfileEntity) {
@@ -163,24 +168,29 @@ export class PayrollService {
   }
 
   totalAbsent(salaries: Salary[]) {
+    /// absent có time = 0 và datetime nên sẽ có giá trị khơi
     let absent = 0;
     let late = 0;
+    const DAY = 1;
 
     for (let i = 0; i < salaries.length; i++) {
       switch (salaries[i].type) {
-        case SalaryType.ABSENT:
+        case SalaryType.ABSENT: {
           if (salaries[i].unit === DatetimeUnit.DAY) {
             if (salaries[i].forgot) {
-              absent += salaries[i].times * 1.5;
+              absent += DAY * 1.5;
             } else {
-              absent += salaries[i].times;
+              absent += DAY;
             }
-          } else {
-            absent += Math.floor(salaries[i].times / 8);
-            late += salaries[i].times % 8;
+          } else if (salaries[i].unit === DatetimeUnit.HOUR) {
+            absent += Math.floor(DAY / 8);
+            late += DAY % 8;
           }
+          break;
+        }
       }
     }
+    console.log("absent", absent, "late", late);
     return { absent, late };
   }
 
@@ -285,7 +295,7 @@ export class PayrollService {
       allowance: Math.ceil(allowanceSalary + allowanceOvertime),
       deduction,
       daySalary,
-      actualDay,
+      actualDay: actualDay - this.totalAbsent(payroll.salaries).absent,
       workday: payroll.employee.workday,
       salaryActual: Math.ceil(daySalary * actualDay),
       tax,

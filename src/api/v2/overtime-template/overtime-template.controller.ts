@@ -20,8 +20,8 @@ export class OvertimeTemplateController {
   constructor(private readonly service: OvertimeTemplateService) {}
 
   @Post()
-  create(@Body() body: CreateOvertimeTemplateDto) {
-    return this.service.create(body);
+  async create(@Body() body: CreateOvertimeTemplateDto) {
+    return await this.service.create(body);
   }
 
   @Get()
@@ -54,7 +54,7 @@ export class OvertimeTemplateController {
   }
 
   @Delete(":id")
-  remove(@Param("id") id: string) {
-    return this.service.remove(+id);
+  async remove(@Param("id") id: string) {
+    return await this.service.remove(+id);
   }
 }

@@ -14,7 +14,19 @@ export class OvertimeTemplateService {
 
   async create(body: CreateOvertimeTemplateDto) {
     try {
-      return await this.prisma.overtimeTemplate.create({ data: body });
+      return await this.prisma.overtimeTemplate.create({
+        data: {
+          positions: {
+            connect: body.positionIds?.map((positionId) => ({
+              id: positionId,
+            })),
+          },
+          branch: { connect: { id: body?.branchId } },
+          title: body.title,
+          price: body.price,
+          rate: body.rate,
+        },
+      });
     } catch (err) {
       console.error(err);
       throw new BadRequestException(err);
@@ -33,7 +45,13 @@ export class OvertimeTemplateService {
             title: { startsWith: search?.title, mode: "insensitive" },
             price: search?.price ? { in: search?.price } : {},
             unit: search?.unit || undefined,
-            positionId: search?.positionId || undefined,
+            positions: search?.positionId
+              ? {
+                  every: {
+                    id: search?.positionId,
+                  },
+                }
+              : {},
           },
         }),
         this.prisma.overtimeTemplate.findMany({
@@ -43,12 +61,17 @@ export class OvertimeTemplateService {
             title: { startsWith: search?.title, mode: "insensitive" },
             price: search?.price ? { in: search?.price } : {},
             unit: search?.unit || undefined,
-            positionId: search?.positionId || undefined,
+            positions: search?.positionId
+              ? {
+                  every: {
+                    id: search?.positionId,
+                  },
+                }
+              : {},
           },
           include: {
-            position: {
-              include: { branches: true },
-            },
+            positions: true,
+            branch: true,
           },
         }),
       ]);
@@ -64,11 +87,8 @@ export class OvertimeTemplateService {
       return await this.prisma.overtimeTemplate.findUnique({
         where: { id },
         include: {
-          position: {
-            include: {
-              branches: true,
-            },
-          },
+          positions: true,
+          branch: true,
         },
       });
     } catch (err) {
@@ -81,7 +101,22 @@ export class OvertimeTemplateService {
     try {
       return await this.prisma.overtimeTemplate.update({
         where: { id },
-        data: updates,
+        data: {
+          title: updates.title,
+          unit: updates.unit,
+          price: updates.price,
+          rate: updates.rate,
+          positions: {
+            set: updates.positionIds?.map((id) => ({ id })),
+          },
+          branch: updates?.branchId
+            ? { connect: { id: updates?.branchId } }
+            : {},
+        },
+        include: {
+          positions: true,
+          branch: true,
+        },
       });
     } catch (err) {
       console.error(err);
@@ -91,7 +126,7 @@ export class OvertimeTemplateService {
 
   async remove(id: number) {
     try {
-      return await this.prisma.overtimeTemplate.delete({ where: { id } });
+      await this.prisma.overtimeTemplate.delete({ where: { id } });
     } catch (err) {
       console.error(err);
       throw new BadRequestException(err);

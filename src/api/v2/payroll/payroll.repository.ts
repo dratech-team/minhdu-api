@@ -90,11 +90,14 @@ export class PayrollRepository {
     }
   }
 
-  async findThisMonthForEmployeeId(employeeId: Employee["id"]): Promise<any[]> {
-    const first = firstMonth(new Date());
-    const last = lastMonth(new Date());
+  async findByEmployeeId(
+    employeeId: Employee["id"],
+    datetime?: Date
+  ): Promise<any> {
+    const first = firstMonth(datetime || new Date());
+    const last = lastMonth(datetime || new Date());
     try {
-      return await this.prisma.payroll.findMany({
+      return await this.prisma.payroll.findFirst({
         where: {
           createdAt: {
             gte: first,

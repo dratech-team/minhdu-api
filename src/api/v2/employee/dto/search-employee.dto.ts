@@ -11,5 +11,5 @@ export interface SearchEmployeeDto {
   branchId: number,
   department: string,
   position: string,
-  positionId: number,
+  templateId: number,
 }

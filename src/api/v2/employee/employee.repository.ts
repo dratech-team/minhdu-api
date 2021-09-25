@@ -45,6 +45,15 @@ export class EmployeeRepository {
   ) {
     try {
       const name = searchName(search?.name);
+
+      const template = search?.templateId
+        ? await this.prisma.overtimeTemplate.findUnique({
+            where: { id: search?.templateId },
+            include: { positions: true },
+          })
+        : null;
+      const positionIds = template?.positions?.map((position) => position.id);
+
       const [total, data] = await Promise.all([
         this.prisma.employee.count({
           where: {
@@ -52,7 +61,7 @@ export class EmployeeRepository {
             position: {
               name: { startsWith: search?.position, mode: "insensitive" },
             },
-            positionId: search?.positionId || undefined,
+            positionId: { in: positionIds },
             code: { contains: search?.code, mode: "insensitive" },
             AND: {
               firstName: { contains: name?.firstName, mode: "insensitive" },
@@ -69,7 +78,7 @@ export class EmployeeRepository {
           take: take || undefined,
           where: {
             leftAt: null,
-            positionId: search?.positionId || undefined,
+            positionId: { in: positionIds  },
             code: { startsWith: search?.code, mode: "insensitive" },
             AND: {
               firstName: { startsWith: name?.firstName, mode: "insensitive" },

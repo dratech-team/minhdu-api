@@ -1,6 +1,13 @@
-import {DatetimeUnit, SalaryType} from "@prisma/client";
-import {IsEnum, IsNotEmpty, IsNumber, IsOptional, IsString} from "class-validator";
-import {Type} from "class-transformer";
+import { DatetimeUnit, SalaryType } from "@prisma/client";
+import {
+  IsArray,
+  IsEnum,
+  IsNotEmpty,
+  IsNumber,
+  IsOptional,
+  IsString,
+} from "class-validator";
+import { Type } from "class-transformer";
 
 export class CreateOvertimeTemplateDto {
   @IsNotEmpty()
@@ -29,8 +36,11 @@ export class CreateOvertimeTemplateDto {
   @IsString()
   readonly note?: DatetimeUnit;
 
-  @IsNotEmpty()
-  @Type(() => Number)
+  @IsOptional()
   @IsNumber()
-  readonly positionId: number;
+  readonly branchId: number;
+
+  @IsOptional()
+  @IsArray()
+  readonly positionIds: number[];
 }

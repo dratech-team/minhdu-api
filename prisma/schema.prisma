@@ -96,13 +96,14 @@ model Ward {
 }
 
 model Branch {
-  id        Int        @id @default(autoincrement())
-  code      String?    @unique
-  name      String     @unique
-  medicine  Medicine[]
-  cccount   Account[]
-  positions Position[]
-  employee  Employee[]
+  id               Int                @id @default(autoincrement())
+  code             String?            @unique
+  name             String             @unique
+  medicine         Medicine[]
+  cccount          Account[]
+  positions        Position[]
+  employee         Employee[]
+  OvertimeTemplate OvertimeTemplate[]
 }
 
 model Position {
@@ -192,15 +193,18 @@ model WorkHistory {
 }
 
 model OvertimeTemplate {
-  id         Int           @id @default(autoincrement())
-  title      String
-  type       SalaryType?   @default(OVERTIME)
-  price      Float
-  rate       Float?        @default(1)
-  unit       DatetimeUnit? @default(HOUR)
-  note       String?
-  position   Position      @relation(fields: [positionId], references: [id])
-  positionId Int
+  id        Int           @id @default(autoincrement())
+  title     String
+  type      SalaryType?   @default(OVERTIME)
+  price     Float
+  rate      Float?        @default(1)
+  unit      DatetimeUnit? @default(HOUR)
+  note      String?
+  positions Position[]
+  branch    Branch?       @relation(fields: [branchId], references: [id])
+  branchId  Int?
+
+  @@unique([title, type, price, rate, unit, branchId])
 }
 
 model BasicTemplate {

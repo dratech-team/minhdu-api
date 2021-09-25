@@ -1,4 +1,5 @@
 import { BadRequestException, Injectable } from "@nestjs/common";
+import { catchError } from "rxjs/operators";
 import { PrismaService } from "src/prisma.service";
 import { CreateBasicTemplateDto } from "./dto/create-basic-template.dto";
 import { UpdateBasicTemplateDto } from "./dto/update-basic-template.dto";
@@ -20,7 +21,11 @@ export class BasicTemplateService {
 
   async findAll() {
     try {
-      return await this.prisma.basicTemplate.findMany();
+      const [total, data] = await Promise.all([
+        this.prisma.basicTemplate.count(),
+        this.prisma.basicTemplate.findMany(),
+      ]);
+      return { total, data };
     } catch (err) {
       console.error(err);
       throw new BadRequestException(err);
@@ -36,8 +41,16 @@ export class BasicTemplateService {
     }
   }
 
-  async update(id: number, updateBasicTemplateDto: UpdateBasicTemplateDto) {
-    return `This action updates a #${id} basicTemplate`;
+  async update(id: number, updates: UpdateBasicTemplateDto) {
+    try {
+      return await this.prisma.basicTemplate.update({
+        where: { id },
+        data: updates,
+      });
+    } catch (err) {
+      console.error(err);
+      throw new BadRequestException(err);
+    }
   }
 
   async remove(id: number) {

@@ -1,5 +1,5 @@
 import { BadRequestException, Injectable } from "@nestjs/common";
-import { Salary, SalaryType } from "@prisma/client";
+import { DatetimeUnit, Salary, SalaryType } from "@prisma/client";
 import {
   CreateSalaryDto,
   CreateSalaryEmployeesDto,
@@ -17,8 +17,7 @@ export class SalaryService {
   constructor(
     private readonly repository: SalaryRepository,
     private readonly employeeService: EmployeeService,
-    private readonly payrollService: PayrollService,
-    private readonly hSalaryService: HistorySalaryService
+    private readonly payrollService: PayrollService
   ) {}
 
   async create(
@@ -56,7 +55,6 @@ export class SalaryService {
         await this.repository.create(this.mapToSalary(salary));
       }
     } else {
-      console.log(body)
       const payroll = await this.payrollService.findOne(body.payrollId);
       if (payroll.salaries.map((salary) => salary.title).includes(body.title)) {
         throw new BadRequestException(

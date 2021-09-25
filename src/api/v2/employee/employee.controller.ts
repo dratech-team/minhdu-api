@@ -50,7 +50,7 @@ export class EmployeeController {
     @Query("isFlatSalary", CustomParseBooleanPipe) isFlatSalary: any,
     @Query("branch") branch: string,
     @Query("department") department: string,
-    @Query("positionId") positionId: number
+    @Query("templateId") templateId: number
   ) {
     return this.employeeService.findAll(branchId, skip, take, {
       code,
@@ -61,7 +61,7 @@ export class EmployeeController {
       isFlatSalary,
       branch,
       department,
-      positionId: +positionId,
+      templateId: +templateId,
     });
   }
 
