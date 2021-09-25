@@ -10,24 +10,25 @@ import {
   Salary,
   SalaryType,
 } from "@prisma/client";
-import { Response } from "express";
+import {Response} from "express";
 import * as moment from "moment";
-import { exportExcel } from "src/core/services/export.service";
-import { ProfileEntity } from "../../../common/entities/profile.entity";
-import { lastDayOfMonth } from "../../../utils/datetime.util";
-import { EmployeeService } from "../employee/employee.service";
-import { CreatePayrollDto } from "./dto/create-payroll.dto";
-import { SearchPayrollDto } from "./dto/search-payroll.dto";
-import { UpdatePayrollDto } from "./dto/update-payroll.dto";
-import { OnePayroll } from "./entities/payroll.entity";
-import { PayrollRepository } from "./payroll.repository";
+import {exportExcel} from "src/core/services/export.service";
+import {ProfileEntity} from "../../../common/entities/profile.entity";
+import {lastDayOfMonth} from "../../../utils/datetime.util";
+import {EmployeeService} from "../employee/employee.service";
+import {CreatePayrollDto} from "./dto/create-payroll.dto";
+import {SearchPayrollDto} from "./dto/search-payroll.dto";
+import {UpdatePayrollDto} from "./dto/update-payroll.dto";
+import {OnePayroll} from "./entities/payroll.entity";
+import {PayrollRepository} from "./payroll.repository";
 
 @Injectable()
 export class PayrollService {
   constructor(
     private readonly repository: PayrollRepository,
     private readonly employeeService: EmployeeService
-  ) {}
+  ) {
+  }
 
   async create(body: CreatePayrollDto) {
     try {
@@ -50,7 +51,7 @@ export class PayrollService {
       user,
       undefined,
       undefined,
-      { branchId: user.branchId }
+      {branchId: user.branchId}
     );
 
     ///
@@ -72,7 +73,7 @@ export class PayrollService {
       this.mapPayrollToPayslip(payroll)
     );
 
-    return { total: data.total, data: payrolls };
+    return {total: data.total, data: payrolls};
   }
 
   mapPayrollToPayslip(payroll) {
@@ -129,9 +130,9 @@ export class PayrollService {
    * */
   async update(id: number, updates: UpdatePayrollDto) {
     const payroll = await this.findOne(id);
-    if (payroll.isEdit) {
+    if (payroll.manConfirmedAt) {
       throw new BadRequestException(
-        "Phiếu lương đã được tạo vì vậy bạn không có quyền sửa. Vui lòng liên hệ admin để được hỗ trợ."
+        "Phiếu lương đã được xác nhận vì vậy bạn không có quyền sửa. Vui lòng liên hệ admin để được hỗ trợ."
       );
     }
 
@@ -141,11 +142,11 @@ export class PayrollService {
   async confirmPayroll(user: ProfileEntity, id: number) {
     switch (user.role) {
       case Role.CAMP_ACCOUNTING:
-        return await this.repository.update(id, { accConfirmedAt: new Date() });
+        return await this.repository.update(id, {accConfirmedAt: new Date()});
       case Role.CAMP_MANAGER:
-        return await this.repository.update(id, { manConfirmedAt: new Date() });
+        return await this.repository.update(id, {manConfirmedAt: new Date()});
       case Role.ACCOUNTANT_CASH_FUND:
-        return await this.repository.update(id, { paidAt: new Date() });
+        return await this.repository.update(id, {paidAt: new Date()});
       default:
         throw new BadRequestException(
           `${user.role} Bạn không có quyền xác nhận phiếu lương. Cảm ơn.`
@@ -174,7 +175,7 @@ export class PayrollService {
         }
       });
 
-    return { absent, late };
+    return {absent, late};
   }
 
   /*
@@ -191,6 +192,7 @@ export class PayrollService {
    * 2. actual < workday                  => result = [(basics + stays) / workday] x actual + allowances
    * 3. isFlat === true && absents !== 0  => actual = workday (Dù tháng đó có bao nhiêu ngày đi chăng nữa). else quay lại 1 & 2
    * */
+
   /// TODO: handle holiday
   totalSalary(payroll: OnePayroll): TotalSalary {
     let basicSalary = 0;
@@ -204,11 +206,7 @@ export class PayrollService {
     let total = 0;
 
     /// TH nhân viên nghỉ ngang. Thì sẽ confirm phiếu lương => phiếu lương không được sửa nữa. và lấy ngày hiện tại
-    let actualDay = 31;
-    //  !payroll.isEdit
-    //   ? new Date().getDate()
-    //   : lastDayOfMonth(payroll.createdAt) -
-    //     this.totalAbsent(payroll.salaries).absent;
+    let actualDay = !payroll.isEdit ? new Date().getDate() : lastDayOfMonth(payroll.createdAt) - this.totalAbsent(payroll.salaries).absent;
 
     if (
       payroll.employee.isFlatSalary &&
@@ -240,13 +238,12 @@ export class PayrollService {
             payroll.salaries[i].times * payroll.salaries[i].price;
           break;
         }
-        case SalaryType.OVERTIME:
-          {
-            /*
-             * Nếu lương x2 thì tính thêm 1 ngày vì ngày hiện tại vẫn đi làm*/
-            overtimeSalary +=
-              payroll.salaries[i].times * payroll.salaries[i].price;
-          }
+        case SalaryType.OVERTIME: {
+          /*
+           * Nếu lương x2 thì tính thêm 1 ngày vì ngày hiện tại vẫn đi làm*/
+          overtimeSalary +=
+            payroll.salaries[i].times * payroll.salaries[i].price;
+        }
           break;
         // case SalaryType.ABSENT:
         //   if (payroll.salaries[i].unit === DatetimeUnit.HOUR) {

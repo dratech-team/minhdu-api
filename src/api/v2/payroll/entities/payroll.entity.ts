@@ -7,6 +7,6 @@ export interface FullPayroll extends Payroll {
 export type OnePayroll = Payroll & {
   employee: {
     contracts: Contract[];
-    position: { branches: Branch[]; workday: number };
+    position: { name: string; workday: number };
   } & Employee;
 } & { salaries: Salary[] };

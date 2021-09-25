@@ -23,7 +23,6 @@ export class SalaryService {
   async create(
     body: CreateSalaryDto & CreateSalaryEmployeesDto
   ): Promise<Salary> {
-    console.log(body)
     if (
       body.employeeIds &&
       body.employeeIds.length &&
@@ -57,7 +56,10 @@ export class SalaryService {
       }
     } else {
       const payroll = await this.payrollService.findOne(body.payrollId);
-      if (payroll.salaries.map((salary) => salary.title).includes(body.title)) {
+      if (
+        payroll.salaries.map((salary) => salary.title).includes(body.title) &&
+        payroll.salaries.map((salary) => salary.type).includes(body.type)
+      ) {
         throw new BadRequestException(
           `${body.title} đã tồn tại. Vui lòng không thêm`
         );

@@ -19,7 +19,7 @@ export class EmployeeService implements BaseEmployeeService {
   async create(body: CreateEmployeeDto) {
     const position = await this.positionService.findOne(body.positionId);
     if (position.name) {
-      this.positionService.update(body.positionId, { workday: body.workday });
+      this.positionService.update(body.positionId, { workday: body.workday }).then();
     }
     return await this.repository.create(body);
   }

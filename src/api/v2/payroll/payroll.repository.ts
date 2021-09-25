@@ -1,18 +1,19 @@
-import { BadRequestException, Injectable } from "@nestjs/common";
-import { Employee, Payroll, SalaryType } from "@prisma/client";
+import {BadRequestException, Injectable} from "@nestjs/common";
+import {Employee, Payroll, SalaryType} from "@prisma/client";
 import * as moment from "moment";
-import { ProfileEntity } from "../../../common/entities/profile.entity";
-import { PrismaService } from "../../../prisma.service";
-import { firstMonth, lastMonth } from "../../../utils/datetime.util";
-import { searchName } from "../../../utils/search-name.util";
-import { CreatePayrollDto } from "./dto/create-payroll.dto";
-import { SearchPayrollDto } from "./dto/search-payroll.dto";
-import { UpdatePayrollDto } from "./dto/update-payroll.dto";
-import { FullPayroll, OnePayroll } from "./entities/payroll.entity";
+import {ProfileEntity} from "../../../common/entities/profile.entity";
+import {PrismaService} from "../../../prisma.service";
+import {firstMonth, lastMonth} from "../../../utils/datetime.util";
+import {searchName} from "../../../utils/search-name.util";
+import {CreatePayrollDto} from "./dto/create-payroll.dto";
+import {SearchPayrollDto} from "./dto/search-payroll.dto";
+import {UpdatePayrollDto} from "./dto/update-payroll.dto";
+import {FullPayroll, OnePayroll} from "./entities/payroll.entity";
 
 @Injectable()
 export class PayrollRepository {
-  constructor(private readonly prisma: PrismaService) {}
+  constructor(private readonly prisma: PrismaService) {
+  }
 
   count(query?: any): Promise<number> {
     return Promise.resolve(0);
@@ -20,38 +21,40 @@ export class PayrollRepository {
 
   async create(body: CreatePayrollDto) {
     try {
-      return await this.prisma.payroll
+      const currentPayroll = await this.prisma.payroll
         .create({
           data: body,
-          include: { salaries: true },
-        })
-        .then((currentPayroll) => {
-          // get tháng trước
-          const lastMonth = moment(new Date())
-            .subtract(1, "months")
-            .endOf("month")
-            .toDate();
-
-          // get payroll của tháng trước để lấy lương cơ bản, bảo hiểm, ở lại
-          this.findByEmployeeId(currentPayroll.employeeId, lastMonth).then(
-            (lastPayroll: FullPayroll) => {
-              if (lastPayroll) {
-                // filter payroll của tháng trước để lấy lương cơ bản, bảo hiểm, ở lại
-                const salaries = lastPayroll.salaries.filter((salary) => {
-                  return (
-                    salary.type === SalaryType.BASIC ||
-                    salary.type === SalaryType.BASIC_INSURANCE ||
-                    salary.type === SalaryType.STAY
-                  );
-                });
-                // tự thêm vào tháng này
-                if (!currentPayroll.salaries.length) {
-                  this.prisma.salary.createMany({ data: salaries });
-                }
-              }
-            }
-          );
+          include: {salaries: true},
         });
+
+      // get tháng trước
+      const lastMonth = moment(new Date())
+        .subtract(1, "months")
+        .endOf("month")
+        .toDate();
+
+      // get payroll của tháng trước để lấy lương cơ bản, bảo hiểm, ở lại
+      const lastPayroll = await this.findByEmployeeId(currentPayroll.employeeId, lastMonth);
+
+      if (lastPayroll) {
+        // filter payroll của tháng trước để lấy lương cơ bản, bảo hiểm, ở lại
+        const lastSalaries = lastPayroll.salaries.filter((salary) => {
+          return (
+            salary.type === SalaryType.BASIC ||
+            salary.type === SalaryType.BASIC_INSURANCE ||
+            salary.type === SalaryType.STAY
+          );
+        }).map(salary => {
+          delete salary.id;
+          salary.payrollId = currentPayroll.id;
+          return salary;
+        });
+        // tự thêm các khoản lương cơ bản và ở lại vào tháng này
+        if (lastSalaries.length) {
+          await this.prisma.salary.createMany({data: lastSalaries});
+        }
+      }
+      return currentPayroll;
     } catch (err) {
       console.error(err);
       if (err.code === "P2003") {
@@ -75,7 +78,7 @@ export class PayrollRepository {
       const name = searchName(search?.name);
 
       const [total, payrolls] = await Promise.all([
-        this.prisma.payroll.count({ where: { employee: { leftAt: null } } }),
+        this.prisma.payroll.count({where: {employee: {leftAt: null}}}),
         this.prisma.payroll.findMany({
           take: take ?? undefined,
           skip: skip ?? undefined,
@@ -83,12 +86,12 @@ export class PayrollRepository {
             employee: {
               leftAt: null,
               position: {
-                name: { startsWith: search?.position, mode: "insensitive" },
+                name: {startsWith: search?.position, mode: "insensitive"},
               },
-              code: { startsWith: search?.code, mode: "insensitive" },
+              code: {startsWith: search?.code, mode: "insensitive"},
               AND: {
-                firstName: { startsWith: name?.firstName, mode: "insensitive" },
-                lastName: { startsWith: name?.lastName, mode: "insensitive" },
+                firstName: {startsWith: name?.firstName, mode: "insensitive"},
+                lastName: {startsWith: name?.lastName, mode: "insensitive"},
               },
             },
             createdAt: {
@@ -135,7 +138,7 @@ export class PayrollRepository {
           },
           employeeId: employeeId,
         },
-        include: { salaries: true },
+        include: {salaries: true},
       });
     } catch (err) {
       console.error(err);
@@ -157,13 +160,13 @@ export class PayrollRepository {
   async findOne(id: number): Promise<OnePayroll> {
     try {
       return await this.prisma.payroll.findUnique({
-        where: { id: id },
+        where: {id: id},
         include: {
           salaries: true,
           employee: {
             include: {
               contracts: true,
-              position: { include: { branches: true } },
+              position: true,
             },
           },
         },
@@ -194,7 +197,7 @@ export class PayrollRepository {
   async update(id: number, updates: UpdatePayrollDto) {
     try {
       return await this.prisma.payroll.update({
-        where: { id: id },
+        where: {id: id},
         data: {
           isEdit: !!updates.accConfirmedAt,
           accConfirmedAt: updates.accConfirmedAt ?? undefined,
@@ -210,7 +213,7 @@ export class PayrollRepository {
 
   async remove(id: number) {
     try {
-      return await this.prisma.payroll.delete({ where: { id: id } });
+      return await this.prisma.payroll.delete({where: {id: id}});
     } catch (err) {
       console.error(err);
       throw new BadRequestException(err);
