@@ -1,13 +1,14 @@
 import { BadRequestException, Injectable } from "@nestjs/common";
+import { Employee, Payroll, SalaryType } from "@prisma/client";
+import * as moment from "moment";
+import { ProfileEntity } from "../../../common/entities/profile.entity";
 import { PrismaService } from "../../../prisma.service";
-import { UpdatePayrollDto } from "./dto/update-payroll.dto";
-import { CreatePayrollDto } from "./dto/create-payroll.dto";
 import { firstMonth, lastMonth } from "../../../utils/datetime.util";
 import { searchName } from "../../../utils/search-name.util";
+import { CreatePayrollDto } from "./dto/create-payroll.dto";
 import { SearchPayrollDto } from "./dto/search-payroll.dto";
-import { ProfileEntity } from "../../../common/entities/profile.entity";
-import { Employee, Payroll } from "@prisma/client";
-import { OnePayroll } from "./entities/payroll.entity";
+import { UpdatePayrollDto } from "./dto/update-payroll.dto";
+import { FullPayroll, OnePayroll } from "./entities/payroll.entity";
 
 @Injectable()
 export class PayrollRepository {
@@ -19,9 +20,36 @@ export class PayrollRepository {
 
   async create(body: CreatePayrollDto) {
     try {
-      return await this.prisma.payroll.create({
-        data: body,
-      });
+      return await this.prisma.payroll
+        .create({
+          data: body,
+          include: { salaries: true },
+        })
+        .then((currentPayroll) => {
+          // get tháng trước
+          const lastMonth = moment(new Date())
+            .subtract(1, "months")
+            .endOf("month")
+            .toDate();
+
+          // get payroll của tháng trước để lấy lương cơ bản, bảo hiểm, ở lại
+          this.findByEmployeeId(currentPayroll.employeeId, lastMonth).then(
+            (lastPayroll: FullPayroll) => {
+              // filter payroll của tháng trước để lấy lương cơ bản, bảo hiểm, ở lại
+              const salaries = lastPayroll.salaries.filter((salary) => {
+                return (
+                  salary.type === SalaryType.BASIC ||
+                  salary.type === SalaryType.BASIC_INSURANCE ||
+                  salary.type === SalaryType.STAY
+                );
+              });
+              // tự thêm vào tháng này
+              if (!currentPayroll.salaries.length) {
+                this.prisma.salary.createMany({ data: salaries });
+              }
+            }
+          );
+        });
     } catch (err) {
       console.error(err);
       if (err.code === "P2003") {
@@ -93,7 +121,7 @@ export class PayrollRepository {
   async findByEmployeeId(
     employeeId: Employee["id"],
     datetime?: Date
-  ): Promise<any> {
+  ): Promise<FullPayroll> {
     const first = firstMonth(datetime || new Date());
     const last = lastMonth(datetime || new Date());
     try {
@@ -105,6 +133,7 @@ export class PayrollRepository {
           },
           employeeId: employeeId,
         },
+        include: { salaries: true },
       });
     } catch (err) {
       console.error(err);

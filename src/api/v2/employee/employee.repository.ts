@@ -78,7 +78,7 @@ export class EmployeeRepository {
           take: take || undefined,
           where: {
             leftAt: null,
-            positionId: { in: positionIds  },
+            positionId: { in: positionIds },
             code: { startsWith: search?.code, mode: "insensitive" },
             AND: {
               firstName: { startsWith: name?.firstName, mode: "insensitive" },
@@ -167,11 +167,8 @@ export class EmployeeRepository {
           historySalaries: true,
           workHistories: {
             include: {
-              position: {
-                include: {
-                  branches: true,
-                },
-              },
+              position: true,
+              branch: true,
             },
           },
         },

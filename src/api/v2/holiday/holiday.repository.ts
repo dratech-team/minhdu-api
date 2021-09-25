@@ -10,7 +10,14 @@ export class HolidayRepository {
 
   async create(body: CreateHolidayDto) {
     try {
-      return await this.prisma.holiday.create({ data: body });
+      return await this.prisma.holiday.create({
+        data: {
+          name: body.name,
+          datetime: body.datetime,
+          rate: body.rate,
+          positions: { connect: body.positionIds.map((id) => ({ id })) },
+        },
+      });
     } catch (err) {
       console.error(err);
       throw new BadRequestException(err);
@@ -30,7 +37,7 @@ export class HolidayRepository {
             rate: search?.rate || undefined,
           },
           include: {
-            position: true
+            positions: true,
           },
         }),
       ]);
@@ -46,7 +53,7 @@ export class HolidayRepository {
       return await this.prisma.holiday.findUnique({
         where: { id },
         include: {
-          position: true,
+          positions: true,
         },
       });
     } catch (err) {
@@ -59,7 +66,12 @@ export class HolidayRepository {
     try {
       return await this.prisma.holiday.update({
         where: { id },
-        data: updates,
+        data: {
+          name: updates.name,
+          datetime: updates.datetime,
+          rate: updates.rate,
+          positions: { connect: updates.positionIds.map((id) => ({ id })) },
+        },
       });
     } catch (err) {
       console.error(err);

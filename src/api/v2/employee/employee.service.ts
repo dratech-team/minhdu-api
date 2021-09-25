@@ -1,22 +1,26 @@
-import {Injectable} from "@nestjs/common";
-import {CreateEmployeeDto} from "./dto/create-employee.dto";
-import {EmployeeRepository} from "./employee.repository";
-import {UpdateEmployeeDto} from "./dto/update-employee.dto";
-import {BaseEmployeeService} from "./base-employee.service";
-import {PositionService} from "../../../common/branches/position/position.service";
-import {WorkHistoryService} from "../histories/work-history/work-history.service";
-import {SearchEmployeeDto} from "./dto/search-employee.dto";
-import {ProfileEntity} from "../../../common/entities/profile.entity";
+import { Injectable } from "@nestjs/common";
+import { CreateEmployeeDto } from "./dto/create-employee.dto";
+import { EmployeeRepository } from "./employee.repository";
+import { UpdateEmployeeDto } from "./dto/update-employee.dto";
+import { BaseEmployeeService } from "./base-employee.service";
+import { PositionService } from "../../../common/branches/position/position.service";
+import { WorkHistoryService } from "../histories/work-history/work-history.service";
+import { SearchEmployeeDto } from "./dto/search-employee.dto";
+import { ProfileEntity } from "../../../common/entities/profile.entity";
 
 @Injectable()
 export class EmployeeService implements BaseEmployeeService {
   constructor(
     private readonly repository: EmployeeRepository,
     private readonly workHisService: WorkHistoryService,
-  ) {
-  }
+    private readonly positionService: PositionService
+  ) {}
 
   async create(body: CreateEmployeeDto) {
+    const position = await this.positionService.findOne(body.positionId);
+    if (position.name) {
+      this.positionService.update(body.positionId, { workday: body.workday });
+    }
     return await this.repository.create(body);
   }
 
@@ -45,10 +49,8 @@ export class EmployeeService implements BaseEmployeeService {
   async update(id: number, updates: UpdateEmployeeDto) {
     const found = await this.findOne(id);
     if (updates.positionId && found.positionId !== updates.positionId) {
-      this.findOne(id).then(employee => {
-        this.workHisService.create(employee.positionId, id).then(_ => {
-          this.workHisService.create(updates.positionId, id);
-        });
+      this.findOne(id).then((employee) => {
+        this.workHisService.create(updates.positionId, employee.branchId, id);
       });
     }
 

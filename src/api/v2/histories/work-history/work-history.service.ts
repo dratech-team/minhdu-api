@@ -1,13 +1,12 @@
-import {Injectable} from '@nestjs/common';
-import {WorkHistoryRepository} from "./work-history.repository";
+import { Injectable } from "@nestjs/common";
+import { WorkHistoryRepository } from "./work-history.repository";
 
 @Injectable()
 export class WorkHistoryService {
-  constructor(private readonly repository: WorkHistoryRepository) {
-  }
+  constructor(private readonly repository: WorkHistoryRepository) {}
 
-  create(positionId: number, employeeId: number) {
-    return this.repository.create(positionId, employeeId);
+  create(positionId: number, branchId: number, employeeId: number) {
+    return this.repository.create(positionId, branchId,employeeId);
   }
 
   findAll(id: number, skip: number, take: number, search?: string) {

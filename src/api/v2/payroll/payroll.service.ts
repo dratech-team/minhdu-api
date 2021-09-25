@@ -55,26 +55,19 @@ export class PayrollService {
     );
 
     ///
-    await Promise.all(
-      employee.data.map(async (employee) => {
-        const payroll = await this.repository.findByEmployeeId(employee.id);
+    for (let i = 0; i < employee.data.length; i++) {
+      const payroll = await this.repository.findByEmployeeId(
+        employee.data[i].id
+      );
 
-        const lastMonth = moment(new Date())
-          .subtract(1, "months")
-          .endOf("month")
-          .toDate();
-        const lastPayroll = await this.repository.findByEmployeeId(
-          employee.id,
-          lastMonth
-        );
-        if (!payroll) {
-          const payroll = await this.repository.create({
-            employeeId: employee.id,
-            createdAt: new Date(),
-          });
-        }
-      })
-    );
+      if (!payroll) {
+        await this.repository.create({
+          employeeId: employee.data[i].id,
+          createdAt: new Date(),
+        });
+      }
+    }
+
     const data = await this.repository.findAll(user, skip, take, search);
     const payrolls = data.data.map((payroll) =>
       this.mapPayrollToPayslip(payroll)
@@ -91,11 +84,9 @@ export class PayrollService {
 
   async findOne(id: number): Promise<OnePayroll> {
     const res = await this.repository.findOne(id);
-    const a = Object.assign(this.mapPayrollToPayslip(res), {
+    return Object.assign(this.mapPayrollToPayslip(res), {
       actualDay: this.totalSalary(res).actualDay,
     });
-    console.log("a", a);
-    return a;
   }
 
   async export(response: Response, user: ProfileEntity) {
@@ -173,24 +164,17 @@ export class PayrollService {
     let late = 0;
     const DAY = 1;
 
-    for (let i = 0; i < salaries.length; i++) {
-      switch (salaries[i].type) {
-        case SalaryType.ABSENT: {
-          if (salaries[i].unit === DatetimeUnit.DAY) {
-            if (salaries[i].forgot) {
-              absent += DAY * 1.5;
-            } else {
-              absent += DAY;
-            }
-          } else if (salaries[i].unit === DatetimeUnit.HOUR) {
-            absent += Math.floor(DAY / 8);
-            late += DAY % 8;
-          }
-          break;
+    salaries
+      .filter((salary) => salary.type === SalaryType.ABSENT)
+      .forEach((salary) => {
+        if (salary.unit === DatetimeUnit.DAY) {
+          absent += DAY;
+        } else if (salary.unit === DatetimeUnit.HOUR) {
+          absent += Math.floor(DAY / 8);
+          late += DAY % 8;
         }
-      }
-    }
-    console.log("absent", absent, "late", late);
+      });
+
     return { absent, late };
   }
 
@@ -288,6 +272,8 @@ export class PayrollService {
     } else {
       total = daySalary * actualDay + allowanceSalary + allowanceOvertime - tax;
     }
+
+    console.log("actualDay", actualDay);
     return {
       basic: Math.ceil(basicSalary),
       stay: Math.ceil(staySalary),
@@ -295,7 +281,7 @@ export class PayrollService {
       allowance: Math.ceil(allowanceSalary + allowanceOvertime),
       deduction,
       daySalary,
-      actualDay: actualDay - this.totalAbsent(payroll.salaries).absent,
+      actualDay: actualDay,
       workday: payroll.employee.workday,
       salaryActual: Math.ceil(daySalary * actualDay),
       tax,

@@ -23,6 +23,7 @@ export class SalaryService {
   async create(
     body: CreateSalaryDto & CreateSalaryEmployeesDto
   ): Promise<Salary> {
+    console.log(body)
     if (
       body.employeeIds &&
       body.employeeIds.length &&

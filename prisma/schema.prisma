@@ -104,6 +104,7 @@ model Branch {
   positions        Position[]
   employee         Employee[]
   OvertimeTemplate OvertimeTemplate[]
+  workHistories    WorkHistory[]
 }
 
 model Position {
@@ -175,18 +176,19 @@ model Employee {
 }
 
 model Holiday {
-  id         Int      @id @default(autoincrement())
-  name       String?
-  datetime   DateTime
-  rate       Float
-  position   Position @relation(fields: [positionId], references: [id])
-  positionId Int
+  id       Int        @id @default(autoincrement())
+  name     String?
+  datetime DateTime
+  rate     Float
+  positions Position[]
 }
 
 model WorkHistory {
   id         Int       @id @default(autoincrement())
   position   Position  @relation(fields: [positionId], references: [id])
   positionId Int
+  branch     Branch    @relation(fields: [branchId], references: [id])
+  branchId   Int
   createdAt  DateTime? @default(now())
   employee   Employee  @relation(fields: [employeeId], references: [id])
   employeeId Int

@@ -1,4 +1,4 @@
-import {IsDate, IsNotEmpty, IsNumber, IsOptional, IsString} from "class-validator";
+import {IsArray, IsDate, IsNotEmpty, IsNumber, IsOptional, IsString} from "class-validator";
 import {Transform, Type} from "class-transformer";
 
 export class CreateHolidayDto {
@@ -16,8 +16,7 @@ export class CreateHolidayDto {
   @IsNumber()
   readonly rate: number;
 
-  @IsNotEmpty()
-  @Type(() => Number)
-  @IsNumber()
-  readonly positionId: number;
+  @IsOptional()
+  @IsArray()
+  readonly positionIds: number[];
 }
