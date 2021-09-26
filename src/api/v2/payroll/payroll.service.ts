@@ -248,6 +248,7 @@ export class PayrollService {
           break;
         // case SalaryType.ABSENT:
         //   if (salary.unit === DatetimeUnit.HOUR) {
+        //     this.totalAbsent(payroll.salaries)
         //     lateTime += salary.times;
         //   }
         //   break;
@@ -266,7 +267,7 @@ export class PayrollService {
       tax = payroll.employee.contracts.length !== 0 ? basic.price * 0.115 : 0;
     }
 
-    const deduction = (daySalary / 8) * lateTime + daySalary * absentTime;
+    const deduction = this.totalAbsent(payroll.salaries).absent * daySalary + (daySalary / 8) * this.totalAbsent(payroll.salaries).late;
 
     if (actualDay >= payroll.employee.workday) {
       total =
