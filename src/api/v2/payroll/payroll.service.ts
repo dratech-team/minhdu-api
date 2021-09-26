@@ -146,6 +146,9 @@ export class PayrollService {
         return await this.repository.update(id, {manConfirmedAt: new Date()});
       case Role.ACCOUNTANT_CASH_FUND:
         return await this.repository.update(id, {paidAt: new Date()});
+        /// FIXME: dummy for testing
+      case Role.HUMAN_RESOURCE:
+        return await this.repository.update(id, {manConfirmedAt: new Date()});
       default:
         throw new BadRequestException(
           `${user.role} Bạn không có quyền xác nhận phiếu lương. Cảm ơn.`
