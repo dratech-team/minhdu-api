@@ -4,7 +4,7 @@ import {Response} from "express";
 import * as moment from "moment";
 import {exportExcel} from "src/core/services/export.service";
 import {ProfileEntity} from "../../../common/entities/profile.entity";
-import {lastDayOfMonth, lastMonth} from "../../../utils/datetime.util";
+import {lastMonth} from "../../../utils/datetime.util";
 import {EmployeeService} from "../employee/employee.service";
 import {CreatePayrollDto} from "./dto/create-payroll.dto";
 import {SearchPayrollDto} from "./dto/search-payroll.dto";
@@ -146,7 +146,7 @@ export class PayrollService {
         return await this.repository.update(id, {manConfirmedAt: new Date()});
       case Role.ACCOUNTANT_CASH_FUND:
         return await this.repository.update(id, {paidAt: new Date()});
-        /// FIXME: dummy for testing
+      /// FIXME: dummy for testing
       case Role.HUMAN_RESOURCE:
         return await this.repository.update(id, {manConfirmedAt: new Date()});
       default:
@@ -221,37 +221,35 @@ export class PayrollService {
     }
 
     for (let i = 0; i < payroll.salaries.length; i++) {
-      switch (payroll.salaries[i].type) {
+      const salary = payroll.salaries[i];
+
+      switch (salary.type) {
         case SalaryType.BASIC: {
-          basicSalary += payroll.salaries[i].price;
+          basicSalary += salary.price;
           break;
         }
         case SalaryType.BASIC_INSURANCE: {
-          basicSalary += payroll.salaries[i].price;
+          basicSalary += salary.price;
           break;
         }
         case SalaryType.STAY: {
-          staySalary += payroll.salaries[i].price;
+          staySalary += salary.price;
           break;
         }
         case SalaryType.ALLOWANCE: {
-          if (!payroll.salaries[i].times && !payroll.salaries[i].datetime) {
-            payroll.salaries[i].times = 1;
+          if (salary.unit === DatetimeUnit.MONTH) {
+            salary.times = 1;
           }
-          allowanceSalary +=
-            payroll.salaries[i].times * payroll.salaries[i].price;
+          allowanceSalary += salary.price;
           break;
         }
         case SalaryType.OVERTIME: {
-          /*
-           * Nếu lương x2 thì tính thêm 1 ngày vì ngày hiện tại vẫn đi làm*/
-          overtimeSalary +=
-            payroll.salaries[i].times * payroll.salaries[i].price;
+          overtimeSalary += salary.times * salary.price;
         }
           break;
         // case SalaryType.ABSENT:
-        //   if (payroll.salaries[i].unit === DatetimeUnit.HOUR) {
-        //     lateTime += payroll.salaries[i].times;
+        //   if (salary.unit === DatetimeUnit.HOUR) {
+        //     lateTime += salary.times;
         //   }
         //   break;
       }
@@ -270,24 +268,25 @@ export class PayrollService {
     }
 
     const deduction = (daySalary / 8) * lateTime + daySalary * absentTime;
-    const allowanceOvertime = daySalary * overtimeSalary;
 
     if (actualDay >= payroll.employee.workday) {
       total =
         daySalary * actualDay +
         allowanceSalary +
-        allowanceOvertime +
         staySalary -
         tax;
     } else {
-      total = daySalary * actualDay + allowanceSalary + allowanceOvertime - tax;
+      total = daySalary * actualDay + allowanceSalary - tax;
     }
+
+    const allowance: Salary[] = payroll.salaries.filter(salary => salary.type === SalaryType.ALLOWANCE && salary.unit === DatetimeUnit.DAY);
+    const allowanceDay = allowance.map((a) => a.price * a.rate).reduce((a, b) => a + b, 0)
 
     return {
       basic: Math.ceil(basicSalary),
       stay: Math.ceil(staySalary),
       overtime: overtimeSalary,
-      allowance: Math.ceil(allowanceSalary + allowanceOvertime),
+      allowance: Math.ceil(allowanceSalary + allowanceDay),
       deduction,
       daySalary,
       actualDay: actualDay,
