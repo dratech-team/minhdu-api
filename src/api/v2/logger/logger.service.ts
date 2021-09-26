@@ -1,4 +1,4 @@
-import {Injectable, Query} from '@nestjs/common';
+import {Injectable} from '@nestjs/common';
 import {CreateLoggerDto} from './dto/create-logger.dto';
 import {UpdateLoggerDto} from './dto/update-logger.dto';
 import {PrismaService} from "../../../prisma.service";
@@ -17,14 +17,14 @@ export class LoggerService {
     const [total, data] = await Promise.all([
       this.prisma.systemHistory.count({
         where: {
-          appName: profile?.appName
+          appName: profile?.appName || undefined
         }
       }),
       this.prisma.systemHistory.findMany({
         take: take || undefined,
         skip: skip || undefined,
         where: {
-          appName: profile?.appName
+          appName: profile?.appName || undefined
         }
       }),
     ]);
