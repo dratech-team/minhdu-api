@@ -4,7 +4,7 @@ import {Response} from "express";
 import * as moment from "moment";
 import {exportExcel} from "src/core/services/export.service";
 import {ProfileEntity} from "../../../common/entities/profile.entity";
-import {lastDayOfMonth} from "../../../utils/datetime.util";
+import {lastDayOfMonth, lastMonth} from "../../../utils/datetime.util";
 import {EmployeeService} from "../employee/employee.service";
 import {CreatePayrollDto} from "./dto/create-payroll.dto";
 import {SearchPayrollDto} from "./dto/search-payroll.dto";
@@ -208,8 +208,7 @@ export class PayrollService {
     // let actualDay = !payroll.isEdit ? new Date().getDate() : lastDayOfMonth(payroll.createdAt) - this.totalAbsent(payroll.salaries).absent;
 
     /// FIXME: dummy for testing
-    let actualDay = lastDayOfMonth(payroll.createdAt) - this.totalAbsent(payroll.salaries).absent;
-
+    let actualDay = lastMonth(payroll.createdAt).getDate() - this.totalAbsent(payroll.salaries).absent;
     if (
       payroll.employee.isFlatSalary &&
       this.totalAbsent(payroll.salaries).absent === 0 &&
