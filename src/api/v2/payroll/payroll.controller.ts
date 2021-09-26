@@ -104,4 +104,9 @@ export class PayrollController {
   export(@Res() res, @ReqProfile() user: ProfileEntity) {
     return this.payrollService.export(res, user);
   }
+
+  @Get("/:id/payslip")
+  async payslip(@Param("id") id: number ) {
+   return await this.payrollService.payslip(+id);
+  }
 }

@@ -218,7 +218,34 @@ export class EmployeeRepository {
     try {
       return await this.prisma.employee.update({
         where: { id: id },
-        data: updates,
+        data: {
+          firstName: updates.firstName,
+          lastName: updates.lastName,
+          gender: updates.gender,
+          phone: updates.phone,
+          workPhone: updates.workPhone,
+          birthday: updates.birthday,
+          birthplace: updates.birthplace,
+          identify: updates.identify,
+          idCardAt: updates.idCardAt,
+          issuedBy: updates.issuedBy,
+          ward: { connect: { id: updates.wardId } },
+          position: { connect: { id: updates.positionId } },
+          branch: { connect: { id: updates.branchId } },
+          address: updates.address,
+          religion: updates.religion,
+          workday: updates.workday,
+          mst: updates.mst,
+          email: updates.email,
+          zalo: updates.zalo,
+          facebook: updates.facebook,
+          avt: updates.avt,
+          ethnicity: updates.ethnicity,
+          createdAt: updates.createdAt,
+          workedAt: updates.workedAt,
+          isFlatSalary: updates.isFlatSalary,
+          note: updates.note,
+        },
       });
     } catch (err) {
       console.error(err);

@@ -76,6 +76,11 @@ export class PayrollService {
     return {total: data.total, data: payrolls};
   }
 
+  async payslip(id: Payroll["id"]) {
+    const payroll = await this.findOne(id);
+    return this.totalSalary(payroll);
+  }
+
   mapPayrollToPayslip(payroll) {
     return Object.assign(payroll, {
       payslip: payroll.manConfirmedAt ? this.totalSalary(payroll) : null,
