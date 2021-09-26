@@ -1,16 +1,23 @@
-import {CreateEmployeeDto} from './create-employee.dto';
-import {PartialType} from "@nestjs/mapped-types";
-import {Type} from "class-transformer";
-import {IsDate, IsNumber, IsOptional, IsString, MaxDate, ValidateNested} from "class-validator";
-import {ValidatorMessage} from "../../../../common/constant/validator.constant";
-import {ICreateSalaryDto} from "../../../../common/dtos/create-salary.dto";
-import {tomorrowDate} from "../../../../utils/datetime.util";
+import { OmitType } from "@nestjs/mapped-types";
+import { Type } from "class-transformer";
+import {
+  IsDate,
+  IsNumber,
+  IsOptional,
+  IsString,
+  MaxDate,
+} from "class-validator";
+import { ValidatorMessage } from "../../../../common/constant/validator.constant";
+import { tomorrowDate } from "../../../../utils/datetime.util";
+import { CreateEmployeeDto } from "./create-employee.dto";
 
-export class UpdateEmployeeDto extends PartialType(CreateEmployeeDto) {
+export class UpdateEmployeeDto extends OmitType(CreateEmployeeDto, [
+  "contract",
+]) {
   @Type(() => Date)
   @IsOptional()
   @IsDate()
-  @MaxDate(tomorrowDate(), {message: `leftAT ${ValidatorMessage.datetime}`})
+  @MaxDate(tomorrowDate(), { message: `leftAT ${ValidatorMessage.datetime}` })
   readonly leftAt?: Date;
 
   @IsOptional()

@@ -5,23 +5,23 @@ import {ContractRepository} from "./contract.repository";
 
 @Injectable()
 export class ContractService {
-  constructor(private readonly service: ContractRepository) {
+  constructor(private readonly repository: ContractRepository) {
   }
 
-  create(body: CreateContractDto) {
-    return this.service.create(body);
+  async create(body: CreateContractDto) {
+    return await this.repository.create(body);
   }
 
-  findAll() {
-    return `This action returns all contract`;
+  async findAll() {
+    return await this.repository.findAll();
   }
 
-  findOne(id: number) {
-    return `This action returns a #${id} contract`;
+  async findOne(id: number) {
+    return await this.repository.findOne(id);
   }
 
-  update(id: number, updateContractDto: UpdateContractDto) {
-    return `This action updates a #${id} contract`;
+  async update(id: number, updateContractDto: UpdateContractDto) {
+    return await this.repository.update(id, updateContractDto);
   }
 
   remove(id: number) {

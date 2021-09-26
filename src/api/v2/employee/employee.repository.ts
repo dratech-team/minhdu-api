@@ -1,27 +1,25 @@
 import {
   BadRequestException,
   ConflictException,
-  Injectable,
+  Injectable
 } from "@nestjs/common";
-import {PrismaService} from "../../../prisma.service";
-import {CreateEmployeeDto} from "./dto/create-employee.dto";
-import {UpdateEmployeeDto} from "./dto/update-employee.dto";
-import {SearchEmployeeDto} from "./dto/search-employee.dto";
-import {searchName} from "../../../utils/search-name.util";
-import {ProfileEntity} from "../../../common/entities/profile.entity";
-import {Employee} from ".prisma/client";
+import { ProfileEntity } from "../../../common/entities/profile.entity";
+import { PrismaService } from "../../../prisma.service";
+import { searchName } from "../../../utils/search-name.util";
+import { CreateEmployeeDto } from "./dto/create-employee.dto";
+import { SearchEmployeeDto } from "./dto/search-employee.dto";
+import { UpdateEmployeeDto } from "./dto/update-employee.dto";
 
 @Injectable()
 export class EmployeeRepository {
-  constructor(private readonly prisma: PrismaService) {
-  }
+  constructor(private readonly prisma: PrismaService) {}
 
   x;
 
   async create(body: CreateEmployeeDto) {
     try {
       const position = await this.prisma.position.findUnique({
-        where: {id: body.positionId},
+        where: { id: body.positionId },
       });
 
       return await this.prisma.employee.create({
@@ -36,23 +34,25 @@ export class EmployeeRepository {
           identify: body.identify,
           idCardAt: body.idCardAt,
           issuedBy: body.issuedBy,
-          ward: {connect: {id: body.wardId}},
-          position: {connect: {id: body.positionId}},
-          branch: {connect: {id: body.branchId}},
+          ward: { connect: { id: body.wardId } },
+          position: { connect: { id: body.positionId } },
+          branch: { connect: { id: body.branchId } },
           address: body.address,
           religion: body.religion,
           workday: body.workday,
           mst: body.mst,
-          contracts: body.contract?.createdAt ? {
-            create: {
-              createdAt: body.contract.createdAt,
-              expiredAt: body.contract.expiredAt,
-              position: position.name
-            }
-          } : {},
+          contracts: body.contract?.createdAt
+            ? {
+                create: {
+                  createdAt: body.contract.createdAt,
+                  expiredAt: body.contract.expiredAt,
+                  position: position.name,
+                },
+              }
+            : {},
         },
         include: {
-          position: {include: {branches: true}},
+          position: { include: { branches: true } },
         },
       });
     } catch (err) {
@@ -60,7 +60,10 @@ export class EmployeeRepository {
       if (err?.response?.code === "P2002") {
         throw new ConflictException("CMND nhân viên đã tồn tại", err);
       } else {
-        throw new BadRequestException(err);
+        throw new BadRequestException(
+          "Thêm nhân viên thất bại. Bạn đã tạo mới chức vụ hoặc đơn vị mới chưa. Vui lòng kiểm tra lại. ",
+          err
+        );
       }
     }
   }
@@ -80,9 +83,9 @@ export class EmployeeRepository {
 
       const template = search?.templateId
         ? await this.prisma.overtimeTemplate.findUnique({
-          where: {id: search?.templateId},
-          include: {positions: true},
-        })
+            where: { id: search?.templateId },
+            include: { positions: true },
+          })
         : null;
       const positionIds = template?.positions?.map((position) => position.id);
 
@@ -91,15 +94,15 @@ export class EmployeeRepository {
           where: {
             leftAt: null,
             position: {
-              name: {startsWith: search?.position, mode: "insensitive"},
+              name: { startsWith: search?.position, mode: "insensitive" },
             },
-            positionId: {in: positionIds},
-            code: {contains: search?.code, mode: "insensitive"},
+            positionId: { in: positionIds },
+            code: { contains: search?.code, mode: "insensitive" },
             AND: {
-              firstName: {contains: name?.firstName, mode: "insensitive"},
-              lastName: {contains: name?.lastName, mode: "insensitive"},
+              firstName: { contains: name?.firstName, mode: "insensitive" },
+              lastName: { contains: name?.lastName, mode: "insensitive" },
             },
-            gender: search?.gender ? {equals: search?.gender} : {},
+            gender: search?.gender ? { equals: search?.gender } : {},
             isFlatSalary: search?.isFlatSalary,
             createdAt: search?.createdAt,
             workedAt: search?.workedAt,
@@ -110,13 +113,13 @@ export class EmployeeRepository {
           take: take || undefined,
           where: {
             leftAt: null,
-            positionId: {in: positionIds},
-            code: {startsWith: search?.code, mode: "insensitive"},
+            positionId: { in: positionIds },
+            code: { startsWith: search?.code, mode: "insensitive" },
             AND: {
-              firstName: {startsWith: name?.firstName, mode: "insensitive"},
-              lastName: {startsWith: name?.lastName, mode: "insensitive"},
+              firstName: { startsWith: name?.firstName, mode: "insensitive" },
+              lastName: { startsWith: name?.lastName, mode: "insensitive" },
             },
-            gender: search?.gender ? {equals: search?.gender} : {},
+            gender: search?.gender ? { equals: search?.gender } : {},
             isFlatSalary: search?.isFlatSalary,
             createdAt: search?.createdAt,
             workedAt: search?.workedAt,
@@ -127,14 +130,14 @@ export class EmployeeRepository {
             ward: {
               include: {
                 district: {
-                  include: {province: {include: {nation: true}}},
+                  include: { province: { include: { nation: true } } },
                 },
               },
             },
           },
         }),
       ]);
-      return {total, data};
+      return { total, data };
     } catch (e) {
       console.error(e);
       throw new BadRequestException(e);
@@ -144,21 +147,21 @@ export class EmployeeRepository {
   async findBy(query: any) {
     return await this.prisma.employee.findMany({
       where: query,
-      include: {payrolls: true},
+      include: { payrolls: true },
     });
   }
 
   async findFirst(query: any) {
     return await this.prisma.employee.findFirst({
       where: query,
-      include: {payrolls: true},
+      include: { payrolls: true },
     });
   }
 
   async findOne(id: number) {
     try {
       return await this.prisma.employee.findUnique({
-        where: {id: id},
+        where: { id: id },
         include: {
           degrees: true,
           contracts: true,
@@ -214,7 +217,7 @@ export class EmployeeRepository {
   async update(id: number, updates: UpdateEmployeeDto) {
     try {
       return await this.prisma.employee.update({
-        where: {id: id},
+        where: { id: id },
         data: updates,
       });
     } catch (err) {
@@ -227,7 +230,7 @@ export class EmployeeRepository {
   async remove(id: number) {
     try {
       await this.prisma.employee.update({
-        where: {id},
+        where: { id },
         data: {
           leftAt: new Date(),
         },

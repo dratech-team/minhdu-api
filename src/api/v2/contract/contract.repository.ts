@@ -1,12 +1,10 @@
 import { Injectable } from "@nestjs/common";
 import { Contract } from "@prisma/client";
-import { InterfaceRepository } from "../../../common/repository/interface.repository";
-import { ResponsePagination } from "../../../common/entities/response.pagination";
 import { PrismaService } from "../../../prisma.service";
 import { CreateContractDto } from "./dto/create-contract.dto";
 
 @Injectable()
-export class ContractRepository implements InterfaceRepository<Contract> {
+export class ContractRepository {
   constructor(private readonly prisma: PrismaService) {}
 
   async count(): Promise<number> {
@@ -14,21 +12,11 @@ export class ContractRepository implements InterfaceRepository<Contract> {
   }
 
   async create(body: CreateContractDto): Promise<Contract> {
-    const employee = await this.prisma.employee.findUnique({
-      where: { id: body.employeeId },
-      include: { position: true },
-    });
-    body.position = employee.position.name;
-    return this.prisma.contract.create({ data: body });
+    return await this.prisma.contract.create({ data: body });
   }
 
-  findAll(
-    branchId: number,
-    skip: number,
-    take: number,
-    search?: string
-  ): Promise<ResponsePagination<Contract>> {
-    return Promise.resolve(undefined);
+  async findAll(): Promise<Contract[]> {
+    return await this.prisma.contract.findMany();
   }
 
   findBy(branchId: number, query: any): Promise<[]> {
@@ -39,9 +27,9 @@ export class ContractRepository implements InterfaceRepository<Contract> {
     return Promise.resolve(undefined);
   }
 
-  remove(id: number): void {}
-
-  update(id: number, updates: any): Promise<Contract> {
-    return Promise.resolve(undefined);
+ async update(id: number, updates: any): Promise<Contract> {
+    return await this.prisma.contract.update({where: {id}, data: updates});
   }
+
+  remove(id: number): void {}
 }
