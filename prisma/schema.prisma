@@ -146,7 +146,7 @@ model Employee {
   identify        String?         @unique
   idCardAt        DateTime?
   issuedBy        String?
-  workday         Int?
+  workday         Int
   ward            Ward            @relation(fields: [wardId], references: [id])
   wardId          Int
   address         String
