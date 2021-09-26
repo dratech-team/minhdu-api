@@ -1,15 +1,5 @@
-import {
-  BadRequestException,
-  ConflictException,
-  Injectable,
-} from "@nestjs/common";
-import {
-  DatetimeUnit,
-  Payroll,
-  Role,
-  Salary,
-  SalaryType,
-} from "@prisma/client";
+import {BadRequestException, ConflictException, Injectable,} from "@nestjs/common";
+import {DatetimeUnit, Payroll, Role, Salary, SalaryType,} from "@prisma/client";
 import {Response} from "express";
 import * as moment from "moment";
 import {exportExcel} from "src/core/services/export.service";
@@ -83,15 +73,19 @@ export class PayrollService {
 
   mapPayrollToPayslip(payroll) {
     return Object.assign(payroll, {
-      payslip: payroll.manConfirmedAt ? this.totalSalary(payroll) : null,
+      payslip: payroll?.manConfirmedAt ? this.totalSalary(payroll) : null,
     });
   }
 
   async findOne(id: number): Promise<OnePayroll> {
     const res = await this.repository.findOne(id);
-    return Object.assign(this.mapPayrollToPayslip(res), {
-      actualDay: this.totalSalary(res).actualDay,
-    });
+    if (!res) {
+      throw new BadRequestException(`${id} không tồn tại..`);
+    } else {
+      return Object.assign(this.mapPayrollToPayslip(res), {
+        actualDay: this.totalSalary(res).actualDay,
+      });
+    }
   }
 
   async export(response: Response, user: ProfileEntity) {
@@ -211,7 +205,10 @@ export class PayrollService {
     let total = 0;
 
     /// TH nhân viên nghỉ ngang. Thì sẽ confirm phiếu lương => phiếu lương không được sửa nữa. và lấy ngày hiện tại
-    let actualDay = !payroll.isEdit ? new Date().getDate() : lastDayOfMonth(payroll.createdAt) - this.totalAbsent(payroll.salaries).absent;
+    // let actualDay = !payroll.isEdit ? new Date().getDate() : lastDayOfMonth(payroll.createdAt) - this.totalAbsent(payroll.salaries).absent;
+
+    /// FIXME: dummy for testing
+    let actualDay = lastDayOfMonth(payroll.createdAt) - this.totalAbsent(payroll.salaries).absent;
 
     if (
       payroll.employee.isFlatSalary &&
