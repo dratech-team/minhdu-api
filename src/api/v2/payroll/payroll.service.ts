@@ -238,9 +238,8 @@ export class PayrollService {
         }
         case SalaryType.ALLOWANCE: {
           if (salary.unit === DatetimeUnit.MONTH) {
-            salary.times = 1;
+            allowanceSalary += salary.price;
           }
-          allowanceSalary += salary.price;
           break;
         }
         case SalaryType.OVERTIME: {
@@ -280,7 +279,7 @@ export class PayrollService {
     }
 
     const allowance: Salary[] = payroll.salaries.filter(salary => salary.type === SalaryType.ALLOWANCE && salary.unit === DatetimeUnit.DAY);
-    const allowanceDay = allowance.map((a) => a.price * a.rate).reduce((a, b) => a + b, 0)
+    const allowanceDay = allowance.map((a) => a.price * a.rate).reduce((a, b) => a + b, 0) * actualDay;
 
     return {
       basic: Math.ceil(basicSalary),
