@@ -27,13 +27,11 @@ export class CreateContractDto {
 
   @Type(() => Date)
   @IsDate()
-  @MaxDate(tomorrowDate(), { message: ValidatorMessage.datetime })
   readonly createdAt: Date;
 
   @IsOptional()
   @Type(() => Date)
   @IsDate()
-  @MaxDate(tomorrowDate(), { message: ValidatorMessage.datetime })
   readonly expiredAt: Date;
 
   @IsNotEmpty()
