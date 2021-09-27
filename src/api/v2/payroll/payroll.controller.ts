@@ -47,7 +47,6 @@ export class PayrollController {
     @ReqProfile() user: ProfileEntity,
     @Query("skip") skip: number,
     @Query("take") take: number,
-    @Query("code") code: string,
     @Query("name") name: string,
     @Query("branch") branch: string,
     @Query("department") department: string,
@@ -57,7 +56,6 @@ export class PayrollController {
     @Query("isPaid") isPaid: number
   ) {
     return this.payrollService.findAll(user, +skip, +take, {
-      code,
       name,
       branch,
       department,

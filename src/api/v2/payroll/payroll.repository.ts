@@ -78,7 +78,25 @@ export class PayrollRepository {
       const name = searchName(search?.name);
 
       const [total, payrolls] = await Promise.all([
-        this.prisma.payroll.count({where: {employee: {leftAt: null}}}),
+        this.prisma.payroll.count({
+          where: {
+            employee: {
+              leftAt: null,
+              position: {
+                name: {startsWith: search?.position, mode: "insensitive"},
+              },
+              AND: {
+                firstName: {startsWith: name?.firstName, mode: "insensitive"},
+                lastName: {startsWith: name?.lastName, mode: "insensitive"},
+              },
+            },
+            createdAt: {
+              gte: firstMonth(search?.createdAt ?? new Date()),
+              lte: lastMonth(search?.createdAt ?? new Date()),
+            },
+            paidAt: null,
+          },
+        }),
         this.prisma.payroll.findMany({
           take: take ?? undefined,
           skip: skip ?? undefined,
@@ -88,7 +106,6 @@ export class PayrollRepository {
               position: {
                 name: {startsWith: search?.position, mode: "insensitive"},
               },
-              code: {startsWith: search?.code, mode: "insensitive"},
               AND: {
                 firstName: {startsWith: name?.firstName, mode: "insensitive"},
                 lastName: {startsWith: name?.lastName, mode: "insensitive"},
@@ -159,18 +176,25 @@ export class PayrollRepository {
 
   async findOne(id: number): Promise<OnePayroll> {
     try {
-      return await this.prisma.payroll.findUnique({
-        where: {id: id},
-        include: {
-          salaries: true,
-          employee: {
-            include: {
-              contracts: true,
-              position: true,
+      const [payroll, payrolls] = await Promise.all([
+        this.prisma.payroll.findUnique({
+          where: {id: id},
+          include: {
+            salaries: true,
+            employee: {
+              include: {
+                contracts: true,
+                position: true,
+              },
             },
           },
-        },
-      });
+        }),
+        this.prisma.payroll.findMany(),
+      ]);
+
+      const payrollIds = payrolls.map(payroll => payroll.id);
+
+      return Object.assign(payroll, {payrollIds: payrollIds});
     } catch (e) {
       console.error(e);
       throw new BadRequestException(e);

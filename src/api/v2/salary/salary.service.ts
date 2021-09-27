@@ -1,16 +1,12 @@
-import { BadRequestException, Injectable } from "@nestjs/common";
-import { DatetimeUnit, Salary, SalaryType } from "@prisma/client";
-import {
-  CreateSalaryDto,
-  CreateSalaryEmployeesDto,
-} from "./dto/create-salary.dto";
-import { UpdateSalaryDto } from "./dto/update-salary.dto";
-import { SalaryRepository } from "./salary.repository";
-import { EmployeeService } from "../employee/employee.service";
-import { PayrollService } from "../payroll/payroll.service";
-import { firstMonth, lastMonth } from "../../../utils/datetime.util";
-import { OneSalary } from "./entities/salary.entity";
-import { HistorySalaryService } from "../histories/history-salary/history-salary.service";
+import {BadRequestException, Injectable} from "@nestjs/common";
+import {Salary, SalaryType} from "@prisma/client";
+import {CreateSalaryDto, CreateSalaryEmployeesDto,} from "./dto/create-salary.dto";
+import {UpdateSalaryDto} from "./dto/update-salary.dto";
+import {SalaryRepository} from "./salary.repository";
+import {EmployeeService} from "../employee/employee.service";
+import {PayrollService} from "../payroll/payroll.service";
+import {firstMonth, lastMonth} from "../../../utils/datetime.util";
+import {OneSalary} from "./entities/salary.entity";
 
 @Injectable()
 export class SalaryService {
@@ -18,7 +14,8 @@ export class SalaryService {
     private readonly repository: SalaryRepository,
     private readonly employeeService: EmployeeService,
     private readonly payrollService: PayrollService
-  ) {}
+  ) {
+  }
 
   async create(
     body: CreateSalaryDto & CreateSalaryEmployeesDto
@@ -51,15 +48,16 @@ export class SalaryService {
           );
         }
         // Tạo overtime trong payroll cho nhân viên
-        const salary = Object.assign(body, { payrollId: payroll.id });
+        const salary = Object.assign(body, {payrollId: payroll.id});
         await this.repository.create(this.mapToSalary(salary));
       }
     } else {
       const payroll = await this.payrollService.findOne(body.payrollId);
-      if (
-        payroll.salaries.map((salary) => salary.title).includes(body.title) &&
-        payroll.salaries.map((salary) => salary.type).includes(body.type)
-      ) {
+      const salaries = payroll.salaries.filter(salary => salary.type === SalaryType.BASIC_INSURANCE || salary.type === SalaryType.BASIC || salary.type === SalaryType.STAY);
+      const isEqualTitle = salaries.map(salary => salary.title).includes(body.title);
+      const isEqualPrice = salaries.map(salary => salary.price).includes(body.price);
+
+      if (isEqualTitle && isEqualPrice) {
         throw new BadRequestException(
           `${body.title} đã tồn tại. Vui lòng không thêm`
         );

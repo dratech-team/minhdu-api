@@ -162,22 +162,35 @@ export class PayrollService {
 
   totalAbsent(salaries: Salary[]) {
     /// absent có time = 0 và datetime nên sẽ có giá trị khơi
-    let absent = 0;
-    let late = 0;
+    let day = 0;
+    let hour = 0;
+    let minute = 0;
     const DAY = 1;
 
     salaries
       .filter((salary) => salary.type === SalaryType.ABSENT)
       .forEach((salary) => {
-        if (salary.unit === DatetimeUnit.DAY) {
-          absent += DAY;
-        } else if (salary.unit === DatetimeUnit.HOUR) {
-          absent += Math.floor(DAY / 8);
-          late += DAY % 8;
+        switch (salary.unit) {
+          case DatetimeUnit.DAY: {
+            if (salary.datetime) {
+              day += DAY;
+            }
+            break;
+          }
+          case DatetimeUnit.HOUR: {
+            hour += salary.times;
+            break;
+          }
+          case DatetimeUnit.MINUTE: {
+            minute += salary.times;
+            break;
+          }
+          default:
+            console.error("LDatetimeUnit Unknown");
         }
       });
 
-    return {absent, late};
+    return {day, hour, minute};
   }
 
   /*
@@ -190,7 +203,8 @@ export class PayrollService {
    * Lương cố định: isFlat
    * Tổng ngày vắng: absents
    *
-   * 1. actual > workday                  => result = (basics / workday) x actual + stays + allowances
+   * 1. actual > workday                  => result = [(basics + stays) / actual] x actual + stays + allowances
+   * 1. actual === workday                  => result = (basics / workday) x actual + stays + allowances
    * 2. actual < workday                  => result = [(basics + stays) / workday] x actual + allowances
    * 3. isFlat === true && absents !== 0  => actual = workday (Dù tháng đó có bao nhiêu ngày đi chăng nữa). else quay lại 1 & 2
    * */
@@ -200,10 +214,9 @@ export class PayrollService {
     let basicSalary = 0;
     let tax = 0;
     let staySalary = 0;
-    let allowanceSalary = 0;
+    let allowanceMonthSalary = 0;
+    let allowanceDaySalary = 0;
     let overtimeSalary = 0;
-    let absentTime = 0;
-    let lateTime = this.totalAbsent(payroll.salaries).late;
     let daySalary = 0;
     let total = 0;
 
@@ -211,10 +224,10 @@ export class PayrollService {
     // let actualDay = !payroll.isEdit ? new Date().getDate() : lastDayOfMonth(payroll.createdAt) - this.totalAbsent(payroll.salaries).absent;
 
     /// FIXME: dummy for testing
-    let actualDay = lastMonth(payroll.createdAt).getDate() - this.totalAbsent(payroll.salaries).absent;
+    let actualDay = lastMonth(payroll.createdAt).getDate() - this.totalAbsent(payroll.salaries).day;
     if (
       payroll.employee.isFlatSalary &&
-      this.totalAbsent(payroll.salaries).absent === 0 &&
+      this.totalAbsent(payroll.salaries).day === 0 &&
       !payroll.isEdit
     ) {
       actualDay = 30;
@@ -228,6 +241,7 @@ export class PayrollService {
           basicSalary += salary.price;
           break;
         }
+        // Không họp case chung được
         case SalaryType.BASIC_INSURANCE: {
           basicSalary += salary.price;
           break;
@@ -238,24 +252,21 @@ export class PayrollService {
         }
         case SalaryType.ALLOWANCE: {
           if (salary.unit === DatetimeUnit.MONTH) {
-            allowanceSalary += salary.price;
+            allowanceMonthSalary += salary.price;
+          } else if (salary.unit === DatetimeUnit.DAY) {
+            const allowanceDay = salary.price * salary.rate;
           }
           break;
         }
         case SalaryType.OVERTIME: {
           overtimeSalary += salary.times * salary.price;
         }
-          break;
-        // case SalaryType.ABSENT:
-        //   if (salary.unit === DatetimeUnit.HOUR) {
-        //     this.totalAbsent(payroll.salaries)
-        //     lateTime += salary.times;
-        //   }
-        //   break;
       }
     }
-    if (actualDay >= payroll.employee.workday) {
+    if (actualDay === payroll.employee.workday) {
       daySalary = basicSalary / payroll.employee.workday;
+    } else if (actualDay > payroll.employee.workday) {
+      daySalary = (basicSalary ) / payroll.employee.workday;
     } else {
       daySalary = (basicSalary + staySalary) / payroll.employee.workday;
     }
@@ -263,27 +274,35 @@ export class PayrollService {
     const basic = payroll.salaries.find(
       (salary) => salary.type === SalaryType.BASIC_INSURANCE
     );
+
+    // Thuế dựa theo lương cơ bản BASIC_INSURANCE
     if (basic) {
       tax = payroll.employee.contracts.length !== 0 ? basic.price * 0.115 : 0;
     }
 
-    const deduction = this.totalAbsent(payroll.salaries).absent * daySalary + (daySalary / 8) * this.totalAbsent(payroll.salaries).late;
+    // Tổng tiền đi trễ tính theo ngày. Nếu ngày đi làm chuẩn <= ngày thực tế
+    const absentDaySalary = actualDay <= payroll.employee.workday ? this.totalAbsent(payroll.salaries).day * daySalary : 0;
+    // Tổng tiền đi trễ tính theo  giờ
+    const absentHourSalary = this.totalAbsent(payroll.salaries).hour * (daySalary / 8);
+    // Tổng tiền đi trễ tính theo phút
+    const absentHourMinuteSalary = this.totalAbsent(payroll.salaries).minute * ((daySalary / 8) / 60);
 
-    const allowance: Salary[] = payroll.salaries.filter(salary => salary.type === SalaryType.ALLOWANCE && salary.unit === DatetimeUnit.DAY);
-    const allowanceDay = allowance.map((a) => a.price * a.rate).reduce((a, b) => a + b, 0) * actualDay;
+    // Tổng tiền đi trễ
+    const deductionSalary = absentDaySalary + absentHourSalary + absentHourMinuteSalary;
 
-    if (actualDay >= payroll.employee.workday) {
-      total = (daySalary * actualDay) + Math.ceil(allowanceSalary + allowanceDay) + staySalary - tax;
+    if (actualDay === payroll.employee.workday) {
+      total = (daySalary * actualDay) + Math.ceil(allowanceMonthSalary + allowanceDaySalary * actualDay) + staySalary - tax;
+    } else if (actualDay > payroll.employee.workday) {
+      total = daySalary * actualDay + Math.ceil(allowanceMonthSalary + allowanceDaySalary * actualDay) - tax;
     } else {
-      total = (daySalary * actualDay) + Math.ceil(allowanceSalary + allowanceDay) - tax;
+      total = (daySalary * actualDay) + Math.ceil(allowanceMonthSalary + allowanceDaySalary * actualDay) - tax;
     }
-
     return {
       basic: Math.ceil(basicSalary),
       stay: Math.ceil(staySalary),
       overtime: overtimeSalary,
-      allowance: Math.ceil(allowanceSalary + allowanceDay),
-      deduction,
+      allowance: Math.ceil(allowanceMonthSalary + allowanceDaySalary * actualDay),
+      deduction: deductionSalary,
       daySalary,
       actualDay: actualDay,
       workday: payroll.employee.workday,
