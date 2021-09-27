@@ -269,18 +269,14 @@ export class PayrollService {
 
     const deduction = this.totalAbsent(payroll.salaries).absent * daySalary + (daySalary / 8) * this.totalAbsent(payroll.salaries).late;
 
-    if (actualDay >= payroll.employee.workday) {
-      total =
-        daySalary * actualDay +
-        allowanceSalary +
-        staySalary -
-        tax;
-    } else {
-      total = daySalary * actualDay + allowanceSalary - tax;
-    }
-
     const allowance: Salary[] = payroll.salaries.filter(salary => salary.type === SalaryType.ALLOWANCE && salary.unit === DatetimeUnit.DAY);
     const allowanceDay = allowance.map((a) => a.price * a.rate).reduce((a, b) => a + b, 0) * actualDay;
+
+    if (actualDay >= payroll.employee.workday) {
+      total = (daySalary * actualDay) + Math.ceil(allowanceSalary + allowanceDay) + staySalary - tax;
+    } else {
+      total = (daySalary * actualDay) + Math.ceil(allowanceSalary + allowanceDay) - tax;
+    }
 
     return {
       basic: Math.ceil(basicSalary),
