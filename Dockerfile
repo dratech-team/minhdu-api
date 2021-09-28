@@ -1,3 +1,4 @@
+# Update the VARIANT arg in docker-compose.yml to pick a Node version: 10, 12, 14
 ARG VARIANT=12
 FROM node:${VARIANT}-alpine
 
@@ -14,5 +15,5 @@ RUN yarn build
 
 RUN ls -la
 
-CMD ["yarn", "start:dev"]
+CMD ["yarn", "start"]
 EXPOSE 1130

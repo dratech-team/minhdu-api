@@ -353,6 +353,9 @@ model Salary {
   historySalary SalaryHistory?
   payroll       Payroll?       @relation(fields: [payrollId], references: [id])
   payrollId     Int?
+  allowance     Salary?        @relation(fields: [allowanceId], references: [id])
+  allowanceId   Int?
+  allowances    Salary[]       @relation("SalaryToSalary")
 }
 
 model Payroll {

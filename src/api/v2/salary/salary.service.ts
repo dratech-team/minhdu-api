@@ -38,26 +38,14 @@ export class SalaryService {
         );
 
         // Tạo overtime trong payroll cho nhân viên
-        const salary = Object.assign(body, { payrollId: payroll.id });
-        await this.repository.create(this.mapToSalary(salary));
-      }
-    }
-
-    /// Thêm phụ cấp tiền ăn / phụ cấp trong giờ làm  tăng ca hàng loạt
-    if (body.allowEmpIds && body.allowEmpIds.length) {
-      const allowEmpIds = await Promise.all(
-        body.allowEmpIds.map(
-          async (employeeId) => await this.employeeService.findOne(employeeId)
-        )
-      );
-
-      for (let i = 0; i < allowEmpIds.length; i++) {
-        const payroll = await this.findPayrollByEmployee(
-          allowEmpIds[i].id,
-          body.datetime
+        // Thêm phụ cấp tiền ăn / phụ cấp trong giờ làm  tăng ca hàng loạt
+        const salary = Object.assign(
+          body,
+          body.allowEmpIds.includes(employees[i].id)
+            ? { payrollId: payroll.id, allowance: body.allowance }
+            : { payrollId: payroll.id }
         );
-        // Tạo overtime trong payroll cho nhân viên
-        await this.repository.create(this.mapToOvertimeAllowance(body));
+        await this.repository.create(this.mapToSalary(salary));
       }
     } else {
       const payroll = await this.payrollService.findOne(body.payrollId);
@@ -85,11 +73,11 @@ export class SalaryService {
       //   const datetimes = getRange(rageDate?.start, rageDate?.end, "days");
       //   console.log(datetimes);
       // }
+      const salary = Object.assign(this.mapToSalary(body), {
+        allowance: body.allowance,
+      }) as CreateSalaryDto & { allowance: CreateSalaryDto };
 
-      if (body.allowance) {
-        await this.repository.create(this.mapToOvertimeAllowance(body));
-      }
-      return await this.repository.create(this.mapToSalary(body));
+      return await this.repository.create(salary);
     }
   }
 

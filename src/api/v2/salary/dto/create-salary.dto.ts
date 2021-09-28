@@ -27,7 +27,6 @@ export class CreateSalaryEmployeesDto extends OmitType(CreateSalaryDto, [
   readonly allowance: CreateAllowanceDto;
 }
 
-
 /// use khi loại tăng ca là ngày. tiền sẽ được công 1 ngày hoặc nhiều ngày
 export class CreateSalaryByDayDto extends OmitType(CreateSalaryDto, [
   "datetime",
