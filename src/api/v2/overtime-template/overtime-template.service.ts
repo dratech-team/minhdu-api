@@ -26,6 +26,8 @@ export class OvertimeTemplateService {
           title: body.title,
           price: body.price,
           rate: body.rate,
+          unit: body.unit,
+          type: body.type
         },
       });
     } catch (err) {

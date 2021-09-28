@@ -1,8 +1,10 @@
+import { RecipeType } from "@prisma/client";
 import { Type } from "class-transformer";
 import {
   IsBoolean,
   IsDate,
   IsEmail,
+  IsEnum,
   IsNotEmpty,
   IsNumber,
   IsOptional,
@@ -65,6 +67,10 @@ export class CreateEmployeeDto extends CreateProfileDto {
   @IsOptional()
   @IsString()
   readonly note: string;
+
+  @IsOptional()
+  @IsEnum(RecipeType)
+  readonly recipeType: RecipeType;
 
   @IsOptional()
   contract: CreateContractDto;

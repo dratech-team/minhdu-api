@@ -28,7 +28,6 @@ export class ICreateSalaryDto {
   @Type(() => Date)
   @IsDate()
   @IsOptional()
-  @MaxDate(tomorrowDate(), { message: ValidatorMessage.datetime })
   readonly datetime?: Date;
 
   @IsOptional()

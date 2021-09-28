@@ -1,7 +1,7 @@
 import {
   BadRequestException,
   ConflictException,
-  Injectable
+  Injectable,
 } from "@nestjs/common";
 import { ProfileEntity } from "../../../common/entities/profile.entity";
 import { PrismaService } from "../../../prisma.service";
@@ -21,6 +21,16 @@ export class EmployeeRepository {
       const position = await this.prisma.position.findUnique({
         where: { id: body.positionId },
       });
+
+      // Nếu tạo nhân viên có workday thuộc position này nhưng khác ngày công chuẩn thì cập nhật lại ngày công chuẩn cho position đó
+      if (position.name && body.workday !== position.workday) {
+        this.prisma.position.update({
+          where: { id: body.positionId },
+          data: { workday: body.workday },
+        });
+      }
+
+      //
 
       return await this.prisma.employee.create({
         data: {
@@ -50,6 +60,7 @@ export class EmployeeRepository {
                 },
               }
             : {},
+          recipeType: body.recipeType,
         },
         include: {
           position: { include: { branches: true } },
@@ -58,7 +69,7 @@ export class EmployeeRepository {
     } catch (err) {
       console.error(err);
       if (err?.response?.code === "P2002") {
-        throw new ConflictException("CMND nhân viên đã tồn tại", err);
+        throw new ConflictException("Nhân viên đã nghỉ việc. Hồ sơ nhân viên đã có trên hệ thống. Vui lòng liên hệ admin để khôi phục tài khoản", err);
       } else {
         throw new BadRequestException(
           "Thêm nhân viên thất bại. Bạn đã tạo mới chức vụ hoặc đơn vị mới chưa. Vui lòng kiểm tra lại. ",
