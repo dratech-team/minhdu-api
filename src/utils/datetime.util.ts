@@ -1,10 +1,10 @@
 import * as moment from "moment";
 
-export function firstMonth(datetime: string | Date | undefined): Date | undefined {
+export function firstDatetimeOfMonth(datetime: string | Date | undefined): Date | undefined {
   return datetime ? moment(datetime).clone().startOf('month').toDate() : undefined;
 }
 
-export function lastMonth(datetime: string | Date | undefined): Date | undefined {
+export function lastDatetimeOfMonth(datetime: string | Date | undefined): Date | undefined {
   return datetime ? moment(datetime).clone().endOf('month').toDate() : undefined;
 }
 

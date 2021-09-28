@@ -3,7 +3,7 @@ import {Employee, Payroll, SalaryType} from "@prisma/client";
 import * as moment from "moment";
 import {ProfileEntity} from "../../../common/entities/profile.entity";
 import {PrismaService} from "../../../prisma.service";
-import {firstMonth, lastMonth} from "../../../utils/datetime.util";
+import {firstDatetimeOfMonth, lastDatetimeOfMonth} from "../../../utils/datetime.util";
 import {searchName} from "../../../utils/search-name.util";
 import {CreatePayrollDto} from "./dto/create-payroll.dto";
 import {SearchPayrollDto} from "./dto/search-payroll.dto";
@@ -91,8 +91,8 @@ export class PayrollRepository {
               },
             },
             createdAt: {
-              gte: firstMonth(search?.createdAt ?? new Date()),
-              lte: lastMonth(search?.createdAt ?? new Date()),
+              gte: firstDatetimeOfMonth(search?.createdAt ?? new Date()),
+              lte: lastDatetimeOfMonth(search?.createdAt ?? new Date()),
             },
             paidAt: null,
           },
@@ -112,8 +112,8 @@ export class PayrollRepository {
               },
             },
             createdAt: {
-              gte: firstMonth(search?.createdAt ?? new Date()),
-              lte: lastMonth(search?.createdAt ?? new Date()),
+              gte: firstDatetimeOfMonth(search?.createdAt ?? new Date()),
+              lte: lastDatetimeOfMonth(search?.createdAt ?? new Date()),
             },
             paidAt: null,
           },
@@ -144,8 +144,8 @@ export class PayrollRepository {
     employeeId: Employee["id"],
     datetime?: Date
   ): Promise<FullPayroll> {
-    const first = firstMonth(datetime || new Date());
-    const last = lastMonth(datetime || new Date());
+    const first = firstDatetimeOfMonth(datetime || new Date());
+    const last = lastDatetimeOfMonth(datetime || new Date());
     try {
       return await this.prisma.payroll.findFirst({
         where: {
@@ -180,7 +180,11 @@ export class PayrollRepository {
         this.prisma.payroll.findUnique({
           where: {id: id},
           include: {
-            salaries: true,
+            salaries: {
+              include: {
+                allowance: true
+              }
+            },
             employee: {
               include: {
                 contracts: true,
@@ -192,7 +196,7 @@ export class PayrollRepository {
         this.prisma.payroll.findMany(),
       ]);
 
-      const payrollIds = payrolls.map(payroll => payroll.id);
+      const payrollIds = payrolls?.map(payroll => payroll?.id);
 
       return Object.assign(payroll, {payrollIds: payrollIds});
     } catch (e) {

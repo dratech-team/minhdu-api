@@ -1,6 +1,6 @@
 import { BadRequestException, Injectable } from "@nestjs/common";
 import { Salary, SalaryType } from "@prisma/client";
-import { firstMonth, lastMonth } from "../../../utils/datetime.util";
+import { firstDatetimeOfMonth, lastDatetimeOfMonth } from "../../../utils/datetime.util";
 import { EmployeeService } from "../employee/employee.service";
 import { PayrollService } from "../payroll/payroll.service";
 import {
@@ -47,6 +47,7 @@ export class SalaryService {
         );
         await this.repository.create(this.mapToSalary(salary));
       }
+      console.log("if 1")
     } else {
       const payroll = await this.payrollService.findOne(body.payrollId);
       const salaries = payroll.salaries.filter(
@@ -76,7 +77,7 @@ export class SalaryService {
       const salary = Object.assign(this.mapToSalary(body), {
         allowance: body.allowance,
       }) as CreateSalaryDto & { allowance: CreateSalaryDto };
-
+      console.log("if 2")
       return await this.repository.create(salary);
     }
   }
@@ -86,8 +87,8 @@ export class SalaryService {
     const payroll = await this.payrollService.findFirst({
       employeeId: employeeId,
       createdAt: {
-        gte: firstMonth(datetime ?? new Date()),
-        lte: lastMonth(datetime ?? new Date()),
+        gte: firstDatetimeOfMonth(datetime ?? new Date()),
+        lte: lastDatetimeOfMonth(datetime ?? new Date()),
       },
     });
 

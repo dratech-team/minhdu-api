@@ -1,33 +1,26 @@
-import {
-  BadRequestException,
-  ConflictException,
-  Injectable,
-} from "@nestjs/common";
-import {
-  DatetimeUnit,
-  Payroll,
-  Role,
-  Salary,
-  SalaryType,
-} from "@prisma/client";
-import { Response } from "express";
+import {BadRequestException, ConflictException, Injectable,} from "@nestjs/common";
+import {DatetimeUnit, Payroll, RecipeType, Role, Salary, SalaryType,} from "@prisma/client";
+import {Response} from "express";
 import * as moment from "moment";
-import { exportExcel } from "src/core/services/export.service";
-import { ProfileEntity } from "../../../common/entities/profile.entity";
-import { lastMonth } from "../../../utils/datetime.util";
-import { EmployeeService } from "../employee/employee.service";
-import { CreatePayrollDto } from "./dto/create-payroll.dto";
-import { SearchPayrollDto } from "./dto/search-payroll.dto";
-import { UpdatePayrollDto } from "./dto/update-payroll.dto";
-import { OnePayroll } from "./entities/payroll.entity";
-import { PayrollRepository } from "./payroll.repository";
+import {exportExcel} from "src/core/services/export.service";
+import {ProfileEntity} from "../../../common/entities/profile.entity";
+import {lastDatetimeOfMonth} from "../../../utils/datetime.util";
+import {EmployeeService} from "../employee/employee.service";
+import {CreatePayrollDto} from "./dto/create-payroll.dto";
+import {SearchPayrollDto} from "./dto/search-payroll.dto";
+import {UpdatePayrollDto} from "./dto/update-payroll.dto";
+import {OnePayroll} from "./entities/payroll.entity";
+import {PayrollRepository} from "./payroll.repository";
+import {HolidayService} from "../holiday/holiday.service";
 
 @Injectable()
 export class PayrollService {
   constructor(
     private readonly repository: PayrollRepository,
-    private readonly employeeService: EmployeeService
-  ) {}
+    private readonly employeeService: EmployeeService,
+    private readonly holidayService: HolidayService
+  ) {
+  }
 
   async create(body: CreatePayrollDto) {
     try {
@@ -50,7 +43,7 @@ export class PayrollService {
       user,
       undefined,
       undefined,
-      { branchId: user.branchId }
+      {branchId: user.branchId}
     );
 
     ///
@@ -72,27 +65,30 @@ export class PayrollService {
       this.mapPayrollToPayslip(payroll)
     );
 
-    return { total: data.total, data: payrolls };
+    return {total: data.total, data: payrolls};
   }
 
   async payslip(id: Payroll["id"]) {
     const payroll = await this.findOne(id);
-    return this.totalSalary(payroll);
+    return this.totalSalaryCT2(payroll);
   }
 
   mapPayrollToPayslip(payroll) {
     return Object.assign(payroll, {
-      payslip: payroll?.manConfirmedAt ? this.totalSalary(payroll) : null,
+      payslip: payroll?.manConfirmedAt ? this.totalSalaryCT2(payroll) : null,
     });
   }
 
   async findOne(id: number): Promise<OnePayroll> {
-    const res = await this.repository.findOne(id);
-    if (!res) {
+    const payroll = await this.repository.findOne(id);
+    if (!payroll) {
       throw new BadRequestException(`${id} không tồn tại..`);
     } else {
-      return Object.assign(this.mapPayrollToPayslip(res), {
-        actualDay: this.totalSalary(res).actualDay,
+      if (payroll.employee.recipeType === RecipeType.CT1) {
+        await this.totalSalaryCT1(payroll);
+      }
+      return Object.assign(this.mapPayrollToPayslip(payroll), {
+        actualDay: this.totalSalaryCT2(payroll).actualDay,
       });
     }
   }
@@ -150,14 +146,14 @@ export class PayrollService {
   async confirmPayroll(user: ProfileEntity, id: number) {
     switch (user.role) {
       case Role.CAMP_ACCOUNTING:
-        return await this.repository.update(id, { accConfirmedAt: new Date() });
+        return await this.repository.update(id, {accConfirmedAt: new Date()});
       case Role.CAMP_MANAGER:
-        return await this.repository.update(id, { manConfirmedAt: new Date() });
+        return await this.repository.update(id, {manConfirmedAt: new Date()});
       case Role.ACCOUNTANT_CASH_FUND:
-        return await this.repository.update(id, { paidAt: new Date() });
+        return await this.repository.update(id, {paidAt: new Date()});
       /// FIXME: dummy for testing
       case Role.HUMAN_RESOURCE:
-        return await this.repository.update(id, { manConfirmedAt: new Date() });
+        return await this.repository.update(id, {manConfirmedAt: new Date()});
       default:
         throw new BadRequestException(
           `${user.role} Bạn không có quyền xác nhận phiếu lương. Cảm ơn.`
@@ -199,7 +195,7 @@ export class PayrollService {
         }
       });
 
-    return { day, hour, minute };
+    return {day, hour, minute};
   }
 
   /*
@@ -221,8 +217,21 @@ export class PayrollService {
    * 3. isFlat === true && absents !== 0  => actual = workday (Dù tháng đó có bao nhiêu ngày đi chăng nữa). else quay lại 1 & 2
    * */
 
+  // CT1
+  async totalSalaryCT1(payroll: OnePayroll) {
+    const currentHoliday = await this.holidayService.findCurrentHolidays();
+    const absent = this.totalAbsent(payroll.salaries);
+
+    console.log("Vắng ", absent);
+    console.log("Tổng ngày lễ của tháng này ", currentHoliday);
+
+
+
+  }
+
   /// TODO: handle holiday
-  totalSalary(payroll: OnePayroll): TotalSalary {
+  // CT2
+  totalSalaryCT2(payroll: OnePayroll): TotalSalary {
     let tax = 0;
     let overtimeSalary = 0;
     let daySalary = 0;
@@ -232,7 +241,7 @@ export class PayrollService {
     // let actualDay = !payroll.isEdit ? new Date().getDate() : lastDayOfMonth(payroll.createdAt) - this.totalAbsent(payroll.salaries).absent;
     /// FIXME: dummy for testing
     let actualDay =
-      lastMonth(payroll.createdAt).getDate() -
+      lastDatetimeOfMonth(payroll.createdAt).getDate() -
       this.totalAbsent(payroll.salaries).day;
     if (
       payroll.employee.isFlatSalary &&

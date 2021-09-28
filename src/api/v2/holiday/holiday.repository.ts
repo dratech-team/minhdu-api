@@ -1,12 +1,14 @@
-import { BadRequestException, Injectable } from "@nestjs/common";
-import { PrismaService } from "../../../prisma.service";
-import { CreateHolidayDto } from "./dto/create-holiday.dto";
-import { UpdateHolidayDto } from "./dto/update-holiday.dto";
-import { SearchHolidayDto } from "./dto/search-holiday.dto";
+import {BadRequestException, Injectable} from "@nestjs/common";
+import {PrismaService} from "../../../prisma.service";
+import {CreateHolidayDto} from "./dto/create-holiday.dto";
+import {UpdateHolidayDto} from "./dto/update-holiday.dto";
+import {SearchHolidayDto} from "./dto/search-holiday.dto";
+import {firstDatetimeOfMonth, lastDatetimeOfMonth} from "../../../utils/datetime.util";
 
 @Injectable()
 export class HolidayRepository {
-  constructor(private readonly prisma: PrismaService) {}
+  constructor(private readonly prisma: PrismaService) {
+  }
 
   async create(body: CreateHolidayDto) {
     try {
@@ -15,7 +17,7 @@ export class HolidayRepository {
           name: body.name,
           datetime: body.datetime,
           rate: body.rate,
-          positions: { connect: body.positionIds.map((id) => ({ id })) },
+          positions: {connect: body.positionIds.map((id) => ({id}))},
         },
       });
     } catch (err) {
@@ -32,7 +34,7 @@ export class HolidayRepository {
           take: take || undefined,
           skip: skip || undefined,
           where: {
-            name: { startsWith: search?.name },
+            name: {startsWith: search?.name},
             datetime: search?.datetime || undefined,
             rate: search?.rate || undefined,
           },
@@ -41,7 +43,7 @@ export class HolidayRepository {
           },
         }),
       ]);
-      return { total, data };
+      return {total, data};
     } catch (err) {
       console.error(err);
       throw new BadRequestException(err);
@@ -51,7 +53,7 @@ export class HolidayRepository {
   async findOne(id: number) {
     try {
       return await this.prisma.holiday.findUnique({
-        where: { id },
+        where: {id},
         include: {
           positions: true,
         },
@@ -65,12 +67,12 @@ export class HolidayRepository {
   async update(id: number, updates: UpdateHolidayDto) {
     try {
       return await this.prisma.holiday.update({
-        where: { id },
+        where: {id},
         data: {
           name: updates.name,
           datetime: updates.datetime,
           rate: updates.rate,
-          positions: { connect: updates.positionIds.map((id) => ({ id })) },
+          positions: {connect: updates.positionIds.map((id) => ({id}))},
         },
       });
     } catch (err) {
@@ -81,10 +83,26 @@ export class HolidayRepository {
 
   async remove(id: number) {
     try {
-      await this.prisma.holiday.delete({ where: { id } });
+      await this.prisma.holiday.delete({where: {id}});
     } catch (err) {
       console.error(err);
       throw new BadRequestException(err);
+    }
+  }
+
+  async findCurrentHolidays() {
+    try {
+      return await this.prisma.holiday.findMany({
+        where: {
+          datetime: {
+            gte: firstDatetimeOfMonth(new Date()),
+            lte: lastDatetimeOfMonth(new Date()),
+          }
+        }
+      });
+    } catch (err) {
+      console.error(err);
+      throw new BadRequestException("Lỗi get current holiday", err);
     }
   }
 }
