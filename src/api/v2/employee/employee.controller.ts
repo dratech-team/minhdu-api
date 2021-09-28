@@ -42,7 +42,6 @@ export class EmployeeController {
     @ReqProfile() branchId: ProfileEntity,
     @Query("skip") skip: number,
     @Query("take") take: number,
-    @Query("code") code: string,
     @Query("name") name: string,
     @Query("gender") gender: GenderType,
     @Query("createdAt", ParseDatetimePipe) createdAt: any,
@@ -53,7 +52,6 @@ export class EmployeeController {
     @Query("templateId") templateId: number
   ) {
     return this.employeeService.findAll(branchId, skip, take, {
-      code,
       name,
       gender,
       createdAt,

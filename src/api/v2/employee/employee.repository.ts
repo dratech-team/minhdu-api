@@ -108,7 +108,6 @@ export class EmployeeRepository {
               name: { startsWith: search?.position, mode: "insensitive" },
             },
             positionId: { in: positionIds },
-            code: { contains: search?.code, mode: "insensitive" },
             AND: {
               firstName: { contains: name?.firstName, mode: "insensitive" },
               lastName: { contains: name?.lastName, mode: "insensitive" },
@@ -125,7 +124,6 @@ export class EmployeeRepository {
           where: {
             leftAt: null,
             positionId: { in: positionIds },
-            code: { startsWith: search?.code, mode: "insensitive" },
             AND: {
               firstName: { startsWith: name?.firstName, mode: "insensitive" },
               lastName: { startsWith: name?.lastName, mode: "insensitive" },
