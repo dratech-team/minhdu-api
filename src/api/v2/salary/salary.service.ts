@@ -57,13 +57,7 @@ export class SalaryService {
           body.datetime
         );
         // Tạo overtime trong payroll cho nhân viên
-        const salary = Object.assign(body, {
-          title: body.allowance.title,
-          price: body.allowance.price,
-          payrollId: payroll.id,
-          type: SalaryType.OVERTIME_ALLOWANCE,
-        });
-        await this.repository.create(this.mapToSalary(salary));
+        await this.repository.create(this.mapToOvertimeAllowance(body));
       }
     } else {
       const payroll = await this.payrollService.findOne(body.payrollId);
@@ -93,12 +87,7 @@ export class SalaryService {
       // }
 
       if (body.allowance) {
-        await this.repository.create({
-          title: body.allowance.title,
-          price: body.allowance.price,
-          type: SalaryType.OVERTIME_ALLOWANCE,
-          payrollId: body.payrollId,
-        });
+        await this.repository.create(this.mapToOvertimeAllowance(body));
       }
       return await this.repository.create(this.mapToSalary(body));
     }
@@ -172,6 +161,15 @@ export class SalaryService {
       rate: body.rate,
       price: +body.price,
       note: body.note,
+      payrollId: body.payrollId,
+    };
+  }
+
+  mapToOvertimeAllowance(body) {
+    return {
+      title: body.allowance.title,
+      price: body.allowance.price,
+      type: SalaryType.OVERTIME_ALLOWANCE,
       payrollId: body.payrollId,
     };
   }
