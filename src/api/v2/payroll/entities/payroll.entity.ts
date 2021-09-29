@@ -16,4 +16,4 @@ export type OnePayroll = Payroll & {
     contracts: Contract[];
     position: { name: string; workday: number };
   } & Employee;
-} & { salaries: Salary[] } & { payrollIds: Payroll["id"][] };
+} & { salaries: Salary[] };

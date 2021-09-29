@@ -174,7 +174,7 @@ export class PayrollRepository {
     }
   }
 
-  async findOne(id: number): Promise<OnePayroll> {
+  async findOne(id: number): Promise<OnePayroll | OnePayroll & { payrollIds: Payroll["id"][] }> {
     try {
       const [payroll, payrolls] = await Promise.all([
         this.prisma.payroll.findUnique({
@@ -195,9 +195,7 @@ export class PayrollRepository {
         }),
         this.prisma.payroll.findMany(),
       ]);
-
-      const payrollIds = payrolls?.map(payroll => payroll?.id);
-
+      const payrollIds = payrolls.map(payroll => payroll.id);
       return Object.assign(payroll, {payrollIds: payrollIds});
     } catch (e) {
       console.error(e);

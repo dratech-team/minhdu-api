@@ -1,8 +1,4 @@
-import {
-  BadRequestException,
-  Injectable,
-  NotFoundException,
-} from "@nestjs/common";
+import {BadRequestException, Injectable, NotFoundException,} from "@nestjs/common";
 import {SalaryType} from "@prisma/client";
 import {PrismaService} from "../../../prisma.service";
 import {CreateSalaryDto} from "./dto/create-salary.dto";
@@ -28,13 +24,13 @@ export class SalaryRepository {
           price: body.price,
           note: body.note,
           payroll: {connect: {id: body.payrollId}},
-          allowance: {
+          allowance: body.allowance ? {
             create: {
               title: body.allowance.title,
               type: body.allowance.type || SalaryType.OVERTIME,
               price: body.allowance.price
             }
-          },
+          } : {},
         }
       });
     } catch (err) {

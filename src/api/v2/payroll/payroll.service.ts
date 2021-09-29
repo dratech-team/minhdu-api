@@ -12,6 +12,7 @@ import {UpdatePayrollDto} from "./dto/update-payroll.dto";
 import {OnePayroll} from "./entities/payroll.entity";
 import {PayrollRepository} from "./payroll.repository";
 import {HolidayService} from "../holiday/holiday.service";
+import * as _ from "lodash";
 
 @Injectable()
 export class PayrollService {
@@ -223,10 +224,46 @@ export class PayrollService {
     const absent = this.totalAbsent(payroll.salaries);
 
     console.log("Vắng ", absent);
-    console.log("Tổng ngày lễ của tháng này ", currentHoliday);
+    console.log("Tổng ngày lễ của tháng này ", currentHoliday.length);
 
+    const lastDayOfMonth = lastDatetimeOfMonth(payroll.createdAt).getDate();
+    console.log("Ngày cuối cùng của tháng ", lastDayOfMonth);
 
+    const actualWork = lastDayOfMonth - currentHoliday.length;
+    console.log("Ngày  thực tế của tháng ", lastDayOfMonth - currentHoliday.length);
 
+    const actualDay = lastDayOfMonth - absent.day;
+    console.log("Ngày đi làm của nhân viên trên ngày thực tế", lastDayOfMonth - absent.day);
+
+    // Ngày đi làm thực tế (lastDayOfMonth - absent.day) > Ngày thực tế của tháng (Trừ ngày lễ)
+    if (actualDay > actualWork) {
+      // Lấy ra all ngày vắng (không đi làm) trong ngày lễ.
+      const absentsDate = payroll.salaries.filter(salary => salary.type === SalaryType.ABSENT && salary.unit === DatetimeUnit.DAY).map(salary => salary.datetime);
+
+      // Chuyển về dạng format dd/MM/yyy rồi so sánh string để lấy ra các ngày nghỉ thuộc ngày lễ
+      const absentsInHoliday = absentsDate.filter(absent => {
+        return moment(absent).format('MM/DD/YYYY') === moment(payroll.createdAt).format('MM/DD/YYYY');
+      });
+
+      console.log("Nghỉ (Không đi làm) ngày lễ ", absentsInHoliday);
+
+      // all ngày lễ trong tháng
+      const daysInHoliday = currentHoliday.map(holiday => holiday.datetime.getDate());
+
+      // all ngày nghỉ trong tháng thuộc ngày lễ
+      const absentDayInHoliday = absentsInHoliday.map(absent => absent.getDate());
+
+      console.log("Nghi ngày lễ ", absentDayInHoliday);
+      console.log("Đi làm ngày lễ ",);
+
+      daysInHoliday.map(day => {
+        const a = _.remove(daysInHoliday, day);
+        console.log(day)
+        console.log(daysInHoliday)
+        console.log(a)
+      })
+
+    }
   }
 
   /// TODO: handle holiday
