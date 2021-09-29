@@ -84,9 +84,9 @@ export class PayrollService {
     if (!payroll) {
       throw new BadRequestException(`${id} không tồn tại..`);
     } else {
-      if (payroll.employee.recipeType === RecipeType.CT1) {
-        await this.totalSalaryCT1(payroll);
-      }
+      // if (payroll.employee.recipeType === RecipeType.CT1) {
+      //   await this.totalSalaryCT1(payroll);
+      // }
       return Object.assign(this.mapPayrollToPayslip(payroll), {
         actualDay: this.totalSalaryCT2(payroll).actualDay,
       });
