@@ -99,7 +99,7 @@ export class EmployeeRepository {
           })
         : null;
       const positionIds = template?.positions?.map((position) => position.id);
-
+      console.log(search)
       const [total, data] = await Promise.all([
         this.prisma.employee.count({
           where: {
@@ -107,6 +107,7 @@ export class EmployeeRepository {
             position: {
               name: { startsWith: search?.position, mode: "insensitive" },
             },
+            branch: {name: {startsWith: search?.branch, mode: "insensitive"},},
             positionId: { in: positionIds },
             AND: {
               firstName: { contains: name?.firstName, mode: "insensitive" },
@@ -123,10 +124,14 @@ export class EmployeeRepository {
           take: take || undefined,
           where: {
             leftAt: null,
+            position: {
+              name: { startsWith: search?.position, mode: "insensitive" },
+            },
+            branch: {name: {startsWith: search?.branch, mode: "insensitive"},},
             positionId: { in: positionIds },
             AND: {
-              firstName: { startsWith: name?.firstName, mode: "insensitive" },
-              lastName: { startsWith: name?.lastName, mode: "insensitive" },
+              firstName: { contains: name?.firstName, mode: "insensitive" },
+              lastName: { contains: name?.lastName, mode: "insensitive" },
             },
             gender: search?.gender ? { equals: search?.gender } : {},
             isFlatSalary: search?.isFlatSalary,
