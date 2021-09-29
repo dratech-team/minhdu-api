@@ -11,6 +11,7 @@ import { Type } from "class-transformer";
 import { DatetimeUnit, SalaryType } from "@prisma/client";
 import { ValidatorMessage } from "../constant/validator.constant";
 import { tomorrowDate } from "src/utils/datetime.util";
+import { RageDate } from "src/api/v2/salary/entities/salary.entity";
 
 export class ICreateSalaryDto {
   @IsOptional()
@@ -28,7 +29,7 @@ export class ICreateSalaryDto {
   @Type(() => Date)
   @IsDate()
   @IsOptional()
-  readonly datetime?: Date;
+  readonly datetime?:  Date | RageDate | null;;
 
   @IsOptional()
   @Type(() => Number)

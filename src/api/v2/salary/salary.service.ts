@@ -1,13 +1,12 @@
 import { BadRequestException, Injectable } from "@nestjs/common";
 import { Salary, SalaryType } from "@prisma/client";
-import { firstDatetimeOfMonth, lastDatetimeOfMonth } from "../../../utils/datetime.util";
+import {
+  firstDatetimeOfMonth,
+  lastDatetimeOfMonth
+} from "../../../utils/datetime.util";
 import { EmployeeService } from "../employee/employee.service";
 import { PayrollService } from "../payroll/payroll.service";
-import {
-  CreateSalaryByDayDto,
-  CreateSalaryDto,
-  CreateSalaryEmployeesDto,
-} from "./dto/create-salary.dto";
+import { CreateSalaryDto } from "./dto/create-salary.dto";
 import { UpdateSalaryDto } from "./dto/update-salary.dto";
 import { OneSalary } from "./entities/salary.entity";
 import { SalaryRepository } from "./salary.repository";
@@ -20,9 +19,7 @@ export class SalaryService {
     private readonly payrollService: PayrollService
   ) {}
 
-  async create(
-    body: CreateSalaryDto & CreateSalaryEmployeesDto & CreateSalaryByDayDto
-  ): Promise<Salary> {
+  async create(body: CreateSalaryDto): Promise<Salary> {
     /// Thêm phụ cấp tăng ca hàng loạt
     if (body.employeeIds && body.employeeIds.length) {
       const employees = await Promise.all(
@@ -34,7 +31,7 @@ export class SalaryService {
         // get payroll để lấy thông tin
         const payroll = await this.findPayrollByEmployee(
           employees[i].id,
-          body.datetime
+          body.datetime as Date
         );
 
         // Tạo overtime trong payroll cho nhân viên
@@ -45,9 +42,9 @@ export class SalaryService {
             ? { payrollId: payroll.id, allowance: body.allowance }
             : { payrollId: payroll.id }
         );
-        await this.repository.create(this.mapToSalary(salary));
+        await this.repository.create(salary);
       }
-      console.log("if 1")
+      console.log("if 1");
     } else {
       const payroll = await this.payrollService.findOne(body.payrollId);
       const salaries = payroll.salaries.filter(
@@ -74,11 +71,7 @@ export class SalaryService {
       //   const datetimes = getRange(rageDate?.start, rageDate?.end, "days");
       //   console.log(datetimes);
       // }
-      const salary = Object.assign(this.mapToSalary(body), {
-        allowance: body.allowance,
-      }) as CreateSalaryDto & { allowance: CreateSalaryDto };
-      console.log("if 2")
-      return await this.repository.create(salary);
+      return await this.repository.create(body);
     }
   }
 
@@ -137,29 +130,5 @@ export class SalaryService {
       );
     }
     return this.repository.remove(id);
-  }
-
-  mapToSalary(body: CreateSalaryDto) {
-    return {
-      title: body.title,
-      type: body.type,
-      unit: body.unit,
-      datetime: body.datetime,
-      times: +body.times,
-      forgot: body.forgot,
-      rate: body.rate,
-      price: +body.price,
-      note: body.note,
-      payrollId: body.payrollId,
-    };
-  }
-
-  mapToOvertimeAllowance(body) {
-    return {
-      title: body.allowance.title,
-      price: body.allowance.price,
-      type: SalaryType.OVERTIME_ALLOWANCE,
-      payrollId: body.payrollId,
-    };
   }
 }
