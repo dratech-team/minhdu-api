@@ -1,17 +1,14 @@
-import {
-  BadRequestException,
-  Injectable,
-  NotFoundException
-} from "@nestjs/common";
-import { SalaryType } from "@prisma/client";
-import { PrismaService } from "../../../prisma.service";
-import { CreateSalaryDto } from "./dto/create-salary.dto";
-import { UpdateSalaryDto } from "./dto/update-salary.dto";
-import { OneSalary } from "./entities/salary.entity";
+import {BadRequestException, Injectable, NotFoundException} from "@nestjs/common";
+import {SalaryType} from "@prisma/client";
+import {PrismaService} from "../../../prisma.service";
+import {CreateSalaryDto} from "./dto/create-salary.dto";
+import {UpdateSalaryDto} from "./dto/update-salary.dto";
+import {OneSalary} from "./entities/salary.entity";
 
 @Injectable()
 export class SalaryRepository {
-  constructor(private readonly prisma: PrismaService) {}
+  constructor(private readonly prisma: PrismaService) {
+  }
 
   async create(body: CreateSalaryDto) {
     try {
@@ -26,15 +23,15 @@ export class SalaryRepository {
           rate: body.rate,
           price: body.price,
           note: body.note,
-          payroll: { connect: { id: body.payrollId } },
+          payroll: {connect: {id: body.payrollId}},
           allowance: body.allowance
             ? {
-                create: {
-                  title: body.allowance.title,
-                  type: SalaryType.OVERTIME,
-                  price: body.allowance.price,
-                },
-              }
+              create: {
+                title: body.allowance.title,
+                type: SalaryType.OVERTIME,
+                price: body.allowance.price,
+              },
+            }
             : {},
         },
       });
@@ -46,7 +43,7 @@ export class SalaryRepository {
 
   async findBy(query: any): Promise<any> {
     try {
-      return this.prisma.salary.findFirst({ where: {} });
+      return this.prisma.salary.findFirst({where: {}});
     } catch (err) {
       console.error(err);
       throw new BadRequestException(err);
@@ -60,8 +57,8 @@ export class SalaryRepository {
   async findOne(id: number): Promise<OneSalary> {
     try {
       return await this.prisma.salary.findUnique({
-        where: { id },
-        include: { payroll: true },
+        where: {id},
+        include: {payroll: true},
       });
     } catch (err) {
       console.error(err);
@@ -71,8 +68,15 @@ export class SalaryRepository {
 
   async update(id: number, updates: UpdateSalaryDto) {
     try {
+      const salary = await this.findOne(id);
+      if (salary.payroll.paidAt) {
+        throw new BadRequestException(
+          "Bảng lương đã thanh toán không được phép sửa"
+        );
+      }
+
       return await this.prisma.salary.update({
-        where: { id: id },
+        where: {id: id},
         data: {
           title: updates.title,
           type: updates.type,
@@ -84,11 +88,18 @@ export class SalaryRepository {
           price: updates.price,
           note: updates.note,
           allowance: {
-            update: {
-              title: updates.allowance.title,
-              price: updates.allowance.price,
-            }
-          }
+            upsert: {
+              create: {
+                title: updates.allowance?.title,
+                price: updates.allowance?.price,
+                type: SalaryType.OVERTIME,
+              },
+              update: {
+                title: updates.allowance?.title,
+                price: updates.allowance?.price,
+              },
+            },
+          },
         },
       });
     } catch (err) {
@@ -99,7 +110,14 @@ export class SalaryRepository {
 
   async remove(id: number) {
     try {
-      return await this.prisma.salary.delete({ where: { id: id } });
+      const payroll = await this.prisma.payroll.findUnique({where: {id}})
+      if (payroll?.paidAt) {
+        throw new BadRequestException(
+          "Bảng lương đã thanh toán không được phép xoá"
+        );
+      }
+
+      return await this.prisma.salary.delete({where: {id: id}});
     } catch (err) {
       console.error(err);
       throw new BadRequestException(err);

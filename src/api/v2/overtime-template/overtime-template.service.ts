@@ -47,14 +47,10 @@ export class OvertimeTemplateService {
           where: {
             title: {startsWith: search?.title, mode: "insensitive"},
             price: search?.price ? {in: search?.price} : {},
-            unit: search?.unit || undefined,
-            positions: search?.positionId
-              ? {
-                every: {
-                  id: search?.positionId,
-                },
-              }
-              : {},
+            unit: {in: search?.unit || undefined},
+            positions: {
+              some: {id: {in: search?.positionId || undefined}}
+            }
           },
         }),
         this.prisma.overtimeTemplate.findMany({
@@ -63,14 +59,10 @@ export class OvertimeTemplateService {
           where: {
             title: {startsWith: search?.title, mode: "insensitive"},
             price: search?.price ? {in: search?.price} : {},
-            unit: search?.unit || undefined,
-            positions: search?.positionId
-              ? {
-                every: {
-                  id: search?.positionId,
-                },
-              }
-              : {},
+            unit: {in: search?.unit || undefined},
+            positions: {
+              some: {id: {in: search?.positionId || undefined}}
+            }
           },
           include: {
             positions: true,

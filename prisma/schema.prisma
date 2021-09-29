@@ -528,7 +528,6 @@ enum SalaryType {
   STAY
   ALLOWANCE
   OVERTIME
-  OVERTIME_ALLOWANCE // phụ cấp tiền làm thêm ngoài giờ
   ABSENT
   ABSENT_LATE
 }

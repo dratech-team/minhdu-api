@@ -1,15 +1,12 @@
-import { BadRequestException, Injectable } from "@nestjs/common";
-import { Salary, SalaryType } from "@prisma/client";
-import {
-  firstDatetimeOfMonth,
-  lastDatetimeOfMonth
-} from "../../../utils/datetime.util";
-import { EmployeeService } from "../employee/employee.service";
-import { PayrollService } from "../payroll/payroll.service";
-import { CreateSalaryDto } from "./dto/create-salary.dto";
-import { UpdateSalaryDto } from "./dto/update-salary.dto";
-import { OneSalary } from "./entities/salary.entity";
-import { SalaryRepository } from "./salary.repository";
+import {BadRequestException, Injectable} from "@nestjs/common";
+import {Salary, SalaryType} from "@prisma/client";
+import {firstDatetimeOfMonth, lastDatetimeOfMonth} from "../../../utils/datetime.util";
+import {EmployeeService} from "../employee/employee.service";
+import {PayrollService} from "../payroll/payroll.service";
+import {CreateSalaryDto} from "./dto/create-salary.dto";
+import {UpdateSalaryDto} from "./dto/update-salary.dto";
+import {OneSalary} from "./entities/salary.entity";
+import {SalaryRepository} from "./salary.repository";
 
 @Injectable()
 export class SalaryService {
@@ -17,7 +14,8 @@ export class SalaryService {
     private readonly repository: SalaryRepository,
     private readonly employeeService: EmployeeService,
     private readonly payrollService: PayrollService
-  ) {}
+  ) {
+  }
 
   async create(body: CreateSalaryDto): Promise<Salary> {
     /// Thêm phụ cấp tăng ca hàng loạt
@@ -39,8 +37,8 @@ export class SalaryService {
         const salary = Object.assign(
           body,
           body.allowEmpIds.includes(employees[i].id)
-            ? { payrollId: payroll.id, allowance: body.allowance }
-            : { payrollId: payroll.id }
+            ? {payrollId: payroll.id, allowance: body.allowance}
+            : {payrollId: payroll.id}
         );
         await this.repository.create(salary);
       }
@@ -107,14 +105,6 @@ export class SalaryService {
   }
 
   async update(id: number, updates: UpdateSalaryDto) {
-    const salary = await this.findOne(id);
-
-    if (salary.payroll.paidAt) {
-      throw new BadRequestException(
-        "Bảng lương đã thanh toán không được phép sửa"
-      );
-    }
-
     /// TODO: handle salary history
     // if (salary.type === SalaryType.BASIC || salary.type === SalaryType.STAY || salary.type === SalaryType.BASIC_INSURANCE) {
     //     await this.hSalaryService.create(id, salary.payroll.employeeId);
@@ -123,12 +113,6 @@ export class SalaryService {
   }
 
   async remove(id: number) {
-    const salary = await this.findOne(id);
-    if (salary.payroll.paidAt) {
-      throw new BadRequestException(
-        "Bảng lương đã thanh toán không được phép xoá"
-      );
-    }
     return this.repository.remove(id);
   }
 }
