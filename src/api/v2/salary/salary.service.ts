@@ -44,7 +44,6 @@ export class SalaryService {
             ? { payrollId: payroll.id, allowance: body.allowance }
             : { payrollId: payroll.id }
         );
-        console.log(salary);
         await this.repository.create(salary);
       }
     } else {

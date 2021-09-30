@@ -4,6 +4,7 @@ import {
   NotFoundException,
 } from "@nestjs/common";
 import { SalaryType } from "@prisma/client";
+import * as moment from "moment";
 import { PrismaService } from "../../../prisma.service";
 import { CreateSalaryDto } from "./dto/create-salary.dto";
 import { UpdateSalaryDto } from "./dto/update-salary.dto";
@@ -15,7 +16,31 @@ export class SalaryRepository {
 
   async create(body: CreateSalaryDto) {
     try {
-      console.log(body);
+      // Ngày lễ chỉ được nghỉ nữa ngày hoặc 1 ngày. Không được đi trễ / đến sớm, về muộn
+      if (body.type === SalaryType.ABSENT || body.type === SalaryType.DAY_OFF) {
+        const holidays = await this.prisma.holiday.findMany({
+          where: {
+            datetime: {
+              in: body.datetime as Date,
+            },
+          },
+        });
+
+        if (
+          holidays
+            .map((holiday) => moment(holiday.datetime).format("MM/DD/YYYY"))
+            .includes(moment(body.datetime as Date).format("MM/DD/YYYY"))
+        ) {
+          if (body.times !== 1 && body.times !== 0) {
+            throw new BadRequestException(
+              `${moment(body.datetime as Date).format(
+                "DD/MM/YYYY"
+              )} là lễ nên không được phép nghỉ số số tiếng. Chỉ được phép nghỉ 1 ngày hoặc nửa ngày thôi.`
+            );
+          }
+        }
+      }
+
       return await this.prisma.salary.create({
         data: {
           title: body.title,
