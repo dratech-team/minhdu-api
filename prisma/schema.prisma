@@ -529,7 +529,7 @@ enum SalaryType {
   ALLOWANCE
   OVERTIME
   ABSENT
-  ABSENT_LATE
+  DAY_OFF
 }
 
 enum DatetimeUnit {

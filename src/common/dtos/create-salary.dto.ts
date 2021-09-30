@@ -1,24 +1,21 @@
+import { DatetimeUnit, SalaryType } from "@prisma/client";
+import { Type } from "class-transformer";
 import {
   IsDate,
   IsEnum,
   IsNotEmpty,
   IsNumber,
   IsOptional,
-  IsString,
-  MaxDate,
+  IsString
 } from "class-validator";
-import { Type } from "class-transformer";
-import { DatetimeUnit, SalaryType } from "@prisma/client";
-import { ValidatorMessage } from "../constant/validator.constant";
-import { tomorrowDate } from "src/utils/datetime.util";
 import { RageDate } from "src/api/v2/salary/entities/salary.entity";
 
 export class ICreateSalaryDto {
-  @IsOptional()
+  @IsNotEmpty({message: 'Tiêu đề không được để trống'})
   @IsString()
   readonly title: string;
 
-  @IsNotEmpty()
+  @IsNotEmpty({message: 'loại tiền không được để trống'})
   @IsEnum(SalaryType)
   readonly type: SalaryType;
 

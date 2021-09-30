@@ -34,17 +34,19 @@ export class SalaryService {
           body.datetime as Date
         );
 
-        // Tạo overtime trong payroll cho nhân viên
-        // Thêm phụ cấp tiền ăn / phụ cấp trong giờ làm  tăng ca hàng loạt
+        // Tạo overtime / absent trong payroll cho nhân viên
+        //  Nếu body.allowEmpIds thì Thêm phụ cấp tiền ăn / phụ cấp trong giờ làm  tăng ca hàng loạt
+
+        /// TODO: handle sai
         const salary = Object.assign(
           body,
-          body.allowEmpIds.includes(employees[i].id)
+          body.allowEmpIds?.includes(employees[i].id)
             ? { payrollId: payroll.id, allowance: body.allowance }
             : { payrollId: payroll.id }
         );
+        console.log(salary);
         await this.repository.create(salary);
       }
-      console.log("if 1");
     } else {
       const payroll = await this.payrollService.findOne(body.payrollId);
       const salaries = payroll.salaries.filter(

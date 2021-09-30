@@ -15,6 +15,7 @@ export class SalaryRepository {
 
   async create(body: CreateSalaryDto) {
     try {
+      console.log(body);
       return await this.prisma.salary.create({
         data: {
           title: body.title,
@@ -27,7 +28,7 @@ export class SalaryRepository {
           price: body.price,
           note: body.note,
           payroll: { connect: { id: body.payrollId } },
-          allowance: body.allowance
+          allowance: body?.allowance?.title
             ? {
                 create: {
                   title: body.allowance.title,
