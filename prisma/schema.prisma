@@ -528,8 +528,8 @@ enum SalaryType {
   STAY
   ALLOWANCE
   OVERTIME
-  ABSENT
-  DAY_OFF
+  ABSENT 
+  DAY_OFF // nghỉ được nghỉ
 }
 
 enum DatetimeUnit {
