@@ -49,7 +49,6 @@ export class PayrollController {
     @Query("take") take: number,
     @Query("name") name: string,
     @Query("branch") branch: string,
-    @Query("department") department: string,
     @Query("position") position: string,
     @Query("createdAt", ParseDatetimePipe) createdAt: any,
     @Query("isConfirm") isConfirm: number,
@@ -58,7 +57,6 @@ export class PayrollController {
     return this.payrollService.findAll(user, +skip, +take, {
       name,
       branch,
-      department,
       position,
       createdAt,
       isConfirm,

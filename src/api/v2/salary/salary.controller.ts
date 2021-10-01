@@ -5,7 +5,7 @@ import {
   Get,
   Param,
   Patch,
-  Post
+  Post,
 } from "@nestjs/common";
 import { CreateSalaryDto } from "./dto/create-salary.dto";
 import { UpdateSalaryDto } from "./dto/update-salary.dto";
@@ -16,8 +16,8 @@ export class SalaryController {
   constructor(private readonly salaryService: SalaryService) {}
 
   @Post()
-  create(@Body() createSalaryDto: CreateSalaryDto) {
-    return this.salaryService.create(createSalaryDto);
+  async create(@Body() createSalaryDto: CreateSalaryDto) {
+    return await this.salaryService.create(createSalaryDto);
   }
 
   // @Get()

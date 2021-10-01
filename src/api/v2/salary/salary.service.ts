@@ -51,25 +51,6 @@ export class SalaryService {
       }
       return overtimes;
     } else {
-      const payroll = await this.payrollService.findOne(body.payrollId);
-      const salaries = payroll.salaries.filter(
-        (salary) =>
-          salary.type === SalaryType.BASIC_INSURANCE ||
-          salary.type === SalaryType.BASIC ||
-          salary.type === SalaryType.STAY
-      );
-      const isEqualTitle = salaries
-        .map((salary) => salary.title)
-        .includes(body.title);
-      const isEqualPrice = salaries
-        .map((salary) => salary.price)
-        .includes(body.price);
-
-      if (isEqualTitle && isEqualPrice) {
-        throw new BadRequestException(
-          `${body.title} đã tồn tại. Vui lòng không thêm`
-        );
-      }
       /// get phụ cấp theo range ngày
       // const rageDate = (body as CreateSalaryByDayDto).datetime as RageDate;
       // if (!moment(rageDate?.start).isSame(rageDate?.end)) {

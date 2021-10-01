@@ -85,6 +85,9 @@ export class PayrollRepository {
               position: {
                 name: {startsWith: search?.position, mode: "insensitive"},
               },
+              branch: {
+                name: {startsWith: search?.branch, mode: "insensitive"},
+              },
               AND: {
                 firstName: {startsWith: name?.firstName, mode: "insensitive"},
                 lastName: {startsWith: name?.lastName, mode: "insensitive"},
@@ -105,6 +108,9 @@ export class PayrollRepository {
               leftAt: null,
               position: {
                 name: {startsWith: search?.position, mode: "insensitive"},
+              },
+              branch: {
+                name: {startsWith: search?.branch, mode: "insensitive"},
               },
               AND: {
                 firstName: {startsWith: name?.firstName, mode: "insensitive"},

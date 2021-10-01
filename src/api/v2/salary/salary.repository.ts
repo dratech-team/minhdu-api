@@ -41,6 +41,47 @@ export class SalaryRepository {
         }
       }
 
+      // Lương cơ bản, theo hợp đồng, ở lại. không được phép trùng
+      const payroll = await this.prisma.payroll.findUnique({
+        where: { id: body.payrollId },
+        include: { salaries: true },
+      });
+      const salaries = payroll.salaries.filter(
+        (salary) =>
+          salary.type === SalaryType.BASIC_INSURANCE ||
+          salary.type === SalaryType.BASIC ||
+          salary.type === SalaryType.STAY
+      );
+      const isEqualTitle = salaries
+        .map((salary) => salary.title)
+        .includes(body.title);
+      // const isEqualPrice = salaries
+      //   .map((salary) => salary.price)
+      //   .includes(body.price);
+
+      if (isEqualTitle) {
+        throw new BadRequestException(
+          `${body.title} đã tồn tại. Vui lòng không thêm`
+        );
+      }
+
+      if (body.type === SalaryType.OVERTIME) {
+        const templates = await this.prisma.overtimeTemplate.findMany({
+          where: {
+            AND: {
+              title: body.title,
+              price: body.price,
+            },
+          },
+        });
+
+        if (!templates.length) {
+          throw new BadRequestException(
+            `Mẫu lương tăng ca không tồn tại trong hệ thống. Vui lòng liên hệ admin để thêm.`
+          );
+        }
+      }
+
       return await this.prisma.salary.create({
         data: {
           title: body.title,
