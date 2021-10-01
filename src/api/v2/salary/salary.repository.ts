@@ -1,18 +1,17 @@
-import {
-  BadRequestException,
-  Injectable,
-  NotFoundException,
-} from "@nestjs/common";
-import { SalaryType } from "@prisma/client";
+import {BadRequestException, Injectable, NotFoundException,} from "@nestjs/common";
+import {SalaryType} from "@prisma/client";
 import * as moment from "moment";
-import { PrismaService } from "../../../prisma.service";
-import { CreateSalaryDto } from "./dto/create-salary.dto";
-import { UpdateSalaryDto } from "./dto/update-salary.dto";
-import { OneSalary } from "./entities/salary.entity";
+import {PrismaService} from "../../../prisma.service";
+import {CreateSalaryDto} from "./dto/create-salary.dto";
+import {UpdateSalaryDto} from "./dto/update-salary.dto";
+import {OneSalary} from "./entities/salary.entity";
+import {includesDatetime} from "../../../common/utils/isEqual-datetime.util";
+import {ALL_DAY, PARTIAL_DAY} from "../../../common/constant/datetime.constant";
 
 @Injectable()
 export class SalaryRepository {
-  constructor(private readonly prisma: PrismaService) {}
+  constructor(private readonly prisma: PrismaService) {
+  }
 
   async create(body: CreateSalaryDto) {
     try {
@@ -25,13 +24,8 @@ export class SalaryRepository {
             },
           },
         });
-
-        if (
-          holidays
-            .map((holiday) => moment(holiday.datetime).format("MM/DD/YYYY"))
-            .includes(moment(body.datetime as Date).format("MM/DD/YYYY"))
-        ) {
-          if (body.times !== 1 && body.times !== 0) {
+        if (includesDatetime(holidays.map((holiday) => holiday.datetime), body.datetime as Date)) {
+          if (body.times !== PARTIAL_DAY && body.times !== ALL_DAY) {
             throw new BadRequestException(
               `${moment(body.datetime as Date).format(
                 "DD/MM/YYYY"
@@ -43,8 +37,8 @@ export class SalaryRepository {
 
       // Lương cơ bản, theo hợp đồng, ở lại. không được phép trùng
       const payroll = await this.prisma.payroll.findUnique({
-        where: { id: body.payrollId },
-        include: { salaries: true },
+        where: {id: body.payrollId},
+        include: {salaries: true},
       });
       const salaries = payroll.salaries.filter(
         (salary) =>
@@ -93,15 +87,15 @@ export class SalaryRepository {
           rate: body.rate,
           price: body.price,
           note: body.note,
-          payroll: { connect: { id: body.payrollId } },
+          payroll: {connect: {id: body.payrollId}},
           allowance: body?.allowance?.title
             ? {
-                create: {
-                  title: body.allowance.title,
-                  type: SalaryType.OVERTIME,
-                  price: body.allowance.price,
-                },
-              }
+              create: {
+                title: body.allowance.title,
+                type: SalaryType.OVERTIME,
+                price: body.allowance.price,
+              },
+            }
             : {},
         },
       });
@@ -113,7 +107,7 @@ export class SalaryRepository {
 
   async findBy(query: any): Promise<any> {
     try {
-      return this.prisma.salary.findFirst({ where: {} });
+      return this.prisma.salary.findFirst({where: {}});
     } catch (err) {
       console.error(err);
       throw new BadRequestException(err);
@@ -127,8 +121,8 @@ export class SalaryRepository {
   async findOne(id: number): Promise<OneSalary> {
     try {
       return await this.prisma.salary.findUnique({
-        where: { id },
-        include: { payroll: true },
+        where: {id},
+        include: {payroll: true},
       });
     } catch (err) {
       console.error(err);
@@ -145,7 +139,7 @@ export class SalaryRepository {
         );
       }
       return await this.prisma.salary.update({
-        where: { id: id },
+        where: {id: id},
         data: {
           title: updates.title,
           type: updates.type,
@@ -158,18 +152,18 @@ export class SalaryRepository {
           note: updates.note,
           allowance: updates.allowance
             ? {
-                upsert: {
-                  create: {
-                    title: updates.allowance?.title,
-                    price: updates.allowance?.price,
-                    type: SalaryType.OVERTIME,
-                  },
-                  update: {
-                    title: updates.allowance?.title,
-                    price: updates.allowance?.price,
-                  },
+              upsert: {
+                create: {
+                  title: updates.allowance?.title,
+                  price: updates.allowance?.price,
+                  type: SalaryType.OVERTIME,
                 },
-              }
+                update: {
+                  title: updates.allowance?.title,
+                  price: updates.allowance?.price,
+                },
+              },
+            }
             : {},
         },
       });
@@ -181,14 +175,14 @@ export class SalaryRepository {
 
   async remove(id: number) {
     try {
-      const payroll = await this.prisma.payroll.findUnique({ where: { id } });
+      const payroll = await this.prisma.payroll.findUnique({where: {id}});
       if (payroll?.paidAt) {
         throw new BadRequestException(
           "Bảng lương đã thanh toán không được phép xoá"
         );
       }
 
-      return await this.prisma.salary.delete({ where: { id: id } });
+      return await this.prisma.salary.delete({where: {id: id}});
     } catch (err) {
       console.error(err);
       throw new BadRequestException(err);
