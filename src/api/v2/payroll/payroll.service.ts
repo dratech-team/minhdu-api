@@ -205,6 +205,59 @@ export class PayrollService {
     return {day, hour, minute};
   }
 
+  totalAllowanceByActual(salaries: Salary[], actualDay: number) {
+    return salaries
+      .filter(
+        (salary) =>
+          salary.type === SalaryType.ALLOWANCE &&
+          salary.unit === DatetimeUnit.DAY &&
+          !salary.datetime
+      )
+      .map((salary) => salary.price)
+      .reduce((a, b) => a + b, 0) * actualDay;
+  }
+
+  totalAllowanceDayRangeSalary(salaries: Salary[]) {
+    return salaries
+      .filter(
+        (salary) =>
+          salary.type === SalaryType.ALLOWANCE &&
+          salary.unit === DatetimeUnit.DAY &&
+          salary.datetime
+      )
+      .map((salary) => salary.price)
+      .reduce((a, b) => a + b, 0);
+  }
+
+  totalAllowanceMonthSalary(salaries: Salary[]) {
+    return salaries
+      .filter(
+        (salary) =>
+          salary.type === SalaryType.ALLOWANCE &&
+          salary.unit === DatetimeUnit.MONTH
+      )
+      .map((salary) => salary.price)
+      .reduce((a, b) => a + b, 0);
+  }
+
+  totalStaySalary(salaries: Salary[]) {
+    return salaries
+      .filter((salary) => salary.type === SalaryType.STAY)
+      .map((salary) => salary.price)
+      .reduce((a, b) => a + b, 0);
+  }
+
+  totalBasicSalary(salaries: Salary[]) {
+    return salaries
+      .filter(
+        (salary) =>
+          salary.type === SalaryType.BASIC ||
+          salary.type === SalaryType.BASIC_INSURANCE
+      )
+      .map((salary) => salary.price)
+      .reduce((a, b) => a + b, 0);
+  }
+
   /*
    * Tổng lương: result
    * Ngày làm thực tế: actual
@@ -221,7 +274,6 @@ export class PayrollService {
 
   // CT1
   async totalSalaryCT1(payroll: OnePayroll) {
-    let totalBasicSalary = 0;
     let totalSalaryHoliday = 0;
     let totalNoWorkInHoliday = 0;
     let totalNotHoliday = 0;
@@ -255,6 +307,7 @@ export class PayrollService {
 
       console.log("Đi làm ngày lễ", worksInHoliday);
 
+      // Tính tổng tiền đi làm ngày lễ
       for (let i = 0; i < worksInHoliday.length; i++) {
         const work = currentHoliday.find(holiday => moment(holiday.datetime).format(DatetimeFormat) === worksInHoliday[i]);
         totalSalaryHoliday += (basic.price / payroll.employee.workday) * work.rate;
@@ -263,13 +316,12 @@ export class PayrollService {
       if (currentHoliday && currentHoliday.length) {
         for (let i = 0; i < currentHoliday.length; i++) {
           for (let j = 0; j < payroll.salaries.length; j++) {
-            const isAbsent =
-              payroll.salaries[i].type === SalaryType.ABSENT ||
-              (payroll.salaries[i].type === SalaryType.DAY_OFF &&
-                moment(currentHoliday[i].datetime).format(DatetimeFormat) ===
-                moment(payroll.salaries[j].datetime).format(DatetimeFormat));
+            if (
+              payroll.salaries[j].type === SalaryType.ABSENT ||
+              payroll.salaries[j].type === SalaryType.DAY_OFF &&
+              moment(currentHoliday[i].datetime).format(DatetimeFormat) === moment(payroll.salaries[j].datetime).format(DatetimeFormat)
+            ) {
 
-            if (isAbsent) {
               if (payroll.salaries[j].times === 1) {
                 totalNoWorkInHoliday += basic.price / payroll.employee.workday;
               } else if (payroll.salaries[j].times === 0.5) {
@@ -299,38 +351,40 @@ export class PayrollService {
           payroll.employee.workday;
       }
     } else {
-      this.totalSalaryCT2(payroll);
+     return  this.totalSalaryCT2(payroll);
     }
+    const totalBasicSalary = this.totalBasicSalary(payroll.salaries);
 
-    totalBasicSalary = payroll.salaries
-      .filter(
-        (salary) =>
-          salary.type === SalaryType.BASIC ||
-          salary.type === SalaryType.BASIC_INSURANCE
-      )
-      .map((salary) => salary.price)
-      .reduce((a, b) => a + b, 0);
+    const allowanceDayByActual = this.totalAllowanceByActual(payroll.salaries, actualDay);
 
-    console.log("Tổng tiền đi làm ngày lễ ", totalSalaryHoliday);
-    console.log(
-      "Tổng tiền đi làm ngày thường ",
-      (actualDayNotHoliday.length * basic.price) / payroll.employee.workday
-    );
-    const allowanceSalary = payroll.salaries
-      .filter((salary) => salary.type === SalaryType.ALLOWANCE)
-      .map((salary) => salary.price)
-      .reduce((a, b) => a + b, 0);
+    const allowanceDayRangeSalary = this.totalAllowanceDayRangeSalary(payroll.salaries);
 
-    console.log("Tổng tiền phụ cấp ", allowanceSalary);
-    console.log(
-      "Tổng tiền đi làm thêm nhưng không phải ngày lễ x2 ",
-      totalNotHoliday
-    );
+    const allowanceMonthSalary = this.totalAllowanceMonthSalary(payroll.salaries);
 
-    console.log(
-      "Tổng tiền: ",
-      allowanceSalary + totalSalaryHoliday + totalNotHoliday + totalBasicSalary
-    );
+    const staySalary = this.totalStaySalary(payroll.salaries);
+
+    const allowanceTotal = allowanceMonthSalary + allowanceDayByActual + allowanceDayRangeSalary;
+
+
+    console.log("totalBasicSalary", totalBasicSalary)
+    console.log("allowanceTotal", allowanceTotal)
+    console.log("staySalary", staySalary)
+    console.log("totalSalaryHoliday", totalSalaryHoliday)
+    console.log("totalNoWorkInHoliday", totalNoWorkInHoliday)
+
+    // return {
+    //   basic: Math.ceil(totalBasicSalary),
+    //   stay: Math.ceil(staySalary),
+    //   overtime: overtimeSalary,
+    //   allowance: Math.ceil(allowanceTotal),
+    //   deduction: deductionSalary,
+    //   daySalary,
+    //   actualDay: actualDay,
+    //   workday: payroll.employee.workday,
+    //   salaryActual: Math.ceil(daySalary * actualDay),
+    //   tax,
+    //   total: Math.round(total / 1000) * 1000,
+    // };
   }
 
   /**
@@ -339,7 +393,6 @@ export class PayrollService {
    * 2. actual < workday                  => result = [(basics + stays) / workday] x actual + allowances
    * 3. isFlat === true && absents !== 0  => actual = workday (Dù tháng đó có bao nhiêu ngày đi chăng nữa). else quay lại 1 & 2
    */
-
   // CT2
   totalSalaryCT2(payroll: OnePayroll): TotalSalary {
     let tax = 0;
@@ -350,64 +403,24 @@ export class PayrollService {
     /// TH nhân viên nghỉ ngang. Thì sẽ confirm phiếu lương => phiếu lương không được sửa nữa. và lấy ngày hiện tại
     // let actualDay = !payroll.isEdit ? new Date().getDate() : lastDayOfMonth(payroll.createdAt) - this.totalAbsent(payroll.salaries).absent;
     /// FIXME: dummy for testing
-    let actualDay =
-      lastDatetimeOfMonth(payroll.createdAt).getDate() -
-      this.totalAbsent(payroll.salaries).day;
-    if (
-      payroll.employee.isFlatSalary &&
-      this.totalAbsent(payroll.salaries).day === 0 &&
-      !payroll.isEdit
-    ) {
+    let actualDay = lastDatetimeOfMonth(payroll.createdAt).getDate() - this.totalAbsent(payroll.salaries).day;
+    if (payroll.employee.isFlatSalary && this.totalAbsent(payroll.salaries).day === 0 && !payroll.isEdit) {
       actualDay = 30;
     }
 
     // basic salary
-    const basicSalary = payroll.salaries
-      .filter(
-        (salary) =>
-          salary.type === SalaryType.BASIC ||
-          salary.type === SalaryType.BASIC_INSURANCE
-      )
-      .map((salary) => salary.price)
-      .reduce((a, b) => a + b, 0);
+    const basicSalary = this.totalBasicSalary(payroll.salaries);
 
     // Lương ở lại
-    const staySalary = payroll.salaries
-      .filter((salary) => salary.type === SalaryType.STAY)
-      .map((salary) => salary.price)
-      .reduce((a, b) => a + b, 0);
+    const staySalary = this.totalStaySalary(payroll.salaries);
 
     // Phụ cấp theo tháng
-    const allowanceMonthSalary = payroll.salaries
-      .filter(
-        (salary) =>
-          salary.type === SalaryType.ALLOWANCE &&
-          salary.unit === DatetimeUnit.MONTH
-      )
-      .map((salary) => salary.price)
-      .reduce((a, b) => a + b, 0);
+    const allowanceMonthSalary = this.totalAllowanceMonthSalary(payroll.salaries);
 
     // Phụ cấp theo ngày, sẽ có unit là day và không có datetime (dựa vào ngày đi làm thực tế)
-    const allowanceDayRangeSalary = payroll.salaries
-      .filter(
-        (salary) =>
-          salary.type === SalaryType.ALLOWANCE &&
-          salary.unit === DatetimeUnit.DAY &&
-          salary.datetime
-      )
-      .map((salary) => salary.price)
-      .reduce((a, b) => a + b, 0);
+    const allowanceDayRangeSalary = this.totalAllowanceDayRangeSalary(payroll.salaries);
 
-    const allowanceDayByActual =
-      payroll.salaries
-        .filter(
-          (salary) =>
-            salary.type === SalaryType.ALLOWANCE &&
-            salary.unit === DatetimeUnit.DAY &&
-            !salary.datetime
-        )
-        .map((salary) => salary.price)
-        .reduce((a, b) => a + b, 0) * actualDay;
+    const allowanceDayByActual = this.totalAllowanceByActual(payroll.salaries, actualDay);
 
     if (actualDay >= payroll.employee.workday) {
       daySalary = basicSalary / payroll.employee.workday;
@@ -430,22 +443,17 @@ export class PayrollService {
         ? this.totalAbsent(payroll.salaries).day * daySalary
         : 0;
     // Tổng tiền đi trễ tính theo  giờ
-    const absentHourSalary =
-      this.totalAbsent(payroll.salaries).hour * (daySalary / 8);
+    const absentHourSalary = this.totalAbsent(payroll.salaries).hour * (daySalary / 8);
     // Tổng tiền đi trễ tính theo phút
-    const absentHourMinuteSalary =
-      this.totalAbsent(payroll.salaries).minute * (daySalary / 8 / 60);
+    const absentHourMinuteSalary = this.totalAbsent(payroll.salaries).minute * (daySalary / 8 / 60);
 
     // Tổng tiền đi trễ
-    const deductionSalary =
-      absentDaySalary + absentHourSalary + absentHourMinuteSalary;
+    const deductionSalary = absentDaySalary + absentHourSalary + absentHourMinuteSalary;
 
-    const allowanceTotal =
-      allowanceMonthSalary + allowanceDayByActual + allowanceDayRangeSalary;
+    const allowanceTotal = allowanceMonthSalary + allowanceDayByActual + allowanceDayRangeSalary;
 
     if (actualDay >= payroll.employee.workday) {
-      total =
-        daySalary * actualDay + Math.ceil(allowanceTotal) + staySalary - tax;
+      total = daySalary * actualDay + Math.ceil(allowanceTotal) + staySalary - tax;
     } else {
       total = daySalary * actualDay + Math.ceil(allowanceTotal) - tax;
     }

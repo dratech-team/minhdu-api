@@ -99,7 +99,6 @@ export class EmployeeRepository {
           })
         : null;
       const positionIds = template?.positions?.map((position) => position.id);
-      console.log(search)
       const [total, data] = await Promise.all([
         this.prisma.employee.count({
           where: {

@@ -2,7 +2,7 @@ import { BadRequestException, Injectable } from "@nestjs/common";
 import { Salary, SalaryType } from "@prisma/client";
 import {
   firstDatetimeOfMonth,
-  lastDatetimeOfMonth,
+  lastDatetimeOfMonth
 } from "../../../utils/datetime.util";
 import { EmployeeService } from "../employee/employee.service";
 import { PayrollService } from "../payroll/payroll.service";
@@ -19,7 +19,8 @@ export class SalaryService {
     private readonly payrollService: PayrollService
   ) {}
 
-  async create(body: CreateSalaryDto): Promise<Salary> {
+  async create(body: CreateSalaryDto): Promise<Salary | Salary[]> {
+    const overtimes: Salary[] = [];
     /// Thêm phụ cấp tăng ca hàng loạt
     if (body.employeeIds && body.employeeIds.length) {
       const employees = await Promise.all(
@@ -35,17 +36,20 @@ export class SalaryService {
         );
 
         // Tạo overtime / absent trong payroll cho nhân viên
-        //  Nếu body.allowEmpIds thì Thêm phụ cấp tiền ăn / phụ cấp trong giờ làm  tăng ca hàng loạt
-
-        /// TODO: handle sai
+        //  Nếu body.allowEmpIds thì Thêm phụ cấp tiền ăn / phụ cấp trong giờ làm  tăng ca hàng loạt.  vì allowance đi chung với body nên cần dặt lại giá trị là null để nó khỏi gán cho nhân viên khác
         const salary = Object.assign(
           body,
           body.allowEmpIds?.includes(employees[i].id)
-            ? { payrollId: payroll.id, allowance: body.allowance }
-            : { payrollId: payroll.id }
+            ? {
+                payrollId: payroll.id,
+                allowance: body.allowance,
+              }
+            : { payrollId: payroll.id, allowance: null }
         );
-        await this.repository.create(salary);
+
+        overtimes.push(await this.repository.create(salary));
       }
+      return overtimes;
     } else {
       const payroll = await this.payrollService.findOne(body.payrollId);
       const salaries = payroll.salaries.filter(
