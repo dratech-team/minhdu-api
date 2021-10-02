@@ -66,8 +66,8 @@ export class SalaryService {
     const payroll = await this.payrollService.findFirst({
       employeeId: employeeId,
       createdAt: {
-        gte: firstDatetimeOfMonth(datetime ?? new Date()),
-        lte: lastDatetimeOfMonth(datetime ?? new Date()),
+        gte: firstDatetimeOfMonth(datetime || new Date()),
+        lte: lastDatetimeOfMonth(datetime || new Date()),
       },
     });
 

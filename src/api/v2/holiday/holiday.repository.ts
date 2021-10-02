@@ -4,6 +4,7 @@ import {CreateHolidayDto} from "./dto/create-holiday.dto";
 import {UpdateHolidayDto} from "./dto/update-holiday.dto";
 import {SearchHolidayDto} from "./dto/search-holiday.dto";
 import {firstDatetimeOfMonth, lastDatetimeOfMonth} from "../../../utils/datetime.util";
+import {Position} from "@prisma/client";
 
 @Injectable()
 export class HolidayRepository {
@@ -92,13 +93,18 @@ export class HolidayRepository {
     }
   }
 
-  async findCurrentHolidays() {
+  async findCurrentHolidays(positionId: Position['id']) {
     try {
       return await this.prisma.holiday.findMany({
         where: {
           datetime: {
             gte: firstDatetimeOfMonth(new Date()),
             lte: lastDatetimeOfMonth(new Date()),
+          },
+          positions: {
+            every: {
+              id: {in: positionId}
+            }
           }
         }
       });

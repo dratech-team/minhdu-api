@@ -59,7 +59,7 @@ export class StatisticalService {
         series:[
           {
             name: "Đơn hàng",
-            value: order.length ?? 0
+            value: order.length || 0
           }
         ],
       };

@@ -3,6 +3,7 @@ import {CreateHolidayDto} from './dto/create-holiday.dto';
 import {UpdateHolidayDto} from './dto/update-holiday.dto';
 import {HolidayRepository} from "./holiday.repository";
 import {SearchHolidayDto} from "./dto/search-holiday.dto";
+import {Position} from "@prisma/client";
 
 @Injectable()
 export class HolidayService {
@@ -30,7 +31,7 @@ export class HolidayService {
     return await this.repository.remove(id);
   }
 
-  async findCurrentHolidays() {
-    return await this.repository.findCurrentHolidays();
+  async findCurrentHolidays(positionId: Position['id']) {
+    return await this.repository.findCurrentHolidays(positionId);
   }
 }

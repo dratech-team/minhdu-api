@@ -9,6 +9,7 @@ import {CreatePayrollDto} from "./dto/create-payroll.dto";
 import {SearchPayrollDto} from "./dto/search-payroll.dto";
 import {UpdatePayrollDto} from "./dto/update-payroll.dto";
 import {FullPayroll, OnePayroll} from "./entities/payroll.entity";
+import {ResponsePagination} from "../../../common/entities/response.pagination";
 
 @Injectable()
 export class PayrollRepository {
@@ -73,7 +74,7 @@ export class PayrollRepository {
     skip: number,
     take: number,
     search?: Partial<SearchPayrollDto>
-  ) {
+  ): Promise<ResponsePagination<OnePayroll>> {
     try {
       const name = searchName(search?.name);
 
@@ -94,15 +95,15 @@ export class PayrollRepository {
               },
             },
             createdAt: {
-              gte: firstDatetimeOfMonth(search?.createdAt ?? new Date()),
-              lte: lastDatetimeOfMonth(search?.createdAt ?? new Date()),
+              gte: firstDatetimeOfMonth(search?.createdAt || new Date()),
+              lte: lastDatetimeOfMonth(search?.createdAt || new Date()),
             },
             paidAt: null,
           },
         }),
         this.prisma.payroll.findMany({
-          take: take ?? undefined,
-          skip: skip ?? undefined,
+          take: take || undefined,
+          skip: skip || undefined,
           where: {
             employee: {
               leftAt: null,
@@ -118,8 +119,8 @@ export class PayrollRepository {
               },
             },
             createdAt: {
-              gte: firstDatetimeOfMonth(search?.createdAt ?? new Date()),
-              lte: lastDatetimeOfMonth(search?.createdAt ?? new Date()),
+              gte: firstDatetimeOfMonth(search?.createdAt || new Date()),
+              lte: lastDatetimeOfMonth(search?.createdAt || new Date()),
             },
             paidAt: null,
           },
@@ -232,9 +233,9 @@ export class PayrollRepository {
         where: {id: id},
         data: {
           isEdit: !!updates.accConfirmedAt,
-          accConfirmedAt: updates.accConfirmedAt ?? undefined,
-          paidAt: updates.paidAt ?? undefined,
-          manConfirmedAt: updates.manConfirmedAt ?? undefined,
+          accConfirmedAt: updates.accConfirmedAt || undefined,
+          paidAt: updates.paidAt || undefined,
+          manConfirmedAt: updates.manConfirmedAt || undefined,
         },
       });
     } catch (e) {
