@@ -100,7 +100,7 @@ export class EmployeeRepository {
               name: {startsWith: search?.position, mode: "insensitive"},
             },
             branch: {name: {startsWith: search?.branch, mode: "insensitive"}},
-            positionId: positionIds.length ? {in: positionIds || undefined} : {},
+            positionId: positionIds?.length ? {in: positionIds || undefined} : {},
             AND: {
               firstName: {startsWith: name?.firstName, mode: "insensitive"},
               lastName: {startsWith: name?.lastName, mode: "insensitive"},
@@ -120,7 +120,7 @@ export class EmployeeRepository {
               name: {startsWith: search?.position, mode: "insensitive"},
             },
             branch: {name: {startsWith: search?.branch, mode: "insensitive"}},
-            positionId: positionIds.length ? {in: positionIds} : {},
+            positionId: positionIds?.length ? {in: positionIds} : {},
             AND: {
               firstName: {startsWith: name?.firstName, mode: "insensitive"},
               lastName: {startsWith: name?.lastName, mode: "insensitive"},

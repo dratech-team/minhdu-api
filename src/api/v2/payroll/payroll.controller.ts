@@ -115,7 +115,7 @@ export class PayrollController {
 
   @Roles(Role.ADMIN, Role.HUMAN_RESOURCE, Role.CAMP_ACCOUNTING)
   @Get("/:id/payslip")
-  async payslip(@Param("id") id: number) {
-    return await this.payrollService.payslip(+id);
+  async confirmPayslip(@Param("id") id: number) {
+    return await this.payrollService.confirmPayslip(+id);
   }
 }
