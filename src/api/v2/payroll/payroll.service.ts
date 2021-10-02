@@ -345,12 +345,14 @@ export class PayrollService {
     // Ngày công chuẩn
     const workday = payroll.employee.workday;
 
-    // Tổng lương ngày  công thực tế trừ ngày lễ
-    const payslipNormalDay = basic.price / workday * workdayNotInHoliday;
-
     const absent = this.totalAbsent(payroll.salaries);
 
     const actualDay = lastDayOfMonth - absent.day;
+
+
+    // Tổng lương ngày  công thực tế trừ ngày lễ. Nếu ngày làm việc thực tế > ngày công chuẩn thì số ngày lớn hơn sẽ đc x2
+    // Ngược lại nếu < ngày công chuẩn thì sẽ lấy ngày thực tế
+    const payslipNormalDay = basicDaySalary * (actualDay > workday ? workday : actualDay);
 
     // Tính tiền đi làm trong nggày lễ cho 1 ngày và nửa ngàu thường
     if (currentHoliday && currentHoliday.length) {
@@ -391,7 +393,7 @@ export class PayrollService {
 
     // Đi làm nhưng không thuộc ngày lễ x2
     if (actualDay - (currentHoliday.length + workday) > 0) {
-      payslipOutOfWorkday = actualDay - (currentHoliday.length + workday) * basicDaySalary * RATE_OUT_OF_WORK_DAY;
+      payslipOutOfWorkday = (actualDay - (currentHoliday.length + workday)) * basicDaySalary * RATE_OUT_OF_WORK_DAY;
     }
 
     const allowanceDayByActual = this.totalAllowanceByActual(payroll.salaries, actualDay);
@@ -430,7 +432,6 @@ export class PayrollService {
 
     return {
       basic: basic.price,
-      totalStandard,
       workday,
       workdayNotInHoliday,
       worksInHoliday,
@@ -440,10 +441,11 @@ export class PayrollService {
       payslipInHoliday,
       payslipNotInHoliday,
       stay: staySalary,
+      totalStandard,
       payslipOutOfWorkday,
       allowance: allowanceTotal,
       tax,
-      total: payslipNormalDay + payslipInHoliday + payslipOutOfWorkday + staySalary + allowanceTotal + -tax
+      total: payslipInHoliday + payslipOutOfWorkday + totalStandard + allowanceTotal + -tax
     };
   }
 
