@@ -18,6 +18,7 @@ export class HolidayRepository {
           datetime: body.datetime,
           rate: body.rate,
           positions: {connect: body.positionIds.map((id) => ({id}))},
+          isConstraint: body.isConstraint,
         },
       });
     } catch (err) {
@@ -73,6 +74,7 @@ export class HolidayRepository {
           datetime: updates.datetime,
           rate: updates.rate,
           positions: {connect: updates.positionIds.map((id) => ({id}))},
+          isConstraint: updates.isConstraint,
         },
       });
     } catch (err) {
