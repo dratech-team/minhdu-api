@@ -109,8 +109,14 @@ export class PayrollController {
 
   @Roles(Role.ADMIN, Role.HUMAN_RESOURCE, Role.CAMP_ACCOUNTING)
   @Get("/export/print")
-  export(@Res() res, @ReqProfile() user: ProfileEntity) {
-    return this.payrollService.export(res, user);
+  async export(@Res() res, @ReqProfile() user: ProfileEntity, @Param("filename") filename: string) {
+    return this.payrollService.export(res, user, filename);
+  }
+
+  @Roles(Role.ADMIN, Role.HUMAN_RESOURCE, Role.CAMP_ACCOUNTING)
+  @Get("timekeeping/export/print")
+  async exportTimekeeping(@Res() res, @ReqProfile() user: ProfileEntity, @Param("filename") filename: string) {
+    return await this.payrollService.timeKeeping();
   }
 
   @Roles(Role.ADMIN, Role.HUMAN_RESOURCE, Role.CAMP_ACCOUNTING)

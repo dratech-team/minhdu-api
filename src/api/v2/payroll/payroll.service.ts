@@ -14,6 +14,7 @@ import {RATE_OUT_OF_WORK_DAY, TAX} from "../../../common/constant/salary.constan
 import {PayslipEntity} from "./entities/payslip.entity";
 import {includesDatetime, isEqualDatetime} from "../../../common/utils/isEqual-datetime.util";
 import {ALL_DAY, PARTIAL_DAY} from "../../../common/constant/datetime.constant";
+import {exportExcel} from "../../../core/services/export.service";
 
 @Injectable()
 export class PayrollService {
@@ -99,60 +100,88 @@ export class PayrollService {
     }
   }
 
-  async findOne(id: number): Promise<OnePayroll & { payslip: any; totalWorkday: number }> {
+  async findOne(id: number): Promise<OnePayroll & { totalWorkday: number }> {
     const payroll = await this.repository.findOne(id);
     if (!payroll) {
       throw new BadRequestException(`${id} không tồn tại..`);
     }
-    return await this.payslip(payroll);
+    /// FIXME: Không nên get từ hàm này. sửa lại sau
+    const totalWorkday = payroll.employee.recipeType === RecipeType.CT1 ? (await this.totalSalaryCT1(payroll)).totalWorkday : (await this.totalSalaryCT2(payroll)).totalWorkday;
+    return Object.assign(payroll, {totalWorkday})
   }
 
-  async export(response: Response, user: ProfileEntity) {
-    // const data = await this.findAll(user, undefined, undefined);
-    //
-    // // check Quản lý xác nhận tất cả phiếu lương mới được in
-    // data.data.forEach(e => {
-    //   if (!e.manConfirmedAt) {
-    //     throw new BadRequestException(`Phiếu lương của nhân viên ${e.employee.lastName} chưa được xác nhận. Vui lòng đợi quản lý xác nhận tất cả trước khi in`);
-    //   }
-    // });
-    //
-    // const payrolls = Promise.all(
-    //   data.data.map(async (payroll) => {
-    //     const name = payroll.employee.firstName + payroll.employee.lastName;
-    //     const position = payroll.employee.position.name;
-    //     const payslip = await this.payslip(payroll);
-    //     return {
-    //       name, position, payslip
-    //     };
-    //   })
-    // );
+  async export(response: Response, user: ProfileEntity, filename: string) {
+    const data = await this.findAll(user, undefined, undefined);
+    // check Quản lý xác nhận tất cả phiếu lương mới được in
+    const confirmed = data.data.filter(e => e.manConfirmedAt === null).length;
+    if (confirmed) {
+      throw new BadRequestException(`Phiếu lương  chưa được xác nhận. Vui lòng đợi quản lý xác nhận tất cả trước khi in`);
+    }
 
-    // console.log("export", payrolls);
+    const payrolls = await Promise.all(
+      data.data.map(async (payroll) => {
+        const name = payroll.employee.firstName + payroll.employee.lastName;
+        const position = payroll.employee.position.name;
+        const payslip = (await this.payslip(payroll)).payslip;
 
-    // return exportExcel(
-    //   response,
-    //   {
-    //     name: `Bảng lương tháng ${moment(payroll.data[0].createdAt).format(
-    //       "MM/yyyy"
-    //     )}`,
-    //     title: `Bảng lương tháng ${moment(payroll.data[0].createdAt).format(
-    //       "MM/yyyy"
-    //     )}`,
-    //     customHeaders: [],
-    //     customKeys: [
-    //       "employee",
-    //       "basic",
-    //       "stay",
-    //       "allowance",
-    //       "overtime",
-    //       "workday",
-    //       "actualDay",
-    //     ],
-    //     data: payroll.data,
-    //   },
-    //   200
-    // );
+        return {
+          name,
+          position,
+          basicSalary: Math.round(payslip.basic),
+          standardSalary: Math.round(payslip.totalStandard),
+          staySalary: Math.round(payslip.stay),
+          workday: payslip.workday,
+          workdayNotInHoliday: Math.round(payslip.workdayNotInHoliday),
+          payslipInHoliday: Math.round(payslip.payslipInHoliday),
+          payslipNotInHoliday: Math.round(payslip.payslipNotInHoliday),
+          totalWorkday: payslip.totalWorkday,
+          payslipWorkDayNotInHoliday: Math.round(payslip.payslipWorkDayNotInHoliday),
+          stay: Math.round(payslip.stay),
+          payslipOutOfWorkday: Math.round(payslip.payslipOutOfWorkday),
+          allowance: Math.round(payslip.allowance),
+          tax: Math.round(payslip.tax),
+          total: Math.round(payslip.total),
+        };
+      })
+    );
+
+    const customs = {
+      name: "Họ và tên",
+      position: "Chức vụ",
+      basicSalary: "Lương cơ bản",
+      standardSalary: "Tổng lương chuẩn",
+      staySalary: "Tổng phụ cấp ở lại",
+      workday: "Ngày công chuẩn",
+      workdayNotInHoliday: "Ngày công thực tế trừ lễ",
+      payslipInHoliday: "Lương ngày lễ",
+      payslipNotInHoliday: "Lương trừ ngày lễ",
+      totalWorkday: "Tổng ngày thực tế",
+      payslipWorkDayNotInHoliday: "Tổng ngày trừ ngày lễ",
+      stay: "Tổng lương phụ cấp",
+      payslipOutOfWorkday: "Lương ngoài giờ x2",
+      allowance: "Phụ câp",
+      tax: "Thuế",
+      total: "Tổng lương",
+    };
+
+    const customKeys = Object.keys(customs);
+    const customHeaders = Object.values(customs);
+
+    return exportExcel(
+      response,
+      {
+        name: `data`,
+        title: `Bảng lương tháng ${new Date().getMonth()} năm ${new Date().getFullYear()}`,
+        customHeaders: customHeaders,
+        customKeys: customKeys,
+        data: payrolls,
+      },
+      200
+    );
+  }
+
+  async timeKeeping() {
+    throw new BadRequestException("Tính năng sẽ được hoàn thành vào ngày 6/10/2021. Xin lỗi vì sự bất tiện");
   }
 
   async findFirst(query: any): Promise<Payroll> {
@@ -450,6 +479,7 @@ export class PayrollService {
       payslipNormalDay,
       payslipInHoliday,
       payslipNotInHoliday,
+      payslipWorkDayNotInHoliday: basicDaySalary * workdayNotInHoliday,
       stay: staySalary,
       totalStandard,
       payslipOutOfWorkday,
