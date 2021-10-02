@@ -376,9 +376,16 @@ export class PayrollService {
     const absents = payroll.salaries.filter(salary => salary.type === SalaryType.ABSENT || salary.type === SalaryType.DAY_OFF);
 
     // salary
-    const basicSalary = payroll.salaries.find(
+    const basicSalary = payroll.salaries
+      .filter(salary => salary.type === SalaryType.BASIC || salary.type === SalaryType.BASIC_INSURANCE)
+      .map(salary => salary.price)
+      .reduce((a, b) => a + b, 0);
+
+    // salary
+    const basic = payroll.salaries.find(
       (salary: Salary) => salary.type === SalaryType.BASIC_INSURANCE
     ).price;
+
     const basicDaySalary = basicSalary / payroll.employee.workday;
     const staySalary = actualDay >= workday ? this.totalStaySalary(payroll.salaries) : this.totalStaySalary(payroll.salaries) / workday * actualDay;
 
@@ -450,7 +457,7 @@ export class PayrollService {
 
     const payslipNormalDay = basicDaySalary * (actualDay > workday ? workday : actualDay);
     const totalStandard = basicSalary + staySalary;
-    const tax = payroll.employee.contracts?.length ? basicSalary * TAX : 0;
+    const tax = payroll.employee.contracts?.length ? basic * TAX : 0;
 
     /// FIXME: TESTING. DON'T DELETE IT
     // console.log("Lương cơ bản", basicSalary);
