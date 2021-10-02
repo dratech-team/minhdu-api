@@ -1,13 +1,15 @@
-import { Injectable } from "@nestjs/common";
-import { CreateBranchDto } from "./dto/create-branch.dto";
-import { Branch } from "@prisma/client";
-import { BranchRepository } from "./branch.repository";
-import { UpdateBranchDto } from "./dto/update-branch.dto";
-import { BaseBranchService } from "./base-branch.service";
+import {Injectable} from "@nestjs/common";
+import {CreateBranchDto} from "./dto/create-branch.dto";
+import {Branch} from "@prisma/client";
+import {BranchRepository} from "./branch.repository";
+import {UpdateBranchDto} from "./dto/update-branch.dto";
+import {BaseBranchService} from "./base-branch.service";
+import {ResponsePagination} from "../../entities/response.pagination";
 
 @Injectable()
 export class BranchService implements BaseBranchService {
-  constructor(private readonly repository: BranchRepository) {}
+  constructor(private readonly repository: BranchRepository) {
+  }
 
   async create(body: CreateBranchDto): Promise<Branch> {
     if (!(await this.findBy(body)).length) {
@@ -15,7 +17,7 @@ export class BranchService implements BaseBranchService {
     }
   }
 
-  async findAll(): Promise<any> {
+  async findAll(): Promise<ResponsePagination<Branch>> {
     return await this.repository.findAll();
   }
 

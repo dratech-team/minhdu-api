@@ -5,6 +5,7 @@ import { UpdatePositionDto } from "./dto/update-position.dto";
 import { PositionRepository } from "./position.repository";
 import { BasePositionService } from "./base-position.service";
 import { OnePosition } from "./entities/position.entity";
+import {ResponsePagination} from "../../entities/response.pagination";
 
 @Injectable()
 export class PositionService implements BasePositionService {
@@ -19,7 +20,8 @@ export class PositionService implements BasePositionService {
     }
   }
 
-  async findAll(): Promise<Position[]> {
+  // @ts-ignore
+  async findAll(): Promise<ResponsePagination<Position>> {
     return this.repository.findAll();
   }
 

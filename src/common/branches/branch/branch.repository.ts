@@ -1,34 +1,31 @@
-import {
-  BadRequestException,
-  ConflictException,
-  Injectable,
-} from "@nestjs/common";
-import { PrismaService } from "../../../prisma.service";
-import { CreateBranchDto } from "./dto/create-branch.dto";
-import { Branch } from "@prisma/client";
-import { UpdateBranchDto } from "./dto/update-branch.dto";
+import {BadRequestException, Injectable,} from "@nestjs/common";
+import {PrismaService} from "../../../prisma.service";
+import {CreateBranchDto} from "./dto/create-branch.dto";
+import {Branch} from "@prisma/client";
+import {UpdateBranchDto} from "./dto/update-branch.dto";
+import {ResponsePagination} from "../../entities/response.pagination";
 
 @Injectable()
 export class BranchRepository {
-  constructor(private readonly prisma: PrismaService) {}
+  constructor(private readonly prisma: PrismaService) {
+  }
 
   async create(body: CreateBranchDto): Promise<Branch> {
     try {
-      return await this.prisma.branch.create({ data: body });
+      return await this.prisma.branch.create({data: body});
     } catch (err) {
       console.error(err);
       throw new BadRequestException(err);
     }
   }
 
-  async findAll(): Promise<any> {
+  async findAll(): Promise<ResponsePagination<Branch>> {
     try {
-      return await this.prisma.branch.findMany({
-        select: {
-          id: true,
-          name: true,
-        },
-      });
+      const [total, data] = await Promise.all([
+        this.prisma.branch.count(),
+        this.prisma.branch.findMany(),
+      ]);
+      return {total, data};
     } catch (err) {
       console.error(err);
       throw new BadRequestException(err);
@@ -49,18 +46,18 @@ export class BranchRepository {
   }
 
   async findOne(id: number): Promise<Branch> {
-    return await this.prisma.branch.findUnique({ where: { id: id } });
+    return await this.prisma.branch.findUnique({where: {id: id}});
   }
 
   async update(id: number, updates: UpdateBranchDto) {
     return this.prisma.branch
-      .update({ where: { id: id }, data: updates })
+      .update({where: {id: id}, data: updates})
       .catch((e) => new BadRequestException(e));
   }
 
   async remove(id: number) {
     try {
-      return await this.prisma.branch.delete({ where: { id: id } });
+      return await this.prisma.branch.delete({where: {id: id}});
     } catch (err) {
       console.error(err);
       throw new BadRequestException(err);
