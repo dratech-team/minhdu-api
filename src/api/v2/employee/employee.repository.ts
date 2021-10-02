@@ -1,15 +1,10 @@
-import {
-  BadRequestException,
-  ConflictException,
-  Injectable,
-} from "@nestjs/common";
+import {BadRequestException, ConflictException, Injectable,} from "@nestjs/common";
 import {ProfileEntity} from "../../../common/entities/profile.entity";
 import {PrismaService} from "../../../prisma.service";
 import {searchName} from "../../../utils/search-name.util";
 import {CreateEmployeeDto} from "./dto/create-employee.dto";
 import {SearchEmployeeDto} from "./dto/search-employee.dto";
 import {UpdateEmployeeDto} from "./dto/update-employee.dto";
-import {GenderType} from "@prisma/client";
 
 @Injectable()
 export class EmployeeRepository {
@@ -41,26 +36,26 @@ export class EmployeeRepository {
           identify: body.identify,
           idCardAt: body.idCardAt,
           issuedBy: body.issuedBy,
-          ward: { connect: { id: body.wardId } },
-          position: { connect: { id: body.positionId } },
-          branch: { connect: { id: body.branchId } },
+          ward: {connect: {id: body.wardId}},
+          position: {connect: {id: body.positionId}},
+          branch: {connect: {id: body.branchId}},
           address: body.address,
           religion: body.religion,
           workday: body.workday,
           mst: body.mst,
           contracts: body.contract?.createdAt
             ? {
-                create: {
-                  createdAt: body.contract.createdAt,
-                  expiredAt: body.contract.expiredAt,
-                  position: position.name,
-                },
-              }
+              create: {
+                createdAt: body.contract.createdAt,
+                expiredAt: body.contract.expiredAt,
+                position: position.name,
+              },
+            }
             : {},
           recipeType: body.recipeType,
         },
         include: {
-          position: { include: { branches: true } },
+          position: {include: {branches: true}},
         },
       });
     } catch (err) {
@@ -96,6 +91,7 @@ export class EmployeeRepository {
         })
         : null;
       const positionIds = template?.positions?.map((position) => position.id);
+
       const [total, data] = await Promise.all([
         this.prisma.employee.count({
           where: {
@@ -103,11 +99,11 @@ export class EmployeeRepository {
             position: {
               name: {startsWith: search?.position, mode: "insensitive"},
             },
-            branch: {name: {startsWith: search?.branch, mode: "insensitive"},},
-            positionId: {in: positionIds},
+            branch: {name: {startsWith: search?.branch, mode: "insensitive"}},
+            positionId: positionIds.length ? {in: positionIds || undefined} : {},
             AND: {
-              firstName: {contains: name?.firstName, mode: "insensitive"},
-              lastName: {contains: name?.lastName, mode: "insensitive"},
+              firstName: {startsWith: name?.firstName, mode: "insensitive"},
+              lastName: {startsWith: name?.lastName, mode: "insensitive"},
             },
             gender: search?.gender ? {equals: search?.gender} : {},
             isFlatSalary: search?.isFlatSalary,
@@ -123,11 +119,11 @@ export class EmployeeRepository {
             position: {
               name: {startsWith: search?.position, mode: "insensitive"},
             },
-            branch: {name: {startsWith: search?.branch, mode: "insensitive"},},
-            positionId: {in: positionIds},
+            branch: {name: {startsWith: search?.branch, mode: "insensitive"}},
+            positionId: positionIds.length ? {in: positionIds} : {},
             AND: {
-              firstName: {contains: name?.firstName, mode: "insensitive"},
-              lastName: {contains: name?.lastName, mode: "insensitive"},
+              firstName: {startsWith: name?.firstName, mode: "insensitive"},
+              lastName: {startsWith: name?.lastName, mode: "insensitive"},
             },
             gender: search?.gender ? {equals: search?.gender} : {},
             isFlatSalary: search?.isFlatSalary,

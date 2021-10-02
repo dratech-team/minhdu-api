@@ -74,10 +74,10 @@ export class PayrollService {
     try {
       switch (payroll.employee.recipeType) {
         case  RecipeType.CT1: {
-          return Object.assign(payroll, {payslip: await this.totalSalaryCT1(payroll)});
+          return Object.assign(payroll, {payslip: payroll.manConfirmedAt ? await this.totalSalaryCT1(payroll) : null});
         }
         case RecipeType.CT2: {
-          return Object.assign(payroll, {payslip: this.totalSalaryCT2(payroll)});
+          return Object.assign(payroll, {payslip: payroll.manConfirmedAt ? this.totalSalaryCT2(payroll) : null});
         }
         default:
           throw new BadRequestException(`Loại lương của nhân viên ${payroll.employee.lastName} không xác định thuộc công thức nào. Vui lòng liên hệ admin để kiểm tra`);
