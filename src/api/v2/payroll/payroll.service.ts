@@ -1,8 +1,6 @@
 import {BadRequestException, ConflictException, Injectable} from "@nestjs/common";
 import {DatetimeUnit, Payroll, RecipeType, Role, Salary, SalaryType} from "@prisma/client";
 import {Response} from "express";
-import * as moment from "moment";
-import {exportExcel} from "src/core/services/export.service";
 import {ProfileEntity} from "../../../common/entities/profile.entity";
 import {lastDatetimeOfMonth} from "../../../utils/datetime.util";
 import {EmployeeService} from "../employee/employee.service";
@@ -37,17 +35,18 @@ export class PayrollService {
     }
   }
 
-  async findAll(
-    user: ProfileEntity,
-    skip: number,
-    take: number,
-    search?: Partial<SearchPayrollDto>
-  ) {
+  async findAll(user: ProfileEntity, skip: number, take: number, search?: Partial<SearchPayrollDto>) {
+    const res = await this.repository.findAll(user, skip, take, search);
+    const payroll = await Promise.all(res.data.map(async (payroll) => await this.payslip(payroll)));
+    return {total: res.total, data: payroll};
+  }
+
+  async generate(profile: ProfileEntity) {
+    const count = [];
     const employee = await this.employeeService.findAll(
-      user,
+      profile,
       undefined,
-      undefined,
-      {branchId: user.branchId}
+      undefined
     );
 
     ///
@@ -57,56 +56,63 @@ export class PayrollService {
       );
 
       if (!payroll) {
-        await this.repository.create({
-          employeeId: employee.data[i].id,
-          createdAt: new Date(),
-        });
+        count.push(
+          await this.repository.create({
+            employeeId: employee.data[i].id,
+            createdAt: new Date(),
+          })
+        );
       }
     }
-
-    const data = await this.repository.findAll(user, skip, take, search);
-    const payrolls = data.data.map((payroll) => {
-        return this.mapPayrollToPayslip(payroll);
-      }
-    );
-
-    return {total: data.total, data: payrolls};
+    return {
+      statusCode: 201,
+      message: `${count.length} Phiếu lương trong tháng ${new Date().getMonth()} đã được tạo`
+    };
   }
 
-  async payslip(id: Payroll["id"]) {
-    const payroll = await this.findOne(id);
-    switch (payroll.employee.recipeType) {
-      case  RecipeType.CT1: {
-        return this.totalSalaryCT1(payroll);
+  async payslip(payroll) {
+    try {
+      switch (payroll.employee.recipeType) {
+        case  RecipeType.CT1: {
+          return Object.assign(payroll, {payslip: await this.totalSalaryCT1(payroll)});
+        }
+        case RecipeType.CT2: {
+          return Object.assign(payroll, {payslip: this.totalSalaryCT2(payroll)});
+        }
+        default:
+          throw new BadRequestException(`Loại lương của nhân viên ${payroll.employee.lastName} không xác định thuộc công thức nào. Vui lòng liên hệ admin để kiểm tra`);
       }
-      case RecipeType.CT2: {
-        return this.totalSalaryCT2(payroll);
-      }
-      default:
-        throw new BadRequestException(`Loại lương của nhân viên ${payroll.employee.lastName} không xác định thuộc công thức nào. Vui lòng liên hệ admin để kiểm tra`);
+    } catch (err) {
+      console.error(err);
+      throw new BadRequestException(err);
     }
   }
 
-  mapPayrollToPayslip(payroll): OnePayroll & { payslip: PayslipEntity, totalWorkday: number } {
-    let payslip = null;
+  mapPayrollToPayslip(payroll: OnePayroll): OnePayroll & { payslip: PayslipEntity, totalWorkday: number } {
+    try {
+      let payslip = null;
 
-    switch (payroll.employee.recipeType) {
-      case RecipeType.CT1: {
-        payslip = payroll?.manConfirmedAt ? this.totalSalaryCT1(payroll) : null;
-        break;
+      switch (payroll.employee.recipeType) {
+        case RecipeType.CT1: {
+          payslip = payroll?.manConfirmedAt ? this.totalSalaryCT1(payroll) : null;
+          break;
+        }
+        case RecipeType.CT2: {
+          payslip = payroll?.manConfirmedAt ? this.totalSalaryCT2(payroll) : null;
+          break;
+        }
+        default: {
+          throw new BadRequestException("Đã có lỗi xảy ra vui lòng liên hệ admin. mapPayrollToPayslip (payroll.service.ts)");
+        }
       }
-      case RecipeType.CT2: {
-        payslip = payroll?.manConfirmedAt ? this.totalSalaryCT2(payroll) : null;
-        break;
-      }
-      default: {
-        throw new BadRequestException("Đã có lỗi xảy ra vui lòng liên hệ admin. mapPayrollToPayslip (payroll.service.ts)");
-      }
+      return Object.assign(payroll, {
+        payslip: payslip,
+        totalWorkday: this.totalSalaryCT2(payroll).totalWorkday,
+      });
+    } catch (err) {
+      console.error(err);
+      throw new BadRequestException(err);
     }
-    return Object.assign(payroll, {
-      payslip: payslip,
-      totalWorkday: this.totalSalaryCT2(payroll).totalWorkday,
-    });
   }
 
   async findOne(id: number): Promise<OnePayroll & { payslip: any; totalWorkday: number }> {
@@ -114,20 +120,31 @@ export class PayrollService {
     if (!payroll) {
       throw new BadRequestException(`${id} không tồn tại..`);
     }
-    return this.mapPayrollToPayslip(payroll);
+    return this.payslip(payroll);
   }
 
   async export(response: Response, user: ProfileEntity) {
-    const payroll = await this.findAll(user, undefined, undefined);
-
-    // check Quản lý xác nhận tất cả phiếu lương mới được in
-    // payroll.data.forEach(e => {
-    //   if (!e.accConfirmedAt) {
+    // const data = await this.findAll(user, undefined, undefined);
+    //
+    // // check Quản lý xác nhận tất cả phiếu lương mới được in
+    // data.data.forEach(e => {
+    //   if (!e.manConfirmedAt) {
     //     throw new BadRequestException(`Phiếu lương của nhân viên ${e.employee.lastName} chưa được xác nhận. Vui lòng đợi quản lý xác nhận tất cả trước khi in`);
     //   }
     // });
+    //
+    // const payrolls = Promise.all(
+    //   data.data.map(async (payroll) => {
+    //     const name = payroll.employee.firstName + payroll.employee.lastName;
+    //     const position = payroll.employee.position.name;
+    //     const payslip = await this.payslip(payroll);
+    //     return {
+    //       name, position, payslip
+    //     };
+    //   })
+    // );
 
-    console.log(payroll.data);
+    // console.log("export", payrolls);
 
     // return exportExcel(
     //   response,
@@ -178,6 +195,18 @@ export class PayrollService {
   }
 
   async confirmPayroll(user: ProfileEntity, id: number) {
+    // Chỉ xác nhận khi phiếu lương có tồn tại giá trị
+    const payroll = await this.findOne(id);
+    if (!payroll.salaries.length) {
+      throw new BadRequestException(`Không thể xác nhận phiếu lương rỗng`);
+    } else {
+      payroll.salaries.forEach(salary => {
+        if ((salary.type === SalaryType.BASIC_INSURANCE || SalaryType.BASIC) && !salary?.price) {
+          throw new BadRequestException(`Không thể xác nhận phiếu lương có lương cơ bản rỗng`);
+        }
+      });
+    }
+
     switch (user.role) {
       case Role.CAMP_ACCOUNTING:
         return await this.repository.update(id, {accConfirmedAt: new Date()});
@@ -213,7 +242,7 @@ export class PayrollService {
           salary.type === SalaryType.DAY_OFF
         );
       })
-      .forEach((salary) => {
+      ?.forEach((salary) => {
         switch (salary.unit) {
           case DatetimeUnit.DAY: {
             if (salary.datetime) {
@@ -245,8 +274,8 @@ export class PayrollService {
           salary.unit === DatetimeUnit.DAY &&
           !salary.datetime
       )
-      .map((salary) => salary.price)
-      .reduce((a, b) => a + b, 0) * actualDay;
+      ?.map((salary) => salary.price)
+      ?.reduce((a, b) => a + b, 0) * actualDay;
   }
 
   totalAllowanceDayRangeSalary(salaries: Salary[]) {
@@ -257,8 +286,8 @@ export class PayrollService {
           salary.unit === DatetimeUnit.DAY &&
           salary.datetime
       )
-      .map((salary) => salary.price)
-      .reduce((a, b) => a + b, 0);
+      ?.map((salary) => salary.price)
+      ?.reduce((a, b) => a + b, 0);
   }
 
   totalAllowanceMonthSalary(salaries: Salary[]) {
@@ -268,15 +297,15 @@ export class PayrollService {
           salary.type === SalaryType.ALLOWANCE &&
           salary.unit === DatetimeUnit.MONTH
       )
-      .map((salary) => salary.price)
-      .reduce((a, b) => a + b, 0);
+      ?.map((salary) => salary.price)
+      ?.reduce((a, b) => a + b, 0);
   }
 
   totalStaySalary(salaries: Salary[]) {
     return salaries
       .filter((salary) => salary.type === SalaryType.STAY)
-      .map((salary) => salary.price)
-      .reduce((a, b) => a + b, 0);
+      ?.map((salary) => salary.price)
+      ?.reduce((a, b) => a + b, 0);
   }
 
   totalBasicSalary(salaries: Salary[]) {
@@ -286,8 +315,8 @@ export class PayrollService {
           salary.type === SalaryType.BASIC ||
           salary.type === SalaryType.BASIC_INSURANCE
       )
-      .map((salary) => salary.price)
-      .reduce((a, b) => a + b, 0);
+      ?.map((salary) => salary.price)
+      ?.reduce((a, b) => a + b, 0);
   }
 
 
@@ -383,9 +412,9 @@ export class PayrollService {
           }
         } else {
           if (!currentHoliday[i].isConstraint || currentHoliday[i].isConstraint && actualDay >= workday) {
-            payslipInHoliday += (basic.price / workday) * currentHoliday[i].rate;
+            payslipInHoliday += basicDaySalary * currentHoliday[i].rate;
           } else {
-            payslipInHoliday += (basic.price / workday);
+            payslipInHoliday += basicDaySalary;
           }
         }
       }
@@ -445,7 +474,7 @@ export class PayrollService {
       payslipOutOfWorkday,
       allowance: allowanceTotal,
       tax,
-      total: payslipInHoliday + payslipOutOfWorkday + totalStandard + allowanceTotal + -tax
+      total: Math.round((payslipInHoliday + payslipOutOfWorkday + totalStandard + allowanceTotal - tax) / 1000) * 1000
     };
   }
 

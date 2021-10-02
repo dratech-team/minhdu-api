@@ -3,35 +3,32 @@ import {
   ConflictException,
   Injectable,
 } from "@nestjs/common";
-import { ProfileEntity } from "../../../common/entities/profile.entity";
-import { PrismaService } from "../../../prisma.service";
-import { searchName } from "../../../utils/search-name.util";
-import { CreateEmployeeDto } from "./dto/create-employee.dto";
-import { SearchEmployeeDto } from "./dto/search-employee.dto";
-import { UpdateEmployeeDto } from "./dto/update-employee.dto";
+import {ProfileEntity} from "../../../common/entities/profile.entity";
+import {PrismaService} from "../../../prisma.service";
+import {searchName} from "../../../utils/search-name.util";
+import {CreateEmployeeDto} from "./dto/create-employee.dto";
+import {SearchEmployeeDto} from "./dto/search-employee.dto";
+import {UpdateEmployeeDto} from "./dto/update-employee.dto";
+import {GenderType} from "@prisma/client";
 
 @Injectable()
 export class EmployeeRepository {
-  constructor(private readonly prisma: PrismaService) {}
-
-  x;
+  constructor(private readonly prisma: PrismaService) {
+  }
 
   async create(body: CreateEmployeeDto) {
     try {
       const position = await this.prisma.position.findUnique({
-        where: { id: body.positionId },
+        where: {id: body.positionId},
       });
 
       // Nếu tạo nhân viên có workday thuộc position này nhưng khác ngày công chuẩn thì cập nhật lại ngày công chuẩn cho position đó
       if (position.name && body.workday !== position.workday) {
         this.prisma.position.update({
-          where: { id: body.positionId },
-          data: { workday: body.workday },
+          where: {id: body.positionId},
+          data: {workday: body.workday},
         });
       }
-
-      //
-
       return await this.prisma.employee.create({
         data: {
           firstName: body.firstName,
@@ -84,7 +81,7 @@ export class EmployeeRepository {
   }
 
   async findAll(
-    user: ProfileEntity,
+    profile: ProfileEntity,
     skip: number,
     take: number,
     search: Partial<SearchEmployeeDto>
@@ -94,9 +91,9 @@ export class EmployeeRepository {
 
       const template = search?.templateId
         ? await this.prisma.overtimeTemplate.findUnique({
-            where: { id: search?.templateId },
-            include: { positions: true },
-          })
+          where: {id: search?.templateId},
+          include: {positions: true},
+        })
         : null;
       const positionIds = template?.positions?.map((position) => position.id);
       const [total, data] = await Promise.all([
@@ -104,15 +101,15 @@ export class EmployeeRepository {
           where: {
             leftAt: null,
             position: {
-              name: { startsWith: search?.position, mode: "insensitive" },
+              name: {startsWith: search?.position, mode: "insensitive"},
             },
             branch: {name: {startsWith: search?.branch, mode: "insensitive"},},
-            positionId: { in: positionIds },
+            positionId: {in: positionIds},
             AND: {
-              firstName: { contains: name?.firstName, mode: "insensitive" },
-              lastName: { contains: name?.lastName, mode: "insensitive" },
+              firstName: {contains: name?.firstName, mode: "insensitive"},
+              lastName: {contains: name?.lastName, mode: "insensitive"},
             },
-            gender: search?.gender ? { equals: search?.gender } : {},
+            gender: search?.gender ? {equals: search?.gender} : {},
             isFlatSalary: search?.isFlatSalary,
             createdAt: search?.createdAt,
             workedAt: search?.workedAt,
@@ -124,15 +121,15 @@ export class EmployeeRepository {
           where: {
             leftAt: null,
             position: {
-              name: { startsWith: search?.position, mode: "insensitive" },
+              name: {startsWith: search?.position, mode: "insensitive"},
             },
             branch: {name: {startsWith: search?.branch, mode: "insensitive"},},
-            positionId: { in: positionIds },
+            positionId: {in: positionIds},
             AND: {
-              firstName: { contains: name?.firstName, mode: "insensitive" },
-              lastName: { contains: name?.lastName, mode: "insensitive" },
+              firstName: {contains: name?.firstName, mode: "insensitive"},
+              lastName: {contains: name?.lastName, mode: "insensitive"},
             },
-            gender: search?.gender ? { equals: search?.gender } : {},
+            gender: search?.gender ? {equals: search?.gender} : {},
             isFlatSalary: search?.isFlatSalary,
             createdAt: search?.createdAt,
             workedAt: search?.workedAt,
@@ -143,14 +140,14 @@ export class EmployeeRepository {
             ward: {
               include: {
                 district: {
-                  include: { province: { include: { nation: true } } },
+                  include: {province: {include: {nation: true}}},
                 },
               },
             },
           },
         }),
       ]);
-      return { total, data };
+      return {total, data};
     } catch (e) {
       console.error(e);
       throw new BadRequestException(e);
@@ -160,21 +157,21 @@ export class EmployeeRepository {
   async findBy(query: any) {
     return await this.prisma.employee.findMany({
       where: query,
-      include: { payrolls: true },
+      include: {payrolls: true},
     });
   }
 
   async findFirst(query: any) {
     return await this.prisma.employee.findFirst({
       where: query,
-      include: { payrolls: true },
+      include: {payrolls: true},
     });
   }
 
   async findOne(id: number) {
     try {
       return await this.prisma.employee.findUnique({
-        where: { id: id },
+        where: {id: id},
         include: {
           degrees: true,
           contracts: true,
@@ -230,7 +227,7 @@ export class EmployeeRepository {
   async update(id: number, updates: UpdateEmployeeDto) {
     try {
       return await this.prisma.employee.update({
-        where: { id: id },
+        where: {id: id},
         data: {
           firstName: updates.firstName,
           lastName: updates.lastName,
@@ -242,9 +239,9 @@ export class EmployeeRepository {
           identify: updates.identify,
           idCardAt: updates.idCardAt,
           issuedBy: updates.issuedBy,
-          ward: { connect: { id: updates.wardId } },
-          position: { connect: { id: updates.positionId } },
-          branch: { connect: { id: updates.branchId } },
+          ward: {connect: {id: updates.wardId}},
+          position: {connect: {id: updates.positionId}},
+          branch: {connect: {id: updates.branchId}},
           address: updates.address,
           religion: updates.religion,
           workday: updates.workday,
@@ -270,7 +267,7 @@ export class EmployeeRepository {
   async remove(id: number) {
     try {
       await this.prisma.employee.update({
-        where: { id },
+        where: {id},
         data: {
           leftAt: new Date(),
         },

@@ -78,7 +78,7 @@ export class PayrollRepository {
     try {
       const name = searchName(search?.name);
 
-      const [total, payrolls] = await Promise.all([
+      const [total, data] = await Promise.all([
         this.prisma.payroll.count({
           where: {
             employee: {
@@ -137,10 +137,7 @@ export class PayrollRepository {
         }),
       ]);
 
-      return {
-        total,
-        data: payrolls,
-      };
+      return {total, data};
     } catch (e) {
       console.error(e);
       throw new BadRequestException(e);
@@ -181,27 +178,33 @@ export class PayrollRepository {
     }
   }
 
-  async findOne(id: number): Promise<OnePayroll | OnePayroll & { payrollIds: Payroll["id"][] }> {
+  async findOne(id: number): Promise<OnePayroll & { payrollIds: Payroll["id"][] }> {
     try {
-      const [payroll, payrolls] = await Promise.all([
-        this.prisma.payroll.findUnique({
-          where: {id: id},
-          include: {
-            salaries: {
-              include: {
-                allowance: true
-              }
-            },
-            employee: {
-              include: {
-                contracts: true,
-                position: true,
-              },
+      const payroll = await this.prisma.payroll.findUnique({
+        where: {id: id},
+        include: {
+          salaries: {
+            include: {
+              allowance: true
+            }
+          },
+          employee: {
+            include: {
+              contracts: true,
+              position: true,
             },
           },
-        }),
-        this.prisma.payroll.findMany(),
-      ]);
+        },
+      });
+
+      const payrolls = await this.prisma.payroll.findMany({
+        where: {
+          createdAt: {
+            gte: firstDatetimeOfMonth(payroll.createdAt),
+            lte: lastDatetimeOfMonth(payroll.createdAt),
+          }
+        }
+      });
       const payrollIds = payrolls.map(payroll => payroll.id);
       return Object.assign(payroll, {payrollIds: payrollIds});
     } catch (e) {

@@ -177,14 +177,14 @@ model Employee {
 }
 
 model Holiday {
-  id        Int        @id @default(autoincrement())
-  name      String?
-  datetime  DateTime
-  rate      Float
+  id           Int        @id @default(autoincrement())
+  name         String?
+  datetime     DateTime
+  rate         Float
   // Nếu true là nó sẽ giới hạn bởi ngày làm thực tế + ngày lễ phải > ngày công chuẩn mới được nhân với hệ số ngày lễ. Nếu false thì dù có đi làm hay k thì vẫn được nhân hệ số
   // Hiện tại đang chỉ apply chi ngày tết
-  isConstraint Boolean? @default(true)
-  positions Position[]
+  isConstraint Boolean?   @default(true)
+  positions    Position[]
 }
 
 model WorkHistory {
@@ -531,7 +531,7 @@ enum SalaryType {
   STAY
   ALLOWANCE
   OVERTIME
-  ABSENT 
+  ABSENT
   DAY_OFF // nghỉ được nghỉ
 }
 

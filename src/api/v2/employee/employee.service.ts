@@ -17,18 +17,19 @@ export class EmployeeService implements BaseEmployeeService {
   ) {
   }
 
+  // @ts-ignore
   async create(body: CreateEmployeeDto) {
     return await this.repository.create(body);
   }
 
   // @ts-ignore
   async findAll(
-    branchId: ProfileEntity,
+    profile: ProfileEntity,
     skip: number,
     take: number,
     search?: Partial<SearchEmployeeDto>
   ) {
-    return await this.repository.findAll(branchId, skip, take, search);
+    return await this.repository.findAll(profile, skip, take, search);
   }
 
   findBy(query: any) {

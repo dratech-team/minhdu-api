@@ -19,13 +19,9 @@ export class BranchRepository {
     }
   }
 
-  async findAll(): Promise<ResponsePagination<Branch>> {
+  async findAll(): Promise<Branch[]> {
     try {
-      const [total, data] = await Promise.all([
-        this.prisma.branch.count(),
-        this.prisma.branch.findMany(),
-      ]);
-      return {total, data};
+      return await this.prisma.branch.findMany();
     } catch (err) {
       console.error(err);
       throw new BadRequestException(err);

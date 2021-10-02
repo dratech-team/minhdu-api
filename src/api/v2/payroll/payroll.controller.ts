@@ -10,24 +10,25 @@ import {
   Res,
   UseGuards,
 } from "@nestjs/common";
-import { PayrollService } from "./payroll.service";
-import { UpdatePayrollDto } from "./dto/update-payroll.dto";
-import { ReqProfile } from "../../../core/decorators/req-profile.decorator";
-import { CreatePayrollDto } from "./dto/create-payroll.dto";
-import { ApiV2Constant } from "../../../common/constant/api.constant";
-import { ParseDatetimePipe } from "src/core/pipe/datetime.pipe";
-import { RolesGuard } from "../../../core/guard/role.guard";
-import { LoggerGuard } from "../../../core/guard/logger.guard";
-import { ProfileEntity } from "../../../common/entities/profile.entity";
-import { ApiKeyGuard } from "../../../core/guard/api-key-auth.guard";
-import { JwtAuthGuard } from "../../../core/guard/jwt-auth.guard";
-import { Role } from "@prisma/client";
-import { Roles } from "../../../core/decorators/roles.decorator";
+import {PayrollService} from "./payroll.service";
+import {UpdatePayrollDto} from "./dto/update-payroll.dto";
+import {ReqProfile} from "../../../core/decorators/req-profile.decorator";
+import {CreatePayrollDto} from "./dto/create-payroll.dto";
+import {ApiV2Constant} from "../../../common/constant/api.constant";
+import {ParseDatetimePipe} from "src/core/pipe/datetime.pipe";
+import {RolesGuard} from "../../../core/guard/role.guard";
+import {LoggerGuard} from "../../../core/guard/logger.guard";
+import {ProfileEntity} from "../../../common/entities/profile.entity";
+import {ApiKeyGuard} from "../../../core/guard/api-key-auth.guard";
+import {JwtAuthGuard} from "../../../core/guard/jwt-auth.guard";
+import {Role} from "@prisma/client";
+import {Roles} from "../../../core/decorators/roles.decorator";
 
 @Controller(ApiV2Constant.PAYROLL)
 @UseGuards(JwtAuthGuard, ApiKeyGuard, RolesGuard)
 export class PayrollController {
-  constructor(private readonly payrollService: PayrollService) {}
+  constructor(private readonly payrollService: PayrollService) {
+  }
 
   @UseGuards(LoggerGuard)
   @Roles(Role.ADMIN, Role.HUMAN_RESOURCE, Role.CAMP_ACCOUNTING)
@@ -62,6 +63,17 @@ export class PayrollController {
       isConfirm,
       isPaid,
     });
+  }
+
+  @Roles(
+    Role.ADMIN,
+    Role.HUMAN_RESOURCE,
+    Role.CAMP_ACCOUNTING,
+    Role.ACCOUNTANT_CASH_FUND
+  )
+  @Get("/generate")
+  async generate(@ReqProfile() user: ProfileEntity) {
+    return await this.payrollService.generate(user);
   }
 
   @Roles(Role.ADMIN, Role.HUMAN_RESOURCE, Role.CAMP_ACCOUNTING)

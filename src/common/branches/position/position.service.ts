@@ -21,7 +21,7 @@ export class PositionService implements BasePositionService {
   }
 
   // @ts-ignore
-  async findAll(): Promise<ResponsePagination<Position>> {
+  async findAll(): Promise<Position[]> {
     return this.repository.findAll();
   }
 

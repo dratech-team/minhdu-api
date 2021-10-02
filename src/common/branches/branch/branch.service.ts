@@ -17,7 +17,8 @@ export class BranchService implements BaseBranchService {
     }
   }
 
-  async findAll(): Promise<ResponsePagination<Branch>> {
+  // @ts-ignore
+  async findAll(): Promise<Branch[]> {
     return await this.repository.findAll();
   }
 

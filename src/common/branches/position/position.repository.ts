@@ -30,13 +30,9 @@ export class PositionRepository {
     }
   }
 
-  async findAll(): Promise<ResponsePagination<Position>> {
+  async findAll(): Promise<Position[]> {
     try {
-      const [total, data] = await Promise.all([
-        this.prisma.position.count(),
-        this.prisma.position.findMany(),
-      ]);
-      return {total, data};
+      return await this.prisma.position.findMany();
     } catch (e) {
       console.error(e);
       throw new BadRequestException(e);
