@@ -35,20 +35,29 @@ export class SalaryRepository {
         }
 
         // Vắng hoặc không đi làm chỉ đc 1 lần trong ngày
-        const absents = await this.prisma.salary.findMany({
+        const salary = await this.prisma.salary.findFirst({
           where: {
             datetime: {
               in: body.datetime as Date,
             },
+            payrollId: body.payrollId,
             type: {in: [SalaryType.DAY_OFF, SalaryType.ABSENT]}
           },
+          select: {
+            payroll: {
+              select: {
+                employee: {select: {firstName: true, lastName: true}}
+              }
+            }
+          }
         });
 
-        if (body.type === SalaryType.DAY_OFF || SalaryType.ABSENT && absents.length) {
+        // check nhân viên
+        if (body.type === SalaryType.DAY_OFF || SalaryType.ABSENT && salary) {
           throw new BadRequestException(
             `Ngày ${moment(body.datetime as Date).format(
               "DD/MM/YYYY"
-            )} đã tồn tại đi trễ / về sớm / không đi làm / vắng. Vui lòng không thêm tùy chọn khác.`
+            )} đã tồn tại đi trễ / về sớm / không đi làm / vắng của phiếu lương của nhân viên ${salary.payroll.employee.firstName + " " + salary.payroll.employee.lastName}. Vui lòng không thêm tùy chọn khác.`
           );
         }
       }
@@ -77,12 +86,15 @@ export class SalaryRepository {
         );
       }
 
+      // Check Tăng ca không trùng cho phiếu lương
       if (body.type === SalaryType.OVERTIME) {
         const templates = await this.prisma.overtimeTemplate.findMany({
           where: {
             AND: {
               title: body.title,
               price: body.price,
+              rate: body.rate,
+              unit: body.unit,
             },
           },
         });
