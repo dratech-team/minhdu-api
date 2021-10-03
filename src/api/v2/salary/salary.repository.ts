@@ -15,8 +15,8 @@ export class SalaryRepository {
 
   async create(body: CreateSalaryDto) {
     try {
-      // Ngày lễ chỉ được nghỉ nữa ngày hoặc 1 ngày. Không được đi trễ / đến sớm, về muộn
       if (body.type === SalaryType.ABSENT || body.type === SalaryType.DAY_OFF) {
+        // Ngày lễ chỉ được nghỉ nữa ngày hoặc 1 ngày. Không được đi trễ / đến sớm, về muộn
         const holidays = await this.prisma.holiday.findMany({
           where: {
             datetime: {
@@ -32,6 +32,24 @@ export class SalaryRepository {
               )} là lễ nên không được phép nghỉ số số tiếng. Chỉ được phép nghỉ 1 ngày hoặc nửa ngày thôi.`
             );
           }
+        }
+
+        // Vắng hoặc không đi làm chỉ đc 1 lần trong ngày
+        const absents = await this.prisma.salary.findMany({
+          where: {
+            datetime: {
+              in: body.datetime as Date,
+            },
+            type: {in: [SalaryType.DAY_OFF, SalaryType.ABSENT]}
+          },
+        });
+
+        if (body.type === SalaryType.DAY_OFF || SalaryType.ABSENT && absents.length) {
+          throw new BadRequestException(
+            `Ngày ${moment(body.datetime as Date).format(
+              "DD/MM/YYYY"
+            )} đã tồn tại đi trễ / về sớm / không đi làm / vắng. Vui lòng không thêm tùy chọn khác.`
+          );
         }
       }
 
@@ -101,7 +119,7 @@ export class SalaryRepository {
       });
     } catch (err) {
       console.error(err);
-      throw new BadRequestException("Thất bại", err);
+      throw new BadRequestException(err);
     }
   }
 
