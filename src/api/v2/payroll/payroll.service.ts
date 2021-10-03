@@ -1,8 +1,8 @@
-import {BadRequestException, ConflictException, Injectable,} from "@nestjs/common";
+import {BadRequestException, ConflictException, Injectable} from "@nestjs/common";
 import {DatetimeUnit, Payroll, RecipeType, Role, Salary, SalaryType,} from "@prisma/client";
 import {Response} from "express";
 import {ProfileEntity} from "../../../common/entities/profile.entity";
-import {lastDatetimeOfMonth} from "../../../utils/datetime.util";
+import {lastDayOfMonth} from "../../../utils/datetime.util";
 import {EmployeeService} from "../employee/employee.service";
 import {HolidayService} from "../holiday/holiday.service";
 import {CreatePayrollDto} from "./dto/create-payroll.dto";
@@ -15,6 +15,7 @@ import {PayslipEntity} from "./entities/payslip.entity";
 import {includesDatetime, isEqualDatetime,} from "../../../common/utils/isEqual-datetime.util";
 import {ALL_DAY, PARTIAL_DAY,} from "../../../common/constant/datetime.constant";
 import {exportExcel} from "../../../core/services/export.service";
+import {FullSalary} from "../salary/entities/salary.entity";
 
 @Injectable()
 export class PayrollService {
@@ -42,11 +43,11 @@ export class PayrollService {
     take: number,
     search?: Partial<SearchPayrollDto>
   ) {
-    const res = await this.repository.findAll(user, skip, take, search);
-    const payroll = await Promise.all(
-      res.data.map(async (payroll) => await this.payslip(payroll))
-    );
-    return {total: res.total, data: payroll};
+    return await this.repository.findAll(user, skip, take, search);
+    // const payroll = await Promise.all(
+    //   res.data.map(async (payroll) => await this.payslip(payroll))
+    // );
+    // return {total: res.total, data: payroll};
   }
 
   async generate(profile: ProfileEntity, datetime: Date) {
@@ -59,21 +60,15 @@ export class PayrollService {
 
     ///
     for (let i = 0; i < employee.data.length; i++) {
-      const payroll = await this.repository.findByEmployeeId(
-        employee.data[i].id
-      );
-
-      if (!payroll) {
-        await this.repository.create({
-          employeeId: employee.data[i].id,
-          createdAt: datetime || new Date(),
-        });
-        count++;
-      }
+      const created = await this.repository.create({
+        employeeId: employee.data[i].id,
+        createdAt: datetime || new Date(),
+      });
+      count++;
     }
     return {
       statusCode: 201,
-      message: `${count} Phiếu lương trong tháng ${new Date().getMonth()} đã được tạo`,
+      message: `${count} Phiếu lương trong tháng ${datetime || new Date().getMonth()} đã được tạo`,
     };
   }
 
@@ -84,6 +79,8 @@ export class PayrollService {
 
   async payslip(payroll) {
     try {
+      /// FIXME: dummy generate holiday chờ front end tạo block
+      await this.generateHoliday(payroll.id);
       switch (payroll.employee.recipeType) {
         case RecipeType.CT1: {
           return Object.assign(payroll, {
@@ -95,7 +92,7 @@ export class PayrollService {
         case RecipeType.CT2: {
           return Object.assign(payroll, {
             payslip: payroll.manConfirmedAt
-              ? this.totalSalaryCT2(payroll)
+              ? await this.totalSalaryCT2(payroll)
               : null,
           });
         }
@@ -112,15 +109,16 @@ export class PayrollService {
 
   async findOne(id: number): Promise<OnePayroll & { totalWorkday: number }> {
     const payroll = await this.repository.findOne(id);
-    if (!payroll) {
-      throw new BadRequestException(`${id} không tồn tại..`);
-    }
-    /// FIXME: Không nên get từ hàm này. sửa lại sau
-    const totalWorkday =
-      payroll.employee.recipeType === RecipeType.CT1
-        ? (await this.totalSalaryCT1(payroll)).totalWorkday
-        : (await this.totalSalaryCT2(payroll)).totalWorkday;
-    return Object.assign(payroll, {totalWorkday});
+    const absent = this.totalAbsent(payroll.salaries);
+    const last = lastDayOfMonth(payroll.createdAt);
+    return Object.assign(payroll, {totalWorkday: last - absent.day})
+
+    // /// FIXME: Không nên get từ hàm này. sửa lại sau
+    // const totalWorkday =
+    //   payroll.employee.recipeType === RecipeType.CT1
+    //     ? (await this.totalSalaryCT1(payroll)).totalWorkday
+    //     : (await this.totalSalaryCT2(payroll)).totalWorkday;
+    // return Object.assign(payroll, {totalWorkday});
   }
 
   async export(response: Response, user: ProfileEntity, filename: string) {
@@ -269,7 +267,6 @@ export class PayrollService {
     let day = 0;
     let hour = 0;
     let minute = 0;
-    const DAY = 1;
 
     salaries
       .filter(
@@ -281,7 +278,7 @@ export class PayrollService {
         switch (salary.unit) {
           case DatetimeUnit.DAY: {
             if (salary.datetime) {
-              day += DAY;
+              day += salary.times;
             }
             break;
           }
@@ -356,7 +353,31 @@ export class PayrollService {
       ?.reduce((a, b) => a + b, 0);
   }
 
-  async generateHoliday(payrollId: number) {
+  totalOvertime(salaries: FullSalary[]) {
+    return salaries
+      ?.filter(
+        (salary) =>
+          salary.type === SalaryType.OVERTIME &&
+          salary.unit === DatetimeUnit.HOUR
+      )
+      ?.map((salary) => salary.price * salary.times + salary.allowance?.price || 0)
+      ?.reduce((a, b) => a + b, 0);
+  }
+
+  totalActualDay(payroll: OnePayroll) {
+    // absent trừ cho ngày vào làm nếu ngày vào làm là tháng đc tính lương
+    const absent = this.totalAbsent(payroll.salaries);
+
+    const absentDay = absent.day + (isEqualDatetime(payroll.employee.createdAt, payroll.createdAt)
+      ? payroll.employee.createdAt.getDate()
+      : 0) + (isEqualDatetime(payroll.employee.leftAt, payroll.createdAt)
+      ? payroll.employee.createdAt.getDate()
+      : 0);
+    // actual day
+    return lastDayOfMonth(payroll.createdAt) - absentDay;
+  }
+
+  async generateHoliday(payrollId: number): Promise<{ worksInHoliday: Salary[], worksNotInHoliday: Salary[] }> {
     let worksInHoliday = [];
     let worksNotInHoliday = [];
 
@@ -426,7 +447,7 @@ export class PayrollService {
    *    basicSalary: Lương cơ bản trích bảo hiểm
    *   totalStandard: Tổng lương cơ bản chuẩn = Cụm lương cơ bản + phụ cấp ở lại
    *   workday: Ngày làm việc chuẩn
-   *   workdayNotInHoliday: Ngày làm việc trừ ngày lễ
+   *   workdayNotInHoliday: Ngày làm việc trừ ngày lễ`
    *   worksInHoliday: Ngày làm việc thuộc ngày lễ
    *   worksNotInHoliday: Ngày lễ nhưng không đi làm. sẽ được tính theo lương cơ bản. Không rate
    *   totalWorkday; Tổng ngày làm việc theo ngày công chuẩn
@@ -446,27 +467,21 @@ export class PayrollService {
     // absent trừ cho ngày vào làm nếu ngày vào làm là tháng đc tính lương
     const absent = this.totalAbsent(payroll.salaries);
 
-    const absentDay =
-      absent.day +
-      (isEqualDatetime(payroll.employee.createdAt, payroll.createdAt)
-        ? payroll.employee.createdAt.getDate()
-        : 0) +
-      (isEqualDatetime(payroll.employee.leftAt, payroll.createdAt)
-        ? payroll.employee.createdAt.getDate()
-        : 0);
+    const absentDay = absent.day + (isEqualDatetime(payroll.employee.createdAt, payroll.createdAt)
+      ? payroll.employee.createdAt.getDate()
+      : 0) + (isEqualDatetime(payroll.employee.leftAt, payroll.createdAt)
+      ? payroll.employee.createdAt.getDate()
+      : 0);
 
     // day
-    const workdayNotInHoliday =
-      lastDatetimeOfMonth(payroll.createdAt).getDate() -
-      currentHoliday.length -
-      absentDay;
-    const actualDay = lastDatetimeOfMonth(new Date()).getDate() - absentDay;
+    const workdayNotInHoliday = lastDayOfMonth(payroll.createdAt) - currentHoliday.length - absentDay;
+    const actualDay = lastDayOfMonth(payroll.createdAt) - absentDay;
     const absents = payroll.salaries.filter(
-      (salary) =>
-        salary.type === SalaryType.ABSENT || salary.type === SalaryType.DAY_OFF
+      (salary) => salary.type === SalaryType.ABSENT || salary.type === SalaryType.DAY_OFF
     );
 
     // salary
+    /// FIXME" Chuyen sang ham total salary basic
     const basicSalary = payroll.salaries
       .filter(
         (salary) =>
@@ -487,102 +502,26 @@ export class PayrollService {
         ? this.totalStaySalary(payroll.salaries)
         : (this.totalStaySalary(payroll.salaries) / workday) * actualDay;
 
-    // Tính tiền đi làm trong nggày lễ cho 1 ngày và nửa ngàu thường
-    if (currentHoliday && currentHoliday.length) {
-      for (let i = 0; i < currentHoliday.length; i++) {
-        const salaries = payroll.salaries.filter(
-          (salary) =>
-            salary.type === SalaryType.ABSENT ||
-            salary.type === SalaryType.DAY_OFF
-        );
-        const isAbsentInHoliday = includesDatetime(
-          salaries.map((salary) => salary.datetime),
-          currentHoliday[i].datetime
-        );
-        if (isAbsentInHoliday) {
-          const salary = salaries.find((salary) =>
-            isEqualDatetime(salary.datetime, currentHoliday[i].datetime)
-          );
-          if (salary.times === 1) {
-            // không đi làm sẽ được tính theo lương cơ bản bth
-            payslipNotInHoliday += basicDaySalary;
-          } else if (salary.times === 0.5) {
-            // nửa ngày lễ nghỉ tính giá thường k nhân
-            payslipNotInHoliday += basicDaySalary / 2;
-            // nửa ngày lễ đi làm  tính giá nửa ngày nhân hệ số
-            // nếu nó là ngày tết isConstraint = false. k bị ràng buộc bởi ngày làm thực tế thì vẫn sẽ được nhân hệ số dù có di làm đủ ngày công hay k đi chăng nữa.
-            // ngược lại nhân hay k sẽ bị phụ thuộc vào ngày công so với ngày công chuẩn
-            if (
-              !currentHoliday[i].isConstraint ||
-              (currentHoliday[i].isConstraint && actualDay >= workday)
-            ) {
-              payslipInHoliday += (basicDaySalary / 2) * currentHoliday[i].rate;
-            } else {
-              payslipInHoliday += basicDaySalary / 2;
-            }
-          } else {
-            throw new BadRequestException(
-              `${payroll.employee.lastName} ngày ${payroll.createdAt} có thời gian làm ngày lễ không hợp lệ`
-            );
-          }
-        } else {
-          if (
-            !currentHoliday[i].isConstraint ||
-            (currentHoliday[i].isConstraint && actualDay >= workday)
-          ) {
-            payslipInHoliday += basicDaySalary * currentHoliday[i].rate;
-          } else {
-            payslipInHoliday += basicDaySalary;
-          }
-        }
-      }
-    }
+    const workHoliday = await this.generateHoliday(payroll.id);
+    payslipInHoliday = basicDaySalary * workHoliday.worksInHoliday.map(w => w.times * w.rate).reduce((a, b) => a + b, 0);
+    payslipNotInHoliday = basicDaySalary * workHoliday.worksNotInHoliday.map(w => w.times).reduce((a, b) => a + b, 0);
 
     // Đi làm nhưng không thuộc ngày lễ x2
-    const payslipOutOfWorkday =
-      actualDay - (currentHoliday.length + workday) > 0
-        ? (actualDay - (currentHoliday.length + workday)) *
-        basicDaySalary *
-        RATE_OUT_OF_WORK_DAY
-        : 0;
+    const payslipOutOfWorkday = actualDay - (currentHoliday.length + workday) > 0
+      ? (actualDay - (currentHoliday.length + workday)) * basicDaySalary * RATE_OUT_OF_WORK_DAY
+      : 0;
 
     // datetime
-    const worksInHoliday = [];
-    const worksNotInHoliday = [];
-    // Get ngày Không đi làm trong ngày lễ để hiển thị ra UI
-    currentHoliday.forEach((holiday) => {
-      const absentsDate = absents.map((absent) => absent.datetime);
-      if (includesDatetime(absentsDate, holiday.datetime)) {
-        if (
-          absents.find((absent) =>
-            isEqualDatetime(absent.datetime, holiday.datetime)
-          ).times === PARTIAL_DAY
-        ) {
-          worksInHoliday.push({
-            day: PARTIAL_DAY,
-            datetime: holiday.datetime,
-            rate: holiday.rate,
-          });
-          worksNotInHoliday.push({
-            day: PARTIAL_DAY,
-            datetime: holiday.datetime,
-            rate: holiday.rate,
-          });
-        } else {
-          worksNotInHoliday.push({
-            day: ALL_DAY,
-            datetime: holiday.datetime,
-            rate: holiday.rate,
-          });
-        }
-      } else {
-        worksInHoliday.push({
-          day: ALL_DAY,
-          datetime: holiday.datetime,
-          rate: holiday.rate,
-        });
-      }
-    });
+    const worksInHoliday = workHoliday.worksInHoliday.map(holiday => ({
+      day: holiday.times,
+      datetime: holiday.datetime,
+      rate: holiday.rate,
+    }));
+    const worksNotInHoliday = workHoliday.worksNotInHoliday.map(holiday => ({
+      day: holiday.times,
+      datetime: holiday.datetime,
+      rate: holiday.rate,
+    }));
 
     // Ngày công đi làm không fai ngày lễ và ngày đi làm trong ngày lễ cộng với nhau
     const totalWorkday =
@@ -599,24 +538,15 @@ export class PayrollService {
     const allowanceMonthSalary = this.totalAllowanceMonthSalary(
       payroll.salaries
     );
-    const allowanceTotal =
-      allowanceMonthSalary + allowanceDayByActual + allowanceDayRangeSalary;
+    const allowanceTotal = allowanceMonthSalary + allowanceDayByActual + allowanceDayRangeSalary;
 
     // overtime
-    /// FIXME: Neen tach ham
-    const overtime = payroll.salaries
-      ?.filter(
-        (salary) =>
-          salary.type === SalaryType.OVERTIME &&
-          salary.unit === DatetimeUnit.HOUR
-      )
-      ?.map((salary) => salary.price * salary.times + salary.allowance?.price)
-      ?.reduce((a, b) => a + b, 0);
+    const overtime = this.totalOvertime(payroll.salaries);
 
-    const payslipNormalDay =
-      basicDaySalary * (actualDay > workday ? workday : actualDay);
+    const payslipNormalDay = basicDaySalary * (actualDay > workday ? workday : actualDay);
     const totalStandard = basicSalary + staySalary;
     const tax = payroll.employee.contracts?.length ? basic * TAX : 0;
+    const total = Math.round((payslipNormalDay + payslipInHoliday + payslipNotInHoliday + payslipOutOfWorkday + staySalary + allowanceTotal + overtime - tax) / 1000) * 1000;
 
     /// FIXME: TESTING. DON'T DELETE IT
     // console.log("Lương cơ bản", basicSalary);
@@ -627,9 +557,9 @@ export class PayrollService {
     // console.log("Tổng lương không đi làm ngày lễ ", payslipNotInHoliday);
     // console.log("Tổng lương đi làm ngoài ngày lễ ", payslipOutOfWorkday);
     // console.log("Tổng phụ cấp", staySalary);
-
+    //
     // console.log("=====================================================");
-
+    //
     // console.log("Lương ngày công thực tế trừu ngày lễ", payslipNormalDay);
     // console.log("Tổng lương đi làm ngày lễ", payslipInHoliday);
     // console.log("Tổng phụ cấp", staySalary);
@@ -653,18 +583,7 @@ export class PayrollService {
       payslipOutOfWorkday,
       allowance: allowanceTotal,
       tax,
-      total:
-        Math.round(
-          (payslipNormalDay +
-            payslipInHoliday +
-            payslipNotInHoliday +
-            payslipOutOfWorkday +
-            staySalary +
-            allowanceTotal +
-            overtime -
-            tax) /
-          1000
-        ) * 1000,
+      total
     };
   }
 
@@ -681,12 +600,7 @@ export class PayrollService {
     let daySalary = 0;
     let total = 0;
 
-    /// TH nhân viên nghỉ ngang. Thì sẽ confirm phiếu lương => phiếu lương không được sửa nữa. và lấy ngày hiện tại
-    // let actualDay = !payroll.isEdit ? new Date().getDate() : lastDayOfMonth(payroll.createdAt) - this.totalAbsent(payroll.salaries).absent;
-    /// FIXME: dummy for testing
-    let actualDay =
-      lastDatetimeOfMonth(payroll.createdAt).getDate() -
-      this.totalAbsent(payroll.salaries).day;
+    let actualDay = this.totalActualDay(payroll);
     if (
       payroll.employee.isFlatSalary &&
       this.totalAbsent(payroll.salaries).day === 0 &&
@@ -695,26 +609,14 @@ export class PayrollService {
       actualDay = 30;
     }
 
-    // basic salary
+    // basic
     const basicSalary = this.totalBasicSalary(payroll.salaries);
-
-    // Lương ở lại
     const staySalary = this.totalStaySalary(payroll.salaries);
 
     // Phụ cấp theo tháng
-    const allowanceMonthSalary = this.totalAllowanceMonthSalary(
-      payroll.salaries
-    );
-
-    // Phụ cấp theo ngày, sẽ có unit là day và không có datetime (dựa vào ngày đi làm thực tế)
-    const allowanceDayRangeSalary = this.totalAllowanceDayRangeSalary(
-      payroll.salaries
-    );
-
-    const allowanceDayByActual = this.totalAllowanceByActual(
-      payroll.salaries,
-      actualDay
-    );
+    const allowanceMonthSalary = this.totalAllowanceMonthSalary(payroll.salaries);
+    const allowanceDayRangeSalary = this.totalAllowanceDayRangeSalary(payroll.salaries);
+    const allowanceDayByActual = this.totalAllowanceByActual(payroll.salaries, actualDay);
 
     if (actualDay >= payroll.employee.workday) {
       daySalary = basicSalary / payroll.employee.workday;
@@ -731,36 +633,66 @@ export class PayrollService {
       tax = payroll.employee.contracts.length !== 0 ? basic.price * TAX : 0;
     }
 
-    // Tổng tiền đi trễ tính theo ngày. Nếu ngày đi làm chuẩn <= ngày thực tế
-    const absentDaySalary =
-      actualDay <= payroll.employee.workday
-        ? this.totalAbsent(payroll.salaries).day * daySalary
-        : 0;
-    // Tổng tiền đi trễ tính theo  giờ
-    const absentHourSalary =
-      this.totalAbsent(payroll.salaries).hour * (daySalary / 8);
-    // Tổng tiền đi trễ tính theo phút
-    const absentHourMinuteSalary =
-      this.totalAbsent(payroll.salaries).minute * (daySalary / 8 / 60);
+    const absentDaySalary = actualDay <= payroll.employee.workday ? this.totalAbsent(payroll.salaries).day * daySalary : 0;
+    const absentHourSalary = this.totalAbsent(payroll.salaries).hour * (daySalary / 8);
+    const absentHourMinuteSalary = this.totalAbsent(payroll.salaries).minute * (daySalary / 8 / 60);
 
     // Tổng tiền đi trễ
-    const deductionSalary =
-      absentDaySalary + absentHourSalary + absentHourMinuteSalary;
+    const deductionSalary = absentDaySalary + absentHourSalary + absentHourMinuteSalary;
+    const allowanceTotal = allowanceMonthSalary + allowanceDayByActual + allowanceDayRangeSalary;
 
-    const allowanceTotal =
-      allowanceMonthSalary + allowanceDayByActual + allowanceDayRangeSalary;
+    const workHoliday = await this.generateHoliday(payroll.id);
+    const payslipInHoliday = workHoliday.worksInHoliday.map(w => {
+      console.log("work in holiday", w.times);
+      return w.times * w.price;
+    }).reduce((a, b) => a + b, 0);
+
+    // datetime
+    const worksInHoliday = workHoliday.worksInHoliday.map(holiday => ({
+      day: holiday.times,
+      datetime: holiday.datetime,
+      rate: holiday.rate,
+    }));
+    const worksNotInHoliday = workHoliday.worksNotInHoliday.map(holiday => ({
+      day: holiday.times,
+      datetime: holiday.datetime,
+      rate: holiday.rate,
+    }));
+
+    overtimeSalary = this.totalOvertime(payroll.salaries);
 
     if (actualDay >= payroll.employee.workday) {
-      total =
-        daySalary * actualDay + Math.ceil(allowanceTotal) + staySalary - tax;
+      total = daySalary * actualDay + Math.ceil(allowanceTotal) + staySalary - tax;
     } else {
       total = daySalary * actualDay + Math.ceil(allowanceTotal) - tax;
     }
+
+    /// FIXME: TESTING. DON'T DELETE IT
+    // console.log("Lương cơ bản", basicSalary);
+    // console.log("Ngày công chuẩn", workday);
+    // console.log("Ngày công thực tế trừ ngày lễ", workdayNotInHoliday);
+    // console.log("Tổng ngày công thực nhận lương", totalWorkday);
+    console.log("Tổng lương đi làm ngày lễ", payslipInHoliday);
+    // console.log("Tổng lương không đi làm ngày lễ ", payslipNotInHoliday);
+    // console.log("Tổng lương đi làm ngoài ngày lễ ", payslipOutOfWorkday);
+    // console.log("Tổng phụ cấp", staySalary);
+    //
+    // console.log("=====================================================");
+    //
+    // console.log("Lương ngày công thực tế trừu ngày lễ", payslipNormalDay);
+    // console.log("Tổng lương đi làm ngày lễ", payslipInHoliday);
+    // console.log("Tổng phụ cấp", staySalary);
+    // console.log("Thuees", tax);
+    // console.log("Tổng tiền tăng ca", overtime);
+
     return {
       basic: Math.ceil(basicSalary),
       stay: Math.ceil(staySalary),
       overtime: overtimeSalary,
       allowance: Math.ceil(allowanceMonthSalary + allowanceTotal * actualDay),
+      payslipInHoliday,
+      worksInHoliday,
+      worksNotInHoliday,
       deduction: deductionSalary,
       daySalary: daySalary,
       totalWorkday: actualDay,

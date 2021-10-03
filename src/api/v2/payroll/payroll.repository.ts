@@ -1,6 +1,5 @@
-import {BadRequestException, Injectable} from "@nestjs/common";
-import {Employee, Payroll, SalaryType} from "@prisma/client";
-import * as moment from "moment";
+import {BadRequestException, Injectable, NotFoundException} from "@nestjs/common";
+import {Payroll, SalaryType} from "@prisma/client";
 import {ProfileEntity} from "../../../common/entities/profile.entity";
 import {PrismaService} from "../../../prisma.service";
 import {firstDatetimeOfMonth, lastDatetimeOfMonth} from "../../../utils/datetime.util";
@@ -8,7 +7,7 @@ import {searchName} from "../../../utils/search-name.util";
 import {CreatePayrollDto} from "./dto/create-payroll.dto";
 import {SearchPayrollDto} from "./dto/search-payroll.dto";
 import {UpdatePayrollDto} from "./dto/update-payroll.dto";
-import {FullPayroll, OnePayroll} from "./entities/payroll.entity";
+import {OnePayroll} from "./entities/payroll.entity";
 import {ResponsePagination} from "../../../common/entities/response.pagination";
 import {CreateSalaryDto} from "../salary/dto/create-salary.dto";
 
@@ -19,40 +18,44 @@ export class PayrollRepository {
 
   async create(body: CreatePayrollDto) {
     try {
-      const currentPayroll = await this.prisma.payroll
-        .create({
-          data: body,
+      /// FIXME: If đầu có thẻ gây tốn performance cao
+      const exist = await this.prisma.payroll.findMany({
+        where: {
+          createdAt: {
+            gte: firstDatetimeOfMonth(body.createdAt),
+            lte: lastDatetimeOfMonth(body.createdAt),
+          },
+          employee: {id: {in: body.employeeId}}
+        },
+      });
+      if (!exist?.length) {
+        const payrolls = await this.prisma.payroll.findMany({
+          where: {
+            employee: {id: {in: body.employeeId}}
+          },
           include: {salaries: true},
         });
-
-      // get tháng trước
-      const lastMonth = moment(new Date())
-        .subtract(1, "months")
-        .endOf("month")
-        .toDate();
-
-      // get payroll của tháng trước để lấy lương cơ bản, bảo hiểm, ở lại
-      const lastPayroll = await this.findByEmployeeId(currentPayroll.employeeId, lastMonth);
-
-      if (lastPayroll) {
-        // filter payroll của tháng trước để lấy lương cơ bản, bảo hiểm, ở lại
-        const lastSalaries = lastPayroll.salaries.filter((salary) => {
-          return (
-            salary.type === SalaryType.BASIC ||
-            salary.type === SalaryType.BASIC_INSURANCE ||
-            salary.type === SalaryType.STAY
-          );
-        }).map(salary => {
-          delete salary.id;
-          salary.payrollId = currentPayroll.id;
-          return salary;
-        });
-        // tự thêm các khoản lương cơ bản và ở lại vào tháng này
-        if (lastSalaries.length) {
-          await this.prisma.salary.createMany({data: lastSalaries});
+        // Đã tồn tại phiếu lương
+        if (payrolls && payrolls.length) {
+          for (let i = 0; i < payrolls.length; i++) {
+            const salaries = payrolls[i].salaries.filter(salary => salary.type === SalaryType.BASIC || salary.type === SalaryType.BASIC_INSURANCE || salary.type === SalaryType.STAY);
+            await this.prisma.payroll.create({
+              data: Object.assign(body, salaries?.length ? {
+                salaries: {
+                  createMany: {data: salaries}
+                }
+              } : {}),
+            });
+            break;
+          }
+        } else {
+          // Chưa tòn tại phiếu lương nào
+          await this.prisma.payroll.create({
+            data: body,
+            include: {salaries: true},
+          });
         }
       }
-      return currentPayroll;
     } catch (err) {
       console.error(err);
       if (err.code === "P2003") {
@@ -169,29 +172,6 @@ export class PayrollRepository {
     }
   }
 
-  async findByEmployeeId(
-    employeeId: Employee["id"],
-    datetime?: Date
-  ): Promise<FullPayroll> {
-    const first = firstDatetimeOfMonth(datetime || new Date());
-    const last = lastDatetimeOfMonth(datetime || new Date());
-    try {
-      return await this.prisma.payroll.findFirst({
-        where: {
-          createdAt: {
-            gte: first,
-            lte: last,
-          },
-          employeeId: employeeId,
-        },
-        include: {salaries: true},
-      });
-    } catch (err) {
-      console.error(err);
-      throw new BadRequestException(err);
-    }
-  }
-
   async findFirst(query: any): Promise<Payroll> {
     try {
       return await this.prisma.payroll.findFirst({
@@ -222,32 +202,28 @@ export class PayrollRepository {
         },
       });
 
-      const payrolls = await this.prisma.payroll.findMany({
-        where: {
-          createdAt: {
-            gte: firstDatetimeOfMonth(payroll.createdAt),
-            lte: lastDatetimeOfMonth(payroll.createdAt),
-          }
-        }
-      });
-      const payrollIds = payrolls.map(payroll => payroll.id);
-      return Object.assign(payroll, {payrollIds: payrollIds});
+      if (!payroll) {
+        throw new NotFoundException("Phiếu lương không tồn tại");
+      }
+
+      const payrolls = await this.findIds(payroll.createdAt);
+      return Object.assign(payroll, {payrollIds: payrolls.map(payroll => payroll.id)});
     } catch (e) {
       console.error(e);
       throw new BadRequestException(e);
     }
   }
 
-  async find(query: any) {
+  async findIds(createdAt: Date) {
     try {
-      return await this.prisma.payroll.findFirst({
+      return await this.prisma.payroll.findMany({
         where: {
-          employeeId: query.employeeId,
           createdAt: {
-            gte: query.first,
-            lte: query.last,
-          },
+            gte: firstDatetimeOfMonth(createdAt),
+            lte: lastDatetimeOfMonth(createdAt),
+          }
         },
+        select: {id: true}
       });
     } catch (err) {
       console.error(err);

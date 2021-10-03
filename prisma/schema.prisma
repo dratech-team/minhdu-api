@@ -351,7 +351,7 @@ model Salary {
   price         Float?
   unit          DatetimeUnit?  @default(DAY)
   rate          Float?         @default(1)
-  datetime      DateTime?      @default(now())
+  datetime      DateTime?
   forgot        Boolean?       @default(false)
   note          String?
   historySalary SalaryHistory?
