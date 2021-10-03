@@ -31,7 +31,6 @@ export class EmployeeRepository {
         data: {
           firstName: body.firstName,
           lastName: body.lastName,
-          avt: body.avt,
           gender: body.gender,
           phone: body.phone,
           workPhone: body.workPhone,
