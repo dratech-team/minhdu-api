@@ -1,5 +1,13 @@
-import {IsArray, IsBoolean, IsDate, IsNotEmpty, IsNumber, IsOptional, IsString} from "class-validator";
-import {Type} from "class-transformer";
+import {
+  IsArray,
+  IsBoolean,
+  IsDate,
+  IsNotEmpty,
+  IsNumber,
+  IsOptional,
+  IsString,
+} from "class-validator";
+import { Type } from "class-transformer";
 
 export class CreateHolidayDto {
   @IsOptional()
@@ -16,7 +24,7 @@ export class CreateHolidayDto {
   @IsNumber()
   readonly rate: number;
 
-  @IsOptional()
+  @IsNotEmpty({ message: "Chức vụ không được phép để trống" })
   @IsArray()
   readonly positionIds: number[];
 
