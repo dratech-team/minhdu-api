@@ -461,7 +461,7 @@ export class PayrollService {
     /// FIXME: Neen tach ham
     const overtime = payroll.salaries
       ?.filter((salary) => salary.type === SalaryType.OVERTIME && salary.unit === DatetimeUnit.HOUR)
-      ?.map((salary) => salary.price * salary.times + salary.allowance.price)
+      ?.map((salary) => salary.price * salary.times + salary.allowance?.price)
       ?.reduce((a, b) => a + b, 0);
 
     const payslipNormalDay = basicDaySalary * (actualDay > workday ? workday : actualDay);
