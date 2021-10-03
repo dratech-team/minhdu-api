@@ -65,17 +65,6 @@ export class PayrollController {
     });
   }
 
-  @Roles(
-    Role.ADMIN,
-    Role.HUMAN_RESOURCE,
-    Role.CAMP_ACCOUNTING,
-    Role.ACCOUNTANT_CASH_FUND
-  )
-  @Get("/generate")
-  async generate(@ReqProfile() user: ProfileEntity) {
-    return await this.payrollService.generate(user);
-  }
-
   @Roles(Role.ADMIN, Role.HUMAN_RESOURCE, Role.CAMP_ACCOUNTING)
   @Get(":id")
   findOne(@Param("id") id: string) {
@@ -87,6 +76,24 @@ export class PayrollController {
   @Patch(":id")
   update(@Param("id") id: number, @Body() updatePayrollDto: UpdatePayrollDto) {
     return this.payrollService.update(+id, updatePayrollDto);
+  }
+
+  @UseGuards(LoggerGuard)
+  @Roles(Role.ADMIN, Role.HUMAN_RESOURCE, Role.CAMP_ACCOUNTING)
+  @Get(":id/holiday")
+  generateHoliday(@Param("id") id: number) {
+    return this.payrollService.generateHoliday(+id)
+  }
+
+  @Roles(
+    Role.ADMIN,
+    Role.HUMAN_RESOURCE,
+    Role.CAMP_ACCOUNTING,
+    Role.ACCOUNTANT_CASH_FUND
+  )
+  @Get("/generate")
+  async generate(@ReqProfile() user: ProfileEntity) {
+    return await this.payrollService.generate(user);
   }
 
   @UseGuards(LoggerGuard)

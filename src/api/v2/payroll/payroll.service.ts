@@ -2,7 +2,7 @@ import {BadRequestException, ConflictException, Injectable,} from "@nestjs/commo
 import {DatetimeUnit, Payroll, RecipeType, Role, Salary, SalaryType,} from "@prisma/client";
 import {Response} from "express";
 import {ProfileEntity} from "../../../common/entities/profile.entity";
-import {lastDatetimeOfMonth, lastDayOfMonth} from "../../../utils/datetime.util";
+import {lastDatetimeOfMonth} from "../../../utils/datetime.util";
 import {EmployeeService} from "../employee/employee.service";
 import {HolidayService} from "../holiday/holiday.service";
 import {CreatePayrollDto} from "./dto/create-payroll.dto";
@@ -15,7 +15,6 @@ import {PayslipEntity} from "./entities/payslip.entity";
 import {includesDatetime, isEqualDatetime,} from "../../../common/utils/isEqual-datetime.util";
 import {ALL_DAY, PARTIAL_DAY,} from "../../../common/constant/datetime.constant";
 import {exportExcel} from "../../../core/services/export.service";
-import {ALL} from "dns";
 
 @Injectable()
 export class PayrollService {
@@ -360,13 +359,13 @@ export class PayrollService {
       ?.reduce((a, b) => a + b, 0);
   }
 
-  async generateHoliday(payroll: OnePayroll) {
+  async generateHoliday(id: number) {
     let worksInHoliday = [];
     let worksNotInHoliday = [];
 
-    const currentHoliday = await this.holidayService.findCurrentHolidays(
-      payroll.employee.positionId
-    );
+    const payroll = await this.findOne(id);
+
+    const currentHoliday = await this.holidayService.findCurrentHolidays(payroll.employee.positionId);
 
     if (currentHoliday && currentHoliday.length) {
       for (let i = 0; i < currentHoliday.length; i++) {
@@ -375,6 +374,7 @@ export class PayrollService {
           price: currentHoliday[i].price,
           datetime: currentHoliday[i].datetime,
           rate: currentHoliday[i].rate,
+          payrollId: payroll.id,
         };
         const salaries = payroll.salaries.filter(
           (salary) =>
