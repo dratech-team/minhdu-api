@@ -371,7 +371,7 @@ export class PayrollService {
       + (isEqualDatetime(payroll.employee.leftAt, payroll.createdAt) ? payroll.employee.createdAt.getDate() : 0);
 
     // day
-    const workdayNotInHoliday = lastDatetimeOfMonth(new Date()).getDate() - currentHoliday.length - absentDay;
+    const workdayNotInHoliday = lastDatetimeOfMonth(payroll.createdAt).getDate() - currentHoliday.length - absentDay;
     const actualDay = lastDatetimeOfMonth(new Date()).getDate() - absentDay;
     const absents = payroll.salaries.filter(salary => salary.type === SalaryType.ABSENT || salary.type === SalaryType.DAY_OFF);
 
