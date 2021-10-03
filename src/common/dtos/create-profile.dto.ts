@@ -28,6 +28,12 @@ export class CreateProfileDto {
     readonly lastName: string;
 
     @IsNotEmpty()
+    @IsString()
+    @MinLength(2)
+    @Transform((val) => val.value.trim())
+    readonly avt: string;
+
+    @IsNotEmpty()
     @IsEnum(GenderType)
     readonly gender: GenderType;
 

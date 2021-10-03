@@ -109,7 +109,7 @@ export class OvertimeTemplateService {
           },
           branch: updates?.branchId
             ? { connect: { id: updates?.branchId } }
-            : {},
+            : { disconnect: true },
         },
         include: {
           positions: true,
