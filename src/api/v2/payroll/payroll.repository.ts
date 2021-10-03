@@ -97,10 +97,10 @@ export class PayrollRepository {
   ): Promise<ResponsePagination<OnePayroll>> {
     try {
       const name = searchName(search?.name);
-
       const [total, data] = await Promise.all([
         this.prisma.payroll.count({
           where: {
+            employeeId: search?.employeeId || undefined,
             employee: {
               leftAt: null,
               position: {
@@ -115,8 +115,8 @@ export class PayrollRepository {
               },
             },
             createdAt: {
-              gte: firstDatetimeOfMonth(search?.createdAt || new Date()),
-              lte: lastDatetimeOfMonth(search?.createdAt || new Date()),
+              gte: firstDatetimeOfMonth(search?.createdAt),
+              lte: lastDatetimeOfMonth(search?.createdAt),
             },
             paidAt: null,
           },
@@ -125,6 +125,7 @@ export class PayrollRepository {
           take: take || undefined,
           skip: skip || undefined,
           where: {
+            employeeId: search?.employeeId || undefined,
             employee: {
               leftAt: null,
               position: {
@@ -139,8 +140,8 @@ export class PayrollRepository {
               },
             },
             createdAt: {
-              gte: firstDatetimeOfMonth(search?.createdAt || new Date()),
-              lte: lastDatetimeOfMonth(search?.createdAt || new Date()),
+              gte: firstDatetimeOfMonth(search?.createdAt),
+              lte: lastDatetimeOfMonth(search?.createdAt),
             },
             paidAt: null,
           },
