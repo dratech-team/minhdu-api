@@ -371,7 +371,7 @@ export class PayrollService {
       + (isEqualDatetime(payroll.employee.leftAt, payroll.createdAt) ? payroll.employee.createdAt.getDate() : 0);
 
     // day
-    const workdayNotInHoliday = lastDatetimeOfMonth(new Date()).getDate() - currentHoliday.length - absentDay ;
+    const workdayNotInHoliday = lastDatetimeOfMonth(new Date()).getDate() - currentHoliday.length - absentDay;
     const actualDay = lastDatetimeOfMonth(new Date()).getDate() - absentDay;
     const absents = payroll.salaries.filter(salary => salary.type === SalaryType.ABSENT || salary.type === SalaryType.DAY_OFF);
 
@@ -457,6 +457,13 @@ export class PayrollService {
     const allowanceMonthSalary = this.totalAllowanceMonthSalary(payroll.salaries);
     const allowanceTotal = allowanceMonthSalary + allowanceDayByActual + allowanceDayRangeSalary;
 
+    // overtime
+    /// FIXME: Neen tach ham
+    const overtime = payroll.salaries
+      ?.filter((salary) => salary.type === SalaryType.OVERTIME && salary.unit === DatetimeUnit.HOUR)
+      ?.map((salary) => salary.price * salary.times + salary.allowance.price)
+      ?.reduce((a, b) => a + b, 0);
+
     const payslipNormalDay = basicDaySalary * (actualDay > workday ? workday : actualDay);
     const totalStandard = basicSalary + staySalary;
     const tax = payroll.employee.contracts?.length ? basic * TAX : 0;
@@ -470,13 +477,14 @@ export class PayrollService {
     // console.log("Tổng lương không đi làm ngày lễ ", payslipNotInHoliday);
     // console.log("Tổng lương đi làm ngoài ngày lễ ", payslipOutOfWorkday);
     // console.log("Tổng phụ cấp", staySalary);
-    
+
     // console.log("=====================================================");
-    
-    // console.log("Lương ngày công thực tế trừu ngày lễ",payslipNormalDay);
+
+    // console.log("Lương ngày công thực tế trừu ngày lễ", payslipNormalDay);
     // console.log("Tổng lương đi làm ngày lễ", payslipInHoliday);
     // console.log("Tổng phụ cấp", staySalary);
     // console.log("Thuees", tax);
+    // console.log("Tổng tiền tăng ca", overtime);
 
     return {
       basic: basicSalary,
@@ -490,11 +498,12 @@ export class PayrollService {
       payslipNotInHoliday,
       payslipWorkDayNotInHoliday: basicDaySalary * workdayNotInHoliday,
       stay: staySalary,
+      overtime: overtime,
       totalStandard,
       payslipOutOfWorkday,
       allowance: allowanceTotal,
       tax,
-      total: Math.round((payslipNormalDay + payslipInHoliday + payslipNotInHoliday + payslipOutOfWorkday + staySalary + allowanceTotal - tax) / 1000) * 1000
+      total: Math.round((payslipNormalDay + payslipInHoliday + payslipNotInHoliday + payslipOutOfWorkday + staySalary + allowanceTotal + overtime - tax) / 1000) * 1000
     };
   }
 
