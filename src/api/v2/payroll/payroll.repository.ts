@@ -66,20 +66,24 @@ export class PayrollRepository {
   }
 
   /// tạo ngày lễ cho phiếu lương đó
-  async generate(body: Partial<CreateSalaryDto>) {
+  async generate(payrollId: Payroll["id"], body: Partial<CreateSalaryDto>) {
     try {
-      return await this.prisma.salary.create({
+      return await this.prisma.payroll.update({
+        where: {id: payrollId},
         data: {
-          title: body.title,
-          type: SalaryType.HOLIDAY,
-          unit: body.unit,
-          datetime: body.datetime as Date,
-          times: body.times,
-          forgot: body.forgot,
-          rate: body.rate,
-          price: body.price,
-          note: body.note,
-          payroll: {connect: {id: body.payrollId}},
+          salaries: {
+            deleteMany: {
+              type: SalaryType.HOLIDAY
+            },
+            create: {
+              title: body.title,
+              price: body?.price,
+              type: SalaryType.HOLIDAY,
+              datetime: body.datetime as Date,
+              times: body.times,
+              rate: body.rate,
+            }
+          }
         }
       });
     } catch (err) {

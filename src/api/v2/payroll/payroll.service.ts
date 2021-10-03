@@ -1,40 +1,20 @@
-import {
-  BadRequestException,
-  ConflictException,
-  Injectable,
-} from "@nestjs/common";
-import {
-  DatetimeUnit,
-  Payroll,
-  RecipeType,
-  Role,
-  Salary,
-  SalaryType,
-} from "@prisma/client";
-import { Response } from "express";
-import { ProfileEntity } from "../../../common/entities/profile.entity";
-import { lastDatetimeOfMonth } from "../../../utils/datetime.util";
-import { EmployeeService } from "../employee/employee.service";
-import { HolidayService } from "../holiday/holiday.service";
-import { CreatePayrollDto } from "./dto/create-payroll.dto";
-import { SearchPayrollDto } from "./dto/search-payroll.dto";
-import { UpdatePayrollDto } from "./dto/update-payroll.dto";
-import { OnePayroll } from "./entities/payroll.entity";
-import { PayrollRepository } from "./payroll.repository";
-import {
-  RATE_OUT_OF_WORK_DAY,
-  TAX,
-} from "../../../common/constant/salary.constant";
-import { PayslipEntity } from "./entities/payslip.entity";
-import {
-  includesDatetime,
-  isEqualDatetime,
-} from "../../../common/utils/isEqual-datetime.util";
-import {
-  ALL_DAY,
-  PARTIAL_DAY,
-} from "../../../common/constant/datetime.constant";
-import { exportExcel } from "../../../core/services/export.service";
+import {BadRequestException, ConflictException, Injectable,} from "@nestjs/common";
+import {DatetimeUnit, Payroll, RecipeType, Role, Salary, SalaryType,} from "@prisma/client";
+import {Response} from "express";
+import {ProfileEntity} from "../../../common/entities/profile.entity";
+import {lastDatetimeOfMonth} from "../../../utils/datetime.util";
+import {EmployeeService} from "../employee/employee.service";
+import {HolidayService} from "../holiday/holiday.service";
+import {CreatePayrollDto} from "./dto/create-payroll.dto";
+import {SearchPayrollDto} from "./dto/search-payroll.dto";
+import {UpdatePayrollDto} from "./dto/update-payroll.dto";
+import {OnePayroll} from "./entities/payroll.entity";
+import {PayrollRepository} from "./payroll.repository";
+import {RATE_OUT_OF_WORK_DAY, TAX,} from "../../../common/constant/salary.constant";
+import {PayslipEntity} from "./entities/payslip.entity";
+import {includesDatetime, isEqualDatetime,} from "../../../common/utils/isEqual-datetime.util";
+import {ALL_DAY, PARTIAL_DAY,} from "../../../common/constant/datetime.constant";
+import {exportExcel} from "../../../core/services/export.service";
 
 @Injectable()
 export class PayrollService {
@@ -42,7 +22,8 @@ export class PayrollService {
     private readonly repository: PayrollRepository,
     private readonly employeeService: EmployeeService,
     private readonly holidayService: HolidayService
-  ) {}
+  ) {
+  }
 
   async create(body: CreatePayrollDto) {
     try {
@@ -65,7 +46,7 @@ export class PayrollService {
     const payroll = await Promise.all(
       res.data.map(async (payroll) => await this.payslip(payroll))
     );
-    return { total: res.total, data: payroll };
+    return {total: res.total, data: payroll};
   }
 
   async generate(profile: ProfileEntity, datetime: Date) {
@@ -139,7 +120,7 @@ export class PayrollService {
       payroll.employee.recipeType === RecipeType.CT1
         ? (await this.totalSalaryCT1(payroll)).totalWorkday
         : (await this.totalSalaryCT2(payroll)).totalWorkday;
-    return Object.assign(payroll, { totalWorkday });
+    return Object.assign(payroll, {totalWorkday});
   }
 
   async export(response: Response, user: ProfileEntity, filename: string) {
@@ -264,14 +245,14 @@ export class PayrollService {
 
     switch (user.role) {
       case Role.CAMP_ACCOUNTING:
-        return await this.repository.update(id, { accConfirmedAt: new Date() });
+        return await this.repository.update(id, {accConfirmedAt: new Date()});
       case Role.CAMP_MANAGER:
-        return await this.repository.update(id, { manConfirmedAt: new Date() });
+        return await this.repository.update(id, {manConfirmedAt: new Date()});
       case Role.ACCOUNTANT_CASH_FUND:
-        return await this.repository.update(id, { paidAt: new Date() });
+        return await this.repository.update(id, {paidAt: new Date()});
       /// FIXME: dummy for testing
       case Role.HUMAN_RESOURCE:
-        return await this.repository.update(id, { manConfirmedAt: new Date() });
+        return await this.repository.update(id, {manConfirmedAt: new Date()});
       default:
         throw new BadRequestException(
           `${user.role} Bạn không có quyền xác nhận phiếu lương. Cảm ơn.`
@@ -317,7 +298,7 @@ export class PayrollService {
         }
       });
 
-    return { day, hour, minute };
+    return {day, hour, minute};
   }
 
   totalAllowanceByActual(salaries: Salary[], actualDay: number) {
@@ -375,29 +356,24 @@ export class PayrollService {
       ?.reduce((a, b) => a + b, 0);
   }
 
-  async generateHoliday(id: number) {
+  async generateHoliday(payrollId: number) {
     let worksInHoliday = [];
     let worksNotInHoliday = [];
 
-    const payroll = await this.findOne(id);
-
-    const currentHoliday = await this.holidayService.findCurrentHolidays(
-      payroll.employee.positionId
-    );
+    const payroll = await this.findOne(payrollId);
+    const currentHoliday = await this.holidayService.findCurrentHolidays(payroll.createdAt, payroll.employee.positionId);
 
     if (currentHoliday && currentHoliday.length) {
       for (let i = 0; i < currentHoliday.length; i++) {
         const salary = {
           title: currentHoliday[i].name,
-          price: currentHoliday[i].price,
+          price: currentHoliday[i]?.price,
+          type: SalaryType.HOLIDAY,
           datetime: currentHoliday[i].datetime,
           rate: currentHoliday[i].rate,
-          payrollId: payroll.id,
         };
         const salaries = payroll.salaries.filter(
-          (salary) =>
-            salary.type === SalaryType.ABSENT ||
-            salary.type === SalaryType.DAY_OFF
+          (salary) => salary.type === SalaryType.ABSENT || salary.type === SalaryType.DAY_OFF
         );
         const isAbsentInHoliday = includesDatetime(
           salaries.map((salary) => salary.datetime),
@@ -407,29 +383,28 @@ export class PayrollService {
           const salary = salaries.find((salary) =>
             isEqualDatetime(salary.datetime, currentHoliday[i].datetime)
           );
+
           if (salary.times === 1) {
-            worksNotInHoliday.push(Object.assign(salary, { times: ALL_DAY }));
+            worksNotInHoliday.push(Object.assign(salary, {times: ALL_DAY}));
           } else if (salary.times === 0.5) {
             worksNotInHoliday.push(
-              Object.assign(salary, { times: PARTIAL_DAY })
+              Object.assign(salary, {times: PARTIAL_DAY})
             );
-            await this.repository.generate(
-              Object.assign(salary, { times: PARTIAL_DAY })
-            );
-            worksInHoliday.push(Object.assign(salary, { times: PARTIAL_DAY }));
+            worksInHoliday.push(Object.assign(salary, {times: PARTIAL_DAY}));
           } else {
             throw new BadRequestException(
               `${payroll.employee.lastName} ngày ${payroll.createdAt} có thời gian làm ngày lễ không hợp lệ`
             );
           }
         } else {
-          await this.repository.generate(worksInHoliday[i]);
-          worksInHoliday.push(Object.assign(salary, { times: PARTIAL_DAY }));
+          worksInHoliday.push(Object.assign(salary, {times: ALL_DAY}));
         }
       }
     }
-
-    return { worksInHoliday, worksNotInHoliday };
+    for (let i = 0; i < worksInHoliday.length; i++) {
+      await this.repository.generate(payrollId, worksInHoliday[i]);
+    }
+    return {worksInHoliday, worksNotInHoliday};
   }
 
   /*
@@ -466,9 +441,7 @@ export class PayrollService {
     let payslipNotInHoliday = 0;
 
     // datetime
-    const currentHoliday = await this.holidayService.findCurrentHolidays(
-      payroll.employee.positionId
-    );
+    const currentHoliday = await this.holidayService.findCurrentHolidays(payroll.createdAt, payroll.employee.positionId);
     const workday = payroll.employee.workday;
     // absent trừ cho ngày vào làm nếu ngày vào làm là tháng đc tính lương
     const absent = this.totalAbsent(payroll.salaries);
@@ -569,8 +542,8 @@ export class PayrollService {
     const payslipOutOfWorkday =
       actualDay - (currentHoliday.length + workday) > 0
         ? (actualDay - (currentHoliday.length + workday)) *
-          basicDaySalary *
-          RATE_OUT_OF_WORK_DAY
+        basicDaySalary *
+        RATE_OUT_OF_WORK_DAY
         : 0;
 
     // datetime
@@ -690,7 +663,7 @@ export class PayrollService {
             allowanceTotal +
             overtime -
             tax) /
-            1000
+          1000
         ) * 1000,
     };
   }
