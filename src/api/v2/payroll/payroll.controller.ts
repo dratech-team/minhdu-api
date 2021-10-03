@@ -48,6 +48,7 @@ export class PayrollController {
     @ReqProfile() user: ProfileEntity,
     @Query("skip") skip: number,
     @Query("take") take: number,
+    @Query("employeeId") employeeId: number,
     @Query("name") name: string,
     @Query("branch") branch: string,
     @Query("position") position: string,
@@ -56,6 +57,7 @@ export class PayrollController {
     @Query("isPaid") isPaid: number
   ) {
     return this.payrollService.findAll(user, +skip, +take, {
+      employeeId: +employeeId,
       name,
       branch,
       position,
@@ -72,8 +74,8 @@ export class PayrollController {
     Role.ACCOUNTANT_CASH_FUND
   )
   @Get("/generate")
-  async generate(@ReqProfile() user: ProfileEntity) {
-    return await this.payrollService.generate(user);
+  async generate(@ReqProfile() user: ProfileEntity, @Query("datetime", ParseDatetimePipe) datetime: Date) {
+    return await this.payrollService.generate(user, new Date(datetime));
   }
 
   @Roles(Role.ADMIN, Role.HUMAN_RESOURCE, Role.CAMP_ACCOUNTING)

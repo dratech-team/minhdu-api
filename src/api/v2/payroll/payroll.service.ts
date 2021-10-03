@@ -42,7 +42,7 @@ export class PayrollService {
     return {total: res.total, data: payroll};
   }
 
-  async generate(profile: ProfileEntity) {
+  async generate(profile: ProfileEntity, datetime: Date) {
     const count = [];
     const employee = await this.employeeService.findAll(
       profile,
@@ -55,12 +55,12 @@ export class PayrollService {
       const payroll = await this.repository.findByEmployeeId(
         employee.data[i].id
       );
-
+  // console.log(datetime)
       if (!payroll) {
         count.push(
           await this.repository.create({
             employeeId: employee.data[i].id,
-            createdAt: new Date(),
+            createdAt: datetime || new Date(),
           })
         );
       }
@@ -107,7 +107,7 @@ export class PayrollService {
     }
     /// FIXME: Không nên get từ hàm này. sửa lại sau
     const totalWorkday = payroll.employee.recipeType === RecipeType.CT1 ? (await this.totalSalaryCT1(payroll)).totalWorkday : (await this.totalSalaryCT2(payroll)).totalWorkday;
-    return Object.assign(payroll, {totalWorkday})
+    return Object.assign(payroll, {totalWorkday});
   }
 
   async export(response: Response, user: ProfileEntity, filename: string) {
