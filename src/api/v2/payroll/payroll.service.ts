@@ -371,9 +371,10 @@ export class PayrollService {
       + (isEqualDatetime(payroll.employee.leftAt, payroll.createdAt) ? payroll.employee.createdAt.getDate() : 0);
 
     // day
-    const workdayNotInHoliday = lastDatetimeOfMonth(new Date()).getDate() - currentHoliday.length - absentDay;
+    const workdayNotInHoliday = lastDatetimeOfMonth(new Date()).getDate() - currentHoliday.length - absentDay ;
     const actualDay = lastDatetimeOfMonth(new Date()).getDate() - absentDay;
     const absents = payroll.salaries.filter(salary => salary.type === SalaryType.ABSENT || salary.type === SalaryType.DAY_OFF);
+
 
     // salary
     const basicSalary = payroll.salaries
@@ -384,10 +385,11 @@ export class PayrollService {
     // salary
     const basic = payroll.salaries.find(
       (salary: Salary) => salary.type === SalaryType.BASIC_INSURANCE
-    ).price;
+    )?.price;
 
     const basicDaySalary = basicSalary / payroll.employee.workday;
     const staySalary = actualDay >= workday ? this.totalStaySalary(payroll.salaries) : this.totalStaySalary(payroll.salaries) / workday * actualDay;
+
 
     // Tính tiền đi làm trong nggày lễ cho 1 ngày và nửa ngàu thường
     if (currentHoliday && currentHoliday.length) {
@@ -468,10 +470,10 @@ export class PayrollService {
     // console.log("Tổng lương không đi làm ngày lễ ", payslipNotInHoliday);
     // console.log("Tổng lương đi làm ngoài ngày lễ ", payslipOutOfWorkday);
     // console.log("Tổng phụ cấp", staySalary);
-    //
+    
     // console.log("=====================================================");
-    //
-    // console.log("Lương ngày công thực tế trừu ngày lễ", basicDaySalary * workdayNotInHoliday);
+    
+    // console.log("Lương ngày công thực tế trừu ngày lễ",payslipNormalDay);
     // console.log("Tổng lương đi làm ngày lễ", payslipInHoliday);
     // console.log("Tổng phụ cấp", staySalary);
     // console.log("Thuees", tax);
@@ -492,7 +494,7 @@ export class PayrollService {
       payslipOutOfWorkday,
       allowance: allowanceTotal,
       tax,
-      total: Math.round((basicDaySalary * workdayNotInHoliday + payslipInHoliday + payslipNotInHoliday + payslipOutOfWorkday + staySalary + allowanceTotal - tax) / 1000) * 1000
+      total: Math.round((payslipNormalDay + payslipInHoliday + payslipNotInHoliday + payslipOutOfWorkday + staySalary + allowanceTotal - tax) / 1000) * 1000
     };
   }
 
