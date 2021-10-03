@@ -26,7 +26,7 @@ export class ICreateSalaryDto {
   @Type(() => Date)
   @IsDate()
   @IsOptional()
-  readonly datetime?:  Date | RageDate | null;;
+  readonly datetime?:  Date | RageDate | null;
 
   @IsOptional()
   @Type(() => Number)
@@ -43,7 +43,7 @@ export class ICreateSalaryDto {
   @Type(() => Number)
   @IsOptional()
   @IsNumber()
-  readonly price: number;
+  readonly price?: number;
 
   @IsOptional()
   @IsString()

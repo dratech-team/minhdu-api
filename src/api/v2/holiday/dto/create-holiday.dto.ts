@@ -19,10 +19,15 @@ export class CreateHolidayDto {
   @IsDate()
   readonly datetime: Date;
 
-  @IsNotEmpty()
+  @IsOptional()
   @Type(() => Number)
   @IsNumber()
   readonly rate: number;
+
+  @IsOptional()
+  @Type(() => Number)
+  @IsNumber()
+  readonly price: number;
 
   @IsNotEmpty({ message: "Chức vụ không được phép để trống" })
   @IsArray()

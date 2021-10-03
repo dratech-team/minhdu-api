@@ -10,14 +10,11 @@ import {SearchPayrollDto} from "./dto/search-payroll.dto";
 import {UpdatePayrollDto} from "./dto/update-payroll.dto";
 import {FullPayroll, OnePayroll} from "./entities/payroll.entity";
 import {ResponsePagination} from "../../../common/entities/response.pagination";
+import {CreateSalaryDto} from "../salary/dto/create-salary.dto";
 
 @Injectable()
 export class PayrollRepository {
   constructor(private readonly prisma: PrismaService) {
-  }
-
-  count(query?: any): Promise<number> {
-    return Promise.resolve(0);
   }
 
   async create(body: CreatePayrollDto) {
@@ -65,6 +62,29 @@ export class PayrollRepository {
         );
       }
       throw new BadRequestException(err);
+    }
+  }
+
+  /// tạo ngày lễ cho phiếu lương đó
+  async generate(body: Partial<CreateSalaryDto>) {
+    try {
+      return await this.prisma.salary.create({
+        data: {
+          title: body.title,
+          type: SalaryType.HOLIDAY,
+          unit: body.unit,
+          datetime: body.datetime as Date,
+          times: body.times,
+          forgot: body.forgot,
+          rate: body.rate,
+          price: body.price,
+          note: body.note,
+          payroll: {connect: {id: body.payrollId}},
+        }
+      });
+    } catch (err) {
+      console.error(err);
+      throw new BadRequestException("Khởi tạo ngày lễ xảy ra lõi. Vui lòng thao tác lại. Nếu không được hãy liên hệ admin. Xin cảm ơn");
     }
   }
 
