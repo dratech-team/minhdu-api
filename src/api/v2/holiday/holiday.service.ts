@@ -31,7 +31,7 @@ export class HolidayService {
     return await this.repository.remove(id);
   }
 
-  async findCurrentHolidays(positionId: Position['id']) {
-    return await this.repository.findCurrentHolidays(positionId);
+  async findCurrentHolidays(datetime: Date, positionId: Position['id']) {
+    return await this.repository.findCurrentHolidays(datetime, positionId);
   }
 }

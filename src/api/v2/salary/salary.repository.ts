@@ -51,13 +51,12 @@ export class SalaryRepository {
             }
           }
         });
-
-        // check nhân viên
-        if (body.type === SalaryType.DAY_OFF || SalaryType.ABSENT && salary) {
+        if ((body.type === SalaryType.DAY_OFF || SalaryType.ABSENT) && salary) {
+          console.log(salary)
           throw new BadRequestException(
             `Ngày ${moment(body.datetime as Date).format(
               "DD/MM/YYYY"
-            )} đã tồn tại đi trễ / về sớm / không đi làm / vắng của phiếu lương của nhân viên ${salary.payroll.employee.firstName + " " + salary.payroll.employee.lastName}. Vui lòng không thêm tùy chọn khác.`
+            )} đã tồn tại đi trễ / về sớm / không đi làm / vắng của phiếu lương của nhân viên ${salary?.payroll?.employee?.firstName + " " + salary?.payroll?.employee?.lastName}. Vui lòng không thêm tùy chọn khác.`
           );
         }
       }
@@ -111,7 +110,7 @@ export class SalaryRepository {
           title: body.title,
           type: body.type,
           unit: body.unit,
-          datetime: body.datetime as Date,
+          datetime: body.datetime as Date || payroll.createdAt,
           times: body.times,
           forgot: body.forgot,
           rate: body.rate,
