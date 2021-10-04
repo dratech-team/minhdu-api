@@ -383,7 +383,6 @@ export class PayrollService {
 
     const payroll = await this.findOne(payrollId);
     const currentHoliday = await this.holidayService.findCurrentHolidays(payroll.createdAt, payroll.employee.positionId);
-
     if (currentHoliday && currentHoliday.length) {
       for (let i = 0; i < currentHoliday.length; i++) {
         const salary = Object.assign(currentHoliday[i], {
@@ -408,7 +407,8 @@ export class PayrollService {
             worksNotInHoliday.push(
               Object.assign(salary, {times: PARTIAL_DAY})
             );
-            worksInHoliday.push(Object.assign(salary, {times: PARTIAL_DAY}));
+            /// Warning: update lại rate để tránh trùng với rate ngày nghỉ
+            worksInHoliday.push(Object.assign(salary, {times: PARTIAL_DAY, rate: currentHoliday[i].rate}));
           } else {
             throw new BadRequestException(
               `${payroll.employee.lastName} ngày ${payroll.createdAt} có thời gian làm ngày lễ không hợp lệ`
@@ -418,10 +418,6 @@ export class PayrollService {
           worksInHoliday.push(Object.assign(salary, {times: ALL_DAY}));
         }
       }
-    }
-    for (let i = 0; i < worksInHoliday.length; i++) {
-      console.log(worksInHoliday[i])
-      await this.repository.generate(payrollId, worksInHoliday[i]);
     }
     return {worksInHoliday, worksNotInHoliday};
   }
@@ -643,8 +639,8 @@ export class PayrollService {
     const payslipInHoliday = workHoliday.worksInHoliday.map(w => {
       // console.log("times", w.times);
       // console.log("price", w.price);
-      // console.log("total", w.price * w.times);
-      // return w.times * w.price;
+      console.log("total", w.price * w.times);
+      return w.times * w.price;
     }).reduce((a, b) => a + b, 0);
 
     // datetime
