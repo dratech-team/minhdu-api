@@ -28,6 +28,7 @@ export class PayrollRepository {
           employee: {id: {in: body.employeeId}}
         },
       });
+      // Khoông được check tồn tại bởi vì tạo nhiều phiếu lương cho nhiều nhân viên thì nhân viên nào được tạo rồi sẽ được bỏ qua
       if (!exist?.length) {
         const payrolls = await this.prisma.payroll.findMany({
           where: {
@@ -39,14 +40,23 @@ export class PayrollRepository {
         if (payrolls && payrolls.length) {
           for (let i = 0; i < payrolls.length; i++) {
             const salaries = payrolls[i].salaries.filter(salary => salary.type === SalaryType.BASIC || salary.type === SalaryType.BASIC_INSURANCE || salary.type === SalaryType.STAY);
-            await this.prisma.payroll.create({
-              data: Object.assign(body, salaries?.length ? {
-                salaries: {
-                  createMany: {data: salaries}
+            if (salaries?.length) {
+              return await this.prisma.payroll.create({
+                data: {
+                  employee: {connect: {id: body.employeeId}},
+                  createdAt: body.createdAt,
+                  salaries: {
+                    createMany: {
+                      data: salaries.map(salary => {
+                        delete salary.payrollId;
+                        delete salary.id;
+                        return salary;
+                      })
+                    }
+                  }
                 }
-              } : {}),
-            });
-            break;
+              });
+            }
           }
         } else {
           // Chưa tòn tại phiếu lương nào

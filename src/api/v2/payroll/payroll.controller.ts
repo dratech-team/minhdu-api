@@ -33,8 +33,8 @@ export class PayrollController {
   @UseGuards(LoggerGuard)
   @Roles(Role.ADMIN, Role.HUMAN_RESOURCE, Role.CAMP_ACCOUNTING)
   @Post()
-  create(@Body() body: CreatePayrollDto) {
-    return this.payrollService.create(body);
+  create(@ReqProfile() user: ProfileEntity, @Body() body: CreatePayrollDto) {
+    return this.payrollService.create(user, body);
   }
 
   @Get()
@@ -67,16 +67,16 @@ export class PayrollController {
     });
   }
 
-  @Roles(
-    Role.ADMIN,
-    Role.HUMAN_RESOURCE,
-    Role.CAMP_ACCOUNTING,
-    Role.ACCOUNTANT_CASH_FUND
-  )
-  @Get("/generate")
-  async generate(@ReqProfile() user: ProfileEntity, @Query("datetime", ParseDatetimePipe) datetime: Date) {
-    return await this.payrollService.generate(user, new Date(datetime));
-  }
+  // @Roles(
+  //   Role.ADMIN,
+  //   Role.HUMAN_RESOURCE,
+  //   Role.CAMP_ACCOUNTING,
+  //   Role.ACCOUNTANT_CASH_FUND
+  // )
+  // @Get("/generate")
+  // async generate(@ReqProfile() user: ProfileEntity, @Query("datetime", ParseDatetimePipe) datetime: Date) {
+  //   return await this.payrollService.generate(user, new Date(datetime));
+  // }
 
   @Roles(Role.ADMIN, Role.HUMAN_RESOURCE, Role.CAMP_ACCOUNTING)
   @Get(":id")
