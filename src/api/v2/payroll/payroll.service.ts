@@ -43,7 +43,7 @@ export class PayrollService {
   }
 
   async generate(profile: ProfileEntity, datetime: Date) {
-    const count = [];
+    let count = 0;
     const employee = await this.employeeService.findAll(
       profile,
       undefined,
@@ -52,22 +52,19 @@ export class PayrollService {
 
     ///
     for (let i = 0; i < employee.data.length; i++) {
-      const payroll = await this.repository.findByEmployeeId(
-        employee.data[i].id
-      );
-  // console.log(datetime)
+      const payroll = await this.repository.findByEmployeeId(employee.data[i].id);
+
       if (!payroll) {
-        count.push(
-          await this.repository.create({
-            employeeId: employee.data[i].id,
-            createdAt: datetime || new Date(),
-          })
-        );
+        await this.repository.create({
+          employeeId: employee.data[i].id,
+          createdAt: datetime || new Date(),
+        })
+        count++
       }
     }
     return {
       statusCode: 201,
-      message: `${count.length} Phiếu lương trong tháng ${new Date().getMonth()} đã được tạo`
+      message: `${count} Phiếu lương trong tháng ${new Date().getMonth()} đã được tạo`
     };
   }
 

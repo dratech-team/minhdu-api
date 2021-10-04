@@ -370,6 +370,7 @@ model Payroll {
   isEdit         Boolean?  @default(true)
   manConfirmedAt DateTime?
   paidAt         DateTime?
+  actualWorkday  Float?
   createdAt      DateTime? @default(now())
 }
 
