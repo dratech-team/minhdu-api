@@ -80,7 +80,7 @@ export class HolidayRepository {
           name: updates.name,
           datetime: updates.datetime,
           rate: updates.rate,
-          positions: {connect: updates.positionIds.map((id) => ({id}))},
+          positions: {set: updates.positionIds.map((id) => ({id}))},
           isConstraint: updates.isConstraint,
           price: updates.price,
         },

@@ -386,13 +386,10 @@ export class PayrollService {
 
     if (currentHoliday && currentHoliday.length) {
       for (let i = 0; i < currentHoliday.length; i++) {
-        const salary = {
+        const salary = Object.assign(currentHoliday[i], {
           title: currentHoliday[i].name,
-          price: currentHoliday[i]?.price,
           type: SalaryType.HOLIDAY,
-          datetime: currentHoliday[i].datetime,
-          rate: currentHoliday[i].rate,
-        };
+        });
         const salaries = payroll.salaries.filter(
           (salary) => salary.type === SalaryType.ABSENT || salary.type === SalaryType.DAY_OFF
         );
@@ -423,6 +420,7 @@ export class PayrollService {
       }
     }
     for (let i = 0; i < worksInHoliday.length; i++) {
+      console.log(worksInHoliday[i])
       await this.repository.generate(payrollId, worksInHoliday[i]);
     }
     return {worksInHoliday, worksNotInHoliday};
@@ -643,8 +641,10 @@ export class PayrollService {
 
     const workHoliday = await this.generateHoliday(payroll.id);
     const payslipInHoliday = workHoliday.worksInHoliday.map(w => {
-      console.log("work in holiday", w.times);
-      return w.times * w.price;
+      // console.log("times", w.times);
+      // console.log("price", w.price);
+      // console.log("total", w.price * w.times);
+      // return w.times * w.price;
     }).reduce((a, b) => a + b, 0);
 
     // datetime

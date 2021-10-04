@@ -85,6 +85,7 @@ export class PayrollRepository {
               datetime: body.datetime as Date,
               times: body.times,
               rate: body.rate,
+              note: "",
             }
           }
         }

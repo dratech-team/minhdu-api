@@ -110,7 +110,7 @@ export class SalaryRepository {
           title: body.title,
           type: body.type,
           unit: body.unit,
-          datetime: body.datetime as Date,
+          datetime: body.datetime as Date || payroll.createdAt,
           times: body.times,
           forgot: body.forgot,
           rate: body.rate,
