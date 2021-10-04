@@ -92,6 +92,13 @@ export class PayrollController {
   }
 
   @UseGuards(LoggerGuard)
+  @Roles(Role.ADMIN, Role.HUMAN_RESOURCE, Role.CAMP_ACCOUNTING)
+  @Get(":id/holiday")
+  generateHoliday(@Param("id") id: number) {
+    return this.payrollService.generateHoliday(+id)
+  }
+
+  @UseGuards(LoggerGuard)
   @Roles(
     Role.ADMIN,
     Role.HUMAN_RESOURCE,
