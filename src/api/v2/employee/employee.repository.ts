@@ -263,6 +263,7 @@ export class EmployeeRepository {
           createdAt: updates.createdAt,
           workedAt: updates.workedAt,
           isFlatSalary: updates.isFlatSalary,
+          recipeType: updates.recipeType,
           note: updates.note,
         },
       });
