@@ -7,7 +7,7 @@ import {UpdateSalaryDto} from "./dto/update-salary.dto";
 import {OneSalary} from "./entities/salary.entity";
 import {includesDatetime, isEqualDatetime} from "../../../common/utils/isEqual-datetime.util";
 import {ALL_DAY, PARTIAL_DAY} from "../../../common/constant/datetime.constant";
-import {FullPayroll, OnePayroll} from "../payroll/entities/payroll.entity";
+import {FullPayroll} from "../payroll/entities/payroll.entity";
 
 @Injectable()
 export class SalaryRepository {
@@ -17,8 +17,10 @@ export class SalaryRepository {
   async create(body: CreateSalaryDto) {
     try {
       // validate before create
-      await this.validate(body);
-
+      const validate = await this.validate(body);
+      if (!validate) {
+        throw new BadRequestException(`Validate ${body.title} for type ${body.type} failure. Pls check it`);
+      }
       // passed validate
       return await this.prisma.salary.create({
         data: {
@@ -43,7 +45,9 @@ export class SalaryRepository {
             : {},
         },
         select: {
-          payroll: {select: {employeeId: true}}
+          payroll: {select: {employee: {select: {firstName: true, lastName: true}}}},
+          allowance: true,
+          title: true,
         }
       });
     } catch (err) {
@@ -97,9 +101,11 @@ export class SalaryRepository {
         );
       }
     }
+
+    return true;
   }
 
-  async validateUniqueBasic(body: CreateSalaryDto, payroll: FullPayroll) {
+  validateUniqueBasic(body: CreateSalaryDto, payroll: FullPayroll) {
     // Lương cơ bản, theo hợp đồng, ở lại. không được phép trùng
     const salaries = payroll.salaries.filter(
       (salary) =>
@@ -117,9 +123,19 @@ export class SalaryRepository {
         `${body.title} đã tồn tại. Vui lòng không thêm`
       );
     }
+
+    return true;
   }
 
-  async validateOvertime(body: CreateSalaryDto, payroll: FullPayroll) {
+  validateAllowance(body: CreateSalaryDto, payroll: FullPayroll): boolean {
+    // Check thêm tăng ca đúng với datetime của payroll
+    if (!isEqualDatetime(body.datetime as Date, payroll.createdAt, "MONTH")) {
+      throw new BadRequestException(`Ngày phụ cấp phải là ngày của tháng ${moment(payroll.createdAt).format("MM/YYYY")}. Đã nhắc mấy lần rồi hmmm :)`);
+    }
+    return true;
+  }
+
+  async validateOvertime(body: CreateSalaryDto, payroll: FullPayroll): Promise<boolean> {
     // Check thêm tăng ca đúng với datetime của payroll
     if (!isEqualDatetime(body.datetime as Date, payroll.createdAt, "MONTH")) {
       throw new BadRequestException(`Ngày tăng ca phải là ngày của tháng ${moment(payroll.createdAt).format("MM/YYYY")}. Đừng có mà thử thách :)`);
@@ -145,22 +161,35 @@ export class SalaryRepository {
         );
       }
     }
+
+    return true;
   }
 
-  async validate(body: CreateSalaryDto) {
+  async validate(body: CreateSalaryDto): Promise<boolean> {
     const payroll = await this.prisma.payroll.findUnique({
       where: {id: body.payrollId},
       include: {salaries: true},
     });
 
-    if (body.type === SalaryType.ABSENT || body.type === SalaryType.DAY_OFF) {
-      await this.validateAbsent(body);
-    }
-
-    await this.validateUniqueBasic(body, payroll);
-
-    if (body.type === SalaryType.OVERTIME) {
-      await this.validateOvertime(body, payroll);
+    switch (body.type) {
+      case  SalaryType.BASIC:
+      case SalaryType.BASIC_INSURANCE: {
+        return this.validateUniqueBasic(body, payroll);
+      }
+      case SalaryType.ALLOWANCE: {
+        return this.validateAllowance(body, payroll);
+      }
+      case SalaryType.ABSENT:
+      case SalaryType.DAY_OFF: {
+        return await this.validateAbsent(body);
+      }
+      case SalaryType.OVERTIME: {
+        return await this.validateOvertime(body, payroll);
+      }
+      default: {
+        console.error(`type salary must be BASIC, BASIC_INSURANCE, ABSENT, DAY_OFF, ALLOWANCE, OVERTIME. `);
+        return false;
+      }
     }
   }
 
@@ -172,10 +201,6 @@ export class SalaryRepository {
       throw new BadRequestException(err);
     }
   }
-
-  // async findMany(body: CreateSalaryDto) {
-  //   return await this.prisma.salary.findFirst({ where: body });
-  // }
 
   async findOne(id: number): Promise<OneSalary> {
     try {

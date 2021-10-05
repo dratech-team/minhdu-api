@@ -1,5 +1,5 @@
 import {BadRequestException, Injectable} from "@nestjs/common";
-import {Employee, Salary} from "@prisma/client";
+import {Salary} from "@prisma/client";
 import {firstDatetimeOfMonth, lastDatetimeOfMonth} from "../../../utils/datetime.util";
 import {EmployeeService} from "../employee/employee.service";
 import {PayrollService} from "../payroll/payroll.service";
@@ -18,7 +18,9 @@ export class SalaryService {
   }
 
   async create(body: CreateSalaryDto): Promise<Salary | any> {
-    const employeeIds: Employee["id"][] = [];
+    const employees: string[] = [];
+    const allowances: string[] = [];
+
     /// Thêm phụ cấp tăng ca hàng loạt
     if (body.employeeIds && body.employeeIds.length) {
       // get all payroll in body.datetime for employee
@@ -28,24 +30,32 @@ export class SalaryService {
         })
       );
 
+      if (payrolls.length !== body.employeeIds.length) {
+        throw new BadRequestException(`Có nhân viên nào đó chưa có bảng lương trong tháng ${body.datetime}. Vui lòng kiểm tra cho kỹ vào trước khi thêm nha.`);
+      }
+
       for (let i = 0; i < payrolls.length; i++) {
         // Tạo overtime / absent trong payroll cho nhân viên
         //  Nếu body.allowEmpIds thì Thêm phụ cấp tiền ăn / phụ cấp trong giờ làm  tăng ca hàng loạt.  vì allowance đi chung với body nên cần dặt lại giá trị là null để nó khỏi gán cho nhân viên khác
-        const salary = Object.assign(
-          body,
-          body.allowEmpIds?.includes(payrolls[i].employeeId)
-            ? {
-              payrollId: payrolls[i].id,
-              allowance: body.allowance,
-            }
-            : {payrollId: payrolls[i].id, allowance: null}
+        // copy obj body nếu k {} thì nó sẽ khi đè lên bên trong thuộc tính body và làm thay đổi giá trị body
+        const salary = Object.assign({},
+          body, {
+            payrollId: payrolls[i].id,
+            allowance: body.allowEmpIds.includes(payrolls[i].employeeId) ? body.allowance : null,
+          }
         );
+
         const created = await this.repository.create(salary);
-        employeeIds.push(created.payroll.employeeId);
+        if (created) {
+          employees.push(created.payroll.employee.firstName + " " + created.payroll.employee.lastName);
+        }
+        if (created.allowance) {
+          allowances.push(created.allowance?.title);
+        }
       }
       return {
         status: 201,
-        message: `Đã thêm ${body.title} cho các id nhân viên ${employeeIds.join(", ")}`
+        message: `Đã thêm ${body.title} cho ${employees.length} nhân viên. Chi tiết: ${employees.join(", ")} và ${allowances.length} phụ cấp`
       };
     } else {
       /// get phụ cấp theo range ngày
