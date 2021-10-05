@@ -52,7 +52,6 @@ export class SalaryRepository {
           }
         });
         if ((body.type === SalaryType.DAY_OFF || SalaryType.ABSENT) && salary) {
-          console.log(salary)
           throw new BadRequestException(
             `Ngày ${moment(body.datetime as Date).format(
               "DD/MM/YYYY"
@@ -104,13 +103,12 @@ export class SalaryRepository {
           );
         }
       }
-
       return await this.prisma.salary.create({
         data: {
           title: body.title,
           type: body.type,
           unit: body.unit,
-          datetime: body.datetime as Date || payroll.createdAt,
+          datetime: body.datetime as Date,
           times: body.times,
           forgot: body.forgot,
           rate: body.rate,

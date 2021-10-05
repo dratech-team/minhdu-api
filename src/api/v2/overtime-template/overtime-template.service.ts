@@ -3,14 +3,15 @@ import {
   Injectable,
   NotFoundException,
 } from "@nestjs/common";
-import { PrismaService } from "../../../prisma.service";
-import { CreateOvertimeTemplateDto } from "./dto/create-overtime-template.dto";
-import { SearchOvertimeTemplateDto } from "./dto/search-overtime-template.dto";
-import { UpdateOvertimeTemplateDto } from "./dto/update-overtime-template.dto";
+import {PrismaService} from "../../../prisma.service";
+import {CreateOvertimeTemplateDto} from "./dto/create-overtime-template.dto";
+import {SearchOvertimeTemplateDto} from "./dto/search-overtime-template.dto";
+import {UpdateOvertimeTemplateDto} from "./dto/update-overtime-template.dto";
 
 @Injectable()
 export class OvertimeTemplateService {
-  constructor(private readonly prisma: PrismaService) {}
+  constructor(private readonly prisma: PrismaService) {
+  }
 
   async create(body: CreateOvertimeTemplateDto) {
     try {
@@ -21,7 +22,7 @@ export class OvertimeTemplateService {
               id: positionId,
             })),
           },
-          branch: body?.branchId ? { connect: { id: body?.branchId } } : {},
+          branch: body?.branchId ? {connect: {id: body?.branchId}} : {},
           title: body.title,
           price: body.price,
           rate: body.rate,
@@ -35,6 +36,8 @@ export class OvertimeTemplateService {
     }
   }
 
+  // every: Search nhữ id có trong id positionId và bao gồm ovvertime có positions null
+  // some: Search những postitionId có trong overtime. k bao gồm positions rỗng
   async findAll(
     take: number,
     skip: number,
@@ -44,13 +47,13 @@ export class OvertimeTemplateService {
       const [total, data] = await Promise.all([
         this.prisma.overtimeTemplate.count({
           where: {
-            title: { startsWith: search?.title, mode: "insensitive" },
-            price: search?.price ? { in: search?.price } : {},
-            unit: { in: search?.unit || undefined },
+            title: {startsWith: search?.title, mode: "insensitive"},
+            price: search?.price ? {in: search?.price} : {},
+            unit: {in: search?.unit || undefined},
             positions: search?.positionId
               ? {
-                  some: { id: { in: search?.positionId } },
-                }
+                every: {id: search?.positionId},
+              }
               : {},
           },
         }),
@@ -58,13 +61,13 @@ export class OvertimeTemplateService {
           take: take || undefined,
           skip: skip || undefined,
           where: {
-            title: { startsWith: search?.title, mode: "insensitive" },
-            price: search?.price ? { in: search?.price } : {},
-            unit: { in: search?.unit || undefined },
+            title: {startsWith: search?.title, mode: "insensitive"},
+            price: search?.price ? {in: search?.price} : {},
+            unit: {in: search?.unit || undefined},
             positions: search?.positionId
               ? {
-                  some: { id: { in: search?.positionId } },
-                }
+                every: {id: search?.positionId},
+              }
               : {},
           },
           include: {
@@ -73,7 +76,7 @@ export class OvertimeTemplateService {
           },
         }),
       ]);
-      return { total, data };
+      return {total, data};
     } catch (err) {
       console.error(err);
       throw new NotFoundException(err);
@@ -83,7 +86,7 @@ export class OvertimeTemplateService {
   async findOne(id: number) {
     try {
       return await this.prisma.overtimeTemplate.findUnique({
-        where: { id },
+        where: {id},
         include: {
           positions: true,
           branch: true,
@@ -98,18 +101,18 @@ export class OvertimeTemplateService {
   async update(id: number, updates: UpdateOvertimeTemplateDto) {
     try {
       return await this.prisma.overtimeTemplate.update({
-        where: { id },
+        where: {id},
         data: {
           title: updates.title,
           unit: updates.unit,
           price: updates.price,
           rate: updates.rate,
           positions: {
-            set: updates.positionIds?.map((id) => ({ id })),
+            set: updates.positionIds?.map((id) => ({id})),
           },
           branch: updates?.branchId
-            ? { connect: { id: updates?.branchId } }
-            : { disconnect: true },
+            ? {connect: {id: updates?.branchId}}
+            : {disconnect: true},
         },
         include: {
           positions: true,
@@ -124,7 +127,7 @@ export class OvertimeTemplateService {
 
   async remove(id: number) {
     try {
-      await this.prisma.overtimeTemplate.delete({ where: { id } });
+      await this.prisma.overtimeTemplate.delete({where: {id}});
     } catch (err) {
       console.error(err);
       throw new BadRequestException(err);
