@@ -36,7 +36,7 @@ export class OvertimeTemplateService {
     }
   }
 
-  // every: Search nhữ id có trong id positionId và bao gồm ovvertime có positions null
+  // every: Search những id có trong id positionId và bao gồm overtime có positions null
   // some: Search những postitionId có trong overtime. k bao gồm positions rỗng
   async findAll(
     take: number,

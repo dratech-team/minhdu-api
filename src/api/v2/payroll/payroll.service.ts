@@ -1,5 +1,5 @@
 import {BadRequestException, ConflictException, Injectable} from "@nestjs/common";
-import {DatetimeUnit, Payroll, RecipeType, Role, Salary, SalaryType,} from "@prisma/client";
+import {DatetimeUnit, Employee, RecipeType, Role, Salary, SalaryType,} from "@prisma/client";
 import {Response} from "express";
 import {ProfileEntity} from "../../../common/entities/profile.entity";
 import {lastDayOfMonth} from "../../../utils/datetime.util";
@@ -15,6 +15,7 @@ import {includesDatetime, isEqualDatetime,} from "../../../common/utils/isEqual-
 import {ALL_DAY, PARTIAL_DAY,} from "../../../common/constant/datetime.constant";
 import {exportExcel} from "../../../core/services/export.service";
 import {FullSalary} from "../salary/entities/salary.entity";
+import * as moment from "moment";
 
 @Injectable()
 export class PayrollService {
@@ -26,6 +27,7 @@ export class PayrollService {
   }
 
   async create(profile: ProfileEntity, body: CreatePayrollDto) {
+    const employeeIds: Employee["id"][] = [];
     try {
       if (!body?.employeeId) {
         let count = 0;
@@ -36,13 +38,16 @@ export class PayrollService {
         );
 
         for (let i = 0; i < employee.data.length; i++) {
-          await this.repository.create({
+          const payroll = await this.repository.create({
             employeeId: employee.data[i].id,
-            createdAt: body.createdAt || new Date(),
+            createdAt: body.createdAt,
           });
-          count++;
+          employeeIds.push(payroll.employeeId);
         }
-        return;
+        return {
+          status: 201,
+          message: `Đã tự động tạo phiếu lương tháng ${moment(body.createdAt).format("MM/YYYY")} cho ${employeeIds.length} nhân viên`,
+        };
       }
       return await this.repository.create(body);
     } catch (err) {
@@ -126,7 +131,7 @@ export class PayrollService {
     const payroll = await this.repository.findOne(id);
     const absent = this.totalAbsent(payroll.salaries);
     const last = lastDayOfMonth(payroll.createdAt);
-    return Object.assign(payroll, {totalWorkday: last - absent.day})
+    return Object.assign(payroll, {totalWorkday: last - absent.day});
 
     // /// FIXME: Không nên get từ hàm này. sửa lại sau
     // const totalWorkday =
@@ -216,7 +221,7 @@ export class PayrollService {
     );
   }
 
-  async findFirst(query: any): Promise<Payroll> {
+  async findFirst(query: any) {
     return await this.repository.findFirst(query);
   }
 
@@ -370,12 +375,8 @@ export class PayrollService {
 
   totalOvertime(salaries: FullSalary[]) {
     return salaries
-      ?.filter(
-        (salary) =>
-          salary.type === SalaryType.OVERTIME &&
-          salary.unit === DatetimeUnit.HOUR
-      )
-      ?.map((salary) => salary.price * salary.times + salary.allowance?.price || 0)
+      ?.filter((salary) => salary.type === SalaryType.OVERTIME)
+      ?.map((salary) => salary.price * salary.times + (salary.allowance?.price || 0))
       ?.reduce((a, b) => a + b, 0);
   }
 
@@ -637,9 +638,7 @@ export class PayrollService {
   // CT2
   async totalSalaryCT2(payroll: OnePayroll) {
     let tax = 0;
-    let overtimeSalary = 0;
     let basicDaySalary = 0;
-    let total = 0;
     let payslipInHoliday = 0;
 
     let actualDay = this.totalActualDay(payroll);
@@ -706,14 +705,14 @@ export class PayrollService {
         } else {
           /// FIXME: confirm lại nếu đi làm ngày lễ nhưng đkien ngày thực tế > ngày công chuẩn mới được hưởng thưởng hay k cần điều kiện. Nếu không cần thì bỏ đkien đi
           // if (actualDay >= payroll.employee.workday) {
-          payslipInHoliday += currentHoliday[i].price
+          payslipInHoliday += currentHoliday[i].price;
           // }
         }
       }
     }
 
-    overtimeSalary = this.totalOvertime(payroll.salaries);
-
+    const overtimeSalary = this.totalOvertime(payroll.salaries);
+    console.log(overtimeSalary);
     const absent = this.totalAbsent(payroll.salaries);
 
     const absentDay = absent.day + (isEqualDatetime(payroll.employee.createdAt, payroll.createdAt)
@@ -762,6 +761,7 @@ export class PayrollService {
     // console.log("Tổng tiền tăng ca", overtimeSalary);
     // console.log("total", total);
 
+    let total: number;
     if (actualDay >= payroll.employee.workday) {
       total = basicDaySalary * actualDay + Math.ceil(allowanceTotal) + staySalary + payslipInHoliday + overtimeSalary - deductionSalary - tax;
     } else {

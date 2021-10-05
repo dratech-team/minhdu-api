@@ -183,10 +183,10 @@ export class PayrollRepository {
     }
   }
 
-  async findFirst(query: any): Promise<Payroll> {
+  async findFirst(query: any) {
     try {
       return await this.prisma.payroll.findFirst({
-        where: query,
+        where: query
       });
     } catch (err) {
       console.error(err);

@@ -1,15 +1,12 @@
-import { BadRequestException, Injectable } from "@nestjs/common";
-import { Salary, SalaryType } from "@prisma/client";
-import {
-  firstDatetimeOfMonth,
-  lastDatetimeOfMonth
-} from "../../../utils/datetime.util";
-import { EmployeeService } from "../employee/employee.service";
-import { PayrollService } from "../payroll/payroll.service";
-import { CreateSalaryDto } from "./dto/create-salary.dto";
-import { UpdateSalaryDto } from "./dto/update-salary.dto";
-import { OneSalary } from "./entities/salary.entity";
-import { SalaryRepository } from "./salary.repository";
+import {BadRequestException, Injectable} from "@nestjs/common";
+import {Salary} from "@prisma/client";
+import {firstDatetimeOfMonth, lastDatetimeOfMonth} from "../../../utils/datetime.util";
+import {EmployeeService} from "../employee/employee.service";
+import {PayrollService} from "../payroll/payroll.service";
+import {CreateSalaryDto} from "./dto/create-salary.dto";
+import {UpdateSalaryDto} from "./dto/update-salary.dto";
+import {OneSalary} from "./entities/salary.entity";
+import {SalaryRepository} from "./salary.repository";
 
 @Injectable()
 export class SalaryService {
@@ -17,39 +14,49 @@ export class SalaryService {
     private readonly repository: SalaryRepository,
     private readonly employeeService: EmployeeService,
     private readonly payrollService: PayrollService
-  ) {}
+  ) {
+  }
 
-  async create(body: CreateSalaryDto): Promise<Salary | Salary[]> {
-    const overtimes: Salary[] = [];
+  async create(body: CreateSalaryDto): Promise<Salary | any> {
+    const employees: string[] = [];
+    const allowances: string[] = [];
+
     /// Thêm phụ cấp tăng ca hàng loạt
     if (body.employeeIds && body.employeeIds.length) {
-      const employees = await Promise.all(
-        body.employeeIds.map(
-          async (employeeId) => await this.employeeService.findOne(employeeId)
-        )
+      // get all payroll in body.datetime for employee
+      const payrolls = await Promise.all(
+        body.employeeIds.map(async (employeeId) => {
+          return await this.findPayrollByEmployee(employeeId, body.datetime as Date);
+        })
       );
-      for (let i = 0; i < employees.length; i++) {
-        // get payroll để lấy thông tin
-        const payroll = await this.findPayrollByEmployee(
-          employees[i].id,
-          body.datetime as Date
-        );
 
+      if (payrolls.length !== body.employeeIds.length) {
+        throw new BadRequestException(`Có nhân viên nào đó chưa có bảng lương trong tháng ${body.datetime}. Vui lòng kiểm tra cho kỹ vào trước khi thêm nha.`);
+      }
+
+      for (let i = 0; i < payrolls.length; i++) {
         // Tạo overtime / absent trong payroll cho nhân viên
         //  Nếu body.allowEmpIds thì Thêm phụ cấp tiền ăn / phụ cấp trong giờ làm  tăng ca hàng loạt.  vì allowance đi chung với body nên cần dặt lại giá trị là null để nó khỏi gán cho nhân viên khác
-        const salary = Object.assign(
-          body,
-          body.allowEmpIds?.includes(employees[i].id)
-            ? {
-                payrollId: payroll.id,
-                allowance: body.allowance,
-              }
-            : { payrollId: payroll.id, allowance: null }
+        // copy obj body nếu k {} thì nó sẽ khi đè lên bên trong thuộc tính body và làm thay đổi giá trị body
+        const salary = Object.assign({},
+          body, {
+            payrollId: payrolls[i].id,
+            allowance: body.allowEmpIds.includes(payrolls[i].employeeId) ? body.allowance : null,
+          }
         );
 
-        overtimes.push(await this.repository.create(salary));
+        const created = await this.repository.create(salary);
+        if (created) {
+          employees.push(created.payroll.employee.firstName + " " + created.payroll.employee.lastName);
+        }
+        if (created.allowance) {
+          allowances.push(created.allowance?.title);
+        }
       }
-      return overtimes;
+      return {
+        status: 201,
+        message: `Đã thêm ${body.title} cho ${employees.length} nhân viên. Chi tiết: ${employees.join(", ")} và ${allowances.length} phụ cấp`
+      };
     } else {
       /// get phụ cấp theo range ngày
       // const rageDate = (body as CreateSalaryByDayDto).datetime as RageDate;
@@ -61,31 +68,21 @@ export class SalaryService {
     }
   }
 
-  async findPayrollByEmployee(employeeId: number, datetime?: Date) {
+  async findPayrollByEmployee(employeeId: number, datetime: Date) {
     // get payroll để lấy thông tin
     const payroll = await this.payrollService.findFirst({
       employeeId: employeeId,
       createdAt: {
-        gte: firstDatetimeOfMonth(datetime || new Date()),
-        lte: lastDatetimeOfMonth(datetime || new Date()),
+        gte: firstDatetimeOfMonth(datetime),
+        lte: lastDatetimeOfMonth(datetime),
       },
     });
-
     if (!payroll) {
       throw new BadRequestException(
-        `Bảng lương tháng ${datetime.getMonth()} của nhân viên ${employeeId} không tồn tại. `
+        `Bảng lương tháng ${firstDatetimeOfMonth(datetime)} của mã nhân viên ${employeeId} không tồn tại. `
       );
     }
     return payroll;
-  }
-
-  //
-  // findAll(employeeId: number, skip: number, take: number, search?: string) {
-  //   return this.repository.findAll(employeeId, skip, take, search);
-  // }
-
-  findBy(employeeId: number, query: any): Promise<Salary[]> {
-    throw new Error("Method not implemented.");
   }
 
   async findOne(id: number): Promise<OneSalary> {

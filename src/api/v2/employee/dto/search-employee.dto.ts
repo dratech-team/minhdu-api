@@ -10,4 +10,5 @@ export interface SearchEmployeeDto {
   branchId: number,
   position: string,
   templateId: number,
+  createdPayroll: Date,
 }
