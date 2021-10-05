@@ -216,7 +216,7 @@ export class PayrollService {
     );
   }
 
-  async findFirst(query: any): Promise<Payroll> {
+  async findFirst(query: any) {
     return await this.repository.findFirst(query);
   }
 
