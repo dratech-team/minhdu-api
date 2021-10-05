@@ -1,5 +1,5 @@
 import {BadRequestException, ConflictException, Injectable} from "@nestjs/common";
-import {DatetimeUnit, Payroll, RecipeType, Role, Salary, SalaryType,} from "@prisma/client";
+import {DatetimeUnit, Employee, Payroll, RecipeType, Role, Salary, SalaryType,} from "@prisma/client";
 import {Response} from "express";
 import {ProfileEntity} from "../../../common/entities/profile.entity";
 import {lastDayOfMonth} from "../../../utils/datetime.util";
@@ -26,6 +26,7 @@ export class PayrollService {
   }
 
   async create(profile: ProfileEntity, body: CreatePayrollDto) {
+    const employeeIds: Employee["id"][] = [];
     try {
       if (!body?.employeeId) {
         let count = 0;
@@ -36,13 +37,16 @@ export class PayrollService {
         );
 
         for (let i = 0; i < employee.data.length; i++) {
-          await this.repository.create({
+          const payroll = await this.repository.create({
             employeeId: employee.data[i].id,
-            createdAt: body.createdAt || new Date(),
+            createdAt: body.createdAt,
           });
-          count++;
+          employeeIds.push(payroll.employeeId);
         }
-        return;
+        return {
+          status: 201,
+          message: `Đã tự động tạo phiếu lương cho ${employeeIds.length} nhân viên`,
+        };
       }
       return await this.repository.create(body);
     } catch (err) {
@@ -126,7 +130,7 @@ export class PayrollService {
     const payroll = await this.repository.findOne(id);
     const absent = this.totalAbsent(payroll.salaries);
     const last = lastDayOfMonth(payroll.createdAt);
-    return Object.assign(payroll, {totalWorkday: last - absent.day})
+    return Object.assign(payroll, {totalWorkday: last - absent.day});
 
     // /// FIXME: Không nên get từ hàm này. sửa lại sau
     // const totalWorkday =
@@ -706,7 +710,7 @@ export class PayrollService {
         } else {
           /// FIXME: confirm lại nếu đi làm ngày lễ nhưng đkien ngày thực tế > ngày công chuẩn mới được hưởng thưởng hay k cần điều kiện. Nếu không cần thì bỏ đkien đi
           // if (actualDay >= payroll.employee.workday) {
-          payslipInHoliday += currentHoliday[i].price
+          payslipInHoliday += currentHoliday[i].price;
           // }
         }
       }

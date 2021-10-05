@@ -41,6 +41,9 @@ export class SalaryRepository {
             }
             : {},
         },
+        select: {
+          payroll: {select: {employeeId: true}}
+        }
       });
     } catch (err) {
       console.error(err);

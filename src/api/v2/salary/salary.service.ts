@@ -1,5 +1,5 @@
 import {BadRequestException, Injectable} from "@nestjs/common";
-import {Salary} from "@prisma/client";
+import {Employee, Salary} from "@prisma/client";
 import {firstDatetimeOfMonth, lastDatetimeOfMonth} from "../../../utils/datetime.util";
 import {EmployeeService} from "../employee/employee.service";
 import {PayrollService} from "../payroll/payroll.service";
@@ -17,8 +17,8 @@ export class SalaryService {
   ) {
   }
 
-  async create(body: CreateSalaryDto): Promise<Salary | Salary[]> {
-    const overtimes: Salary[] = [];
+  async create(body: CreateSalaryDto): Promise<Salary | any> {
+    const employeeIds: Employee["id"][] = [];
     /// Thêm phụ cấp tăng ca hàng loạt
     if (body.employeeIds && body.employeeIds.length) {
       // get all payroll in body.datetime for employee
@@ -40,10 +40,13 @@ export class SalaryService {
             }
             : {payrollId: payrolls[i].id, allowance: null}
         );
-
-        overtimes.push(await this.repository.create(salary));
+        const created = await this.repository.create(salary);
+        employeeIds.push(created.payroll.employeeId);
       }
-      return overtimes;
+      return {
+        status: 201,
+        message: `Đã thêm ${body.title} cho các id nhân viên ${employeeIds.join(", ")}`
+      };
     } else {
       /// get phụ cấp theo range ngày
       // const rageDate = (body as CreateSalaryByDayDto).datetime as RageDate;
@@ -70,15 +73,6 @@ export class SalaryService {
       );
     }
     return payroll;
-  }
-
-  //
-  // findAll(employeeId: number, skip: number, take: number, search?: string) {
-  //   return this.repository.findAll(employeeId, skip, take, search);
-  // }
-
-  findBy(employeeId: number, query: any): Promise<Salary[]> {
-    throw new Error("Method not implemented.");
   }
 
   async findOne(id: number): Promise<OneSalary> {

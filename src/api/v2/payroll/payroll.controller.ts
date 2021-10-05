@@ -67,17 +67,6 @@ export class PayrollController {
     });
   }
 
-  // @Roles(
-  //   Role.ADMIN,
-  //   Role.HUMAN_RESOURCE,
-  //   Role.CAMP_ACCOUNTING,
-  //   Role.ACCOUNTANT_CASH_FUND
-  // )
-  // @Get("/generate")
-  // async generate(@ReqProfile() user: ProfileEntity, @Query("datetime", ParseDatetimePipe) datetime: Date) {
-  //   return await this.payrollService.generate(user, new Date(datetime));
-  // }
-
   @Roles(Role.ADMIN, Role.HUMAN_RESOURCE, Role.CAMP_ACCOUNTING)
   @Get(":id")
   findOne(@Param("id") id: string) {
