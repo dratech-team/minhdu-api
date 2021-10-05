@@ -1,5 +1,5 @@
 import {BadRequestException, ConflictException, Injectable} from "@nestjs/common";
-import {DatetimeUnit, Employee, Payroll, RecipeType, Role, Salary, SalaryType,} from "@prisma/client";
+import {DatetimeUnit, Employee, RecipeType, Role, Salary, SalaryType,} from "@prisma/client";
 import {Response} from "express";
 import {ProfileEntity} from "../../../common/entities/profile.entity";
 import {lastDayOfMonth} from "../../../utils/datetime.util";
@@ -15,6 +15,7 @@ import {includesDatetime, isEqualDatetime,} from "../../../common/utils/isEqual-
 import {ALL_DAY, PARTIAL_DAY,} from "../../../common/constant/datetime.constant";
 import {exportExcel} from "../../../core/services/export.service";
 import {FullSalary} from "../salary/entities/salary.entity";
+import * as moment from "moment";
 
 @Injectable()
 export class PayrollService {
@@ -45,7 +46,7 @@ export class PayrollService {
         }
         return {
           status: 201,
-          message: `Đã tự động tạo phiếu lương cho ${employeeIds.length} nhân viên`,
+          message: `Đã tự động tạo phiếu lương tháng ${moment(body.createdAt).format("MM/YYYY")} cho ${employeeIds.length} nhân viên`,
         };
       }
       return await this.repository.create(body);
