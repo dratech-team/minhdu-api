@@ -5,8 +5,9 @@ import {PrismaService} from "../../../prisma.service";
 import {CreateSalaryDto} from "./dto/create-salary.dto";
 import {UpdateSalaryDto} from "./dto/update-salary.dto";
 import {OneSalary} from "./entities/salary.entity";
-import {includesDatetime} from "../../../common/utils/isEqual-datetime.util";
+import {includesDatetime, isEqualDatetime} from "../../../common/utils/isEqual-datetime.util";
 import {ALL_DAY, PARTIAL_DAY} from "../../../common/constant/datetime.constant";
+import {FullPayroll, OnePayroll} from "../payroll/entities/payroll.entity";
 
 @Injectable()
 export class SalaryRepository {
@@ -98,12 +99,8 @@ export class SalaryRepository {
     }
   }
 
-  async validateUniqueBasic(body: CreateSalaryDto) {
+  async validateUniqueBasic(body: CreateSalaryDto, payroll: FullPayroll) {
     // Lương cơ bản, theo hợp đồng, ở lại. không được phép trùng
-    const payroll = await this.prisma.payroll.findUnique({
-      where: {id: body.payrollId},
-      include: {salaries: true},
-    });
     const salaries = payroll.salaries.filter(
       (salary) =>
         salary.type === SalaryType.BASIC_INSURANCE ||
@@ -122,7 +119,13 @@ export class SalaryRepository {
     }
   }
 
-  async validateUniqueOvertime(body: CreateSalaryDto) {
+  async validateOvertime(body: CreateSalaryDto, payroll: FullPayroll) {
+    // Check thêm tăng ca đúng với datetime của payroll
+    if (!isEqualDatetime(body.datetime as Date, payroll.createdAt, "MONTH")) {
+      throw new BadRequestException(`Ngày tăng ca phải là ngày của tháng ${moment(payroll.createdAt).format("MM/YYYY")}. Đừng có mà thử thách :)`);
+    }
+
+
     // Check Tăng ca không trùng cho phiếu lương
     if (body.type === SalaryType.OVERTIME) {
       const templates = await this.prisma.overtimeTemplate.findMany({
@@ -145,14 +148,19 @@ export class SalaryRepository {
   }
 
   async validate(body: CreateSalaryDto) {
+    const payroll = await this.prisma.payroll.findUnique({
+      where: {id: body.payrollId},
+      include: {salaries: true},
+    });
+
     if (body.type === SalaryType.ABSENT || body.type === SalaryType.DAY_OFF) {
       await this.validateAbsent(body);
     }
 
-    await this.validateUniqueBasic(body);
+    await this.validateUniqueBasic(body, payroll);
 
     if (body.type === SalaryType.OVERTIME) {
-      await this.validateUniqueOvertime(body);
+      await this.validateOvertime(body, payroll);
     }
   }
 
