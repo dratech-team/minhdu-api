@@ -375,12 +375,8 @@ export class PayrollService {
 
   totalOvertime(salaries: FullSalary[]) {
     return salaries
-      ?.filter(
-        (salary) =>
-          salary.type === SalaryType.OVERTIME &&
-          salary.unit === DatetimeUnit.HOUR
-      )
-      ?.map((salary) => salary.price * salary.times + salary.allowance?.price || 0)
+      ?.filter((salary) => salary.type === SalaryType.OVERTIME)
+      ?.map((salary) => salary.price * salary.times + (salary.allowance?.price || 0))
       ?.reduce((a, b) => a + b, 0);
   }
 
@@ -642,9 +638,7 @@ export class PayrollService {
   // CT2
   async totalSalaryCT2(payroll: OnePayroll) {
     let tax = 0;
-    let overtimeSalary = 0;
     let basicDaySalary = 0;
-    let total = 0;
     let payslipInHoliday = 0;
 
     let actualDay = this.totalActualDay(payroll);
@@ -717,8 +711,8 @@ export class PayrollService {
       }
     }
 
-    overtimeSalary = this.totalOvertime(payroll.salaries);
-
+    const overtimeSalary = this.totalOvertime(payroll.salaries);
+    console.log(overtimeSalary);
     const absent = this.totalAbsent(payroll.salaries);
 
     const absentDay = absent.day + (isEqualDatetime(payroll.employee.createdAt, payroll.createdAt)
@@ -767,6 +761,7 @@ export class PayrollService {
     // console.log("Tổng tiền tăng ca", overtimeSalary);
     // console.log("total", total);
 
+    let total: number;
     if (actualDay >= payroll.employee.workday) {
       total = basicDaySalary * actualDay + Math.ceil(allowanceTotal) + staySalary + payslipInHoliday + overtimeSalary - deductionSalary - tax;
     } else {
