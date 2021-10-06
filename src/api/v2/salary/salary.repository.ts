@@ -1,5 +1,5 @@
 import {BadRequestException, Injectable, NotFoundException,} from "@nestjs/common";
-import {SalaryType} from "@prisma/client";
+import {DatetimeUnit, SalaryType} from "@prisma/client";
 import * as moment from "moment";
 import {PrismaService} from "../../../prisma.service";
 import {CreateSalaryDto} from "./dto/create-salary.dto";
@@ -11,8 +11,7 @@ import {FullPayroll} from "../payroll/entities/payroll.entity";
 
 @Injectable()
 export class SalaryRepository {
-  constructor(private readonly prisma: PrismaService) {
-  }
+  constructor(private readonly prisma: PrismaService) {}
 
   async create(body: CreateSalaryDto) {
     try {
@@ -33,15 +32,15 @@ export class SalaryRepository {
           rate: body.rate,
           price: body.price,
           note: body.note,
-          payroll: {connect: {id: body.payrollId}},
+          payroll: { connect: { id: body.payrollId } },
           allowance: body?.allowance?.title
             ? {
-              create: {
-                title: body.allowance.title,
-                type: SalaryType.OVERTIME,
-                price: body.allowance.price,
-              },
-            }
+                create: {
+                  title: body.allowance.title,
+                  type: SalaryType.OVERTIME,
+                  price: body.allowance.price,
+                },
+              }
             : {},
         },
         select: {
@@ -128,19 +127,30 @@ export class SalaryRepository {
   }
 
   validateAllowance(body: CreateSalaryDto, payroll: FullPayroll): boolean {
+    if (!body.times) {
+      throw new BadRequestException(`[DEVELOPMENT] times not null`);
+    }
     // Check thêm tăng ca đúng với datetime của payroll
-    if (!isEqualDatetime(body.datetime as Date, payroll.createdAt, "MONTH")) {
+    if (!isEqualDatetime(body.datetime as Date, payroll.createdAt, "MONTH") && body.unit === DatetimeUnit.MONTH) {
       throw new BadRequestException(`Ngày phụ cấp phải là ngày của tháng ${moment(payroll.createdAt).format("MM/YYYY")}. Đã nhắc mấy lần rồi hmmm :)`);
     }
     return true;
   }
 
   async validateOvertime(body: CreateSalaryDto, payroll: FullPayroll): Promise<boolean> {
-    // Check thêm tăng ca đúng với datetime của payroll
-    if (!isEqualDatetime(body.datetime as Date, payroll.createdAt, "MONTH")) {
-      throw new BadRequestException(`Ngày tăng ca phải là ngày của tháng ${moment(payroll.createdAt).format("MM/YYYY")}. Đừng có mà thử thách :)`);
+    if (!body.times) {
+      throw new BadRequestException(`[DEVELOPMENT] times not null`);
     }
 
+    // Check thêm tăng ca đúng với datetime của payroll
+    console.log(body.datetime as Date, payroll.createdAt)
+    if (!isEqualDatetime(body.datetime as Date, payroll.createdAt, "MONTH")) {
+      throw new BadRequestException(
+        `Ngày tăng ca phải là ngày của tháng ${moment(payroll.createdAt).format(
+          "MM/YYYY"
+        )}. Đừng có mà thử thách :)`
+      );
+    }
 
     // Check Tăng ca không trùng cho phiếu lương
     if (body.type === SalaryType.OVERTIME) {
@@ -167,14 +177,17 @@ export class SalaryRepository {
 
   async validate(body: CreateSalaryDto): Promise<boolean> {
     const payroll = await this.prisma.payroll.findUnique({
-      where: {id: body.payrollId},
-      include: {salaries: true},
+      where: { id: body.payrollId },
+      include: { salaries: true },
     });
 
     switch (body.type) {
-      case  SalaryType.BASIC:
+      case SalaryType.BASIC:
       case SalaryType.BASIC_INSURANCE: {
         return this.validateUniqueBasic(body, payroll);
+      }
+      case SalaryType.STAY: {
+        return true;
       }
       case SalaryType.ALLOWANCE: {
         return this.validateAllowance(body, payroll);
@@ -195,7 +208,7 @@ export class SalaryRepository {
 
   async findBy(query: any): Promise<any> {
     try {
-      return this.prisma.salary.findFirst({where: {}});
+      return this.prisma.salary.findFirst({ where: {} });
     } catch (err) {
       console.error(err);
       throw new BadRequestException(err);
@@ -205,8 +218,8 @@ export class SalaryRepository {
   async findOne(id: number): Promise<OneSalary> {
     try {
       return await this.prisma.salary.findUnique({
-        where: {id},
-        include: {payroll: true},
+        where: { id },
+        include: { payroll: true },
       });
     } catch (err) {
       console.error(err);
@@ -223,7 +236,7 @@ export class SalaryRepository {
         );
       }
       return await this.prisma.salary.update({
-        where: {id: id},
+        where: { id: id },
         data: {
           title: updates.title,
           type: updates.type,
@@ -236,18 +249,18 @@ export class SalaryRepository {
           note: updates.note,
           allowance: updates.allowance
             ? {
-              upsert: {
-                create: {
-                  title: updates.allowance?.title,
-                  price: updates.allowance?.price,
-                  type: SalaryType.OVERTIME,
+                upsert: {
+                  create: {
+                    title: updates.allowance?.title,
+                    price: updates.allowance?.price,
+                    type: SalaryType.OVERTIME,
+                  },
+                  update: {
+                    title: updates.allowance?.title,
+                    price: updates.allowance?.price,
+                  },
                 },
-                update: {
-                  title: updates.allowance?.title,
-                  price: updates.allowance?.price,
-                },
-              },
-            }
+              }
             : {},
         },
       });
@@ -259,14 +272,14 @@ export class SalaryRepository {
 
   async remove(id: number) {
     try {
-      const payroll = await this.prisma.payroll.findUnique({where: {id}});
+      const payroll = await this.prisma.payroll.findUnique({ where: { id } });
       if (payroll?.paidAt) {
         throw new BadRequestException(
           "Bảng lương đã thanh toán không được phép xoá"
         );
       }
 
-      return await this.prisma.salary.delete({where: {id: id}});
+      return await this.prisma.salary.delete({ where: { id: id } });
     } catch (err) {
       console.error(err);
       throw new BadRequestException(err);
