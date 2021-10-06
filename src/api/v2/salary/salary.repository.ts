@@ -1,5 +1,5 @@
 import {BadRequestException, Injectable, NotFoundException,} from "@nestjs/common";
-import {SalaryType} from "@prisma/client";
+import {DatetimeUnit, SalaryType} from "@prisma/client";
 import * as moment from "moment";
 import {PrismaService} from "../../../prisma.service";
 import {CreateSalaryDto} from "./dto/create-salary.dto";
@@ -57,23 +57,25 @@ export class SalaryRepository {
   }
 
   async validateAbsent(body: CreateSalaryDto) {
-    if (body.type === SalaryType.ABSENT || body.type === SalaryType.DAY_OFF) {
-      // Ngày lễ chỉ được nghỉ nữa ngày hoặc 1 ngày. Không được đi trễ / đến sớm, về muộn
-      const holidays = await this.prisma.holiday.findMany({
-        where: {
-          datetime: {
-            in: body.datetime as Date,
-          },
+    if (!body.times) {
+      throw new BadRequestException(`[DEVELOPMENT] times not null`);
+    }
+
+    // Ngày lễ chỉ được nghỉ nữa ngày hoặc 1 ngày. Không được đi trễ / đến sớm, về muộn
+    const holidays = await this.prisma.holiday.findMany({
+      where: {
+        datetime: {
+          in: body.datetime as Date,
         },
-      });
-      if (includesDatetime(holidays.map((holiday) => holiday.datetime), body.datetime as Date)) {
-        if (body.times !== PARTIAL_DAY && body.times !== ALL_DAY) {
-          throw new BadRequestException(
-            `${moment(body.datetime as Date).format(
-              "DD/MM/YYYY"
-            )} là lễ nên không được phép nghỉ số số tiếng. Chỉ được phép nghỉ 1 ngày hoặc nửa ngày thôi.`
-          );
-        }
+      },
+    });
+    if (includesDatetime(holidays.map((holiday) => holiday.datetime), body.datetime as Date)) {
+      if (body.times !== PARTIAL_DAY && body.times !== ALL_DAY) {
+        throw new BadRequestException(
+          `${moment(body.datetime as Date).format(
+            "DD/MM/YYYY"
+          )} là lễ nên không được phép nghỉ số số tiếng. Chỉ được phép nghỉ 1 ngày hoặc nửa ngày thôi.`
+        );
       }
 
       // Vắng hoặc không đi làm chỉ đc 1 lần trong ngày
@@ -128,15 +130,23 @@ export class SalaryRepository {
   }
 
   validateAllowance(body: CreateSalaryDto, payroll: FullPayroll): boolean {
+    if (!body.times) {
+      throw new BadRequestException(`[DEVELOPMENT] times not null`);
+    }
     // Check thêm tăng ca đúng với datetime của payroll
-    if (!isEqualDatetime(body.datetime as Date, payroll.createdAt, "MONTH")) {
+    if (!isEqualDatetime(body.datetime as Date, payroll.createdAt, "MONTH") && body.unit === DatetimeUnit.MONTH) {
       throw new BadRequestException(`Ngày phụ cấp phải là ngày của tháng ${moment(payroll.createdAt).format("MM/YYYY")}. Đã nhắc mấy lần rồi hmmm :)`);
     }
     return true;
   }
 
   async validateOvertime(body: CreateSalaryDto, payroll: FullPayroll): Promise<boolean> {
+    if (!body.times) {
+      throw new BadRequestException(`[DEVELOPMENT] times not null`);
+    }
+
     // Check thêm tăng ca đúng với datetime của payroll
+    console.log(body.datetime as Date, payroll.createdAt)
     if (!isEqualDatetime(body.datetime as Date, payroll.createdAt, "MONTH")) {
       throw new BadRequestException(`Ngày tăng ca phải là ngày của tháng ${moment(payroll.createdAt).format("MM/YYYY")}. Đừng có mà thử thách :)`);
     }
