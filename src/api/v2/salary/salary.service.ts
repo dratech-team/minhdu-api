@@ -1,5 +1,5 @@
 import {BadRequestException, Injectable} from "@nestjs/common";
-import {Salary} from "@prisma/client";
+import {Salary, SalaryType} from "@prisma/client";
 import {firstDatetimeOfMonth, lastDatetimeOfMonth} from "../../../utils/datetime.util";
 import {EmployeeService} from "../employee/employee.service";
 import {PayrollService} from "../payroll/payroll.service";
@@ -41,7 +41,7 @@ export class SalaryService {
         const salary = Object.assign({},
           body, {
             payrollId: payrolls[i].id,
-            allowance: body.allowEmpIds.includes(payrolls[i].employeeId) ? body.allowance : null,
+            allowance: body?.allowEmpIds?.includes(payrolls[i].employeeId) && body.type === SalaryType.OVERTIME ? body?.allowance : null,
           }
         );
 
@@ -55,7 +55,7 @@ export class SalaryService {
       }
       return {
         status: 201,
-        message: `Đã thêm ${body.title} cho ${employees.length} nhân viên. Chi tiết: ${employees.join(", ")} và ${allowances.length} phụ cấp`
+        message: `Đã thêm ${body.title} cho ${employees.length} nhân viên. ${body.type === SalaryType.OVERTIME ? `Và ${allowances.length} phụ cấp` : ''}`
       };
     } else {
       /// get phụ cấp theo range ngày

@@ -1,5 +1,5 @@
 import {BadRequestException, ConflictException, Injectable} from "@nestjs/common";
-import {DatetimeUnit, Employee, RecipeType, Role, Salary, SalaryType,} from "@prisma/client";
+import {DatetimeUnit, RecipeType, Role, Salary, SalaryType,} from "@prisma/client";
 import {Response} from "express";
 import {ProfileEntity} from "../../../common/entities/profile.entity";
 import {lastDayOfMonth} from "../../../utils/datetime.util";
@@ -27,7 +27,6 @@ export class PayrollService {
   }
 
   async create(profile: ProfileEntity, body: CreatePayrollDto) {
-    const employeeIds= [];
     try {
       if (!body?.employeeId) {
         let count = 0;
@@ -37,16 +36,16 @@ export class PayrollService {
           undefined
         );
 
-        for (let i = 0; i < employee.data.length; i++) {
-          const payroll = await this.repository.create({
-            employeeId: employee.data[i].id,
+        const created = await Promise.all(employee.data.map(async employee => {
+          return await this.repository.create({
+            employeeId: employee.id,
             createdAt: body.createdAt,
           });
-          employeeIds.push(payroll.employeeId);
-        }
+        }));
+
         return {
           status: 201,
-          message: `Đã tự động tạo phiếu lương tháng ${moment(body.createdAt).format("MM/YYYY")} cho ${employeeIds.length} nhân viên`,
+          message: `Đã tự động tạo phiếu lương tháng ${moment(body.createdAt).format("MM/YYYY")} cho ${created.length} nhân viên`,
         };
       }
       return await this.repository.create(body);
@@ -56,42 +55,9 @@ export class PayrollService {
     }
   }
 
-  async findAll(
-    user: ProfileEntity,
-    skip: number,
-    take: number,
-    search?: Partial<SearchPayrollDto>
-  ) {
+  async findAll(user: ProfileEntity, skip: number, take: number, search?: Partial<SearchPayrollDto>) {
     return await this.repository.findAll(user, skip, take, search);
-    // const payroll = await Promise.all(
-    //   res.data.map(async (payroll) => await this.payslip(payroll))
-    // );
-    // return {total: res.total, data: payroll};
   }
-
-  // async generate(profile: ProfileEntity, datetime: Date) {
-  //   let count = 0;
-  //   const employee = await this.employeeService.findAll(
-  //     profile,
-  //     undefined,
-  //     undefined
-  //   );
-  //
-  //   console.log(employee)
-  //
-  //   ///
-  //   for (let i = 0; i < employee.data.length; i++) {
-  //     const created = await this.repository.create({
-  //       employeeId: employee.data[i].id,
-  //       createdAt: datetime || new Date(),
-  //     });
-  //     count++;
-  //   }
-  //   return {
-  //     statusCode: 201,
-  //     message: `${count} Phiếu lương trong tháng ${datetime || new Date().getMonth()} đã được tạo`,
-  //   };
-  // }
 
   async confirmPayslip(id: number) {
     const payroll = await this.repository.findOne(id);
@@ -542,11 +508,6 @@ export class PayrollService {
       }
     }
 
-    // Đi làm nhưng không thuộc ngày lễ x2
-    const payslipOutOfWorkday = actualDay - (currentHoliday.length + workday) > 0
-      ? (actualDay - (currentHoliday.length + workday)) * basicDaySalary * RATE_OUT_OF_WORK_DAY
-      : 0;
-
     // datetime
     const worksInHoliday = [];
     const worksNotInHoliday = [];
@@ -566,9 +527,14 @@ export class PayrollService {
     });
 
     // Ngày công đi làm không fai ngày lễ và ngày đi làm trong ngày lễ cộng với nhau
-    const totalWorkday =
-      workdayNotInHoliday +
-      worksInHoliday.map((date) => date.day).reduce((a, b) => a + b, 0);
+    const totalWorkday = workdayNotInHoliday + worksInHoliday.map((date) => date.day).reduce((a, b) => a + b, 0);
+
+
+    // Đi làm nhưng không thuộc ngày lễ x2
+    const payslipOutOfWorkday = actualDay - (currentHoliday.length + workday) > 0
+      ? (actualDay - totalWorkday) * basicDaySalary * RATE_OUT_OF_WORK_DAY
+      : 0;
+
 
     const allowanceDayByActual = this.totalAllowanceByActual(
       payroll.salaries,
@@ -597,13 +563,14 @@ export class PayrollService {
     // console.log("Tổng ngày công thực nhận lương", totalWorkday);
     // console.log("Tổng lương đi làm ngày lễ", payslipInHoliday);
     // console.log("Tổng lương không đi làm ngày lễ ", payslipNotInHoliday);
-    // console.log("Tổng lương đi làm ngoài ngày lễ ", payslipOutOfWorkday);
+    console.log("Tổng lương đi làm ngoài ngày lễ( x2 )", payslipOutOfWorkday);
     // console.log("Tổng phụ cấp", staySalary);
     //
     // console.log("=====================================================");
     //
     // console.log("Lương ngày công thực tế trừu ngày lễ", payslipNormalDay);
     // console.log("Tổng lương đi làm ngày lễ", payslipInHoliday);
+    // console.log("Lương 1 ngày công", basicDaySalary);
     // console.log("Tổng phụ cấp", staySalary);
     // console.log("Thuees", tax);
     // console.log("Tổng tiền tăng ca", overtime);
