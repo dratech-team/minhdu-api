@@ -1,25 +1,36 @@
-import {BadRequestException, Injectable, NotFoundException,} from "@nestjs/common";
-import {SalaryType} from "@prisma/client";
+import {
+  BadRequestException,
+  Injectable,
+  NotFoundException,
+} from "@nestjs/common";
+import { SalaryType } from "@prisma/client";
 import * as moment from "moment";
-import {PrismaService} from "../../../prisma.service";
-import {CreateSalaryDto} from "./dto/create-salary.dto";
-import {UpdateSalaryDto} from "./dto/update-salary.dto";
-import {OneSalary} from "./entities/salary.entity";
-import {includesDatetime, isEqualDatetime} from "../../../common/utils/isEqual-datetime.util";
-import {ALL_DAY, PARTIAL_DAY} from "../../../common/constant/datetime.constant";
-import {FullPayroll} from "../payroll/entities/payroll.entity";
+import { PrismaService } from "../../../prisma.service";
+import { CreateSalaryDto } from "./dto/create-salary.dto";
+import { UpdateSalaryDto } from "./dto/update-salary.dto";
+import { OneSalary } from "./entities/salary.entity";
+import {
+  includesDatetime,
+  isEqualDatetime,
+} from "../../../common/utils/isEqual-datetime.util";
+import {
+  ALL_DAY,
+  PARTIAL_DAY,
+} from "../../../common/constant/datetime.constant";
+import { FullPayroll } from "../payroll/entities/payroll.entity";
 
 @Injectable()
 export class SalaryRepository {
-  constructor(private readonly prisma: PrismaService) {
-  }
+  constructor(private readonly prisma: PrismaService) {}
 
   async create(body: CreateSalaryDto) {
     try {
       // validate before create
       const validate = await this.validate(body);
       if (!validate) {
-        throw new BadRequestException(`Validate ${body.title} for type ${body.type} failure. Pls check it`);
+        throw new BadRequestException(
+          `Validate ${body.title} for type ${body.type} failure. Pls check it`
+        );
       }
       // passed validate
       return await this.prisma.salary.create({
@@ -33,22 +44,26 @@ export class SalaryRepository {
           rate: body.rate,
           price: body.price,
           note: body.note,
-          payroll: {connect: {id: body.payrollId}},
+          payroll: { connect: { id: body.payrollId } },
           allowance: body?.allowance?.title
             ? {
-              create: {
-                title: body.allowance.title,
-                type: SalaryType.OVERTIME,
-                price: body.allowance.price,
-              },
-            }
+                create: {
+                  title: body.allowance.title,
+                  type: SalaryType.OVERTIME,
+                  price: body.allowance.price,
+                },
+              }
             : {},
         },
         select: {
-          payroll: {select: {employee: {select: {firstName: true, lastName: true}}}},
+          payroll: {
+            select: {
+              employee: { select: { firstName: true, lastName: true } },
+            },
+          },
           allowance: true,
           title: true,
-        }
+        },
       });
     } catch (err) {
       console.error(err);
@@ -66,7 +81,12 @@ export class SalaryRepository {
           },
         },
       });
-      if (includesDatetime(holidays.map((holiday) => holiday.datetime), body.datetime as Date)) {
+      if (
+        includesDatetime(
+          holidays.map((holiday) => holiday.datetime),
+          body.datetime as Date
+        )
+      ) {
         if (body.times !== PARTIAL_DAY && body.times !== ALL_DAY) {
           throw new BadRequestException(
             `${moment(body.datetime as Date).format(
@@ -83,21 +103,25 @@ export class SalaryRepository {
             in: body.datetime as Date,
           },
           payrollId: body.payrollId,
-          type: {in: [SalaryType.DAY_OFF, SalaryType.ABSENT]}
+          type: { in: [SalaryType.DAY_OFF, SalaryType.ABSENT] },
         },
         select: {
           payroll: {
             select: {
-              employee: {select: {firstName: true, lastName: true}}
-            }
-          }
-        }
+              employee: { select: { firstName: true, lastName: true } },
+            },
+          },
+        },
       });
       if ((body.type === SalaryType.DAY_OFF || SalaryType.ABSENT) && salary) {
         throw new BadRequestException(
           `Ngày ${moment(body.datetime as Date).format(
             "DD/MM/YYYY"
-          )} đã tồn tại đi trễ / về sớm / không đi làm / vắng của phiếu lương của nhân viên ${salary?.payroll?.employee?.firstName + " " + salary?.payroll?.employee?.lastName}. Vui lòng không thêm tùy chọn khác.`
+          )} đã tồn tại đi trễ / về sớm / không đi làm / vắng của phiếu lương của nhân viên ${
+            salary?.payroll?.employee?.firstName +
+            " " +
+            salary?.payroll?.employee?.lastName
+          }. Vui lòng không thêm tùy chọn khác.`
         );
       }
     }
@@ -113,7 +137,7 @@ export class SalaryRepository {
         salary.type === SalaryType.BASIC ||
         salary.type === SalaryType.STAY
     );
-    const isEqualTitle = salaries.some(salary => salary.title === body.title);
+    const isEqualTitle = salaries.some((salary) => salary.title === body.title);
     // const isEqualPrice = salaries
     //   .map((salary) => salary.price)
     //   .includes(body.price);
@@ -130,17 +154,27 @@ export class SalaryRepository {
   validateAllowance(body: CreateSalaryDto, payroll: FullPayroll): boolean {
     // Check thêm tăng ca đúng với datetime của payroll
     if (!isEqualDatetime(body.datetime as Date, payroll.createdAt, "MONTH")) {
-      throw new BadRequestException(`Ngày phụ cấp phải là ngày của tháng ${moment(payroll.createdAt).format("MM/YYYY")}. Đã nhắc mấy lần rồi hmmm :)`);
+      throw new BadRequestException(
+        `Ngày phụ cấp phải là ngày của tháng ${moment(payroll.createdAt).format(
+          "MM/YYYY"
+        )}. Đã nhắc mấy lần rồi hmmm :)`
+      );
     }
     return true;
   }
 
-  async validateOvertime(body: CreateSalaryDto, payroll: FullPayroll): Promise<boolean> {
+  async validateOvertime(
+    body: CreateSalaryDto,
+    payroll: FullPayroll
+  ): Promise<boolean> {
     // Check thêm tăng ca đúng với datetime của payroll
     if (!isEqualDatetime(body.datetime as Date, payroll.createdAt, "MONTH")) {
-      throw new BadRequestException(`Ngày tăng ca phải là ngày của tháng ${moment(payroll.createdAt).format("MM/YYYY")}. Đừng có mà thử thách :)`);
+      throw new BadRequestException(
+        `Ngày tăng ca phải là ngày của tháng ${moment(payroll.createdAt).format(
+          "MM/YYYY"
+        )}. Đừng có mà thử thách :)`
+      );
     }
-
 
     // Check Tăng ca không trùng cho phiếu lương
     if (body.type === SalaryType.OVERTIME) {
@@ -167,14 +201,17 @@ export class SalaryRepository {
 
   async validate(body: CreateSalaryDto): Promise<boolean> {
     const payroll = await this.prisma.payroll.findUnique({
-      where: {id: body.payrollId},
-      include: {salaries: true},
+      where: { id: body.payrollId },
+      include: { salaries: true },
     });
 
     switch (body.type) {
-      case  SalaryType.BASIC:
+      case SalaryType.BASIC:
       case SalaryType.BASIC_INSURANCE: {
         return this.validateUniqueBasic(body, payroll);
+      }
+      case SalaryType.STAY: {
+        return true;
       }
       case SalaryType.ALLOWANCE: {
         return this.validateAllowance(body, payroll);
@@ -187,7 +224,9 @@ export class SalaryRepository {
         return await this.validateOvertime(body, payroll);
       }
       default: {
-        console.error(`type salary must be BASIC, BASIC_INSURANCE, ABSENT, DAY_OFF, ALLOWANCE, OVERTIME. `);
+        console.error(
+          `type salary must be BASIC, BASIC_INSURANCE, ABSENT, DAY_OFF, ALLOWANCE, OVERTIME. `
+        );
         return false;
       }
     }
@@ -195,7 +234,7 @@ export class SalaryRepository {
 
   async findBy(query: any): Promise<any> {
     try {
-      return this.prisma.salary.findFirst({where: {}});
+      return this.prisma.salary.findFirst({ where: {} });
     } catch (err) {
       console.error(err);
       throw new BadRequestException(err);
@@ -205,8 +244,8 @@ export class SalaryRepository {
   async findOne(id: number): Promise<OneSalary> {
     try {
       return await this.prisma.salary.findUnique({
-        where: {id},
-        include: {payroll: true},
+        where: { id },
+        include: { payroll: true },
       });
     } catch (err) {
       console.error(err);
@@ -223,7 +262,7 @@ export class SalaryRepository {
         );
       }
       return await this.prisma.salary.update({
-        where: {id: id},
+        where: { id: id },
         data: {
           title: updates.title,
           type: updates.type,
@@ -236,18 +275,18 @@ export class SalaryRepository {
           note: updates.note,
           allowance: updates.allowance
             ? {
-              upsert: {
-                create: {
-                  title: updates.allowance?.title,
-                  price: updates.allowance?.price,
-                  type: SalaryType.OVERTIME,
+                upsert: {
+                  create: {
+                    title: updates.allowance?.title,
+                    price: updates.allowance?.price,
+                    type: SalaryType.OVERTIME,
+                  },
+                  update: {
+                    title: updates.allowance?.title,
+                    price: updates.allowance?.price,
+                  },
                 },
-                update: {
-                  title: updates.allowance?.title,
-                  price: updates.allowance?.price,
-                },
-              },
-            }
+              }
             : {},
         },
       });
@@ -259,14 +298,14 @@ export class SalaryRepository {
 
   async remove(id: number) {
     try {
-      const payroll = await this.prisma.payroll.findUnique({where: {id}});
+      const payroll = await this.prisma.payroll.findUnique({ where: { id } });
       if (payroll?.paidAt) {
         throw new BadRequestException(
           "Bảng lương đã thanh toán không được phép xoá"
         );
       }
 
-      return await this.prisma.salary.delete({where: {id: id}});
+      return await this.prisma.salary.delete({ where: { id: id } });
     } catch (err) {
       console.error(err);
       throw new BadRequestException(err);

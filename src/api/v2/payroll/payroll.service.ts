@@ -27,7 +27,7 @@ export class PayrollService {
   }
 
   async create(profile: ProfileEntity, body: CreatePayrollDto) {
-    const employeeIds: Employee["id"][] = [];
+    const employeeIds= [];
     try {
       if (!body?.employeeId) {
         let count = 0;
@@ -42,7 +42,7 @@ export class PayrollService {
             employeeId: employee.data[i].id,
             createdAt: body.createdAt,
           });
-          employeeIds.push(payroll.employeeId);
+          employeeIds.push(payroll);
         }
         return {
           status: 201,
