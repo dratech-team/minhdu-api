@@ -342,7 +342,7 @@ export class PayrollService {
   totalOvertime(salaries: FullSalary[]) {
     return salaries
       ?.filter((salary) => salary.type === SalaryType.OVERTIME)
-      ?.map((salary) => salary.price * salary.times + (salary.allowance?.price || 0))
+      ?.map((salary) => salary.price * salary.times + (salary.allowance?.price * salary.allowance?.times || 0))
       ?.reduce((a, b) => a + b, 0);
   }
 
@@ -470,48 +470,6 @@ export class PayrollService {
         ? this.totalStaySalary(payroll.salaries)
         : (this.totalStaySalary(payroll.salaries) / workday) * actualDay;
 
-
-    // Tính tiền đi làm trong nggày lễ cho 1 ngày và nửa ngàu thường
-    if (currentHoliday && currentHoliday.length) {
-      for (let i = 0; i < currentHoliday.length; i++) {
-        const salaries = payroll.salaries.filter(salary => salary.type === SalaryType.ABSENT || salary.type === SalaryType.DAY_OFF);
-        const isAbsentInHoliday = includesDatetime(salaries.map(salary => salary.datetime), currentHoliday[i].datetime);
-        if (isAbsentInHoliday) {
-          const salary = salaries.find(salary => isEqualDatetime(salary.datetime, currentHoliday[i].datetime));
-          if (salary.times === 1) {
-            // không đi làm sẽ được tính theo lương cơ bản bth
-            if (actualDay >= workday) {
-              // payslipNotInHoliday += basicDaySalary;
-            }
-          } else if (salary.times === 0.5) {
-            // nửa ngày lễ nghỉ tính giá thường k nhân
-            if (actualDay >= workday) {
-              // payslipNotInHoliday += basicDaySalary / 2;
-            }
-            // nửa ngày lễ đi làm  tính giá nửa ngày nhân hệ số
-            // nếu nó là ngày tết isConstraint = false. k bị ràng buộc bởi ngày làm thực tế thì vẫn sẽ được nhân hệ số dù có di làm đủ ngày công hay k đi chăng nữa.
-            // ngược lại nhân hay k sẽ bị phụ thuộc vào ngày công so với ngày công chuẩn
-            if (!currentHoliday[i].isConstraint || currentHoliday[i].isConstraint && actualDay >= workday) {
-              // payslipInHoliday += (basicDaySalary / 2) * currentHoliday[i].rate;
-            } else {
-              // payslipInHoliday += (basicDaySalary / 2);
-            }
-          } else {
-            throw new BadRequestException(
-              `${payroll.employee.lastName} ngày ${payroll.createdAt} có thời gian làm ngày lễ không hợp lệ`
-            );
-          }
-        } else {
-          if (!currentHoliday[i].isConstraint || currentHoliday[i].isConstraint && actualDay >= workday) {
-            // payslipInHoliday += basicDaySalary * currentHoliday[i].rate;
-          }
-          // else {
-          //   payslipInHoliday += basicDaySalary;
-          // }
-        }
-      }
-    }
-
     // datetime
     const worksInHoliday = [];
     const worksNotInHoliday = [];
@@ -523,7 +481,6 @@ export class PayrollService {
           if (!holiday.isConstraint || (holiday.isConstraint && actualDay > workday)) {
             worksInHoliday.push({day: PARTIAL_DAY, datetime: holiday.datetime, rate: holiday.rate});
           }
-          // worksNotInHoliday.push({day: PARTIAL_DAY, datetime: holiday.datetime, rate: holiday.rate});
         } else {
           worksNotInHoliday.push({day: ALL_DAY, datetime: holiday.datetime, rate: holiday.rate});
         }

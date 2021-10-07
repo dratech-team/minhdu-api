@@ -9,6 +9,8 @@ import {includesDatetime, isEqualDatetime} from "../../../common/utils/isEqual-d
 import {ALL_DAY, PARTIAL_DAY} from "../../../common/constant/datetime.constant";
 import {FullPayroll} from "../payroll/entities/payroll.entity";
 
+const RATE_TIMES = 1;
+
 @Injectable()
 export class SalaryRepository {
   constructor(private readonly prisma: PrismaService) {
@@ -19,7 +21,7 @@ export class SalaryRepository {
       // validate before create
       const validate = await this.validate(body);
       if (!validate) {
-        throw new BadRequestException(`Validate ${body.title} for type ${body.type} failure. Pls check it`);
+        throw new BadRequestException(`[DEVELOPMENT] Validate ${body.title} for type ${body.type} failure. Pls check it`);
       }
       // passed validate
       return await this.prisma.salary.create({
@@ -40,6 +42,7 @@ export class SalaryRepository {
                 title: body.allowance.title,
                 type: SalaryType.OVERTIME,
                 price: body.allowance.price,
+                times: body.unit === DatetimeUnit.DAY ? body.times : RATE_TIMES, // phụ cấp tăng ca nhân cùng với số ngày của tăng ca. Nếu là giờ thì sẽ là 1
               },
             }
             : {},

@@ -519,8 +519,8 @@ enum SalaryType {
   BASIC
   BASIC_INSURANCE
   STAY
-  ALLOWANCE
-  OVERTIME
+  ALLOWANCE // Phụ cấp thêm không ảnh hưởng tới ngày công
+  OVERTIME //tăng ca, phụ cấp tăng ca
   ABSENT
   HOLIDAY // Ngày lế
   DAY_OFF // nghỉ được nghỉ
