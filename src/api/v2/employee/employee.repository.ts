@@ -65,7 +65,8 @@ export class EmployeeRepository {
             : {},
         },
         include: {
-          position: {include: {branches: true}},
+          position: true,
+        branch: true,
         },
       });
     } catch (err) {

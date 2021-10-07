@@ -666,7 +666,7 @@ export class PayrollService {
       tax = payroll.employee.contracts.length !== 0 ? basic.price * TAX : 0;
     }
 
-    const absentDaySalary = actualDay <= payroll.employee.workday ? this.totalAbsent(payroll.salaries).day * basicDaySalary : 0;
+    const absentDaySalary = actualDay < payroll.employee.workday ? this.totalAbsent(payroll.salaries).day * basicDaySalary : 0;
     const absentHourSalary = this.totalAbsent(payroll.salaries).hour * (basicDaySalary / 8);
     const absentHourMinuteSalary = this.totalAbsent(payroll.salaries).minute * (basicDaySalary / 8 / 60);
 

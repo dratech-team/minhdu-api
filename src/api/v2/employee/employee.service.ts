@@ -1,21 +1,19 @@
-import {Injectable} from "@nestjs/common";
-import {CreateEmployeeDto} from "./dto/create-employee.dto";
-import {EmployeeRepository} from "./employee.repository";
-import {UpdateEmployeeDto} from "./dto/update-employee.dto";
-import {BaseEmployeeService} from "./base-employee.service";
-import {PositionService} from "../../../common/branches/position/position.service";
-import {WorkHistoryService} from "../histories/work-history/work-history.service";
-import {SearchEmployeeDto} from "./dto/search-employee.dto";
-import {ProfileEntity} from "../../../common/entities/profile.entity";
+import { Injectable } from "@nestjs/common";
+import { CreateEmployeeDto } from "./dto/create-employee.dto";
+import { EmployeeRepository } from "./employee.repository";
+import { UpdateEmployeeDto } from "./dto/update-employee.dto";
+import { PositionService } from "../../../common/branches/position/position.service";
+import { WorkHistoryService } from "../histories/work-history/work-history.service";
+import { SearchEmployeeDto } from "./dto/search-employee.dto";
+import { ProfileEntity } from "../../../common/entities/profile.entity";
+
 
 @Injectable()
-export class EmployeeService implements BaseEmployeeService {
+export class EmployeeService {
   constructor(
     private readonly repository: EmployeeRepository,
     private readonly workHisService: WorkHistoryService,
-    private readonly positionService: PositionService
-  ) {
-  }
+  ) {}
 
   // @ts-ignore
   async create(body: CreateEmployeeDto) {
@@ -42,10 +40,13 @@ export class EmployeeService implements BaseEmployeeService {
 
   async findOne(id: number) {
     const employee = await this.repository.findOne(id);
-    const contactType = employee.contracts[0]?.createdAt && employee.contracts[0]?.expiredAt
-      ? "Có thời hạn" : employee.contracts[0]?.createdAt && !employee.contracts[0]?.expiredAt
-        ? "Vô  thời hạn" : "Chưa có hợp đồng";
-    return Object.assign(employee, {contractType: contactType})
+    const contactType =
+      employee.contracts[0]?.createdAt && employee.contracts[0]?.expiredAt
+        ? "Có thời hạn"
+        : employee.contracts[0]?.createdAt && !employee.contracts[0]?.expiredAt
+        ? "Vô  thời hạn"
+        : "Chưa có hợp đồng";
+    return Object.assign(employee, { contractType: contactType });
   }
 
   async update(id: number, updates: UpdateEmployeeDto) {

@@ -17,13 +17,14 @@ datasource db {
 }
 
 model Account {
-  id       Int      @id @default(autoincrement())
-  username String   @unique
-  password String
-  branch   Branch?  @relation(fields: [branchId], references: [id])
-  branchId Int?
-  role     Role
-  appName  AppEnum?
+  id        Int       @id @default(autoincrement())
+  username  String    @unique
+  password  String
+  branch    Branch?   @relation(fields: [branchId], references: [id])
+  branchId  Int?
+  role      Role
+  appName   AppEnum?
+  timestamp DateTime? @default(now())
 }
 
 model Degree {
@@ -39,15 +40,17 @@ model Degree {
   note       String?
   employee   Employee      @relation(fields: [employeeId], references: [id])
   employeeId Int
+  timestamp  DateTime?     @default(now())
 }
 
 model Bank {
-  id         Int      @id @default(autoincrement())
+  id         Int       @id @default(autoincrement())
   stk        String?
   owner      String
   name       String
-  employee   Employee @relation(fields: [employeeId], references: [id])
+  employee   Employee  @relation(fields: [employeeId], references: [id])
   employeeId Int
+  timestamp  DateTime? @default(now())
 }
 
 //Quốc gia
@@ -104,7 +107,7 @@ model Branch {
   positions        Position[]
   employee         Employee[]
   OvertimeTemplate OvertimeTemplate[]
-  workHistories    WorkHistory[]
+  timestamp        DateTime?          @default(now())
 }
 
 model Position {
@@ -113,10 +116,10 @@ model Position {
   workday        Int?
   branches       Branch[]
   employees      Employee[]
-  workHistories  WorkHistory[]
   templates      OvertimeTemplate[]
   Holiday        Holiday[]
   basicTemplates BasicTemplate[]
+  timestamp      DateTime?          @default(now())
 }
 
 // Hợp đồng
@@ -130,50 +133,50 @@ model Contract {
   expiredAt  DateTime?
   employee   Employee      @relation(fields: [employeeId], references: [id])
   employeeId Int
+  timestamp  DateTime?     @default(now())
 }
 
 model Employee {
-  id              Int             @id @default(autoincrement())
-  code            String?         @unique
-  firstName       String
-  lastName        String
-  avt             String?
-  gender          GenderType
-  phone           String?
-  workPhone       String?
-  birthday        DateTime
-  birthplace      String?
-  identify        String?         @unique
-  idCardAt        DateTime?
-  issuedBy        String?
-  workday         Int
-  ward            Ward            @relation(fields: [wardId], references: [id])
-  wardId          Int
-  address         String
-  email           String?
-  religion        String?
-  ethnicity       String?
-  mst             String?
-  createdAt       DateTime?       @default(now()) //Ngày thử việc (vào làm)
-  workedAt        DateTime? //Ngày làm chính thức
-  leftAt          DateTime?
-  isFlatSalary    Boolean?        @default(false)
-  position        Position        @relation(fields: [positionId], references: [id])
-  positionId      Int
-  branch          Branch          @relation(fields: [branchId], references: [id])
-  branchId        Int
-  note            String?
-  facebook        String?
-  zalo            String?
-  recipeType      RecipeType?     @default(CT2)
-  banks           Bank[]
-  routes          Route[]
-  payrolls        Payroll[]
-  contracts       Contract[]
-  degrees         Degree[]
-  workHistories   WorkHistory[]
-  relatives       Relative[]
-  historySalaries SalaryHistory[]
+  id           Int         @id @default(autoincrement())
+  code         String?     @unique
+  firstName    String
+  lastName     String
+  avt          String?
+  gender       GenderType
+  phone        String?
+  workPhone    String?
+  birthday     DateTime
+  birthplace   String?
+  identify     String?     @unique
+  idCardAt     DateTime?
+  issuedBy     String?
+  workday      Int
+  ward         Ward        @relation(fields: [wardId], references: [id])
+  wardId       Int
+  address      String
+  email        String?
+  religion     String?
+  ethnicity    String?
+  mst          String?
+  createdAt    DateTime?   @default(now()) //Ngày thử việc (vào làm)
+  workedAt     DateTime? //Ngày làm chính thức
+  leftAt       DateTime?
+  isFlatSalary Boolean?    @default(false)
+  position     Position    @relation(fields: [positionId], references: [id])
+  positionId   Int
+  branch       Branch      @relation(fields: [branchId], references: [id])
+  branchId     Int
+  note         String?
+  facebook     String?
+  zalo         String?
+  recipeType   RecipeType? @default(CT2)
+  banks        Bank[]
+  routes       Route[]
+  payrolls     Payroll[]
+  contracts    Contract[]
+  degrees      Degree[]
+  relatives    Relative[]
+  timestamp    DateTime?   @default(now())
 }
 
 model Holiday {
@@ -186,17 +189,7 @@ model Holiday {
   // Hiện tại đang chỉ apply chi ngày tết
   isConstraint Boolean?   @default(true)
   positions    Position[]
-}
-
-model WorkHistory {
-  id         Int       @id @default(autoincrement())
-  position   Position  @relation(fields: [positionId], references: [id])
-  positionId Int
-  branch     Branch    @relation(fields: [branchId], references: [id])
-  branchId   Int
-  createdAt  DateTime? @default(now())
-  employee   Employee  @relation(fields: [employeeId], references: [id])
-  employeeId Int
+  timestamp    DateTime?  @default(now())
 }
 
 model OvertimeTemplate {
@@ -210,6 +203,7 @@ model OvertimeTemplate {
   positions Position[]
   branch    Branch?       @relation(fields: [branchId], references: [id])
   branchId  Int?
+  timestamp DateTime?     @default(now())
 
   @@unique([title, type, price, rate, unit, branchId])
 }
@@ -221,6 +215,7 @@ model BasicTemplate {
   type       SalaryType? @default(BASIC)
   position   Position?   @relation(fields: [positionId], references: [id])
   positionId Int?
+  timestamp  DateTime?   @default(now())
 
   @@unique([title, price])
 }
@@ -248,6 +243,7 @@ model Relative {
   sos          Boolean?          @default(false)
   employee     Employee          @relation(fields: [employeeId], references: [id])
   employeeId   Int
+  timestamp    DateTime?         @default(now())
 }
 
 model Customer {
@@ -277,6 +273,7 @@ model Customer {
   orders           Order[]
   debt             Float?
   paymentHistories PaymentHistory[]
+  timestamp        DateTime?        @default(now())
 }
 
 model PaymentHistory {
@@ -344,22 +341,22 @@ model Location {
 }
 
 model Salary {
-  id            Int            @id @default(autoincrement())
-  title         String
-  type          SalaryType
-  times         Float?
-  price         Float?
-  unit          DatetimeUnit?  @default(DAY)
-  rate          Float?         @default(1)
-  datetime      DateTime?
-  forgot        Boolean?       @default(false)
-  note          String?
-  historySalary SalaryHistory?
-  payroll       Payroll?       @relation(fields: [payrollId], references: [id])
-  payrollId     Int?
-  salaryId      Int?
-  allowance     Salary?        @relation("SalaryToAllowance", fields: [salaryId], references: [id])
-  allowances    Salary[]       @relation("SalaryToAllowance")
+  id         Int           @id @default(autoincrement())
+  title      String
+  type       SalaryType
+  times      Float?
+  price      Float?
+  unit       DatetimeUnit? @default(DAY)
+  rate       Float?        @default(1)
+  datetime   DateTime?
+  forgot     Boolean?      @default(false)
+  note       String?
+  payroll    Payroll?      @relation(fields: [payrollId], references: [id])
+  payrollId  Int?
+  salaryId   Int?
+  allowance  Salary?       @relation("SalaryToAllowance", fields: [salaryId], references: [id])
+  allowances Salary[]      @relation("SalaryToAllowance")
+  timestamp  DateTime?     @default(now())
 }
 
 model Payroll {
@@ -372,17 +369,8 @@ model Payroll {
   manConfirmedAt DateTime?
   paidAt         DateTime?
   actualWorkday  Float?
-  createdAt      DateTime? @default(now())
-}
-
-model SalaryHistory {
-  id         Int       @id @default(autoincrement())
-  datetime   DateTime? @default(now())
-  salary     Salary    @relation(fields: [salaryId], references: [id])
-  salaryId   Int
-  employee   Employee  @relation(fields: [employeeId], references: [id])
-  employeeId Int
-
+  createdAt      DateTime? @default(now()) // ngay tao phieu luong, phieu luong cua thang
+  timestamp      DateTime? @default(now()) // ngay them vao ghi lai lich su
 }
 
 // start medicine

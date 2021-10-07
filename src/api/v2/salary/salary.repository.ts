@@ -142,13 +142,14 @@ export class SalaryRepository {
     }
 
     // Check thêm tăng ca đúng với datetime của payroll
-    if (!isEqualDatetime(body.datetime as Date, payroll.createdAt, "MONTH")) {
+    if (body.times === 1 && !isEqualDatetime(body.datetime as Date, payroll.createdAt, "MONTH")) {
       throw new BadRequestException(
         `Ngày tăng ca phải là ngày của tháng ${moment(payroll.createdAt).format(
           "MM/YYYY"
         )}. Đừng có mà thử thách :)`
       );
     }
+
 
     // Check Tăng ca không trùng cho phiếu lương
     if (body.type === SalaryType.OVERTIME) {
