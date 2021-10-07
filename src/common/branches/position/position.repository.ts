@@ -59,7 +59,6 @@ export class PositionRepository {
         where: {id: id},
         include: {
           employees: true,
-          workHistories: true,
           templates: true,
         },
       });

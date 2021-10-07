@@ -10,7 +10,6 @@ import {OrgChartModule} from './api/v2/org-chart/org-chart.module';
 import {SalaryModule} from './api/v2/salary/salary.module';
 import {ConfigModule} from "./core/config/config.module";
 import {ContractModule} from './api/v2/contract/contract.module';
-import {WorkHistoryModule} from './api/v2/histories/work-history/work-history.module';
 import {NationModule} from './common/nations/nation/nation.module';
 import {ProvinceModule} from './common/nations/province/province.module';
 import {DistrictModule} from './common/nations/district/district.module';
@@ -19,7 +18,6 @@ import {BankModule} from './api/v2/bank/bank.module';
 import {DegreeModule} from './api/v2/degree/degree.module';
 import {RelativeModule} from "./api/v2/relative/relative.module";
 import {CustomerModule} from './api/v2/customer/customer.module';
-import {HistorySalaryModule} from './api/v2/histories/history-salary/history-salary.module';
 import {OvertimeTemplateModule} from './api/v2/overtime-template/overtime-template.module';
 import {OrderModule} from './api/v2/order/order.module';
 import {CommodityModule} from './api/v2/commodity/commodity.module';
@@ -44,7 +42,6 @@ import { BasicTemplateModule } from './api/v2/basic-template/basic-template.modu
     SalaryModule,
     ConfigModule,
     ContractModule,
-    WorkHistoryModule,
     NationModule,
     ProvinceModule,
     DistrictModule,
@@ -53,7 +50,6 @@ import { BasicTemplateModule } from './api/v2/basic-template/basic-template.modu
     DegreeModule,
     RelativeModule,
     CustomerModule,
-    HistorySalaryModule,
     OvertimeTemplateModule,
     OrderModule,
     CommodityModule,

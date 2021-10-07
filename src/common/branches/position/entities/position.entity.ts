@@ -3,7 +3,6 @@ import {
   Employee,
   OvertimeTemplate,
   Position,
-  WorkHistory,
 } from "@prisma/client";
 
 export interface FullPosition extends Position {
@@ -12,6 +11,5 @@ export interface FullPosition extends Position {
 
 export type OnePosition = Position & {
   employees: Employee[];
-  workHistories: WorkHistory[];
   templates: OvertimeTemplate[];
 };

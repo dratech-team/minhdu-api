@@ -237,13 +237,6 @@ export class EmployeeRepository {
             },
           },
           payrolls: true,
-          historySalaries: true,
-          workHistories: {
-            include: {
-              position: true,
-              branch: true,
-            },
-          },
         },
       });
     } catch (e) {

@@ -7,14 +7,11 @@ import {PayrollModule} from "../payroll/payroll.module";
 import {PayrollRepository} from "../payroll/payroll.repository";
 import {EmployeeModule} from "../employee/employee.module";
 import {EmployeeRepository} from "../employee/employee.repository";
-import {HistorySalaryModule} from "../histories/history-salary/history-salary.module";
-import {HistorySalaryRepository} from "../histories/history-salary/history-salary.repository";
 
 @Module({
   imports: [
     EmployeeModule,
     PayrollModule,
-    HistorySalaryModule
   ],
   controllers: [SalaryController],
   providers: [
@@ -23,7 +20,6 @@ import {HistorySalaryRepository} from "../histories/history-salary/history-salar
     PrismaService,
     EmployeeRepository,
     PayrollRepository,
-    HistorySalaryRepository
   ],
   exports: [SalaryService],
 })

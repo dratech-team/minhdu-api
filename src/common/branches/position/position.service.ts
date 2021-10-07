@@ -44,14 +44,10 @@ export class PositionService implements BasePositionService {
   async remove(id: number) {
     const found = await this.findOne(id);
     if (
-      (found.workHistories && found.workHistories.length) ||
       (found.templates && found.templates.length) ||
       (found.employees && found.employees.length)
     ) {
       const name =
-        found.workHistories
-          .map((e) => "nhân viên " + e.employeeId)
-          .join(", ") ||
         found.templates.map((e) => e.title).join(", ") ||
         found.employees.map((e) => e.lastName).join(", ");
       throw new BadRequestException(

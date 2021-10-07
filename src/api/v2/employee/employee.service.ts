@@ -1,19 +1,15 @@
-import { Injectable } from "@nestjs/common";
-import { CreateEmployeeDto } from "./dto/create-employee.dto";
-import { EmployeeRepository } from "./employee.repository";
-import { UpdateEmployeeDto } from "./dto/update-employee.dto";
-import { PositionService } from "../../../common/branches/position/position.service";
-import { WorkHistoryService } from "../histories/work-history/work-history.service";
-import { SearchEmployeeDto } from "./dto/search-employee.dto";
-import { ProfileEntity } from "../../../common/entities/profile.entity";
+import {Injectable, NotFoundException} from "@nestjs/common";
+import {CreateEmployeeDto} from "./dto/create-employee.dto";
+import {EmployeeRepository} from "./employee.repository";
+import {UpdateEmployeeDto} from "./dto/update-employee.dto";
+import {SearchEmployeeDto} from "./dto/search-employee.dto";
+import {ProfileEntity} from "../../../common/entities/profile.entity";
 
 
 @Injectable()
 export class EmployeeService {
-  constructor(
-    private readonly repository: EmployeeRepository,
-    private readonly workHisService: WorkHistoryService,
-  ) {}
+  constructor(private readonly repository: EmployeeRepository) {
+  }
 
   // @ts-ignore
   async create(body: CreateEmployeeDto) {
@@ -46,15 +42,13 @@ export class EmployeeService {
         : employee.contracts[0]?.createdAt && !employee.contracts[0]?.expiredAt
         ? "Vô  thời hạn"
         : "Chưa có hợp đồng";
-    return Object.assign(employee, { contractType: contactType });
+    return Object.assign(employee, {contractType: contactType});
   }
 
   async update(id: number, updates: UpdateEmployeeDto) {
     const found = await this.findOne(id);
-    if (updates.positionId && found.positionId !== updates.positionId) {
-      this.findOne(id).then((employee) => {
-        this.workHisService.create(updates.positionId, employee.branchId, id);
-      });
+    if (!found) {
+      throw new NotFoundException();
     }
 
     return await this.repository.update(id, updates);
