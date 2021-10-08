@@ -132,10 +132,11 @@ export class SalaryRepository {
     if (!body.times) {
       throw new BadRequestException(`[DEVELOPMENT] times not null`);
     }
+    /// FIXME:
     // Check thêm tăng ca đúng với datetime của payroll
-    if (!isEqualDatetime(new Date(body.datetime as Date), payroll.createdAt, "MONTH") && body.unit === DatetimeUnit.MONTH) {
-      throw new BadRequestException(`Ngày phụ cấp phải là ngày của tháng ${moment(payroll.createdAt).format("MM/YYYY")}. Đã nhắc mấy lần rồi hmmm :)`);
-    }
+    // if (!isEqualDatetime(new Date(body.datetime as Date), payroll.createdAt, "MONTH") && body.unit === DatetimeUnit.MONTH) {
+    //   throw new BadRequestException(`Ngày phụ cấp phải là ngày của tháng ${moment(payroll.createdAt).format("MM/YYYY")}. Đã nhắc mấy lần rồi hmmm :)`);
+    // }
     return true;
   }
 
