@@ -342,7 +342,7 @@ export class PayrollService {
   totalOvertime(salaries: FullSalary[]) {
     return salaries
       ?.filter((salary) => salary.type === SalaryType.OVERTIME)
-      ?.map((salary) => salary.price * salary.times + (salary.allowance?.price * salary.allowance?.times || 0))
+      ?.map((salary) => salary.price * salary.times + (salary.allowance?.price * (salary.allowance?.times || 1) || 0))
       ?.reduce((a, b) => a + b, 0);
   }
 
