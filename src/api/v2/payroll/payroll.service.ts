@@ -29,24 +29,25 @@ export class PayrollService {
   async create(profile: ProfileEntity, body: CreatePayrollDto) {
     try {
       if (!body?.employeeId) {
-        let count = 0;
-        const employee = await this.employeeService.findAll(
-          profile,
-          undefined,
-          undefined
-        );
-
-        const created = await Promise.all(employee.data.map(async employee => {
-          return await this.repository.create({
-            employeeId: employee.id,
-            createdAt: body.createdAt,
-          });
-        }));
-
-        return {
-          status: 201,
-          message: `Đã tự động tạo phiếu lương tháng ${moment(body.createdAt).format("MM/YYYY")} cho ${created.length} nhân viên`,
-        };
+        throw new BadRequestException("Tính năng đang được phát triển. Xin cảm ơn");
+        /// FIXME: I need deep testing befrore release
+        // const employee = await this.employeeService.findAll(
+        //   profile,
+        //   undefined,
+        //   undefined
+        // );
+        //
+        // const created = await Promise.all(employee.data.map(async employee => {
+        //   return await this.repository.create({
+        //     employeeId: employee.id,
+        //     createdAt: body.createdAt,
+        //   });
+        // }));
+        //
+        // return {
+        //   status: 201,
+        //   message: `Đã tự động tạo phiếu lương tháng ${moment(body.createdAt).format("MM/YYYY")} cho ${created.length} nhân viên`,
+        // };
       }
       return await this.repository.create(body);
     } catch (err) {
@@ -524,7 +525,7 @@ export class PayrollService {
 
     // logic hiện tại. Nếu tháng đó có 1 ngày k ràng buộc bởi ngày công chuẩn. thì nguyên tháng sẽ đc k ràng buộc
     const isConstraint = currentHoliday.some(holiday => {
-      return holiday.isConstraint
+      return holiday.isConstraint;
     });
 
     const payslipNormalDay = !isConstraint

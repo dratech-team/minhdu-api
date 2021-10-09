@@ -30,14 +30,12 @@ export class OvertimeTemplateController {
     @Query("skip") skip: number,
     @Query("title") title: string,
     @Query("price") price: number,
-    @Query("department") department: string,
     @Query("unit") unit: DatetimeUnit,
     @Query("positionId") positionId: number
   ) {
     return this.service.findAll(+take, +skip, {
       title,
       price: +price,
-      department,
       unit,
       positionId: +positionId,
     });
