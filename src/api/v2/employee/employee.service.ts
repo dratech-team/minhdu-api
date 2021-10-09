@@ -42,7 +42,9 @@ export class EmployeeService {
         : employee.contracts[0]?.createdAt && !employee.contracts[0]?.expiredAt
         ? "Vô  thời hạn"
         : "Chưa có hợp đồng";
-    return Object.assign(employee, {contractType: contactType});
+
+    const salaryHistories = employee.salaryHistories.map(salary => salary.salary);
+    return Object.assign(employee, {contractType: contactType, salaryHistories});
   }
 
   async update(id: number, updates: UpdateEmployeeDto) {

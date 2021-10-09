@@ -270,9 +270,6 @@ export class SalaryRepository {
         );
       }
 
-      if (updates.type === SalaryType.BASIC || updates.type === SalaryType.BASIC_INSURANCE, updates.type === SalaryType.STAY) {
-        return await this.create(updates as CreateSalaryDto);
-      }
       return await this.prisma.salary.update({
         where: {id: id},
         data: {
@@ -301,6 +298,19 @@ export class SalaryRepository {
             }
             : {},
         },
+        include: {
+          payroll: {select: {employeeId: true}}
+        }
+      }).then(salary => {
+        // log salary history
+        if (salary.type === SalaryType.BASIC || salary.type === SalaryType.BASIC_INSURANCE || salary.type === SalaryType.STAY) {
+          this.prisma.salaryHistory.create({
+            data: {
+              salaryId: salary.id,
+              employeeId: salary.payroll.employeeId,
+            }
+          }).then();
+        }
       });
     } catch (err) {
       console.error(err);

@@ -238,7 +238,11 @@ export class EmployeeRepository {
               },
             },
           },
-          payrolls: true,
+          salaryHistories: {
+            include: {
+              salary: true
+            }
+          }
         },
       });
     } catch (e) {

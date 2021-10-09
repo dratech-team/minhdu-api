@@ -137,46 +137,47 @@ model Contract {
 }
 
 model Employee {
-  id           Int         @id @default(autoincrement())
-  code         String?     @unique
-  firstName    String
-  lastName     String
-  avt          String?
-  gender       GenderType
-  phone        String?
-  workPhone    String?
-  birthday     DateTime
-  birthplace   String?
-  identify     String?     @unique
-  idCardAt     DateTime?
-  issuedBy     String?
-  workday      Int
-  ward         Ward        @relation(fields: [wardId], references: [id])
-  wardId       Int
-  address      String
-  email        String?
-  religion     String?
-  ethnicity    String?
-  mst          String?
-  createdAt    DateTime?   @default(now()) //Ngày thử việc (vào làm)
-  workedAt     DateTime? //Ngày làm chính thức
-  leftAt       DateTime?
-  isFlatSalary Boolean?    @default(false)
-  position     Position    @relation(fields: [positionId], references: [id])
-  positionId   Int
-  branch       Branch      @relation(fields: [branchId], references: [id])
-  branchId     Int
-  note         String?
-  facebook     String?
-  zalo         String?
-  recipeType   RecipeType? @default(CT2)
-  banks        Bank[]
-  routes       Route[]
-  payrolls     Payroll[]
-  contracts    Contract[]
-  degrees      Degree[]
-  relatives    Relative[]
-  timestamp    DateTime?   @default(now())
+  id              Int             @id @default(autoincrement())
+  code            String?         @unique
+  firstName       String
+  lastName        String
+  avt             String?
+  gender          GenderType
+  phone           String?
+  workPhone       String?
+  birthday        DateTime
+  birthplace      String?
+  identify        String?         @unique
+  idCardAt        DateTime?
+  issuedBy        String?
+  workday         Int
+  ward            Ward            @relation(fields: [wardId], references: [id])
+  wardId          Int
+  address         String
+  email           String?
+  religion        String?
+  ethnicity       String?
+  mst             String?
+  createdAt       DateTime?       @default(now()) //Ngày thử việc (vào làm)
+  workedAt        DateTime? //Ngày làm chính thức
+  leftAt          DateTime?
+  isFlatSalary    Boolean?        @default(false)
+  position        Position        @relation(fields: [positionId], references: [id])
+  positionId      Int
+  branch          Branch          @relation(fields: [branchId], references: [id])
+  branchId        Int
+  note            String?
+  facebook        String?
+  zalo            String?
+  recipeType      RecipeType?     @default(CT2)
+  banks           Bank[]
+  routes          Route[]
+  payrolls        Payroll[]
+  contracts       Contract[]
+  degrees         Degree[]
+  relatives       Relative[]
+  salaryHistories SalaryHistory[]
+  timestamp       DateTime?       @default(now())
 }
 
 model Holiday {
@@ -341,22 +342,32 @@ model Location {
 }
 
 model Salary {
-  id              Int             @id @default(autoincrement())
-  title           String
-  type            SalaryType
-  times           Float?
-  price           Float?
-  unit            DatetimeUnit?   @default(DAY)
-  rate            Float?          @default(1)
-  datetime        DateTime?
-  forgot          Boolean?        @default(false)
-  note            String?
-  payroll         Payroll?        @relation(fields: [payrollId], references: [id])
-  payrollId       Int?
-  salaryId        Int?
-  allowance       Salary?         @relation("SalaryToAllowance", fields: [salaryId], references: [id])
-  allowances      Salary[]        @relation("SalaryToAllowance")
-  timestamp       DateTime?       @default(now())
+  id            Int             @id @default(autoincrement())
+  title         String
+  type          SalaryType
+  times         Float?
+  price         Float?
+  unit          DatetimeUnit?
+  rate          Float?          @default(1)
+  datetime      DateTime?
+  forgot        Boolean?        @default(false)
+  note          String?
+  payroll       Payroll?        @relation(fields: [payrollId], references: [id])
+  payrollId     Int?
+  salaryId      Int?
+  allowance     Salary?         @relation("SalaryToAllowance", fields: [salaryId], references: [id])
+  allowances    Salary[]        @relation("SalaryToAllowance")
+  timestamp     DateTime?       @default(now())
+  SalaryHistory SalaryHistory[]
+}
+
+model SalaryHistory {
+  id         Int       @id @default(autoincrement())
+  salary     Salary    @relation(fields: [salaryId], references: [id])
+  salaryId   Int
+  employee   Employee  @relation(fields: [employeeId], references: [id])
+  employeeId Int
+  timestamp  DateTime? @default(now())
 }
 
 model Payroll {
