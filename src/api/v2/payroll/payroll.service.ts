@@ -15,7 +15,6 @@ import {includesDatetime, isEqualDatetime,} from "../../../common/utils/isEqual-
 import {ALL_DAY, PARTIAL_DAY,} from "../../../common/constant/datetime.constant";
 import {exportExcel} from "../../../core/services/export.service";
 import {FullSalary} from "../salary/entities/salary.entity";
-import * as moment from "moment";
 
 @Injectable()
 export class PayrollService {
@@ -285,18 +284,31 @@ export class PayrollService {
     return {day, hour, minute};
   }
 
-  totalAllowanceByActual(salaries: Salary[], actualDay: number) {
-    return (
-      salaries
-        .filter(
-          (salary) =>
-            salary.type === SalaryType.ALLOWANCE &&
-            salary.unit === DatetimeUnit.DAY &&
-            !salary.datetime
-        )
-        ?.map((salary) => salary.price)
-        ?.reduce((a, b) => a + b, 0) * actualDay
-    );
+  totalAllowanceByActual(salaries: Salary[], actualDay: number, workday?: number) {
+    const allowanceFullActual = salaries
+      .filter(
+        (salary) =>
+          salary.type === SalaryType.ALLOWANCE &&
+          salary.unit === DatetimeUnit.DAY &&
+          !salary.datetime
+      )
+      ?.map((salary) => salary.price)
+      ?.reduce((a, b) => a + b, 0) * actualDay
+
+    const allowanceFromDate = salaries
+      .filter(
+        (salary) =>
+          salary.type === SalaryType.ALLOWANCE &&
+          salary.unit === DatetimeUnit.DAY &&
+          salary.datetime
+      )
+      ?.map((salary) => {
+        const day = actualDay - salary.datetime.getDate() || 0;
+        return (salary.price / workday) * (day + 1);
+      })
+      ?.reduce((a, b) => a + b, 0);
+
+    return allowanceFullActual + allowanceFromDate;
   }
 
   totalAllowanceDayRangeSalary(salaries: Salary[]) {
@@ -508,17 +520,16 @@ export class PayrollService {
       : 0;
 
 
-    const allowanceDayByActual = this.totalAllowanceByActual(
-      payroll.salaries,
-      actualDay
-    );
+    const allowanceDayByActual = this.totalAllowanceByActual(payroll.salaries, actualDay, workday);
+
+    /// FIXME: Phụ cấp từ ngày đến ngày. Chưa cần dùng tới
     const allowanceDayRangeSalary = this.totalAllowanceDayRangeSalary(
       payroll.salaries
     );
     const allowanceMonthSalary = this.totalAllowanceMonthSalary(
       payroll.salaries
     );
-    const allowanceTotal = allowanceMonthSalary + allowanceDayByActual + allowanceDayRangeSalary;
+    const allowanceTotal = allowanceMonthSalary + allowanceDayByActual;
 
     // overtime
     const overtime = this.totalOvertime(payroll.salaries);
@@ -603,8 +614,9 @@ export class PayrollService {
 
     // Phụ cấp theo tháng
     const allowanceMonthSalary = this.totalAllowanceMonthSalary(payroll.salaries);
+    /// FIXME: Phụ cấp từ ngày đến ngày. Chưa cần dùng tới
     const allowanceDayRangeSalary = this.totalAllowanceDayRangeSalary(payroll.salaries);
-    const allowanceDayByActual = this.totalAllowanceByActual(payroll.salaries, actualDay);
+    const allowanceDayByActual = this.totalAllowanceByActual(payroll.salaries, actualDay, payroll.employee.workday);
 
     //datetime
     const currentHoliday = await this.holidayService.findCurrentHolidays(payroll.createdAt, payroll.employee.positionId);
@@ -630,7 +642,7 @@ export class PayrollService {
 
     // Tổng tiền đi trễ
     const deductionSalary = absentDaySalary + absentHourSalary + absentHourMinuteSalary;
-    const allowanceTotal = allowanceMonthSalary + allowanceDayByActual + allowanceDayRangeSalary;
+    const allowanceTotal = allowanceMonthSalary + allowanceDayByActual;
 
     if (currentHoliday && currentHoliday.length) {
       for (let i = 0; i < currentHoliday.length; i++) {

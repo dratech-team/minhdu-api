@@ -213,36 +213,60 @@ export class SalaryRepository {
 
   async findAll(search: SearchSalaryDto) {
     try {
-      return await this.prisma.salary.findMany({
-        where: {
-          payroll: {
-            createdAt: {
-              gte: firstDatetimeOfMonth(search?.createdAt || new Date()),
-              lte: lastDatetimeOfMonth(search?.createdAt || new Date()),
-            },
-            employee: {
-              id: search?.employeeId || undefined,
-            },
-            salaries: search?.employeeId ? {
-              some: {
-                type: {in: [SalaryType.BASIC, SalaryType.BASIC_INSURANCE, SalaryType.STAY]}
-              }
-            } : {}
-          },
-          title: {equals: search?.title},
-          unit: {equals: search?.unit},
-          type: {in: [SalaryType.OVERTIME]}
-        },
-        include: {
-          payroll: {
-            select: {
+      const [total, data] = await Promise.all([
+        this.prisma.salary.count({
+          where: {
+            payroll: {
+              createdAt: {
+                gte: firstDatetimeOfMonth(search?.createdAt || new Date()),
+                lte: lastDatetimeOfMonth(search?.createdAt || new Date()),
+              },
               employee: {
-                select: {id: true, firstName: true, lastName: true, gender: true, position: true}
-              }
-            }
+                id: search?.employeeId || undefined,
+              },
+              salaries: search?.employeeId ? {
+                some: {
+                  type: {in: [SalaryType.BASIC, SalaryType.BASIC_INSURANCE, SalaryType.STAY]}
+                }
+              } : {}
+            },
+            title: {equals: search?.title},
+            unit: {equals: search?.unit},
+            type: {in: [SalaryType.OVERTIME]}
           },
-        }
-      });
+        }),
+        this.prisma.salary.findMany({
+          where: {
+            payroll: {
+              createdAt: {
+                gte: firstDatetimeOfMonth(search?.createdAt || new Date()),
+                lte: lastDatetimeOfMonth(search?.createdAt || new Date()),
+              },
+              employee: {
+                id: search?.employeeId || undefined,
+              },
+              salaries: search?.employeeId ? {
+                some: {
+                  type: {in: [SalaryType.BASIC, SalaryType.BASIC_INSURANCE, SalaryType.STAY]}
+                }
+              } : {}
+            },
+            title: {equals: search?.title},
+            unit: {equals: search?.unit},
+            type: {in: [SalaryType.OVERTIME]}
+          },
+          include: {
+            payroll: {
+              select: {
+                employee: {
+                  select: {id: true, firstName: true, lastName: true, gender: true, position: true}
+                }
+              }
+            },
+          }
+        }),
+      ]);
+      return {total, data};
     } catch (err) {
       console.error(err);
       throw new BadRequestException(err);

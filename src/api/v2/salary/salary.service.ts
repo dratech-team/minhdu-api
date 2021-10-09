@@ -1,5 +1,5 @@
 import {BadRequestException, Injectable} from "@nestjs/common";
-import {DatetimeUnit, Salary, SalaryType} from "@prisma/client";
+import {Salary, SalaryType} from "@prisma/client";
 import {firstDatetimeOfMonth, lastDatetimeOfMonth} from "../../../utils/datetime.util";
 import {EmployeeService} from "../employee/employee.service";
 import {PayrollService} from "../payroll/payroll.service";
@@ -85,7 +85,7 @@ export class SalaryService {
   }
 
   async findAll(search: SearchSalaryDto) {
-    return await this.repository.findAll(search);
+    const {total, data} = await this.repository.findAll(search);
 
     /// TODO: Cọng dồn những tăng ca giống nhau
     // lọc theo overtime
@@ -98,6 +98,8 @@ export class SalaryService {
     // } else {
     //   // lọc theo thay đổi lương.
     // }
+
+    return {total, data: data.map(salary => Object.assign(salary, {employee: salary.payroll.employee}))}
 
   }
 
