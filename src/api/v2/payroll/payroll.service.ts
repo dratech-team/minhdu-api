@@ -644,6 +644,8 @@ export class PayrollService {
             // if (actualDay >= payroll.employee.workday) {
             payslipInHoliday += currentHoliday[i].price / 2;
             // }
+          } else if (salary.times === 1) {
+            // Vắng trong ngày lễ thì k đc tiền.
           } else {
             throw new BadRequestException(
               `${payroll.employee.lastName} ngày ${payroll.createdAt} có thời gian làm ngày lễ không hợp lệ`
