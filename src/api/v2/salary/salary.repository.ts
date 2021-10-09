@@ -222,11 +222,14 @@ export class SalaryRepository {
               createdAt: {
                 gte: firstDatetimeOfMonth(search?.datetime || new Date()),
                 lte: lastDatetimeOfMonth(search?.datetime || new Date()),
+              },
+              employee: {
+                position: {name: {startsWith: search?.position, mode: "insensitive"}}
               }
             },
             title: {equals: search?.title || overtime[0]?.title},
             unit: {equals: search?.unit || DatetimeUnit.DAY},
-            type: {in: [SalaryType.OVERTIME]}
+            type: {in: [SalaryType.OVERTIME]},
           }
         }),
         this.prisma.salary.findMany({
@@ -235,6 +238,9 @@ export class SalaryRepository {
               createdAt: {
                 gte: firstDatetimeOfMonth(search?.datetime || new Date()),
                 lte: lastDatetimeOfMonth(search?.datetime || new Date()),
+              },
+              employee: {
+                position: {name: {startsWith: search?.position, mode: "insensitive"}}
               }
             },
             title: {equals: search?.title || overtime[0]?.title},

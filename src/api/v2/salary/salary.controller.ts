@@ -23,9 +23,10 @@ export class SalaryController {
     @Query("title") title: string,
     @Query("unit") unit: DatetimeUnit,
     @Query("datetime", ParseDatetimePipe) datetime: any,
+    @Query("position") position: string,
   ) {
     return this.salaryService.findAll(+skip, +take, {
-      datetime, unit, title
+      datetime, unit, title,position,
     });
   }
 
