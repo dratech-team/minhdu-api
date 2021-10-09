@@ -723,7 +723,7 @@ export class PayrollService {
     // console.log("Tổng lương đi làm ngày lễ", payslipInHoliday);
     // console.log("Lương không đi làm ngày lễ", payslipNotInHoliday);
     // console.log("Tổng phụ cấp", staySalary);
-    console.log("Tổng tiền khấu trừ", absentDaySalary);
+    // console.log("Tổng tiền khấu trừ", absentDaySalary);
     //
     // console.log("=====================================================");
     //
