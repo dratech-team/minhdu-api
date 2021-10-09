@@ -1,5 +1,5 @@
 import {BadRequestException, Injectable} from "@nestjs/common";
-import {Salary, SalaryType} from "@prisma/client";
+import {DatetimeUnit, Salary, SalaryType} from "@prisma/client";
 import {firstDatetimeOfMonth, lastDatetimeOfMonth} from "../../../utils/datetime.util";
 import {EmployeeService} from "../employee/employee.service";
 import {PayrollService} from "../payroll/payroll.service";
@@ -59,12 +59,6 @@ export class SalaryService {
         message: `Đã thêm ${body.title} cho ${employees.length} nhân viên. ${body.type === SalaryType.OVERTIME ? `Và ${allowances.length} phụ cấp` : ''}`
       };
     } else {
-      /// get phụ cấp theo range ngày
-      // const rageDate = (body as CreateSalaryByDayDto).datetime as RageDate;
-      // if (!moment(rageDate?.start).isSame(rageDate?.end)) {
-      //   const datetimes = getRange(rageDate?.start, rageDate?.end, "days");
-      //   console.log(datetimes);
-      // }
       return await this.repository.create(body);
     }
   }
@@ -91,7 +85,7 @@ export class SalaryService {
   }
 
   async findAll(search: SearchSalaryDto) {
-    return  await this.repository.findAll(search);
+    return await this.repository.findAll(search);
 
     /// TODO: Cọng dồn những tăng ca giống nhau
     // lọc theo overtime
