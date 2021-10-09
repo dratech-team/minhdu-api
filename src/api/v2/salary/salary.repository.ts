@@ -8,6 +8,8 @@ import {OneSalary} from "./entities/salary.entity";
 import {includesDatetime, isEqualDatetime} from "../../../common/utils/isEqual-datetime.util";
 import {ALL_DAY, PARTIAL_DAY} from "../../../common/constant/datetime.constant";
 import {FullPayroll} from "../payroll/entities/payroll.entity";
+import {firstDatetimeOfMonth, lastDatetimeOfMonth} from "../../../utils/datetime.util";
+import {SearchSalaryDto} from "./dto/search-salary.dto";
 
 const RATE_TIMES = 1;
 
@@ -208,9 +210,48 @@ export class SalaryRepository {
     }
   }
 
-  async findBy(query: any): Promise<any> {
+  async findAll(take: number, skip: number, search: SearchSalaryDto) {
     try {
-      return this.prisma.salary.findFirst({where: {}});
+      const overtime = await this.prisma.overtimeTemplate.findMany();
+
+      const [total, data] = await Promise.all([
+        this.prisma.salary.count({
+          where: {
+            payroll: {
+              createdAt: {
+                gte: firstDatetimeOfMonth(search?.datetime || new Date()),
+                lte: lastDatetimeOfMonth(search?.datetime || new Date()),
+              }
+            },
+            title: {equals: search?.title || overtime[0]?.title},
+            unit: {equals: search?.unit || DatetimeUnit.DAY},
+            type: {in: [SalaryType.OVERTIME]}
+          }
+        }),
+        this.prisma.salary.findMany({
+          where: {
+            payroll: {
+              createdAt: {
+                gte: firstDatetimeOfMonth(search?.datetime || new Date()),
+                lte: lastDatetimeOfMonth(search?.datetime || new Date()),
+              }
+            },
+            title: {equals: search?.title || overtime[0]?.title},
+            unit: {equals: search?.unit || DatetimeUnit.DAY},
+            type: {in: [SalaryType.OVERTIME]}
+          },
+          include: {
+            payroll: {
+              select: {
+                employee: {
+                  select: {id: true, firstName: true, lastName: true, gender: true, position: true}
+                }
+              }
+            },
+          }
+        })
+      ]);
+      return {total, data};
     } catch (err) {
       console.error(err);
       throw new BadRequestException(err);

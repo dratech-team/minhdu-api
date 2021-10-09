@@ -7,6 +7,7 @@ import {CreateSalaryDto} from "./dto/create-salary.dto";
 import {UpdateSalaryDto} from "./dto/update-salary.dto";
 import {OneSalary} from "./entities/salary.entity";
 import {SalaryRepository} from "./salary.repository";
+import {SearchSalaryDto} from "./dto/search-salary.dto";
 
 @Injectable()
 export class SalaryService {
@@ -87,6 +88,11 @@ export class SalaryService {
 
   async findOne(id: number): Promise<OneSalary> {
     return await this.repository.findOne(id);
+  }
+
+  async findAll(take: number, skip: number, search: SearchSalaryDto) {
+    const {total, data} = await this.repository.findAll(take, skip, search);
+    return {total, data: data.map(salary => Object.assign(salary, {employee: salary.payroll.employee}))};
   }
 
   async update(id: number, updates: UpdateSalaryDto) {
