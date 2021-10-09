@@ -40,10 +40,10 @@ export class EmployeeService {
       employee.contracts[0]?.createdAt && employee.contracts[0]?.expiredAt
         ? "Có thời hạn"
         : employee.contracts[0]?.createdAt && !employee.contracts[0]?.expiredAt
-        ? "Vô  thời hạn"
-        : "Chưa có hợp đồng";
+          ? "Vô  thời hạn"
+          : "Chưa có hợp đồng";
 
-    const salaryHistories = employee.salaryHistories.map(salary => salary.salary);
+    const salaryHistories = employee.salaryHistories.map(salary => Object.assign(salary.salary, {datetime: salary.salary.timestamp}));
     return Object.assign(employee, {contractType: contactType, salaryHistories});
   }
 
