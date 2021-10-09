@@ -12,8 +12,10 @@ export class LoggerGuard implements CanActivate {
   canActivate(context: ExecutionContext): boolean | Promise<boolean> | Observable<boolean> {
     let appName: AppEnum = AppEnum.UNKNOWN;
     const request = context.switchToHttp().getRequest();
+
     const path = request.route.path;
     const method = request.method;
+    const body = request.body;
 
     // path for define app name
     if ((path.includes(ApiV2Constant.ORDER))) {
@@ -22,12 +24,14 @@ export class LoggerGuard implements CanActivate {
 
     }
 
+    /// TODO: convert body object to string for save db
     this.prisma.systemHistory.create({
       data: {
         appName: appName,
         name: request.user.username,
         activity: method,
         description: "",
+        // body: JSON.parse(JSON.stringify(body)),
       }
     }).then();
     return true;

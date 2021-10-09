@@ -214,18 +214,22 @@ export class SalaryRepository {
   async findAll(take: number, skip: number, search: SearchSalaryDto) {
     try {
       const overtime = await this.prisma.overtimeTemplate.findMany();
-
       const [total, data] = await Promise.all([
         this.prisma.salary.count({
           where: {
             payroll: {
               createdAt: {
-                gte: firstDatetimeOfMonth(search?.datetime || new Date()),
-                lte: lastDatetimeOfMonth(search?.datetime || new Date()),
+                gte: firstDatetimeOfMonth(search?.createdAt || new Date()),
+                lte: lastDatetimeOfMonth(search?.createdAt || new Date()),
               },
               employee: {
-                position: {name: {startsWith: search?.position, mode: "insensitive"}}
-              }
+                id: search?.employeeId || undefined,
+              },
+              salaries: search?.employeeId ? {
+                some: {
+                  type: {in: [SalaryType.BASIC, SalaryType.BASIC_INSURANCE, SalaryType.STAY]}
+                }
+              } : {}
             },
             title: {equals: search?.title || overtime[0]?.title},
             unit: {equals: search?.unit || DatetimeUnit.DAY},
@@ -236,12 +240,17 @@ export class SalaryRepository {
           where: {
             payroll: {
               createdAt: {
-                gte: firstDatetimeOfMonth(search?.datetime || new Date()),
-                lte: lastDatetimeOfMonth(search?.datetime || new Date()),
+                gte: firstDatetimeOfMonth(search?.createdAt || new Date()),
+                lte: lastDatetimeOfMonth(search?.createdAt || new Date()),
               },
               employee: {
-                position: {name: {startsWith: search?.position, mode: "insensitive"}}
-              }
+                id: search?.employeeId || undefined,
+              },
+              salaries: search?.employeeId ? {
+                some: {
+                  type: {in: [SalaryType.BASIC, SalaryType.BASIC_INSURANCE, SalaryType.STAY]}
+                }
+              } : {}
             },
             title: {equals: search?.title || overtime[0]?.title},
             unit: {equals: search?.unit || DatetimeUnit.DAY},
@@ -284,6 +293,10 @@ export class SalaryRepository {
         throw new BadRequestException(
           "Bảng lương đã thanh toán không được phép sửa"
         );
+      }
+
+      if (updates.type === SalaryType.BASIC || updates.type === SalaryType.BASIC_INSURANCE, updates.type === SalaryType.STAY) {
+        return await this.create(updates as CreateSalaryDto);
       }
       return await this.prisma.salary.update({
         where: {id: id},

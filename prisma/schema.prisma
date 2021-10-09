@@ -341,22 +341,22 @@ model Location {
 }
 
 model Salary {
-  id         Int           @id @default(autoincrement())
-  title      String
-  type       SalaryType
-  times      Float?
-  price      Float?
-  unit       DatetimeUnit? @default(DAY)
-  rate       Float?        @default(1)
-  datetime   DateTime?
-  forgot     Boolean?      @default(false)
-  note       String?
-  payroll    Payroll?      @relation(fields: [payrollId], references: [id])
-  payrollId  Int?
-  salaryId   Int?
-  allowance  Salary?       @relation("SalaryToAllowance", fields: [salaryId], references: [id])
-  allowances Salary[]      @relation("SalaryToAllowance")
-  timestamp  DateTime?     @default(now())
+  id              Int             @id @default(autoincrement())
+  title           String
+  type            SalaryType
+  times           Float?
+  price           Float?
+  unit            DatetimeUnit?   @default(DAY)
+  rate            Float?          @default(1)
+  datetime        DateTime?
+  forgot          Boolean?        @default(false)
+  note            String?
+  payroll         Payroll?        @relation(fields: [payrollId], references: [id])
+  payrollId       Int?
+  salaryId        Int?
+  allowance       Salary?         @relation("SalaryToAllowance", fields: [salaryId], references: [id])
+  allowances      Salary[]        @relation("SalaryToAllowance")
+  timestamp       DateTime?       @default(now())
 }
 
 model Payroll {
@@ -418,8 +418,10 @@ model SystemHistory {
   appName     AppEnum
   name        String
   activity    String
-  description String
+  description String?
   ip          String?
+  body        String?
+  param       String?
   createdAt   DateTime? @default(now())
 }
 

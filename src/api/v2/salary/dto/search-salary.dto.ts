@@ -1,8 +1,9 @@
 import {DatetimeUnit} from "@prisma/client";
 
 export interface SearchSalaryDto {
-  datetime: Date;
+  createdAt: Date;
   title: string;
   unit: DatetimeUnit;
   position: string;
+  employeeId: number;
 }

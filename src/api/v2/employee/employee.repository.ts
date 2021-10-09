@@ -66,7 +66,7 @@ export class EmployeeRepository {
         },
         include: {
           position: true,
-        branch: true,
+          branch: true,
         },
       });
     } catch (err) {
@@ -98,6 +98,8 @@ export class EmployeeRepository {
     try {
       const name = searchName(search?.name);
 
+      console.log(name);
+
       const template = search?.templateId
         ? await this.prisma.overtimeTemplate.findUnique({
           where: {id: search?.templateId},
@@ -115,9 +117,9 @@ export class EmployeeRepository {
             },
             branch: {name: {startsWith: search?.branch, mode: "insensitive"}},
             positionId: positionIds?.length ? {in: positionIds || undefined} : {},
-            AND: {
-              firstName: {startsWith: name?.firstName, mode: "insensitive"},
-              lastName: {startsWith: name?.lastName, mode: "insensitive"},
+            OR: {
+              firstName: {contains: search?.name, mode: "insensitive"},
+              lastName: {contains: search?.name, mode: "insensitive"},
             },
             gender: search?.gender ? {equals: search?.gender} : {},
             isFlatSalary: search?.isFlatSalary,
@@ -146,8 +148,8 @@ export class EmployeeRepository {
             },
             positionId: positionIds?.length ? {in: positionIds} : {},
             AND: {
-              firstName: {startsWith: name?.firstName, mode: "insensitive"},
-              lastName: {startsWith: name?.lastName, mode: "insensitive"},
+              firstName: {contains: name?.firstName || name?.lastName, mode: "insensitive"},
+              lastName: {contains: name?.lastName || name?.firstName, mode: "insensitive"},
             },
             gender: search?.gender ? {equals: search?.gender} : {},
             isFlatSalary: search?.isFlatSalary,

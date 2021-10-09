@@ -17,16 +17,16 @@ export class SalaryController {
 
   @Get()
   findAll(
-    @Query() employeeId: number,
     @Query("skip", ParseIntPipe) skip: number,
     @Query("take", ParseIntPipe) take: number,
     @Query("title") title: string,
     @Query("unit") unit: DatetimeUnit,
-    @Query("datetime", ParseDatetimePipe) datetime: any,
+    @Query("createdAt", ParseDatetimePipe) createdAt: any,
     @Query("position") position: string,
+    @Query("employeeId") employeeId: number,
   ) {
     return this.salaryService.findAll(+skip, +take, {
-      datetime, unit, title,position,
+      createdAt, unit, title, position, employeeId: +employeeId
     });
   }
 
