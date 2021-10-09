@@ -146,12 +146,12 @@ export class SalaryRepository {
       throw new BadRequestException(`[DEVELOPMENT] times not null`);
     }
 
-    // Check thêm tăng ca đúng với datetime của payroll
-    if (body.times === 1 && !isEqualDatetime(body.datetime as Date, payroll.createdAt, "MONTH")) {
+    // Check thêm tăng ca đúng với datetime của payroll. Apply cho detail payroll
+    if (!body?.employeeIds && body.times === 1 && !isEqualDatetime(body.datetime as Date, payroll.createdAt, "MONTH")) {
       throw new BadRequestException(
         `Ngày tăng ca phải là ngày của tháng ${moment(payroll.createdAt).format(
           "MM/YYYY"
-        )}. Đừng có mà thử thách :)`
+        )}.`
       );
     }
 
