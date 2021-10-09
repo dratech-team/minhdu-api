@@ -25,7 +25,7 @@ export class SalaryController {
     @Query("position") position: string,
     @Query("employeeId") employeeId: number,
   ) {
-    return this.salaryService.findAll(+skip, +take, {
+    return this.salaryService.findAll({
       createdAt, unit, title, position, employeeId: +employeeId
     });
   }

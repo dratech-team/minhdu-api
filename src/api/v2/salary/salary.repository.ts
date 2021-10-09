@@ -211,63 +211,38 @@ export class SalaryRepository {
     }
   }
 
-  async findAll(take: number, skip: number, search: SearchSalaryDto) {
+  async findAll(search: SearchSalaryDto) {
     try {
-      const overtime = await this.prisma.overtimeTemplate.findMany();
-      const [total, data] = await Promise.all([
-        this.prisma.salary.count({
-          where: {
-            payroll: {
-              createdAt: {
-                gte: firstDatetimeOfMonth(search?.createdAt || new Date()),
-                lte: lastDatetimeOfMonth(search?.createdAt || new Date()),
-              },
-              employee: {
-                id: search?.employeeId || undefined,
-              },
-              salaries: search?.employeeId ? {
-                some: {
-                  type: {in: [SalaryType.BASIC, SalaryType.BASIC_INSURANCE, SalaryType.STAY]}
-                }
-              } : {}
+      return await this.prisma.salary.findMany({
+        where: {
+          payroll: {
+            createdAt: {
+              gte: firstDatetimeOfMonth(search?.createdAt || new Date()),
+              lte: lastDatetimeOfMonth(search?.createdAt || new Date()),
             },
-            title: {equals: search?.title || overtime[0]?.title},
-            unit: {equals: search?.unit || DatetimeUnit.DAY},
-            type: {in: [SalaryType.OVERTIME]},
-          }
-        }),
-        this.prisma.salary.findMany({
-          where: {
-            payroll: {
-              createdAt: {
-                gte: firstDatetimeOfMonth(search?.createdAt || new Date()),
-                lte: lastDatetimeOfMonth(search?.createdAt || new Date()),
-              },
-              employee: {
-                id: search?.employeeId || undefined,
-              },
-              salaries: search?.employeeId ? {
-                some: {
-                  type: {in: [SalaryType.BASIC, SalaryType.BASIC_INSURANCE, SalaryType.STAY]}
-                }
-              } : {}
+            employee: {
+              id: search?.employeeId || undefined,
             },
-            title: {equals: search?.title || overtime[0]?.title},
-            unit: {equals: search?.unit || DatetimeUnit.DAY},
-            type: {in: [SalaryType.OVERTIME]}
-          },
-          include: {
-            payroll: {
-              select: {
-                employee: {
-                  select: {id: true, firstName: true, lastName: true, gender: true, position: true}
-                }
+            salaries: search?.employeeId ? {
+              some: {
+                type: {in: [SalaryType.BASIC, SalaryType.BASIC_INSURANCE, SalaryType.STAY]}
               }
-            },
-          }
-        })
-      ]);
-      return {total, data};
+            } : {}
+          },
+          title: {equals: search?.title},
+          unit: {equals: search?.unit},
+          type: {in: [SalaryType.OVERTIME]}
+        },
+        include: {
+          payroll: {
+            select: {
+              employee: {
+                select: {id: true, firstName: true, lastName: true, gender: true, position: true}
+              }
+            }
+          },
+        }
+      });
     } catch (err) {
       console.error(err);
       throw new BadRequestException(err);

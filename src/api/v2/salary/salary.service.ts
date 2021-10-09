@@ -90,9 +90,21 @@ export class SalaryService {
     return await this.repository.findOne(id);
   }
 
-  async findAll(take: number, skip: number, search: SearchSalaryDto) {
-    const {total, data} = await this.repository.findAll(take, skip, search);
-    return {total, data: data.map(salary => Object.assign(salary, {employee: salary.payroll.employee}))};
+  async findAll(search: SearchSalaryDto) {
+    return  await this.repository.findAll(search);
+
+    /// TODO: Cọng dồn những tăng ca giống nhau
+    // lọc theo overtime
+    // if (!search?.employeeId) {
+    //   const counts = {};
+    //   salaries.forEach((x) => {
+    //     counts[x] = (counts[x] || 0) + 1;
+    //   });
+    //   console.log(counts);
+    // } else {
+    //   // lọc theo thay đổi lương.
+    // }
+
   }
 
   async update(id: number, updates: UpdateSalaryDto) {
