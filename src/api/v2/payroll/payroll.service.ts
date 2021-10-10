@@ -705,6 +705,7 @@ export class PayrollService {
     });
 
     // Ngày lễ không được tính vào ngày vắng
+    /// FIXME: Có thể xóa nếu k phát sinh lỗi
     const absentDaySalary = (actualDay + worksNotInHoliday.map(w => w.day).reduce((a, b) => a + b, 0)) < payroll.employee.workday ? this.totalAbsent(payroll.salaries).day * basicDaySalary : 0;
     const absentHourSalary = this.totalAbsent(payroll.salaries).hour * (basicDaySalary / 8);
     const absentHourMinuteSalary = this.totalAbsent(payroll.salaries).minute * (basicDaySalary / 8 / 60);
