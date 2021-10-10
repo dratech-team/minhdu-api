@@ -66,7 +66,6 @@ export class PayrollService {
 
   async payslip(payroll) {
     try {
-      /// FIXME: dummy generate holiday chờ front end tạo block
       switch (payroll.employee.recipeType) {
         case RecipeType.CT1: {
           return Object.assign(payroll, {
@@ -377,48 +376,42 @@ export class PayrollService {
   }
 
   async generateHoliday(payrollId: number) {
-    throw new BadRequestException("Tính năng đang trong giai đoạn phát triển. Xin cảm ơn");
-    // FIXME: Nếu lưu lại thì sẽ xảy ra 1 vài vấn đề vì đang bị ràng buộc bởi actual salary
-    // let worksInHoliday = [];
-    // let worksNotInHoliday = [];
-    //
-    // const payroll = await this.findOne(payrollId);
-    // const currentHoliday = await this.holidayService.findCurrentHolidays(payroll.createdAt, payroll.employee.positionId);
-    // if (currentHoliday && currentHoliday.length) {
-    //   for (let i = 0; i < currentHoliday.length; i++) {
-    //     const salaries = payroll.salaries.filter(
-    //       (salary) => salary.type === SalaryType.ABSENT || salary.type === SalaryType.DAY_OFF
-    //     );
-    //     const isAbsentInHoliday = includesDatetime(
-    //       salaries.map((salary) => salary.datetime),
-    //       currentHoliday[i].datetime
-    //     );
-    //     if (isAbsentInHoliday) {
-    //       const salary = salaries.find((salary) =>
-    //         isEqualDatetime(salary.datetime, currentHoliday[i].datetime)
-    //       );
-    //
-    //       if (salary.times === 1) {
-    //         worksNotInHoliday.push(Object.assign(salary, {times: ALL_DAY}));
-    //       } else if (salary.times === 0.5) {
-    //         worksNotInHoliday.push(
-    //           Object.assign(salary, {times: PARTIAL_DAY})
-    //         );
-    //         /// Warning: update lại rate để tránh trùng với rate ngày nghỉ
-    //         worksInHoliday.push(Object.assign(salary, {times: PARTIAL_DAY, rate: currentHoliday[i].rate}));
-    //       } else {
-    //         throw new BadRequestException(
-    //           `${payroll.employee.lastName} ngày ${payroll.createdAt} có thời gian làm ngày lễ không hợp lệ`
-    //         );
-    //       }
-    //     } else {
-    //       worksInHoliday.push(Object.assign(currentHoliday[i], {times: ALL_DAY}));
-    //     }
-    //   }
-    // }
-    // for (let i = 0; i < worksInHoliday.length; i++) {
-    //   await this.repository.generate(payrollId, Object.assign(worksInHoliday[i], {title: worksInHoliday[i].name}));
-    // }
+    // throw new BadRequestException("Tính năng đang trong giai đoạn bảo trì. Thời gian hoàn thành dự kiến chưa xác định. Xin cảm ơn");
+    let worksInHoliday = [];
+    let worksNotInHoliday = [];
+
+    const payroll = await this.findOne(payrollId);
+    const currentHoliday = await this.holidayService.findCurrentHolidays(payroll.createdAt, payroll.employee.positionId);
+    if (currentHoliday && currentHoliday.length) {
+      for (let i = 0; i < currentHoliday.length; i++) {
+        const salaries = payroll.salaries.filter(
+          (salary) => salary.type === SalaryType.ABSENT || salary.type === SalaryType.DAY_OFF
+        );
+        const isAbsentInHoliday = includesDatetime(
+          salaries.map((salary) => salary.datetime),
+          currentHoliday[i].datetime
+        );
+        if (isAbsentInHoliday) {
+          const salary = salaries.find((salary) =>
+            isEqualDatetime(salary.datetime, currentHoliday[i].datetime)
+          );
+          if (salary.times === 0.5) {
+            /// Warning: update lại rate để tránh trùng với rate ngày nghỉ
+            worksInHoliday.push(Object.assign(salary, {times: PARTIAL_DAY, rate: currentHoliday[i].rate}));
+          }
+        } else {
+          worksInHoliday.push(Object.assign(currentHoliday[i], {times: ALL_DAY, title: currentHoliday[i].name}));
+        }
+      }
+    }
+
+    if (worksInHoliday?.length) {
+      for (let i = 0; i < worksInHoliday.length; i++) {
+        await this.repository.generate(payrollId, worksInHoliday[i]);
+      }
+    } else {
+      await this.repository.generate(payrollId, null);
+    }
   }
 
   /*

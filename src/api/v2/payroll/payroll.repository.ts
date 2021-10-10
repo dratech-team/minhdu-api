@@ -47,25 +47,25 @@ export class PayrollRepository {
             );
             return await this.prisma.payroll.create({
               data: {
-                employee: { connect: { id: body.employeeId } },
+                employee: {connect: {id: body.employeeId}},
                 createdAt: body.createdAt,
                 salaries: salaries?.length
                   ? {
-                      createMany: {
-                        data: salaries.map((salary) => {
-                          delete salary.payrollId;
-                          delete salary.id;
-                          return salary;
-                        }),
-                      },
-                    }
+                    createMany: {
+                      data: salaries.map((salary) => {
+                        delete salary.payrollId;
+                        delete salary.id;
+                        return salary;
+                      }),
+                    },
+                  }
                   : {},
               },
             });
           }
         } else {
           // Chưa tòn tại phiếu lương nào
-         return await this.prisma.payroll.create({
+          return await this.prisma.payroll.create({
             data: body,
             include: {salaries: true},
           });
@@ -86,6 +86,18 @@ export class PayrollRepository {
   /// tạo ngày lễ cho phiếu lương đó
   async generate(payrollId: Payroll["id"], body: Partial<CreateSalaryDto>) {
     try {
+      if (!body) {
+        return await this.prisma.payroll.update({
+          where: {id: payrollId},
+          data: {
+            salaries: {
+              deleteMany: {
+                type: SalaryType.HOLIDAY
+              },
+            }
+          }
+        });
+      }
       return await this.prisma.payroll.update({
         where: {id: payrollId},
         data: {
@@ -100,7 +112,6 @@ export class PayrollRepository {
               datetime: body.datetime as Date,
               times: body.times,
               rate: body.rate,
-              note: "",
             }
           }
         }
