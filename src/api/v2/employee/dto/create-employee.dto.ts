@@ -1,5 +1,5 @@
-import { RecipeType } from "@prisma/client";
-import { Type } from "class-transformer";
+import {RecipeType} from "@prisma/client";
+import {Transform, Type} from "class-transformer";
 import {
   IsBoolean,
   IsDate,
@@ -12,11 +12,11 @@ import {
   MaxDate,
   ValidateNested,
 } from "class-validator";
-import { ValidatorMessage } from "../../../../common/constant/validator.constant";
-import { CreateProfileDto } from "../../../../common/dtos/create-profile.dto";
-import { tomorrowDate } from "../../../../utils/datetime.util";
-import { CreateContractDto } from "../../contract/dto/create-contract.dto";
-import { CreateSocialDto } from "./create-social.dto";
+import {ValidatorMessage} from "../../../../common/constant/validator.constant";
+import {CreateProfileDto} from "../../../../common/dtos/create-profile.dto";
+import {tomorrowDate} from "../../../../utils/datetime.util";
+import {CreateContractDto} from "../../contract/dto/create-contract.dto";
+import {CreateSocialDto} from "./create-social.dto";
 
 export class CreateEmployeeDto extends CreateProfileDto {
   @IsOptional()
@@ -24,16 +24,18 @@ export class CreateEmployeeDto extends CreateProfileDto {
 
   @IsOptional()
   @Type(() => Date)
-  @MaxDate(tomorrowDate(), {
-    message: `createdAt ${ValidatorMessage.datetime}`,
-  })
+  @Transform((val) => new Date(val.value))
+  // @MaxDate(tomorrowDate(), {
+  //   message: `createdAt ${ValidatorMessage.datetime}`,
+  // })
   @IsDate()
   readonly createdAt: Date;
 
+  @IsOptional()
+  @Transform((val) => new Date(val.value))
   @Type(() => Date)
   @IsDate()
-  @MaxDate(tomorrowDate(), { message: `workedAt ${ValidatorMessage.datetime}` })
-  @IsOptional()
+  // @MaxDate(tomorrowDate(), { message: `workedAt ${ValidatorMessage.datetime}` })
   readonly workedAt: Date;
 
   @Type(() => Boolean)

@@ -44,7 +44,7 @@ export class CreateProfileDto {
     @IsNotEmpty()
     @Type(() => Date)
     @IsDate()
-    @MaxDate(tomorrowDate(), {message: `birthday profile ${ValidatorMessage.datetime}`})
+    // @MaxDate(tomorrowDate(), {message: `birthday profile ${ValidatorMessage.datetime}`})
     readonly birthday: Date;
 
     @IsOptional()
@@ -59,7 +59,7 @@ export class CreateProfileDto {
     @IsOptional()
     @Type(() => Date)
     @IsDate()
-    @MaxDate(tomorrowDate(), {message: `birthday profile ${ValidatorMessage.datetime}`})
+    // @MaxDate(tomorrowDate(), {message: `birthday profile ${ValidatorMessage.datetime}`})
     readonly idCardAt: Date;
 
     @IsOptional()

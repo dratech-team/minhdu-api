@@ -10,7 +10,7 @@ import {SearchPayrollDto} from "./dto/search-payroll.dto";
 import {UpdatePayrollDto} from "./dto/update-payroll.dto";
 import {OnePayroll} from "./entities/payroll.entity";
 import {PayrollRepository} from "./payroll.repository";
-import {RATE_OUT_OF_WORK_DAY, TAX,} from "../../../common/constant/salary.constant";
+import {PAYSLIP_WORKDAY_HOLIDAY, RATE_OUT_OF_WORK_DAY, TAX,} from "../../../common/constant/salary.constant";
 import {includesDatetime, isEqualDatetime,} from "../../../common/utils/isEqual-datetime.util";
 import {ALL_DAY, PARTIAL_DAY,} from "../../../common/constant/datetime.constant";
 import {exportExcel} from "../../../core/services/export.service";
@@ -293,7 +293,7 @@ export class PayrollService {
           !salary.datetime
       )
       ?.map((salary) => salary.price)
-      ?.reduce((a, b) => a + b, 0) * actualDay
+      ?.reduce((a, b) => a + b, 0) * actualDay;
 
     const allowanceFromDate = salaries
       .filter(
@@ -544,7 +544,7 @@ export class PayrollService {
     });
 
     const payslipNormalDay = !isConstraint
-      ? basicDaySalary * workdayNotInHoliday
+      ? basicDaySalary * (workdayNotInHoliday >= workday ? workday : workdayNotInHoliday)
       : basicDaySalary * (actualDay > workday ? workday : actualDay);
 
     const totalStandard = basicSalary + staySalary;
@@ -559,6 +559,7 @@ export class PayrollService {
     // console.log("Tổng lương đi làm ngày lễ", payslipInHoliday);
     // console.log("Tổng lương không đi làm ngày lễ ", payslipNotInHoliday);
     // console.log("Tổng lương đi làm ngoài ngày lễ( x2 )", payslipOutOfWorkday);
+    // console.log("Tổng lương ngày đi làm thực tế trừ lễ: ", payslipNormalDay);
     // console.log("Tổng phụ cấp", staySalary);
     //
     // console.log("=====================================================");
@@ -714,7 +715,7 @@ export class PayrollService {
     const deductionSalary = absentHourSalary + absentHourMinuteSalary;
 
     // Không quan tâm đến ngày công thực tế hay ngày công chuẩn. Nếu không đi làm trong ngày lễ thì vẫn được hưởng lương như thường
-    payslipNotInHoliday = worksNotInHoliday.map(w => w.day).reduce((a, b) => a + b, 0) * (basic.price / payroll.employee.workday);
+    payslipNotInHoliday = worksNotInHoliday.map(w => w.day).reduce((a, b) => a + b, 0) * (basic.price / PAYSLIP_WORKDAY_HOLIDAY);
 
     /// FIXME: TESTING. DON'T DELETE IT
     // console.log("Lương cơ bản", basicSalary);
