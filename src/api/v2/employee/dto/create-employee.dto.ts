@@ -31,8 +31,8 @@ export class CreateEmployeeDto extends CreateProfileDto {
   @IsDate()
   readonly createdAt: Date;
 
-  @Transform((val) => new Date(val.value))
   @IsOptional()
+  @Transform((val) => new Date(val.value))
   @Type(() => Date)
   @IsDate()
   // @MaxDate(tomorrowDate(), { message: `workedAt ${ValidatorMessage.datetime}` })
