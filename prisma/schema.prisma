@@ -384,6 +384,11 @@ model Payroll {
   timestamp      DateTime? @default(now()) // ngay them vao ghi lai lich su
 }
 
+model System {
+  id           Int       @id @default(autoincrement())
+  maintainedHr DateTime? @default(now())
+}
+
 // start medicine
 
 model Medicine {
