@@ -503,15 +503,29 @@ export class PayrollService {
         }
       } else {
         if (!holiday.isConstraint || (holiday.isConstraint && actualDay > workday)) {
-          worksInHoliday.push({day: ALL_DAY, datetime: holiday.datetime, rate: holiday.rate});
+          // case: Đi làm lễ nguyên ngày nhưng trong tháng dó ngày công thực tế chỉ dư ra 0.5 ngày so với ngày công chuẩn.
+          /// FIXME: Còn thiếu case Nếu dư ra 1 ngày hoặc 0.5 ngày nhưng tháng đó đi làm cả 2 ngày lễ và 2 ngày lễ có rate khác nhau là x2, x3 thì sẽ áp dụng cho lễ nào
+
+          // tổng ngày lễ đã được thêm vào
+          const day = worksInHoliday.map(w => w.day).reduce((a, b) => a + b, 0);
+          worksInHoliday.push({
+            day: actualDay - workday - day === 0.5 ? PARTIAL_DAY : ALL_DAY,
+            datetime: holiday.datetime,
+            rate: holiday.rate
+          });
         }
       }
     });
 
-    // Ngày công đi làm không fai ngày lễ và ngày đi làm trong ngày lễ cộng với nhau
+    // Ngày công đi làm  trong ngày lễ
     const workdayInHoliday = worksInHoliday.map((date) => date.day).reduce((a, b) => a + b, 0);
     const workdayNotInHoliday = lastDayOfMonth(payroll.createdAt) - workdayInHoliday - absentDay;
-    const totalWorkday = actualDay + workdayInHoliday;
+
+    // Quét qua số ngày đi làm thực tế để kiểm tra đkien đủ hoặc đi làm dư ngày so với ngày thực tế mới thỏa mãn nhận lương nhân hệ số.
+    /// FIXME: issue 293
+    // const actualDayInHoliday = worksInHoliday.map(w => w.day).reduce((a, b) => a + b, 0) - (actualDay - workday);
+    //
+    // console.log(actualDayInHoliday)
 
     payslipInHoliday = worksInHoliday.map(w => {
       return basicDaySalary * w.rate * w.day;
