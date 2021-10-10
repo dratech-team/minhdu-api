@@ -500,7 +500,7 @@ export class PayrollService {
           /// FIXME: Còn thiếu case Nếu dư ra 1 ngày hoặc 0.5 ngày nhưng tháng đó đi làm cả 2 ngày lễ và 2 ngày lễ có rate khác nhau là x2, x3 thì sẽ áp dụng cho lễ nào
 
           // tổng ngày lễ đã được thêm vào
-          const day = worksInHoliday.map(w => w.day).reduce((a, b) => a + b, 0);
+          const day = worksInHoliday.map(w => w?.day || 0).reduce((a, b) => a + b, 0);
           worksInHoliday.push({
             day: actualDay - workday - day === 0.5 ? PARTIAL_DAY : ALL_DAY,
             datetime: holiday.datetime,
