@@ -1,8 +1,4 @@
-import {
-  BadRequestException,
-  ConflictException,
-  Injectable,
-} from "@nestjs/common";
+import {BadRequestException, ConflictException, Injectable,} from "@nestjs/common";
 import {ProfileEntity} from "../../../common/entities/profile.entity";
 import {PrismaService} from "../../../prisma.service";
 import {searchName} from "../../../utils/search-name.util";
@@ -97,9 +93,6 @@ export class EmployeeRepository {
   ) {
     try {
       const name = searchName(search?.name);
-
-      console.log(name);
-
       const template = search?.templateId
         ? await this.prisma.overtimeTemplate.findUnique({
           where: {id: search?.templateId},
@@ -111,15 +104,17 @@ export class EmployeeRepository {
       const [total, data] = await Promise.all([
         this.prisma.employee.count({
           where: {
-            leftAt: null,
+            leftAt: search?.isLeft ? {notIn: null} : {in: null},
             position: {
               name: {startsWith: search?.position, mode: "insensitive"},
             },
-            branch: {name: {startsWith: search?.branch, mode: "insensitive"}},
-            positionId: positionIds?.length ? {in: positionIds || undefined} : {},
-            OR: {
-              firstName: {contains: search?.name, mode: "insensitive"},
-              lastName: {contains: search?.name, mode: "insensitive"},
+            branch: {
+              name: {startsWith: search?.branch, mode: "insensitive"},
+            },
+            positionId: positionIds?.length ? {in: positionIds} : {},
+            AND: {
+              firstName: {contains: name?.firstName || name?.lastName, mode: "insensitive"},
+              lastName: {contains: name?.lastName || name?.firstName, mode: "insensitive"},
             },
             gender: search?.gender ? {equals: search?.gender} : {},
             isFlatSalary: search?.isFlatSalary,
@@ -139,7 +134,7 @@ export class EmployeeRepository {
           skip: skip || undefined,
           take: take || undefined,
           where: {
-            leftAt: null,
+            leftAt: search?.isLeft ? {notIn: null} : {in: null},
             position: {
               name: {startsWith: search?.position, mode: "insensitive"},
             },

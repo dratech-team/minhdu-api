@@ -11,4 +11,5 @@ export interface SearchEmployeeDto {
   position: string,
   templateId: number,
   createdPayroll: Date,
+  isLeft: boolean, // 0 | 1
 }
