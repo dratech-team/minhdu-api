@@ -104,7 +104,8 @@ export class EmployeeRepository {
       const [total, data] = await Promise.all([
         this.prisma.employee.count({
           where: {
-            leftAt: search?.isLeft ? {notIn: null} : {in: null},
+            leftAt: {notIn: null},
+            // leftAt: search?.isLeft ? {notIn: null} : {in: null},
             position: {
               name: {startsWith: search?.position, mode: "insensitive"},
             },
@@ -134,7 +135,8 @@ export class EmployeeRepository {
           skip: skip || undefined,
           take: take || undefined,
           where: {
-            leftAt: search?.isLeft ? {notIn: null} : {in: null},
+            leftAt: {notIn: null},
+            // leftAt: search?.isLeft ? {notIn: null} : {in: null},
             position: {
               name: {startsWith: search?.position, mode: "insensitive"},
             },
@@ -287,23 +289,16 @@ export class EmployeeRepository {
   }
 
   /* Nghỉ việc */
-  async remove(id: number) {
+  async remove(id: number, updates: UpdateEmployeeDto) {
     try {
       await this.prisma.employee.update({
         where: {id},
         data: {
-          leftAt: new Date(),
+          leftAt: updates.leftAt || new Date(),
         },
       });
     } catch (err) {
       throw new BadRequestException(err);
     }
   }
-
-  // updateQrCode(employeeId: number, qrCode: string) {
-  //   this.prisma.employee.update({
-  //     where: {id: employeeId},
-  //     data: {qrCode}
-  //   }).then();
-  // }
 }
