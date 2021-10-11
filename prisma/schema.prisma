@@ -393,7 +393,8 @@ model Payroll {
   isEdit         Boolean?  @default(true)
   manConfirmedAt DateTime?
   paidAt         DateTime?
-  actualWorkday  Float?
+  actualday      Float?
+  total          Float?
   createdAt      DateTime? @default(now()) // ngay tao phieu luong, phieu luong cua thang
   timestamp      DateTime? @default(now()) // ngay them vao ghi lai lich su
 }
