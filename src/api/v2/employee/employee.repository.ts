@@ -237,7 +237,8 @@ export class EmployeeRepository {
             include: {
               salary: true
             }
-          }
+          },
+          positionHistories: true,
         },
       });
     } catch (e) {
@@ -279,6 +280,16 @@ export class EmployeeRepository {
           recipeType: updates.recipeType,
           note: updates.note,
         },
+      }).then(employee => {
+        if (updates.positionId && updates.positionId !== employee.positionId || updates.branchId && updates.branchId !== employee.branchId) {
+          this.prisma.positionHistory.create({
+            data: {
+              positionId: employee.positionId,
+              branchId: employee.branchId,
+              employeeId: employee.id,
+            }
+          }).then();
+        }
       });
     } catch (err) {
       console.error(err);
