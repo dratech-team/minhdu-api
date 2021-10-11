@@ -104,8 +104,7 @@ export class EmployeeRepository {
       const [total, data] = await Promise.all([
         this.prisma.employee.count({
           where: {
-            leftAt: {notIn: null},
-            // leftAt: search?.isLeft ? {notIn: null} : {in: null},
+            leftAt: search?.isLeft ? {notIn: null} : {in: null},
             position: {
               name: {startsWith: search?.position, mode: "insensitive"},
             },
@@ -135,8 +134,7 @@ export class EmployeeRepository {
           skip: skip || undefined,
           take: take || undefined,
           where: {
-            leftAt: {notIn: null},
-            // leftAt: search?.isLeft ? {notIn: null} : {in: null},
+            leftAt: search?.isLeft ? {notIn: null} : {in: null},
             position: {
               name: {startsWith: search?.position, mode: "insensitive"},
             },

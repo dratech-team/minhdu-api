@@ -15,6 +15,7 @@ import {includesDatetime, isEqualDatetime,} from "../../../common/utils/isEqual-
 import {ALL_DAY, PARTIAL_DAY,} from "../../../common/constant/datetime.constant";
 import {exportExcel} from "../../../core/services/export.service";
 import {FullSalary} from "../salary/entities/salary.entity";
+import * as moment from "moment";
 
 @Injectable()
 export class PayrollService {
@@ -616,12 +617,10 @@ export class PayrollService {
     const currentHoliday = await this.holidayService.findCurrentHolidays(payroll.createdAt, payroll.employee.positionId);
 
     let actualDay = this.totalActualDay(payroll);
-    if (
-      payroll.employee.isFlatSalary &&
-      this.totalAbsent(payroll.salaries).day === 0 &&
-      !payroll.isEdit
-    ) {
-      actualDay = 30;
+    if (payroll.employee.isFlatSalary) {
+      actualDay = lastDayOfMonth(new Date()) === 28 || lastDayOfMonth(new Date()) === 29 || lastDayOfMonth(new Date()) === 31
+        ? 30
+        : (moment(payroll.employee.leftAt).date() || lastDayOfMonth(new Date())) - this.totalAbsent(payroll.salaries).day
     }
 
     // basic
