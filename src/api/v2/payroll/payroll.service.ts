@@ -1,4 +1,4 @@
-import {BadRequestException, ConflictException, Injectable} from "@nestjs/common";
+import {BadRequestException, ConflictException, Injectable, NotFoundException} from "@nestjs/common";
 import {DatetimeUnit, RecipeType, Role, Salary, SalaryType,} from "@prisma/client";
 import {Response} from "express";
 import {ProfileEntity} from "../../../common/entities/profile.entity";
@@ -383,6 +383,9 @@ export class PayrollService {
 
     const payroll = await this.findOne(payrollId);
     const currentHoliday = await this.holidayService.findCurrentHolidays(payroll.createdAt, payroll.employee.positionId);
+    if(!currentHoliday.length) {
+      throw new NotFoundException(`Không tồn tại ngày lễ hợp lệ trong tháng ${moment(payroll.createdAt).format("MM/YYYY")}`)
+    }
     if (currentHoliday && currentHoliday.length) {
       for (let i = 0; i < currentHoliday.length; i++) {
         const salaries = payroll.salaries.filter(
