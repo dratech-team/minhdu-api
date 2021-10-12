@@ -23,6 +23,7 @@ import {ApiKeyGuard} from "../../../core/guard/api-key-auth.guard";
 import {JwtAuthGuard} from "../../../core/guard/jwt-auth.guard";
 import {Role} from "@prisma/client";
 import {Roles} from "../../../core/decorators/roles.decorator";
+import {ConfirmPayrollDto} from "./dto/confirm-payroll.dto";
 
 @Controller(ApiV2Constant.PAYROLL)
 @UseGuards(JwtAuthGuard, ApiKeyGuard, RolesGuard)
@@ -84,7 +85,7 @@ export class PayrollController {
   @Roles(Role.ADMIN, Role.HUMAN_RESOURCE, Role.CAMP_ACCOUNTING)
   @Get(":id/generate-holiday")
   generateHoliday(@Param("id") id: number) {
-    return this.payrollService.generateHoliday(+id)
+    return this.payrollService.generateHoliday(+id);
   }
 
   @UseGuards(LoggerGuard)
@@ -95,8 +96,8 @@ export class PayrollController {
     Role.ACCOUNTANT_CASH_FUND
   )
   @Patch("confirm/:id")
-  confirm(@ReqProfile() user: ProfileEntity, @Param("id") id: number, @Body() datetime: Date) {
-    return this.payrollService.confirmPayroll(user, +id, datetime);
+  confirm(@ReqProfile() user: ProfileEntity, @Param("id") id: number, @Body() body: ConfirmPayrollDto) {
+    return this.payrollService.confirmPayroll(user, +id, body);
   }
 
   @UseGuards(LoggerGuard)

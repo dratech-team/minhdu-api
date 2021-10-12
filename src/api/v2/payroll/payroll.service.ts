@@ -16,6 +16,7 @@ import {ALL_DAY, PARTIAL_DAY,} from "../../../common/constant/datetime.constant"
 import {exportExcel} from "../../../core/services/export.service";
 import {FullSalary} from "../salary/entities/salary.entity";
 import * as moment from "moment";
+import {ConfirmPayrollDto} from "./dto/confirm-payroll.dto";
 
 @Injectable()
 export class PayrollService {
@@ -29,25 +30,25 @@ export class PayrollService {
   async create(profile: ProfileEntity, body: CreatePayrollDto) {
     try {
       if (!body?.employeeId) {
-        throw new BadRequestException("Tính năng đang được phát triển. Xin cảm ơn");
+        // throw new BadRequestException("Tính năng đang được phát triển. Xin cảm ơn");
         /// FIXME: I need deep testing befrore release
-        // const employee = await this.employeeService.findAll(
-        //   profile,
-        //   undefined,
-        //   undefined
-        // );
-        //
-        // const created = await Promise.all(employee.data.map(async employee => {
-        //   return await this.repository.create({
-        //     employeeId: employee.id,
-        //     createdAt: body.createdAt,
-        //   });
-        // }));
-        //
-        // return {
-        //   status: 201,
-        //   message: `Đã tự động tạo phiếu lương tháng ${moment(body.createdAt).format("MM/YYYY")} cho ${created.length} nhân viên`,
-        // };
+        const employee = await this.employeeService.findAll(
+          profile,
+          undefined,
+          undefined
+        );
+
+        const created = await Promise.all(employee.data.map(async employee => {
+          return await this.repository.create({
+            employeeId: employee.id,
+            createdAt: body.createdAt,
+          });
+        }));
+
+        return {
+          status: 201,
+          message: `Đã tự động tạo phiếu lương tháng ${moment(body.createdAt).format("MM/YYYY")} cho ${created.length} nhân viên`,
+        };
       }
       return await this.repository.create(body);
     } catch (err) {
@@ -210,7 +211,7 @@ export class PayrollService {
     return await this.repository.update(id, updates);
   }
 
-  async confirmPayroll(user: ProfileEntity, id: number,  datetime: Date) {
+  async confirmPayroll(user: ProfileEntity, id: number, body: ConfirmPayrollDto) {
     // Chỉ xác nhận khi phiếu lương có tồn tại giá trị
     const payroll = await this.repository.findOne(id);
     if (!payroll.salaries.length) {
@@ -226,17 +227,16 @@ export class PayrollService {
         );
       }
     }
-
     switch (user.role) {
       case Role.CAMP_ACCOUNTING:
-        return await this.repository.update(id, {accConfirmedAt: datetime || new Date()});
+        return await this.repository.update(id, {accConfirmedAt: body.datetime || new Date()});
       case Role.CAMP_MANAGER:
-        return await this.repository.update(id, {manConfirmedAt: datetime ||  new Date()});
+        return await this.repository.update(id, {manConfirmedAt: body.datetime || new Date()});
       case Role.ACCOUNTANT_CASH_FUND:
-        return await this.repository.update(id, {paidAt: datetime ||  new Date()});
+        return await this.repository.update(id, {paidAt: body.datetime || new Date()});
       /// FIXME: dummy for testing
       case Role.HUMAN_RESOURCE:
-        return await this.repository.update(id, {manConfirmedAt: datetime ||  new Date()});
+        return await this.repository.update(id, {accConfirmedAt: body.datetime || new Date()});
       default:
         throw new BadRequestException(
           `${user.role} Bạn không có quyền xác nhận phiếu lương. Cảm ơn.`
@@ -383,8 +383,8 @@ export class PayrollService {
 
     const payroll = await this.findOne(payrollId);
     const currentHoliday = await this.holidayService.findCurrentHolidays(payroll.createdAt, payroll.employee.positionId);
-    if(!currentHoliday.length) {
-      throw new NotFoundException(`Không tồn tại ngày lễ hợp lệ trong tháng ${moment(payroll.createdAt).format("MM/YYYY")}`)
+    if (!currentHoliday.length) {
+      throw new NotFoundException(`Không tồn tại ngày lễ hợp lệ trong tháng ${moment(payroll.createdAt).format("MM/YYYY")}`);
     }
     if (currentHoliday && currentHoliday.length) {
       for (let i = 0; i < currentHoliday.length; i++) {
@@ -623,7 +623,7 @@ export class PayrollService {
     if (payroll.employee.isFlatSalary) {
       actualDay = lastDayOfMonth(new Date()) === 28 || lastDayOfMonth(new Date()) === 29 || lastDayOfMonth(new Date()) === 31
         ? 30
-        : (moment(payroll.employee.leftAt).date() || lastDayOfMonth(new Date())) - this.totalAbsent(payroll.salaries).day
+        : (moment(payroll.employee.leftAt).date() || lastDayOfMonth(new Date())) - this.totalAbsent(payroll.salaries).day;
     }
 
     // basic
