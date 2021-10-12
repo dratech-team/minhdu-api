@@ -388,9 +388,8 @@ export class PayrollService {
     const absentDay = absent.day + (isEqualDatetime(payroll.employee.createdAt, payroll.createdAt)
       ? payroll.employee.createdAt.getDate()
       : 0);
-
     // actual day
-    return lastDayOfMonth(payroll.createdAt) - absentDay - (lastDayOfMonth(confirmedAt) - (confirmedAt?.getDate() || 0))
+    return lastDayOfMonth(payroll.createdAt) - absentDay - (confirmedAt?.getDate() || 0)
   }
 
   async generateHoliday(payrollId: number) {
