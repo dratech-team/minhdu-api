@@ -270,7 +270,6 @@ export class PayrollRepository {
       });
       return Object.assign(employee, {payrollId: payroll.id});
     }));
-    console.log(search);
     return await Promise.all(payrolls.map(async payroll => {
       const salaries = await this.prisma.salary.findMany({
         where: {
