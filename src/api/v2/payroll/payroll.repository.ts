@@ -243,37 +243,42 @@ export class PayrollRepository {
   }
 
   async findOvertimes(user: ProfileEntity, search: Partial<SearchOvertimePayrollDto>) {
+    if (!(search?.startAt && search?.endAt)) {
+      throw new BadRequestException("Vui lòng nhập ngày bắt đầu và ngày kết thúc");
+    }
 
     const employees = await this.prisma.employee.findMany({
       where: {
-        branchId: user.branchId || undefined,
-        payrolls: {
-          some: {
-            salaries: {
-              some: {
-                datetime: {
-                  gte: search?.startAt,
-                  lte: search?.endAt,
-                }
-              }
-            }
-          }
-        }
-      },
-      include: {
-        payrolls: {
-          include: {
-            salaries: {
-              where: {
-                type: {in: [SalaryType.OVERTIME]}
-              }
-            }
-          }
-        }
+        branchId: user.branchId || undefined
       }
     });
 
-    console.log(employees);
+    const payrolls = await Promise.all(employees.map(async employee => {
+      const payroll = await this.prisma.payroll.findFirst({
+        where: {
+          employeeId: employee.id,
+          createdAt: {
+            gte: firstDatetimeOfMonth(search.startAt),
+            lte: lastDatetimeOfMonth(search.endAt),
+          }
+        }
+      });
+      return Object.assign(employee, {payrollId: payroll.id});
+    }));
+
+    return await Promise.all(payrolls.map(async payroll => {
+      const salaries = await this.prisma.salary.findMany({
+        where: {
+          payrollId: payroll.id,
+          type: SalaryType.OVERTIME,
+          datetime: {
+            gte: search.startAt,
+            lte: search.endAt,
+          }
+        }
+      });
+      return Object.assign(payroll, {salaries});
+    }));
   }
 
   async findIds(createdAt: Date) {

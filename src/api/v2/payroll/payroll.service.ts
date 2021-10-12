@@ -110,7 +110,8 @@ export class PayrollService {
   }
 
   async filterOvertime(user: ProfileEntity, search: Partial<SearchOvertimePayrollDto>) {
-    return await this.repository.findOvertimes(user, search);
+    return  await this.repository.findOvertimes(user, search);
+
   }
 
   async export(response: Response, user: ProfileEntity, filename: string) {

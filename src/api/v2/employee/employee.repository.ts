@@ -238,7 +238,13 @@ export class EmployeeRepository {
               salary: true
             }
           },
-          positionHistories: true,
+          workHistories: {
+            select: {
+              branch: {select: {name: true}},
+              position: {select: {name: true}},
+              createdAt: true
+            }
+          },
         },
       });
     } catch (e) {
@@ -281,8 +287,8 @@ export class EmployeeRepository {
           note: updates.note,
         },
       }).then(employee => {
-        if (updates.positionId && updates.positionId !== employee.positionId || updates.branchId && updates.branchId !== employee.branchId) {
-          this.prisma.positionHistory.create({
+        if (updates.positionId || updates.branchId) {
+          this.prisma.workHistory.create({
             data: {
               positionId: employee.positionId,
               branchId: employee.branchId,

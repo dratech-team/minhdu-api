@@ -75,13 +75,12 @@ export class PayrollController {
   }
 
   @Roles(Role.ADMIN, Role.HUMAN_RESOURCE, Role.CAMP_ACCOUNTING)
-  @Get("/filter-overtime")
+  @Get("/overtime/filter")
   filterOvertime(
     @ReqProfile() user: ProfileEntity,
     @Query("startAt", ParseDatetimePipe) startAt: any,
     @Query("endAt", ParseDatetimePipe) endAt: any,
   ) {
-    console.log(user, startAt, endAt);
     return this.payrollService.filterOvertime(user, {startAt, endAt});
   }
 
