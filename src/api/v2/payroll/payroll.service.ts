@@ -117,9 +117,9 @@ export class PayrollService {
     // overtimes.map(overtime => {
     //   const total
     // });
-    if (search?.overtimeType) {
+    if (search?.title) {
       return overtimes.map(overtime => {
-        return Object.assign(overtime, {salaries: overtime.salaries.filter(salary => salary.title === search?.overtimeType)});
+        return Object.assign(overtime, {salaries: overtime.salaries.filter(salary => salary.title === search?.title)});
       });
     }
     return overtimes;

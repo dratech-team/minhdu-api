@@ -80,9 +80,9 @@ export class PayrollController {
     @ReqProfile() user: ProfileEntity,
     @Query("startAt", ParseDatetimePipe) startAt: any,
     @Query("endAt", ParseDatetimePipe) endAt: any,
-    @Query("overtimeType") overtimeType: string,
+    @Query("title") title: string,
   ) {
-    return this.payrollService.filterOvertime(user, {startAt, endAt, overtimeType});
+    return this.payrollService.filterOvertime(user, {startAt, endAt, title});
   }
 
   @UseGuards(LoggerGuard)

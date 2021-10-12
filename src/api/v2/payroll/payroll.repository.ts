@@ -11,6 +11,7 @@ import {OnePayroll} from "./entities/payroll.entity";
 import {ResponsePagination} from "../../../common/entities/response.pagination";
 import {CreateSalaryDto} from "../salary/dto/create-salary.dto";
 import {SearchOvertimePayrollDto} from "./dto/search-overtime-payroll.dto";
+import * as moment from "moment";
 
 @Injectable()
 export class PayrollRepository {
@@ -269,15 +270,15 @@ export class PayrollRepository {
       });
       return Object.assign(employee, {payrollId: payroll.id});
     }));
-
+    console.log(search);
     return await Promise.all(payrolls.map(async payroll => {
       const salaries = await this.prisma.salary.findMany({
         where: {
           payrollId: payroll.id,
           type: SalaryType.OVERTIME,
           datetime: {
-            gte: search.startAt,
-            lte: search.endAt,
+            gte: moment(search.startAt).startOf("day").toDate(),
+            lte: moment(search.endAt).endOf("day").toDate(),
           }
         },
         orderBy: {title: "asc"}
