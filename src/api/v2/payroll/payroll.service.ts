@@ -1,4 +1,4 @@
-import {BadRequestException, ConflictException, Injectable} from "@nestjs/common";
+import {BadRequestException, ConflictException, Injectable, NotFoundException} from "@nestjs/common";
 import {DatetimeUnit, RecipeType, Role, Salary, SalaryType,} from "@prisma/client";
 import {Response} from "express";
 import {ProfileEntity} from "../../../common/entities/profile.entity";
@@ -15,6 +15,7 @@ import {includesDatetime, isEqualDatetime,} from "../../../common/utils/isEqual-
 import {ALL_DAY, PARTIAL_DAY,} from "../../../common/constant/datetime.constant";
 import {exportExcel} from "../../../core/services/export.service";
 import {FullSalary} from "../salary/entities/salary.entity";
+import * as moment from "moment";
 
 @Injectable()
 export class PayrollService {
@@ -382,6 +383,9 @@ export class PayrollService {
 
     const payroll = await this.findOne(payrollId);
     const currentHoliday = await this.holidayService.findCurrentHolidays(payroll.createdAt, payroll.employee.positionId);
+    if(!currentHoliday.length) {
+      throw new NotFoundException(`Không tồn tại ngày lễ hợp lệ trong tháng ${moment(payroll.createdAt).format("MM/YYYY")}`)
+    }
     if (currentHoliday && currentHoliday.length) {
       for (let i = 0; i < currentHoliday.length; i++) {
         const salaries = payroll.salaries.filter(
@@ -616,12 +620,10 @@ export class PayrollService {
     const currentHoliday = await this.holidayService.findCurrentHolidays(payroll.createdAt, payroll.employee.positionId);
 
     let actualDay = this.totalActualDay(payroll);
-    if (
-      payroll.employee.isFlatSalary &&
-      this.totalAbsent(payroll.salaries).day === 0 &&
-      !payroll.isEdit
-    ) {
-      actualDay = 30;
+    if (payroll.employee.isFlatSalary) {
+      actualDay = lastDayOfMonth(new Date()) === 28 || lastDayOfMonth(new Date()) === 29 || lastDayOfMonth(new Date()) === 31
+        ? 30
+        : (moment(payroll.employee.leftAt).date() || lastDayOfMonth(new Date())) - this.totalAbsent(payroll.salaries).day
     }
 
     // basic

@@ -63,7 +63,7 @@ import { SystemModule } from './api/v2/system/system.module';
     MedicineModule,
     LoggerModule,
     BasicTemplateModule,
-    SystemModule
+    SystemModule,
   ],
   controllers: [AppController],
   providers: [PrismaService],

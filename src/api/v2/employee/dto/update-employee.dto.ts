@@ -1,6 +1,7 @@
 import {OmitType} from "@nestjs/mapped-types";
-import {IsOptional, IsString,} from "class-validator";
+import {IsDate, IsOptional, IsString,} from "class-validator";
 import {CreateEmployeeDto} from "./create-employee.dto";
+import {Transform, Type} from "class-transformer";
 
 export class UpdateEmployeeDto extends OmitType(CreateEmployeeDto, [
   "contract",
@@ -20,4 +21,10 @@ export class UpdateEmployeeDto extends OmitType(CreateEmployeeDto, [
   @IsOptional()
   @IsString()
   readonly ethnicity?: string;
+
+  @IsOptional()
+  @Transform((val) => new Date(val.value))
+  @Type(() => Date)
+  @IsDate()
+  readonly leftAt?: Date;
 }
