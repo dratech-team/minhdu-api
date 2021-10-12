@@ -115,12 +115,24 @@ export class PayrollService {
     const overtimes = await this.repository.findOvertimes(user, search);
 
     if (search?.title) {
+      const overtime = await this.overtimeService.findFirst({
+        where: {
+          title: search.title
+        }
+      });
+
       return overtimes.map(item => {
         const salaries = item.salaries.filter(salary => salary.title === search?.title);
         const times = salaries.map(salary => salary.times).reduce((a, b) => a + b, 0);
-        const total = salaries.map(salary => salary.times * salary.price).reduce((a, b) => a + b, 0);
+        const total = salaries.map(salary => {
+          if (salary.unit === DatetimeUnit.DAY && salary.times > 1) {
+            return (salary.times * salary.price) + (salary.allowance?.price * salary.times);
+          } else {
+            return salary.times * salary.price + (salary.allowance?.price || 0);
+          }
+        }).reduce((a, b) => a + b, 0);
 
-        return Object.assign(item, {salaries, salary: {times, total}});
+        return Object.assign(item, {salaries, salary: {times, total, unit: overtime.unit}});
       });
     }
     return overtimes;
