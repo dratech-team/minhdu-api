@@ -371,6 +371,7 @@ model SalaryHistory {
   employee   Employee  @relation(fields: [employeeId], references: [id])
   employeeId Int
   createdAt  DateTime? @default(now())
+  timestamp  DateTime? @default(now())
 }
 
 model PositionHistory {

@@ -87,7 +87,7 @@ export class EmployeeController {
   @UseGuards(LoggerGuard)
   @Roles(Role.ADMIN, Role.HUMAN_RESOURCE)
   @Delete(":id")
-  remove(@Param("id") id: number, @Body() updates: UpdateEmployeeDto) {
-    return this.employeeService.remove(+id, updates);
+  remove(@Param("id") id: number, @Query("leftAt", ParseDatetimePipe) leftAt: any) {
+    return this.employeeService.remove(+id, leftAt);
   }
 }

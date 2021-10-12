@@ -17,6 +17,7 @@ import {exportExcel} from "../../../core/services/export.service";
 import {FullSalary} from "../salary/entities/salary.entity";
 import * as moment from "moment";
 import {ConfirmPayrollDto} from "./dto/confirm-payroll.dto";
+import {SearchOvertimePayrollDto} from "./dto/search-overtime-payroll.dto";
 
 @Injectable()
 export class PayrollService {
@@ -106,6 +107,10 @@ export class PayrollService {
     //     ? (await this.totalSalaryCT1(payroll)).totalWorkday
     //     : (await this.totalSalaryCT2(payroll)).totalWorkday;
     // return Object.assign(payroll, {totalWorkday});
+  }
+
+  async filterOvertime(user: ProfileEntity, search: Partial<SearchOvertimePayrollDto>) {
+    return await this.repository.findOvertimes(user, search);
   }
 
   async export(response: Response, user: ProfileEntity, filename: string) {

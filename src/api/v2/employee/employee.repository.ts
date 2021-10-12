@@ -298,12 +298,12 @@ export class EmployeeRepository {
   }
 
   /* Nghỉ việc */
-  async remove(id: number, updates: UpdateEmployeeDto) {
+  async remove(id: number, leftAt: Date) {
     try {
       await this.prisma.employee.update({
         where: {id},
         data: {
-          leftAt: updates.leftAt || new Date(),
+          leftAt: leftAt || null,
         },
       });
     } catch (err) {

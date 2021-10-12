@@ -10,6 +10,7 @@ import {UpdatePayrollDto} from "./dto/update-payroll.dto";
 import {OnePayroll} from "./entities/payroll.entity";
 import {ResponsePagination} from "../../../common/entities/response.pagination";
 import {CreateSalaryDto} from "../salary/dto/create-salary.dto";
+import {SearchOvertimePayrollDto} from "./dto/search-overtime-payroll.dto";
 
 @Injectable()
 export class PayrollRepository {
@@ -239,6 +240,40 @@ export class PayrollRepository {
       console.error(e);
       throw new BadRequestException(e);
     }
+  }
+
+  async findOvertimes(user: ProfileEntity, search: Partial<SearchOvertimePayrollDto>) {
+
+    const employees = await this.prisma.employee.findMany({
+      where: {
+        branchId: user.branchId || undefined,
+        payrolls: {
+          some: {
+            salaries: {
+              some: {
+                datetime: {
+                  gte: search?.startAt,
+                  lte: search?.endAt,
+                }
+              }
+            }
+          }
+        }
+      },
+      include: {
+        payrolls: {
+          include: {
+            salaries: {
+              where: {
+                type: {in: [SalaryType.OVERTIME]}
+              }
+            }
+          }
+        }
+      }
+    });
+
+    console.log(employees);
   }
 
   async findIds(createdAt: Date) {

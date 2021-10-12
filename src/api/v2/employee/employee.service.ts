@@ -37,9 +37,9 @@ export class EmployeeService {
   async findOne(id: number) {
     const employee = await this.repository.findOne(id);
     const contactType =
-      employee.contracts[0]?.createdAt && employee.contracts[0]?.expiredAt
+      employee.contracts[0]?.createdAt && employee?.contracts[0]?.expiredAt
         ? "Có thời hạn"
-        : employee.contracts[0]?.createdAt && !employee.contracts[0]?.expiredAt
+        : employee.contracts[0]?.createdAt && !employee?.contracts[0]?.expiredAt
         ? "Vô  thời hạn"
         : "Chưa có hợp đồng";
 
@@ -56,7 +56,7 @@ export class EmployeeService {
     return await this.repository.update(id, updates);
   }
 
-  async remove(id: number, updates: UpdateEmployeeDto) {
-    return this.repository.remove(id, updates);
+  async remove(id: number, leftAt: Date) {
+    return this.repository.remove(id, leftAt);
   }
 }
