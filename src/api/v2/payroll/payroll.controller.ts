@@ -95,8 +95,8 @@ export class PayrollController {
     Role.ACCOUNTANT_CASH_FUND
   )
   @Patch("confirm/:id")
-  confirm(@ReqProfile() user: ProfileEntity, @Param("id") id: number) {
-    return this.payrollService.confirmPayroll(user, +id);
+  confirm(@ReqProfile() user: ProfileEntity, @Param("id") id: number, @Body() datetime: Date) {
+    return this.payrollService.confirmPayroll(user, +id, datetime);
   }
 
   @UseGuards(LoggerGuard)

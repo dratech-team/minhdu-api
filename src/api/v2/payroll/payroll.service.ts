@@ -69,14 +69,14 @@ export class PayrollService {
       switch (payroll.employee.recipeType) {
         case RecipeType.CT1: {
           return Object.assign(payroll, {
-            payslip: payroll.manConfirmedAt
+            payslip: payroll.accConfirmedAt
               ? await this.totalSalaryCT1(payroll)
               : null,
           });
         }
         case RecipeType.CT2: {
           return Object.assign(payroll, {
-            payslip: payroll.manConfirmedAt
+            payslip: payroll.accConfirmedAt
               ? await this.totalSalaryCT2(payroll)
               : null,
           });
@@ -209,7 +209,7 @@ export class PayrollService {
     return await this.repository.update(id, updates);
   }
 
-  async confirmPayroll(user: ProfileEntity, id: number) {
+  async confirmPayroll(user: ProfileEntity, id: number,  datetime: Date) {
     // Chỉ xác nhận khi phiếu lương có tồn tại giá trị
     const payroll = await this.repository.findOne(id);
     if (!payroll.salaries.length) {
@@ -228,14 +228,14 @@ export class PayrollService {
 
     switch (user.role) {
       case Role.CAMP_ACCOUNTING:
-        return await this.repository.update(id, {accConfirmedAt: new Date()});
+        return await this.repository.update(id, {accConfirmedAt: datetime || new Date()});
       case Role.CAMP_MANAGER:
-        return await this.repository.update(id, {manConfirmedAt: new Date()});
+        return await this.repository.update(id, {manConfirmedAt: datetime ||  new Date()});
       case Role.ACCOUNTANT_CASH_FUND:
-        return await this.repository.update(id, {paidAt: new Date()});
+        return await this.repository.update(id, {paidAt: datetime ||  new Date()});
       /// FIXME: dummy for testing
       case Role.HUMAN_RESOURCE:
-        return await this.repository.update(id, {manConfirmedAt: new Date()});
+        return await this.repository.update(id, {manConfirmedAt: datetime ||  new Date()});
       default:
         throw new BadRequestException(
           `${user.role} Bạn không có quyền xác nhận phiếu lương. Cảm ơn.`

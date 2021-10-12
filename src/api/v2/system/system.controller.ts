@@ -22,11 +22,6 @@ export class SystemController {
   //   return this.systemService.findOne(+id);
   // }
 
-  @Get('/hr')
-  findHr() {
-    return this.systemService.findHr();
-  }
-
   @Patch(':id')
   update(@Param('id') id: string, @Body() updateSystemDto: UpdateSystemDto) {
     return this.systemService.update(+id, updateSystemDto);

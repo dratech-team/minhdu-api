@@ -8,27 +8,25 @@ export class SystemService {
   constructor(private readonly prisma: PrismaService) {
   }
 
-  create(createSystemDto: CreateSystemDto) {
-    return 'This action adds a new system';
+  async create(body: CreateSystemDto) {
+    return await this.prisma.system.create({data: body});
   }
 
-  findAll() {
-    return `This action returns all system`;
+  async findAll() {
+    return await this.prisma.system.findMany();
   }
 
   findOne(id: number) {
     return `This action returns a #${id} system`;
   }
 
-  async findHr() {
-    return await this.prisma.system.findUnique({where: {id: 1}});
-  }
-
   async update(id: number, updates: UpdateSystemDto) {
-    return await this.prisma.system.upsert({
+    return await this.prisma.system.update({
       where: {id},
-      create: updates,
-      update: updates,
+      data: {
+        title: updates.title,
+        
+      },
     });
   }
 

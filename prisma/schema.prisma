@@ -385,8 +385,18 @@ model Payroll {
 }
 
 model System {
-  id           Int       @id @default(autoincrement())
-  maintainedHr DateTime? @default(now())
+  id       Int        @id @default(autoincrement())
+  title    String
+  type     SystemType
+  datetime DateTime?  @default(now())
+}
+
+enum SystemType {
+  EMPLOYEE
+  PAYROLL
+  TEMPLATE
+  HISTORY
+  ORG_CHART
 }
 
 // start medicine
