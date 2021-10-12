@@ -10,12 +10,6 @@ export function lastDatetimeOfMonth(datetime: string | Date | undefined): Date |
 
 // Ngày cuối cùng của tháng. Nếu tháng hiện tại thì ngày cuối cùng của tháng là hôm nay
 export function lastDayOfMonth(datetime: Date): number {
-  const month = moment(datetime).format('MM/yyyy');
-  const current = moment(new Date()).format('MM/yyyy');
-  if (month === current) {
-    return new Date().getDate();
-  }
-
   return moment(datetime).endOf('month').date();
 }
 

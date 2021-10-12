@@ -148,7 +148,7 @@ export class SalaryRepository {
     }
 
     // Check thêm tăng ca đúng với datetime của payroll. Apply cho detail payroll
-    if (!body?.employeeIds && body.times === 1 && !isEqualDatetime(body.datetime as Date, payroll.createdAt, "MONTH")) {
+    if (!body?.employeeIds && body.times === 1 && !isEqualDatetime(body.datetime as Date, payroll.createdAt, "month")) {
       throw new BadRequestException(
         `Ngày tăng ca phải là ngày của tháng ${moment(payroll.createdAt).format(
           "MM/YYYY"

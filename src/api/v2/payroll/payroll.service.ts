@@ -388,8 +388,19 @@ export class PayrollService {
     const absentDay = absent.day + (isEqualDatetime(payroll.employee.createdAt, payroll.createdAt)
       ? payroll.employee.createdAt.getDate()
       : 0);
-    // actual day
-    return lastDayOfMonth(payroll.createdAt) - absentDay - (confirmedAt?.getDate() || 0)
+
+    if (!confirmedAt) {
+      // Phiếu lương chưa được xác nhận và là phiếu lương của tháng hiện tại
+      if (isEqualDatetime(new Date(), payroll.createdAt, "month")) {
+        return new Date().getDate() - absentDay;
+      } else {
+        // Phiếu lương chưa được xác nhận và là phiếu lương của tháng trước
+        return lastDayOfMonth(payroll.createdAt) - absentDay;
+      }
+    } else {
+      // Phiếu lương đã được xác nhận và là phiếu lương của tháng hiện tại
+      return lastDayOfMonth(payroll.createdAt) - (absentDay + (lastDayOfMonth(payroll.createdAt) - confirmedAt.getDate()))
+    }
   }
 
   async generateHoliday(payrollId: number) {
