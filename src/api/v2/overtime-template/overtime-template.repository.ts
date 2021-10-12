@@ -121,6 +121,10 @@ export class OvertimeTemplateRepository {
     }
   }
 
+  async findFirst(query: any) {
+    return await this.prisma.overtimeTemplate.findFirst(query);
+  }
+
   async remove(id: number) {
     try {
       await this.prisma.overtimeTemplate.delete({where: {id}});

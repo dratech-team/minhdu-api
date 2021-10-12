@@ -114,12 +114,13 @@ export class PayrollService {
   async filterOvertime(user: ProfileEntity, search: Partial<SearchOvertimePayrollDto>) {
     const overtimes = await this.repository.findOvertimes(user, search);
 
-    // overtimes.map(overtime => {
-    //   const total
-    // });
     if (search?.title) {
-      return overtimes.map(overtime => {
-        return Object.assign(overtime, {salaries: overtime.salaries.filter(salary => salary.title === search?.title)});
+      return overtimes.map(item => {
+        const salaries = item.salaries.filter(salary => salary.title === search?.title);
+        const times = salaries.map(salary => salary.times).reduce((a, b) => a + b, 0);
+        const total = salaries.map(salary => salary.times * salary.price).reduce((a, b) => a + b, 0);
+
+        return Object.assign(item, {salaries, salary: {times, total}});
       });
     }
     return overtimes;

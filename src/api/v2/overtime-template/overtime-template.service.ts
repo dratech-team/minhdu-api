@@ -21,6 +21,10 @@ export class OvertimeTemplateService {
     return await this.repository.findAll(take, skip, search);
   }
 
+  async findFirst(query: any) {
+    return await this.repository.findFirst(query);
+  }
+
   async findOne(id: number) {
     return await this.repository.findOne(id);
   }
