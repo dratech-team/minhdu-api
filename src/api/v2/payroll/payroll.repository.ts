@@ -268,14 +268,16 @@ export class PayrollRepository {
           }
         }
       });
-      return Object.assign(employee, {payrollId: payroll.id});
+      if (payroll) {
+        return Object.assign(employee, {payrollId: payroll.id});
+      }
     }));
-    return await Promise.all(payrolls.map(async emoloyee => {
+    return await Promise.all(payrolls.map(async employee => {
       const salaries = await this.prisma.salary.findMany({
         where: {
-          payrollId: emoloyee.payrollId,
+          payrollId: employee.payrollId,
           payroll: {
-            employeeId: emoloyee.id,
+            employeeId: employee.id,
           },
           type: SalaryType.OVERTIME,
           datetime: {
@@ -288,7 +290,7 @@ export class PayrollRepository {
         },
         orderBy: {title: "asc"}
       });
-      return Object.assign(emoloyee, {salaries});
+      return Object.assign(employee, {salaries});
     }));
   }
 
