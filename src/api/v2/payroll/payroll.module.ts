@@ -9,9 +9,10 @@ import {EmployeeRepository} from "../employee/employee.repository";
 import {HolidayModule} from "../holiday/holiday.module";
 import {HolidayRepository} from "../holiday/holiday.repository";
 import {HolidayService} from "../holiday/holiday.service";
+import {OvertimeTemplateModule} from "../overtime-template/overtime-template.module";
 
 @Module({
-  imports: [ConfigModule, EmployeeModule, HolidayModule],
+  imports: [ConfigModule, EmployeeModule, HolidayModule, OvertimeTemplateModule],
   controllers: [PayrollController],
   providers: [PrismaService, PayrollService, PayrollRepository, EmployeeRepository, HolidayService, HolidayRepository],
   exports: [PayrollService]

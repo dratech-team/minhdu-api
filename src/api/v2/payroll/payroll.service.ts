@@ -18,13 +18,15 @@ import {FullSalary} from "../salary/entities/salary.entity";
 import * as moment from "moment";
 import {ConfirmPayrollDto} from "./dto/confirm-payroll.dto";
 import {SearchOvertimePayrollDto} from "./dto/search-overtime-payroll.dto";
+import {OvertimeTemplateService} from "../overtime-template/overtime-template.service";
 
 @Injectable()
 export class PayrollService {
   constructor(
     private readonly repository: PayrollRepository,
     private readonly employeeService: EmployeeService,
-    private readonly holidayService: HolidayService
+    private readonly holidayService: HolidayService,
+    private readonly overtimeService: OvertimeTemplateService,
   ) {
   }
 
@@ -110,8 +112,17 @@ export class PayrollService {
   }
 
   async filterOvertime(user: ProfileEntity, search: Partial<SearchOvertimePayrollDto>) {
-    return  await this.repository.findOvertimes(user, search);
+    const overtimes = await this.repository.findOvertimes(user, search);
 
+    // overtimes.map(overtime => {
+    //   const total
+    // });
+    if (search?.overtimeType) {
+      return overtimes.map(overtime => {
+        return Object.assign(overtime, {salaries: overtime.salaries.filter(salary => salary.title === search?.overtimeType)});
+      });
+    }
+    return overtimes;
   }
 
   async export(response: Response, user: ProfileEntity, filename: string) {

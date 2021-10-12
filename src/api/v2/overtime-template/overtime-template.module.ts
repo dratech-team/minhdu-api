@@ -6,7 +6,8 @@ import {OvertimeTemplateRepository} from "./overtime-template.repository";
 
 @Module({
   controllers: [OvertimeTemplateController],
-  providers: [PrismaService, OvertimeTemplateService, OvertimeTemplateRepository]
+  providers: [PrismaService, OvertimeTemplateService, OvertimeTemplateRepository],
+  exports: [OvertimeTemplateService, OvertimeTemplateRepository]
 })
 export class OvertimeTemplateModule {
 }

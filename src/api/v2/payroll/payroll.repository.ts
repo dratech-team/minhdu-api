@@ -250,6 +250,10 @@ export class PayrollRepository {
     const employees = await this.prisma.employee.findMany({
       where: {
         branchId: user.branchId || undefined
+      },
+      include: {
+        position: {select: {name: true}},
+        branch: {select: {name: true}},
       }
     });
 
@@ -275,7 +279,8 @@ export class PayrollRepository {
             gte: search.startAt,
             lte: search.endAt,
           }
-        }
+        },
+        orderBy: {title: "asc"}
       });
       return Object.assign(payroll, {salaries});
     }));

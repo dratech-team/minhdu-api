@@ -81,10 +81,6 @@ export class EmployeeRepository {
     }
   }
 
-  async count(): Promise<number> {
-    return await this.prisma.employee.count();
-  }
-
   async findAll(
     profile: ProfileEntity,
     skip: number,
