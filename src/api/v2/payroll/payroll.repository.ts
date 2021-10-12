@@ -272,25 +272,28 @@ export class PayrollRepository {
         return Object.assign(employee, {payrollId: payroll.id});
       }
     }));
-    return await Promise.all(payrolls.map(async employee => {
-      const salaries = await this.prisma.salary.findMany({
-        where: {
-          payrollId: employee.payrollId,
-          payroll: {
-            employeeId: employee.id,
+
+    return await Promise.all(payrolls.filter(payroll => payroll).map(async employee => {
+      if (employee && employee?.payrollId) {
+        const salaries = await this.prisma.salary.findMany({
+          where: {
+            payrollId: employee.payrollId,
+            payroll: {
+              employeeId: employee.id,
+            },
+            type: SalaryType.OVERTIME,
+            datetime: {
+              gte: moment(search.startAt).startOf("day").toDate(),
+              lte: moment(search.endAt).endOf("day").toDate(),
+            }
           },
-          type: SalaryType.OVERTIME,
-          datetime: {
-            gte: moment(search.startAt).startOf("day").toDate(),
-            lte: moment(search.endAt).endOf("day").toDate(),
-          }
-        },
-        include: {
-          allowance: true
-        },
-        orderBy: {title: "asc"}
-      });
-      return Object.assign(employee, {salaries});
+          include: {
+            allowance: true
+          },
+          orderBy: {title: "asc"}
+        });
+        return Object.assign(employee, {salaries});
+      }
     }));
   }
 
