@@ -380,7 +380,8 @@ export class PayrollService {
       ?.reduce((a, b) => a + b, 0);
   }
 
-  totalActualDay(payroll: OnePayroll) {
+  // endDay: Ngày cuối cùng của tháng do mình quy định. Áp dụng đối với lương cố dịnh
+  totalActualDay(payroll: OnePayroll, endDay?: number) {
     // absent trừ cho ngày vào làm nếu ngày vào làm là tháng đc tính lương
     const absent = this.totalAbsent(payroll.salaries);
 
@@ -392,14 +393,14 @@ export class PayrollService {
     if (!confirmedAt) {
       // Phiếu lương chưa được xác nhận và là phiếu lương của tháng hiện tại
       if (isEqualDatetime(new Date(), payroll.createdAt, "month")) {
-        return new Date().getDate() - absentDay;
+        return (endDay || new Date().getDate()) - absentDay;
       } else {
         // Phiếu lương chưa được xác nhận và là phiếu lương của tháng trước
-        return lastDayOfMonth(payroll.createdAt) - absentDay;
+        return (endDay || lastDayOfMonth(payroll.createdAt)) - absentDay;
       }
     } else {
       // Phiếu lương đã được xác nhận và là phiếu lương của tháng hiện tại
-      return lastDayOfMonth(payroll.createdAt) - (absentDay + (lastDayOfMonth(payroll.createdAt) - confirmedAt.getDate()))
+      return (endDay || lastDayOfMonth(payroll.createdAt)) - (absentDay + ((endDay || lastDayOfMonth(payroll.createdAt)) - confirmedAt.getDate()));
     }
   }
 
@@ -640,9 +641,7 @@ export class PayrollService {
 
     let actualDay = this.totalActualDay(payroll);
     if (payroll.employee.isFlatSalary) {
-      actualDay = lastDayOfMonth(new Date()) === 28 || lastDayOfMonth(new Date()) === 29 || lastDayOfMonth(new Date()) === 31
-        ? 30
-        : (moment(payroll.employee.leftAt).date() || lastDayOfMonth(new Date())) - this.totalAbsent(payroll.salaries).day;
+      actualDay = this.totalActualDay(payroll, 30);
     }
 
     // basic
