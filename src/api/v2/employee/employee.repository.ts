@@ -300,7 +300,7 @@ export class EmployeeRepository {
   }
 
   /* Nghỉ việc */
-  async remove(id: number, leftAt: Date) {
+  async leave(id: number, leftAt: Date) {
     try {
       await this.prisma.employee.update({
         where: {id},
@@ -309,6 +309,15 @@ export class EmployeeRepository {
         },
       });
     } catch (err) {
+      throw new BadRequestException(err);
+    }
+  }
+
+  async remove(id: number) {
+    try {
+      return await this.prisma.employee.delete({where: {id}});
+    } catch (err) {
+      console.error(err);
       throw new BadRequestException(err);
     }
   }

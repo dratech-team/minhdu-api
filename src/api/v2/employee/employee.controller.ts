@@ -86,8 +86,15 @@ export class EmployeeController {
 
   @UseGuards(LoggerGuard)
   @Roles(Role.ADMIN, Role.HUMAN_RESOURCE)
+  @Patch(":id/leave")
+  leave(@Param("id") id: number, @Query("leftAt", ParseDatetimePipe) leftAt: any) {
+    return this.employeeService.leave(+id, leftAt);
+  }
+
+  @UseGuards(LoggerGuard)
+  @Roles(Role.ADMIN, Role.HUMAN_RESOURCE)
   @Delete(":id")
-  remove(@Param("id") id: number, @Query("leftAt", ParseDatetimePipe) leftAt: any) {
-    return this.employeeService.remove(+id, leftAt);
+  remove(@Param("id") id: number) {
+    return this.employeeService.remove(+id);
   }
 }

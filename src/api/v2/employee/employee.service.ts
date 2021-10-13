@@ -56,7 +56,11 @@ export class EmployeeService {
     return await this.repository.update(id, updates);
   }
 
-  async remove(id: number, leftAt: Date) {
-    return this.repository.remove(id, leftAt);
+  async leave(id: number, leftAt: Date) {
+    return this.repository.leave(id, leftAt);
+  }
+
+  async remove(id: number) {
+    return this.repository.remove(id);
   }
 }
