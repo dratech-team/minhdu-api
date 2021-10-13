@@ -252,7 +252,11 @@ export class PayrollRepository {
       where: {
         branchId: user.branchId || undefined
       },
-      include: {
+      select: {
+        id: true,
+        firstName: true,
+        lastName: true,
+        gender: true,
         position: {select: {name: true}},
         branch: {select: {name: true}},
       }

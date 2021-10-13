@@ -38,7 +38,7 @@ model Degree {
   level      DegreeLevel?
   status     DegreeStatus
   note       String?
-  employee   Employee      @relation(fields: [employeeId], references: [id])
+  employee   Employee      @relation(fields: [employeeId], references: [id], onDelete: Cascade)
   employeeId Int
   timestamp  DateTime?     @default(now())
 }
@@ -48,7 +48,7 @@ model Bank {
   stk        String?
   owner      String
   name       String
-  employee   Employee  @relation(fields: [employeeId], references: [id])
+  employee   Employee  @relation(fields: [employeeId], references: [id], onDelete: Cascade)
   employeeId Int
   timestamp  DateTime? @default(now())
 }
@@ -133,7 +133,7 @@ model Contract {
   position   String
   createdAt  DateTime
   expiredAt  DateTime?
-  employee   Employee      @relation(fields: [employeeId], references: [id])
+  employee   Employee      @relation(fields: [employeeId], references: [id], onDelete: Cascade)
   employeeId Int
   timestamp  DateTime?     @default(now())
 }
@@ -245,7 +245,7 @@ model Relative {
   career       String?
   relationship RelationshipType?
   sos          Boolean?          @default(false)
-  employee     Employee          @relation(fields: [employeeId], references: [id])
+  employee     Employee          @relation(fields: [employeeId], references: [id], onDelete: Cascade)
   employeeId   Int
   timestamp    DateTime?         @default(now())
 }
@@ -327,7 +327,7 @@ model Route {
   name       String
   startedAt  DateTime
   endedAt    DateTime?
-  employee   Employee?  @relation(fields: [employeeId], references: [id])
+  employee   Employee?  @relation(fields: [employeeId], references: [id], onDelete: Cascade)
   employeeId Int?
   driver     String?
   garage     String?
@@ -368,7 +368,7 @@ model SalaryHistory {
   id         Int       @id @default(autoincrement())
   salary     Salary    @relation(fields: [salaryId], references: [id])
   salaryId   Int
-  employee   Employee  @relation(fields: [employeeId], references: [id])
+  employee   Employee  @relation(fields: [employeeId], references: [id], onDelete: Cascade)
   employeeId Int
   createdAt  DateTime? @default(now())
   timestamp  DateTime? @default(now())
@@ -380,7 +380,7 @@ model WorkHistory {
   positionId Int
   branch     Branch    @relation(fields: [branchId], references: [id])
   branchId   Int
-  employee   Employee  @relation(fields: [employeeId], references: [id])
+  employee   Employee  @relation(fields: [employeeId], references: [id], onDelete: Cascade)
   employeeId Int
   createdAt  DateTime? @default(now())
 }
@@ -388,7 +388,7 @@ model WorkHistory {
 model Payroll {
   id             Int       @id @default(autoincrement())
   salaries       Salary[]
-  employee       Employee  @relation(fields: [employeeId], references: [id])
+  employee       Employee  @relation(fields: [employeeId], references: [id], onDelete: Cascade)
   employeeId     Int
   accConfirmedAt DateTime?
   isEdit         Boolean?  @default(true)

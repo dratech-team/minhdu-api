@@ -112,7 +112,7 @@ export class PayrollService {
         }
       });
 
-      return overtimes.map(item => {
+      const employees = overtimes.map(item => {
         const salaries = item.salaries.filter(salary => salary.title === search?.title);
         const times = salaries.map(salary => salary.times).reduce((a, b) => a + b, 0);
         const total = salaries.map(salary => {
@@ -123,10 +123,37 @@ export class PayrollService {
           }
         }).reduce((a, b) => a + b, 0);
 
-        return Object.assign(item, {salaries, salary: {times, total, unit: overtime.unit}});
+        return Object.assign(item, {
+          salaries,
+          salary: {times, total, unit: overtime.unit},
+        });
       });
+
+      const times = employees.map(employee => employee.salary.times).reduce((a, b) => a + b, 0);
+      const price = employees.map(employee => employee.salary.total).reduce((a, b) => a + b, 0);
+
+      return {
+        employees, total: {times, price, unit: overtime.unit}
+      };
     }
-    return overtimes;
+
+    const times = overtimes.map(overtime => {
+      return overtime.salaries.map(salary => {
+        return salary.times;
+      }).reduce((a, b) => a + b, 0);
+    }).reduce((a, b) => a + b, 0);
+
+
+    const price = overtimes.map(overtime => {
+      return overtime.salaries.map(salary => {
+        return salary.price * salary.times + (salary?.allowance?.price || 0);
+      }).reduce((a, b) => a + b, 0);
+    }).reduce((a, b) => a + b, 0);
+
+    return {
+      employees: overtimes,
+      total: {times, price},
+    };
   }
 
   async export(response: Response, user: ProfileEntity, filename: string) {
@@ -586,7 +613,7 @@ export class PayrollService {
       : basicDaySalary * (actualDay > workday ? workday : actualDay);
 
     const totalStandard = basicSalary + staySalary;
-    const tax = payroll.employee.contracts?.length ? basic * TAX : 0;
+    const tax = payroll.employee?.contracts?.length ? basic * TAX : 0;
     const total = Math.round((payslipNormalDay + payslipInHoliday + payslipNotInHoliday + payslipOutOfWorkday + staySalary + allowanceTotal + overtime - tax) / 1000) * 1000;
 
     /// FIXME: TESTING. DON'T DELETE IT

@@ -1,4 +1,4 @@
-import {BadRequestException, ConflictException, Injectable,} from "@nestjs/common";
+import {BadRequestException, ConflictException, Injectable, NotFoundException,} from "@nestjs/common";
 import {ProfileEntity} from "../../../common/entities/profile.entity";
 import {PrismaService} from "../../../prisma.service";
 import {searchName} from "../../../utils/search-name.util";
@@ -302,7 +302,7 @@ export class EmployeeRepository {
   /* Nghỉ việc */
   async leave(id: number, leftAt: Date) {
     try {
-      await this.prisma.employee.update({
+      return await this.prisma.employee.update({
         where: {id},
         data: {
           leftAt: leftAt || null,

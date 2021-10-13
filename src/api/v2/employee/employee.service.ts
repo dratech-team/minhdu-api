@@ -37,9 +37,9 @@ export class EmployeeService {
   async findOne(id: number) {
     const employee = await this.repository.findOne(id);
     const contactType =
-      employee.contracts[0]?.createdAt && employee?.contracts[0]?.expiredAt
+      employee?.contracts[0]?.createdAt && employee?.contracts[0]?.expiredAt
         ? "Có thời hạn"
-        : employee.contracts[0]?.createdAt && !employee?.contracts[0]?.expiredAt
+        : employee?.contracts[0]?.createdAt && !employee?.contracts[0]?.expiredAt
         ? "Vô  thời hạn"
         : "Chưa có hợp đồng";
 
