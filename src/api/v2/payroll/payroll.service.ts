@@ -64,42 +64,68 @@ export class PayrollService {
     return await this.repository.findAll(user, skip, take, search);
   }
 
-  async confirmPayslip(id: number) {
-    const payroll = await this.repository.findOne(id);
-    return (await this.payslip(payroll)).payslip;
-  }
-
-  async payslip(payroll) {
-    try {
-      switch (payroll.employee.recipeType) {
-        case RecipeType.CT1: {
-          return Object.assign(payroll, {
-            payslip: payroll.accConfirmedAt
-              ? await this.totalSalaryCT1(payroll)
-              : null,
-          });
-        }
-        case RecipeType.CT2: {
-          return Object.assign(payroll, {
-            payslip: payroll.accConfirmedAt
-              ? await this.totalSalaryCT2(payroll)
-              : null,
-          });
-        }
-        default:
-          throw new BadRequestException(
-            `Loại lương của nhân viên ${payroll.employee.lastName} không xác định thuộc công thức nào. Vui lòng liên hệ admin để kiểm tra`
-          );
-      }
-    } catch (err) {
-      console.error(err);
-      throw new BadRequestException(err);
-    }
-  }
-
   async findOne(id: number): Promise<OnePayroll & { totalWorkday: number }> {
     const payroll = await this.repository.findOne(id);
     return Object.assign(payroll, {totalWorkday: this.totalActualDay(payroll)});
+  }
+  
+  async update(id: number, updates: UpdatePayrollDto) {
+    const payroll = await this.findOne(id);
+    if (payroll.manConfirmedAt) {
+      throw new BadRequestException(
+        "Phiếu lương đã được xác nhận vì vậy bạn không có quyền sửa. Vui lòng liên hệ admin để được hỗ trợ."
+      );
+    }
+
+    return await this.repository.update(id, updates);
+  }
+
+  async confirmPayroll(user: ProfileEntity, id: number, body: ConfirmPayrollDto) {
+    // Chỉ xác nhận khi phiếu lương có tồn tại giá trị
+    const payroll = await this.repository.findOne(id);
+    if (!payroll.salaries.length) {
+      throw new BadRequestException(`Không thể xác nhận phiếu lương rỗng`);
+    } else {
+      const salaries = payroll.salaries.filter(
+        (salary) =>
+          salary.type === SalaryType.BASIC_INSURANCE || SalaryType.BASIC
+      );
+      if (!salaries.length) {
+        throw new BadRequestException(
+          `Không thể xác nhận phiếu lương có lương cơ bản rỗng`
+        );
+      }
+    }
+    let updated: Payroll;
+    switch (user.role) {
+      case Role.CAMP_ACCOUNTING:
+        updated = await this.repository.update(id, {accConfirmedAt: body.datetime || new Date()});
+        break;
+      case Role.CAMP_MANAGER:
+        updated = await this.repository.update(id, {manConfirmedAt: body.datetime || new Date()});
+        break;
+      case Role.ACCOUNTANT_CASH_FUND:
+        updated = await this.repository.update(id, {paidAt: body.datetime || new Date()});
+        break;
+      /// FIXME: dummy for testing
+      case Role.HUMAN_RESOURCE:
+        updated = await this.repository.update(id, {accConfirmedAt: body.datetime || new Date()});
+        break;
+      default:
+        throw new BadRequestException(
+          `${user.role} Bạn không có quyền xác nhận phiếu lương. Cảm ơn.`
+        );
+    }
+
+    return Object.assign(updated, {totalWorkday: this.totalActualDay(updated as OnePayroll)});
+  }
+
+  async remove(id: number) {
+    return this.repository.remove(id);
+  }
+
+  async findFirst(query: any) {
+    return await this.repository.findFirst(query);
   }
 
   async filterOvertime(user: ProfileEntity, search: Partial<SearchOvertimePayrollDto>) {
@@ -223,8 +249,37 @@ export class PayrollService {
     );
   }
 
-  async findFirst(query: any) {
-    return await this.repository.findFirst(query);
+  async confirmPayslip(id: number) {
+    const payroll = await this.repository.findOne(id);
+    return (await this.payslip(payroll)).payslip;
+  }
+
+  async payslip(payroll) {
+    try {
+      switch (payroll.employee.recipeType) {
+        case RecipeType.CT1: {
+          return Object.assign(payroll, {
+            payslip: payroll.accConfirmedAt
+              ? await this.totalSalaryCT1(payroll)
+              : null,
+          });
+        }
+        case RecipeType.CT2: {
+          return Object.assign(payroll, {
+            payslip: payroll.accConfirmedAt
+              ? await this.totalSalaryCT2(payroll)
+              : null,
+          });
+        }
+        default:
+          throw new BadRequestException(
+            `Loại lương của nhân viên ${payroll.employee.lastName} không xác định thuộc công thức nào. Vui lòng liên hệ admin để kiểm tra`
+          );
+      }
+    } catch (err) {
+      console.error(err);
+      throw new BadRequestException(err);
+    }
   }
 
   /*
@@ -235,60 +290,6 @@ export class PayrollService {
    * - Quản lý xác phiếu lương,
    * - Quỹ Xác nhận đã thanh toán phiếu lương
    * */
-  async update(id: number, updates: UpdatePayrollDto) {
-    const payroll = await this.findOne(id);
-    if (payroll.manConfirmedAt) {
-      throw new BadRequestException(
-        "Phiếu lương đã được xác nhận vì vậy bạn không có quyền sửa. Vui lòng liên hệ admin để được hỗ trợ."
-      );
-    }
-
-    return await this.repository.update(id, updates);
-  }
-
-  async confirmPayroll(user: ProfileEntity, id: number, body: ConfirmPayrollDto) {
-    // Chỉ xác nhận khi phiếu lương có tồn tại giá trị
-    const payroll = await this.repository.findOne(id);
-    if (!payroll.salaries.length) {
-      throw new BadRequestException(`Không thể xác nhận phiếu lương rỗng`);
-    } else {
-      const salaries = payroll.salaries.filter(
-        (salary) =>
-          salary.type === SalaryType.BASIC_INSURANCE || SalaryType.BASIC
-      );
-      if (!salaries.length) {
-        throw new BadRequestException(
-          `Không thể xác nhận phiếu lương có lương cơ bản rỗng`
-        );
-      }
-    }
-    let updated: Payroll;
-    switch (user.role) {
-      case Role.CAMP_ACCOUNTING:
-        updated = await this.repository.update(id, {accConfirmedAt: body.datetime || new Date()});
-        break;
-      case Role.CAMP_MANAGER:
-        updated = await this.repository.update(id, {manConfirmedAt: body.datetime || new Date()});
-        break;
-      case Role.ACCOUNTANT_CASH_FUND:
-        updated = await this.repository.update(id, {paidAt: body.datetime || new Date()});
-        break;
-      /// FIXME: dummy for testing
-      case Role.HUMAN_RESOURCE:
-        updated = await this.repository.update(id, {accConfirmedAt: body.datetime || new Date()});
-        break;
-      default:
-        throw new BadRequestException(
-          `${user.role} Bạn không có quyền xác nhận phiếu lương. Cảm ơn.`
-        );
-    }
-
-    return Object.assign(updated, {totalWorkday: this.totalActualDay(updated as OnePayroll)});
-  }
-
-  async remove(id: number) {
-    return this.repository.remove(id);
-  }
 
   totalAbsent(salaries: Salary[]) {
     /// absent có time = 0 và datetime nên sẽ có giá trị khơi
