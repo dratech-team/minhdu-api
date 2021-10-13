@@ -318,8 +318,11 @@ export class PayrollService {
             minute += salary.times;
             break;
           }
+          case DatetimeUnit.TIMES: {
+            break;
+          }
           default:
-            console.error("LDatetimeUnit Unknown");
+            console.error("DatetimeUnit Unknown");
         }
       });
 
@@ -425,6 +428,13 @@ export class PayrollService {
     }
   }
 
+  totalForgotBSC(salaries: Salary[]) {
+    return salaries
+      .filter(salary => salary.type === SalaryType.ABSENT && salary.unit === DatetimeUnit.TIMES)
+      .map(salary => salary.times)
+      .reduce((a, b) => a + b, 0);
+  }
+
   async generateHoliday(payrollId: number) {
     // throw new BadRequestException("Tính năng đang trong giai đoạn bảo trì. Thời gian hoàn thành dự kiến chưa xác định. Xin cảm ơn");
     let worksInHoliday = [];
@@ -481,6 +491,7 @@ export class PayrollService {
    * - Nếu ngày đi làm thực tế  > ngày thực tế của tháng => các ngày đi làm trong ngày lễ sẽ được hưởng mức nhân lương theo quy định
    * - Công nhân trại chăn nuôi không có đi trễ
    * */
+
   /*
    *    basicSalary: Lương cơ bản trích bảo hiểm
    *   totalStandard: Tổng lương cơ bản chuẩn = Cụm lương cơ bản + phụ cấp ở lại
@@ -600,7 +611,10 @@ export class PayrollService {
 
     const totalStandard = basicSalary + staySalary;
     const tax = payroll.employee?.contracts?.length ? basic * TAX : 0;
-    const total = Math.round((payslipNormalDay + payslipInHoliday + payslipNotInHoliday + payslipOutOfWorkday + staySalary + allowanceTotal + overtime - tax) / 1000) * 1000;
+    const bsc = this.totalForgotBSC(payroll.salaries);
+    const bscSalary = basicDaySalary * (bsc / 2);
+
+    const total = Math.round((payslipNormalDay + payslipInHoliday + payslipNotInHoliday + payslipOutOfWorkday + staySalary + allowanceTotal + overtime - tax - bscSalary) / 1000) * 1000;
 
     /// FIXME: TESTING. DON'T DELETE IT
     // console.warn("Lương cơ bản", basicSalary);
@@ -635,6 +649,8 @@ export class PayrollService {
       payslipWorkDayNotInHoliday: basicDaySalary * workdayNotInHoliday,
       stay: staySalary,
       overtime: overtime,
+      bsc,
+      bscSalary,
       totalStandard,
       payslipOutOfWorkday,
       allowance: allowanceTotal,
@@ -721,7 +737,10 @@ export class PayrollService {
     const overtimeSalary = this.totalOvertime(payroll.salaries);
     const absent = this.totalAbsent(payroll.salaries);
 
-    const absentDay = absent.day + (isEqualDatetime(payroll.employee.createdAt, payroll.createdAt)
+    //  số lần quên bsc. 1 lần thì bị trừ 0.5 ngày
+    const bsc = this.totalForgotBSC(payroll.salaries);
+
+    const absentDay = absent.day + bsc / 2 + (isEqualDatetime(payroll.employee.createdAt, payroll.createdAt)
       ? payroll.employee.createdAt.getDate()
       : 0) + (isEqualDatetime(payroll.employee.leftAt, payroll.createdAt)
       ? payroll.employee.createdAt.getDate()
@@ -751,9 +770,6 @@ export class PayrollService {
       }
     });
 
-    // Ngày lễ không được tính vào ngày vắng
-    /// FIXME: Có thể xóa nếu k phát sinh lỗi
-    const absentDaySalary = (actualDay + worksNotInHoliday.map(w => w.day).reduce((a, b) => a + b, 0)) < payroll.employee.workday ? this.totalAbsent(payroll.salaries).day * basicDaySalary : 0;
     const absentHourSalary = this.totalAbsent(payroll.salaries).hour * (basicDaySalary / 8);
     const absentHourMinuteSalary = this.totalAbsent(payroll.salaries).minute * (basicDaySalary / 8 / 60);
 
@@ -802,6 +818,8 @@ export class PayrollService {
       daySalary: basicDaySalary,
       totalWorkday: actualDay,
       workday: payroll.employee.workday,
+      bsc,
+      bscSalary: basicDaySalary * bsc / 2,
       payslipNormalDay: Math.ceil(basicDaySalary * actualDay),
       tax: tax,
       total: Math.round(total / 1000) * 1000,

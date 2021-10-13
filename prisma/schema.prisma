@@ -575,6 +575,7 @@ enum DatetimeUnit {
   HOUR
   DAY
   MONTH
+  TIMES
 }
 
 enum GenderType {
