@@ -137,22 +137,9 @@ export class PayrollService {
       };
     }
 
-    const times = overtimes.map(overtime => {
-      return overtime.salaries.map(salary => {
-        return salary.times;
-      }).reduce((a, b) => a + b, 0);
-    }).reduce((a, b) => a + b, 0);
-
-
-    const price = overtimes.map(overtime => {
-      return overtime.salaries.map(salary => {
-        return salary.price * salary.times + (salary?.allowance?.price || 0);
-      }).reduce((a, b) => a + b, 0);
-    }).reduce((a, b) => a + b, 0);
-
     return {
       employees: overtimes,
-      total: {times, price},
+      total: null,
     };
   }
 
