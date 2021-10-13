@@ -324,6 +324,7 @@ export class PayrollRepository {
           paidAt: updates.paidAt || undefined,
           manConfirmedAt: updates.manConfirmedAt || undefined,
         },
+        include: {employee: true}
       });
     } catch (e) {
       console.error(e);

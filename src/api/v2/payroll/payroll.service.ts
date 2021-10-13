@@ -1,5 +1,5 @@
 import {BadRequestException, ConflictException, Injectable, NotFoundException} from "@nestjs/common";
-import {DatetimeUnit, RecipeType, Role, Salary, SalaryType,} from "@prisma/client";
+import {DatetimeUnit, Payroll, RecipeType, Role, Salary, SalaryType,} from "@prisma/client";
 import {Response} from "express";
 import {ProfileEntity} from "../../../common/entities/profile.entity";
 import {lastDayOfMonth} from "../../../utils/datetime.util";
@@ -248,21 +248,28 @@ export class PayrollService {
         );
       }
     }
+    let updated: Payroll;
     switch (user.role) {
       case Role.CAMP_ACCOUNTING:
-        return await this.repository.update(id, {accConfirmedAt: body.datetime || new Date()});
+        updated = await this.repository.update(id, {accConfirmedAt: body.datetime || new Date()});
+        break;
       case Role.CAMP_MANAGER:
-        return await this.repository.update(id, {manConfirmedAt: body.datetime || new Date()});
+        updated = await this.repository.update(id, {manConfirmedAt: body.datetime || new Date()});
+        break;
       case Role.ACCOUNTANT_CASH_FUND:
-        return await this.repository.update(id, {paidAt: body.datetime || new Date()});
+        updated = await this.repository.update(id, {paidAt: body.datetime || new Date()});
+        break;
       /// FIXME: dummy for testing
       case Role.HUMAN_RESOURCE:
-        return await this.repository.update(id, {accConfirmedAt: body.datetime || new Date()});
+        updated = await this.repository.update(id, {accConfirmedAt: body.datetime || new Date()});
+        break;
       default:
         throw new BadRequestException(
           `${user.role} Bạn không có quyền xác nhận phiếu lương. Cảm ơn.`
         );
     }
+
+    return Object.assign(updated, {totalWorkday: this.totalActualDay(updated as OnePayroll)});
   }
 
   async remove(id: number) {
@@ -276,7 +283,7 @@ export class PayrollService {
     let minute = 0;
 
     salaries
-      .filter(
+      ?.filter(
         (salary) =>
           salary.type === SalaryType.ABSENT ||
           salary.type === SalaryType.DAY_OFF
