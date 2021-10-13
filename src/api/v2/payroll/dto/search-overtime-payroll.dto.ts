@@ -3,4 +3,5 @@ export interface SearchOvertimePayrollDto {
   startAt: Date,
   endAt: Date,
   title: string,
+  name: string,
 }

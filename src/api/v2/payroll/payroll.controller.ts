@@ -81,6 +81,7 @@ export class PayrollController {
     @Query("startAt", ParseDatetimePipe) startAt: any,
     @Query("endAt", ParseDatetimePipe) endAt: any,
     @Query("title") title: string,
+    @Query("name")  name: string,
   ) {
     return this.payrollService.filterOvertime(user, {startAt, endAt, title});
   }

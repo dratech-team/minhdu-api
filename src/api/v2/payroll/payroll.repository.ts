@@ -247,10 +247,13 @@ export class PayrollRepository {
     if (!(search?.startAt && search?.endAt)) {
       throw new BadRequestException("Vui lòng nhập ngày bắt đầu và ngày kết thúc");
     }
+    const name = searchName(search?.name);
 
     const employees = await this.prisma.employee.findMany({
       where: {
-        branchId: user.branchId || undefined
+        branchId: user.branchId || undefined,
+        firstName: {startsWith: name?.firstName, mode: "insensitive"},
+        lastName: {startsWith: name?.lastName, mode: "insensitive"},
       },
       select: {
         id: true,
