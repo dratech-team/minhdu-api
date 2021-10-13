@@ -68,7 +68,7 @@ export class PayrollService {
     const payroll = await this.repository.findOne(id);
     return Object.assign(payroll, {totalWorkday: this.totalActualDay(payroll)});
   }
-  
+
   async update(id: number, updates: UpdatePayrollDto) {
     const payroll = await this.findOne(id);
     if (payroll.manConfirmedAt) {
@@ -290,7 +290,6 @@ export class PayrollService {
    * - Quản lý xác phiếu lương,
    * - Quỹ Xác nhận đã thanh toán phiếu lương
    * */
-
   totalAbsent(salaries: Salary[]) {
     /// absent có time = 0 và datetime nên sẽ có giá trị khơi
     let day = 0;
@@ -482,7 +481,6 @@ export class PayrollService {
    * - Nếu ngày đi làm thực tế  > ngày thực tế của tháng => các ngày đi làm trong ngày lễ sẽ được hưởng mức nhân lương theo quy định
    * - Công nhân trại chăn nuôi không có đi trễ
    * */
-
   /*
    *    basicSalary: Lương cơ bản trích bảo hiểm
    *   totalStandard: Tổng lương cơ bản chuẩn = Cụm lương cơ bản + phụ cấp ở lại
@@ -651,7 +649,6 @@ export class PayrollService {
    * 2. actual < workday                  => result = [(basics + stays) / workday] x actual + allowances
    * 3. isFlat === true && absents !== 0  => actual = workday (Dù tháng đó có bao nhiêu ngày đi chăng nữa). else quay lại 1 & 2
    */
-  // CT2
   async totalSalaryCT2(payroll: OnePayroll) {
     let tax = 0;
     let basicDaySalary = 0;
