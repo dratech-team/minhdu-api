@@ -252,8 +252,10 @@ export class PayrollRepository {
     const employees = await this.prisma.employee.findMany({
       where: {
         branchId: user.branchId || undefined,
-        firstName: {startsWith: name?.firstName, mode: "insensitive"},
-        lastName: {startsWith: name?.lastName, mode: "insensitive"},
+        AND: {
+          firstName: {contains: name?.firstName},
+          lastName: {contains: name?.lastName || name?.firstName},
+        }
       },
       select: {
         id: true,

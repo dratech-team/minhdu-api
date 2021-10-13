@@ -772,9 +772,10 @@ export class PayrollService {
 
     const absentHourSalary = this.totalAbsent(payroll.salaries).hour * (basicDaySalary / 8);
     const absentHourMinuteSalary = this.totalAbsent(payroll.salaries).minute * (basicDaySalary / 8 / 60);
+    const absentDaySalary = absentDay * basicDaySalary;
 
     // Tổng tiền đi trễ. Ngày nghỉ là ngày đã đc trừ trên ngày đi làm thực tế, nên sẽ không tính vào tiền khấu trừ
-    const deductionSalary = absentHourSalary + absentHourMinuteSalary;
+    const deductionSalary = absentHourSalary + absentHourMinuteSalary + absentDaySalary;
 
     // Không quan tâm đến ngày công thực tế hay ngày công chuẩn. Nếu không đi làm trong ngày lễ thì vẫn được hưởng lương như thường
     payslipNotInHoliday = worksNotInHoliday.map(w => w.day).reduce((a, b) => a + b, 0) * (basic.price / PAYSLIP_WORKDAY_HOLIDAY);

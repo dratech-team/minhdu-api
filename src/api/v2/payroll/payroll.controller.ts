@@ -83,7 +83,7 @@ export class PayrollController {
     @Query("title") title: string,
     @Query("name")  name: string,
   ) {
-    return this.payrollService.filterOvertime(user, {startAt, endAt, title});
+    return this.payrollService.filterOvertime(user, {startAt, endAt, title, name});
   }
 
   @UseGuards(LoggerGuard)
