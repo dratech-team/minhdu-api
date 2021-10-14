@@ -4,8 +4,6 @@ import {Observable} from "rxjs";
 import {PrismaService} from "../../prisma.service";
 import {ApiV2Constant} from "../../common/constant/api.constant";
 
-const requestIp = require('request-ip');
-
 @Injectable()
 export class LoggerGuard implements CanActivate {
   constructor(private readonly prisma: PrismaService) {
@@ -33,7 +31,7 @@ export class LoggerGuard implements CanActivate {
         name: request.user.username,
         activity: method,
         description: "",
-        ip: requestIp.getClientIp(request)
+        ip: request.socket.remoteAddress
         // body: JSON.parse(JSON.stringify(body)),
       }
     }).then();
