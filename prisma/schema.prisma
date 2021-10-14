@@ -24,6 +24,8 @@ model Account {
   branchId  Int?
   role      Role
   appName   AppEnum?
+  loggedAt  DateTime? @default(now())
+  ip        String?
   timestamp DateTime? @default(now())
 }
 

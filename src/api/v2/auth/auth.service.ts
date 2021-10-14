@@ -35,7 +35,7 @@ export class AuthService {
     }
   }
 
-  async signIn(body: SignInCredentialDto): Promise<any> {
+  async signIn(ipaddress: string, body: SignInCredentialDto): Promise<any> {
     try {
       const user = await this.prisma.account.findUnique({
         where: {username: body.username},
@@ -51,6 +51,15 @@ export class AuthService {
       }
 
       const token = this.jwtService.sign(user);
+
+      // save logged at
+      this.prisma.account.update({
+        where: {id: user.id},
+        data: {
+          loggedAt: new Date(),
+          ip: ipaddress
+        }
+      }).then();
 
       return Object.assign(user, {token});
     } catch (err) {

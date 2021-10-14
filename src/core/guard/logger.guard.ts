@@ -1,8 +1,10 @@
 import {CanActivate, ExecutionContext, Injectable} from "@nestjs/common";
-import { AppEnum} from "@prisma/client";
+import {AppEnum} from "@prisma/client";
 import {Observable} from "rxjs";
 import {PrismaService} from "../../prisma.service";
 import {ApiV2Constant} from "../../common/constant/api.constant";
+
+const requestIp = require('request-ip');
 
 @Injectable()
 export class LoggerGuard implements CanActivate {
@@ -20,7 +22,7 @@ export class LoggerGuard implements CanActivate {
     // path for define app name
     if ((path.includes(ApiV2Constant.ORDER))) {
       appName = AppEnum.SELL;
-    } else if((request.route.path.includes(ApiV2Constant.ORDER))) {
+    } else if ((request.route.path.includes(ApiV2Constant.ORDER))) {
 
     }
 
@@ -31,6 +33,7 @@ export class LoggerGuard implements CanActivate {
         name: request.user.username,
         activity: method,
         description: "",
+        ip: requestIp.getClientIp(request)
         // body: JSON.parse(JSON.stringify(body)),
       }
     }).then();
