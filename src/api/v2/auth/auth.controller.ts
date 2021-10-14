@@ -11,11 +11,13 @@ import {Roles} from "../../../core/decorators/roles.decorator";
 import {Role} from "@prisma/client";
 
 @Controller('v2/auth')
-@UseGuards(JwtAuthGuard, ApiKeyGuard, RolesGuard)
+@UseGuards(ApiKeyGuard)
 export class AuthController {
   constructor(private readonly service: AuthService) {
   }
 
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @Roles(Role.HUMAN_RESOURCE)
   @Post('/signup')
   async register(@Body() body: SignupCredentialDto): Promise<{ status: string }> {
     return await this.service.register(body);
@@ -29,6 +31,7 @@ export class AuthController {
     return this.service.signIn(ip, body);
   }
 
+  @UseGuards(JwtAuthGuard, RolesGuard)
   @Roles(Role.HUMAN_RESOURCE)
   @Get()
   findAll(@ReqProfile() profile: ProfileEntity) {

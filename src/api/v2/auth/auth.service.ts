@@ -69,8 +69,18 @@ export class AuthService {
   }
 
   async findAll(profile: ProfileEntity) {
-    return await this.prisma.account.findMany({
-      where: {username: {notIn: profile.username}}
+    const accounts = await this.prisma.account.findMany({
+      where: {username: {notIn: profile.username}},
+      select: {
+        id: true,
+        username: true,
+        branch: true,
+        role: true,
+        loggedAt: true,
+        ip: true,
+        timestamp: true,
+      }
     });
+    return accounts.map(account => Object.assign(account, {createdAt: account.timestamp}));
   }
 }
