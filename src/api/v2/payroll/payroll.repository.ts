@@ -353,7 +353,7 @@ export class PayrollRepository {
     }
   }
 
-  async timekeeping(profile: ProfileEntity, datetime: Date) {
+  async currentPayroll(profile: ProfileEntity, datetime: Date) {
     const employees = await this.prisma.employee.findMany({
       where: {
         branchId: profile.branchId,
@@ -363,18 +363,17 @@ export class PayrollRepository {
       where: {
         employeeId: employee.id,
         createdAt: {
-          gte: firstDatetimeOfMonth(new Date(datetime)),
-          lte: lastDatetimeOfMonth(new Date(datetime)),
+          gte: firstDatetimeOfMonth(datetime || new Date()),
+          lte: lastDatetimeOfMonth(datetime || new Date()),
         }
       },
       include: {
         salaries: true,
         employee: {
-          select: {
-            firstName: true,
-            lastName: true
+          include: {
+            position: true
           }
-        }
+        },
       },
       rejectOnNotFound: true,
     })));

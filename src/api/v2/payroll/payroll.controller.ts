@@ -108,25 +108,31 @@ export class PayrollController {
   }
 
   @Roles(Role.ADMIN, Role.HUMAN_RESOURCE, Role.CAMP_ACCOUNTING)
-  @Get("/export/print")
-  async export(@Res() res, @ReqProfile() user: ProfileEntity, @Param("filename") filename: string) {
-    return this.payrollService.export(res, user, filename);
+  @Get("/:id/payslip")
+  async confirmPayslip(@Param("id") id: number) {
+    return await this.payrollService.confirmPayslip(+id);
   }
 
+  // export
   @Roles(Role.ADMIN, Role.HUMAN_RESOURCE, Role.CAMP_ACCOUNTING)
   @Get("timekeeping/export/print")
   async exportTimekeeping(
     @Res() res,
     @ReqProfile() profile: ProfileEntity,
     @Query("filename") filename: string,
-    @Query("datetime") datetime: Date,
+    @Query("datetime", ParseDatetimePipe) datetime: any,
   ) {
     return await this.payrollService.timeKeeping(res, profile, datetime);
   }
 
   @Roles(Role.ADMIN, Role.HUMAN_RESOURCE, Role.CAMP_ACCOUNTING)
-  @Get("/:id/payslip")
-  async confirmPayslip(@Param("id") id: number) {
-    return await this.payrollService.confirmPayslip(+id);
+  @Get("/export/print")
+  async export(
+    @Res() res,
+    @ReqProfile() user: ProfileEntity,
+    @Query("filename") filename: string,
+    @Query("datetime", ParseDatetimePipe) datetime: any,
+  ) {
+    return this.payrollService.export(res, user, filename, datetime);
   }
 }

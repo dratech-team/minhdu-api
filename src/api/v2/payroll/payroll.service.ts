@@ -169,18 +169,19 @@ export class PayrollService {
     };
   }
 
-  async export(response: Response, user: ProfileEntity, filename: string) {
-    const data = await this.findAll(user, undefined, undefined);
-    // check Quản lý xác nhận tất cả phiếu lương mới được in
-    const confirmed = data.data.filter((e) => e.manConfirmedAt === null).length;
-    if (confirmed) {
-      throw new BadRequestException(
-        `Phiếu lương  chưa được xác nhận. Vui lòng đợi quản lý xác nhận tất cả trước khi in`
-      );
-    }
+  async export(response: Response, user: ProfileEntity, filename: string, datetime: Date) {
+    const data = await this.repository.currentPayroll(user, datetime);
+
+    /// FIXME: check Quản lý xác nhận tất cả phiếu lương mới được in
+    // const confirmed = data.filter((e) => e.manConfirmedAt === null).length;
+    // if (confirmed) {
+    //   throw new BadRequestException(
+    //     `Phiếu lương  chưa được xác nhận. Vui lòng đợi quản lý xác nhận tất cả trước khi in`
+    //   );
+    // }
 
     const payrolls = await Promise.all(
-      data.data.map(async (payroll) => {
+      data.map(async (payroll) => {
         const name = payroll.employee.firstName + payroll.employee.lastName;
         const position = payroll.employee.position.name;
         const payslip = (await this.payslip(payroll)).payslip;
@@ -251,7 +252,7 @@ export class PayrollService {
     if (!datetime) {
       throw new BadRequestException("Vui lòng nhập tháng / năm để in phiếu chấm công. Xin cảm ơn!!!");
     }
-    const payrolls = await this.repository.timekeeping(profile, datetime);
+    const payrolls = await this.repository.currentPayroll(profile, datetime);
 
     const datetimes = generateDatetime("2019-10-01", "2019-10-30");
 
