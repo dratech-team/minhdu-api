@@ -1,8 +1,9 @@
-import {Body, Controller, Post} from '@nestjs/common';
+import {Body, Controller, Post, Req} from '@nestjs/common';
 import {AuthService} from './auth.service';
 import {SignupCredentialDto} from './dto/signup-credential.dto';
 import {SignInCredentialDto} from "./dto/signin-credential.dto";
-import {IpAddress} from "../../../core/decorators/ip-request.decorator";
+
+const requestIp = require('request-ip');
 
 @Controller('v2/auth')
 export class AuthController {
@@ -16,9 +17,9 @@ export class AuthController {
 
   @Post('/signin')
   async signIn(
-    @IpAddress() ipaddress: string,
+    @Req() req: any,
     @Body() body: SignInCredentialDto
   ): Promise<{ token: string }> {
-    return this.service.signIn(ipaddress, body);
+    return this.service.signIn(requestIp.getClientIp(req), body);
   }
 }
