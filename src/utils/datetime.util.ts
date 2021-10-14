@@ -16,3 +16,17 @@ export function lastDayOfMonth(datetime: Date): number {
 export function tomorrowDate() {
   return moment(new Date).add(1, 'day').toDate();
 }
+
+export const generateDatetime = (start: any, end: any) => {
+  const day1 = moment(new Date(end));
+  const day2 = moment(new Date(start));
+  const result = [moment({...day2})];
+
+  while (day1.date() != day2.date()) {
+    day2.add(1, 'day');
+    result.push(moment({...day2}));
+  }
+
+  return result.map(x => x.toDate());
+
+}

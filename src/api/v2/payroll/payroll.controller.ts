@@ -1,15 +1,4 @@
-import {
-  Body,
-  Controller,
-  Delete,
-  Get,
-  Param,
-  Patch,
-  Post,
-  Query,
-  Res,
-  UseGuards,
-} from "@nestjs/common";
+import {Body, Controller, Delete, Get, Param, Patch, Post, Query, Res, UseGuards,} from "@nestjs/common";
 import {PayrollService} from "./payroll.service";
 import {UpdatePayrollDto} from "./dto/update-payroll.dto";
 import {ReqProfile} from "../../../core/decorators/req-profile.decorator";
@@ -81,7 +70,7 @@ export class PayrollController {
     @Query("startAt", ParseDatetimePipe) startAt: any,
     @Query("endAt", ParseDatetimePipe) endAt: any,
     @Query("title") title: string,
-    @Query("name")  name: string,
+    @Query("name") name: string,
   ) {
     return this.payrollService.filterOvertime(user, {startAt, endAt, title, name});
   }
@@ -126,8 +115,13 @@ export class PayrollController {
 
   @Roles(Role.ADMIN, Role.HUMAN_RESOURCE, Role.CAMP_ACCOUNTING)
   @Get("timekeeping/export/print")
-  async exportTimekeeping(@Res() res, @ReqProfile() user: ProfileEntity, @Param("filename") filename: string) {
-    return await this.payrollService.timeKeeping();
+  async exportTimekeeping(
+    @Res() res,
+    @ReqProfile() profile: ProfileEntity,
+    @Query("filename") filename: string,
+    @Query("datetime") datetime: Date,
+  ) {
+    return await this.payrollService.timeKeeping(res, profile, datetime);
   }
 
   @Roles(Role.ADMIN, Role.HUMAN_RESOURCE, Role.CAMP_ACCOUNTING)

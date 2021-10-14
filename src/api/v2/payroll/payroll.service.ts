@@ -2,7 +2,7 @@ import {BadRequestException, ConflictException, Injectable, NotFoundException} f
 import {DatetimeUnit, Payroll, RecipeType, Role, Salary, SalaryType,} from "@prisma/client";
 import {Response} from "express";
 import {ProfileEntity} from "../../../common/entities/profile.entity";
-import {lastDayOfMonth} from "../../../utils/datetime.util";
+import {generateDatetime, lastDayOfMonth} from "../../../utils/datetime.util";
 import {EmployeeService} from "../employee/employee.service";
 import {HolidayService} from "../holiday/holiday.service";
 import {CreatePayrollDto} from "./dto/create-payroll.dto";
@@ -243,10 +243,26 @@ export class PayrollService {
     );
   }
 
-  async timeKeeping() {
-    throw new BadRequestException(
-      "Tính năng sẽ được hoàn thành vào ngày 6/10/2021. Xin lỗi vì sự bất tiện"
-    );
+  async timeKeeping(response: Response, profile: ProfileEntity, datetime: Date, filename?: string) {
+    const items = [];
+    if (!profile.branchId) {
+      throw new NotFoundException("Không tìm thấy đơn vị hợp lệ cho account này. Vui lòng liên hệ admin để thêm quyền");
+    }
+    if (!datetime) {
+      throw new BadRequestException("Vui lòng nhập tháng / năm để in phiếu chấm công. Xin cảm ơn!!!");
+    }
+    const payrolls = await this.repository.timekeeping(profile, datetime);
+
+    const datetimes = generateDatetime("2019-10-01", "2019-10-30");
+
+    for (let i = 0; i < datetimes.length; i++) {
+      payrolls.forEach(payroll => {
+        items.push(payroll.employee.lastName + "x")
+      })
+    }
+
+    console.log(items)
+    return;
   }
 
   async confirmPayslip(id: number) {

@@ -243,6 +243,36 @@ export class PayrollRepository {
     }
   }
 
+  async update(id: number, updates: UpdatePayrollDto) {
+    try {
+      return await this.prisma.payroll.update({
+        where: {id: id},
+        data: {
+          isEdit: !!updates.accConfirmedAt,
+          accConfirmedAt: updates.accConfirmedAt || undefined,
+          paidAt: updates.paidAt || undefined,
+          manConfirmedAt: updates.manConfirmedAt || undefined,
+        },
+        include: {
+          employee: true,
+          salaries: true
+        }
+      });
+    } catch (e) {
+      console.error(e);
+      throw new BadRequestException(e);
+    }
+  }
+
+  async remove(id: number) {
+    try {
+      return await this.prisma.payroll.delete({where: {id: id}});
+    } catch (err) {
+      console.error(err);
+      throw new BadRequestException(err);
+    }
+  }
+
   async findOvertimes(user: ProfileEntity, search: Partial<SearchOvertimePayrollDto>) {
     if (!(search?.startAt && search?.endAt)) {
       throw new BadRequestException("Vui lòng nhập ngày bắt đầu và ngày kết thúc");
@@ -323,33 +353,30 @@ export class PayrollRepository {
     }
   }
 
-  async update(id: number, updates: UpdatePayrollDto) {
-    try {
-      return await this.prisma.payroll.update({
-        where: {id: id},
-        data: {
-          isEdit: !!updates.accConfirmedAt,
-          accConfirmedAt: updates.accConfirmedAt || undefined,
-          paidAt: updates.paidAt || undefined,
-          manConfirmedAt: updates.manConfirmedAt || undefined,
-        },
-        include: {
-          employee: true,
-          salaries: true
+  async timekeeping(profile: ProfileEntity, datetime: Date) {
+    const employees = await this.prisma.employee.findMany({
+      where: {
+        branchId: profile.branchId,
+      }
+    });
+    return await Promise.all(employees.map(async employee => await this.prisma.payroll.findFirst({
+      where: {
+        employeeId: employee.id,
+        createdAt: {
+          gte: firstDatetimeOfMonth(new Date(datetime)),
+          lte: lastDatetimeOfMonth(new Date(datetime)),
         }
-      });
-    } catch (e) {
-      console.error(e);
-      throw new BadRequestException(e);
-    }
-  }
-
-  async remove(id: number) {
-    try {
-      return await this.prisma.payroll.delete({where: {id: id}});
-    } catch (err) {
-      console.error(err);
-      throw new BadRequestException(err);
-    }
+      },
+      include: {
+        salaries: true,
+        employee: {
+          select: {
+            firstName: true,
+            lastName: true
+          }
+        }
+      },
+      rejectOnNotFound: true,
+    })));
   }
 }
