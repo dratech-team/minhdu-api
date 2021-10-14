@@ -11,6 +11,7 @@ import {PrismaService} from "../../../prisma.service";
 import {generateHash} from "../../../core/methods/validators.method";
 import * as bcrypt from "bcrypt";
 import {JwtService} from "@nestjs/jwt";
+import {ProfileEntity} from "../../../common/entities/profile.entity";
 
 @Injectable()
 export class AuthService {
@@ -65,5 +66,11 @@ export class AuthService {
       console.error(err);
       throw new BadRequestException(err);
     }
+  }
+
+  async findAll(profile: ProfileEntity) {
+    return await this.prisma.account.findMany({
+      where: {username: {notIn: profile.username}}
+    });
   }
 }
