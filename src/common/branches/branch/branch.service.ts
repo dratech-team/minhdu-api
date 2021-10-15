@@ -3,11 +3,9 @@ import {CreateBranchDto} from "./dto/create-branch.dto";
 import {Branch} from "@prisma/client";
 import {BranchRepository} from "./branch.repository";
 import {UpdateBranchDto} from "./dto/update-branch.dto";
-import {BaseBranchService} from "./base-branch.service";
-import {ResponsePagination} from "../../entities/response.pagination";
 
 @Injectable()
-export class BranchService implements BaseBranchService {
+export class BranchService {
   constructor(private readonly repository: BranchRepository) {
   }
 

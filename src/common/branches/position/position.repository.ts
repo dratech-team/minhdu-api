@@ -32,7 +32,11 @@ export class PositionRepository {
 
   async findAll(): Promise<Position[]> {
     try {
-      return await this.prisma.position.findMany();
+      return await this.prisma.position.findMany({
+        include: {
+          _count: true
+        }
+      });
     } catch (e) {
       console.error(e);
       throw new BadRequestException(e);

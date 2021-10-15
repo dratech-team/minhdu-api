@@ -503,7 +503,7 @@ enum ActivityType {
 
 enum AppEnum {
   UNKNOWN
-  HUMAN_RESOURCE
+  HR
   SELL
   WAREHOUSE
 }

@@ -21,7 +21,11 @@ export class BranchRepository {
 
   async findAll(): Promise<Branch[]> {
     try {
-      return await this.prisma.branch.findMany();
+      return await this.prisma.branch.findMany({
+        include: {
+          _count: true,
+        }
+      });
     } catch (err) {
       console.error(err);
       throw new BadRequestException(err);

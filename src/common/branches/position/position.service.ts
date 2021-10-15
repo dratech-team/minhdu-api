@@ -3,12 +3,10 @@ import { Position } from "@prisma/client";
 import { CreatePositionDto } from "./dto/create-position.dto";
 import { UpdatePositionDto } from "./dto/update-position.dto";
 import { PositionRepository } from "./position.repository";
-import { BasePositionService } from "./base-position.service";
 import { OnePosition } from "./entities/position.entity";
-import {ResponsePagination} from "../../entities/response.pagination";
 
 @Injectable()
-export class PositionService implements BasePositionService {
+export class PositionService {
   constructor(private readonly repository: PositionRepository) {}
 
   async create(body: CreatePositionDto): Promise<Position> {
