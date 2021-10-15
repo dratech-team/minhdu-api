@@ -48,7 +48,7 @@ export class AuthService {
       const isValid = await bcrypt.compare(body.password, user.password);
 
       if (!isValid) {
-        throw new UnauthorizedException();
+        throw new UnauthorizedException("Tên đăng nhập hoặc mật khẩu không hợp lệ. Vui lòng kiểm tra lại");
       }
 
       const token = this.jwtService.sign(user);
@@ -62,6 +62,24 @@ export class AuthService {
       }).then();
 
       return Object.assign(user, {token});
+    } catch (err) {
+      console.error(err);
+      throw new BadRequestException(err);
+    }
+  }
+
+  async changePassword(id: number, password: string) {
+    try {
+      await this.prisma.account.update({
+        where: {id},
+        data: {
+          password: await generateHash(password)
+        }
+      });
+      return {
+        status: 201,
+        message: "Mật khẩu đã được thay đổi thành công!!!"
+      }
     } catch (err) {
       console.error(err);
       throw new BadRequestException(err);

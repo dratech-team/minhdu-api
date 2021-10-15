@@ -1,4 +1,4 @@
-import {Body, Controller, Get, Ip, Post, UseGuards} from '@nestjs/common';
+import {Body, Controller, Get, Ip, Param, Post, UseGuards} from '@nestjs/common';
 import {AuthService} from './auth.service';
 import {SignupCredentialDto} from './dto/signup-credential.dto';
 import {SignInCredentialDto} from "./dto/signin-credential.dto";
@@ -30,6 +30,13 @@ export class AuthController {
   ): Promise<{ token: string }> {
     return this.service.signIn(ip, body);
   }
+
+  @UseGuards(JwtAuthGuard)
+  @Post('/:id/change-password')
+  async changePassword(@Param("id") id: string, @Body("password") password: string) {
+    return this.service.changePassword(+id, password);
+  }
+
 
   @UseGuards(JwtAuthGuard, RolesGuard)
   @Roles(Role.HUMAN_RESOURCE)
