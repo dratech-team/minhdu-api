@@ -2,7 +2,7 @@ import {BadRequestException, ConflictException, Injectable, NotFoundException} f
 import {DatetimeUnit, Payroll, RecipeType, Role, Salary, SalaryType,} from "@prisma/client";
 import {Response} from "express";
 import {ProfileEntity} from "../../../common/entities/profile.entity";
-import {generateDatetime, lastDayOfMonth} from "../../../utils/datetime.util";
+import {generateDatetime, lastDatetimeOfMonth, lastDayOfMonth} from "../../../utils/datetime.util";
 import {EmployeeService} from "../employee/employee.service";
 import {HolidayService} from "../holiday/holiday.service";
 import {CreatePayrollDto} from "./dto/create-payroll.dto";
@@ -346,8 +346,8 @@ export class PayrollService {
     return {day, hour, minute};
   }
 
-  totalAllowanceByActual(salaries: Salary[], actualDay: number, workday?: number) {
-    const allowanceFullActual = salaries
+  totalAllowanceByActual(payroll: OnePayroll, actualDay: number, workday?: number) {
+    const allowanceFullActual = payroll.salaries
       .filter(
         (salary) =>
           salary.type === SalaryType.ALLOWANCE &&
@@ -357,7 +357,7 @@ export class PayrollService {
       ?.map((salary) => salary.price)
       ?.reduce((a, b) => a + b, 0) * actualDay;
 
-    const allowanceFromDate = salaries
+    const allowanceFromDate = payroll.salaries
       .filter(
         (salary) =>
           salary.type === SalaryType.ALLOWANCE &&
@@ -365,8 +365,17 @@ export class PayrollService {
           salary.datetime
       )
       ?.map((salary) => {
-        const day = actualDay - salary.datetime.getDate() || 0;
-        return (salary.price / workday) * (day + 1);
+
+        // Lấy từ ngày đến ngày
+        const start = moment(salary.datetime, "YYYY-MM-DD");
+        const end = moment(lastDatetimeOfMonth(payroll.createdAt), "YYYY-MM-DD");
+
+        // lấy những ngày vắng thuộc từ ngày bắt đầu tính tới cuối tháng
+        const absents = payroll.salaries
+          .filter(salary => salary.type === SalaryType.ABSENT || salary.type === SalaryType.DAY_OFF && start.isBefore(salary.datetime));
+        
+        const day = moment.duration(end.diff(start)).days() + 1 - absents.length;
+        return (salary.price / workday) * day;
       })
       ?.reduce((a, b) => a + b, 0);
 
@@ -603,7 +612,7 @@ export class PayrollService {
       : 0;
 
 
-    const allowanceDayByActual = this.totalAllowanceByActual(payroll.salaries, actualDay, workday);
+    const allowanceDayByActual = this.totalAllowanceByActual(payroll, actualDay, workday);
 
     /// FIXME: Phụ cấp từ ngày đến ngày. Chưa cần dùng tới
     const allowanceDayRangeSalary = this.totalAllowanceDayRangeSalary(
@@ -704,7 +713,7 @@ export class PayrollService {
     const allowanceMonthSalary = this.totalAllowanceMonthSalary(payroll.salaries);
     /// FIXME: Phụ cấp từ ngày đến ngày. Chưa cần dùng tới
     const allowanceDayRangeSalary = this.totalAllowanceDayRangeSalary(payroll.salaries);
-    const allowanceDayByActual = this.totalAllowanceByActual(payroll.salaries, actualDay, payroll.employee.workday);
+    const allowanceDayByActual = this.totalAllowanceByActual(payroll, actualDay, payroll.employee.workday);
 
     if (actualDay >= payroll.employee.workday) {
       basicDaySalary = basicSalary / payroll.employee.workday;
