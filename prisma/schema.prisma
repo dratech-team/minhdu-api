@@ -216,13 +216,15 @@ model OvertimeTemplate {
 }
 
 model BasicTemplate {
-  id         Int         @id @default(autoincrement())
-  title      String?     @default("Lương cơ bản trích BH")
+  id         Int           @id @default(autoincrement())
+  title      String?       @default("Lương cơ bản trích BH")
   price      Float
-  type       SalaryType? @default(BASIC)
-  position   Position?   @relation(fields: [positionId], references: [id])
+  type       SalaryType?   @default(BASIC)
+  unit       DatetimeUnit?
+  partialDay PartialDay?
+  position   Position?     @relation(fields: [positionId], references: [id])
   positionId Int?
-  timestamp  DateTime?   @default(now())
+  timestamp  DateTime?     @default(now())
 
   @@unique([title, price])
 }
@@ -435,6 +437,12 @@ model Medicine {
   createdAt DateTime?    @default(now()) // ngayf nhap kho
   branch    Branch?      @relation(fields: [branchId], references: [id]) // kho tong, kho con
   branchId  Int?
+}
+
+enum PartialDay {
+  MORNING
+  AFTERNOON
+  ALL_DAY
 }
 
 //  CT1: apply cho công nhân trại chăn nuôi
