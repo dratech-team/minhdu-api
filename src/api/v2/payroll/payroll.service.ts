@@ -372,9 +372,11 @@ export class PayrollService {
 
         // lấy những ngày vắng thuộc từ ngày bắt đầu tính tới cuối tháng
         const absents = payroll.salaries
-          .filter(salary => salary.type === SalaryType.ABSENT || salary.type === SalaryType.DAY_OFF && start.isBefore(salary.datetime));
-        
-        const day = moment.duration(end.diff(start)).days() + 1 - absents.length;
+          .filter(salary => salary.type === SalaryType.ABSENT || salary.type === SalaryType.DAY_OFF && start.isBefore(salary.datetime))
+          .map(salary => salary.times)
+          .reduce((a, b) => a + b, 0);
+
+        const day = moment.duration(end.diff(start)).days() + 1 - absents;
         return (salary.price / workday) * day;
       })
       ?.reduce((a, b) => a + b, 0);
