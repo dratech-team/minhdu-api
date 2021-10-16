@@ -12,6 +12,8 @@ import {generateHash} from "../../../core/methods/validators.method";
 import * as bcrypt from "bcrypt";
 import {JwtService} from "@nestjs/jwt";
 import {ProfileEntity} from "../../../common/entities/profile.entity";
+import {Role} from "@prisma/client";
+import {ChangeRoleDto} from "./dto/change-role.dto";
 
 @Injectable()
 export class AuthService {
@@ -79,7 +81,21 @@ export class AuthService {
       return {
         status: 201,
         message: "Mật khẩu đã được thay đổi thành công!!!"
-      }
+      };
+    } catch (err) {
+      console.error(err);
+      throw new BadRequestException(err);
+    }
+  }
+
+  async changeRole(id: number, body: ChangeRoleDto) {
+    try {
+      return await this.prisma.account.update({
+        where: {id},
+        data: {
+          role: body.role,
+        }
+      });
     } catch (err) {
       console.error(err);
       throw new BadRequestException(err);

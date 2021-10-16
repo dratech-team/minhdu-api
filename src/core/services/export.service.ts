@@ -2,7 +2,6 @@ import {Response} from "express";
 import {InputExcel} from "../interfaces/coreResponse.interface";
 import * as ExcelJS from "exceljs";
 import * as moment from "moment";
-import * as numfmt from "numfmt";
 
 export async function exportExcel(
   response: Response,
@@ -108,7 +107,7 @@ function autoFitColumnsHeader(input: InputExcel) {
       }
       if (typeof value[jsonKeys[j]] === 'number') {
         numFmt[j] = "#,##0.00";
-        console.log(numFmt[j])
+        console.log(numFmt[j]);
       }
     }
 

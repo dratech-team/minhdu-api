@@ -1,4 +1,4 @@
-import {Body, Controller, Get, Ip, Param, Post, UseGuards} from '@nestjs/common';
+import {Body, Controller, Get, Ip, Param, Patch, Post, UseGuards} from '@nestjs/common';
 import {AuthService} from './auth.service';
 import {SignupCredentialDto} from './dto/signup-credential.dto';
 import {SignInCredentialDto} from "./dto/signin-credential.dto";
@@ -9,6 +9,8 @@ import {ApiKeyGuard} from "../../../core/guard/api-key-auth.guard";
 import {RolesGuard} from "../../../core/guard/role.guard";
 import {Roles} from "../../../core/decorators/roles.decorator";
 import {Role} from "@prisma/client";
+import {IsEnum} from "class-validator";
+import {ChangeRoleDto} from "./dto/change-role.dto";
 
 @Controller('v2/auth')
 @UseGuards(ApiKeyGuard)
@@ -32,9 +34,17 @@ export class AuthController {
   }
 
   @UseGuards(JwtAuthGuard)
-  @Post('/:id/change-password')
+  @Patch('/:id/change-password')
   async changePassword(@Param("id") id: string, @Body("password") password: string) {
     return this.service.changePassword(+id, password);
+  }
+
+  @Patch('/:id/change-role')
+  async changeRole(
+    @Param("id") id: string,
+    @Body() body: ChangeRoleDto
+  ) {
+    return this.service.changeRole(+id, body);
   }
 
 
