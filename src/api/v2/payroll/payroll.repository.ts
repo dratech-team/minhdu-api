@@ -124,9 +124,8 @@ export class PayrollRepository {
     }
   }
 
-  // @ts-ignore
   async findAll(
-    user: ProfileEntity,
+    profile: ProfileEntity,
     skip: number,
     take: number,
     search?: Partial<SearchPayrollDto>
@@ -143,6 +142,7 @@ export class PayrollRepository {
                 name: {startsWith: search?.position, mode: "insensitive"},
               },
               branch: {
+                id:  profile?.branchId || undefined,
                 name: {startsWith: search?.branch, mode: "insensitive"},
               },
               AND: {
@@ -168,6 +168,7 @@ export class PayrollRepository {
                 name: {startsWith: search?.position, mode: "insensitive"},
               },
               branch: {
+                id: profile?.branchId || undefined,
                 name: {startsWith: search?.branch, mode: "insensitive"},
               },
               AND: {

@@ -60,8 +60,8 @@ export class PayrollService {
     }
   }
 
-  async findAll(user: ProfileEntity, skip: number, take: number, search?: Partial<SearchPayrollDto>) {
-    return await this.repository.findAll(user, skip, take, search);
+  async findAll(profile: ProfileEntity, skip: number, take: number, search?: Partial<SearchPayrollDto>) {
+    return await this.repository.findAll(profile, skip, take, search);
   }
 
   async findOne(id: number): Promise<OnePayroll & { totalWorkday: number }> {

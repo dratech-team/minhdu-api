@@ -35,7 +35,7 @@ export class PayrollController {
     Role.ACCOUNTANT_CASH_FUND
   )
   findAll(
-    @ReqProfile() user: ProfileEntity,
+    @ReqProfile() profile: ProfileEntity,
     @Query("skip") skip: number,
     @Query("take") take: number,
     @Query("employeeId") employeeId: number,
@@ -46,7 +46,7 @@ export class PayrollController {
     @Query("isConfirm") isConfirm: number,
     @Query("isPaid") isPaid: number
   ) {
-    return this.payrollService.findAll(user, +skip, +take, {
+    return this.payrollService.findAll(profile, +skip, +take, {
       employeeId: +employeeId,
       name,
       branch,
