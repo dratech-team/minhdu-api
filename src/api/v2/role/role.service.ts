@@ -10,8 +10,8 @@ export class RoleService {
   constructor(private readonly prisma: PrismaService) {
   }
 
-  create(createRoleDto: CreateRoleDto) {
-    return 'This action adds a new role';
+  async create(body: CreateRoleDto) {
+    return await this.prisma.role.create({data: body});
   }
 
   async findAll(profile: ProfileEntity) {

@@ -17,7 +17,7 @@ export class AuthController {
   constructor(private readonly service: AuthService) {
   }
 
-  @UseGuards(JwtAuthGuard, RolesGuard)
+  // @UseGuards(JwtAuthGuard, RolesGuard)
   @Roles(RoleEnum.HUMAN_RESOURCE)
   @Post('/signup')
   async register(@ReqProfile() profile: ProfileEntity, @Body() body: SignupCredentialDto): Promise<{ status: string }> {

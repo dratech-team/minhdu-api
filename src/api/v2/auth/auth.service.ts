@@ -30,9 +30,9 @@ export class AuthService {
           username: body.username,
           password: body.password,
           roleId: body.roleId,
-          branches: {connect: body.branchIds.map(id => ({id}))},
+          branches: {connect: body.branchIds?.map(id => ({id}))},
           appName: body.appName,
-          managedBy: profile.role.role,
+          managedBy: profile?.role?.role,
         }
       });
       return {status: 'Register Success!'};
@@ -61,7 +61,7 @@ export class AuthService {
         throw new UnauthorizedException("Tên đăng nhập hoặc mật khẩu không hợp lệ. Vui lòng kiểm tra lại");
       }
 
-      const token = this.jwtService.sign(Object.assign(user, {role: user.role.role}));
+      const token = this.jwtService.sign(Object.assign(user, {role: user?.role?.role}));
       // save logged at
       this.prisma.account.update({
         where: {id: user.id},
@@ -102,7 +102,7 @@ export class AuthService {
         where: {id},
         data: {
           roleId: body.roleId,
-          branches: {set: body.branchIds.map(id => ({id}))}
+          branches: {set: body.branchIds?.map(id => ({id}))}
         },
         include: {
           branches: true,
@@ -119,7 +119,7 @@ export class AuthService {
     const accounts = await this.prisma.account.findMany({
       where: {
         username: {notIn: profile.username},
-        managedBy: profile.managedBy,
+        managedBy: profile.role.role,
       },
       select: {
         id: true,

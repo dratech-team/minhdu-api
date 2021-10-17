@@ -4,7 +4,7 @@ import {AppEnum} from "@prisma/client";
 import {Type} from "class-transformer";
 
 export class SignupCredentialDto extends SignInCredentialDto {
-  @IsNotEmpty()
+  @IsOptional()
   @Type(() => Number)
   roleId: number;
 
