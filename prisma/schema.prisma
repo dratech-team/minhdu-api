@@ -23,6 +23,10 @@ model Account {
   branch    Branch?   @relation(fields: [branchId], references: [id])
   branchId  Int?
   role      Role
+  role1     Role?
+  role2     Role?
+  role3     Role?
+  role4     Role?
   appName   AppEnum?
   managedBy Role?
   loggedAt  DateTime? @default(now())

@@ -9,6 +9,22 @@ export class SignupCredentialDto extends SignInCredentialDto {
   role: Role;
 
   @IsOptional()
+  @IsEnum(Role)
+  role1: Role;
+
+  @IsOptional()
+  @IsEnum(Role)
+  role2: Role;
+
+  @IsOptional()
+  @IsEnum(Role)
+  role3: Role;
+
+  @IsOptional()
+  @IsEnum(Role)
+  role4: Role;
+
+  @IsOptional()
   @Type(() => Number)
   @IsNumber()
   branchId: number;
