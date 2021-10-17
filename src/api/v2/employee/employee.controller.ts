@@ -40,7 +40,7 @@ export class EmployeeController {
   @Roles(Role.ADMIN, Role.HUMAN_RESOURCE, Role.CAMP_ACCOUNTING)
   @Get()
   findAll(
-    @ReqProfile() branchId: ProfileEntity,
+    @ReqProfile() profile: ProfileEntity,
     @Query("skip") skip: number,
     @Query("take") take: number,
     @Query("name") name: string,
@@ -54,7 +54,7 @@ export class EmployeeController {
     @Query("createdPayroll", ParseDatetimePipe) createdPayroll: any,
     @Query("isLeft") isLeft: boolean,
   ) {
-    return this.employeeService.findAll(branchId, skip, take, {
+    return this.employeeService.findAll(profile, skip, take, {
       name,
       gender,
       createdAt,
