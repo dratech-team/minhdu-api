@@ -142,4 +142,13 @@ export class AuthService {
     });
     return accounts.map(account => Object.assign(account, {createdAt: account.timestamp}));
   }
+
+  async remove(profile: ProfileEntity, id: number) {
+    const account = await this.prisma.account.findUnique({where: {id}});
+
+    if (profile.role !== account.managedBy) {
+      throw new BadRequestException(`Tài khoản ${account.password} không thuộc quyền quản lý của bạn. Do đó bạn không được quyền xoá. Xin cảm ơn`);
+    }
+    return await this.prisma.account.delete({where: {id}});
+  }
 }

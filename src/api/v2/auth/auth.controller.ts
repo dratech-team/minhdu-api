@@ -1,4 +1,4 @@
-import {Body, Controller, Get, Ip, Param, Patch, Post, UseGuards} from '@nestjs/common';
+import {Body, Controller, Delete, Get, Ip, Param, Patch, Post, UseGuards} from '@nestjs/common';
 import {AuthService} from './auth.service';
 import {SignupCredentialDto} from './dto/signup-credential.dto';
 import {SignInCredentialDto} from "./dto/signin-credential.dto";
@@ -47,11 +47,18 @@ export class AuthController {
     return this.service.update(+id, body);
   }
 
-
   @UseGuards(JwtAuthGuard, RolesGuard)
   @Roles(Role.HUMAN_RESOURCE)
   @Get()
   findAll(@ReqProfile() profile: ProfileEntity) {
     return this.service.findAll(profile);
   }
+
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @Roles(Role.HUMAN_RESOURCE)
+  @Delete(":id")
+  remove(@ReqProfile() profile: ProfileEntity, @Param("id") id: number) {
+    return this.service.remove(profile, +id);
+  }
+
 }
