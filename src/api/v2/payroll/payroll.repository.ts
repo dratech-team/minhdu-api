@@ -142,7 +142,7 @@ export class PayrollRepository {
                 name: {startsWith: search?.position, mode: "insensitive"},
               },
               branch: {
-                id: profile.branches.length ? {in: profile.branches.map(branch => branch.id)} : {},
+                id: profile.branches?.length ? {in: profile.branches.map(branch => branch.id)} : {},
                 name: {startsWith: search?.branch, mode: "insensitive"},
               },
               AND: {
@@ -168,7 +168,7 @@ export class PayrollRepository {
                 name: {startsWith: search?.position, mode: "insensitive"},
               },
               branch: {
-                id: profile.branches.length ? {in: profile.branches.map(branch => branch.id)} : {},
+                id: profile.branches?.length ? {in: profile.branches.map(branch => branch.id)} : {},
                 name: {startsWith: search?.branch, mode: "insensitive"},
               },
               AND: {
