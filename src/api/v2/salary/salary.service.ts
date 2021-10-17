@@ -99,7 +99,7 @@ export class SalaryService {
     //   // lọc theo thay đổi lương.
     // }
 
-    return {total, data: data.map(salary => Object.assign(salary, {employee: salary.payroll.employee}))}
+    return {total, data: data.map(salary => Object.assign(salary, {employee: salary.payroll.employee}))};
 
   }
 

@@ -282,7 +282,7 @@ export class PayrollRepository {
 
     const employees = await this.prisma.employee.findMany({
       where: {
-        branchId: {in: profile?.branches.map(branch => branch.id)},
+        branchId: profile?.branches?.length ? {in: profile?.branches.map(branch => branch.id)} : {},
         AND: {
           firstName: {contains: name?.firstName},
           lastName: {contains: name?.lastName || name?.firstName},
@@ -357,7 +357,7 @@ export class PayrollRepository {
   async currentPayroll(profile: ProfileEntity, datetime: Date) {
     const employees = await this.prisma.employee.findMany({
       where: {
-        branchId: {in: profile?.branches.map(branch => branch.id)},
+        branchId: profile?.branches?.length ? {in: profile?.branches.map(branch => branch.id)} : {},
       }
     });
     return await Promise.all(employees.map(async employee => await this.prisma.payroll.findFirst({
