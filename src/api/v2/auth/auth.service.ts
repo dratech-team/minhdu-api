@@ -13,7 +13,7 @@ import * as bcrypt from "bcrypt";
 import {JwtService} from "@nestjs/jwt";
 import {ProfileEntity} from "../../../common/entities/profile.entity";
 import {Role} from "@prisma/client";
-import {ChangeRoleDto} from "./dto/change-role.dto";
+import {UpdateAuthDto} from "./dto/update-auth.dto";
 
 @Injectable()
 export class AuthService {
@@ -104,12 +104,17 @@ export class AuthService {
     }
   }
 
-  async changeRole(id: number, body: ChangeRoleDto) {
+  async update(id: number, body: UpdateAuthDto) {
     try {
       return await this.prisma.account.update({
         where: {id},
         data: {
           role: body.role,
+          role1: body.role1,
+          role2: body.role2,
+          role3: body.role3,
+          role4: body.role4,
+          branches: {set: body.branchIds.map(id => ({id}))}
         }
       });
     } catch (err) {

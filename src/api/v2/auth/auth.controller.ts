@@ -10,7 +10,7 @@ import {RolesGuard} from "../../../core/guard/role.guard";
 import {Roles} from "../../../core/decorators/roles.decorator";
 import {Role} from "@prisma/client";
 import {IsEnum} from "class-validator";
-import {ChangeRoleDto} from "./dto/change-role.dto";
+import {UpdateAuthDto} from "./dto/update-auth.dto";
 
 @Controller('v2/auth')
 @UseGuards(ApiKeyGuard)
@@ -39,12 +39,12 @@ export class AuthController {
     return this.service.changePassword(+id, password);
   }
 
-  @Patch('/:id/change-role')
-  async changeRole(
+  @Patch('/:id')
+  async update(
     @Param("id") id: string,
-    @Body() body: ChangeRoleDto
+    @Body() body: UpdateAuthDto
   ) {
-    return this.service.changeRole(+id, body);
+    return this.service.update(+id, body);
   }
 
 
