@@ -1,5 +1,5 @@
 import {BadRequestException, ConflictException, Injectable, NotFoundException} from "@nestjs/common";
-import {DatetimeUnit, Payroll, RecipeType, Role, RoleEnum, Salary, SalaryType,} from "@prisma/client";
+import {DatetimeUnit, Payroll, RecipeType, RoleEnum, Salary, SalaryType,} from "@prisma/client";
 import {Response} from "express";
 import {ProfileEntity} from "../../../common/entities/profile.entity";
 import {generateDatetime, lastDatetimeOfMonth, lastDayOfMonth} from "../../../utils/datetime.util";
@@ -640,7 +640,11 @@ export class PayrollService {
     const bsc = this.totalForgotBSC(payroll.salaries);
     const bscSalary = basicDaySalary * (bsc / 2);
 
-    const total = Math.round((payslipNormalDay + payslipInHoliday + payslipNotInHoliday + payslipOutOfWorkday + staySalary + allowanceTotal + overtime - tax - bscSalary) / 1000) * 1000;
+    const absent = this.totalAbsent(payroll.salaries);
+
+    const deduction = (basicDaySalary / 8) * absent.hour + (basicDaySalary / 8 / 60) * absent.minute;
+
+    const total = Math.round((payslipNormalDay + payslipInHoliday + payslipNotInHoliday + payslipOutOfWorkday + staySalary + allowanceTotal + overtime - tax - bscSalary - deduction) / 1000) * 1000;
 
     /// FIXME: TESTING. DON'T DELETE IT
     // console.warn("Lương cơ bản", basicSalary);
@@ -674,6 +678,7 @@ export class PayrollService {
       payslipNotInHoliday,
       payslipWorkDayNotInHoliday: basicDaySalary * workdayNotInHoliday,
       stay: staySalary,
+      deduction: deduction,
       overtime: overtime,
       bsc,
       bscSalary,
