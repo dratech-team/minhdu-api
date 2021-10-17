@@ -97,7 +97,7 @@ export class PayrollService {
       }
     }
     let updated: Payroll;
-    switch (user.role.role) {
+    switch (user.role) {
       case RoleEnum.CAMP_ACCOUNTING:
         updated = await this.repository.update(id, {accConfirmedAt: body.datetime || new Date()});
         break;

@@ -6,7 +6,7 @@ export interface ProfileEntity {
   username: string;
   managedBy: RoleEnum;
   branches: Branch[]
-  role: Role,
+  role: RoleEnum,
   iat: number,
   exp: number
 }

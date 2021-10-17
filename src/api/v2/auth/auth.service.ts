@@ -32,7 +32,7 @@ export class AuthService {
           roleId: body.roleId,
           branches: {connect: body.branchIds?.map(id => ({id}))},
           appName: body.appName,
-          managedBy: profile?.role?.role,
+          managedBy: profile?.role,
         }
       });
       return {status: 'Register Success!'};
@@ -70,8 +70,7 @@ export class AuthService {
           ip: ipaddress
         }
       }).then();
-
-      return Object.assign(user, {token, role: user?.role?.role});
+      return Object.assign(user, {token: token});
     } catch (err) {
       console.error(err);
       throw new BadRequestException(err);
@@ -119,7 +118,7 @@ export class AuthService {
     const accounts = await this.prisma.account.findMany({
       where: {
         username: {notIn: profile.username},
-        managedBy: profile.role.role,
+        managedBy: profile.role,
       },
       select: {
         id: true,
