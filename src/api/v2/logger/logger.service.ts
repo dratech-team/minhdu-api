@@ -23,6 +23,7 @@ export class LoggerService {
       this.prisma.systemHistory.findMany({
         take: take || undefined,
         skip: skip || undefined,
+        orderBy: {createdAt: "desc"},
         where: {
           appName: profile?.appName || undefined
         }
