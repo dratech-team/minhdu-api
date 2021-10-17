@@ -76,7 +76,7 @@ export class AuthService {
         }
       }).then();
 
-      return Object.assign(user, {token});
+      return Object.assign(user, {token, role: user?.role?.role});
     } catch (err) {
       console.error(err);
       throw new BadRequestException(err);
