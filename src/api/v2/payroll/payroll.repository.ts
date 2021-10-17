@@ -142,7 +142,7 @@ export class PayrollRepository {
                 name: {startsWith: search?.position, mode: "insensitive"},
               },
               branch: {
-                id:  profile?.branchId || undefined,
+                id:  {in: profile?.branches.map(branch =>  branch.id)},
                 name: {startsWith: search?.branch, mode: "insensitive"},
               },
               AND: {
@@ -168,7 +168,7 @@ export class PayrollRepository {
                 name: {startsWith: search?.position, mode: "insensitive"},
               },
               branch: {
-                id: profile?.branchId || undefined,
+                id: {in: profile?.branches.map(branch =>  branch.id)},
                 name: {startsWith: search?.branch, mode: "insensitive"},
               },
               AND: {
@@ -274,7 +274,7 @@ export class PayrollRepository {
     }
   }
 
-  async findOvertimes(user: ProfileEntity, search: Partial<SearchOvertimePayrollDto>) {
+  async findOvertimes(profile: ProfileEntity, search: Partial<SearchOvertimePayrollDto>) {
     if (!(search?.startAt && search?.endAt)) {
       throw new BadRequestException("Vui lòng nhập ngày bắt đầu và ngày kết thúc");
     }
@@ -282,7 +282,7 @@ export class PayrollRepository {
 
     const employees = await this.prisma.employee.findMany({
       where: {
-        branchId: user.branchId || undefined,
+        branchId: {in: profile?.branches.map(branch =>  branch.id)},
         AND: {
           firstName: {contains: name?.firstName},
           lastName: {contains: name?.lastName || name?.firstName},
@@ -357,7 +357,7 @@ export class PayrollRepository {
   async currentPayroll(profile: ProfileEntity, datetime: Date) {
     const employees = await this.prisma.employee.findMany({
       where: {
-        branchId: profile.branchId,
+        branchId: {in: profile?.branches.map(branch =>  branch.id)},
       }
     });
     return await Promise.all(employees.map(async employee => await this.prisma.payroll.findFirst({

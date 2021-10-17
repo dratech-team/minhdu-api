@@ -246,7 +246,7 @@ export class PayrollService {
 
   async timeKeeping(response: Response, profile: ProfileEntity, datetime: Date, filename?: string) {
     const items = [];
-    if (!profile.branchId) {
+    if (!profile.branches?.length) {
       throw new NotFoundException("Không tìm thấy đơn vị hợp lệ cho account này. Vui lòng liên hệ admin để thêm quyền");
     }
     if (!datetime) {
