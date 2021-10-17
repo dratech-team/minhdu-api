@@ -11,6 +11,8 @@ export class LoggerGuard implements CanActivate {
 
   canActivate(context: ExecutionContext): boolean | Promise<boolean> | Observable<boolean> {
     let appName: AppEnum = AppEnum.UNKNOWN;
+
+
     const request = context.switchToHttp().getRequest();
 
     const path = request.route.path;
@@ -30,9 +32,8 @@ export class LoggerGuard implements CanActivate {
         appName: appName,
         name: request.user.username,
         activity: method,
-        description: "",
-        ip: request.socket.remoteAddress
-        // body: JSON.parse(JSON.stringify(body)),
+        description: path + " | " + JSON.stringify(body),
+        ip: request.socket.remoteAddress,
       }
     }).then();
     return true;

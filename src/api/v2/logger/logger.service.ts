@@ -26,7 +26,7 @@ export class LoggerService {
         orderBy: {createdAt: "desc"},
         where: {
           appName: profile?.appName || undefined
-        }
+        },
       }),
     ]);
     return {total, data};
