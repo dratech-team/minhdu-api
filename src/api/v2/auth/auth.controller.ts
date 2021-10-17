@@ -21,8 +21,8 @@ export class AuthController {
   @UseGuards(JwtAuthGuard, RolesGuard)
   @Roles(Role.HUMAN_RESOURCE)
   @Post('/signup')
-  async register(@Body() body: SignupCredentialDto): Promise<{ status: string }> {
-    return await this.service.register(body);
+  async register(@ReqProfile() profile: ProfileEntity, @Body() body: SignupCredentialDto): Promise<{ status: string }> {
+    return await this.service.register(profile, body);
   }
 
   @Post('/signin')

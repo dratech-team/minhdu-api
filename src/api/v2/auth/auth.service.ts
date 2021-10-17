@@ -23,10 +23,26 @@ export class AuthService {
   ) {
   }
 
-  async register(body: SignupCredentialDto): Promise<{ status: string }> {
+  async register(profile: ProfileEntity, body: SignupCredentialDto): Promise<{ status: string }> {
     try {
+      if (!body.branchIds) {
+        throw new BadRequestException("Đơn vị quản lý không được để trống");
+      }
       body.password = await generateHash(body.password);
-      await this.prisma.account.create({data: body});
+      await this.prisma.account.create({
+        data: {
+          username: body.username,
+          password: body.password,
+          role: body.role,
+          role1: body.role1,
+          role2: body.role2,
+          role3: body.role3,
+          role4: body.role4,
+          branches: {connect: body.branchIds.map(id => ({id}))},
+          appName: body.appName,
+          managedBy: profile.role,
+        }
+      });
       return {status: 'Register Success!'};
     } catch (e) {
       console.error(e);
@@ -42,7 +58,7 @@ export class AuthService {
     try {
       const user = await this.prisma.account.findUnique({
         where: {username: body.username},
-        include: {branch: true},
+        include: {branches: true},
       });
       if (!user) {
         throw new NotFoundException('username không tồn tại');
@@ -108,7 +124,7 @@ export class AuthService {
       select: {
         id: true,
         username: true,
-        branch: true,
+        branches: true,
         role: true,
         loggedAt: true,
         ip: true,

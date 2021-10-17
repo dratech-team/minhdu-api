@@ -20,8 +20,7 @@ model Account {
   id        Int       @id @default(autoincrement())
   username  String    @unique
   password  String
-  branch    Branch?   @relation(fields: [branchId], references: [id])
-  branchId  Int?
+  branches  Branch[]
   role      Role
   role1     Role?
   role2     Role?
@@ -110,12 +109,13 @@ model Branch {
   code              String?            @unique
   name              String             @unique
   medicine          Medicine[]
-  accounts          Account[]
   positions         Position[]
   employees         Employee[]
   overtimeTemplates OvertimeTemplate[]
   timestamp         DateTime?          @default(now())
   workHistories     WorkHistory[]
+  Account           Account?           @relation(fields: [accountId], references: [id])
+  accountId         Int?
 }
 
 model Position {
