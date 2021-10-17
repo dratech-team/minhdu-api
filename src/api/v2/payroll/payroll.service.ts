@@ -1,5 +1,5 @@
 import {BadRequestException, ConflictException, Injectable, NotFoundException} from "@nestjs/common";
-import {DatetimeUnit, Payroll, RecipeType, Role, Salary, SalaryType,} from "@prisma/client";
+import {DatetimeUnit, Payroll, RecipeType, Role, RoleEnum, Salary, SalaryType,} from "@prisma/client";
 import {Response} from "express";
 import {ProfileEntity} from "../../../common/entities/profile.entity";
 import {generateDatetime, lastDatetimeOfMonth, lastDayOfMonth} from "../../../utils/datetime.util";
@@ -97,18 +97,18 @@ export class PayrollService {
       }
     }
     let updated: Payroll;
-    switch (user.role) {
-      case Role.CAMP_ACCOUNTING:
+    switch (user.role.role) {
+      case RoleEnum.CAMP_ACCOUNTING:
         updated = await this.repository.update(id, {accConfirmedAt: body.datetime || new Date()});
         break;
-      case Role.CAMP_MANAGER:
+      case RoleEnum.CAMP_MANAGER:
         updated = await this.repository.update(id, {manConfirmedAt: body.datetime || new Date()});
         break;
-      case Role.ACCOUNTANT_CASH_FUND:
+      case RoleEnum.ACCOUNTANT_CASH_FUND:
         updated = await this.repository.update(id, {paidAt: body.datetime || new Date()});
         break;
       /// FIXME: dummy for testing
-      case Role.HUMAN_RESOURCE:
+      case RoleEnum.HUMAN_RESOURCE:
         updated = await this.repository.update(id, {accConfirmedAt: body.datetime || new Date()});
         break;
       default:
@@ -258,11 +258,9 @@ export class PayrollService {
 
     for (let i = 0; i < datetimes.length; i++) {
       payrolls.forEach(payroll => {
-        items.push(payroll.employee.lastName + "x")
-      })
+        items.push(payroll.employee.lastName + "x");
+      });
     }
-
-    console.log(items)
     return;
   }
 

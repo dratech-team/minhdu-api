@@ -8,7 +8,7 @@ import {JwtAuthGuard} from "../../../core/guard/jwt-auth.guard";
 import {ApiKeyGuard} from "../../../core/guard/api-key-auth.guard";
 import {RolesGuard} from "../../../core/guard/role.guard";
 import {Roles} from "../../../core/decorators/roles.decorator";
-import {Role} from "@prisma/client";
+import {Role, RoleEnum} from "@prisma/client";
 import {UpdateAuthDto} from "./dto/update-auth.dto";
 
 @Controller('v2/auth')
@@ -18,7 +18,7 @@ export class AuthController {
   }
 
   @UseGuards(JwtAuthGuard, RolesGuard)
-  @Roles(Role.HUMAN_RESOURCE)
+  @Roles(RoleEnum.HUMAN_RESOURCE)
   @Post('/signup')
   async register(@ReqProfile() profile: ProfileEntity, @Body() body: SignupCredentialDto): Promise<{ status: string }> {
     return await this.service.register(profile, body);
@@ -48,14 +48,14 @@ export class AuthController {
   }
 
   @UseGuards(JwtAuthGuard, RolesGuard)
-  @Roles(Role.HUMAN_RESOURCE)
+  @Roles(RoleEnum.HUMAN_RESOURCE)
   @Get()
   findAll(@ReqProfile() profile: ProfileEntity) {
     return this.service.findAll(profile);
   }
 
   @UseGuards(JwtAuthGuard, RolesGuard)
-  @Roles(Role.HUMAN_RESOURCE)
+  @Roles(RoleEnum.HUMAN_RESOURCE)
   @Delete(":id")
   remove(@ReqProfile() profile: ProfileEntity, @Param("id") id: number) {
     return this.service.remove(profile, +id);

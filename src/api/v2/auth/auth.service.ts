@@ -12,7 +12,6 @@ import {generateHash} from "../../../core/methods/validators.method";
 import * as bcrypt from "bcrypt";
 import {JwtService} from "@nestjs/jwt";
 import {ProfileEntity} from "../../../common/entities/profile.entity";
-import {Role} from "@prisma/client";
 import {UpdateAuthDto} from "./dto/update-auth.dto";
 
 @Injectable()
@@ -30,14 +29,10 @@ export class AuthService {
         data: {
           username: body.username,
           password: body.password,
-          role: body.role,
-          role1: body.role1,
-          role2: body.role2,
-          role3: body.role3,
-          role4: body.role4,
+          roleId: body.roleId,
           branches: {connect: body.branchIds.map(id => ({id}))},
           appName: body.appName,
-          managedBy: profile.role,
+          managedBy: profile.role.role,
         }
       });
       return {status: 'Register Success!'};
@@ -55,7 +50,7 @@ export class AuthService {
     try {
       const user = await this.prisma.account.findUnique({
         where: {username: body.username},
-        include: {branches: true},
+        include: {branches: true, role: true},
       });
       if (!user) {
         throw new NotFoundException('username không tồn tại');
@@ -66,7 +61,7 @@ export class AuthService {
         throw new UnauthorizedException("Tên đăng nhập hoặc mật khẩu không hợp lệ. Vui lòng kiểm tra lại");
       }
 
-      const token = this.jwtService.sign(user);
+      const token = this.jwtService.sign(Object.assign(user, {role: user.role.role}));
       // save logged at
       this.prisma.account.update({
         where: {id: user.id},
@@ -106,11 +101,7 @@ export class AuthService {
       return await this.prisma.account.update({
         where: {id},
         data: {
-          role: body.role,
-          role1: body.role1,
-          role2: body.role2,
-          role3: body.role3,
-          role4: body.role4,
+          roleId: body.roleId,
           branches: {set: body.branchIds.map(id => ({id}))}
         },
         include: {
@@ -126,7 +117,10 @@ export class AuthService {
 
   async findAll(profile: ProfileEntity) {
     const accounts = await this.prisma.account.findMany({
-      where: {username: {notIn: profile.username}},
+      where: {
+        username: {notIn: profile.username},
+        managedBy: profile.managedBy,
+      },
       select: {
         id: true,
         username: true,
@@ -141,11 +135,6 @@ export class AuthService {
   }
 
   async remove(profile: ProfileEntity, id: number) {
-    const account = await this.prisma.account.findUnique({where: {id}});
-
-    if (profile.role !== account.managedBy) {
-      throw new BadRequestException(`Tài khoản ${account.password} không thuộc quyền quản lý của bạn. Do đó bạn không được quyền xoá. Xin cảm ơn`);
-    }
     return await this.prisma.account.delete({where: {id}});
   }
 }

@@ -1,9 +1,10 @@
-import {AppEnum, Branch, Role} from "@prisma/client";
+import {AppEnum, Branch, Role, RoleEnum} from "@prisma/client";
 
 export interface ProfileEntity {
   accountId: number;
   appName: AppEnum;
   username: string;
+  managedBy: RoleEnum;
   branches: Branch[]
   role: Role,
   iat: number,
