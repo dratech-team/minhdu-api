@@ -9,7 +9,6 @@ import {ApiKeyGuard} from "../../../core/guard/api-key-auth.guard";
 import {RolesGuard} from "../../../core/guard/role.guard";
 import {Roles} from "../../../core/decorators/roles.decorator";
 import {Role} from "@prisma/client";
-import {IsEnum} from "class-validator";
 import {UpdateAuthDto} from "./dto/update-auth.dto";
 
 @Controller('v2/auth')
@@ -38,6 +37,7 @@ export class AuthController {
   async changePassword(@Param("id") id: string, @Body("password") password: string) {
     return this.service.changePassword(+id, password);
   }
+
 
   @Patch('/:id')
   async update(
