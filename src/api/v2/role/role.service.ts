@@ -17,7 +17,7 @@ export class RoleService {
   async findAll(profile: ProfileEntity) {
     return await this.prisma.role.findMany({
       where: {
-        appName: profile.appName,
+        appName: profile?.appName,
       }
     });
   }

@@ -22,7 +22,7 @@ export class AuthService {
   ) {
   }
 
-  async register(profile: ProfileEntity, body: SignupCredentialDto): Promise<{ status: string }> {
+  async register(profile: ProfileEntity, body: SignupCredentialDto) {
     try {
       body.password = await generateHash(body.password);
       await this.prisma.account.create({
@@ -35,7 +35,7 @@ export class AuthService {
           managedBy: profile?.role,
         }
       });
-      return {status: 'Register Success!'};
+      return {message: 'Register Success!'};
     } catch (e) {
       console.error(e);
       if (e.code === 'P2002') {
