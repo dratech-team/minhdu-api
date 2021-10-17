@@ -115,6 +115,10 @@ export class AuthService {
           role3: body.role3,
           role4: body.role4,
           branches: {set: body.branchIds.map(id => ({id}))}
+        },
+        include: {
+          branches: true,
+          _count: true,
         }
       });
     } catch (err) {
