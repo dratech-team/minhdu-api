@@ -25,9 +25,6 @@ export class AuthService {
 
   async register(profile: ProfileEntity, body: SignupCredentialDto): Promise<{ status: string }> {
     try {
-      if (!body.branchIds) {
-        throw new BadRequestException("Đơn vị quản lý không được để trống");
-      }
       body.password = await generateHash(body.password);
       await this.prisma.account.create({
         data: {
