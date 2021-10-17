@@ -3,7 +3,7 @@ import {OrderService} from "./order.service";
 import {CreateOrderDto} from "./dto/create-order.dto";
 import {UpdateOrderDto} from "./dto/update-order.dto";
 import {PaidEnum} from "./enums/paid.enum";
-import {PaymentType, Role} from "@prisma/client";
+import {PaymentType, RoleEnum} from "@prisma/client";
 import {CustomParseBooleanPipe} from "../../../core/pipe/custom-boolean.pipe";
 import {JwtAuthGuard} from "../../../core/guard/jwt-auth.guard";
 import {ApiKeyGuard} from "../../../core/guard/api-key-auth.guard";
@@ -19,7 +19,7 @@ export class OrderController {
   }
 
   @UseGuards(RolesGuard, LoggerGuard)
-  @Roles(Role.ADMIN)
+  @Roles(RoleEnum.ADMIN)
   @Post()
   create(@Body() createOrderDto: CreateOrderDto) {
     return this.orderService.create(createOrderDto);
@@ -48,21 +48,21 @@ export class OrderController {
   }
 
   @UseGuards(RolesGuard, LoggerGuard)
-  @Roles(Role.ADMIN)
+  @Roles(RoleEnum.ADMIN)
   @Patch(":id")
   update(@Param("id") id: string, @Body() updateOrderDto: UpdateOrderDto) {
     return this.orderService.update(+id, updateOrderDto);
   }
 
   @UseGuards(RolesGuard, LoggerGuard)
-  @Roles(Role.ADMIN)
+  @Roles(RoleEnum.ADMIN)
   @Patch("hide/:id")
   updateHide(@Param("id") id: string, @Body("hide", ParseBoolPipe) hide: boolean) {
     return this.orderService.updateHide(+id, hide);
   }
 
   @UseGuards(RolesGuard, LoggerGuard)
-  @Roles(Role.ADMIN)
+  @Roles(RoleEnum.ADMIN)
   @Delete(":id")
   remove(@Param("id") id: string) {
     return this.orderService.remove(+id);

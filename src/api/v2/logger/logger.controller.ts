@@ -8,7 +8,7 @@ import {JwtAuthGuard} from "../../../core/guard/jwt-auth.guard";
 import {ApiKeyGuard} from "../../../core/guard/api-key-auth.guard";
 import {RolesGuard} from "../../../core/guard/role.guard";
 import {Roles} from "../../../core/decorators/roles.decorator";
-import {Role} from "@prisma/client";
+import {RoleEnum} from "@prisma/client";
 
 @UseGuards(JwtAuthGuard, ApiKeyGuard, RolesGuard)
 @Controller('v2/logger')
@@ -21,7 +21,7 @@ export class LoggerController {
     return this.loggerService.create(createLoggerDto);
   }
 
-  @Roles(Role.ADMIN, Role.HUMAN_RESOURCE)
+  @Roles(RoleEnum.ADMIN, RoleEnum.HUMAN_RESOURCE)
   @Get()
   findAll(
     @ReqProfile() profile: ProfileEntity,

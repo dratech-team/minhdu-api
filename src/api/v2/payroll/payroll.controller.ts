@@ -10,7 +10,7 @@ import {LoggerGuard} from "../../../core/guard/logger.guard";
 import {ProfileEntity} from "../../../common/entities/profile.entity";
 import {ApiKeyGuard} from "../../../core/guard/api-key-auth.guard";
 import {JwtAuthGuard} from "../../../core/guard/jwt-auth.guard";
-import {Role} from "@prisma/client";
+import {RoleEnum} from "@prisma/client";
 import {Roles} from "../../../core/decorators/roles.decorator";
 import {ConfirmPayrollDto} from "./dto/confirm-payroll.dto";
 
@@ -21,7 +21,7 @@ export class PayrollController {
   }
 
   @UseGuards(LoggerGuard)
-  @Roles(Role.ADMIN, Role.HUMAN_RESOURCE, Role.CAMP_ACCOUNTING)
+  @Roles(RoleEnum.ADMIN, RoleEnum.HUMAN_RESOURCE, RoleEnum.CAMP_ACCOUNTING)
   @Post()
   create(@ReqProfile() user: ProfileEntity, @Body() body: CreatePayrollDto) {
     return this.payrollService.create(user, body);
@@ -29,10 +29,10 @@ export class PayrollController {
 
   @Get()
   @Roles(
-    Role.ADMIN,
-    Role.HUMAN_RESOURCE,
-    Role.CAMP_ACCOUNTING,
-    Role.ACCOUNTANT_CASH_FUND
+    RoleEnum.ADMIN,
+    RoleEnum.HUMAN_RESOURCE,
+    RoleEnum.CAMP_ACCOUNTING,
+    RoleEnum.ACCOUNTANT_CASH_FUND
   )
   findAll(
     @ReqProfile() profile: ProfileEntity,
@@ -57,13 +57,13 @@ export class PayrollController {
     });
   }
 
-  @Roles(Role.ADMIN, Role.HUMAN_RESOURCE, Role.CAMP_ACCOUNTING)
+  @Roles(RoleEnum.ADMIN, RoleEnum.HUMAN_RESOURCE, RoleEnum.CAMP_ACCOUNTING)
   @Get(":id")
   findOne(@Param("id") id: string) {
     return this.payrollService.findOne(+id);
   }
 
-  @Roles(Role.ADMIN, Role.HUMAN_RESOURCE, Role.CAMP_ACCOUNTING)
+  @Roles(RoleEnum.ADMIN, RoleEnum.HUMAN_RESOURCE, RoleEnum.CAMP_ACCOUNTING)
   @Get("/overtime/filter")
   filterOvertime(
     @ReqProfile() user: ProfileEntity,
@@ -76,14 +76,14 @@ export class PayrollController {
   }
 
   @UseGuards(LoggerGuard)
-  @Roles(Role.ADMIN, Role.HUMAN_RESOURCE, Role.CAMP_ACCOUNTING)
+  @Roles(RoleEnum.ADMIN, RoleEnum.HUMAN_RESOURCE, RoleEnum.CAMP_ACCOUNTING)
   @Patch(":id")
   update(@Param("id") id: number, @Body() updatePayrollDto: UpdatePayrollDto) {
     return this.payrollService.update(+id, updatePayrollDto);
   }
 
   @UseGuards(LoggerGuard)
-  @Roles(Role.ADMIN, Role.HUMAN_RESOURCE, Role.CAMP_ACCOUNTING)
+  @Roles(RoleEnum.ADMIN, RoleEnum.HUMAN_RESOURCE, RoleEnum.CAMP_ACCOUNTING)
   @Get(":id/generate-holiday")
   generateHoliday(@Param("id") id: number) {
     return this.payrollService.generateHoliday(+id);
@@ -91,10 +91,10 @@ export class PayrollController {
 
   @UseGuards(LoggerGuard)
   @Roles(
-    Role.ADMIN,
-    Role.HUMAN_RESOURCE,
-    Role.CAMP_ACCOUNTING,
-    Role.ACCOUNTANT_CASH_FUND
+    RoleEnum.ADMIN,
+    RoleEnum.HUMAN_RESOURCE,
+    RoleEnum.CAMP_ACCOUNTING,
+    RoleEnum.ACCOUNTANT_CASH_FUND
   )
   @Patch("confirm/:id")
   confirm(@ReqProfile() user: ProfileEntity, @Param("id") id: number, @Body() body: ConfirmPayrollDto) {
@@ -107,14 +107,14 @@ export class PayrollController {
     return this.payrollService.remove(+id);
   }
 
-  @Roles(Role.ADMIN, Role.HUMAN_RESOURCE, Role.CAMP_ACCOUNTING)
+  @Roles(RoleEnum.ADMIN, RoleEnum.HUMAN_RESOURCE, RoleEnum.CAMP_ACCOUNTING)
   @Get("/:id/payslip")
   async confirmPayslip(@Param("id") id: number) {
     return await this.payrollService.confirmPayslip(+id);
   }
 
   // export
-  @Roles(Role.ADMIN, Role.HUMAN_RESOURCE, Role.CAMP_ACCOUNTING)
+  @Roles(RoleEnum.ADMIN, RoleEnum.HUMAN_RESOURCE, RoleEnum.CAMP_ACCOUNTING)
   @Get("timekeeping/export/print")
   async exportTimekeeping(
     @Res() res,
@@ -125,7 +125,7 @@ export class PayrollController {
     return await this.payrollService.timeKeeping(res, profile, datetime);
   }
 
-  @Roles(Role.ADMIN, Role.HUMAN_RESOURCE, Role.CAMP_ACCOUNTING)
+  @Roles(RoleEnum.ADMIN, RoleEnum.HUMAN_RESOURCE, RoleEnum.CAMP_ACCOUNTING)
   @Get("/export/print")
   async export(
     @Res() res,

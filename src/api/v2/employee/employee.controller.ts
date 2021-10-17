@@ -15,7 +15,7 @@ import {Roles} from "../../../core/decorators/roles.decorator";
 import {ReqProfile} from "../../../core/decorators/req-profile.decorator";
 import {UpdateEmployeeDto} from "./dto/update-employee.dto";
 import {ApiV2Constant} from "../../../common/constant/api.constant";
-import {GenderType, Role} from "@prisma/client";
+import {GenderType, Role, RoleEnum} from "@prisma/client";
 import {ParseDatetimePipe} from "../../../core/pipe/datetime.pipe";
 import {CustomParseBooleanPipe} from "src/core/pipe/custom-boolean.pipe";
 import {JwtAuthGuard} from "../../../core/guard/jwt-auth.guard";
@@ -31,13 +31,13 @@ export class EmployeeController {
   }
 
   @UseGuards(LoggerGuard)
-  @Roles(Role.ADMIN, Role.HUMAN_RESOURCE)
+  @Roles(RoleEnum.ADMIN, RoleEnum.HUMAN_RESOURCE)
   @Post()
   create(@Body() createEmployeeDto: CreateEmployeeDto) {
     return this.employeeService.create(createEmployeeDto);
   }
 
-  @Roles(Role.ADMIN, Role.HUMAN_RESOURCE, Role.CAMP_ACCOUNTING)
+  @Roles(RoleEnum.ADMIN, RoleEnum.HUMAN_RESOURCE, RoleEnum.CAMP_ACCOUNTING)
   @Get()
   findAll(
     @ReqProfile() profile: ProfileEntity,
@@ -68,14 +68,14 @@ export class EmployeeController {
     });
   }
 
-  @Roles(Role.ADMIN, Role.HUMAN_RESOURCE, Role.CAMP_ACCOUNTING)
+  @Roles(RoleEnum.ADMIN, RoleEnum.HUMAN_RESOURCE, RoleEnum.CAMP_ACCOUNTING)
   @Get(":id")
   findOne(@Param("id") id: number) {
     return this.employeeService.findOne(+id);
   }
 
   @UseGuards(LoggerGuard)
-  @Roles(Role.ADMIN, Role.HUMAN_RESOURCE)
+  @Roles(RoleEnum.ADMIN, RoleEnum.HUMAN_RESOURCE)
   @Patch(":id")
   update(
     @Param("id") id: number,
@@ -85,14 +85,14 @@ export class EmployeeController {
   }
 
   @UseGuards(LoggerGuard)
-  @Roles(Role.ADMIN, Role.HUMAN_RESOURCE)
+  @Roles(RoleEnum.ADMIN, RoleEnum.HUMAN_RESOURCE)
   @Patch(":id/leave")
   leave(@Param("id") id: number, @Body("leftAt", ParseDatetimePipe) leftAt: any) {
     return this.employeeService.leave(+id, leftAt);
   }
 
   @UseGuards(LoggerGuard)
-  @Roles(Role.ADMIN, Role.HUMAN_RESOURCE)
+  @Roles(RoleEnum.ADMIN, RoleEnum.HUMAN_RESOURCE)
   @Delete(":id")
   remove(@Param("id") id: number) {
     return this.employeeService.remove(+id);

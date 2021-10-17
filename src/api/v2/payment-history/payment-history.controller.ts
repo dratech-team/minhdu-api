@@ -1,25 +1,12 @@
-import {
-  Body,
-  Controller,
-  Delete,
-  Get,
-  Param,
-  Patch,
-  Query,
-  UseGuards
-} from "@nestjs/common";
-import { Role } from "@prisma/client";
-import { Roles } from "src/core/decorators/roles.decorator";
-import { ApiKeyGuard } from "src/core/guard/api-key-auth.guard";
-import { JwtAuthGuard } from "src/core/guard/jwt-auth.guard";
-import { RolesGuard } from "src/core/guard/role.guard";
-import { UpdatePaymentHistoryDto } from "./dto/update-payment-history.dto";
-import { PaymentHistoryService } from "./payment-history.service";
+import {Body, Controller, Delete, Get, Param, Patch, Query} from "@nestjs/common";
+import {UpdatePaymentHistoryDto} from "./dto/update-payment-history.dto";
+import {PaymentHistoryService} from "./payment-history.service";
 
 // @UseGuards(JwtAuthGuard, ApiKeyGuard, RolesGuard)
 @Controller("v2/payment-history")
 export class PaymentHistoryController {
-  constructor(private readonly paymentHistoryService: PaymentHistoryService) {}
+  constructor(private readonly paymentHistoryService: PaymentHistoryService) {
+  }
 
   // @Roles(Role.ADMIN, Role.HUMAN_RESOURCE)
   @Get()

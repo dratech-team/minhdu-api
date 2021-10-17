@@ -20,14 +20,11 @@ model Account {
   id        Int       @id @default(autoincrement())
   username  String    @unique
   password  String
+  role      Role?      @relation(fields: [roleId], references: [id])
+  roleId    Int?
+  managedBy RoleEnum?
   branches  Branch[]
-  role      Role
-  role1     Role?
-  role2     Role?
-  role3     Role?
-  role4     Role?
   appName   AppEnum?
-  managedBy Role?
   loggedAt  DateTime? @default(now())
   ip        String?
   timestamp DateTime? @default(now())
@@ -424,6 +421,14 @@ enum SystemType {
   ORG_CHART
 }
 
+model Role {
+  id       Int       @id @default(autoincrement())
+  name     String
+  role     RoleEnum
+  appName  AppEnum?
+  accounts Account[]
+}
+
 // start medicine
 
 model Medicine {
@@ -599,7 +604,7 @@ enum GenderType {
   OTHER
 }
 
-enum Role {
+enum RoleEnum {
   ADMIN
   CHIEF_ACCOUNTANT
   ACCOUNTANT_CASH_FUND // Quy tien mat

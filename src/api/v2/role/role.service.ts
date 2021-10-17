@@ -3,18 +3,23 @@ import {CreateRoleDto} from './dto/create-role.dto';
 import {UpdateRoleDto} from './dto/update-role.dto';
 import {PrismaService} from "../../../prisma.service";
 import {AppEnum, Role} from "@prisma/client";
+import {ProfileEntity} from "../../../common/entities/profile.entity";
 
 @Injectable()
 export class RoleService {
   constructor(private readonly prisma: PrismaService) {
   }
 
-  create(createRoleDto: CreateRoleDto) {
-    return 'This action adds a new role';
+  async create(body: CreateRoleDto) {
+    return await this.prisma.role.create({data: body});
   }
 
-  async findAll() {
-    return roles;
+  async findAll(profile: ProfileEntity) {
+    return await this.prisma.role.findMany({
+      where: {
+        appName: profile.appName,
+      }
+    });
   }
 
   findOne(id: number) {
@@ -29,21 +34,3 @@ export class RoleService {
     return `This action removes a #${id} role`;
   }
 }
-
-const roles = [
-  {
-    name: "Nhân sự",
-    role: Role.HUMAN_RESOURCE,
-    appName: AppEnum.HR
-  },
-  {
-    name: "Kế toán trại",
-    role: Role.CAMP_ACCOUNTING,
-    appName: AppEnum.HR
-  },
-  {
-    name: "Quản lý trại",
-    role: Role.CAMP_MANAGER,
-    appName: AppEnum.HR
-  }
-];
