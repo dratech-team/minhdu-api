@@ -32,6 +32,7 @@ export class PayrollController {
     RoleEnum.ADMIN,
     RoleEnum.HUMAN_RESOURCE,
     RoleEnum.CAMP_ACCOUNTING,
+    RoleEnum.CAMP_MANAGER,
     RoleEnum.ACCOUNTANT_CASH_FUND
   )
   findAll(

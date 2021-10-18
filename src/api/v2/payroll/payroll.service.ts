@@ -2,7 +2,7 @@ import {BadRequestException, ConflictException, Injectable, NotFoundException} f
 import {DatetimeUnit, Payroll, RecipeType, RoleEnum, Salary, SalaryType,} from "@prisma/client";
 import {Response} from "express";
 import {ProfileEntity} from "../../../common/entities/profile.entity";
-import {generateDatetime, lastDatetimeOfMonth, lastDayOfMonth} from "../../../utils/datetime.util";
+import {lastDatetimeOfMonth, lastDayOfMonth} from "../../../utils/datetime.util";
 import {EmployeeService} from "../employee/employee.service";
 import {HolidayService} from "../holiday/holiday.service";
 import {CreatePayrollDto} from "./dto/create-payroll.dto";
@@ -19,6 +19,7 @@ import * as moment from "moment";
 import {ConfirmPayrollDto} from "./dto/confirm-payroll.dto";
 import {SearchOvertimePayrollDto} from "./dto/search-overtime-payroll.dto";
 import {OvertimeTemplateService} from "../overtime-template/overtime-template.service";
+import {rageDaysInMonth, timesheet} from "./functions/timesheet";
 
 @Injectable()
 export class PayrollService {
@@ -61,7 +62,21 @@ export class PayrollService {
   }
 
   async findAll(profile: ProfileEntity, skip: number, take: number, search?: Partial<SearchPayrollDto>) {
-    return await this.repository.findAll(profile, skip, take, search);
+    const {total, data} = await this.repository.findAll(profile, skip, take, search);
+    if (profile.role === RoleEnum.CAMP_MANAGER) {
+      return {
+        total,
+        data: data.map(payroll => {
+          return {
+            employee: payroll.employee,
+            createdAt: payroll.createdAt,
+            timesheet: timesheet(payroll.createdAt, payroll.salaries),
+          }
+        })
+      };
+    } else {
+      return {total, data};
+    }
   }
 
   async findOne(id: number): Promise<OnePayroll & { totalWorkday: number }> {
@@ -267,7 +282,7 @@ export class PayrollService {
 
   async timeKeeping(response: Response, profile: ProfileEntity, datetime: Date, filename?: string) {
     const items = [];
-    if (!profile.branches?.length) {
+    if (!profile?.branches?.length) {
       throw new NotFoundException("Không tìm thấy đơn vị hợp lệ cho account này. Vui lòng liên hệ admin để thêm quyền");
     }
     if (!datetime) {
@@ -275,14 +290,25 @@ export class PayrollService {
     }
     const payrolls = await this.repository.currentPayroll(profile, datetime);
 
-    const datetimes = generateDatetime("2019-10-01", "2019-10-30");
+    const datetimes = rageDaysInMonth(datetime).map(date => date.format("DD-MM"));
 
-    for (let i = 0; i < datetimes.length; i++) {
-      payrolls.forEach(payroll => {
-        items.push(payroll.employee.lastName + "x");
-      });
-    }
-    return;
+    const data = payrolls.map(payroll => {
+      const ticks = timesheet(payroll.createdAt, payroll.salaries);
+      return Object.assign(payroll, {timesheet: ticks});
+    });
+
+    return exportExcel(
+      response,
+      {
+        name: filename,
+        customKeys: datetimes,
+        title: `Phiếu Chấm công tháng ${datetime.getMonth()}`,
+        customHeaders: datetimes,
+        data: data,
+      },
+      201
+    );
+
   }
 
   async confirmPayslip(id: number) {
@@ -721,7 +747,6 @@ export class PayrollService {
     let basicDaySalary = 0;
     let payslipInHoliday = 0;
     let payslipNotInHoliday = 0;
-
     //datetime
     const currentHoliday = await this.holidayService.findCurrentHolidays(payroll.createdAt, payroll.employee.positionId);
 
@@ -876,3 +901,4 @@ export class PayrollService {
     };
   }
 }
+
