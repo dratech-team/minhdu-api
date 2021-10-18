@@ -391,7 +391,7 @@ export class PayrollService {
 
         // lấy những ngày vắng thuộc từ ngày bắt đầu tính tới cuối tháng
         const absents = payroll.salaries
-          .filter(salary => salary.type === SalaryType.ABSENT || salary.type === SalaryType.DAY_OFF && start.isBefore(salary.datetime))
+          .filter(salary => (salary.type === SalaryType.ABSENT || salary.type === SalaryType.DAY_OFF) && start.isBefore(salary.datetime))
           .map(salary => salary.times)
           .reduce((a, b) => a + b, 0);
 
