@@ -101,6 +101,8 @@ export class PayrollController {
     return this.payrollService.confirmPayroll(user, +id, body);
   }
 
+  @UseGuards(LoggerGuard)
+  @Roles(RoleEnum.HUMAN_RESOURCE)
   @Patch("restore/:id")
   restorePayslip(@ReqProfile() profile: ProfileEntity, @Param("id") id: number) {
     return this.payrollService.restorePayslip(profile, +id);

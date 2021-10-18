@@ -568,7 +568,6 @@ export class PayrollService {
     );
 
     // salary
-    /// FIXME" Chuyen sang ham total salary basic
     const basicSalary = this.totalBasicSalary(payroll.salaries);
 
     // salary
@@ -663,7 +662,7 @@ export class PayrollService {
 
     const absent = this.totalAbsent(payroll.salaries);
 
-    const deduction = (basicDaySalary / 8) * absent.hour + (basicDaySalary / 8 / 60) * absent.minute;
+    const deduction = absent.minute * (totalStandard / 8 / 60);
 
     const total = Math.round((payslipNormalDay + payslipInHoliday + payslipNotInHoliday + payslipOutOfWorkday + staySalary + allowanceTotal + overtime - tax - bscSalary - deduction) / 1000) * 1000;
 
@@ -822,12 +821,10 @@ export class PayrollService {
       }
     });
 
-    const absentHourSalary = this.totalAbsent(payroll.salaries).hour * (basicDaySalary / 8);
-    const absentHourMinuteSalary = this.totalAbsent(payroll.salaries).minute * (basicDaySalary / 8 / 60);
     const bscSalary = (bsc / 2) * basicDaySalary;
 
     // Tổng tiền đi trễ. Ngày nghỉ là ngày đã đc trừ trên ngày đi làm thực tế, nên sẽ không tính vào tiền khấu trừ
-    const deductionSalary = absentHourSalary + absentHourMinuteSalary;
+    const deductionSalary = absent.minute * ((basicSalary + staySalary) / 8 / 60);
 
     // Không quan tâm đến ngày công thực tế hay ngày công chuẩn. Nếu không đi làm trong ngày lễ thì vẫn được hưởng lương như thường
     payslipNotInHoliday = worksNotInHoliday.map(w => w.day).reduce((a, b) => a + b, 0) * (basic.price / PAYSLIP_WORKDAY_HOLIDAY);
