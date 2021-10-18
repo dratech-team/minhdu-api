@@ -120,6 +120,27 @@ export class PayrollService {
     return Object.assign(updated, {totalWorkday: this.totalActualDay(updated as OnePayroll)});
   }
 
+  async restorePayslip(profile: ProfileEntity, id: number) {
+    const found = await this.findOne(id);
+    if (!found) {
+      throw new NotFoundException(`Không tìm thấy id ${id}`);
+    }
+
+    if (!found.accConfirmedAt) {
+      throw new BadRequestException("Phiếu lương chưa xác nhận. Không thể khôi phục. Xin cảm ơn...");
+    }
+
+    const restored = await this.update(id, {accConfirmedAt: null});
+
+    if (!restored) {
+      throw new BadRequestException(`Có lỗi xảy ra. Mã phiếu lương ${found.id}. Vui lòng liên hệ admin để được hỗ trợ. Xin cảm ơn.`);
+    }
+    return {
+      status: 201,
+      message: `Khôi phục thành công cho phiếu lương ${found.id} của nhân viên ${found.employee.lastName}`
+    };
+  }
+
   async remove(id: number) {
     return this.repository.remove(id);
   }

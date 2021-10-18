@@ -250,9 +250,9 @@ export class PayrollRepository {
         where: {id: id},
         data: {
           isEdit: !!updates.accConfirmedAt,
-          accConfirmedAt: updates.accConfirmedAt || undefined,
+          accConfirmedAt: updates?.accConfirmedAt,
           paidAt: updates.paidAt || undefined,
-          manConfirmedAt: updates.manConfirmedAt || undefined,
+          manConfirmedAt: updates?.manConfirmedAt,
         },
         include: {
           employee: true,

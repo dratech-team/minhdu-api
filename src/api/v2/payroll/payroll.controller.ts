@@ -101,6 +101,11 @@ export class PayrollController {
     return this.payrollService.confirmPayroll(user, +id, body);
   }
 
+  @Patch("restore/:id")
+  restorePayslip(@ReqProfile() profile: ProfileEntity, @Param("id") id: number) {
+    return this.payrollService.restorePayslip(profile, +id);
+  }
+
   @UseGuards(LoggerGuard)
   @Delete(":id")
   remove(@Param("id") id: number) {
