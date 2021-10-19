@@ -687,8 +687,7 @@ export class PayrollService {
     const bscSalary = basicDaySalary * (bsc / 2);
 
     const absent = this.totalAbsent(payroll.salaries);
-
-    const deduction = absent.minute * (totalStandard / 8 / 60);
+    const deduction = absent.minute * (totalStandard / workday / 8 / 60);
 
     const total = Math.round((payslipNormalDay + payslipInHoliday + payslipNotInHoliday + payslipOutOfWorkday + staySalary + allowanceTotal + overtime - tax - bscSalary - deduction) / 1000) * 1000;
 
@@ -749,6 +748,7 @@ export class PayrollService {
     let payslipNotInHoliday = 0;
     //datetime
     const currentHoliday = await this.holidayService.findCurrentHolidays(payroll.createdAt, payroll.employee.positionId);
+    const workday = payroll.employee.workday;
 
     let actualDay = this.totalActualDay(payroll);
     if (payroll.employee.isFlatSalary) {
@@ -763,12 +763,12 @@ export class PayrollService {
     const allowanceMonthSalary = this.totalAllowanceMonthSalary(payroll.salaries);
     /// FIXME: Phụ cấp từ ngày đến ngày. Chưa cần dùng tới
     const allowanceDayRangeSalary = this.totalAllowanceDayRangeSalary(payroll.salaries);
-    const allowanceDayByActual = this.totalAllowanceByActual(payroll, actualDay, payroll.employee.workday);
+    const allowanceDayByActual = this.totalAllowanceByActual(payroll, actualDay, workday);
 
-    if (actualDay >= payroll.employee.workday) {
-      basicDaySalary = basicSalary / payroll.employee.workday;
+    if (actualDay >= workday) {
+      basicDaySalary = basicSalary / workday;
     } else {
-      basicDaySalary = (basicSalary + staySalary) / payroll.employee.workday;
+      basicDaySalary = (basicSalary + staySalary) / workday;
     }
 
     const basic = payroll.salaries.find(
@@ -791,7 +791,7 @@ export class PayrollService {
           if (salary.times === 0.5) {
             /// FIXME: confirm lại nếu đi làm ngày lễ nhưng đkien ngày thực tế > ngày công chuẩn mới được hưởng thưởng hay k cần điều kiện. Nếu không cần thì bỏ đkien đi
             // Đi làm nửa ngày thì dược hưởng nửa thưởng
-            // if (actualDay >= payroll.employee.workday) {
+            // if (actualDay >= workday) {
             payslipInHoliday += currentHoliday[i].price / 2;
             // }
           } else if (salary.times === 1) {
@@ -803,7 +803,7 @@ export class PayrollService {
           }
         } else {
           /// FIXME: confirm lại nếu đi làm ngày lễ nhưng đkien ngày thực tế > ngày công chuẩn mới được hưởng thưởng hay k cần điều kiện. Nếu không cần thì bỏ đkien đi
-          // if (actualDay >= payroll.employee.workday) {
+          // if (actualDay >= workday) {
           payslipInHoliday += currentHoliday[i].price;
           // }
         }
@@ -849,14 +849,14 @@ export class PayrollService {
     const bscSalary = (bsc / 2) * basicDaySalary;
 
     // Tổng tiền đi trễ. Ngày nghỉ là ngày đã đc trừ trên ngày đi làm thực tế, nên sẽ không tính vào tiền khấu trừ
-    const deductionSalary = absent.minute * ((basicSalary + staySalary) / 8 / 60);
+    const deductionSalary = absent.minute * ((basicSalary + staySalary) / workday / 8 / 60);
 
     // Không quan tâm đến ngày công thực tế hay ngày công chuẩn. Nếu không đi làm trong ngày lễ thì vẫn được hưởng lương như thường
     payslipNotInHoliday = worksNotInHoliday.map(w => w.day).reduce((a, b) => a + b, 0) * (basic.price / PAYSLIP_WORKDAY_HOLIDAY);
 
     /// FIXME: TESTING. DON'T DELETE IT
     // console.warn("Lương cơ bản", basicSalary);
-    // console.warn("Ngày công chuẩn", payroll.employee.workday);
+    // console.warn("Ngày công chuẩn", workday);
     // console.warn("Ngày công thực tế trừ ngày lễ", workdayNotInHoliday);
     // console.warn("Tổng ngày công thực nhận lương", totalWorkday);
     // console.warn("Tổng lương đi làm ngày lễ", payslipInHoliday);
@@ -873,7 +873,7 @@ export class PayrollService {
     // console.warn("total", total);
 
     let total: number;
-    if (actualDay >= payroll.employee.workday) {
+    if (actualDay >= workday) {
       total = basicDaySalary * actualDay + Math.ceil(allowanceTotal) + staySalary + payslipInHoliday + payslipNotInHoliday + overtimeSalary - deductionSalary - bscSalary - tax;
     } else {
       total = basicDaySalary * actualDay + Math.ceil(allowanceTotal) + payslipInHoliday + payslipNotInHoliday + workdayNotInHoliday + overtimeSalary - deductionSalary - bscSalary - tax;
@@ -892,7 +892,7 @@ export class PayrollService {
       deduction: deductionSalary,
       daySalary: basicDaySalary,
       totalWorkday: actualDay,
-      workday: payroll.employee.workday,
+      workday: workday,
       bsc,
       bscSalary: bscSalary,
       payslipNormalDay: Math.ceil(basicDaySalary * actualDay),
