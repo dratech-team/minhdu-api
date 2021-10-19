@@ -69,7 +69,8 @@ export class PayrollService {
 
   async findAll(profile: ProfileEntity, skip: number, take: number, search?: Partial<SearchPayrollDto>) {
     const {total, data} = await this.repository.findAll(profile, skip, take, search);
-    if (!(profile.role === RoleEnum.CAMP_MANAGER && search?.isTimeSheet)) {
+
+    if (!search?.isTimeSheet) {
       return {total, data};
     } else {
       return {
