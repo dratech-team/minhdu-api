@@ -1,10 +1,4 @@
-import {
-  BadRequestException,
-  ConflictException,
-  Injectable,
-  NotFoundException,
-  UnauthorizedException
-} from "@nestjs/common";
+import {BadRequestException, ConflictException, Injectable, NotFoundException} from "@nestjs/common";
 import {DatetimeUnit, Payroll, RecipeType, RoleEnum, Salary, SalaryType,} from "@prisma/client";
 import {Response} from "express";
 import {ProfileEntity} from "../../../common/entities/profile.entity";
@@ -539,15 +533,17 @@ export class PayrollService {
             worksInHoliday.push(Object.assign(salary, {times: PARTIAL_DAY, rate: currentHoliday[i].rate}));
           }
         } else {
-          worksInHoliday.push(Object.assign(currentHoliday[i], {times: ALL_DAY, title: currentHoliday[i].name}));
+          worksInHoliday.push(Object.assign(currentHoliday[i], {
+            times: ALL_DAY,
+            title: currentHoliday[i].name,
+            rate: currentHoliday[i].rate
+          }));
         }
       }
     }
 
     if (worksInHoliday?.length) {
-      for (let i = 0; i < worksInHoliday.length; i++) {
-        await this.repository.generate(payrollId, worksInHoliday[i]);
-      }
+      await this.repository.generate(payrollId, worksInHoliday);
     } else {
       await this.repository.generate(payrollId, null);
     }
@@ -632,7 +628,7 @@ export class PayrollService {
           // tổng ngày lễ đã được thêm vào
           const day = worksInHoliday.map(w => w?.day || 0).reduce((a, b) => a + b, 0);
           worksInHoliday.push({
-            day: actualDay - workday - day === 0.5 ? PARTIAL_DAY : ALL_DAY,
+            day: ALL_DAY,
             datetime: holiday.datetime,
             rate: holiday.rate
           });

@@ -86,10 +86,10 @@ export class PayrollRepository {
   }
 
   /// tạo ngày lễ cho phiếu lương đó
-  async generate(payrollId: Payroll["id"], body: Partial<CreateSalaryDto>) {
+  async generate(payrollId: Payroll["id"], body: Partial<CreateSalaryDto>[]) {
     try {
-      if (!body) {
-        return await this.prisma.payroll.update({
+      if (!body?.length) {
+       return  await this.prisma.payroll.update({
           where: {id: payrollId},
           data: {
             salaries: {
@@ -107,13 +107,15 @@ export class PayrollRepository {
             deleteMany: {
               type: SalaryType.HOLIDAY
             },
-            create: {
-              title: body.title,
-              price: body?.price,
-              type: SalaryType.HOLIDAY,
-              datetime: body.datetime as Date,
-              times: body.times,
-              rate: body.rate,
+            createMany: {
+              data: body.map(holiday => ({
+                title: holiday.title,
+                price: holiday?.price,
+                type: SalaryType.HOLIDAY,
+                datetime: holiday.datetime as Date,
+                times: holiday.times,
+                rate: holiday.rate,
+              }))
             }
           }
         }
