@@ -94,6 +94,7 @@ export class PayrollController {
   @Roles(
     RoleEnum.ADMIN,
     RoleEnum.HUMAN_RESOURCE,
+    RoleEnum.CAMP_MANAGER,
     RoleEnum.CAMP_ACCOUNTING,
     RoleEnum.ACCOUNTANT_CASH_FUND
   )
