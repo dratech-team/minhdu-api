@@ -10,14 +10,14 @@ export const rageDaysInMonth = (datetime: Date) => {
   const toDate = moment(lastDatetimeOfMonth(datetime));
   const diff = toDate.diff(fromDate, "days");
   for (let i = 0; i < diff; i++) {
-    range.push(moment(firstDatetimeOfMonth(datetime)).add(i, "days"))
+    range.push(moment(firstDatetimeOfMonth(datetime)).add(i, "days"));
   }
   return range;
-}
+};
 
 export const timesheet = (createdAt: Date, salaries: Salary[], isExport?: boolean) => {
   const diff = rageDaysInMonth(createdAt);
-  const range = []
+  const range = [];
 
   for (let i = 0; i < diff.length; i++) {
     const datetime = diff[i];
@@ -34,4 +34,4 @@ export const timesheet = (createdAt: Date, salaries: Salary[], isExport?: boolea
     }
   }
   return range;
-}
+};
