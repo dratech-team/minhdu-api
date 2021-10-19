@@ -1,4 +1,10 @@
-import {BadRequestException, ConflictException, Injectable, NotFoundException} from "@nestjs/common";
+import {
+  BadRequestException,
+  ConflictException,
+  Injectable,
+  NotFoundException,
+  UnauthorizedException
+} from "@nestjs/common";
 import {DatetimeUnit, Payroll, RecipeType, RoleEnum, Salary, SalaryType,} from "@prisma/client";
 import {Response} from "express";
 import {ProfileEntity} from "../../../common/entities/profile.entity";
@@ -63,16 +69,19 @@ export class PayrollService {
 
   async findAll(profile: ProfileEntity, skip: number, take: number, search?: Partial<SearchPayrollDto>) {
     const {total, data} = await this.repository.findAll(profile, skip, take, search);
+    if (!(profile.role === RoleEnum.CAMP_MANAGER && search?.isTimeSheet)) {
+      throw new UnauthorizedException("Bạn không có quyền truy cập trang này");
+    }
+
     if (profile.role === RoleEnum.CAMP_MANAGER) {
       return {
         total,
         data: data.map(payroll => {
           return Object.assign(payroll, {timesheet: timesheet(payroll.createdAt, payroll.salaries),});
-        }),
-        isTimeSheet: true
+        })
       };
     } else {
-      return {total, data, isTimeSheet: false};
+      return {total, data};
     }
   }
 
@@ -597,7 +606,7 @@ export class PayrollService {
     const basic = payroll.salaries.find(
       (salary: Salary) => salary.type === SalaryType.BASIC_INSURANCE
     )?.price;
-
+    const absent = this.totalAbsent(payroll.salaries);
     const basicDaySalary = basicSalary / payroll.employee.workday;
     const staySalary =
       actualDay >= workday
@@ -650,8 +659,8 @@ export class PayrollService {
 
 
     // Đi làm nhưng không thuộc ngày lễ x2
-    const payslipOutOfWorkday = workdayNotInHoliday - workday > 0
-      ? (workdayNotInHoliday - workday) * basicDaySalary * RATE_OUT_OF_WORK_DAY
+    const payslipOutOfWorkday = workdayNotInHoliday - workday - absent.day > 0
+      ? (workdayNotInHoliday - workday - absent.day) * basicDaySalary * RATE_OUT_OF_WORK_DAY
       : 0;
 
 
@@ -683,7 +692,6 @@ export class PayrollService {
     const bsc = this.totalForgotBSC(payroll.salaries);
     const bscSalary = basicDaySalary * (bsc / 2);
 
-    const absent = this.totalAbsent(payroll.salaries);
     const deduction = absent.minute * (totalStandard / workday / 8 / 60);
 
     const total = Math.round((payslipNormalDay + payslipInHoliday + payslipNotInHoliday + payslipOutOfWorkday + staySalary + allowanceTotal + overtime - tax - bscSalary - deduction) / 1000) * 1000;

@@ -6,4 +6,5 @@ export interface SearchPayrollDto {
   readonly createdAt: Date;
   readonly isConfirm: number;
   readonly isPaid: number;
+  readonly isTimeSheet: boolean;
 }

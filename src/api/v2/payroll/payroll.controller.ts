@@ -45,7 +45,8 @@ export class PayrollController {
     @Query("position") position: string,
     @Query("createdAt", ParseDatetimePipe) createdAt: any,
     @Query("isConfirm") isConfirm: number,
-    @Query("isPaid") isPaid: number
+    @Query("isPaid") isPaid: number,
+    @Query("isTimeSheet") isTimeSheet: boolean,
   ) {
     return this.payrollService.findAll(profile, +skip, +take, {
       employeeId: +employeeId,
@@ -55,6 +56,7 @@ export class PayrollController {
       createdAt,
       isConfirm,
       isPaid,
+      isTimeSheet: Boolean(isTimeSheet)
     });
   }
 
