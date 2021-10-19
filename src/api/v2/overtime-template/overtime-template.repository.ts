@@ -70,6 +70,9 @@ export class OvertimeTemplateRepository {
             positions: true,
             branch: true,
           },
+          orderBy: {
+            price: "desc"
+          }
         }),
       ]);
       return {total, data};
