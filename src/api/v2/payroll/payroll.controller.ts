@@ -67,13 +67,13 @@ export class PayrollController {
   @Roles(RoleEnum.ADMIN, RoleEnum.HUMAN_RESOURCE, RoleEnum.CAMP_ACCOUNTING)
   @Get("/overtime/filter")
   filterOvertime(
-    @ReqProfile() user: ProfileEntity,
+    @ReqProfile() profile: ProfileEntity,
     @Query("startAt", ParseDatetimePipe) startAt: any,
     @Query("endAt", ParseDatetimePipe) endAt: any,
     @Query("title") title: string,
     @Query("name") name: string,
   ) {
-    return this.payrollService.filterOvertime(user, {startAt, endAt, title, name});
+    return this.payrollService.filterOvertime(profile, {startAt, endAt, title, name});
   }
 
   @UseGuards(LoggerGuard)

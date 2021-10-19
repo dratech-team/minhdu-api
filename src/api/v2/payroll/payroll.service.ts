@@ -161,8 +161,8 @@ export class PayrollService {
     return await this.repository.findFirst(query);
   }
 
-  async filterOvertime(user: ProfileEntity, search: Partial<SearchOvertimePayrollDto>) {
-    const overtimes = await this.repository.findOvertimes(user, search);
+  async filterOvertime(profile: ProfileEntity, search: Partial<SearchOvertimePayrollDto>) {
+    const overtimes = await this.repository.findOvertimes(profile, search);
 
     if (search?.title) {
       const overtime = await this.overtimeService.findFirst({
