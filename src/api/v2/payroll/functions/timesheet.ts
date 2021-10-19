@@ -8,7 +8,7 @@ export const rageDaysInMonth = (datetime: Date) => {
   const range = [];
   const fromDate = moment(firstDatetimeOfMonth(datetime));
   const toDate = moment(lastDatetimeOfMonth(datetime));
-  const diff = toDate.diff(fromDate, "days");
+  const diff = toDate.diff(fromDate, "days") + 1;
   for (let i = 0; i < diff; i++) {
     range.push(moment(firstDatetimeOfMonth(datetime)).add(i, "days"));
   }
@@ -26,7 +26,7 @@ export const timesheet = (createdAt: Date, salaries: Salary[], isExport?: boolea
       : includesDatetime(salaries.map(salary => salary.datetime), datetime.toDate())
         ? "o"
         : "x";
-    const obj = {[datetime.format("DD-MM")]: tick, color: tick === "1/2" ||  tick === "o" ? "#E02401" : "#09009B"};
+    const obj = {[datetime.format("DD-MM")]: tick, color: tick === "1/2" || tick === "o" ? "#E02401" : "#09009B"};
     if (isExport) {
       range.push(tick);
     } else {
