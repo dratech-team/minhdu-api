@@ -252,7 +252,7 @@ export class PayrollRepository {
           isEdit: !!updates.accConfirmedAt,
           accConfirmedAt: updates?.accConfirmedAt,
           paidAt: updates.paidAt || undefined,
-          manConfirmedAt: updates?.manConfirmedAt,
+          manConfirmedAt: updates?.manConfirmedAt || null,
         },
         include: {
           employee: true,

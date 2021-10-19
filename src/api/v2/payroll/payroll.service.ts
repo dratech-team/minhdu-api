@@ -114,7 +114,7 @@ export class PayrollService {
         updated = await this.repository.update(id, {accConfirmedAt: body.datetime || new Date()});
         break;
       case RoleEnum.CAMP_MANAGER:
-        updated = await this.repository.update(id, {manConfirmedAt: body.datetime || new Date()});
+        updated = await this.repository.update(id, {manConfirmedAt: body?.datetime});
         break;
       case RoleEnum.ACCOUNTANT_CASH_FUND:
         updated = await this.repository.update(id, {paidAt: body.datetime || new Date()});
