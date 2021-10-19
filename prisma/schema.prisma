@@ -20,7 +20,7 @@ model Account {
   id        Int       @id @default(autoincrement())
   username  String    @unique
   password  String
-  role      Role?      @relation(fields: [roleId], references: [id])
+  role      Role?     @relation(fields: [roleId], references: [id])
   roleId    Int?
   managedBy RoleEnum?
   branches  Branch[]
@@ -358,6 +358,8 @@ model Salary {
   price         Float?
   unit          DatetimeUnit?
   rate          Float?          @default(1)
+  startedAt     DateTime?
+  endedAt       DateTime?
   datetime      DateTime?
   forgot        Boolean?        @default(false)
   note          String?
