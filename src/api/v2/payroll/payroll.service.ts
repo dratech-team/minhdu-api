@@ -650,12 +650,16 @@ export class PayrollService {
       return basicDaySalary * w.rate * w.day;
     }).reduce((a, b) => a + b, 0);
 
+    const absentNotInHoliday = payroll.salaries
+      .filter(salary => salary.type === (SalaryType.ABSENT || salary.type === SalaryType.DAY_OFF))
+      .filter(salary => !includesDatetime(currentHoliday.map(holiday => holiday.datetime), salary.datetime))
+      .map(salary => salary.times)
+      .reduce((a, b) => a + b, 0);
 
     // Đi làm nhưng không thuộc ngày lễ x2
-    const payslipOutOfWorkday = workdayNotInHoliday - workday - absent.day > 0
-      ? (workdayNotInHoliday - workday - absent.day) * basicDaySalary * RATE_OUT_OF_WORK_DAY
+    const payslipOutOfWorkday = workdayNotInHoliday - workday > 0
+      ? (workdayNotInHoliday - workday) * basicDaySalary * RATE_OUT_OF_WORK_DAY
       : 0;
-
 
     const allowanceDayByActual = this.totalAllowanceByActual(payroll, actualDay, workday);
 
