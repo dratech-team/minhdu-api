@@ -26,12 +26,16 @@ export const timesheet = (createdAt: Date, salaries: Salary[], isExport?: boolea
       : includesDatetime(salaries.map(salary => salary.datetime), datetime.toDate())
         ? "o"
         : "x";
-    const obj = {[datetime.format("DD-MM")]: tick};
+    const obj = {[datetime.format("DD-MM")]: tick, color: tick === "1/2" ||  tick === "o" ? "#E02401" : "#09009B"};
     if (isExport) {
       range.push(tick);
     } else {
       range.push(obj);
     }
   }
+
+  // range.find(datetime => )
+
   return range;
 };
+

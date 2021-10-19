@@ -67,11 +67,7 @@ export class PayrollService {
       return {
         total,
         data: data.map(payroll => {
-          return {
-            employee: payroll.employee,
-            createdAt: payroll.createdAt,
-            timesheet: timesheet(payroll.createdAt, payroll.salaries),
-          }
+          return Object.assign(payroll, {timesheet: timesheet(payroll.createdAt, payroll.salaries),});
         })
       };
     } else {
