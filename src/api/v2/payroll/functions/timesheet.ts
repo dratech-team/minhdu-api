@@ -7,7 +7,7 @@ import {PARTIAL_DAY} from "../../../../common/constant/datetime.constant";
 export const rageDaysInMonth = (datetime: Date) => {
   const range = [];
   const fromDate = moment(firstDatetimeOfMonth(datetime));
-  const toDate = moment(isEqualDatetime(datetime, new Date(), "month") ? new Date : lastDatetimeOfMonth(datetime));
+  const toDate = moment(lastDatetimeOfMonth(datetime));
   const diff = toDate.diff(fromDate, "days") + 1;
   for (let i = 0; i < diff; i++) {
     range.push(moment(firstDatetimeOfMonth(datetime)).add(i, "days"));
@@ -29,6 +29,9 @@ export const timesheet = (createdAt: Date, salaries: Salary[], isExport?: boolea
       total += 1 / 2;
     } else if (includesDatetime(salaries.filter(salary => salary.type === SalaryType.ABSENT || salary.type === SalaryType.DAY_OFF).map(salary => salary.datetime), datetime.toDate())) {
       tick = "o";
+    } else if (moment(new Date()).isBefore(datetime)) {
+      tick = "-";
+      color = "#717171";
     } else {
       tick = "x";
       color = "#09009B";
