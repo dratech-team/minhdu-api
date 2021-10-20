@@ -1,4 +1,4 @@
-import {Salary} from "@prisma/client";
+import {Salary, SalaryType} from "@prisma/client";
 import * as moment from "moment";
 import {firstDatetimeOfMonth, lastDatetimeOfMonth} from "../../../../utils/datetime.util";
 import {includesDatetime} from "../../../../common/utils/isEqual-datetime.util";
@@ -18,15 +18,23 @@ export const rageDaysInMonth = (datetime: Date) => {
 export const timesheet = (createdAt: Date, salaries: Salary[], isExport?: boolean) => {
   const diff = rageDaysInMonth(createdAt);
   const range = [];
+  let total = 0;
 
   for (let i = 0; i < diff.length; i++) {
     const datetime = diff[i];
-    const tick = includesDatetime(salaries.filter(salary => salary.datetime && salary.times === PARTIAL_DAY).map(salary => salary.datetime), datetime.toDate())
-      ? "1/2"
-      : includesDatetime(salaries.map(salary => salary.datetime), datetime.toDate())
-        ? "o"
-        : "x";
-    const obj = {[datetime.format("DD-MM")]: tick, color: tick === "1/2" || tick === "o" ? "#E02401" : "#09009B"};
+    let tick: string;
+    let color = "#E02401";
+    if (includesDatetime(salaries.filter(salary => (salary.type === SalaryType.ABSENT || salary.type === SalaryType.DAY_OFF) && salary.datetime && salary.times === PARTIAL_DAY).map(salary => salary.datetime), datetime.toDate())) {
+      tick = "1/2";
+      total += 1 / 2;
+    } else if (includesDatetime(salaries.filter(salary => salary.type === SalaryType.ABSENT || salary.type === SalaryType.DAY_OFF).map(salary => salary.datetime), datetime.toDate())) {
+      tick = "o";
+    } else {
+      tick = "x";
+      color = "#09009B";
+      total += 1;
+    }
+    const obj = {[datetime.format("DD-MM")]: tick, color: color};
     if (isExport) {
       range.push(tick);
     } else {
@@ -36,6 +44,6 @@ export const timesheet = (createdAt: Date, salaries: Salary[], isExport?: boolea
 
   // range.find(datetime => )
 
-  return range;
+  return {range, total};
 };
 

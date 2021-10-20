@@ -620,6 +620,8 @@ export class PayrollService {
         if (absents.find(absent => isEqualDatetime(absent.datetime, holiday.datetime)).times === PARTIAL_DAY) {
           if (!holiday.isConstraint || (holiday.isConstraint && actualDay > workday)) {
             worksInHoliday.push({day: PARTIAL_DAY, datetime: holiday.datetime, rate: holiday.rate});
+
+            worksNotInHoliday.push({day: PARTIAL_DAY, datetime: holiday.datetime, rate: holiday.rate});
           }
         } else {
           worksNotInHoliday.push({day: ALL_DAY, datetime: holiday.datetime, rate: holiday.rate});
@@ -639,6 +641,12 @@ export class PayrollService {
         }
       }
     });
+
+    const absentNotInHoliday = payroll.salaries
+      .filter(salary => salary.type === (SalaryType.ABSENT || salary.type === SalaryType.DAY_OFF))
+      .filter(salary => !includesDatetime(currentHoliday.map(holiday => holiday.datetime), salary.datetime))
+      .map(salary => salary.times)
+      .reduce((a, b) => a + b, 0);
 
     // Ngày công đi làm  trong ngày lễ
     const workdayInHoliday = worksInHoliday.map((date) => date.day).reduce((a, b) => a + b, 0);
@@ -676,7 +684,7 @@ export class PayrollService {
     const overtime = this.totalOvertime(payroll.salaries);
 
     // logic hiện tại. Nếu tháng đó có 1 ngày k ràng buộc bởi ngày công chuẩn. thì nguyên tháng sẽ đc k ràng buộc
-    const isConstraint = currentHoliday.some(holiday => {
+    const isConstraint = currentHoliday.every(holiday => {
       return holiday.isConstraint;
     });
 
