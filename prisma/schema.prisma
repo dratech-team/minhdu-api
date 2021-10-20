@@ -218,8 +218,8 @@ model OvertimeTemplate {
 
 model BasicTemplate {
   id         Int           @id @default(autoincrement())
-  title      String?       @default("Lương cơ bản trích BH")
-  price      Float
+  title      String
+  price      Float?
   type       SalaryType?   @default(BASIC)
   unit       DatetimeUnit?
   partialDay PartialDay?

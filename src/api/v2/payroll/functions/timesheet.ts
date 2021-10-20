@@ -4,7 +4,7 @@ import {firstDatetimeOfMonth, lastDatetimeOfMonth} from "../../../../utils/datet
 import {includesDatetime, isEqualDatetime} from "../../../../common/utils/isEqual-datetime.util";
 import {PARTIAL_DAY} from "../../../../common/constant/datetime.constant";
 
-export const rageDaysInMonth = (datetime: Date) => {
+export function rageDaysInMonth(datetime: Date): moment.Moment[] {
   const range = [];
   const fromDate = moment(firstDatetimeOfMonth(datetime));
   const toDate = moment(lastDatetimeOfMonth(datetime));
@@ -20,14 +20,19 @@ export const timesheet = (createdAt: Date, salaries: Salary[], isExport?: boolea
   const range = [];
   let total = 0;
 
+
+  const allDay = salaries.filter(salary => salary.type === (SalaryType.ABSENT || salary.type === SalaryType.DAY_OFF) && salary.datetime).map(salary => salary.datetime);
+  const partialDay = salaries.filter(salary => (salary.type === SalaryType.ABSENT || salary.type === SalaryType.DAY_OFF) && salary.times === PARTIAL_DAY).map(salary => salary.datetime);
+  const startToEnd = salaries.filter(salary => (salary.type === SalaryType.ABSENT || salary.type === SalaryType.DAY_OFF) && salary.startedAt && salary.endedAt && !salary.datetime);
+
   for (let i = 0; i < diff.length; i++) {
     const datetime = diff[i];
     let tick: string;
     let color = "#E02401";
-    if (includesDatetime(salaries.filter(salary => (salary.type === SalaryType.ABSENT || salary.type === SalaryType.DAY_OFF) && salary.datetime && salary.times === PARTIAL_DAY).map(salary => salary.datetime), datetime.toDate())) {
+    if (includesDatetime(partialDay, datetime.toDate())) {
       tick = "1/2";
       total += 1 / 2;
-    } else if (includesDatetime(salaries.filter(salary => salary.type === SalaryType.ABSENT || salary.type === SalaryType.DAY_OFF).map(salary => salary.datetime), datetime.toDate())) {
+    } else if (includesDatetime(allDay, datetime.toDate())) {
       tick = "o";
     } else if (moment(new Date()).isBefore(datetime)) {
       tick = "-";
@@ -37,6 +42,14 @@ export const timesheet = (createdAt: Date, salaries: Salary[], isExport?: boolea
       color = "#09009B";
       total += 1;
     }
+    //start to end absent
+    startToEnd.forEach(salary => {
+      if (datetime.isBetween(salary.startedAt, salary.endedAt) || datetime.isSame(salary.startedAt) || datetime.isSame(salary.endedAt)) {
+        tick = "o";
+        color = "#E02401";
+      }
+    });
+
     const obj = {[datetime.format("DD-MM")]: tick, color: color};
     if (isExport) {
       range.push(tick);
@@ -45,9 +58,7 @@ export const timesheet = (createdAt: Date, salaries: Salary[], isExport?: boolea
     }
   }
 
-  /// FIXME: DEVELOP
-  // return {datime: range, total};
-  return range;
 
+  return {datetime: range, total};
 };
 

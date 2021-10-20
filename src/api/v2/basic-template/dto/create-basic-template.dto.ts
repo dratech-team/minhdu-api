@@ -1,9 +1,13 @@
-import { Type } from "class-transformer";
-import { IsNotEmpty, IsNumber } from "class-validator";
+import {Type} from "class-transformer";
+import {IsNotEmpty, IsNumber, IsOptional, IsString} from "class-validator";
 
 export class CreateBasicTemplateDto {
+  @IsNotEmpty()
+  @IsString()
+  readonly title: string;
+
   @Type(() => Number)
   @IsNumber()
-  @IsNotEmpty()
+  @IsOptional()
   readonly price: number;
 }

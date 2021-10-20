@@ -107,6 +107,9 @@ export class SalaryRepository {
       }
     }
 
+    if (body.startedAt && body.endedAt && body.datetime) {
+      throw new BadRequestException("[DEVELOPMENT] Chỉ có thể tồn tại giá trị startedAt và endedAt hoặc datetime. Không được tồn tại 1 lúc cả 2.");
+    }
     return true;
   }
 
@@ -308,6 +311,8 @@ export class SalaryRepository {
           rate: updates.rate,
           price: updates.price,
           note: updates.note,
+          startedAt: updates.startedAt,
+          endedAt: updates.endedAt,
           allowance: updates.allowance
             ? {
               upsert: {
