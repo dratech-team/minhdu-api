@@ -1,7 +1,7 @@
 import {Salary, SalaryType} from "@prisma/client";
 import * as moment from "moment";
 import {firstDatetimeOfMonth, lastDatetimeOfMonth} from "../../../../utils/datetime.util";
-import {includesDatetime, isEqualDatetime} from "../../../../common/utils/isEqual-datetime.util";
+import {includesDatetime} from "../../../../common/utils/isEqual-datetime.util";
 import {PARTIAL_DAY} from "../../../../common/constant/datetime.constant";
 
 export function rageDaysInMonth(datetime: Date): moment.Moment[] {
