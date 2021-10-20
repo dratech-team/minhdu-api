@@ -5,15 +5,18 @@ import {
   Body,
   Patch,
   Param,
+  Query,
   Delete,
 } from "@nestjs/common";
-import { BasicTemplateService } from "./basic-template.service";
-import { CreateBasicTemplateDto } from "./dto/create-basic-template.dto";
-import { UpdateBasicTemplateDto } from "./dto/update-basic-template.dto";
+import {BasicTemplateService} from "./basic-template.service";
+import {CreateBasicTemplateDto} from "./dto/create-basic-template.dto";
+import {UpdateBasicTemplateDto} from "./dto/update-basic-template.dto";
+import {SalaryType} from "@prisma/client";
 
 @Controller("v2/basic-template")
 export class BasicTemplateController {
-  constructor(private readonly basicTemplateService: BasicTemplateService) {}
+  constructor(private readonly basicTemplateService: BasicTemplateService) {
+  }
 
   @Post()
   async create(@Body() createBasicTemplateDto: CreateBasicTemplateDto) {
@@ -21,8 +24,8 @@ export class BasicTemplateController {
   }
 
   @Get()
-  async findAll() {
-    return await this.basicTemplateService.findAll();
+  async findAll(@Query("type") type: SalaryType) {
+    return await this.basicTemplateService.findAll(type);
   }
 
   @Get(":id")

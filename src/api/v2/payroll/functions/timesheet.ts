@@ -42,11 +42,14 @@ export const timesheet = (createdAt: Date, salaries: Salary[], isExport?: boolea
       color = "#09009B";
       total += 1;
     }
+
     //start to end absent
     startToEnd.forEach(salary => {
       if (datetime.isBetween(salary.startedAt, salary.endedAt) || datetime.isSame(salary.startedAt) || datetime.isSame(salary.endedAt)) {
         tick = "o";
         color = "#E02401";
+        /// FIXME: vì else luôn rơi vào nếu k thuộc các if kia nên xảy ra case luôn +1. nên khi chạy xuống này fai trừ lại
+        total -= 1;
       }
     });
 
@@ -57,7 +60,6 @@ export const timesheet = (createdAt: Date, salaries: Salary[], isExport?: boolea
       range.push(obj);
     }
   }
-
 
   return {datetime: range, total};
 };
