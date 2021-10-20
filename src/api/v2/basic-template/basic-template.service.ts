@@ -23,7 +23,11 @@ export class BasicTemplateService {
     try {
       const [total, data] = await Promise.all([
         this.prisma.basicTemplate.count(),
-        this.prisma.basicTemplate.findMany(),
+        this.prisma.basicTemplate.findMany({
+          orderBy: {
+            price: "desc"
+          }
+        }),
       ]);
       return { total, data };
     } catch (err) {

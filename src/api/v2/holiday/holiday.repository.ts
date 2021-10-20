@@ -49,6 +49,9 @@ export class HolidayRepository {
           include: {
             positions: true,
           },
+          orderBy: {
+            datetime: "desc"
+          }
         }),
       ]);
       return {total, data};
