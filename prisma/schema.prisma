@@ -111,8 +111,7 @@ model Branch {
   overtimeTemplates OvertimeTemplate[]
   timestamp         DateTime?          @default(now())
   workHistories     WorkHistory[]
-  Account           Account?           @relation(fields: [accountId], references: [id])
-  accountId         Int?
+  Account           Account[]
 }
 
 model Position {
