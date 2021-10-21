@@ -105,7 +105,7 @@ export class EmployeeRepository {
               name: {startsWith: search?.position, mode: "insensitive"},
             },
             branch: {
-              id: profile.branches?.length ? {in: profile.branches.map(branch =>  branch.id)} : {},
+              id: profile.branches?.length ? {in: profile.branches.map(branch => branch.id)} : {},
               name: {startsWith: search?.branch, mode: "insensitive"},
             },
             positionId: positionIds?.length ? {in: positionIds} : {},
@@ -136,7 +136,7 @@ export class EmployeeRepository {
               name: {startsWith: search?.position, mode: "insensitive"},
             },
             branch: {
-              id: profile.branches?.length ? {in: profile.branches.map(branch =>  branch.id)} : {},
+              id: profile.branches?.length ? {in: profile.branches.map(branch => branch.id)} : {},
               name: {startsWith: search?.branch, mode: "insensitive"},
             },
             positionId: positionIds?.length ? {in: positionIds} : {},
@@ -231,11 +231,7 @@ export class EmployeeRepository {
               },
             },
           },
-          salaryHistories: {
-            include: {
-              salary: true
-            }
-          },
+          salaryHistories: true,
           workHistories: {
             select: {
               branch: {select: {name: true}},

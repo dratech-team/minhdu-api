@@ -43,7 +43,7 @@ export class EmployeeService {
         ? "Vô  thời hạn"
         : "Chưa có hợp đồng";
 
-    const salaryHistories = employee.salaryHistories.map(salary => Object.assign(salary.salary, {datetime: salary.salary.timestamp}));
+    const salaryHistories = employee.salaryHistories.map(salary => Object.assign(salary, {datetime: salary.timestamp}));
     return Object.assign(employee, {contractType: contactType, salaryHistories});
   }
 

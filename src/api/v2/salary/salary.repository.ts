@@ -337,7 +337,8 @@ export class SalaryRepository {
         if (salary.type === SalaryType.BASIC || salary.type === SalaryType.BASIC_INSURANCE || salary.type === SalaryType.STAY) {
           this.prisma.salaryHistory.create({
             data: {
-              salaryId: salary.id,
+              title: salary.title,
+              price: salary.price,
               employeeId: salary.payroll.employeeId,
             }
           }).then();

@@ -351,31 +351,30 @@ model Location {
 }
 
 model Salary {
-  id            Int             @id @default(autoincrement())
-  title         String
-  type          SalaryType
-  times         Float?
-  price         Float?
-  unit          DatetimeUnit?
-  rate          Float?          @default(1)
-  startedAt     DateTime?
-  endedAt       DateTime?
-  datetime      DateTime?
-  forgot        Boolean?        @default(false)
-  note          String?
-  payroll       Payroll?        @relation(fields: [payrollId], references: [id])
-  payrollId     Int?
-  salaryId      Int?
-  allowance     Salary?         @relation("SalaryToAllowance", fields: [salaryId], references: [id])
-  allowances    Salary[]        @relation("SalaryToAllowance")
-  timestamp     DateTime?       @default(now())
-  SalaryHistory SalaryHistory[]
+  id         Int           @id @default(autoincrement())
+  title      String
+  type       SalaryType
+  times      Float?
+  price      Float?
+  unit       DatetimeUnit?
+  rate       Float?        @default(1)
+  startedAt  DateTime?
+  endedAt    DateTime?
+  datetime   DateTime?
+  forgot     Boolean?      @default(false)
+  note       String?
+  payroll    Payroll?      @relation(fields: [payrollId], references: [id])
+  payrollId  Int?
+  salaryId   Int?
+  allowance  Salary?       @relation("SalaryToAllowance", fields: [salaryId], references: [id])
+  allowances Salary[]      @relation("SalaryToAllowance")
+  timestamp  DateTime?     @default(now())
 }
 
 model SalaryHistory {
   id         Int       @id @default(autoincrement())
-  salary     Salary    @relation(fields: [salaryId], references: [id])
-  salaryId   Int
+  title      String
+  price      Float
   employee   Employee  @relation(fields: [employeeId], references: [id], onDelete: Cascade)
   employeeId Int
   createdAt  DateTime? @default(now())
