@@ -609,16 +609,17 @@ export class PayrollService {
     const worksNotInHoliday = [];
     // Get ngày Không đi làm trong ngày lễ để hiển thị ra UI
     currentHoliday.forEach(holiday => {
-      const absentsDate = absents.map(absent => absent.datetime);
-      if (includesDatetime(absentsDate, holiday.datetime)) {
-        if (absents.find(absent => isEqualDatetime(absent.datetime, holiday.datetime)).times === PARTIAL_DAY) {
-          if (!holiday.isConstraint || (holiday.isConstraint && actualDay > workday)) {
-            worksInHoliday.push({day: PARTIAL_DAY, datetime: holiday.datetime, rate: holiday.rate});
+      if (includesDatetime(absents.map(absent => absent.datetime), holiday.datetime)) {
+        for (let i = 0; i < absents.length; i++) {
+          if (isEqualDatetime(holiday.datetime, absents[i].datetime, "day") && absents[i].times === PARTIAL_DAY) {
+            if (!holiday.isConstraint || (holiday.isConstraint && actualDay > workday)) {
+              worksInHoliday.push({day: PARTIAL_DAY, datetime: holiday.datetime, rate: holiday.rate});
 
-            worksNotInHoliday.push({day: PARTIAL_DAY, datetime: holiday.datetime, rate: holiday.rate});
+              worksNotInHoliday.push({day: PARTIAL_DAY, datetime: holiday.datetime, rate: holiday.rate});
+            } else {
+              worksNotInHoliday.push({day: ALL_DAY, datetime: holiday.datetime, rate: holiday.rate});
+            }
           }
-        } else {
-          worksNotInHoliday.push({day: ALL_DAY, datetime: holiday.datetime, rate: holiday.rate});
         }
       } else {
         if (!holiday.isConstraint || (holiday.isConstraint && actualDay > workday)) {
@@ -793,19 +794,22 @@ export class PayrollService {
         const salaries = payroll.salaries.filter(salary => salary.type === SalaryType.ABSENT || salary.type === SalaryType.DAY_OFF);
         const isAbsentInHoliday = includesDatetime(salaries.map(salary => salary.datetime), currentHoliday[i].datetime);
         if (isAbsentInHoliday) {
-          const salary = salaries.find(salary => isEqualDatetime(salary.datetime, currentHoliday[i].datetime));
-          if (salary.times === 0.5) {
-            /// FIXME: confirm lại nếu đi làm ngày lễ nhưng đkien ngày thực tế > ngày công chuẩn mới được hưởng thưởng hay k cần điều kiện. Nếu không cần thì bỏ đkien đi
-            // Đi làm nửa ngày thì dược hưởng nửa thưởng
-            // if (actualDay >= workday) {
-            payslipInHoliday += currentHoliday[i].price / 2;
-            // }
-          } else if (salary.times === 1) {
-            // Vắng trong ngày lễ thì k đc tiền.
-          } else {
-            throw new BadRequestException(
-              `${payroll.employee.lastName} ngày ${payroll.createdAt} có thời gian làm ngày lễ không hợp lệ`
-            );
+          for (let j = 0; j < salaries.length; j++) {
+            if(isEqualDatetime(salaries[j].datetime, currentHoliday[i].datetime)) {
+              if (salaries[j].times === 0.5) {
+                /// FIXME: confirm lại nếu đi làm ngày lễ nhưng đkien ngày thực tế > ngày công chuẩn mới được hưởng thưởng hay k cần điều kiện. Nếu không cần thì bỏ đkien đi
+                // Đi làm nửa ngày thì dược hưởng nửa thưởng
+                // if (actualDay >= workday) {
+                payslipInHoliday += currentHoliday[i].price / 2;
+                // }
+              } else if (salaries[j].times === 1) {
+                // Vắng trong ngày lễ thì k đc tiền.
+              } else {
+                throw new BadRequestException(
+                  `${payroll.employee.lastName} ngày ${payroll.createdAt} có thời gian làm ngày lễ không hợp lệ`
+                );
+              }
+            }
           }
         } else {
           /// FIXME: confirm lại nếu đi làm ngày lễ nhưng đkien ngày thực tế > ngày công chuẩn mới được hưởng thưởng hay k cần điều kiện. Nếu không cần thì bỏ đkien đi
@@ -839,13 +843,14 @@ export class PayrollService {
     const worksNotInHoliday = [];
     // Get ngày Không đi làm trong ngày lễ để hiển thị ra UI
     currentHoliday.forEach(holiday => {
-      const absentsDate = absents.map(absent => absent.datetime);
-      if (includesDatetime(absentsDate, holiday.datetime)) {
-        if (absents.find(absent => isEqualDatetime(absent.datetime, holiday.datetime)).times === PARTIAL_DAY) {
-          worksInHoliday.push({day: PARTIAL_DAY, datetime: holiday.datetime});
-          worksNotInHoliday.push({day: PARTIAL_DAY, datetime: holiday.datetime});
-        } else {
-          worksNotInHoliday.push({day: ALL_DAY, datetime: holiday.datetime});
+      if (includesDatetime(absents.map(absent => absent.datetime), holiday.datetime)) {
+        for (let i = 0; i < absents.length; i++) {
+          if (isEqualDatetime(absents[i].datetime, holiday.datetime) && absents[i].times === PARTIAL_DAY) {
+            worksInHoliday.push({day: PARTIAL_DAY, datetime: holiday.datetime});
+            worksNotInHoliday.push({day: PARTIAL_DAY, datetime: holiday.datetime});
+          } else {
+            worksNotInHoliday.push({day: ALL_DAY, datetime: holiday.datetime});
+          }
         }
       } else {
         worksInHoliday.push({day: ALL_DAY, datetime: holiday.datetime});
