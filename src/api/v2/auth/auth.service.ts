@@ -30,7 +30,8 @@ export class AuthService {
           username: body.username,
           password: body.password,
           roleId: body.roleId,
-          branches: {connect: body.branchIds?.map(id => ({id}))},
+          /// FIXME:
+          // branches: {connect: {id: body.branchIds?.map(id => ({id}))}},
           appName: body.appName,
           managedBy: profile?.role,
         }
@@ -101,7 +102,8 @@ export class AuthService {
         where: {id},
         data: {
           roleId: body.roleId,
-          branches: {set: body.branchIds?.map(id => ({id}))}
+          /// FIXME:
+          // branches: {set: body.branchIds?.map(id => ({id}))},
         },
         include: {
           branches: true,

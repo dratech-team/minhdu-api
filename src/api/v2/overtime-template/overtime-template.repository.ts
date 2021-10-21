@@ -39,6 +39,7 @@ export class OvertimeTemplateRepository {
     skip: number,
     search: Partial<SearchOvertimeTemplateDto>
   ) {
+    console.log(search)
     try {
       const [total, data] = await Promise.all([
         this.prisma.overtimeTemplate.count({
@@ -48,7 +49,7 @@ export class OvertimeTemplateRepository {
             unit: {in: search?.unit || undefined},
             positions: search?.positionId
               ? {
-                every: {id: search?.positionId},
+                every: {id: {in: search?.positionId}},
               }
               : {},
           },
@@ -62,7 +63,7 @@ export class OvertimeTemplateRepository {
             unit: {in: search?.unit || undefined},
             positions: search?.positionId
               ? {
-                every: {id: search?.positionId},
+                every: {id: {in: search?.positionId}},
               }
               : {},
           },
