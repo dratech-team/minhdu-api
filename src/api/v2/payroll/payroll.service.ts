@@ -608,14 +608,17 @@ export class PayrollService {
     const worksInHoliday = [];
     const worksNotInHoliday = [];
     // Get ngày Không đi làm trong ngày lễ để hiển thị ra UI
+
     currentHoliday.forEach(holiday => {
       if (includesDatetime(absents.map(absent => absent.datetime), holiday.datetime)) {
         for (let i = 0; i < absents.length; i++) {
-          if (isEqualDatetime(holiday.datetime, absents[i].datetime, "day") && absents[i].times === PARTIAL_DAY) {
-            if (!holiday.isConstraint || (holiday.isConstraint && actualDay > workday)) {
-              worksInHoliday.push({day: PARTIAL_DAY, datetime: holiday.datetime, rate: holiday.rate});
+          if (isEqualDatetime(holiday.datetime, absents[i].datetime, "day")) {
+            if (absents[i].times === PARTIAL_DAY) {
+              if (!holiday.isConstraint || (holiday.isConstraint && actualDay > workday)) {
+                worksInHoliday.push({day: PARTIAL_DAY, datetime: holiday.datetime, rate: holiday.rate});
 
-              worksNotInHoliday.push({day: PARTIAL_DAY, datetime: holiday.datetime, rate: holiday.rate});
+                worksNotInHoliday.push({day: PARTIAL_DAY, datetime: holiday.datetime, rate: holiday.rate});
+              }
             } else {
               worksNotInHoliday.push({day: ALL_DAY, datetime: holiday.datetime, rate: holiday.rate});
             }
@@ -795,8 +798,8 @@ export class PayrollService {
         const isAbsentInHoliday = includesDatetime(salaries.map(salary => salary.datetime), currentHoliday[i].datetime);
         if (isAbsentInHoliday) {
           for (let j = 0; j < salaries.length; j++) {
-            if(isEqualDatetime(salaries[j].datetime, currentHoliday[i].datetime)) {
-              if (salaries[j].times === 0.5) {
+            if (isEqualDatetime(salaries[j].datetime, currentHoliday[i].datetime)) {
+              if (salaries[j].times === PARTIAL_DAY) {
                 /// FIXME: confirm lại nếu đi làm ngày lễ nhưng đkien ngày thực tế > ngày công chuẩn mới được hưởng thưởng hay k cần điều kiện. Nếu không cần thì bỏ đkien đi
                 // Đi làm nửa ngày thì dược hưởng nửa thưởng
                 // if (actualDay >= workday) {
@@ -845,11 +848,13 @@ export class PayrollService {
     currentHoliday.forEach(holiday => {
       if (includesDatetime(absents.map(absent => absent.datetime), holiday.datetime)) {
         for (let i = 0; i < absents.length; i++) {
-          if (isEqualDatetime(absents[i].datetime, holiday.datetime) && absents[i].times === PARTIAL_DAY) {
-            worksInHoliday.push({day: PARTIAL_DAY, datetime: holiday.datetime});
-            worksNotInHoliday.push({day: PARTIAL_DAY, datetime: holiday.datetime});
-          } else {
-            worksNotInHoliday.push({day: ALL_DAY, datetime: holiday.datetime});
+          if (isEqualDatetime(absents[i].datetime, holiday.datetime)) {
+            if (absents[i].times === PARTIAL_DAY) {
+              worksInHoliday.push({day: PARTIAL_DAY, datetime: holiday.datetime});
+              worksNotInHoliday.push({day: PARTIAL_DAY, datetime: holiday.datetime});
+            } else {
+              worksNotInHoliday.push({day: ALL_DAY, datetime: holiday.datetime});
+            }
           }
         }
       } else {
