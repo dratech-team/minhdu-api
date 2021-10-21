@@ -682,7 +682,7 @@ export class PayrollService {
       return basicDaySalary * w.rate * w.day;
     }).reduce((a, b) => a + b, 0);
 
-    const  payslipNotInHoliday = basicDaySalary * notWorkdayInHoliday;
+    const payslipNotInHoliday = basicDaySalary * notWorkdayInHoliday;
 
     const payslipNormalDay = !isConstraint
       ? basicDaySalary * (workdayNotInHoliday >= workday ? workday : workdayNotInHoliday)
@@ -693,7 +693,7 @@ export class PayrollService {
     const bsc = this.totalForgotBSC(payroll.salaries);
     const bscSalary = basicDaySalary * (bsc / 2);
 
-    const deduction = absent.minute * (totalStandard / workday / 8 / 60);
+    const deduction = absent.minute * ((basicSalary + this.totalStaySalary(payroll.salaries)) / workday / 8 / 60);
 
     const total = Math.round((payslipNormalDay + payslipInHoliday + payslipNotInHoliday + payslipOutOfWorkday + staySalary + allowanceTotal + overtime - tax - bscSalary - deduction) / 1000) * 1000;
 
