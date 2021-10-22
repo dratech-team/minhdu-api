@@ -612,7 +612,7 @@ export class PayrollService {
     currentHoliday.forEach(holiday => {
       if (includesDatetime(absents.map(absent => absent.datetime), holiday.datetime)) {
         for (let i = 0; i < absents.length; i++) {
-          if (isEqualDatetime(holiday.datetime, absents[i].datetime, "day")) {
+          if (isEqualDatetime(holiday.datetime, absents[i].datetime, "day") && !absents[i].startedAt) {
             if (absents[i].times === PARTIAL_DAY) {
               if (!holiday.isConstraint || (holiday.isConstraint && actualDay > workday)) {
                 worksInHoliday.push({day: PARTIAL_DAY, datetime: holiday.datetime, rate: holiday.rate});
@@ -621,6 +621,13 @@ export class PayrollService {
               }
             } else {
               worksNotInHoliday.push({day: ALL_DAY, datetime: holiday.datetime, rate: holiday.rate});
+            }
+          } else if (isEqualDatetime(holiday.datetime, absents[i].startedAt, "day") && !absents[i].datetime) {
+            const range = rageDaysInMonth(absents[i].startedAt);
+            if (range.length === absents[i].times) {
+              range.forEach(datetime => {
+                worksNotInHoliday.push({day: ALL_DAY, datetime: datetime, rate: holiday.rate});
+              });
             }
           }
         }
