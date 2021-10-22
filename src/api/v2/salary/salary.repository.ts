@@ -11,6 +11,7 @@ import {FullPayroll} from "../payroll/entities/payroll.entity";
 import {firstDatetimeOfMonth, lastDatetimeOfMonth} from "../../../utils/datetime.util";
 import {SearchSalaryDto} from "./dto/search-salary.dto";
 import {ProfileEntity} from "../../../common/entities/profile.entity";
+import {CreateForEmployeesDto} from "./dto/create-for-employees.dto";
 
 const RATE_TIMES = 1;
 
@@ -119,9 +120,27 @@ export class SalaryRepository {
     const salaries = payroll.salaries.filter(
       (salary) =>
         salary.type === SalaryType.BASIC_INSURANCE ||
-        salary.type === SalaryType.BASIC ||
-        salary.type === SalaryType.STAY
+        salary.type === SalaryType.BASIC
     );
+    const isEqualTitle = salaries.some(salary => salary.title === body.title);
+    // const isEqualPrice = salaries
+    //   .map((salary) => salary.price)
+    //   .includes(body.price);
+
+    if (isEqualTitle) {
+      throw new BadRequestException(
+        `${body.title} đã tồn tại. Vui lòng không thêm`
+      );
+    }
+
+    return true;
+  }
+
+  validateUniqueStay(body: CreateSalaryDto, payroll: FullPayroll) {
+    const salaries = payroll.salaries.filter(
+      (salary) => salary.type === SalaryType.STAY
+    );
+
     const isEqualTitle = salaries.some(salary => salary.title === body.title);
     // const isEqualPrice = salaries
     //   .map((salary) => salary.price)
@@ -198,7 +217,7 @@ export class SalaryRepository {
         return this.validateUniqueBasic(body, payroll);
       }
       case SalaryType.STAY: {
-        return true;
+        return this.validateUniqueStay(body, payroll);
       }
       case SalaryType.ALLOWANCE: {
         return this.validateAllowance(body, payroll);
@@ -367,11 +386,27 @@ export class SalaryRepository {
     }
   }
 
-  async findEmployees(profile: ProfileEntity) {
+  ///FIXME: Dùng 1 lần xong xoá
+  async findEmployees(profile: ProfileEntity, body: CreateForEmployeesDto) {
     return await this.prisma.employee.findMany({
-      where: {branchId: {in: profile.branches.map(branch => branch.id)}},
+      where: {
+        branchId: profile.branches.length ? {in: profile.branches.map(branch => branch.id)} : {},
+        id: {in: body.employeeIds}
+      },
       include: {
         payrolls: true,
+      }
+    });
+  }
+
+  ///FIXME: Dùng 1 lần xong xoá
+  async createEmp(body: CreateSalaryDto) {
+    return await this.prisma.salary.create({
+      data: {
+        title: body.title,
+        price: body.price,
+        type: body.type,
+        payroll: {connect: {id: body.payrollId}},
       }
     });
   }

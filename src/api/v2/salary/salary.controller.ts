@@ -18,6 +18,7 @@ export class SalaryController {
   constructor(private readonly salaryService: SalaryService) {
   }
 
+  @Roles(RoleEnum.CAMP_ACCOUNTING, RoleEnum.HUMAN_RESOURCE)
   @Post()
   async create(@Body() createSalaryDto: CreateSalaryDto) {
     return await this.salaryService.create(createSalaryDto);
@@ -48,12 +49,14 @@ export class SalaryController {
     return this.salaryService.update(+id, updateSalaryDto);
   }
 
+  @Roles(RoleEnum.HUMAN_RESOURCE)
   @Delete(":id")
   remove(@Param("id") id: string) {
     return this.salaryService.remove(+id);
   }
 
-  @Roles(RoleEnum.CAMP_ACCOUNTING)
+  ///FIXME: Dùng 1 lần xong xoá
+  @Roles(RoleEnum.CAMP_ACCOUNTING, RoleEnum.HUMAN_RESOURCE)
   @Post("/employees")
   createForEmployees(@ReqProfile() profile: ProfileEntity, @Body() body: CreateForEmployeesDto) {
     return this.salaryService.createForEmployees(profile, body);

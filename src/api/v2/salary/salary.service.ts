@@ -110,19 +110,26 @@ export class SalaryService {
   }
 
   async remove(id: number) {
-    return this.repository.remove(id);
+    return await this.repository.remove(id);
   }
 
+  // Dùng 1 lần xong xoá
   async createForEmployees(profile: ProfileEntity, body: CreateForEmployeesDto) {
-    const employees = await this.repository.findEmployees(profile);
-    console.log(employees)
-    const payrolls = employees.reduce((previousValue, currentValue, index) => {
-      console.log(previousValue[index])
-      console.log(currentValue[index])
-      if(previousValue[index].payrolls.length === 1) {
-        return previousValue[index].payrolls
+    const added = [];
+    const employees = await this.repository.findEmployees(profile, body);
+    const data = employees.reduce((previousValue, currentValue) => {
+      if (currentValue.payrolls.length === 1) {
+        return [...previousValue, currentValue];
       }
+      return previousValue;
     }, []);
-
+    for (let i = 0; i < data.length; i++) {
+      const salary = await this.repository.createEmp(Object.assign(body.salary, {payrollId: data[i].payrolls[0].id}));
+      added.push(salary);
+    }
+    return {
+      status: 201,
+      message: `Đã thêm lương ${body.salary.title} với giá là ${body.salary.price} cho ${added.length} phiếu lương`,
+    };
   }
 }
