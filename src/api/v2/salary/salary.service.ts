@@ -8,6 +8,8 @@ import {UpdateSalaryDto} from "./dto/update-salary.dto";
 import {OneSalary} from "./entities/salary.entity";
 import {SalaryRepository} from "./salary.repository";
 import {SearchSalaryDto} from "./dto/search-salary.dto";
+import {CreateForEmployeesDto} from "./dto/create-for-employees.dto";
+import {ProfileEntity} from "../../../common/entities/profile.entity";
 
 @Injectable()
 export class SalaryService {
@@ -109,5 +111,18 @@ export class SalaryService {
 
   async remove(id: number) {
     return this.repository.remove(id);
+  }
+
+  async createForEmployees(profile: ProfileEntity, body: CreateForEmployeesDto) {
+    const employees = await this.repository.findEmployees(profile);
+    console.log(employees)
+    const payrolls = employees.reduce((previousValue, currentValue, index) => {
+      console.log(previousValue[index])
+      console.log(currentValue[index])
+      if(previousValue[index].payrolls.length === 1) {
+        return previousValue[index].payrolls
+      }
+    }, []);
+
   }
 }

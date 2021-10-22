@@ -10,6 +10,7 @@ import {ALL_DAY, PARTIAL_DAY} from "../../../common/constant/datetime.constant";
 import {FullPayroll} from "../payroll/entities/payroll.entity";
 import {firstDatetimeOfMonth, lastDatetimeOfMonth} from "../../../utils/datetime.util";
 import {SearchSalaryDto} from "./dto/search-salary.dto";
+import {ProfileEntity} from "../../../common/entities/profile.entity";
 
 const RATE_TIMES = 1;
 
@@ -364,5 +365,14 @@ export class SalaryRepository {
       console.error(err);
       throw new BadRequestException(err);
     }
+  }
+
+  async findEmployees(profile: ProfileEntity) {
+    return await this.prisma.employee.findMany({
+      where: {branchId: {in: profile.branches.map(branch => branch.id)}},
+      include: {
+        payrolls: true,
+      }
+    });
   }
 }

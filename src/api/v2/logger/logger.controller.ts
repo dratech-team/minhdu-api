@@ -21,7 +21,7 @@ export class LoggerController {
     return this.loggerService.create(createLoggerDto);
   }
 
-  @Roles(RoleEnum.ADMIN, RoleEnum.HUMAN_RESOURCE)
+  @Roles(RoleEnum.ADMIN, RoleEnum.HUMAN_RESOURCE, RoleEnum.SALESMAN)
   @Get()
   findAll(
     @ReqProfile() profile: ProfileEntity,

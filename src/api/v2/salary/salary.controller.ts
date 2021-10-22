@@ -1,10 +1,18 @@
-import {Body, Controller, Delete, Get, Param, ParseIntPipe, Patch, Post, Query,} from "@nestjs/common";
+import {Body, Controller, Delete, Get, Param, ParseIntPipe, Patch, Post, Query, UseGuards,} from "@nestjs/common";
 import {CreateSalaryDto} from "./dto/create-salary.dto";
 import {UpdateSalaryDto} from "./dto/update-salary.dto";
 import {SalaryService} from "./salary.service";
 import {ParseDatetimePipe} from "../../../core/pipe/datetime.pipe";
-import {DatetimeUnit} from "@prisma/client";
+import {DatetimeUnit, RoleEnum} from "@prisma/client";
+import {CreateForEmployeesDto} from "./dto/create-for-employees.dto";
+import {ReqProfile} from "../../../core/decorators/req-profile.decorator";
+import {ProfileEntity} from "../../../common/entities/profile.entity";
+import {JwtAuthGuard} from "../../../core/guard/jwt-auth.guard";
+import {ApiKeyGuard} from "../../../core/guard/api-key-auth.guard";
+import {RolesGuard} from "../../../core/guard/role.guard";
+import {Roles} from "../../../core/decorators/roles.decorator";
 
+@UseGuards(JwtAuthGuard, ApiKeyGuard, RolesGuard)
 @Controller("v2/salary")
 export class SalaryController {
   constructor(private readonly salaryService: SalaryService) {
@@ -43,5 +51,11 @@ export class SalaryController {
   @Delete(":id")
   remove(@Param("id") id: string) {
     return this.salaryService.remove(+id);
+  }
+
+  @Roles(RoleEnum.CAMP_ACCOUNTING)
+  @Post("/employees")
+  createForEmployees(@ReqProfile() profile: ProfileEntity, @Body() body: CreateForEmployeesDto) {
+    return this.salaryService.createForEmployees(profile, body);
   }
 }
