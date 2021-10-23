@@ -2,7 +2,7 @@ import {BadRequestException, ConflictException, Injectable, NotFoundException} f
 import {DatetimeUnit, Payroll, RecipeType, RoleEnum, Salary, SalaryType,} from "@prisma/client";
 import {Response} from "express";
 import {ProfileEntity} from "../../../common/entities/profile.entity";
-import {lastDatetimeOfMonth, lastDayOfMonth} from "../../../utils/datetime.util";
+import {lastDatetimeOfMonth, lastDayOfMonth, rangeDatetime} from "../../../utils/datetime.util";
 import {EmployeeService} from "../employee/employee.service";
 import {HolidayService} from "../holiday/holiday.service";
 import {CreatePayrollDto} from "./dto/create-payroll.dto";
@@ -15,11 +15,14 @@ import {includesDatetime, isEqualDatetime,} from "../../../common/utils/isEqual-
 import {ALL_DAY, PARTIAL_DAY,} from "../../../common/constant/datetime.constant";
 import {exportExcel} from "../../../core/services/export.service";
 import {FullSalary} from "../salary/entities/salary.entity";
-import * as moment from "moment";
+import * as Moment from "moment";
 import {ConfirmPayrollDto} from "./dto/confirm-payroll.dto";
 import {SearchOvertimePayrollDto} from "./dto/search-overtime-payroll.dto";
 import {OvertimeTemplateService} from "../overtime-template/overtime-template.service";
 import {rageDaysInMonth, timesheet} from "./functions/timesheet";
+import {extendMoment} from 'moment-range';
+
+const moment = extendMoment(Moment);
 
 @Injectable()
 export class PayrollService {
@@ -608,11 +611,11 @@ export class PayrollService {
     const worksInHoliday = [];
     const worksNotInHoliday = [];
     // Get ngày Không đi làm trong ngày lễ để hiển thị ra UI
-
+    //
     currentHoliday.forEach(holiday => {
       if (includesDatetime(absents.map(absent => absent.datetime), holiday.datetime)) {
         for (let i = 0; i < absents.length; i++) {
-          if (isEqualDatetime(holiday.datetime, absents[i].datetime, "day") && !absents[i].startedAt) {
+          if (isEqualDatetime(holiday.datetime, absents[i].datetime, "day")) {
             if (absents[i].times === PARTIAL_DAY) {
               if (!holiday.isConstraint || (holiday.isConstraint && actualDay > workday)) {
                 worksInHoliday.push({day: PARTIAL_DAY, datetime: holiday.datetime, rate: holiday.rate});
@@ -621,13 +624,6 @@ export class PayrollService {
               }
             } else {
               worksNotInHoliday.push({day: ALL_DAY, datetime: holiday.datetime, rate: holiday.rate});
-            }
-          } else if (isEqualDatetime(holiday.datetime, absents[i].startedAt, "day") && !absents[i].datetime) {
-            const range = rageDaysInMonth(absents[i].startedAt);
-            if (range.length === absents[i].times) {
-              range.forEach(datetime => {
-                worksNotInHoliday.push({day: ALL_DAY, datetime: datetime, rate: holiday.rate});
-              });
             }
           }
         }

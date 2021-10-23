@@ -27,15 +27,12 @@ export class SalaryRepository {
       if (!validate) {
         throw new BadRequestException(`[DEVELOPMENT] Validate ${body.title} for type ${body.type} failure. Pls check it`);
       }
-      // passed validate
       return await this.prisma.salary.create({
         data: {
           title: body.title,
           type: body.type,
           unit: body.unit,
           datetime: body.datetime as Date,
-          startedAt: body.startedAt,
-          endedAt: body.endedAt,
           times: body.times,
           forgot: body.forgot,
           rate: body.rate,
@@ -109,9 +106,9 @@ export class SalaryRepository {
       }
     }
 
-    if (body.startedAt && body.endedAt && body.datetime) {
-      throw new BadRequestException("[DEVELOPMENT] Chỉ có thể tồn tại giá trị startedAt và endedAt hoặc datetime. Không được tồn tại 1 lúc cả 2.");
-    }
+    // if (body.startedAt && body.endedAt && body.datetime) {
+    //   throw new BadRequestException("[DEVELOPMENT] Chỉ có thể tồn tại giá trị startedAt và endedAt hoặc datetime. Không được tồn tại 1 lúc cả 2.");
+    // }
     return true;
   }
 
@@ -331,8 +328,6 @@ export class SalaryRepository {
           rate: updates.rate,
           price: updates.price,
           note: updates.note,
-          startedAt: updates.startedAt,
-          endedAt: updates.endedAt,
           allowance: updates.allowance
             ? {
               upsert: {

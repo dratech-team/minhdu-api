@@ -1,6 +1,6 @@
 import {BadRequestException, Injectable} from "@nestjs/common";
 import {Salary, SalaryType} from "@prisma/client";
-import {firstDatetimeOfMonth, lastDatetimeOfMonth} from "../../../utils/datetime.util";
+import {firstDatetimeOfMonth, lastDatetimeOfMonth, rangeDatetime} from "../../../utils/datetime.util";
 import {EmployeeService} from "../employee/employee.service";
 import {PayrollService} from "../payroll/payroll.service";
 import {CreateSalaryDto} from "./dto/create-salary.dto";
@@ -60,6 +60,11 @@ export class SalaryService {
         status: 201,
         message: `Đã thêm ${body.title} cho ${employees.length} nhân viên. ${body.type === SalaryType.OVERTIME ? `Và ${allowances.length} phụ cấp` : ''}`
       };
+    } else if (body.startedAt && body.endedAt && !body.datetime) {
+      const range = rangeDatetime(body.startedAt, body.endedAt);
+      for (let i = 0; i < range.length; i++) {
+        await this.repository.create(Object.assign(body, {times: 1, datetime: range[i].toDate()}));
+      }
     } else {
       return await this.repository.create(body);
     }

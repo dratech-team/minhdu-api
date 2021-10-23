@@ -13,7 +13,7 @@ generator client {
 
 datasource db {
   provider = "postgresql"
-  url      = env("DATABASE_URL")
+  url      = "postgres://postgres:minhdudb@localhost:5432/minhdudb?schema=public"
 }
 
 model Account {
@@ -357,8 +357,6 @@ model Salary {
   price      Float?
   unit       DatetimeUnit?
   rate       Float?        @default(1)
-  startedAt  DateTime?
-  endedAt    DateTime?
   datetime   DateTime?
   forgot     Boolean?      @default(false)
   note       String?

@@ -1,4 +1,7 @@
-import * as moment from "moment";
+import * as Moment from "moment";
+import {extendMoment} from "moment-range";
+
+const moment = extendMoment(Moment);
 
 export function firstDatetimeOfMonth(datetime: string | Date | undefined): Date | undefined {
   return datetime ? moment(datetime).clone().startOf('months').toDate() : undefined;
@@ -13,6 +16,10 @@ export function lastDayOfMonth(datetime: Date): number {
   return moment(datetime).endOf('month').date();
 }
 
-export function tomorrowDate() {
-  return moment(new Date).add(1, 'day').toDate();
+export function tomorrowDate(datetime?: Date) {
+  return moment(datetime || new Date).add(1, 'day').toDate();
+}
+
+export function rangeDatetime(start: Date, end: Date) {
+  return Array.from(moment().range(start, tomorrowDate(end)).by('days', {excludeEnd: true}));
 }
