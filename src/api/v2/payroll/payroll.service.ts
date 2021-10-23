@@ -2,7 +2,7 @@ import {BadRequestException, ConflictException, Injectable, NotFoundException} f
 import {DatetimeUnit, Payroll, RecipeType, RoleEnum, Salary, SalaryType,} from "@prisma/client";
 import {Response} from "express";
 import {ProfileEntity} from "../../../common/entities/profile.entity";
-import {lastDatetimeOfMonth, lastDayOfMonth, rangeDatetime} from "../../../utils/datetime.util";
+import {lastDatetimeOfMonth, lastDayOfMonth} from "../../../utils/datetime.util";
 import {EmployeeService} from "../employee/employee.service";
 import {HolidayService} from "../holiday/holiday.service";
 import {CreatePayrollDto} from "./dto/create-payroll.dto";
@@ -865,7 +865,7 @@ export class PayrollService {
       }
     });
 
-    const bscSalary = (bsc / 2) * basicDaySalary;
+    const bscSalary = (bsc / 2) * basicSalary / PAYSLIP_WORKDAY_HOLIDAY;
 
     // Tổng tiền đi trễ. Ngày nghỉ là ngày đã đc trừ trên ngày đi làm thực tế, nên sẽ không tính vào tiền khấu trừ
     const deductionSalary = absent.minute * ((basicSalary + staySalary) / workday / 8 / 60);

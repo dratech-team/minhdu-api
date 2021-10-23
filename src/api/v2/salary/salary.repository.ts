@@ -79,36 +79,32 @@ export class SalaryRepository {
           )} là lễ nên không được phép nghỉ số số tiếng. Chỉ được phép nghỉ 1 ngày hoặc nửa ngày thôi.`
         );
       }
-
-      // Vắng hoặc không đi làm chỉ đc 1 lần trong ngày
-      const salary = await this.prisma.salary.findFirst({
-        where: {
-          datetime: {
-            in: body.datetime as Date,
-          },
-          payrollId: body.payrollId,
-          type: {in: [SalaryType.DAY_OFF, SalaryType.ABSENT]}
-        },
-        select: {
-          payroll: {
-            select: {
-              employee: {select: {firstName: true, lastName: true}}
-            }
-          }
-        }
-      });
-      if ((body.type === SalaryType.DAY_OFF || SalaryType.ABSENT) && salary) {
-        throw new BadRequestException(
-          `Ngày ${moment(body.datetime as Date).format(
-            "DD/MM/YYYY"
-          )} đã tồn tại đi trễ / về sớm / không đi làm / vắng của phiếu lương của nhân viên ${salary?.payroll?.employee?.firstName + " " + salary?.payroll?.employee?.lastName}. Vui lòng không thêm tùy chọn khác.`
-        );
-      }
     }
 
-    // if (body.startedAt && body.endedAt && body.datetime) {
-    //   throw new BadRequestException("[DEVELOPMENT] Chỉ có thể tồn tại giá trị startedAt và endedAt hoặc datetime. Không được tồn tại 1 lúc cả 2.");
-    // }
+    // Vắng hoặc không đi làm chỉ đc 1 lần trong ngày
+    const salaries = await this.prisma.salary.findMany({
+      where: {
+        payrollId: body.payrollId,
+        type: {in: [SalaryType.DAY_OFF, SalaryType.ABSENT]}
+      },
+      select: {
+        datetime: true,
+        payroll: {
+          select: {
+            employee: {select: {firstName: true, lastName: true}}
+          }
+        }
+      }
+    });
+
+    console.log(salaries);
+    if (includesDatetime(salaries.map(salary => salary.datetime), new Date(body.datetime as Date))) {
+      throw new BadRequestException(
+        `Ngày ${moment(body.datetime as Date).format(
+          "DD/MM/YYYY"
+        )} đã tồn tại đi trễ / về sớm / không đi làm / vắng đã tồn tại. Vui lòng kiểm tra lại`
+      );
+    }
     return true;
   }
 

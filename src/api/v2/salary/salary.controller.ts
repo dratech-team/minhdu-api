@@ -44,6 +44,7 @@ export class SalaryController {
     return this.salaryService.findOne(+id);
   }
 
+  @Roles(RoleEnum.CAMP_ACCOUNTING, RoleEnum.HUMAN_RESOURCE)
   @Patch(":id")
   update(@Param("id") id: string, @Body() updateSalaryDto: UpdateSalaryDto) {
     return this.salaryService.update(+id, updateSalaryDto);

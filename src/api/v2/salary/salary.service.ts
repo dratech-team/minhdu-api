@@ -34,7 +34,7 @@ export class SalaryService {
       );
 
       if (payrolls.length !== body.employeeIds.length) {
-        throw new BadRequestException(`Có nhân viên nào đó chưa có bảng lương trong tháng ${body.datetime}. Vui lòng kiểm tra cho kỹ vào trước khi thêm nha.`);
+        throw new BadRequestException(`Có nhân viên nào đó chưa có bảng lương trong tháng ${body.datetime}. Vui lòng kiểm tra lại.`);
       }
 
       for (let i = 0; i < payrolls.length; i++) {
@@ -63,7 +63,7 @@ export class SalaryService {
     } else if (body.startedAt && body.endedAt && !body.datetime) {
       const range = rangeDatetime(body.startedAt, body.endedAt);
       for (let i = 0; i < range.length; i++) {
-        await this.repository.create(Object.assign(body, {times: 1, datetime: range[i].toDate()}));
+        await this.repository.create(Object.assign(body, {times: 1, datetime: new Date(range[i].toDate())}));
       }
     } else {
       return await this.repository.create(body);
