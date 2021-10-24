@@ -1,4 +1,4 @@
-import {BadRequestException, ConflictException, Injectable, NotFoundException, Res} from "@nestjs/common";
+import {BadRequestException, ConflictException, Injectable, NotFoundException} from "@nestjs/common";
 import {DatetimeUnit, Payroll, RecipeType, RoleEnum, Salary, SalaryType,} from "@prisma/client";
 import {Response} from "express";
 import {ProfileEntity} from "../../../common/entities/profile.entity";
@@ -251,14 +251,15 @@ export class PayrollService {
    * - Chặn edit phiếu lương sau khi phiếu lương đã xác nhận
    * - Quản lý xác phiếu lương,
    * - Quỹ Xác nhận đã thanh toán phiếu lương
+   * createdAt: Ngày vào làm của nhân viên
    * */
-  totalAbsent(salaries: Salary[]) {
+  totalAbsent(payroll: OnePayroll) {
     /// absent có time = 0 và datetime nên sẽ có giá trị khơi
     let day = 0;
     let hour = 0;
     let minute = 0;
 
-    salaries
+    payroll.salaries
       ?.filter(
         (salary) =>
           salary.type === SalaryType.ABSENT ||
@@ -380,10 +381,9 @@ export class PayrollService {
   // endDay: Ngày cuối cùng của tháng do mình quy định. Áp dụng đối với lương cố dịnh
   totalActualDay(payroll: OnePayroll, endDay?: number) {
     // absent trừ cho ngày vào làm nếu ngày vào làm là tháng đc tính lương
-    const absent = this.totalAbsent(payroll.salaries);
-
+    const absent = this.totalAbsent(payroll);
     const confirmedAt = payroll.accConfirmedAt;
-    const absentDay = absent.day + (isEqualDatetime(payroll.employee.createdAt, payroll.createdAt)
+    const absentDay = absent.day + (isEqualDatetime(payroll.employee.createdAt, payroll.createdAt, "month")
       ? payroll.employee.createdAt.getDate()
       : 0);
 
@@ -500,7 +500,7 @@ export class PayrollService {
     const basic = payroll.salaries.find(
       (salary: Salary) => salary.type === SalaryType.BASIC_INSURANCE
     )?.price;
-    const absent = this.totalAbsent(payroll.salaries);
+    const absent = this.totalAbsent(payroll);
     const basicDaySalary = basicSalary / payroll.employee.workday;
     const staySalary =
       actualDay >= workday
@@ -727,7 +727,7 @@ export class PayrollService {
     }
 
     const overtimeSalary = this.totalOvertime(payroll.salaries);
-    const absent = this.totalAbsent(payroll.salaries);
+    const absent = this.totalAbsent(payroll);
 
     //  số lần quên bsc. 1 lần thì bị trừ 0.5 ngày
     const bsc = this.totalForgotBSC(payroll.salaries);

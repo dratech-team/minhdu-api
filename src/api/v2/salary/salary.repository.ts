@@ -71,6 +71,7 @@ export class SalaryRepository {
         },
       },
     });
+    // holiday
     if (includesDatetime(holidays.map((holiday) => holiday.datetime), body.datetime as Date)) {
       if (body.times !== PARTIAL_DAY && body.times !== ALL_DAY) {
         throw new BadRequestException(
@@ -81,7 +82,6 @@ export class SalaryRepository {
       }
     }
 
-    // Vắng hoặc không đi làm chỉ đc 1 lần trong ngày
     const salaries = await this.prisma.salary.findMany({
       where: {
         payrollId: body.payrollId,
@@ -91,19 +91,40 @@ export class SalaryRepository {
         datetime: true,
         payroll: {
           select: {
-            employee: {select: {firstName: true, lastName: true}}
+            employee: {
+              select: {
+                firstName: true,
+                lastName: true,
+                createdAt: true,
+              }
+            }
+          }
+        }
+      }
+    });
+    if (salaries?.length) {
+      // unique absent
+      if (includesDatetime(salaries.map(salary => salary.datetime), new Date(body.datetime as Date))) {
+        throw new BadRequestException(
+          `Ngày ${moment(body.datetime as Date).format(
+            "DD/MM/YYYY"
+          )} đã tồn tại đi trễ / về sớm / không đi làm / vắng đã tồn tại. Vui lòng kiểm tra lại`
+        );
+      }
+    }
+
+    const employee = await this.prisma.employee.findFirst({
+      where: {
+        payrolls: {
+          some: {
+            id: body.payrollId,
           }
         }
       }
     });
 
-    console.log(salaries);
-    if (includesDatetime(salaries.map(salary => salary.datetime), new Date(body.datetime as Date))) {
-      throw new BadRequestException(
-        `Ngày ${moment(body.datetime as Date).format(
-          "DD/MM/YYYY"
-        )} đã tồn tại đi trễ / về sớm / không đi làm / vắng đã tồn tại. Vui lòng kiểm tra lại`
-      );
+    if (moment(body.datetime as Date).isBefore(employee.createdAt)) {
+      throw new BadRequestException(`Nhân viên vào làm ngày ${moment(employee.createdAt).format("DD/MM/YYYY")} không được thêm vắng trước ngày này. Xin vui lòng kiểm tra lại.`)
     }
     return true;
   }
