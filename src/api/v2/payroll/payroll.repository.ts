@@ -27,14 +27,19 @@ export class PayrollRepository {
             gte: firstDatetimeOfMonth(body.createdAt),
             lte: lastDatetimeOfMonth(body.createdAt),
           },
-          employee: {id: {in: body.employeeId}}
+          employee: {
+            id: {in: body.employeeId},
+          }
         },
       });
       // Không được check tồn tại bởi vì tạo nhiều phiếu lương cho nhiều nhân viên thì nhân viên nào được tạo rồi sẽ được bỏ qua
       if (!exist?.length) {
         const payrolls = await this.prisma.payroll.findMany({
           where: {
-            employee: {id: {in: body.employeeId}}
+            employee: {id: {in: body.employeeId}},
+            createdAt: {
+              lte: body.createdAt
+            }
           },
           include: {salaries: true},
         });
@@ -89,7 +94,7 @@ export class PayrollRepository {
   async generate(payrollId: Payroll["id"], body: Partial<CreateSalaryDto>[]) {
     try {
       if (!body?.length) {
-       return  await this.prisma.payroll.update({
+        return await this.prisma.payroll.update({
           where: {id: payrollId},
           data: {
             salaries: {
@@ -357,28 +362,40 @@ export class PayrollRepository {
   }
 
   async currentPayroll(profile: ProfileEntity, datetime: Date) {
-    const employees = await this.prisma.employee.findMany({
-      where: {
-        branchId: profile?.branches?.length ? {in: profile?.branches.map(branch => branch.id)} : {},
+    try {
+      // if (!profile?.branches?.length) {
+      //   throw new NotFoundException("Không tìm thấy đơn vị hợp lệ cho account này. Vui lòng liên hệ admin để thêm quyền");
+      // }
+      if (!datetime) {
+        throw new BadRequestException("Vui lòng nhập tháng / năm để in phiếu chấm công. Xin cảm ơn!!!");
       }
-    });
-    return await Promise.all(employees.map(async employee => await this.prisma.payroll.findFirst({
-      where: {
-        employeeId: employee.id,
-        createdAt: {
-          gte: firstDatetimeOfMonth(datetime || new Date()),
-          lte: lastDatetimeOfMonth(datetime || new Date()),
+
+      const employees = await this.prisma.employee.findMany({
+        where: {
+          branchId: profile?.branches?.length ? {in: profile?.branches.map(branch => branch.id)} : {},
         }
-      },
-      include: {
-        salaries: true,
-        employee: {
-          include: {
-            position: true
+      });
+      return await Promise.all(employees.map(async employee => await this.prisma.payroll.findFirst({
+        where: {
+          employeeId: employee.id,
+          createdAt: {
+            gte: firstDatetimeOfMonth(datetime || new Date()),
+            lte: lastDatetimeOfMonth(datetime || new Date()),
           }
         },
-      },
-      rejectOnNotFound: true,
-    })));
+        include: {
+          salaries: true,
+          employee: {
+            include: {
+              position: true
+            }
+          },
+        },
+        rejectOnNotFound: true,
+      })));
+    } catch (err) {
+      console.error(err);
+      throw new BadRequestException(err);
+    }
   }
 }

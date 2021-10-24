@@ -127,13 +127,13 @@ export class PayrollController {
   // export
   @Roles(RoleEnum.ADMIN, RoleEnum.HUMAN_RESOURCE, RoleEnum.CAMP_ACCOUNTING)
   @Get("timekeeping/export/print")
-  async exportTimekeeping(
+  async exportTimeSheet(
     @Res() res,
     @ReqProfile() profile: ProfileEntity,
     @Query("filename") filename: string,
     @Query("datetime", ParseDatetimePipe) datetime: any,
   ) {
-    return await this.payrollService.timeKeeping(res, profile, datetime);
+    return await this.payrollService.exportTimeSheet(res, profile, datetime);
   }
 
   @Roles(RoleEnum.ADMIN, RoleEnum.HUMAN_RESOURCE, RoleEnum.CAMP_ACCOUNTING)
@@ -146,4 +146,13 @@ export class PayrollController {
   ) {
     return this.payrollService.export(res, user, filename, datetime);
   }
+
+  // async exportTimesheet(
+  //   @Res() res,
+  //   @ReqProfile() profile: ProfileEntity,
+  //   @Query("filename") filename: string,
+  //   @Query("datetime", ParseDatetimePipe) datetime: any,
+  // ) {
+  //   return this.payrollService.exportTimesheet(res, profile, filename, datetime);
+  // }
 }

@@ -3,7 +3,10 @@ import {GenderType} from "@prisma/client";
 export interface SearchEmployeeDto {
   name: string,
   gender: GenderType,
-  createdAt: Date,
+  createdAt: {
+    datetime: Date,
+    compare: 'gte' | 'lte' | 'in',
+  },
   workedAt: Date,
   isFlatSalary: boolean, // 0 | 1
   branch: string,

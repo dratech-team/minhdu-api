@@ -1,4 +1,4 @@
-import {BadRequestException, ConflictException, Injectable, NotFoundException} from "@nestjs/common";
+import {BadRequestException, ConflictException, Injectable, NotFoundException, Res} from "@nestjs/common";
 import {DatetimeUnit, Payroll, RecipeType, RoleEnum, Salary, SalaryType,} from "@prisma/client";
 import {Response} from "express";
 import {ProfileEntity} from "../../../common/entities/profile.entity";
@@ -42,7 +42,13 @@ export class PayrollService {
         const employee = await this.employeeService.findAll(
           profile,
           undefined,
-          undefined
+          undefined,
+          {
+            createdAt: {
+              datetime: body.createdAt,
+              compare: 'lte'
+            }
+          }
         );
 
         const created = await Promise.all(employee.data.map(async employee => {
@@ -203,112 +209,6 @@ export class PayrollService {
       employees: overtimes,
       total: null,
     };
-  }
-
-  async export(response: Response, user: ProfileEntity, filename: string, datetime: Date) {
-    const data = await this.repository.currentPayroll(user, datetime);
-
-    /// FIXME: check Quản lý xác nhận tất cả phiếu lương mới được in
-    // const confirmed = data.filter((e) => e.manConfirmedAt === null).length;
-    // if (confirmed) {
-    //   throw new BadRequestException(
-    //     `Phiếu lương  chưa được xác nhận. Vui lòng đợi quản lý xác nhận tất cả trước khi in`
-    //   );
-    // }
-
-    const payrolls = await Promise.all(
-      data.map(async (payroll) => {
-        const name = payroll.employee.firstName + payroll.employee.lastName;
-        const position = payroll.employee.position.name;
-        const payslip = (await this.payslip(payroll)).payslip;
-
-        return {
-          name,
-          position,
-          basicSalary: Math.round(payslip.basic),
-          standardSalary: Math.round(payslip.totalStandard),
-          staySalary: Math.round(payslip.stay),
-          workday: payslip.workday,
-          workdayNotInHoliday: Math.round(payslip.workdayNotInHoliday),
-          payslipInHoliday: Math.round(payslip.payslipInHoliday),
-          payslipNotInHoliday: Math.round(payslip.payslipNotInHoliday),
-          totalWorkday: payslip.totalWorkday,
-          payslipWorkDayNotInHoliday: Math.round(
-            payslip.payslipWorkDayNotInHoliday
-          ),
-          stay: Math.round(payslip.stay),
-          payslipOutOfWorkday: Math.round(payslip.payslipOutOfWorkday),
-          allowance: Math.round(payslip.allowance),
-          tax: Math.round(payslip.tax),
-          total: Math.round(payslip.total),
-        };
-      })
-    );
-
-    const customs = {
-      name: "Họ và tên",
-      position: "Chức vụ",
-      basicSalary: "Lương cơ bản",
-      standardSalary: "Tổng lương chuẩn",
-      staySalary: "Tổng phụ cấp ở lại",
-      workday: "Ngày công chuẩn",
-      workdayNotInHoliday: "Ngày công thực tế trừ lễ",
-      payslipInHoliday: "Lương ngày lễ",
-      payslipNotInHoliday: "Lương trừ ngày lễ",
-      totalWorkday: "Tổng ngày thực tế",
-      payslipWorkDayNotInHoliday: "Tổng ngày trừ ngày lễ",
-      stay: "Tổng lương phụ cấp",
-      payslipOutOfWorkday: "Lương ngoài giờ x2",
-      allowance: "Phụ câp",
-      tax: "Thuế",
-      total: "Tổng lương",
-    };
-
-    const customKeys = Object.keys(customs);
-    const customHeaders = Object.values(customs);
-
-    return exportExcel(
-      response,
-      {
-        name: `data`,
-        title: `Bảng lương tháng ${new Date().getMonth()} năm ${new Date().getFullYear()}`,
-        customHeaders: customHeaders,
-        customKeys: customKeys,
-        data: payrolls,
-      },
-      200
-    );
-  }
-
-  async timeKeeping(response: Response, profile: ProfileEntity, datetime: Date, filename?: string) {
-    const items = [];
-    if (!profile?.branches?.length) {
-      throw new NotFoundException("Không tìm thấy đơn vị hợp lệ cho account này. Vui lòng liên hệ admin để thêm quyền");
-    }
-    if (!datetime) {
-      throw new BadRequestException("Vui lòng nhập tháng / năm để in phiếu chấm công. Xin cảm ơn!!!");
-    }
-    const payrolls = await this.repository.currentPayroll(profile, datetime);
-
-    const datetimes = rageDaysInMonth(datetime).map(date => date.format("DD-MM"));
-
-    const data = payrolls.map(payroll => {
-      const ticks = timesheet(payroll.createdAt, payroll.salaries);
-      return Object.assign(payroll, {timesheet: ticks});
-    });
-
-    return exportExcel(
-      response,
-      {
-        name: filename,
-        customKeys: datetimes,
-        title: `Phiếu Chấm công tháng ${datetime.getMonth()}`,
-        customHeaders: datetimes,
-        data: data,
-      },
-      201
-    );
-
   }
 
   async confirmPayslip(id: number) {
@@ -919,5 +819,148 @@ export class PayrollService {
       total: Math.round(total / 1000) * 1000,
     };
   }
+
+  async export(response: Response, user: ProfileEntity, filename: string, datetime: Date) {
+    const data = await this.repository.currentPayroll(user, datetime);
+
+    /// FIXME: check Quản lý xác nhận tất cả phiếu lương mới được in
+    // const confirmed = data.filter((e) => e.manConfirmedAt === null).length;
+    // if (confirmed) {
+    //   throw new BadRequestException(
+    //     `Phiếu lương  chưa được xác nhận. Vui lòng đợi quản lý xác nhận tất cả trước khi in`
+    //   );
+    // }
+
+    const payrolls = await Promise.all(
+      data.map(async (payroll) => {
+        const name = payroll.employee.firstName + payroll.employee.lastName;
+        const position = payroll.employee.position.name;
+        const payslip = (await this.payslip(payroll)).payslip;
+
+        return {
+          name,
+          position,
+          basicSalary: Math.round(payslip.basic),
+          standardSalary: Math.round(payslip.totalStandard),
+          staySalary: Math.round(payslip.stay),
+          workday: payslip.workday,
+          workdayNotInHoliday: Math.round(payslip.workdayNotInHoliday),
+          payslipInHoliday: Math.round(payslip.payslipInHoliday),
+          payslipNotInHoliday: Math.round(payslip.payslipNotInHoliday),
+          totalWorkday: payslip.totalWorkday,
+          payslipWorkDayNotInHoliday: Math.round(
+            payslip.payslipWorkDayNotInHoliday
+          ),
+          stay: Math.round(payslip.stay),
+          payslipOutOfWorkday: Math.round(payslip.payslipOutOfWorkday),
+          allowance: Math.round(payslip.allowance),
+          tax: Math.round(payslip.tax),
+          total: Math.round(payslip.total),
+        };
+      })
+    );
+
+    const customs = {
+      name: "Họ và tên",
+      position: "Chức vụ",
+      basicSalary: "Lương cơ bản",
+      standardSalary: "Tổng lương chuẩn",
+      staySalary: "Tổng phụ cấp ở lại",
+      workday: "Ngày công chuẩn",
+      workdayNotInHoliday: "Ngày công thực tế trừ lễ",
+      payslipInHoliday: "Lương ngày lễ",
+      payslipNotInHoliday: "Lương trừ ngày lễ",
+      totalWorkday: "Tổng ngày thực tế",
+      payslipWorkDayNotInHoliday: "Tổng ngày trừ ngày lễ",
+      stay: "Tổng lương phụ cấp",
+      payslipOutOfWorkday: "Lương ngoài giờ x2",
+      allowance: "Phụ câp",
+      tax: "Thuế",
+      total: "Tổng lương",
+    };
+
+    const customKeys = Object.keys(customs);
+    const customHeaders = Object.values(customs);
+
+    return exportExcel(
+      response,
+      {
+        name: `data`,
+        title: `Bảng lương tháng ${new Date().getMonth()} năm ${new Date().getFullYear()}`,
+        customHeaders: customHeaders,
+        customKeys: customKeys,
+        data: payrolls,
+      },
+      200
+    );
+  }
+
+  async exportTimeSheet(response: Response, profile: ProfileEntity, datetime: Date, filename?: string) {
+    const payrolls = await this.repository.currentPayroll(profile, datetime);
+
+    const datetimes = rageDaysInMonth(datetime).map(date => date.format("DD-MM"));
+    datetimes.unshift("Họ tên");
+    //
+    // const data = payrolls.map((payroll, index) => {
+    //   const ticks = timesheet(payroll.createdAt, payroll.salaries);
+    //
+    //   console.log(ticks.datetime[index], datetimes[index]);
+    //   // return ticks.datetime.map(e => e[datetime]);
+    // });
+    const data = [];
+    for (let i = 0; i < payrolls.length; i++) {
+      const ticks = timesheet(payrolls[i].createdAt, payrolls[i].salaries);
+      data.push(payrolls[i].employee.lastName);
+      for (let j = 0; j < datetimes.length; j++) {
+        const data = ticks.datetime.map(e => e[datetimes[j]]);
+        console.log(datetimes);
+      }
+      // for (let j = 0; j < ticks.datetime.length; j++) {
+      // const data = ticks.datetime.map(e => e[datetimes[j]]);
+      // data.push(ticks.datetime[i][datetimes[j]]);
+
+      // }
+    }
+
+    // console.log(data);
+
+    return exportExcel(
+      response,
+      {
+        name: filename,
+        customKeys: datetimes,
+        title: `Phiếu Chấm công tháng ${datetime.getMonth()}`,
+        customHeaders: datetimes,
+        data: data,
+      },
+      201
+    );
+  }
+
+  // async exportTimesheet(
+  //   response: Response,
+  //   profile: ProfileEntity,
+  //   filename: string,
+  //   datetime: Date
+  // ) {
+  //   const payrolls = await this.repository.currentPayroll(profile, datetime);
+  //   const datetimes = rageDaysInMonth(datetime).map(date => date.format("DD-MM"));
+  //   const data = payrolls.map(payroll => {
+  //     const ticks = timesheet(payroll.createdAt, payroll.salaries);
+  //     return Object.assign(payroll, {timesheet: ticks});
+  //   });
+  //
+  //   return exportExcel(
+  //     response,
+  //     {
+  //       name: filename,
+  //       customKeys: datetimes,
+  //       title: `Phiếu Chấm công tháng ${datetime.getMonth()}`,
+  //       customHeaders: datetimes,
+  //       data: data,
+  //     },
+  //     201
+  //   );
+  // }
 }
 
