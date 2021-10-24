@@ -115,11 +115,11 @@ export class EmployeeRepository {
             },
             gender: search?.gender ? {equals: search?.gender} : {},
             isFlatSalary: search?.isFlatSalary,
-            createdAt: search?.createdAt.compare === 'gte' ? {
+            createdAt: search?.createdAt ? search?.createdAt.compare === 'gte' ? {
               gte: search?.createdAt?.datetime,
             } : search?.createdAt.compare === 'lte' ? {
               lte: search?.createdAt?.datetime,
-            } : {in: search?.createdAt?.datetime},
+            } : {in: search?.createdAt?.datetime} : {},
             workedAt: search?.workedAt,
             payrolls: search?.createdPayroll ? {
               some: {
@@ -150,11 +150,11 @@ export class EmployeeRepository {
             },
             gender: search?.gender ? {equals: search?.gender} : {},
             isFlatSalary: search?.isFlatSalary,
-            createdAt: search?.createdAt.compare === 'in' ? {
-              in: search?.createdAt?.datetime,
+            createdAt: search?.createdAt ? search?.createdAt.compare === 'gte' ? {
+              gte: search?.createdAt?.datetime,
             } : search?.createdAt.compare === 'lte' ? {
               lte: search?.createdAt?.datetime,
-            } : {gte: search?.createdAt?.datetime},
+            } : {in: search?.createdAt?.datetime} : {},
             workedAt: search?.workedAt,
             payrolls: search?.createdPayroll ? {
               some: {
