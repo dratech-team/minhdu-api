@@ -253,6 +253,34 @@ export class PayrollRepository {
 
   async update(id: number, updates: UpdatePayrollDto) {
     try {
+      // Chỉ xác nhận khi phiếu lương có tồn tại giá trị
+      const payroll = await this.findOne(id);
+      if (!payroll.salaries.length) {
+        throw new BadRequestException(`Không thể xác nhận phiếu lương rỗng`);
+      } else {
+        const salaries = payroll.salaries.filter(
+          (salary) =>
+            salary.type === SalaryType.BASIC_INSURANCE || SalaryType.BASIC
+        );
+        if (!salaries.length) {
+          throw new BadRequestException(
+            `Không thể xác nhận phiếu lương có lương cơ bản rỗng`
+          );
+        }
+      }
+
+      const employee = await this.prisma.employee.findFirst({
+        where: {
+          payrolls: {
+            some: {id}
+          }
+        }
+      });
+
+      if (moment(updates?.accConfirmedAt || updates?.manConfirmedAt).isBefore(employee.createdAt)) {
+        throw new BadRequestException(`Không thể xác nhận phiếu lương trước ngày vào làm. Vui lòng kiểm tra lại.`);
+      }
+
       return await this.prisma.payroll.update({
         where: {id: id},
         data: {

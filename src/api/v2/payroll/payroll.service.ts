@@ -62,8 +62,14 @@ export class PayrollService {
           status: 201,
           message: `Đã tự động tạo phiếu lương tháng ${moment(body.createdAt).format("MM/YYYY")} cho ${created.length} nhân viên`,
         };
+      } else {
+        const employee = await this.employeeService.findOne(body.employeeId);
+        if (moment(employee.createdAt).isAfter(body.createdAt)) {
+          throw new BadRequestException(`Không được tạo phiếu lương trước ngày nhân viên vào làm. Xin cảm ơn`);
+        }
+        return await this.repository.create(body);
       }
-      return await this.repository.create(body);
+
     } catch (err) {
       console.error(err);
       throw new ConflictException(err);
@@ -102,21 +108,6 @@ export class PayrollService {
   }
 
   async confirmPayroll(user: ProfileEntity, id: number, body: ConfirmPayrollDto) {
-    // Chỉ xác nhận khi phiếu lương có tồn tại giá trị
-    const payroll = await this.repository.findOne(id);
-    if (!payroll.salaries.length) {
-      throw new BadRequestException(`Không thể xác nhận phiếu lương rỗng`);
-    } else {
-      const salaries = payroll.salaries.filter(
-        (salary) =>
-          salary.type === SalaryType.BASIC_INSURANCE || SalaryType.BASIC
-      );
-      if (!salaries.length) {
-        throw new BadRequestException(
-          `Không thể xác nhận phiếu lương có lương cơ bản rỗng`
-        );
-      }
-    }
     let updated: Payroll;
     switch (user.role) {
       case RoleEnum.CAMP_ACCOUNTING:
