@@ -11,14 +11,14 @@ import {RolesGuard} from "../../../core/guard/role.guard";
 import {LoggerGuard} from "../../../core/guard/logger.guard";
 import {Roles} from 'src/core/decorators/roles.decorator';
 
-@UseGuards(JwtAuthGuard, ApiKeyGuard)
+// @UseGuards(JwtAuthGuard, ApiKeyGuard)
 @Controller(ApiV2Constant.CUSTOMER)
 export class CustomerController {
   constructor(private readonly customerService: CustomerService) {
   }
 
-  @UseGuards(RolesGuard, LoggerGuard)
-  @Roles(RoleEnum.ADMIN, RoleEnum.SALESMAN)
+  // @UseGuards(RolesGuard, LoggerGuard)
+  // @Roles(RoleEnum.ADMIN)
   @Post()
   create(@Body() createCustomerDto: CreateCustomerDto) {
     return this.customerService.create(createCustomerDto);
@@ -50,7 +50,7 @@ export class CustomerController {
     return this.customerService.findOne(+id);
   }
 
-  @UseGuards(RolesGuard, LoggerGuard)
+  // @UseGuards(RolesGuard, LoggerGuard)
   @Roles(RoleEnum.ADMIN)
   @Patch(':id')
   update(@Param('id') id: string, @Body() updateCustomerDto: UpdateCustomerDto) {
@@ -85,7 +85,7 @@ export class CustomerController {
     );
   }
 
-  @UseGuards(RolesGuard, LoggerGuard)
+  // @UseGuards(RolesGuard, LoggerGuard)
   @Roles(RoleEnum.ADMIN)
   @Patch(':id/payment')
   payment(@Param('id') id: number, @Body() body: CreatePaymentHistoryDto) {
