@@ -18,7 +18,7 @@ export class CustomerController {
   }
 
   @UseGuards(RolesGuard, LoggerGuard)
-  @Roles(RoleEnum.ADMIN)
+  @Roles(RoleEnum.ADMIN, RoleEnum.SALESMAN)
   @Post()
   create(@Body() createCustomerDto: CreateCustomerDto) {
     return this.customerService.create(createCustomerDto);

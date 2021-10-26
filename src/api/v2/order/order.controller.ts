@@ -12,14 +12,12 @@ import {Roles} from "../../../core/decorators/roles.decorator";
 import {LoggerGuard} from "../../../core/guard/logger.guard";
 import {ApiV2Constant} from "../../../common/constant/api.constant";
 
-@UseGuards(JwtAuthGuard, ApiKeyGuard)
+// @UseGuards(JwtAuthGuard, ApiKeyGuard, RolesGuard)
 @Controller(ApiV2Constant.ORDER)
 export class OrderController {
   constructor(private readonly orderService: OrderService) {
   }
 
-  @UseGuards(RolesGuard, LoggerGuard)
-  @Roles(RoleEnum.ADMIN)
   @Post()
   create(@Body() createOrderDto: CreateOrderDto) {
     return this.orderService.create(createOrderDto);
