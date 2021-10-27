@@ -260,7 +260,7 @@ export class PayrollService {
         switch (salary.unit) {
           case DatetimeUnit.DAY: {
             if (salary.datetime) {
-              day += salary.times;
+              day += salary.times * (salary.forgot ? 1.5 : 1);
             }
             break;
           }

@@ -85,7 +85,7 @@ export class CustomerController {
     );
   }
 
-  @UseGuards(RolesGuard, LoggerGuard)
+  // @UseGuards(RolesGuard, LoggerGuard)
   @Roles(RoleEnum.ADMIN)
   @Patch(':id/payment')
   payment(@Param('id') id: number, @Body() body: CreatePaymentHistoryDto) {
