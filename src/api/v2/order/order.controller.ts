@@ -12,14 +12,14 @@ import {Roles} from "../../../core/decorators/roles.decorator";
 import {LoggerGuard} from "../../../core/guard/logger.guard";
 import {ApiV2Constant} from "../../../common/constant/api.constant";
 
-@UseGuards(JwtAuthGuard, ApiKeyGuard)
+// @UseGuards(JwtAuthGuard, ApiKeyGuard)
 @Controller(ApiV2Constant.ORDER)
 export class OrderController {
   constructor(private readonly orderService: OrderService) {
   }
 
-  @UseGuards(RolesGuard, LoggerGuard)
-  @Roles(RoleEnum.ADMIN)
+  // @UseGuards(RolesGuard, LoggerGuard)
+  // @Roles(RoleEnum.ADMIN)
   @Post()
   create(@Body() createOrderDto: CreateOrderDto) {
     return this.orderService.create(createOrderDto);
@@ -47,22 +47,22 @@ export class OrderController {
     return this.orderService.findOne(+id);
   }
 
-  @UseGuards(RolesGuard, LoggerGuard)
-  @Roles(RoleEnum.ADMIN)
+  // @UseGuards(RolesGuard, LoggerGuard)
+  // @Roles(RoleEnum.ADMIN)
   @Patch(":id")
   update(@Param("id") id: string, @Body() updateOrderDto: UpdateOrderDto) {
     return this.orderService.update(+id, updateOrderDto);
   }
 
-  @UseGuards(RolesGuard, LoggerGuard)
-  @Roles(RoleEnum.ADMIN)
+  // @UseGuards(RolesGuard, LoggerGuard)
+  // @Roles(RoleEnum.ADMIN)
   @Patch("hide/:id")
   updateHide(@Param("id") id: string, @Body("hide", ParseBoolPipe) hide: boolean) {
     return this.orderService.updateHide(+id, hide);
   }
 
-  @UseGuards(RolesGuard, LoggerGuard)
-  @Roles(RoleEnum.ADMIN)
+  // @UseGuards(RolesGuard, LoggerGuard)
+  // @Roles(RoleEnum.ADMIN)
   @Delete(":id")
   remove(@Param("id") id: string) {
     return this.orderService.remove(+id);

@@ -5,7 +5,7 @@ import {RouteRepository} from "./route.repository";
 import {Response} from "express";
 import {exportExcel} from "../../../core/services/export.service";
 import {SearchRouteDto} from "./dto/search-route.dto";
-import moment from "moment";
+import * as moment from "moment";
 
 @Injectable()
 export class RouteService {
@@ -13,7 +13,6 @@ export class RouteService {
     private readonly repository: RouteRepository,
   ) {
   }
-
   async create(body: CreateRouteDto) {
     return await this.repository.create(body);
   }
