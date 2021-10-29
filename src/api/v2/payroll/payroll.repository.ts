@@ -20,6 +20,24 @@ export class PayrollRepository {
 
   async create(body: CreatePayrollDto) {
     try {
+      return await this.prisma.payroll.create({
+        data: body,
+        include: {salaries: true},
+      });
+    } catch (err) {
+      console.error(err);
+      if (err.code === "P2003") {
+        throw new BadRequestException(
+          "[DEVELOPMENT] Mã nhân viên không tồn tại ",
+          err
+        );
+      }
+      throw new BadRequestException(err);
+    }
+  }
+
+  async generate(body: CreatePayrollDto) {
+    try {
       /// FIXME: If đầu có thẻ gây tốn performance cao
       const exist = await this.prisma.payroll.findMany({
         where: {
@@ -72,10 +90,7 @@ export class PayrollRepository {
           }
         } else {
           // Chưa tòn tại phiếu lương nào
-          return await this.prisma.payroll.create({
-            data: body,
-            include: {salaries: true},
-          });
+          return await this.create(body);
         }
       }
     } catch (err) {
@@ -91,7 +106,7 @@ export class PayrollRepository {
   }
 
   /// tạo ngày lễ cho phiếu lương đó
-  async generate(payrollId: Payroll["id"], body: Partial<CreateSalaryDto>[]) {
+  async generateHoliday(payrollId: Payroll["id"], body: Partial<CreateSalaryDto>[]) {
     try {
       if (!body?.length) {
         return await this.prisma.payroll.update({

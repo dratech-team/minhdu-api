@@ -1,4 +1,4 @@
-import {BadRequestException, ConflictException, Injectable, NotFoundException} from "@nestjs/common";
+import {BadRequestException, ConflictException, Injectable, NotFoundException, Query} from "@nestjs/common";
 import {DatetimeUnit, EmployeeType, Payroll, RecipeType, RoleEnum, Salary, SalaryType,} from "@prisma/client";
 import {Response} from "express";
 import {ProfileEntity} from "../../../common/entities/profile.entity";
@@ -34,7 +34,7 @@ export class PayrollService {
   ) {
   }
 
-  async create(profile: ProfileEntity, body: CreatePayrollDto) {
+  async create(profile: ProfileEntity, body: CreatePayrollDto, @Query("employeeType") employeeType: EmployeeType) {
     try {
       if (!body?.employeeId) {
         // throw new BadRequestException("Tính năng đang được phát triển. Xin cảm ơn");
@@ -48,12 +48,25 @@ export class PayrollService {
               datetime: body.createdAt,
               compare: 'lte'
             },
-            type: EmployeeType.FULL_TIME,
+            type: employeeType || EmployeeType.FULL_TIME,
           }
         );
 
+        if (employeeType) {
+          const created = await Promise.all(employee.data.map(async employee => {
+            return await this.repository.create({
+              employeeId: employee.id,
+              createdAt: body.createdAt,
+            });
+          }));
+          return {
+            status: 201,
+            message: `Đã tự động tạo phiếu lương tháng ${moment(body.createdAt).format("MM/YYYY")} cho ${created.length} nhân viên`,
+          };
+        }
+
         const created = await Promise.all(employee.data.map(async employee => {
-          return await this.repository.create({
+          return await this.repository.generate({
             employeeId: employee.id,
             createdAt: body.createdAt,
           });
@@ -450,9 +463,9 @@ export class PayrollService {
     }
 
     if (worksInHoliday?.length) {
-      await this.repository.generate(payrollId, worksInHoliday);
+      await this.repository.generateHoliday(payrollId, worksInHoliday);
     } else {
-      await this.repository.generate(payrollId, null);
+      await this.repository.generateHoliday(payrollId, null);
     }
   }
 
