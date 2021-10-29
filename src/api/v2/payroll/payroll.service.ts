@@ -1,5 +1,5 @@
 import {BadRequestException, ConflictException, Injectable, NotFoundException} from "@nestjs/common";
-import {DatetimeUnit, Payroll, RecipeType, RoleEnum, Salary, SalaryType,} from "@prisma/client";
+import {DatetimeUnit, EmployeeType, Payroll, RecipeType, RoleEnum, Salary, SalaryType,} from "@prisma/client";
 import {Response} from "express";
 import {ProfileEntity} from "../../../common/entities/profile.entity";
 import {lastDatetimeOfMonth, lastDayOfMonth} from "../../../utils/datetime.util";
@@ -47,7 +47,8 @@ export class PayrollService {
             createdAt: {
               datetime: body.createdAt,
               compare: 'lte'
-            }
+            },
+            type: EmployeeType.FULL_TIME,
           }
         );
 
@@ -81,6 +82,11 @@ export class PayrollService {
 
     if (!search?.isTimeSheet) {
       return {total, data};
+    } else if (search?.employeeType) {
+      return {
+        total,
+        data: data.map(paroll => Object.assign(paroll, {payslip: this.totalSalaryCT3(paroll)})),
+      };
     } else {
       return {
         total,
@@ -221,6 +227,13 @@ export class PayrollService {
           return Object.assign(payroll, {
             payslip: payroll.accConfirmedAt
               ? await this.totalSalaryCT2(payroll)
+              : null,
+          });
+        }
+        case RecipeType.CT3: {
+          return Object.assign(payroll, {
+            payslip: payroll.accConfirmedAt
+              ? await this.totalSalaryCT3(payroll)
               : null,
           });
         }
@@ -808,6 +821,21 @@ export class PayrollService {
       payslipNormalDay: Math.ceil(basicDaySalary * actualDay),
       tax: tax,
       total: Math.round(total / 1000) * 1000,
+    };
+  }
+
+  async totalSalaryCT3(payroll: OnePayroll) {
+    const workdays = payroll.salaries.filter(salary => salary.unit === DatetimeUnit.DAY);
+    const times = payroll.salaries.filter(salary => salary.unit === DatetimeUnit.TIMES);
+    const totalSalaryWorkday = workdays.map(salary => salary.times * salary.price).reduce((a, b) => a + b, 0);
+    const totalSalaryTimes = times.map(salary => salary.times * salary.price).reduce((a, b) => a + b, 0);
+
+    return {
+      workdays,
+      totalSalaryWorkday,
+      times,
+      totalSalaryTimes,
+      total: totalSalaryWorkday + totalSalaryTimes
     };
   }
 

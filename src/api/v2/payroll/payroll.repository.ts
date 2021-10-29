@@ -156,6 +156,7 @@ export class PayrollRepository {
                 firstName: {startsWith: name?.firstName, mode: "insensitive"},
                 lastName: {startsWith: name?.lastName, mode: "insensitive"},
               },
+              type: search?.employeeType ? {equals: search?.employeeType} : {}
             },
             createdAt: {
               gte: firstDatetimeOfMonth(search?.createdAt),
@@ -182,6 +183,7 @@ export class PayrollRepository {
                 firstName: {startsWith: name?.firstName, mode: "insensitive"},
                 lastName: {startsWith: name?.lastName, mode: "insensitive"},
               },
+              type: search?.employeeType ? {equals: search?.employeeType} : {}
             },
             createdAt: {
               gte: firstDatetimeOfMonth(search?.createdAt),

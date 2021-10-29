@@ -13,7 +13,7 @@ generator client {
 
 datasource db {
   provider = "postgresql"
-  url      = "postgres://postgres:minhdudb@localhost:5432/minhdudb?schema=public"
+  url      = env("DATABASE_URL")
 }
 
 model Account {
