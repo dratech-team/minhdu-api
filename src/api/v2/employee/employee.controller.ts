@@ -1,21 +1,11 @@
-import {
-  Body,
-  Controller,
-  Delete,
-  Get,
-  Param,
-  Patch,
-  Post,
-  Query,
-  UseGuards,
-} from "@nestjs/common";
+import {Body, Controller, Delete, Get, Param, Patch, Post, Query, UseGuards,} from "@nestjs/common";
 import {EmployeeService} from "./employee.service";
 import {CreateEmployeeDto} from "./dto/create-employee.dto";
 import {Roles} from "../../../core/decorators/roles.decorator";
 import {ReqProfile} from "../../../core/decorators/req-profile.decorator";
 import {UpdateEmployeeDto} from "./dto/update-employee.dto";
 import {ApiV2Constant} from "../../../common/constant/api.constant";
-import {GenderType, Role, RoleEnum} from "@prisma/client";
+import {EmployeeType, GenderType, RoleEnum} from "@prisma/client";
 import {ParseDatetimePipe} from "../../../core/pipe/datetime.pipe";
 import {JwtAuthGuard} from "../../../core/guard/jwt-auth.guard";
 import {ApiKeyGuard} from "../../../core/guard/api-key-auth.guard";
@@ -53,6 +43,7 @@ export class EmployeeController {
     @Query("templateId") templateId: number,
     @Query("createdPayroll", ParseDatetimePipe) createdPayroll: any,
     @Query("isLeft") isLeft: boolean,
+    @Query("employeeType") type: EmployeeType,
   ) {
     return this.employeeService.findAll(profile, skip, take, {
       name,
@@ -64,6 +55,7 @@ export class EmployeeController {
       position,
       createdPayroll,
       isLeft,
+      type,
       templateId: +templateId,
     });
   }
