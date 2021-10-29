@@ -174,6 +174,7 @@ model Employee {
   note            String?
   facebook        String?
   zalo            String?
+  type            EmployeeType?   @default(FULL_TIME)
   recipeType      RecipeType?     @default(CT2)
   banks           Bank[]
   routes          Route[]
@@ -461,6 +462,12 @@ enum PartialDay {
 enum RecipeType {
   CT1
   CT2
+  CT3
+}
+
+enum EmployeeType {
+  FULL_TIME
+  SEASONAL
 }
 
 enum MedicineUnit {

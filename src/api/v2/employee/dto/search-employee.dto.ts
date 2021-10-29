@@ -1,4 +1,4 @@
-import {GenderType} from "@prisma/client";
+import {EmployeeType, GenderType} from "@prisma/client";
 
 export interface SearchEmployeeDto {
   name: string,
@@ -15,4 +15,5 @@ export interface SearchEmployeeDto {
   templateId: number,
   createdPayroll: Date,
   isLeft: boolean, // 0 | 1
+  type: EmployeeType
 }

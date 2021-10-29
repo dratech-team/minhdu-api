@@ -50,6 +50,7 @@ export class EmployeeRepository {
           note: body.note,
           branch: {connect: {id: body.branchId}},
           recipeType: body.recipeType,
+          type: body.type,
           contracts: body.contract?.createdAt
             ? {
               create: {
@@ -128,7 +129,8 @@ export class EmployeeRepository {
                   lte: lastDatetimeOfMonth(search?.createdPayroll)
                 }
               }
-            } : {}
+            } : {},
+            type: {in: search?.type}
           },
         }),
         this.prisma.employee.findMany({
@@ -163,7 +165,8 @@ export class EmployeeRepository {
                   lte: lastDatetimeOfMonth(search?.createdPayroll)
                 }
               }
-            } : {}
+            } : {},
+            type: {in: search?.type}
           },
           include: {
             position: true,
@@ -287,6 +290,7 @@ export class EmployeeRepository {
           isFlatSalary: updates.isFlatSalary,
           recipeType: updates.recipeType,
           note: updates.note,
+          type: updates.type,
         },
       }).then(employee => {
         if (updates.positionId || updates.branchId) {

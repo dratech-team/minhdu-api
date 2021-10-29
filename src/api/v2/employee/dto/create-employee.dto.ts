@@ -1,4 +1,4 @@
-import {RecipeType} from "@prisma/client";
+import {EmployeeType, RecipeType} from "@prisma/client";
 import {Transform, Type} from "class-transformer";
 import {
   IsBoolean,
@@ -39,7 +39,7 @@ export class CreateEmployeeDto extends CreateProfileDto {
   readonly workedAt: Date;
 
   @Type(() => Boolean)
-  @IsNotEmpty()
+  @IsOptional()
   @IsBoolean()
   readonly isFlatSalary: boolean;
 
@@ -73,6 +73,10 @@ export class CreateEmployeeDto extends CreateProfileDto {
   @IsOptional()
   @IsEnum(RecipeType)
   readonly recipeType: RecipeType;
+
+  @IsOptional()
+  @IsEnum(EmployeeType)
+  readonly type: EmployeeType;
 
   @IsOptional()
   contract: CreateContractDto;
