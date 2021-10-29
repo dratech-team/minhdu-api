@@ -130,7 +130,7 @@ export class EmployeeRepository {
                 }
               }
             } : {},
-            type: {in: search?.type}
+            type:  search?.type ? {equals: search?.type} : {}
           },
         }),
         this.prisma.employee.findMany({
@@ -166,7 +166,7 @@ export class EmployeeRepository {
                 }
               }
             } : {},
-            type: {in: search?.type}
+            type:  search?.type ? {equals: search?.type} : {}
           },
           include: {
             position: true,
