@@ -95,16 +95,21 @@ export class PayrollService {
       return {
         total,
         data: data.map(payroll => {
-          return Object.assign(payroll, {timesheet: timesheet(payroll.createdAt, payroll.salaries),});
+          return Object.assign(payroll, {timesheet: timesheet(payroll.createdAt, payroll.salaries)});
         })
       };
     } else if (search?.employeeType) {
       return {
         total,
-        data: data.map(payroll => Object.assign(payroll, {payslip: this.totalSalaryCT3(payroll)})),
+        data: data.map(payroll => Object.assign(payroll, payroll.accConfirmedAt ? {payslip: this.totalSalaryCT3(payroll)} : {})),
       };
     } else {
-      return {total, data};
+      return {
+        total,
+        data: data.map(payroll => {
+          return Object.assign(payroll, payroll.accConfirmedAt ? {payslip: payroll.employee.recipeType === RecipeType.CT1 ? this.totalSalaryCT1(payroll) : this.totalSalaryCT2(payroll)} : {});
+        })
+      };
     }
   }
 
