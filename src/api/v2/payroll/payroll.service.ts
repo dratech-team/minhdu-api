@@ -120,6 +120,8 @@ export class PayrollService {
             } else {
               return Object.assign(payroll, {payslip: this.totalSalaryCT3(payroll)});
             }
+          } else {
+            return payroll;
           }
         })
       };
