@@ -101,13 +101,27 @@ export class PayrollService {
     } else if (search?.employeeType) {
       return {
         total,
-        data: data.map(payroll => Object.assign(payroll, payroll.accConfirmedAt ? {payslip: this.totalSalaryCT3(payroll)} : {})),
+        data: data.map(payroll => {
+          if (payroll.accConfirmedAt) {
+            console.log(Object.assign(payroll, {payslip: this.totalSalaryCT3(payroll)}));
+            return Object.assign(payroll, {payslip: this.totalSalaryCT3(payroll)});
+          }
+          return payroll;
+        }),
       };
     } else {
       return {
         total,
         data: data.map(payroll => {
-          return Object.assign(payroll, payroll.accConfirmedAt ? {payslip: payroll.employee.recipeType === RecipeType.CT1 ? this.totalSalaryCT1(payroll) : this.totalSalaryCT2(payroll)} : {});
+          if (payroll.accConfirmedAt) {
+            if (payroll.employee.recipeType === RecipeType.CT1) {
+              return Object.assign(payroll, {payslip: this.totalSalaryCT1(payroll)});
+            } else if (payroll.employee.recipeType === RecipeType.CT2) {
+              return Object.assign(payroll, {payslip: this.totalSalaryCT2(payroll)});
+            } else {
+              return Object.assign(payroll, {payslip: this.totalSalaryCT3(payroll)});
+            }
+          }
         })
       };
     }
@@ -841,16 +855,15 @@ export class PayrollService {
   }
 
   /// áp dụng cho tinh lương công nhật. Thuê ngoài làm mà không phải nhân viên công ty
-  async totalSalaryCT3(payroll: OnePayroll) {
-    const workdays = payroll.salaries.filter(salary => salary.unit === DatetimeUnit.DAY);
-    const times = payroll.salaries.filter(salary => salary.unit === DatetimeUnit.TIMES);
-    const totalSalaryWorkday = workdays.map(salary => salary.times * salary.price).reduce((a, b) => a + b, 0);
-    const totalSalaryTimes = times.map(salary => salary.times * salary.price).reduce((a, b) => a + b, 0);
-
+  totalSalaryCT3(payroll: OnePayroll) {
+    const workdays = payroll.salaries.filter(salary => salary.type === SalaryType.PART_TIME && salary.unit === DatetimeUnit.DAY);
+    const times = payroll.salaries.filter(salary => salary.type === SalaryType.PART_TIME && salary.unit === DatetimeUnit.HOUR);
+    const totalSalaryWorkday = workdays.map(salary => salary.type === SalaryType.PART_TIME && salary.times * salary.price).reduce((a, b) => a + b, 0);
+    const totalSalaryTimes = times.map(salary => salary.type === SalaryType.PART_TIME && salary.times * salary.price).reduce((a, b) => a + b, 0);
     return {
-      workdays,
+      workdays: workdays.map(salary => salary.times).reduce((a, b) => a + b, 0),
       totalSalaryWorkday,
-      times,
+      times: times.map(salary => salary.times).reduce((a, b) => a + b, 0),
       totalSalaryTimes,
       total: totalSalaryWorkday + totalSalaryTimes
     };
