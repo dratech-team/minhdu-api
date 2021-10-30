@@ -91,21 +91,20 @@ export class PayrollService {
 
   async findAll(profile: ProfileEntity, skip: number, take: number, search?: Partial<SearchPayrollDto>) {
     const {total, data} = await this.repository.findAll(profile, skip, take, search);
-
-    if (!search?.isTimeSheet) {
-      return {total, data};
-    } else if (search?.employeeType) {
-      return {
-        total,
-        data: data.map(paroll => Object.assign(paroll, {payslip: this.totalSalaryCT3(paroll)})),
-      };
-    } else {
+    if (search?.isTimeSheet) {
       return {
         total,
         data: data.map(payroll => {
           return Object.assign(payroll, {timesheet: timesheet(payroll.createdAt, payroll.salaries),});
         })
       };
+    } else if (search?.employeeType) {
+      return {
+        total,
+        data: data.map(payroll => Object.assign(payroll, {payslip: this.totalSalaryCT3(payroll)})),
+      };
+    } else {
+      return {total, data};
     }
   }
 
