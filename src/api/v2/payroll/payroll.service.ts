@@ -103,7 +103,6 @@ export class PayrollService {
         total,
         data: data.map(payroll => {
           if (payroll.accConfirmedAt) {
-            console.log(Object.assign(payroll, {payslip: this.totalSalaryCT3(payroll)}));
             return Object.assign(payroll, {payslip: this.totalSalaryCT3(payroll)});
           }
           return payroll;
@@ -962,7 +961,6 @@ export class PayrollService {
       data.push(payrolls[i].employee.lastName);
       for (let j = 0; j < datetimes.length; j++) {
         const data = ticks.datetime.map(e => e[datetimes[j]]);
-        console.log(datetimes);
       }
       // for (let j = 0; j < ticks.datetime.length; j++) {
       // const data = ticks.datetime.map(e => e[datetimes[j]]);
