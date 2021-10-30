@@ -124,7 +124,7 @@ export class SalaryRepository {
     });
 
     if (moment(body.datetime as Date).isBefore(employee.createdAt)) {
-      throw new BadRequestException(`Nhân viên vào làm ngày ${moment(employee.createdAt).format("DD/MM/YYYY")} không được thêm vắng trước ngày này. Xin vui lòng kiểm tra lại.`)
+      throw new BadRequestException(`Nhân viên vào làm ngày ${moment(employee.createdAt).format("DD/MM/YYYY")} không được thêm vắng trước ngày này. Xin vui lòng kiểm tra lại.`);
     }
     return true;
   }
@@ -243,11 +243,12 @@ export class SalaryRepository {
       case SalaryType.OVERTIME: {
         return await this.validateOvertime(body, payroll);
       }
-      default: {
-        console.error(`type salary must be BASIC, BASIC_INSURANCE, ABSENT, DAY_OFF, ALLOWANCE, OVERTIME. `);
-        return false;
-      }
+      // default: {
+      //   console.error(`type salary must be BASIC, BASIC_INSURANCE, ABSENT, DAY_OFF, ALLOWANCE, OVERTIME. `);
+      //   return false;
+      // }
     }
+    return true;
   }
 
   async findAll(search: SearchSalaryDto) {

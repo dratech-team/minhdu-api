@@ -2,7 +2,7 @@ import {BadRequestException, ConflictException, Injectable, NotFoundException, Q
 import {DatetimeUnit, EmployeeType, Payroll, RecipeType, RoleEnum, Salary, SalaryType,} from "@prisma/client";
 import {Response} from "express";
 import {ProfileEntity} from "../../../common/entities/profile.entity";
-import {lastDatetimeOfMonth, lastDayOfMonth} from "../../../utils/datetime.util";
+import {firstDatetimeOfMonth, lastDatetimeOfMonth, lastDayOfMonth} from "../../../utils/datetime.util";
 import {EmployeeService} from "../employee/employee.service";
 import {HolidayService} from "../holiday/holiday.service";
 import {CreatePayrollDto} from "./dto/create-payroll.dto";
@@ -45,13 +45,13 @@ export class PayrollService {
           undefined,
           {
             createdAt: {
-              datetime: body.createdAt,
+              datetime: firstDatetimeOfMonth(body.createdAt),
               compare: 'lte'
             },
             type: employeeType || EmployeeType.FULL_TIME,
           }
         );
-        if (employeeType ) {
+        if (employeeType) {
           const created = await Promise.all(employee.data.map(async employee => {
             return await this.repository.create({
               employeeId: employee.id,
@@ -836,6 +836,7 @@ export class PayrollService {
     };
   }
 
+  /// áp dụng cho tinh lương công nhật. Thuê ngoài làm mà không phải nhân viên công ty
   async totalSalaryCT3(payroll: OnePayroll) {
     const workdays = payroll.salaries.filter(salary => salary.unit === DatetimeUnit.DAY);
     const times = payroll.salaries.filter(salary => salary.unit === DatetimeUnit.TIMES);
