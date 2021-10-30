@@ -1,5 +1,5 @@
 import {BadRequestException, Injectable, NotFoundException} from "@nestjs/common";
-import {Payroll, SalaryType} from "@prisma/client";
+import {EmployeeType, Payroll, SalaryType} from "@prisma/client";
 import {ProfileEntity} from "../../../common/entities/profile.entity";
 import {PrismaService} from "../../../prisma.service";
 import {firstDatetimeOfMonth, lastDatetimeOfMonth} from "../../../utils/datetime.util";
@@ -259,7 +259,7 @@ export class PayrollRepository {
         throw new NotFoundException("Phiếu lương không tồn tại");
       }
 
-      const payrolls = await this.findIds(payroll.createdAt);
+      const payrolls = await this.findIds(payroll.createdAt, payroll.employee.type);
       return Object.assign(payroll, {payrollIds: payrolls.map(payroll => payroll.id)});
     } catch (e) {
       console.error(e);
@@ -388,10 +388,13 @@ export class PayrollRepository {
     }));
   }
 
-  async findIds(createdAt: Date) {
+  async findIds(createdAt: Date, employeeType?: EmployeeType) {
     try {
       return await this.prisma.payroll.findMany({
         where: {
+          employee: {
+            type: {equals: employeeType || EmployeeType.FULL_TIME}
+          },
           createdAt: {
             gte: firstDatetimeOfMonth(createdAt),
             lte: lastDatetimeOfMonth(createdAt),

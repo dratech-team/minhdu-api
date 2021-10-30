@@ -1,4 +1,4 @@
-import {BadRequestException, ConflictException, Injectable, NotFoundException,} from "@nestjs/common";
+import {BadRequestException, ConflictException, Injectable,} from "@nestjs/common";
 import {ProfileEntity} from "../../../common/entities/profile.entity";
 import {PrismaService} from "../../../prisma.service";
 import {searchName} from "../../../utils/search-name.util";
@@ -6,6 +6,7 @@ import {CreateEmployeeDto} from "./dto/create-employee.dto";
 import {SearchEmployeeDto} from "./dto/search-employee.dto";
 import {UpdateEmployeeDto} from "./dto/update-employee.dto";
 import {firstDatetimeOfMonth, lastDatetimeOfMonth} from "../../../utils/datetime.util";
+import {EmployeeType} from "@prisma/client";
 
 @Injectable()
 export class EmployeeRepository {
@@ -130,7 +131,7 @@ export class EmployeeRepository {
                 }
               }
             } : {},
-            type: search?.type ? {equals: search?.type} : {}
+            type: {equals: search?.type || EmployeeType.FULL_TIME}
           },
         }),
         this.prisma.employee.findMany({
@@ -166,7 +167,7 @@ export class EmployeeRepository {
                 }
               }
             } : {},
-            type: {in: search?.type}
+            type: {equals: search?.type || EmployeeType.FULL_TIME}
           },
           include: {
             position: true,
