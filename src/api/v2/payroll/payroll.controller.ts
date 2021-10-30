@@ -23,7 +23,11 @@ export class PayrollController {
   @UseGuards(LoggerGuard)
   @Roles(RoleEnum.ADMIN, RoleEnum.HUMAN_RESOURCE, RoleEnum.CAMP_ACCOUNTING)
   @Post()
-  create(@ReqProfile() user: ProfileEntity, @Body() body: CreatePayrollDto, @Query("employeeType") employeeType: EmployeeType) {
+  create(
+    @ReqProfile() user: ProfileEntity,
+    @Body() body: CreatePayrollDto,
+    @Query("employeeType") employeeType: EmployeeType
+  ) {
     return this.payrollService.create(user, body, employeeType);
   }
 

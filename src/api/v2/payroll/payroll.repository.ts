@@ -20,10 +20,24 @@ export class PayrollRepository {
 
   async create(body: CreatePayrollDto) {
     try {
-      return await this.prisma.payroll.create({
-        data: body,
-        include: {salaries: true},
+      /// FIXME: If đầu có thẻ gây tốn performance cao
+      const exist = await this.prisma.payroll.findMany({
+        where: {
+          createdAt: {
+            gte: firstDatetimeOfMonth(body.createdAt),
+            lte: lastDatetimeOfMonth(body.createdAt),
+          },
+          employee: {
+            id: {in: body.employeeId},
+          }
+        },
       });
+      if (!exist?.length) {
+        return await this.prisma.payroll.create({
+          data: body,
+          include: {salaries: true},
+        });
+      }
     } catch (err) {
       console.error(err);
       if (err.code === "P2003") {
@@ -38,60 +52,45 @@ export class PayrollRepository {
 
   async generate(body: CreatePayrollDto) {
     try {
-      /// FIXME: If đầu có thẻ gây tốn performance cao
-      const exist = await this.prisma.payroll.findMany({
+      const payrolls = await this.prisma.payroll.findMany({
         where: {
+          employee: {id: {in: body.employeeId}},
           createdAt: {
-            gte: firstDatetimeOfMonth(body.createdAt),
-            lte: lastDatetimeOfMonth(body.createdAt),
-          },
-          employee: {
-            id: {in: body.employeeId},
+            lte: body.createdAt
           }
         },
+        include: {salaries: true},
       });
-      // Không được check tồn tại bởi vì tạo nhiều phiếu lương cho nhiều nhân viên thì nhân viên nào được tạo rồi sẽ được bỏ qua
-      if (!exist?.length) {
-        const payrolls = await this.prisma.payroll.findMany({
-          where: {
-            employee: {id: {in: body.employeeId}},
-            createdAt: {
-              lte: body.createdAt
-            }
-          },
-          include: {salaries: true},
-        });
-        // Đã tồn tại phiếu lương
-        if (payrolls && payrolls.length) {
-          for (let i = 0; i < payrolls.length; i++) {
-            const salaries = payrolls[i].salaries.filter(
-              (salary) =>
-                salary.type === SalaryType.BASIC ||
-                salary.type === SalaryType.BASIC_INSURANCE ||
-                salary.type === SalaryType.STAY
-            );
-            return await this.prisma.payroll.create({
-              data: {
-                employee: {connect: {id: body.employeeId}},
-                createdAt: body.createdAt,
-                salaries: salaries?.length
-                  ? {
-                    createMany: {
-                      data: salaries.map((salary) => {
-                        delete salary.payrollId;
-                        delete salary.id;
-                        return salary;
-                      }),
-                    },
-                  }
-                  : {},
-              },
-            });
-          }
-        } else {
-          // Chưa tòn tại phiếu lương nào
-          return await this.create(body);
+      // Đã tồn tại phiếu lương
+      if (payrolls && payrolls.length) {
+        for (let i = 0; i < payrolls.length; i++) {
+          const salaries = payrolls[i].salaries.filter(
+            (salary) =>
+              salary.type === SalaryType.BASIC ||
+              salary.type === SalaryType.BASIC_INSURANCE ||
+              salary.type === SalaryType.STAY
+          );
+          return await this.prisma.payroll.create({
+            data: {
+              employee: {connect: {id: body.employeeId}},
+              createdAt: body.createdAt,
+              salaries: salaries?.length
+                ? {
+                  createMany: {
+                    data: salaries.map((salary) => {
+                      delete salary.payrollId;
+                      delete salary.id;
+                      return salary;
+                    }),
+                  },
+                }
+                : {},
+            },
+          });
         }
+      } else {
+        // Chưa tòn tại phiếu lương nào
+        return await this.create(body);
       }
     } catch (err) {
       console.error(err);

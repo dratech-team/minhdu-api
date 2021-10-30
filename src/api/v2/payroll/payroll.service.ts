@@ -34,7 +34,7 @@ export class PayrollService {
   ) {
   }
 
-  async create(profile: ProfileEntity, body: CreatePayrollDto, @Query("employeeType") employeeType: EmployeeType) {
+  async create(profile: ProfileEntity, body: CreatePayrollDto, employeeType: EmployeeType) {
     try {
       if (!body?.employeeId) {
         // throw new BadRequestException("Tính năng đang được phát triển. Xin cảm ơn");
@@ -51,8 +51,7 @@ export class PayrollService {
             type: employeeType || EmployeeType.FULL_TIME,
           }
         );
-
-        if (employeeType) {
+        if (employeeType ) {
           const created = await Promise.all(employee.data.map(async employee => {
             return await this.repository.create({
               employeeId: employee.id,

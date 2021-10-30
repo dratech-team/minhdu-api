@@ -1,6 +1,6 @@
-import {Salary} from "@prisma/client";
+import {EmployeeType, Salary} from "@prisma/client";
 import {
-  IsDate,
+  IsDate, IsEnum,
   IsNotEmpty,
   IsNumber,
   IsOptional,
