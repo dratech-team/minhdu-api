@@ -201,17 +201,18 @@ model Holiday {
 }
 
 model OvertimeTemplate {
-  id        Int           @id @default(autoincrement())
-  title     String
-  type      SalaryType?   @default(OVERTIME)
-  price     Float
-  rate      Float?        @default(1)
-  unit      DatetimeUnit? @default(HOUR)
-  note      String?
-  positions Position[]
-  branch    Branch?       @relation(fields: [branchId], references: [id])
-  branchId  Int?
-  timestamp DateTime?     @default(now())
+  id           Int           @id @default(autoincrement())
+  title        String
+  type         SalaryType?   @default(OVERTIME)
+  price        Float
+  rate         Float?        @default(1)
+  unit         DatetimeUnit? @default(HOUR)
+  note         String?
+  positions    Position[]
+  branch       Branch?       @relation(fields: [branchId], references: [id])
+  branchId     Int?
+  employeeType EmployeeType? @default(FULL_TIME)
+  timestamp    DateTime?     @default(now())
 
   @@unique([title, type, price, rate, unit, branchId])
 }

@@ -1,13 +1,16 @@
-import {BadRequestException, Injectable, NotFoundException} from "@nestjs/common";
-import {PrismaService} from "../../../prisma.service";
-import {CreateOvertimeTemplateDto} from "./dto/create-overtime-template.dto";
-import {SearchOvertimeTemplateDto} from "./dto/search-overtime-template.dto";
-import {UpdateOvertimeTemplateDto} from "./dto/update-overtime-template.dto";
+import {
+  BadRequestException,
+  Injectable,
+  NotFoundException,
+} from "@nestjs/common";
+import { PrismaService } from "../../../prisma.service";
+import { CreateOvertimeTemplateDto } from "./dto/create-overtime-template.dto";
+import { SearchOvertimeTemplateDto } from "./dto/search-overtime-template.dto";
+import { UpdateOvertimeTemplateDto } from "./dto/update-overtime-template.dto";
 
 @Injectable()
 export class OvertimeTemplateRepository {
-  constructor(private readonly prisma: PrismaService) {
-  }
+  constructor(private readonly prisma: PrismaService) {}
 
   async create(body: CreateOvertimeTemplateDto) {
     try {
@@ -18,12 +21,13 @@ export class OvertimeTemplateRepository {
               id: positionId,
             })),
           },
-          branch: body?.branchId ? {connect: {id: body?.branchId}} : {},
+          branch: body?.branchId ? { connect: { id: body?.branchId } } : {},
           title: body.title,
           price: body.price,
           rate: body.rate,
           unit: body.unit,
           type: body.type,
+          employeeType: body.employeeType,
         },
       });
     } catch (err) {
@@ -39,18 +43,18 @@ export class OvertimeTemplateRepository {
     skip: number,
     search: Partial<SearchOvertimeTemplateDto>
   ) {
-    console.log(search)
+    console.log(search);
     try {
       const [total, data] = await Promise.all([
         this.prisma.overtimeTemplate.count({
           where: {
-            title: {startsWith: search?.title, mode: "insensitive"},
-            price: search?.price ? {in: search?.price} : {},
-            unit: {in: search?.unit || undefined},
+            title: { startsWith: search?.title, mode: "insensitive" },
+            price: search?.price ? { in: search?.price } : {},
+            unit: { in: search?.unit || undefined },
             positions: search?.positionId
               ? {
-                every: {id: {in: search?.positionId}},
-              }
+                  every: { id: { in: search?.positionId } },
+                }
               : {},
           },
         }),
@@ -58,13 +62,13 @@ export class OvertimeTemplateRepository {
           take: take || undefined,
           skip: skip || undefined,
           where: {
-            title: {startsWith: search?.title, mode: "insensitive"},
-            price: search?.price ? {in: search?.price} : {},
-            unit: {in: search?.unit || undefined},
+            title: { startsWith: search?.title, mode: "insensitive" },
+            price: search?.price ? { in: search?.price } : {},
+            unit: { in: search?.unit || undefined },
             positions: search?.positionId
               ? {
-                every: {id: {in: search?.positionId}},
-              }
+                  every: { id: { in: search?.positionId } },
+                }
               : {},
           },
           include: {
@@ -72,11 +76,11 @@ export class OvertimeTemplateRepository {
             branch: true,
           },
           orderBy: {
-            price: "desc"
-          }
+            price: "desc",
+          },
         }),
       ]);
-      return {total, data};
+      return { total, data };
     } catch (err) {
       console.error(err);
       throw new NotFoundException(err);
@@ -86,7 +90,7 @@ export class OvertimeTemplateRepository {
   async findOne(id: number) {
     try {
       return await this.prisma.overtimeTemplate.findUnique({
-        where: {id},
+        where: { id },
         include: {
           positions: true,
           branch: true,
@@ -101,18 +105,19 @@ export class OvertimeTemplateRepository {
   async update(id: number, updates: UpdateOvertimeTemplateDto) {
     try {
       return await this.prisma.overtimeTemplate.update({
-        where: {id},
+        where: { id },
         data: {
           title: updates.title,
           unit: updates.unit,
           price: updates.price,
           rate: updates.rate,
           positions: {
-            set: updates.positionIds?.map((id) => ({id})),
+            set: updates.positionIds?.map((id) => ({ id })),
           },
           branch: updates?.branchId
-            ? {connect: {id: updates?.branchId}}
-            : {disconnect: true},
+            ? { connect: { id: updates?.branchId } }
+            : { disconnect: true },
+          employeeType: updates.employeeType,
         },
         include: {
           positions: true,
@@ -131,7 +136,7 @@ export class OvertimeTemplateRepository {
 
   async remove(id: number) {
     try {
-      await this.prisma.overtimeTemplate.delete({where: {id}});
+      await this.prisma.overtimeTemplate.delete({ where: { id } });
     } catch (err) {
       console.error(err);
       throw new BadRequestException(err);

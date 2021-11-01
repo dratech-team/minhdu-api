@@ -1,4 +1,4 @@
-import { DatetimeUnit, SalaryType } from "@prisma/client";
+import { DatetimeUnit, EmployeeType, SalaryType } from "@prisma/client";
 import {
   IsArray,
   IsEnum,
@@ -43,4 +43,8 @@ export class CreateOvertimeTemplateDto {
   @IsOptional()
   @IsArray()
   readonly positionIds: number[];
+
+  @IsNotEmpty()
+  @IsEnum(EmployeeType)
+  readonly employeeType: EmployeeType;
 }
