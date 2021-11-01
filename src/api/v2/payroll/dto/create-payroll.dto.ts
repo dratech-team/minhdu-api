@@ -21,6 +21,5 @@ export class CreatePayrollDto {
   @Type(() => Date)
   @Transform(val => new Date(val.value))
   @IsDate()
-  @MaxDate(tomorrowDate(), {message: ValidatorMessage.datetime})
   readonly createdAt: Date;
 }

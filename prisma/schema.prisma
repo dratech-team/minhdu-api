@@ -13,7 +13,7 @@ generator client {
 
 datasource db {
   provider = "postgresql"
-  url      = env("DATABASE_URL")
+  url      = "postgres://postgres:minhdudb@localhost:5432/minhdudb?schema=public"
 }
 
 model Account {
@@ -112,6 +112,7 @@ model Branch {
   timestamp         DateTime?          @default(now())
   workHistories     WorkHistory[]
   Account           Account[]
+  allowances        Salary[]
 }
 
 model Position {
@@ -364,6 +365,8 @@ model Salary {
   note       String?
   payroll    Payroll?      @relation(fields: [payrollId], references: [id])
   payrollId  Int?
+  branch     Branch?       @relation(fields: [branchId], references: [id])
+  branchId   Int?
   salaryId   Int?
   allowance  Salary?       @relation("SalaryToAllowance", fields: [salaryId], references: [id])
   allowances Salary[]      @relation("SalaryToAllowance")
@@ -464,6 +467,7 @@ enum RecipeType {
   CT1
   CT2
   CT3
+  CT4
 }
 
 enum EmployeeType {

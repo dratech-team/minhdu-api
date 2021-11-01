@@ -12,6 +12,7 @@ export interface SearchEmployeeDto {
   branch: string,
   branchId: number,
   position: string,
+  positionId: number,
   templateId: number,
   createdPayroll: Date,
   isLeft: boolean, // 0 | 1

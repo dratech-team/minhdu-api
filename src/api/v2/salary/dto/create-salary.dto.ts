@@ -29,4 +29,8 @@ export class CreateSalaryDto extends ICreateSalaryDto {
 
   @ValidateNested()
   readonly allowance: CreateAllowanceDto;
+
+  @IsOptional()
+  @IsNumber()
+  readonly branchId: number;
 }
