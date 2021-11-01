@@ -157,7 +157,10 @@ export class EmployeeRepository {
               gte: search?.createdAt?.datetime,
             } : search?.createdAt.compare === 'lte' ? {
               lte: search?.createdAt?.datetime,
-            } : {in: search?.createdAt?.datetime} : {},
+            } : {
+              gte: firstDatetimeOfMonth(search?.createdAt?.datetime),
+              lte: lastDatetimeOfMonth(search?.createdAt?.datetime)
+            } : {},
             workedAt: search?.workedAt,
             payrolls: search?.createdPayroll ? {
               some: {

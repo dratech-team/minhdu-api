@@ -45,12 +45,16 @@ export class PayrollService {
           undefined,
           {
             createdAt: {
-              datetime: firstDatetimeOfMonth(body.createdAt),
-              compare: 'lte'
+              datetime: body.createdAt,
+              compare: 'in'
             },
             type: employeeType || EmployeeType.FULL_TIME,
           }
         );
+
+        console.log(lastDatetimeOfMonth(body.createdAt));
+        console.log(firstDatetimeOfMonth(body.createdAt));
+
         if (employeeType) {
           const created = await Promise.all(employee.data.map(async employee => {
             return await this.repository.create({
