@@ -46,7 +46,7 @@ export class PayrollService {
           {
             createdAt: {
               datetime: body.createdAt,
-              compare: 'in'
+              compare: 'lte'
             },
             type: employeeType || EmployeeType.FULL_TIME,
           }
@@ -71,10 +71,9 @@ export class PayrollService {
             createdAt: body.createdAt,
           });
         }));
-
         return {
           status: 201,
-          message: `Đã tự động tạo phiếu lương tháng ${moment(body.createdAt).format("MM/YYYY")} cho ${created.length} nhân viên`,
+          message: `Đã tự động tạo phiếu lương tháng ${moment(body.createdAt).format("MM/YYYY")} cho ${created.filter(e => e).length} nhân viên`,
         };
       } else {
         const employee = await this.employeeService.findOne(body.employeeId);

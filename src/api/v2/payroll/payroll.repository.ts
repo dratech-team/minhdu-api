@@ -1,5 +1,5 @@
 import {BadRequestException, Injectable, NotFoundException} from "@nestjs/common";
-import {EmployeeType, Payroll, SalaryType} from "@prisma/client";
+import {EmployeeType, Payroll, Salary, SalaryType} from "@prisma/client";
 import {ProfileEntity} from "../../../common/entities/profile.entity";
 import {PrismaService} from "../../../prisma.service";
 import {firstDatetimeOfMonth, lastDatetimeOfMonth} from "../../../utils/datetime.util";
@@ -18,7 +18,7 @@ export class PayrollRepository {
   constructor(private readonly prisma: PrismaService) {
   }
 
-  async create(body: CreatePayrollDto) {
+  async create(body: CreatePayrollDto, salaries?: Salary[]) {
     try {
       /// FIXME: If đầu có thẻ gây tốn performance cao
       const exist = await this.prisma.payroll.findMany({
@@ -34,7 +34,21 @@ export class PayrollRepository {
       });
       if (!exist?.length) {
         return await this.prisma.payroll.create({
-          data: body,
+          data: {
+            employee: {connect: {id: body.employeeId}},
+            createdAt: body.createdAt,
+            salaries: salaries?.length
+              ? {
+                createMany: {
+                  data: salaries.map((salary) => {
+                    delete salary.payrollId;
+                    delete salary.id;
+                    return salary;
+                  }),
+                },
+              }
+              : {},
+          },
           include: {salaries: true},
         });
       }
@@ -70,23 +84,7 @@ export class PayrollRepository {
               salary.type === SalaryType.BASIC_INSURANCE ||
               salary.type === SalaryType.STAY
           );
-          return await this.prisma.payroll.create({
-            data: {
-              employee: {connect: {id: body.employeeId}},
-              createdAt: body.createdAt,
-              salaries: salaries?.length
-                ? {
-                  createMany: {
-                    data: salaries.map((salary) => {
-                      delete salary.payrollId;
-                      delete salary.id;
-                      return salary;
-                    }),
-                  },
-                }
-                : {},
-            },
-          });
+          return await this.create(body, salaries);
         }
       } else {
         // Chưa tòn tại phiếu lương nào
