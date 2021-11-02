@@ -118,8 +118,10 @@ export class PayrollService {
               return Object.assign(payroll, {payslip: this.totalSalaryCT1(payroll)});
             } else if (payroll.employee.recipeType === RecipeType.CT2) {
               return Object.assign(payroll, {payslip: this.totalSalaryCT2(payroll)});
-            } else {
+            } else if (payroll.employee.recipeType === RecipeType.CT3) {
               return Object.assign(payroll, {payslip: this.totalSalaryCT3(payroll)});
+            } else {
+              return Object.assign(payroll, {payslip: this.totalSalaryCT4(payroll)});
             }
           } else {
             return payroll;
@@ -266,6 +268,13 @@ export class PayrollService {
           return Object.assign(payroll, {
             payslip: payroll.accConfirmedAt
               ? await this.totalSalaryCT3(payroll)
+              : null,
+          });
+        }
+        case RecipeType.CT4: {
+          return Object.assign(payroll, {
+            payslip: payroll.accConfirmedAt
+              ? await this.totalSalaryCT4(payroll)
               : null,
           });
         }
@@ -871,7 +880,7 @@ export class PayrollService {
     };
   }
 
- async totalSalaryCT4(payroll: OnePayroll) {
+  async totalSalaryCT4(payroll: OnePayroll) {
     let tax = 0;
     let basicDaySalary = 0;
     let payslipInHoliday = 0;
