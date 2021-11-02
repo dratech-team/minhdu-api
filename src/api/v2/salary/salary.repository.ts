@@ -49,7 +49,7 @@ export class SalaryRepository {
               },
             }
             : {},
-          branch: {connect: {id: body.branchId}},
+          branch: body?.branchId ? {connect: {id: body?.branchId}} : {},
         },
         select: {
           payroll: {select: {employee: {select: {firstName: true, lastName: true}}}},
