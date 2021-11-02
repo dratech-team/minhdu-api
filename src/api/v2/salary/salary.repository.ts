@@ -23,10 +23,13 @@ export class SalaryRepository {
   async create(body: CreateSalaryDto) {
     try {
       // validate before create
-      const validate = await this.validate(body);
-      if (!validate) {
-        throw new BadRequestException(`[DEVELOPMENT] Validate ${body.title} for type ${body.type} failure. Pls check it`);
+      if(body?.payrollId) {
+        const validate = await this.validate(body);
+        if (!validate) {
+          throw new BadRequestException(`[DEVELOPMENT] Validate ${body.title} for type ${body.type} failure. Pls check it`);
+        }
       }
+
       return await this.prisma.salary.create({
         data: {
           title: body.title,
@@ -38,7 +41,7 @@ export class SalaryRepository {
           rate: body.rate,
           price: body.price,
           note: body.note,
-          payroll: {connect: {id: body.payrollId}},
+          payroll: body?.payrollId ? {connect: {id: body.payrollId}} : {},
           allowance: body?.allowance?.title
             ? {
               create: {
@@ -329,7 +332,7 @@ export class SalaryRepository {
   async update(id: number, updates: UpdateSalaryDto) {
     try {
       const salary = await this.findOne(id);
-      if (salary.payroll.paidAt) {
+      if (salary?.payroll?.paidAt) {
         throw new BadRequestException(
           "Bảng lương đã thanh toán không được phép sửa"
         );

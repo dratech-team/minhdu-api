@@ -24,6 +24,7 @@ export class BranchRepository {
       return await this.prisma.branch.findMany({
         include: {
           _count: true,
+          allowances: true,
         }
       });
     } catch (err) {
@@ -46,7 +47,27 @@ export class BranchRepository {
   }
 
   async findOne(id: number): Promise<Branch> {
-    return await this.prisma.branch.findUnique({where: {id: id}});
+    return await this.prisma.branch.findUnique({
+      where: {id: id},
+      include: {
+        _count: {
+          select: {
+            employees: true,
+          }
+        },
+        allowances: {
+          select: {
+            id: true,
+            title: true,
+            datetime: true,
+            price: true
+          },
+          orderBy: {
+            datetime: "asc"
+          }
+        }
+      },
+    });
   }
 
   async update(id: number, updates: UpdateBranchDto) {
@@ -60,7 +81,7 @@ export class BranchRepository {
       return await this.prisma.branch.delete({where: {id: id}});
     } catch (err) {
       console.error(err);
-      throw new BadRequestException(err);
+      throw new BadRequestException("Không thể xóa.", err);
     }
   }
 }
