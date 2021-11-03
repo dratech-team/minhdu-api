@@ -1,5 +1,5 @@
 import {BadRequestException, Injectable, NotFoundException,} from "@nestjs/common";
-import {DatetimeUnit, SalaryType} from "@prisma/client";
+import {DatetimeUnit, RecipeType, SalaryType} from "@prisma/client";
 import * as moment from "moment";
 import {PrismaService} from "../../../prisma.service";
 import {CreateSalaryDto} from "./dto/create-salary.dto";
@@ -23,7 +23,7 @@ export class SalaryRepository {
   async create(body: CreateSalaryDto) {
     try {
       // validate before create
-      if(body?.payrollId) {
+      if (body?.payrollId) {
         const validate = await this.validate(body);
         if (!validate) {
           throw new BadRequestException(`[DEVELOPMENT] Validate ${body.title} for type ${body.type} failure. Pls check it`);
@@ -201,7 +201,7 @@ export class SalaryRepository {
 
 
     // Check Tăng ca không trùng cho phiếu lương
-    if (body.type === SalaryType.OVERTIME) {
+    if (body.type === SalaryType.OVERTIME && (await this.prisma.employee.findUnique({where: {id: payroll.employeeId}})).recipeType !== RecipeType.CT4) {
       const templates = await this.prisma.overtimeTemplate.findMany({
         where: {
           AND: {
