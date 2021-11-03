@@ -36,6 +36,10 @@ export class BranchService {
     return this.repository.remove(id);
   }
 
+  removeAlowance(id: number) {
+    return this.repository.removeAlowance(id);
+  }
+
   generateCode(input: string): string {
     // Xoa dau cach thua VA xoa Unico
     input.trim();

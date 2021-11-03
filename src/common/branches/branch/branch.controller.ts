@@ -45,4 +45,11 @@ export class BranchController {
   remove(@Param('id') id: number) {
     return this.branchService.remove(+id);
   }
+
+  @UseGuards(RolesGuard)
+  @Roles(RoleEnum.ADMIN, RoleEnum.HUMAN_RESOURCE)
+  @Delete('/allowance/:id')
+  removeAlowance(@Param('id') id: number) {
+    return this.branchService.removeAlowance(+id);
+  }
 }

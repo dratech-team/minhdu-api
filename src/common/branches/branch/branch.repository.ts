@@ -84,4 +84,22 @@ export class BranchRepository {
       throw new BadRequestException("Không thể xóa.", err);
     }
   }
+
+  async removeAlowance(id: number) {
+    try {
+      const salary = await this.prisma.salary.findUnique({
+        where: {id},
+        select: {branchId: true}
+      });
+      await this.prisma.salary.delete({
+        where: {id: id}
+      });
+      return this.prisma.branch.findUnique({
+        where: {id: salary.branchId}
+      });
+    } catch (err) {
+      console.error(err);
+      throw new BadRequestException("Không thể xóa.", err);
+    }
+  }
 }
