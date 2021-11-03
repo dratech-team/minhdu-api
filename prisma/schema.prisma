@@ -599,7 +599,7 @@ enum SalaryType {
   ABSENT
   HOLIDAY // Ngày lế
   DAY_OFF // nghỉ được nghỉ
-  PART_TIME
+  PART_TIME // dùng cho nhân viên thời vụ (công nhật)
 }
 
 enum DatetimeUnit {

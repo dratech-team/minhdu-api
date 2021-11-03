@@ -199,27 +199,6 @@ export class SalaryRepository {
       );
     }
 
-
-    // Check Tăng ca không trùng cho phiếu lương
-    if (body.type === SalaryType.OVERTIME && (await this.prisma.employee.findUnique({where: {id: payroll.employeeId}})).recipeType !== RecipeType.CT4) {
-      const templates = await this.prisma.overtimeTemplate.findMany({
-        where: {
-          AND: {
-            title: body.title,
-            price: body.price,
-            rate: body.rate,
-            unit: body.unit,
-          },
-        },
-      });
-
-      if (!templates.length) {
-        throw new BadRequestException(
-          `Mẫu lương tăng ca không tồn tại trong hệ thống. Vui lòng liên hệ admin để thêm.`
-        );
-      }
-    }
-
     return true;
   }
 
