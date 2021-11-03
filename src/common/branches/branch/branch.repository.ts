@@ -95,7 +95,10 @@ export class BranchRepository {
         where: {id: id}
       });
       return this.prisma.branch.findUnique({
-        where: {id: salary.branchId}
+        where: {id: salary.branchId},
+        include: {
+          allowances: true
+        }
       });
     } catch (err) {
       console.error(err);
