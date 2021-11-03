@@ -119,6 +119,13 @@ export class PayrollController {
   }
 
   @UseGuards(LoggerGuard)
+  @Roles(
+    RoleEnum.ADMIN,
+    RoleEnum.HUMAN_RESOURCE,
+    RoleEnum.CAMP_ACCOUNTING,
+    RoleEnum.CAMP_MANAGER,
+    RoleEnum.ACCOUNTANT_CASH_FUND
+  )
   @Delete(":id")
   remove(@Param("id") id: number) {
     return this.payrollService.remove(+id);
