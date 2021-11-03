@@ -71,9 +71,17 @@ export class BranchRepository {
   }
 
   async update(id: number, updates: UpdateBranchDto) {
-    return this.prisma.branch
-      .update({where: {id: id}, data: updates})
-      .catch((e) => new BadRequestException(e));
+    try {
+      return await this.prisma.branch.update({
+        where: {id: id},
+        data: updates,
+        include: {
+          allowances: true
+        }
+      });
+    } catch (err) {
+      throw new BadRequestException(err);
+    }
   }
 
   async remove(id: number) {
