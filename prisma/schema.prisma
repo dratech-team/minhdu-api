@@ -454,6 +454,7 @@ model Medicine {
 enum PartialDay {
   MORNING
   AFTERNOON
+  NIGHT
   ALL_DAY
 }
 

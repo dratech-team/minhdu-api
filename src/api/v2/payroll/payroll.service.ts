@@ -560,14 +560,18 @@ export class PayrollService {
       if (includesDatetime(absents.map(absent => absent.datetime), holiday.datetime)) {
         for (let i = 0; i < absents.length; i++) {
           if (isEqualDatetime(holiday.datetime, absents[i].datetime, "day")) {
-            if (absents[i].times === PARTIAL_DAY) {
-              if (!holiday.isConstraint || (holiday.isConstraint && actualDay > workday)) {
+            if (!holiday.isConstraint) {
+              if (absents[i].times === PARTIAL_DAY) {
                 worksInHoliday.push({day: PARTIAL_DAY, datetime: holiday.datetime, rate: holiday.rate});
 
                 worksNotInHoliday.push({day: PARTIAL_DAY, datetime: holiday.datetime, rate: holiday.rate});
+              } else {
+                worksNotInHoliday.push({day: ALL_DAY, datetime: holiday.datetime, rate: holiday.rate});
               }
             } else {
-              worksNotInHoliday.push({day: ALL_DAY, datetime: holiday.datetime, rate: holiday.rate});
+              if (absents[i].times === PARTIAL_DAY) {
+                worksInHoliday.push({day: PARTIAL_DAY, datetime: holiday.datetime, rate: holiday.rate});
+              }
             }
           }
         }
@@ -879,6 +883,7 @@ export class PayrollService {
     };
   }
 
+  // áp dụng cho khối văn phòng chính
   async totalSalaryCT4(payroll: OnePayroll) {
     let tax = 0;
     let basicDaySalary = 0;
@@ -951,8 +956,10 @@ export class PayrollService {
       }
     }
 
-    const overtimes = payroll.salaries.map(salary => salary.times).reduce((a, b) => a + b, 0);
-    const overtimeSalary = overtimes * basicSalary;
+    const overtimeSalary = payroll.salaries.map(salary => {
+      return salary.times * (basicSalary / workday / 2);
+    }).reduce((a, b) => a + b, 0);
+
     const absent = this.totalAbsent(payroll);
 
     //  số lần quên bsc. 1 lần thì bị trừ 0.5 ngày
