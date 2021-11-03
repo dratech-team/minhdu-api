@@ -951,7 +951,8 @@ export class PayrollService {
       }
     }
 
-    const overtimeSalary = this.totalOvertime(payroll.salaries);
+    const overtimes = payroll.salaries.map(salary => salary.times).reduce((a, b) => a + b, 0);
+    const overtimeSalary = overtimes * basicSalary;
     const absent = this.totalAbsent(payroll);
 
     //  số lần quên bsc. 1 lần thì bị trừ 0.5 ngày
