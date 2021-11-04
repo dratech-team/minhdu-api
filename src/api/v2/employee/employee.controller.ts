@@ -5,7 +5,7 @@ import {Roles} from "../../../core/decorators/roles.decorator";
 import {ReqProfile} from "../../../core/decorators/req-profile.decorator";
 import {UpdateEmployeeDto} from "./dto/update-employee.dto";
 import {ApiV2Constant} from "../../../common/constant/api.constant";
-import {EmployeeType, GenderType, RoleEnum} from "@prisma/client";
+import {EmployeeType, GenderType, RecipeType, RoleEnum} from "@prisma/client";
 import {ParseDatetimePipe} from "../../../core/pipe/datetime.pipe";
 import {JwtAuthGuard} from "../../../core/guard/jwt-auth.guard";
 import {ApiKeyGuard} from "../../../core/guard/api-key-auth.guard";
@@ -44,6 +44,7 @@ export class EmployeeController {
     @Query("createdPayroll", ParseDatetimePipe) createdPayroll: any,
     @Query("isLeft") isLeft: boolean,
     @Query("employeeType") type: EmployeeType,
+    @Query("recipeType") recipeType: RecipeType,
   ) {
     return this.employeeService.findAll(profile, skip, take, {
       name,
@@ -56,6 +57,7 @@ export class EmployeeController {
       createdPayroll,
       isLeft,
       type,
+      recipeType,
       templateId: +templateId,
     });
   }

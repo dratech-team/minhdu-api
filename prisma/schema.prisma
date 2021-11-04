@@ -362,6 +362,7 @@ model Salary {
   rate       Float?        @default(1)
   datetime   DateTime?
   forgot     Boolean?      @default(false)
+  partial    PartialDay?   @default(ALL_DAY)
   note       String?
   payroll    Payroll?      @relation(fields: [payrollId], references: [id])
   payrollId  Int?

@@ -131,7 +131,8 @@ export class EmployeeRepository {
                 }
               }
             } : {},
-            type: {equals: search?.type || EmployeeType.FULL_TIME}
+            type: {equals: search?.type || EmployeeType.FULL_TIME},
+            recipeType: search?.recipeType ? {in: search?.recipeType} : {}
           },
         }),
         this.prisma.employee.findMany({
@@ -170,7 +171,8 @@ export class EmployeeRepository {
                 }
               }
             } : {},
-            type: {equals: search?.type || EmployeeType.FULL_TIME}
+            type: {equals: search?.type || EmployeeType.FULL_TIME},
+            recipeType: search?.recipeType ? {in: search?.recipeType} : {}
           },
           include: {
             position: true,
