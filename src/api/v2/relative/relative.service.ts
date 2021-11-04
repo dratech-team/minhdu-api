@@ -2,16 +2,17 @@ import {BadRequestException, Injectable} from '@nestjs/common';
 import {CreateRelativeDto} from './dto/create-relative.dto';
 import {UpdateRelativeDto} from './dto/update-relative.dto';
 import {PrismaService} from "../../../prisma.service";
+import {EmployeeService} from "../employee/employee.service";
 
 @Injectable()
 export class RelativeService {
-  constructor(private readonly prisma: PrismaService) {
+  constructor(private readonly prisma: PrismaService, private readonly employeeService: EmployeeService) {
   }
 
   async create(body: CreateRelativeDto) {
     try {
       const created = await this.prisma.relative.create({data: body});
-      return await this.prisma.employee.findUnique({where: {id: created.employeeId}});
+      return await this.employeeService.findOne(created.employeeId);
     } catch (err) {
       console.error(err);
       throw new BadRequestException(err);
@@ -31,7 +32,7 @@ export class RelativeService {
         where: {id},
         data: updates
       });
-      return await this.prisma.employee.findUnique({where: {id: updated.employeeId}});
+      return await this.employeeService.findOne(updated.employeeId);
     } catch (err) {
       console.error(err);
       throw new BadRequestException(err);

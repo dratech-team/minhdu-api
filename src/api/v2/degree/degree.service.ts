@@ -2,16 +2,17 @@ import {BadRequestException, Injectable} from '@nestjs/common';
 import {CreateDegreeDto} from './dto/create-degree.dto';
 import {UpdateDegreeDto} from './dto/update-degree.dto';
 import {PrismaService} from "../../../prisma.service";
+import {EmployeeService} from "../employee/employee.service";
 
 @Injectable()
 export class DegreeService {
-  constructor(private readonly prisma: PrismaService) {
+  constructor(private readonly prisma: PrismaService, private readonly employeeService: EmployeeService) {
   }
 
   async create(body: CreateDegreeDto) {
     try {
       const created = await this.prisma.degree.create({data: body});
-      return await this.prisma.employee.findUnique({where: {id: created.employeeId}});
+      return await this.employeeService.findOne(created.employeeId);
     } catch (err) {
       console.error(err);
       throw new BadRequestException(err);
@@ -32,7 +33,7 @@ export class DegreeService {
         where: {id},
         data: updates
       });
-      return await this.prisma.employee.findUnique({where: {id: updated.employeeId}});
+      return await this.employeeService.findOne(updated.employeeId);
     } catch (err) {
       console.error(err);
       throw new BadRequestException(err);
@@ -41,6 +42,6 @@ export class DegreeService {
 
   async remove(id: number) {
     const removed = await this.prisma.degree.delete({where: {id}});
-    return await this.prisma.employee.findUnique({where: {id: removed.employeeId}});
+    return await this.employeeService.findOne(removed.employeeId);
   }
 }
