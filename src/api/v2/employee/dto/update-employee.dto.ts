@@ -1,11 +1,11 @@
-import {OmitType} from "@nestjs/mapped-types";
+import {OmitType, PartialType} from "@nestjs/mapped-types";
 import {IsDate, IsOptional, IsString,} from "class-validator";
 import {CreateEmployeeDto} from "./create-employee.dto";
 import {Transform, Type} from "class-transformer";
 
-export class UpdateEmployeeDto extends OmitType(CreateEmployeeDto, [
+export class UpdateEmployeeDto extends PartialType(OmitType(CreateEmployeeDto, [
   "contract",
-]) {
+])) {
   @IsOptional()
   @IsString()
   readonly zalo?: string;

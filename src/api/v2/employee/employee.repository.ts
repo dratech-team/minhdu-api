@@ -264,7 +264,7 @@ export class EmployeeRepository {
 
   async update(id: number, updates: UpdateEmployeeDto) {
     try {
-      return await this.prisma.employee.update({
+      const employee = await this.prisma.employee.update({
         where: {id: id},
         data: {
           firstName: updates.firstName,
@@ -277,9 +277,9 @@ export class EmployeeRepository {
           identify: updates.identify,
           idCardAt: updates.idCardAt,
           issuedBy: updates.issuedBy,
-          ward: {connect: {id: updates.wardId}},
-          position: {connect: {id: updates.positionId}},
-          branch: {connect: {id: updates.branchId}},
+          ward: updates?.wardId ? {connect: {id: updates.wardId}} : {},
+          position: updates?.positionId ? {connect: {id: updates.positionId}} : {},
+          branch: updates?.branchId ? {connect: {id: updates.branchId}} : {},
           address: updates.address,
           religion: updates.religion,
           workday: updates.workday,
@@ -296,17 +296,62 @@ export class EmployeeRepository {
           note: updates.note,
           type: updates.type,
         },
-      }).then(employee => {
-        if (updates.positionId || updates.branchId) {
-          this.prisma.workHistory.create({
-            data: {
-              positionId: employee.positionId,
-              branchId: employee.branchId,
-              employeeId: employee.id,
+        include: {
+          degrees: true,
+          contracts: true,
+          relatives: {
+            include: {
+              ward: {
+                include: {
+                  district: {
+                    include: {
+                      province: {
+                        include: {
+                          nation: true,
+                        },
+                      },
+                    },
+                  },
+                },
+              },
+            },
+          },
+          banks: true,
+          position: true,
+          branch: true,
+          ward: {
+            include: {
+              district: {
+                include: {
+                  province: {
+                    include: {
+                      nation: true,
+                    },
+                  },
+                },
+              },
+            },
+          },
+          salaryHistories: true,
+          workHistories: {
+            select: {
+              branch: {select: {name: true}},
+              position: {select: {name: true}},
+              createdAt: true
             }
-          }).then();
-        }
+          },
+        },
       });
+      if (updates.positionId || updates.branchId) {
+        this.prisma.workHistory.create({
+          data: {
+            positionId: employee.positionId,
+            branchId: employee.branchId,
+            employeeId: employee.id,
+          }
+        }).then();
+      }
+      return employee;
     } catch (err) {
       console.error(err);
       throw new BadRequestException(err);
