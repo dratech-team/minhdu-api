@@ -10,7 +10,8 @@ export class DegreeService {
 
   async create(body: CreateDegreeDto) {
     try {
-      return await this.prisma.degree.create({data: body});
+      const created = await this.prisma.degree.create({data: body});
+      return await this.prisma.employee.findUnique({where: {id: created.employeeId}});
     } catch (err) {
       console.error(err);
       throw new BadRequestException(err);
@@ -27,17 +28,19 @@ export class DegreeService {
 
   async update(id: number, updates: UpdateDegreeDto) {
     try {
-      return await this.prisma.degree.update({
+      const updated = await this.prisma.degree.update({
         where: {id},
         data: updates
       });
+      return await this.prisma.employee.findUnique({where: {id: updated.employeeId}});
     } catch (err) {
       console.error(err);
       throw new BadRequestException(err);
     }
   }
 
-  remove(id: number) {
-    return this.prisma.degree.delete({where: {id}});
+  async remove(id: number) {
+    const removed = await this.prisma.degree.delete({where: {id}});
+    return await this.prisma.employee.findUnique({where: {id: removed.employeeId}});
   }
 }

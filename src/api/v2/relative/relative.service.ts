@@ -10,7 +10,8 @@ export class RelativeService {
 
   async create(body: CreateRelativeDto) {
     try {
-      return await this.prisma.relative.create({data: body});
+      const created = await this.prisma.relative.create({data: body});
+      return await this.prisma.employee.findUnique({where: {id: created.employeeId}});
     } catch (err) {
       console.error(err);
       throw new BadRequestException(err);
@@ -26,10 +27,11 @@ export class RelativeService {
 
   async update(id: number, updates: UpdateRelativeDto) {
     try {
-      return await this.prisma.relative.update({
+      const updated = await this.prisma.relative.update({
         where: {id},
         data: updates
       });
+      return await this.prisma.employee.findUnique({where: {id: updated.employeeId}});
     } catch (err) {
       console.error(err);
       throw new BadRequestException(err);
@@ -38,7 +40,8 @@ export class RelativeService {
 
   async remove(id: number) {
     try {
-      return await this.prisma.relative.delete({where: {id}});
+      const deleted = await this.prisma.relative.delete({where: {id}});
+      return await this.prisma.employee.findUnique({where: {id: deleted.employeeId}});
     } catch (err) {
       console.error(err);
       throw new BadRequestException(err);
