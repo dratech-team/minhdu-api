@@ -66,7 +66,8 @@ export class SalaryService {
         await this.repository.create(Object.assign(body, {times: 1, datetime: new Date(range[i].toDate())}));
       }
     } else {
-      return await this.repository.create(body);
+      const created = await this.repository.create(body);
+      return await this.payrollService.findOne(created.payroll.id);
     }
   }
 
@@ -93,29 +94,18 @@ export class SalaryService {
 
   async findAll(search: SearchSalaryDto) {
     const {total, data} = await this.repository.findAll(search);
-
-    /// TODO: Cọng dồn những tăng ca giống nhau
-    // lọc theo overtime
-    // if (!search?.employeeId) {
-    //   const counts = {};
-    //   salaries.forEach((x) => {
-    //     counts[x] = (counts[x] || 0) + 1;
-    //   });
-    //   console.log(counts);
-    // } else {
-    //   // lọc theo thay đổi lương.
-    // }
-
     return {total, data: data.map(salary => Object.assign(salary, {employee: salary.payroll.employee}))};
 
   }
 
   async update(id: number, updates: UpdateSalaryDto) {
-    return await this.repository.update(id, updates);
+    const updated = await this.repository.update(id, updates);
+    return await this.payrollService.findOne(updated.payrollId);
   }
 
   async remove(id: number) {
-    return await this.repository.remove(id);
+    const removed = await this.repository.remove(id);
+    return await this.payrollService.findOne(removed.payrollId);
   }
 
   // Dùng 1 lần xong xoá

@@ -55,7 +55,7 @@ export class SalaryRepository {
           branch: body?.branchId ? {connect: {id: body?.branchId}} : {},
         },
         select: {
-          payroll: {select: {employee: {select: {firstName: true, lastName: true}}}},
+          payroll: {select: {id: true, employee: {select: {id: true, firstName: true, lastName: true}}}},
           allowance: true,
           title: true,
         }
@@ -317,7 +317,7 @@ export class SalaryRepository {
         );
       }
 
-      return await this.prisma.salary.update({
+      const updated = await this.prisma.salary.update({
         where: {id: id},
         data: {
           title: updates.title,
@@ -348,18 +348,18 @@ export class SalaryRepository {
         include: {
           payroll: {select: {employeeId: true}}
         }
-      }).then(salary => {
-        // log salary history
-        if (salary.type === SalaryType.BASIC || salary.type === SalaryType.BASIC_INSURANCE || salary.type === SalaryType.STAY) {
-          this.prisma.salaryHistory.create({
-            data: {
-              title: salary.title,
-              price: salary.price,
-              employeeId: salary.payroll.employeeId,
-            }
-          }).then();
-        }
       });
+      // log salary history
+      if (salary.type === SalaryType.BASIC || salary.type === SalaryType.BASIC_INSURANCE || salary.type === SalaryType.STAY) {
+        this.prisma.salaryHistory.create({
+          data: {
+            title: salary.title,
+            price: salary.price,
+            employeeId: salary.payroll.employeeId,
+          }
+        }).then();
+      }
+      return updated;
     } catch (err) {
       console.error(err);
       throw new BadRequestException(err);
