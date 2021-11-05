@@ -42,7 +42,7 @@ export class RelativeService {
   async remove(id: number) {
     try {
       const deleted = await this.prisma.relative.delete({where: {id}});
-      return await this.prisma.employee.findUnique({where: {id: deleted.employeeId}});
+      return await this.employeeService.findOne(deleted.employeeId);
     } catch (err) {
       console.error(err);
       throw new BadRequestException(err);
