@@ -50,6 +50,6 @@ export class BranchController {
   @Roles(RoleEnum.ADMIN, RoleEnum.HUMAN_RESOURCE)
   @Delete('/allowance/:id')
   removeAlowance(@Param('id') id: number) {
-    return this.branchService.removeAlowance(+id);
+    return this.branchService.removeAllowance(+id);
   }
 }

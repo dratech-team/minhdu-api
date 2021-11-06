@@ -3,7 +3,6 @@ import {PrismaService} from "../../../prisma.service";
 import {CreateBranchDto} from "./dto/create-branch.dto";
 import {Branch} from "@prisma/client";
 import {UpdateBranchDto} from "./dto/update-branch.dto";
-import {ResponsePagination} from "../../entities/response.pagination";
 
 @Injectable()
 export class BranchRepository {
