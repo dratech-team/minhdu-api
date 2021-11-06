@@ -1,5 +1,5 @@
 import {BadRequestException, Injectable, NotFoundException,} from "@nestjs/common";
-import {DatetimeUnit, RecipeType, SalaryType} from "@prisma/client";
+import {DatetimeUnit, SalaryType} from "@prisma/client";
 import * as moment from "moment";
 import {PrismaService} from "../../../prisma.service";
 import {CreateSalaryDto} from "./dto/create-salary.dto";
@@ -198,6 +198,10 @@ export class SalaryRepository {
           "MM/YYYY"
         )}.`
       );
+    }
+
+    if (includesDatetime(payroll.salaries.map(salary => salary.datetime), body.datetime as Date)) {
+      throw new BadRequestException(`Ngày ${moment(body.datetime as Date).format("dd/MM/yyyy")} đã tồn tại ngày tăng ca. Vui lòng kiểm tra lại`);
     }
 
     return true;
