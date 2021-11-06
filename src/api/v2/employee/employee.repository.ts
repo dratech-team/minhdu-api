@@ -111,10 +111,7 @@ export class EmployeeRepository {
               name: {startsWith: search?.branch, mode: "insensitive"},
             },
             positionId: positionIds?.length ? {in: positionIds} : {},
-            AND: {
-              firstName: {contains: name?.firstName || name?.lastName, mode: "insensitive"},
-              lastName: {contains: name?.lastName || name?.firstName, mode: "insensitive"},
-            },
+            lastName: {contains: search?.name, mode: "insensitive"},
             gender: search?.gender ? {equals: search?.gender} : {},
             isFlatSalary: search?.isFlatSalary,
             createdAt: search?.createdAt ? search?.createdAt.compare === 'gte' ? {
@@ -148,10 +145,7 @@ export class EmployeeRepository {
               name: {startsWith: search?.branch, mode: "insensitive"},
             },
             positionId: positionIds?.length ? {in: positionIds} : {},
-            AND: {
-              firstName: {contains: name?.firstName || name?.lastName, mode: "insensitive"},
-              lastName: {contains: name?.lastName || name?.firstName, mode: "insensitive"},
-            },
+            lastName: {contains: search?.name, mode: "insensitive"},
             gender: search?.gender ? {equals: search?.gender} : {},
             isFlatSalary: search?.isFlatSalary,
             createdAt: search?.createdAt ? search?.createdAt.compare === 'gte' ? {
