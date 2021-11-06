@@ -19,7 +19,7 @@ export class BranchRepository {
     }
   }
 
-  async findAll(): Promise<Branch[]> {
+  async findAll() {
     try {
       return await this.prisma.branch.findMany({
         include: {
@@ -46,7 +46,7 @@ export class BranchRepository {
     }
   }
 
-  async findOne(id: number): Promise<Branch> {
+  async findOne(id: number) {
     return await this.prisma.branch.findUnique({
       where: {id: id},
       include: {
@@ -111,6 +111,20 @@ export class BranchRepository {
     } catch (err) {
       console.error(err);
       throw new BadRequestException("Không thể xóa.", err);
+    }
+  }
+
+  async count(branchId: number, isLeft: boolean) {
+    try {
+      return await this.prisma.employee.count({
+        where: {
+          branchId: branchId,
+          leftAt: isLeft ? {notIn: null} : {in: null}
+        }
+      });
+    } catch (err) {
+      console.error(err);
+      throw new BadRequestException(err);
     }
   }
 }

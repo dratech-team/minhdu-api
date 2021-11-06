@@ -15,17 +15,21 @@ export class BranchService {
     }
   }
 
-  // @ts-ignore
-  async findAll(): Promise<Branch[]> {
-    return await this.repository.findAll();
+  async findAll() {
+    const branches = await this.repository.findAll();
+    return await Promise.all(
+      branches.map(async branch => Object.assign(branch, Object.assign(branch._count, {employeeLeft: await this.repository.count(branch.id, true)})))
+    );
   }
 
   async findBy(query: CreateBranchDto): Promise<Branch[]> {
     return await this.repository.findMany(query);
   }
 
-  findOne(id: number) {
-    return this.repository.findOne(id);
+  async findOne(id: number) {
+    const employee = await this.repository.count(id, true);
+    const branch = await this.repository.findOne(id);
+    return Object.assign(branch, {_count: Object.assign(branch._count, {employeesLeft: employee})});
   }
 
   update(id: number, updates: UpdateBranchDto): Promise<any> {
