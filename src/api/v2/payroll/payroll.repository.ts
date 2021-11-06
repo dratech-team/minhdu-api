@@ -164,7 +164,7 @@ export class PayrollRepository {
                 id: profile.branches?.length ? {in: profile.branches.map(branch => branch.id)} : {},
                 name: {startsWith: search?.branch, mode: "insensitive"},
               },
-              lastName: {contains: name?.lastName, mode: "insensitive"},
+              lastName: {contains: search?.name, mode: "insensitive"},
               type: search?.employeeType ? {in: search?.employeeType} : {}
             },
             createdAt: {
@@ -188,7 +188,7 @@ export class PayrollRepository {
                 id: profile.branches?.length ? {in: profile.branches.map(branch => branch.id)} : {},
                 name: {startsWith: search?.branch, mode: "insensitive"},
               },
-              lastName: {contains: name?.lastName, mode: "insensitive"},
+              lastName: {contains: search?.name, mode: "insensitive"},
               type: search?.employeeType ? {in: search?.employeeType} : {}
             },
             createdAt: {
