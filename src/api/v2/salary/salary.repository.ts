@@ -200,7 +200,7 @@ export class SalaryRepository {
       );
     }
 
-    if (includesDatetime(payroll.salaries.map(salary => salary.datetime), body.datetime as Date)) {
+    if (includesDatetime(payroll.salaries.map(salary => salary.datetime), body.datetime as Date) && body.unit === DatetimeUnit.DAY) {
       throw new BadRequestException(`Ngày ${moment(body.datetime as Date).format("dd/MM/yyyy")} đã tồn tại ngày tăng ca. Vui lòng kiểm tra lại`);
     }
 
