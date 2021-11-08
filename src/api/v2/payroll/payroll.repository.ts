@@ -376,7 +376,7 @@ export class PayrollRepository {
           include: {
             allowance: true
           },
-          orderBy: {title: "asc"}
+          orderBy: {datetime: "asc"}
         });
         return Object.assign(employee, {salaries});
       }
