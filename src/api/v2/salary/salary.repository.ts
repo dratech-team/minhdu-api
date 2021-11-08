@@ -291,6 +291,9 @@ export class SalaryRepository {
                 }
               }
             },
+          },
+          orderBy: {
+            datetime: "asc"
           }
         }),
       ]);
