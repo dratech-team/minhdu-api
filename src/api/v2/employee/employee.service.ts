@@ -40,9 +40,9 @@ export class EmployeeService {
       throw new NotFoundException(`Not Found employee by Id ${id}`);
     }
     const contactType =
-      employee.contracts[0].createdAt && employee.contracts[0].expiredAt
+      employee.contracts[0]?.createdAt && employee.contracts[0]?.expiredAt
         ? "Có thời hạn"
-        : employee.contracts[0].createdAt && !employee.contracts[0].expiredAt
+        : employee.contracts[0]?.createdAt && !employee.contracts[0]?.expiredAt
         ? "Vô  thời hạn"
         : "Chưa có hợp đồng";
 

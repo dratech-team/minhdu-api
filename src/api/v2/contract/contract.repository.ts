@@ -1,11 +1,13 @@
-import { Injectable } from "@nestjs/common";
-import { Contract } from "@prisma/client";
-import { PrismaService } from "../../../prisma.service";
-import { CreateContractDto } from "./dto/create-contract.dto";
+import {Injectable} from "@nestjs/common";
+import {Contract} from "@prisma/client";
+import {PrismaService} from "../../../prisma.service";
+import {CreateContractDto} from "./dto/create-contract.dto";
+import {UpdateContractDto} from "./dto/update-contract.dto";
 
 @Injectable()
 export class ContractRepository {
-  constructor(private readonly prisma: PrismaService) {}
+  constructor(private readonly prisma: PrismaService) {
+  }
 
   async count(): Promise<number> {
     return await this.prisma.contract.count();
@@ -13,12 +15,12 @@ export class ContractRepository {
 
   async create(body: CreateContractDto): Promise<Contract> {
     const employee = await this.prisma.employee.findUnique({
-      where: { id: body.employeeId },
-      include: { position: true },
+      where: {id: body.employeeId},
+      include: {position: true},
     });
     return await this.prisma.contract.create({
       data: {
-        employee: { connect: { id: body.employeeId } },
+        employee: {connect: {id: body.employeeId}},
         createdAt: body.createdAt,
         expiredAt: body.expiredAt,
         position: employee.position.name,
@@ -39,8 +41,10 @@ export class ContractRepository {
   }
 
   async update(id: number, updates: any): Promise<Contract> {
-    return await this.prisma.contract.update({ where: { id }, data: updates });
+    return await this.prisma.contract.update({where: {id}, data: updates});
   }
 
-  remove(id: number): void {}
+  async remove(id: number) {
+    return await this.prisma.contract.delete({where: {id}});
+  }
 }

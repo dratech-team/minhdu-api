@@ -164,10 +164,7 @@ export class PayrollRepository {
                 id: profile.branches?.length ? {in: profile.branches.map(branch => branch.id)} : {},
                 name: {startsWith: search?.branch, mode: "insensitive"},
               },
-              AND: {
-                firstName: {startsWith: name?.firstName, mode: "insensitive"},
-                lastName: {startsWith: name?.lastName, mode: "insensitive"},
-              },
+              lastName: {contains: search?.name, mode: "insensitive"},
               type: search?.employeeType ? {in: search?.employeeType} : {}
             },
             createdAt: {
@@ -191,10 +188,7 @@ export class PayrollRepository {
                 id: profile.branches?.length ? {in: profile.branches.map(branch => branch.id)} : {},
                 name: {startsWith: search?.branch, mode: "insensitive"},
               },
-              AND: {
-                firstName: {startsWith: name?.firstName, mode: "insensitive"},
-                lastName: {startsWith: name?.lastName, mode: "insensitive"},
-              },
+              lastName: {contains: search?.name, mode: "insensitive"},
               type: search?.employeeType ? {in: search?.employeeType} : {}
             },
             createdAt: {
@@ -213,6 +207,9 @@ export class PayrollRepository {
               },
             },
           },
+          orderBy: {
+            createdAt: "asc"
+          }
         }),
       ]);
 
