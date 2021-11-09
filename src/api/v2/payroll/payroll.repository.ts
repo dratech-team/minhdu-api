@@ -12,6 +12,7 @@ import {ResponsePagination} from "../../../common/entities/response.pagination";
 import {CreateSalaryDto} from "../salary/dto/create-salary.dto";
 import {SearchOvertimePayrollDto} from "./dto/search-overtime-payroll.dto";
 import * as moment from "moment";
+import {SearchType} from "./entities/search.type.enum";
 
 @Injectable()
 export class PayrollRepository {
@@ -324,12 +325,15 @@ export class PayrollRepository {
     if (!(search?.startAt && search?.endAt)) {
       throw new BadRequestException("Vui lòng nhập ngày bắt đầu và ngày kết thúc");
     }
-    const name = searchName(search?.name);
 
     const employees = await this.prisma.employee.findMany({
       where: {
         branchId: profile?.branches?.length ? {in: profile?.branches.map(branch => branch.id)} : {},
-        lastName: {contains: search?.name},
+        lastName: search?.type === SearchType.EQUALS
+          ? {equals: search?.name}
+          : search?.type === SearchType.START_WITH
+            ? {startsWith: search?.name}
+            : {contains: search?.name},
       },
       select: {
         id: true,

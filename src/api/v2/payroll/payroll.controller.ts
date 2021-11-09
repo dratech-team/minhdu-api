@@ -13,6 +13,7 @@ import {JwtAuthGuard} from "../../../core/guard/jwt-auth.guard";
 import {EmployeeType, RoleEnum} from "@prisma/client";
 import {Roles} from "../../../core/decorators/roles.decorator";
 import {ConfirmPayrollDto} from "./dto/confirm-payroll.dto";
+import {SearchType} from "./entities/search.type.enum";
 
 @Controller(ApiV2Constant.PAYROLL)
 @UseGuards(JwtAuthGuard, ApiKeyGuard, RolesGuard)
@@ -80,8 +81,9 @@ export class PayrollController {
     @Query("endAt", ParseDatetimePipe) endAt: any,
     @Query("title") title: string,
     @Query("name") name: string,
+    @Query("searchType") searchType: SearchType,
   ) {
-    return this.payrollService.filterOvertime(profile, {startAt, endAt, title, name});
+    return this.payrollService.filterOvertime(profile, {startAt, endAt, title, name, searchType});
   }
 
   @UseGuards(LoggerGuard)
