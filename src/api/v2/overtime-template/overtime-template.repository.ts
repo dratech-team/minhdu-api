@@ -50,9 +50,10 @@ export class OvertimeTemplateRepository {
             title: { startsWith: search?.title, mode: "insensitive" },
             price: search?.price ? { in: search?.price } : {},
             unit: { in: search?.unit || undefined },
+            branchId: search?.branchId ? {in: search?.branchId} : {},
             positions: search?.positionId
               ? {
-                  every: { id: { in: search?.positionId } },
+                some: { id: { in: search?.positionId } },
                 }
               : {},
           },
@@ -64,9 +65,10 @@ export class OvertimeTemplateRepository {
             title: { startsWith: search?.title, mode: "insensitive" },
             price: search?.price ? { in: search?.price } : {},
             unit: { in: search?.unit || undefined },
+            branchId: search?.branchId ? {in: search?.branchId} : {},
             positions: search?.positionId
               ? {
-                  every: { id: { in: search?.positionId } },
+                  some: { id: { in: search?.positionId } },
                 }
               : {},
           },
