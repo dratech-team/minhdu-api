@@ -145,7 +145,7 @@ model Contract {
 model Employee {
   id              Int             @id @default(autoincrement())
   code            String?         @unique
-  firstName       String
+  firstName       String?
   lastName        String
   avt             String?
   gender          GenderType
@@ -234,7 +234,7 @@ model BasicTemplate {
 
 model Relative {
   id           Int               @id @default(autoincrement())
-  firstName    String
+  firstName    String?
   lastName     String
   gender       GenderType
   phone        String?
@@ -260,7 +260,7 @@ model Relative {
 
 model Customer {
   id               Int              @id @default(autoincrement())
-  firstName        String
+  firstName        String?
   lastName         String
   avt              String?
   gender           GenderType?
