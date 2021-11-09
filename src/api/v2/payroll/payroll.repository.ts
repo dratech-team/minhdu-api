@@ -330,10 +330,10 @@ export class PayrollRepository {
       where: {
         branchId: profile?.branches?.length ? {in: profile?.branches.map(branch => branch.id)} : {},
         lastName: search?.type === SearchType.EQUALS
-          ? {equals: search?.name}
+          ? {equals: search?.name, mode: "insensitive"}
           : search?.type === SearchType.START_WITH
-            ? {startsWith: search?.name}
-            : {contains: search?.name},
+            ? {startsWith: search?.name, mode: "insensitive"}
+            : {contains: search?.name, mode: "insensitive"},
       },
       select: {
         id: true,
