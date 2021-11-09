@@ -1,5 +1,5 @@
 export enum SearchType {
-  EQUALS = "equals",
-  CONTAINS = "contains",
-  START_WITH = "startWith",
+  EQUALS = "EQUALS",
+  CONTAINS = "CONTAINS",
+  START_WITH = "START_WITH",
 }
