@@ -260,94 +260,105 @@ export class EmployeeRepository {
 
   async update(id: number, updates: UpdateEmployeeDto) {
     try {
-      const employee = await this.prisma.employee.update({
-        where: {id: id},
-        data: {
-          firstName: updates.firstName,
-          lastName: updates.lastName,
-          gender: updates.gender,
-          phone: updates.phone,
-          workPhone: updates.workPhone,
-          birthday: updates.birthday,
-          birthplace: updates.birthplace,
-          identify: updates.identify,
-          idCardAt: updates.idCardAt,
-          issuedBy: updates.issuedBy,
-          ward: updates?.wardId ? {connect: {id: updates.wardId}} : {},
-          position: updates?.positionId ? {connect: {id: updates.positionId}} : {},
-          branch: updates?.branchId ? {connect: {id: updates.branchId}} : {},
-          address: updates.address,
-          religion: updates.religion,
-          workday: updates.workday,
-          mst: updates.mst,
-          email: updates.email,
-          zalo: updates.zalo,
-          facebook: updates.facebook,
-          avt: updates.avt,
-          ethnicity: updates.ethnicity,
-          createdAt: updates.createdAt,
-          workedAt: updates.workedAt,
-          isFlatSalary: updates.isFlatSalary,
-          recipeType: updates.recipeType,
-          note: updates.note,
-          type: updates.type,
-        },
-        include: {
-          degrees: true,
-          contracts: true,
-          relatives: {
-            include: {
-              ward: {
-                include: {
-                  district: {
-                    include: {
-                      province: {
-                        include: {
-                          nation: true,
-                        },
-                      },
-                    },
-                  },
-                },
-              },
-            },
-          },
-          banks: true,
-          position: true,
-          branch: true,
-          ward: {
-            include: {
-              district: {
-                include: {
-                  province: {
-                    include: {
-                      nation: true,
-                    },
-                  },
-                },
-              },
-            },
-          },
-          salaryHistories: true,
-          workHistories: {
-            select: {
-              branch: {select: {name: true}},
-              position: {select: {name: true}},
-              createdAt: true
-            }
-          },
-        },
-      });
-      if (updates.positionId || updates.branchId) {
-        this.prisma.workHistory.create({
+      // const employee = await this.prisma.employee.update({
+      //   where: {id: id},
+      //   data: {
+      //     firstName: updates.firstName,
+      //     lastName: updates.lastName,
+      //     gender: updates.gender,
+      //     phone: updates.phone,
+      //     workPhone: updates.workPhone,
+      //     birthday: updates.birthday,
+      //     birthplace: updates.birthplace,
+      //     identify: updates.identify,
+      //     idCardAt: updates.idCardAt,
+      //     issuedBy: updates.issuedBy,
+      //     ward: updates?.wardId ? {connect: {id: updates.wardId}} : {},
+      //     position: updates?.positionId ? {connect: {id: updates.positionId}} : {},
+      //     branch: updates?.branchId ? {connect: {id: updates.branchId}} : {},
+      //     address: updates.address,
+      //     religion: updates.religion,
+      //     workday: updates.workday,
+      //     mst: updates.mst,
+      //     email: updates.email,
+      //     zalo: updates.zalo,
+      //     facebook: updates.facebook,
+      //     avt: updates.avt,
+      //     ethnicity: updates.ethnicity,
+      //     createdAt: updates.createdAt,
+      //     workedAt: updates.workedAt,
+      //     isFlatSalary: updates.isFlatSalary,
+      //     recipeType: updates.recipeType,
+      //     note: updates.note,
+      //     type: updates.type,
+      //   },
+      //   include: {
+      //     degrees: true,
+      //     contracts: true,
+      //     relatives: {
+      //       include: {
+      //         ward: {
+      //           include: {
+      //             district: {
+      //               include: {
+      //                 province: {
+      //                   include: {
+      //                     nation: true,
+      //                   },
+      //                 },
+      //               },
+      //             },
+      //           },
+      //         },
+      //       },
+      //     },
+      //     banks: true,
+      //     position: true,
+      //     branch: true,
+      //     ward: {
+      //       include: {
+      //         district: {
+      //           include: {
+      //             province: {
+      //               include: {
+      //                 nation: true,
+      //               },
+      //             },
+      //           },
+      //         },
+      //       },
+      //     },
+      //     salaryHistories: true,
+      //     workHistories: {
+      //       select: {
+      //         branch: {select: {name: true}},
+      //         position: {select: {name: true}},
+      //         createdAt: true
+      //       }
+      //     },
+      //   },
+      // });
+      // if (updates.positionId || updates.branchId) {
+      //   this.prisma.workHistory.create({
+      //     data: {
+      //       positionId: employee.positionId,
+      //       branchId: employee.branchId,
+      //       employeeId: employee.id,
+      //     }
+      //   }).then();
+      // }
+      // return employee;
+      const employees = await this.prisma.employee.findMany();
+      for (let i = 0; i < employees.length; i++) {
+        const employee = employees[i];
+        await this.prisma.employee.update({
+          where: {id: employee.id},
           data: {
-            positionId: employee.positionId,
-            branchId: employee.branchId,
-            employeeId: employee.id,
+            firstName: null,
+            lastName: employee.firstName + " " + employee.lastName,
           }
-        }).then();
+        });
       }
-      return employee;
     } catch (err) {
       console.error(err);
       throw new BadRequestException(err);
