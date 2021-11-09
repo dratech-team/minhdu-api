@@ -32,6 +32,7 @@ import { LoggerModule } from './api/v2/logger/logger.module';
 import { BasicTemplateModule } from './api/v2/basic-template/basic-template.module';
 import { SystemModule } from './api/v2/system/system.module';
 import { RoleModule } from './api/v2/role/role.module';
+import { ApplicationModule } from './api/v2/application/application.module';
 
 @Module({
   imports: [
@@ -66,6 +67,7 @@ import { RoleModule } from './api/v2/role/role.module';
     BasicTemplateModule,
     SystemModule,
     RoleModule,
+    ApplicationModule,
   ],
   controllers: [AppController],
   providers: [PrismaService],

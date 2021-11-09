@@ -487,6 +487,17 @@ enum MedicineUnit {
 
 // end medicine
 
+// start admin
+model Application {
+  id   Int     @id @default(autoincrement())
+  name String
+  app  AppEnum
+  link String
+  icon String
+}
+
+// end admin
+
 model SystemHistory {
   id          Int       @id @default(autoincrement())
   appName     AppEnum
