@@ -246,6 +246,7 @@ export class PayrollRepository {
             include: {
               contracts: true,
               position: true,
+              branch: true,
             },
           },
         },
