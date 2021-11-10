@@ -119,8 +119,12 @@ export class PayrollService {
               return Object.assign(payroll, {payslip: this.totalSalaryCT2(payroll)});
             } else if (payroll.employee.recipeType === RecipeType.CT3) {
               return Object.assign(payroll, {payslip: this.totalSalaryCT3(payroll)});
-            } else {
+            } else if (payroll.employee.recipeType === RecipeType.CT4) {
               return Object.assign(payroll, {payslip: this.totalSalaryCT4(payroll)});
+            } else if (payroll.employee.recipeType === RecipeType.CT5) {
+              return Object.assign(payroll, {payslip: this.totalSalaryCT5(payroll)});
+            } else {
+              throw new BadRequestException("Loại công thức không xác định");
             }
           } else {
             return payroll;
@@ -423,7 +427,7 @@ export class PayrollService {
           return salary.price * salary.times + (salary.allowance?.price * (salary.allowance?.times || 1) || 0);
         }
         // Tăng ca đêm cho nhân viên văn phòng chính
-        return this.totalBasicSalary(salaries) / 26 * salary.times
+        return this.totalBasicSalary(salaries) / 26 * salary.times;
       })
       ?.reduce((a, b) => a + b, 0);
   }
