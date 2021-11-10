@@ -175,9 +175,9 @@ export class SalaryRepository {
   }
 
   validateAllowance(body: CreateSalaryDto, payroll: FullPayroll): boolean {
-    if (!body.times) {
-      throw new BadRequestException(`[DEVELOPMENT] times not null`);
-    }
+    // if (!body.times) {
+    //   throw new BadRequestException(`[DEVELOPMENT] times not null`);
+    // }
     /// FIXME:
     // Check thêm tăng ca đúng với datetime của payroll
     // if (!isEqualDatetime(new Date(body.datetime as Date), payroll.createdAt, "MONTH") && body.unit === DatetimeUnit.MONTH) {
