@@ -470,6 +470,7 @@ enum RecipeType {
   CT2
   CT3
   CT4
+  CT5
 }
 
 enum EmployeeType {
@@ -546,6 +547,7 @@ enum AppEnum {
   HR
   SELL
   WAREHOUSE
+  ADMIN
 }
 
 enum RelationshipType {
