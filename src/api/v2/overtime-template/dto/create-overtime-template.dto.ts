@@ -40,7 +40,7 @@ export class CreateOvertimeTemplateDto {
   @IsNumber()
   readonly branchId: number;
 
-  @IsOptional()
+  @IsNotEmpty()
   @IsArray()
   readonly positionIds: number[];
 
