@@ -52,7 +52,7 @@ export class OvertimeTemplateRepository {
             price: search?.price ? {in: search?.price} : {},
             unit: {in: search?.unit || undefined},
             AND: {
-              branchId: search?.branchId ? {in: search?.branchId} : {},
+              branch: {id: search?.branchId || undefined},
               positions: search?.positionId
                 ? {
                   some: {id: {in: search?.positionId}},
@@ -69,7 +69,7 @@ export class OvertimeTemplateRepository {
             price: search?.price ? {in: search?.price} : {},
             unit: {in: search?.unit || undefined},
             AND: {
-              branchId: search?.branchId ? {in: search?.branchId} : {},
+              branch: {id: search?.branchId || undefined},
               positions: search?.positionId
                 ? {
                   some: {id: {in: search?.positionId}},
