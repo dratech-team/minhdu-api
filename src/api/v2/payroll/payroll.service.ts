@@ -281,6 +281,13 @@ export class PayrollService {
               : null,
           });
         }
+        case RecipeType.CT5: {
+          return Object.assign(payroll, {
+            payslip: payroll.accConfirmedAt
+              ? await this.totalSalaryCT5(payroll)
+              : null,
+          });
+        }
         default:
           throw new BadRequestException(
             `Loại lương của nhân viên ${payroll.employee.lastName} không xác định thuộc công thức nào. Vui lòng liên hệ admin để kiểm tra`
