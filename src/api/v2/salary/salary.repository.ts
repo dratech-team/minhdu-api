@@ -100,7 +100,6 @@ export class SalaryRepository {
       }
     });
 
-    console.log(salary?.datetime)
     if (salary) {
       // unique absent all day
       if (isEqualDatetime(salary.datetime, new Date(body.datetime as Date)) && salary.unit === DatetimeUnit.DAY && salary.times === ALL_DAY) {
