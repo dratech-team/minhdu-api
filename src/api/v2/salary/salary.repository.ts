@@ -30,6 +30,32 @@ export class SalaryRepository {
         }
       }
 
+      const salary = await this.prisma.salary.findFirst({
+        where: {
+          datetime: {in: body.datetime as Date},
+          unit: body.unit,
+          times: body.times,
+        }
+      });
+
+      if (salary) {
+        return await this.prisma.salary.update({
+          where: {id: salary.id},
+          data: {
+            times: ALL_DAY,
+            title: "Vắng nguyên ngày",
+            partial: PartialDay.ALL_DAY,
+          },
+          include: {
+            payroll: {
+              include: {
+                employee: true
+              }
+            },
+            allowance: true,
+          }
+        });
+      }
       return await this.prisma.salary.create({
         data: {
           title: body.title,
@@ -55,10 +81,13 @@ export class SalaryRepository {
           branch: body?.branchId ? {connect: {id: body?.branchId}} : {},
           partial: body.partial,
         },
-        select: {
-          payroll: {select: {id: true, employee: {select: {id: true, firstName: true, lastName: true}}}},
+        include: {
+          payroll: {
+            include: {
+              employee: true
+            }
+          },
           allowance: true,
-          title: true,
         }
       });
     } catch (err) {
@@ -99,26 +128,29 @@ export class SalaryRepository {
         payroll: true
       }
     });
-
     if (salary) {
-      // unique absent all day
-      if (isEqualDatetime(salary.datetime, new Date(body.datetime as Date)) && salary.unit === DatetimeUnit.DAY && salary.times === ALL_DAY) {
-        throw new BadRequestException(
-          `Ngày ${moment(body.datetime as Date).format(
-            "DD/MM/YYYY"
-          )} đã tồn tại đi trễ / về sớm / không đi làm / vắng đã tồn tại. Vui lòng kiểm tra lại`
-        );
-      }
-      // unique absent partial day
-      if (
-        isEqualDatetime(salary.datetime, new Date(body.datetime as Date)) &&
-        salary.unit === DatetimeUnit.DAY &&
-        ((salary.partial === PartialDay.MORNING && body.partial === PartialDay.MORNING) || (salary.partial === PartialDay.AFTERNOON && body.partial === PartialDay.AFTERNOON))
-      ) {
-        throw new BadRequestException(
-          `Ngày ${moment(body.datetime as Date).format(
+
+      // không thể thêm cùng vắng 1 buổi hoặc cùng vắng 1 ngày.
+      if (body.partial === salary.partial) {
+        throw new BadRequestException(`Ngày ${moment(body.datetime as Date).format(
             "DD/MM/YYYY"
           )} đã tồn tại đi trễ / về sớm / không đi làm / vắng đã tồn tại ${body.partial}. Vui lòng kiểm tra lại`
+        );
+      }
+
+      // Đã tổn tại vắng 1 buổi. chặn thêm văng 1 ngày
+      if ((salary.partial === PartialDay.MORNING || salary.partial === PartialDay.AFTERNOON) && body.partial === PartialDay.ALL_DAY) {
+        throw new BadRequestException(`Ngày ${moment(body.datetime as Date).format(
+            "DD/MM/YYYY"
+          )} đã tồn tại đi trễ / về sớm / không đi làm / vắng đã tồn tại 1 buổi ${salary.partial} nên không thể thêm vắng 1 ngày . Vui lòng kiểm tra lại`
+        );
+      }
+
+      // Đã tồn tại vắng 1 ngày. không thể thêm vắng 1 buổi.
+      if ((salary.partial === PartialDay.ALL_DAY) && (body.partial === PartialDay.MORNING || PartialDay.AFTERNOON)) {
+        throw new BadRequestException(`Ngày ${moment(body.datetime as Date).format(
+            "DD/MM/YYYY"
+          )} đã tồn tại đi trễ / về sớm / không đi làm / vắng đã tồn tại vắng 1 ngày nên không thể thêm vắng 1 buổi ${salary.partial}. Vui lòng kiểm tra lại`
         );
       }
     }

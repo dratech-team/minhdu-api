@@ -1,5 +1,14 @@
 import {BadRequestException, ConflictException, Injectable, NotFoundException} from "@nestjs/common";
-import {DatetimeUnit, EmployeeType, Payroll, RecipeType, RoleEnum, Salary, SalaryType,} from "@prisma/client";
+import {
+  DatetimeUnit,
+  EmployeeType,
+  PartialDay,
+  Payroll,
+  RecipeType,
+  RoleEnum,
+  Salary,
+  SalaryType,
+} from "@prisma/client";
 import {Response} from "express";
 import {ProfileEntity} from "../../../common/entities/profile.entity";
 import {lastDatetimeOfMonth, lastDayOfMonth} from "../../../utils/datetime.util";
@@ -489,11 +498,10 @@ export class PayrollService {
           currentHoliday[i].datetime
         );
         if (isAbsentInHoliday) {
-          const salary = salaries.find((salary) =>
-            isEqualDatetime(salary.datetime, currentHoliday[i].datetime)
-          );
-          if (salary.times === 0.5) {
+          const salary = salaries.filter((salary) => isEqualDatetime(salary.datetime, currentHoliday[i].datetime));
+          if (salary.length === 1 && salary[0].times === PARTIAL_DAY && salary[0].unit === DatetimeUnit.DAY) {
             /// Warning: update lại rate để tránh trùng với rate ngày nghỉ
+
             worksInHoliday.push(Object.assign(salary, {times: PARTIAL_DAY, rate: currentHoliday[i].rate}));
           }
         } else {
