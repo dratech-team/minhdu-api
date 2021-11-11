@@ -1,5 +1,5 @@
 import {BadRequestException, Injectable, NotFoundException,} from "@nestjs/common";
-import {DatetimeUnit, SalaryType} from "@prisma/client";
+import {DatetimeUnit, PartialDay, SalaryType} from "@prisma/client";
 import * as moment from "moment";
 import {PrismaService} from "../../../prisma.service";
 import {CreateSalaryDto} from "./dto/create-salary.dto";
@@ -87,33 +87,39 @@ export class SalaryRepository {
       }
     }
 
-    const salaries = await this.prisma.salary.findMany({
+    const salary = await this.prisma.salary.findFirst({
       where: {
         payrollId: body.payrollId,
-        type: {in: [SalaryType.DAY_OFF, SalaryType.ABSENT]}
-      },
-      select: {
-        datetime: true,
-        payroll: {
-          select: {
-            employee: {
-              select: {
-                firstName: true,
-                lastName: true,
-                createdAt: true,
-              }
-            }
-          }
+        type: {in: [SalaryType.DAY_OFF, SalaryType.ABSENT]},
+        datetime: {
+          in: body.datetime as Date
         }
+      },
+      include: {
+        payroll: true
       }
     });
-    if (salaries?.length) {
-      // unique absent
-      if (includesDatetime(salaries.map(salary => salary.datetime), new Date(body.datetime as Date))) {
+
+    console.log(salary?.datetime)
+    if (salary) {
+      // unique absent all day
+      if (isEqualDatetime(salary.datetime, new Date(body.datetime as Date)) && salary.unit === DatetimeUnit.DAY && salary.times === ALL_DAY) {
         throw new BadRequestException(
           `Ngày ${moment(body.datetime as Date).format(
             "DD/MM/YYYY"
           )} đã tồn tại đi trễ / về sớm / không đi làm / vắng đã tồn tại. Vui lòng kiểm tra lại`
+        );
+      }
+      // unique absent partial day
+      if (
+        isEqualDatetime(salary.datetime, new Date(body.datetime as Date)) &&
+        salary.unit === DatetimeUnit.DAY &&
+        ((salary.partial === PartialDay.MORNING && body.partial === PartialDay.MORNING) || (salary.partial === PartialDay.AFTERNOON && body.partial === PartialDay.AFTERNOON))
+      ) {
+        throw new BadRequestException(
+          `Ngày ${moment(body.datetime as Date).format(
+            "DD/MM/YYYY"
+          )} đã tồn tại đi trễ / về sớm / không đi làm / vắng đã tồn tại ${body.partial}. Vui lòng kiểm tra lại`
         );
       }
     }
