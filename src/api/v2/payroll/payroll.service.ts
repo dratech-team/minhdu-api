@@ -333,7 +333,7 @@ export class PayrollService {
         switch (salary.unit) {
           case DatetimeUnit.DAY: {
             if (salary.datetime) {
-              day += salary.times * (salary.forgot ? 1.5 : 1);
+              day += salary.times;
             }
             break;
           }
@@ -805,7 +805,7 @@ export class PayrollService {
     //  số lần quên bsc. 1 lần thì bị trừ 0.5 ngày
     const bsc = this.totalForgotBSC(payroll.salaries);
 
-    const absentDay = absent.day + bsc / 2 + (isEqualDatetime(payroll.employee.createdAt, payroll.createdAt)
+    const absentDay = absent.day + (isEqualDatetime(payroll.employee.createdAt, payroll.createdAt)
       ? payroll.employee.createdAt.getDate()
       : 0) + (isEqualDatetime(payroll.employee.leftAt, payroll.createdAt)
       ? payroll.employee.createdAt.getDate()
@@ -868,7 +868,7 @@ export class PayrollService {
     if (actualDay >= workday) {
       total = basicDaySalary * actualDay + Math.ceil(allowanceTotal) + staySalary + payslipInHoliday + payslipNotInHoliday + overtimeSalary - deductionSalary - bscSalary - tax;
     } else {
-      total = basicDaySalary * actualDay + Math.ceil(allowanceTotal) + payslipInHoliday + payslipNotInHoliday + workdayNotInHoliday + overtimeSalary - deductionSalary - bscSalary - tax;
+      total = basicDaySalary * actualDay + Math.ceil(allowanceTotal) + payslipInHoliday + payslipNotInHoliday + overtimeSalary - deductionSalary - bscSalary - tax;
     }
 
     return {
@@ -981,16 +981,17 @@ export class PayrollService {
       }
     }
 
-    const overtimeSalary = payroll.salaries.map(salary => {
-      return (basicSalary / workday) * salary.times;
-    }).reduce((a, b) => a + b, 0);
+    const overtimeSalary = payroll.salaries
+      .filter(salary => salary.type === SalaryType.OVERTIME)
+      .map(salary => (basicSalary / workday) * salary.times)
+      .reduce((a, b) => a + b, 0);
 
     const absent = this.totalAbsent(payroll);
 
     //  số lần quên bsc. 1 lần thì bị trừ 0.5 ngày
     const bsc = this.totalForgotBSC(payroll.salaries);
 
-    const absentDay = absent.day + bsc / 2 + (isEqualDatetime(payroll.employee.createdAt, payroll.createdAt)
+    const absentDay = absent.day + (isEqualDatetime(payroll.employee.createdAt, payroll.createdAt)
       ? payroll.employee.createdAt.getDate()
       : 0) + (isEqualDatetime(payroll.employee.leftAt, payroll.createdAt)
       ? payroll.employee.createdAt.getDate()
@@ -1053,7 +1054,7 @@ export class PayrollService {
     if (actualDay >= workday) {
       total = basicDaySalary * actualDay + Math.ceil(allowanceTotal) + staySalary + payslipInHoliday + payslipNotInHoliday + overtimeSalary - deductionSalary - bscSalary - tax;
     } else {
-      total = basicDaySalary * actualDay + Math.ceil(allowanceTotal) + payslipInHoliday + payslipNotInHoliday + workdayNotInHoliday + overtimeSalary - deductionSalary - bscSalary - tax;
+      total = basicDaySalary * actualDay + Math.ceil(allowanceTotal) + payslipInHoliday + payslipNotInHoliday + overtimeSalary - deductionSalary - bscSalary - tax;
     }
 
     return {
@@ -1155,9 +1156,13 @@ export class PayrollService {
     const absent = this.totalAbsent(payroll);
 
     //  số lần quên bsc. 1 lần thì bị trừ 0.5 ngày
-    const bsc = this.totalForgotBSC(payroll.salaries);
+    const bsc = this.totalForgotBSC(payroll.salaries)
+      + payroll.salaries
+        .filter(salary => salary.type === SalaryType.ABSENT && salary.forgot)
+        .map(salary => salary.times / 2)
+        .reduce((a, b) => a + b, 0);
 
-    const absentDay = absent.day + bsc / 2 + (isEqualDatetime(payroll.employee.createdAt, payroll.createdAt)
+    const absentDay = absent.day + (isEqualDatetime(payroll.employee.createdAt, payroll.createdAt)
       ? payroll.employee.createdAt.getDate()
       : 0) + (isEqualDatetime(payroll.employee.leftAt, payroll.createdAt)
       ? payroll.employee.createdAt.getDate()
@@ -1238,7 +1243,7 @@ export class PayrollService {
     if (actualDay >= workday) {
       total = basicDaySalary * actualDay + Math.ceil(allowanceTotal) + staySalary + payslipInHoliday + payslipNotInHoliday + overtimeSalary - deductionSalary - bscSalary - tax;
     } else {
-      total = basicDaySalary * actualDay + Math.ceil(allowanceTotal) + payslipInHoliday + payslipNotInHoliday + workdayNotInHoliday + overtimeSalary - deductionSalary - bscSalary - tax;
+      total = basicDaySalary * actualDay + Math.ceil(allowanceTotal) + payslipInHoliday + payslipNotInHoliday + overtimeSalary - deductionSalary - bscSalary - tax;
     }
 
     return {

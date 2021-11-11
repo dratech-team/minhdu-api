@@ -1,5 +1,5 @@
 import {BadRequestException, Injectable, NotFoundException,} from "@nestjs/common";
-import {DatetimeUnit, SalaryType} from "@prisma/client";
+import {DatetimeUnit, PartialDay, SalaryType} from "@prisma/client";
 import * as moment from "moment";
 import {PrismaService} from "../../../prisma.service";
 import {CreateSalaryDto} from "./dto/create-salary.dto";
@@ -30,6 +30,32 @@ export class SalaryRepository {
         }
       }
 
+      const salary = await this.prisma.salary.findFirst({
+        where: {
+          datetime: {in: body.datetime as Date},
+          unit: body.unit,
+          times: body.times,
+        }
+      });
+
+      if (salary) {
+        return await this.prisma.salary.update({
+          where: {id: salary.id},
+          data: {
+            times: ALL_DAY,
+            title: "Vắng nguyên ngày",
+            partial: PartialDay.ALL_DAY,
+          },
+          include: {
+            payroll: {
+              include: {
+                employee: true
+              }
+            },
+            allowance: true,
+          }
+        });
+      }
       return await this.prisma.salary.create({
         data: {
           title: body.title,
@@ -55,10 +81,13 @@ export class SalaryRepository {
           branch: body?.branchId ? {connect: {id: body?.branchId}} : {},
           partial: body.partial,
         },
-        select: {
-          payroll: {select: {id: true, employee: {select: {id: true, firstName: true, lastName: true}}}},
+        include: {
+          payroll: {
+            include: {
+              employee: true
+            }
+          },
           allowance: true,
-          title: true,
         }
       });
     } catch (err) {
@@ -87,33 +116,41 @@ export class SalaryRepository {
       }
     }
 
-    const salaries = await this.prisma.salary.findMany({
+    const salary = await this.prisma.salary.findFirst({
       where: {
         payrollId: body.payrollId,
-        type: {in: [SalaryType.DAY_OFF, SalaryType.ABSENT]}
-      },
-      select: {
-        datetime: true,
-        payroll: {
-          select: {
-            employee: {
-              select: {
-                firstName: true,
-                lastName: true,
-                createdAt: true,
-              }
-            }
-          }
+        type: {in: [SalaryType.DAY_OFF, SalaryType.ABSENT]},
+        datetime: {
+          in: body.datetime as Date
         }
+      },
+      include: {
+        payroll: true
       }
     });
-    if (salaries?.length) {
-      // unique absent
-      if (includesDatetime(salaries.map(salary => salary.datetime), new Date(body.datetime as Date))) {
-        throw new BadRequestException(
-          `Ngày ${moment(body.datetime as Date).format(
+    if (salary) {
+
+      // không thể thêm cùng vắng 1 buổi hoặc cùng vắng 1 ngày.
+      if (body.partial === salary.partial) {
+        throw new BadRequestException(`Ngày ${moment(body.datetime as Date).format(
             "DD/MM/YYYY"
-          )} đã tồn tại đi trễ / về sớm / không đi làm / vắng đã tồn tại. Vui lòng kiểm tra lại`
+          )} đã tồn tại đi trễ / về sớm / không đi làm / vắng đã tồn tại ${body.partial}. Vui lòng kiểm tra lại`
+        );
+      }
+
+      // Đã tổn tại vắng 1 buổi. chặn thêm văng 1 ngày
+      if ((salary.partial === PartialDay.MORNING || salary.partial === PartialDay.AFTERNOON) && body.partial === PartialDay.ALL_DAY) {
+        throw new BadRequestException(`Ngày ${moment(body.datetime as Date).format(
+            "DD/MM/YYYY"
+          )} đã tồn tại đi trễ / về sớm / không đi làm / vắng đã tồn tại 1 buổi ${salary.partial} nên không thể thêm vắng 1 ngày . Vui lòng kiểm tra lại`
+        );
+      }
+
+      // Đã tồn tại vắng 1 ngày. không thể thêm vắng 1 buổi.
+      if ((salary.partial === PartialDay.ALL_DAY) && (body.partial === PartialDay.MORNING || PartialDay.AFTERNOON)) {
+        throw new BadRequestException(`Ngày ${moment(body.datetime as Date).format(
+            "DD/MM/YYYY"
+          )} đã tồn tại đi trễ / về sớm / không đi làm / vắng đã tồn tại vắng 1 ngày nên không thể thêm vắng 1 buổi ${salary.partial}. Vui lòng kiểm tra lại`
         );
       }
     }

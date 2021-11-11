@@ -67,7 +67,7 @@ export class SalaryService {
       }
     } else {
       const created = await this.repository.create(body);
-      return await this.payrollService.findOne(created.payroll.id);
+      return await this.payrollService.findOne(created.payrollId);
     }
   }
 
