@@ -1,8 +1,8 @@
-import {Salary, SalaryType} from "@prisma/client";
+import {DatetimeUnit, Salary, SalaryType} from "@prisma/client";
 import * as moment from "moment";
 import {firstDatetimeOfMonth, lastDatetimeOfMonth} from "../../../../utils/datetime.util";
 import {includesDatetime} from "../../../../common/utils/isEqual-datetime.util";
-import {PARTIAL_DAY} from "../../../../common/constant/datetime.constant";
+import {ALL_DAY, PARTIAL_DAY} from "../../../../common/constant/datetime.constant";
 
 export function rageDaysInMonth(datetime: Date): moment.Moment[] {
   const range = [];
@@ -21,8 +21,8 @@ export const timesheet = (createdAt: Date, salaries: Salary[], isExport?: boolea
   let total = 0;
 
 
-  const allDay = salaries.filter(salary => salary.type === (SalaryType.ABSENT || salary.type === SalaryType.DAY_OFF) && salary.datetime).map(salary => salary.datetime);
-  const partialDay = salaries.filter(salary => (salary.type === SalaryType.ABSENT || salary.type === SalaryType.DAY_OFF) && salary.times === PARTIAL_DAY).map(salary => salary.datetime);
+  const allDay = salaries.filter(salary => salary.type === (SalaryType.ABSENT || salary.type === SalaryType.DAY_OFF) && salary.times === ALL_DAY && salary.unit === DatetimeUnit.DAY).map(salary => salary.datetime);
+  const partialDay = salaries.filter(salary => (salary.type === SalaryType.ABSENT || salary.type === SalaryType.DAY_OFF) && salary.times === PARTIAL_DAY && salary.unit === DatetimeUnit.DAY).map(salary => salary.datetime);
 
   for (let i = 0; i < diff.length; i++) {
     const datetime = diff[i];
