@@ -133,7 +133,7 @@ export class SalaryRepository {
         payroll: true
       }
     });
-    if (salary) {
+    if (salary && body.type === SalaryType.ABSENT && body.unit === DatetimeUnit.DAY) {
 
       // không thể thêm cùng vắng 1 buổi hoặc cùng vắng 1 ngày.
       if (body.partial === salary.partial) {
