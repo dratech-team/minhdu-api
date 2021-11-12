@@ -473,7 +473,7 @@ export class PayrollService {
 
   totalForgotBSC(salaries: Salary[]) {
     return salaries
-      .filter(salary => salary.type === SalaryType.ABSENT && salary.unit === DatetimeUnit.TIMES)
+      .filter(salary => salary.type === SalaryType.ABSENT && (salary.unit === DatetimeUnit.TIMES || salary.forgot))
       .map(salary => salary.times)
       .reduce((a, b) => a + b, 0);
   }
@@ -670,6 +670,7 @@ export class PayrollService {
 
     const totalStandard = basicSalary + staySalary;
     const tax = payroll.employee?.contracts?.length ? basic * TAX : 0;
+
     const bsc = this.totalForgotBSC(payroll.salaries);
     const bscSalary = basicDaySalary * (bsc / 2);
 
@@ -805,6 +806,8 @@ export class PayrollService {
     //  số lần quên bsc. 1 lần thì bị trừ 0.5 ngày
     const bsc = this.totalForgotBSC(payroll.salaries);
 
+    const bscSalary = (bsc / 2) * basicSalary / PAYSLIP_WORKDAY_HOLIDAY;
+
     const absentDay = absent.day + (isEqualDatetime(payroll.employee.createdAt, payroll.createdAt)
       ? payroll.employee.createdAt.getDate()
       : 0) + (isEqualDatetime(payroll.employee.leftAt, payroll.createdAt)
@@ -837,8 +840,6 @@ export class PayrollService {
         worksInHoliday.push({day: ALL_DAY, datetime: holiday.datetime});
       }
     });
-
-    const bscSalary = (bsc / 2) * basicSalary / PAYSLIP_WORKDAY_HOLIDAY;
 
     // Tổng tiền đi trễ. Ngày nghỉ là ngày đã đc trừ trên ngày đi làm thực tế, nên sẽ không tính vào tiền khấu trừ
     const deductionSalary = absent.minute * ((basicSalary + staySalary) / workday / 8 / 60);
@@ -991,6 +992,8 @@ export class PayrollService {
     //  số lần quên bsc. 1 lần thì bị trừ 0.5 ngày
     const bsc = this.totalForgotBSC(payroll.salaries);
 
+    const bscSalary = (bsc / 2) * basicSalary / PAYSLIP_WORKDAY_HOLIDAY;
+
     const absentDay = absent.day + (isEqualDatetime(payroll.employee.createdAt, payroll.createdAt)
       ? payroll.employee.createdAt.getDate()
       : 0) + (isEqualDatetime(payroll.employee.leftAt, payroll.createdAt)
@@ -1023,8 +1026,6 @@ export class PayrollService {
         worksInHoliday.push({day: ALL_DAY, datetime: holiday.datetime});
       }
     });
-
-    const bscSalary = (bsc / 2) * basicSalary / PAYSLIP_WORKDAY_HOLIDAY;
 
     // Tổng tiền đi trễ. Ngày nghỉ là ngày đã đc trừ trên ngày đi làm thực tế, nên sẽ không tính vào tiền khấu trừ
     const deductionSalary = absent.minute * (basicSalary / workday / 8 / 60);
@@ -1157,10 +1158,6 @@ export class PayrollService {
 
     //  số lần quên bsc. 1 lần thì bị trừ 0.5 ngày
     const bsc = this.totalForgotBSC(payroll.salaries)
-      + payroll.salaries
-        .filter(salary => salary.type === SalaryType.ABSENT && salary.forgot)
-        .map(salary => salary.times / 2)
-        .reduce((a, b) => a + b, 0);
 
     const absentDay = absent.day + (isEqualDatetime(payroll.employee.createdAt, payroll.createdAt)
       ? payroll.employee.createdAt.getDate()
