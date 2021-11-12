@@ -38,7 +38,12 @@ export class SalaryRepository {
         }
       });
 
-      if (salary) {
+      if (
+        salary &&
+        body.type === SalaryType.ABSENT &&
+        (body.partial === PartialDay.MORNING || body.partial === PartialDay.AFTERNOON) &&
+        body.times === PARTIAL_DAY
+      ) {
         return await this.prisma.salary.update({
           where: {id: salary.id},
           data: {
