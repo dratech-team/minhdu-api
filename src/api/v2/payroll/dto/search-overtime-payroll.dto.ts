@@ -5,4 +5,5 @@ export interface SearchOvertimePayrollDto {
   title: string,
   name: string,
   searchType: string,
+  position: string,
 }
