@@ -151,7 +151,6 @@ export class PayrollRepository {
     search?: Partial<SearchPayrollDto>
   ): Promise<ResponsePagination<OnePayroll>> {
     try {
-      const name = searchName(search?.name);
       const [total, data] = await Promise.all([
         this.prisma.payroll.count({
           where: {
@@ -209,7 +208,9 @@ export class PayrollRepository {
             },
           },
           orderBy: {
-            createdAt: "asc"
+            employee: {
+              lastName: "asc"
+            }
           }
         }),
       ]);
@@ -344,6 +345,9 @@ export class PayrollRepository {
         gender: true,
         position: {select: {name: true}},
         branch: {select: {name: true}},
+      },
+      orderBy: {
+        lastName: "asc"
       }
     });
 
