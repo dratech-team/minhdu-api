@@ -18,6 +18,20 @@ export class HolidayRepository {
           "Nếu ngày lễ áp dụng cho khối văn phòng thì rate sẽ === 1"
         );
       }
+      const holidays = await this.prisma.holiday.findMany({
+        where: {
+          positions: {every: {id: {in: body.positionIds}}},
+          datetime: {in: body.datetime},
+          price: body.price,
+          isConstraint: body.isConstraint,
+          rate: body.rate,
+        }
+      });
+
+      if (holidays?.length) {
+        throw new BadRequestException(`Ngày lễ ${body.datetime} đã tồn tại`);
+      }
+
       return await this.prisma.holiday.create({
         data: {
           name: body.name,
