@@ -244,12 +244,12 @@ export class PayrollService {
       const price = employees.map(employee => employee.salary.total).reduce((a, b) => a + b, 0);
 
       return {
-        employees, total: {times, price, unit: overtime.unit}
+        employees: employees.filter(employee => employee.salaries?.length), total: {times, price, unit: overtime.unit}
       };
     }
 
     return {
-      employees: overtimes,
+      employees: overtimes.filter(overtime => overtime.salaries?.length),
       total: null,
     };
   }
@@ -1157,7 +1157,7 @@ export class PayrollService {
     const absent = this.totalAbsent(payroll);
 
     //  số lần quên bsc. 1 lần thì bị trừ 0.5 ngày
-    const bsc = this.totalForgotBSC(payroll.salaries)
+    const bsc = this.totalForgotBSC(payroll.salaries);
 
     const absentDay = absent.day + (isEqualDatetime(payroll.employee.createdAt, payroll.createdAt)
       ? payroll.employee.createdAt.getDate()
