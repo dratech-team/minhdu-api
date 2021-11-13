@@ -60,7 +60,6 @@ export class EmployeeController {
       type,
       recipeType,
       templateId: +templateId,
-      overtimeTitle,
     });
   }
 
