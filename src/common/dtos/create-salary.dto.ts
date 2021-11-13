@@ -24,7 +24,7 @@ export class ICreateSalaryDto {
 
   @IsOptional()
   @Type(() => Number)
-  times?: number;
+  readonly times?: number;
 
   @IsOptional()
   @Type(() => Boolean)

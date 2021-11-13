@@ -11,6 +11,7 @@ import {JwtAuthGuard} from "../../../core/guard/jwt-auth.guard";
 import {ApiKeyGuard} from "../../../core/guard/api-key-auth.guard";
 import {RolesGuard} from "../../../core/guard/role.guard";
 import {Roles} from "../../../core/decorators/roles.decorator";
+import {UpdateManySalaryDto} from "./dto/update-many-salary.dto";
 
 @UseGuards(JwtAuthGuard, ApiKeyGuard, RolesGuard)
 @Controller("v2/salary")
@@ -48,6 +49,12 @@ export class SalaryController {
   @Patch(":id")
   update(@Param("id") id: string, @Body() updateSalaryDto: UpdateSalaryDto) {
     return this.salaryService.update(+id, updateSalaryDto);
+  }
+
+  @Roles(RoleEnum.CAMP_ACCOUNTING, RoleEnum.HUMAN_RESOURCE)
+  @Patch("overtime/employees")
+  async updateMany(@ReqProfile() profile: ProfileEntity, @Param("id") id: number, @Body() updateSalaryDto: UpdateManySalaryDto) {
+    return await this.salaryService.updateMany(profile, +id, updateSalaryDto);
   }
 
   @Roles(RoleEnum.HUMAN_RESOURCE)

@@ -6,4 +6,5 @@ export interface SearchSalaryDto {
   unit: DatetimeUnit;
   position: string;
   employeeId: number;
+  times: number;
 }

@@ -1,4 +1,4 @@
-import {BadRequestException, Injectable} from "@nestjs/common";
+import {BadRequestException, Body, Injectable} from "@nestjs/common";
 import {Salary, SalaryType} from "@prisma/client";
 import {firstDatetimeOfMonth, lastDatetimeOfMonth, rangeDatetime} from "../../../utils/datetime.util";
 import {EmployeeService} from "../employee/employee.service";
@@ -10,6 +10,7 @@ import {SalaryRepository} from "./salary.repository";
 import {SearchSalaryDto} from "./dto/search-salary.dto";
 import {CreateForEmployeesDto} from "./dto/create-for-employees.dto";
 import {ProfileEntity} from "../../../common/entities/profile.entity";
+import {UpdateManySalaryDto} from "./dto/update-many-salary.dto";
 
 @Injectable()
 export class SalaryService {
@@ -92,15 +93,27 @@ export class SalaryService {
     return await this.repository.findOne(id);
   }
 
-  async findAll(search: SearchSalaryDto) {
-    const {total, data} = await this.repository.findAll(search);
-    return {total, data: data.map(salary => Object.assign(salary, {employee: salary.payroll.employee}))};
-
+  async findAll(search: Partial<SearchSalaryDto>) {
+    return await this.repository.findAll(search);
   }
 
   async update(id: number, updates: UpdateSalaryDto) {
     const updated = await this.repository.update(id, updates);
     return await this.payrollService.findOne(updated.payrollId);
+  }
+
+  async updateMany(profile: ProfileEntity, id: number, updates: UpdateManySalaryDto) {
+    const updated = [];
+    for (let i = 0; i < updates.salaryIds.length; i++) {
+      updated.push(await this.update(updates.salaryIds[i], {
+        datetime: updates.datetime,
+        times: updates.times,
+      }));
+    }
+    return {
+      status: 201,
+      message: `Đã update cho ${updated.length} nhân viên`,
+    };
   }
 
   async remove(id: number) {

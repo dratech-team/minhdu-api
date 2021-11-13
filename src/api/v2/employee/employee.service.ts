@@ -27,7 +27,12 @@ export class EmployeeService {
 
   async findEmployeesByOvertime(search: SearchEmployeeByOvertimeDto) {
     const salaries = await this.repository.findEmployeesByOvertime(search);
-    return salaries.map(salary => salary.payroll.employee);
+    return salaries.map(salary => {
+      return {
+        employee: salary.payroll.employee,
+        salary: Object.assign(salary, {payroll: null}),
+      };
+    });
   }
 
   findBy(query: any) {

@@ -199,10 +199,16 @@ export class EmployeeRepository {
         unit: search.unit,
         times: search.times,
       },
-      select: {
+      include: {
         payroll: {
           select: {
-            employee: true
+            employee: {
+              select: {
+                id: true,
+                lastName: true,
+                position: true,
+              }
+            }
           }
         }
       }

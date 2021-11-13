@@ -8,10 +8,10 @@ import {OneSalary} from "./entities/salary.entity";
 import {includesDatetime, isEqualDatetime} from "../../../common/utils/isEqual-datetime.util";
 import {ALL_DAY, PARTIAL_DAY} from "../../../common/constant/datetime.constant";
 import {FullPayroll} from "../payroll/entities/payroll.entity";
-import {firstDatetimeOfMonth, lastDatetimeOfMonth} from "../../../utils/datetime.util";
 import {SearchSalaryDto} from "./dto/search-salary.dto";
 import {ProfileEntity} from "../../../common/entities/profile.entity";
 import {CreateForEmployeesDto} from "./dto/create-for-employees.dto";
+import {firstDatetimeOfMonth} from "../../../utils/datetime.util";
 
 const RATE_TIMES = 1;
 
@@ -138,7 +138,7 @@ export class SalaryRepository {
       // không thể thêm cùng vắng 1 buổi hoặc cùng vắng 1 ngày.
       if (body.partial === salary.partial) {
         throw new BadRequestException(`Ngày ${moment(body.datetime as Date).format(
-          "DD/MM/YYYY"
+            "DD/MM/YYYY"
           )} đã tồn tại đi trễ / về sớm / không đi làm / vắng đã tồn tại ${body.partial}. Vui lòng kiểm tra lại`
         );
       }
@@ -146,7 +146,7 @@ export class SalaryRepository {
       // Đã tổn tại vắng 1 buổi. chặn thêm văng 1 ngày
       if ((salary.partial === PartialDay.MORNING || salary.partial === PartialDay.AFTERNOON) && body.partial === PartialDay.ALL_DAY) {
         throw new BadRequestException(`Ngày ${moment(body.datetime as Date).format(
-          "DD/MM/YYYY"
+            "DD/MM/YYYY"
           )} đã tồn tại đi trễ / về sớm / không đi làm / vắng đã tồn tại 1 buổi ${salary.partial} nên không thể thêm vắng 1 ngày . Vui lòng kiểm tra lại`
         );
       }
@@ -154,7 +154,7 @@ export class SalaryRepository {
       // Đã tồn tại vắng 1 ngày. không thể thêm vắng 1 buổi.
       if ((salary.partial === PartialDay.ALL_DAY) && (body.partial === PartialDay.MORNING || PartialDay.AFTERNOON)) {
         throw new BadRequestException(`Ngày ${moment(body.datetime as Date).format(
-          "DD/MM/YYYY"
+            "DD/MM/YYYY"
           )} đã tồn tại đi trễ / về sớm / không đi làm / vắng đã tồn tại vắng 1 ngày nên không thể thêm vắng 1 buổi ${salary.partial}. Vui lòng kiểm tra lại`
         );
       }
@@ -281,65 +281,18 @@ export class SalaryRepository {
     return true;
   }
 
-  async findAll(search: SearchSalaryDto) {
+  async findAll(search: Partial<SearchSalaryDto>) {
     try {
-      const [total, data] = await Promise.all([
-        this.prisma.salary.count({
-          where: {
-            payroll: {
-              createdAt: {
-                gte: firstDatetimeOfMonth(search?.createdAt || new Date()),
-                lte: lastDatetimeOfMonth(search?.createdAt || new Date()),
-              },
-              employee: {
-                id: search?.employeeId || undefined,
-              },
-              salaries: search?.employeeId ? {
-                some: {
-                  type: {in: [SalaryType.BASIC, SalaryType.BASIC_INSURANCE, SalaryType.STAY]}
-                }
-              } : {}
-            },
-            title: {equals: search?.title},
-            unit: {equals: search?.unit},
-            type: {in: [SalaryType.OVERTIME]}
+      return await this.prisma.salary.findMany({
+        where: {
+          payroll: {
+            employeeId: search.employeeId
           },
-        }),
-        this.prisma.salary.findMany({
-          where: {
-            payroll: {
-              createdAt: {
-                gte: firstDatetimeOfMonth(search?.createdAt || new Date()),
-                lte: lastDatetimeOfMonth(search?.createdAt || new Date()),
-              },
-              employee: {
-                id: search?.employeeId || undefined,
-              },
-              salaries: search?.employeeId ? {
-                some: {
-                  type: {in: [SalaryType.BASIC, SalaryType.BASIC_INSURANCE, SalaryType.STAY]}
-                }
-              } : {}
-            },
-            title: {equals: search?.title},
-            unit: {equals: search?.unit},
-            type: {in: [SalaryType.OVERTIME]}
-          },
-          include: {
-            payroll: {
-              select: {
-                employee: {
-                  select: {id: true, firstName: true, lastName: true, gender: true, position: true}
-                }
-              }
-            },
-          },
-          orderBy: {
-            datetime: "asc"
-          }
-        }),
-      ]);
-      return {total, data};
+          title: search.title,
+          unit: {in: search.unit},
+          type: {in: SalaryType.OVERTIME}
+        }
+      });
     } catch (err) {
       console.error(err);
       throw new BadRequestException(err);
