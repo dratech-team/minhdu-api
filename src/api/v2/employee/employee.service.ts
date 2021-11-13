@@ -4,6 +4,7 @@ import {EmployeeRepository} from "./employee.repository";
 import {UpdateEmployeeDto} from "./dto/update-employee.dto";
 import {SearchEmployeeDto} from "./dto/search-employee.dto";
 import {ProfileEntity} from "../../../common/entities/profile.entity";
+import {SearchEmployeeByOvertimeDto} from "./dto/search-employee-by-overtime.dto";
 
 
 @Injectable()
@@ -11,12 +12,10 @@ export class EmployeeService {
   constructor(private readonly repository: EmployeeRepository) {
   }
 
-  // @ts-ignore
   async create(body: CreateEmployeeDto) {
     return await this.repository.create(body);
   }
 
-  // @ts-ignore
   async findAll(
     profile: ProfileEntity,
     skip: number,
@@ -24,6 +23,11 @@ export class EmployeeService {
     search?: Partial<SearchEmployeeDto>
   ) {
     return await this.repository.findAll(profile, skip, take, search);
+  }
+
+  async findEmployeesByOvertime(search: SearchEmployeeByOvertimeDto) {
+    const salaries = await this.repository.findEmployeesByOvertime(search);
+    return salaries.map(salary => salary.payroll.employee);
   }
 
   findBy(query: any) {
@@ -43,8 +47,8 @@ export class EmployeeService {
       employee.contracts[0]?.createdAt && employee.contracts[0]?.expiredAt
         ? "Có thời hạn"
         : employee.contracts[0]?.createdAt && !employee.contracts[0]?.expiredAt
-        ? "Vô  thời hạn"
-        : "Chưa có hợp đồng";
+          ? "Vô  thời hạn"
+          : "Chưa có hợp đồng";
 
     const salaryHistories = employee.salaryHistories.map(salary => Object.assign(salary, {datetime: salary.timestamp}));
     return Object.assign(employee, {contractType: contactType, salaryHistories});
