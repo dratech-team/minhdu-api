@@ -69,15 +69,13 @@ export class PayrollRepository {
     try {
       const payrolls = await this.prisma.payroll.findMany({
         where: {
-          employee: {id: {in: body.employeeId}},
-          createdAt: {
-            lte: body.createdAt
-          }
+          employee: {id: {in: body.employeeId}}
         },
         include: {salaries: true},
       });
+
       // Đã tồn tại phiếu lương
-      if (payrolls && payrolls.length) {
+      if (payrolls?.length) {
         for (let i = 0; i < payrolls.length; i++) {
           const salaries = payrolls[i].salaries.filter(
             (salary) =>
@@ -85,7 +83,9 @@ export class PayrollRepository {
               salary.type === SalaryType.BASIC_INSURANCE ||
               salary.type === SalaryType.STAY
           );
-          return await this.create(body, salaries);
+          if (salaries?.length) {
+            return await this.create(body, salaries);
+          }
         }
       } else {
         // Chưa tòn tại phiếu lương nào

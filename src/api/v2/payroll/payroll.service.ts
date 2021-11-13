@@ -89,7 +89,7 @@ export class PayrollService {
         if (moment(employee.createdAt).isAfter(body.createdAt)) {
           throw new BadRequestException(`Không được tạo phiếu lương trước ngày nhân viên vào làm. Xin cảm ơn`);
         }
-        return await this.repository.create(body);
+        return await this.repository.generate(body);
       }
 
     } catch (err) {
