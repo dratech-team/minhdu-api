@@ -1,4 +1,4 @@
-import {EmployeeType} from "@prisma/client";
+import {EmployeeType, SalaryType} from "@prisma/client";
 
 export interface SearchPayrollDto {
   readonly employeeId: number;
@@ -10,4 +10,7 @@ export interface SearchPayrollDto {
   readonly isConfirm: number;
   readonly isPaid: number;
   readonly isTimeSheet: boolean;
+  readonly salaryTitle: string;
+  readonly salaryPrice: number;
+  readonly salaryType: SalaryType;
 }

@@ -3,7 +3,6 @@ import {EmployeeType, Payroll, Salary, SalaryType} from "@prisma/client";
 import {ProfileEntity} from "../../../common/entities/profile.entity";
 import {PrismaService} from "../../../prisma.service";
 import {firstDatetimeOfMonth, lastDatetimeOfMonth} from "../../../utils/datetime.util";
-import {searchName} from "../../../utils/search-name.util";
 import {CreatePayrollDto} from "./dto/create-payroll.dto";
 import {SearchPayrollDto} from "./dto/search-payroll.dto";
 import {UpdatePayrollDto} from "./dto/update-payroll.dto";
@@ -171,6 +170,13 @@ export class PayrollRepository {
               gte: firstDatetimeOfMonth(search?.createdAt),
               lte: lastDatetimeOfMonth(search?.createdAt),
             },
+            salaries: {
+              some: {
+                title: {startsWith: search?.salaryTitle, mode: "insensitive"},
+                price: search?.salaryPrice,
+                type: {in: search?.salaryType}
+              }
+            },
             paidAt: null,
           },
         }),
@@ -194,6 +200,13 @@ export class PayrollRepository {
             createdAt: {
               gte: firstDatetimeOfMonth(search?.createdAt),
               lte: lastDatetimeOfMonth(search?.createdAt),
+            },
+            salaries: {
+              some: {
+                title: {startsWith: search?.salaryTitle, mode: "insensitive"},
+                price: search?.salaryPrice,
+                type: {in: search?.salaryType}
+              }
             },
             paidAt: null,
           },

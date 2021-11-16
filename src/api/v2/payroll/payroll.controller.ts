@@ -10,7 +10,7 @@ import {LoggerGuard} from "../../../core/guard/logger.guard";
 import {ProfileEntity} from "../../../common/entities/profile.entity";
 import {ApiKeyGuard} from "../../../core/guard/api-key-auth.guard";
 import {JwtAuthGuard} from "../../../core/guard/jwt-auth.guard";
-import {EmployeeType, RoleEnum} from "@prisma/client";
+import {EmployeeType, RoleEnum, SalaryType} from "@prisma/client";
 import {Roles} from "../../../core/decorators/roles.decorator";
 import {ConfirmPayrollDto} from "./dto/confirm-payroll.dto";
 import {SearchType} from "./entities/search.type.enum";
@@ -53,6 +53,9 @@ export class PayrollController {
     @Query("isPaid") isPaid: number,
     @Query("isTimeSheet") isTimeSheet: boolean,
     @Query("employeeType") employeeType: EmployeeType,
+    @Query("salaryTitle") salaryTitle: string,
+    @Query("salaryPrice") salaryPrice: number,
+    @Query("salaryType") salaryType: SalaryType,
   ) {
     return this.payrollService.findAll(profile, +skip, +take, {
       employeeId: +employeeId,
@@ -63,6 +66,9 @@ export class PayrollController {
       isConfirm,
       isPaid,
       employeeType,
+      salaryTitle,
+      salaryPrice: +salaryPrice,
+      salaryType,
       isTimeSheet: Boolean(isTimeSheet)
     });
   }
