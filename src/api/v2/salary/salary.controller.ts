@@ -47,8 +47,8 @@ export class SalaryController {
 
   @Roles(RoleEnum.CAMP_ACCOUNTING, RoleEnum.HUMAN_RESOURCE)
   @Patch(":id")
-  update(@Param("id") id: string, @Body() updateSalaryDto: UpdateSalaryDto) {
-    return this.salaryService.update(+id, updateSalaryDto);
+  async update(@Param("id") id: string, @Body() updateSalaryDto: UpdateSalaryDto) {
+    return await this.salaryService.update(+id, updateSalaryDto);
   }
 
   @Roles(RoleEnum.CAMP_ACCOUNTING, RoleEnum.HUMAN_RESOURCE)

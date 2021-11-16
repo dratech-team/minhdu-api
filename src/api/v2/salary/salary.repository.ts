@@ -354,13 +354,13 @@ export class SalaryRepository {
       });
       // log salary history
       if (salary.type === SalaryType.BASIC || salary.type === SalaryType.BASIC_INSURANCE || salary.type === SalaryType.STAY) {
-        this.prisma.salaryHistory.create({
+        await this.prisma.salaryHistory.create({
           data: {
             title: salary.title,
             price: salary.price,
             employeeId: salary.payroll.employeeId,
           }
-        }).then();
+        });
       }
       return updated;
     } catch (err) {
