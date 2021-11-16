@@ -52,7 +52,7 @@ export class SalaryController {
   }
 
   @Roles(RoleEnum.CAMP_ACCOUNTING, RoleEnum.HUMAN_RESOURCE)
-  @Patch("overtime/employees")
+  @Patch("salaries/employees")
   async updateMany(@ReqProfile() profile: ProfileEntity, @Param("id") id: number, @Body() updateSalaryDto: UpdateManySalaryDto) {
     return await this.salaryService.updateMany(profile, +id, updateSalaryDto);
   }

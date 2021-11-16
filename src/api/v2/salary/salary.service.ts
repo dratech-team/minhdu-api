@@ -105,14 +105,11 @@ export class SalaryService {
   async updateMany(profile: ProfileEntity, id: number, updates: UpdateManySalaryDto) {
     const updated = [];
     for (let i = 0; i < updates.salaryIds.length; i++) {
-      updated.push(await this.update(updates.salaryIds[i], {
-        datetime: updates.datetime,
-        times: updates.times,
-      }));
+      updated.push(await this.update(updates.salaryIds[i], updates));
     }
     return {
       status: 201,
-      message: `Đã update cho ${updated.length} nhân viên`,
+      message: `Đã update cho ${updated.length} trường`,
     };
   }
 
