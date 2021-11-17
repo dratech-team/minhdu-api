@@ -173,13 +173,13 @@ export class OrderRepository {
   ) {
     try {
       /// update debt customer for this order
-      const updatedDebt = this.prisma.customer.update({
-        where: {id: customerId},
-        data: {debt: newDebt},
-      });
+      // const updatedDebt = this.prisma.customer.update({
+      //   where: {id: customerId},
+      //   data: {debt: newDebt},
+      // });
 
       /// handle transaction
-      await this.prisma.$transaction([handle, updatedDebt]);
+      // await this.prisma.$transaction([handle, updatedDebt]);
     } catch (err) {
       console.error(err);
       throw new BadRequestException(err);

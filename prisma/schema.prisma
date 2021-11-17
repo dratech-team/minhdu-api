@@ -405,6 +405,7 @@ model Payroll {
   paidAt         DateTime?
   actualday      Float?
   total          Float?
+  contracted     Boolean?  @default(true)
   createdAt      DateTime? @default(now()) // ngay tao phieu luong, phieu luong cua thang
   timestamp      DateTime? @default(now()) // ngay them vao ghi lai lich su
 }
