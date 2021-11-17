@@ -668,7 +668,7 @@ export class PayrollService {
       : basicDaySalary * (actualDay > workday ? workday : actualDay);
 
     const totalStandard = basicSalary + staySalary;
-    const tax = payroll.employee?.contracts?.length ? basic * TAX : 0;
+    const tax = payroll.employee?.contracts?.length && payroll.contracted? basic * TAX : 0;
 
     const bsc = this.totalForgotBSC(payroll.salaries);
     const bscSalary = basicDaySalary * (bsc / 2);
@@ -763,7 +763,7 @@ export class PayrollService {
 
     // Thuế dựa theo lương cơ bản BASIC_INSURANCE
     if (basic) {
-      tax = payroll.employee.contracts.length !== 0 ? basic.price * TAX : 0;
+      tax = payroll.employee.contracts.length !== 0 && payroll.contracted ? basic.price * TAX : 0;
     }
 
     const allowanceTotal = allowanceMonthSalary + allowanceDayByActual;
@@ -945,7 +945,7 @@ export class PayrollService {
 
     // Thuế dựa theo lương cơ bản BASIC_INSURANCE
     if (basic) {
-      tax = payroll.employee.contracts.length !== 0 ? basic.price * TAX : 0;
+      tax = payroll.employee.contracts.length !== 0 && payroll.contracted ? basic.price * TAX : 0;
     }
 
     const allowanceTotal = allowanceMonthSalary + allowanceDayByActual;
@@ -1116,7 +1116,7 @@ export class PayrollService {
 
     // Thuế dựa theo lương cơ bản BASIC_INSURANCE
     if (basic) {
-      tax = payroll.employee.contracts.length !== 0 ? basic.price * TAX : 0;
+      tax = payroll.employee.contracts.length !== 0 && payroll.contracted ? basic.price * TAX : 0;
     }
 
     const allowanceTotal = allowanceMonthSalary + allowanceDayByActual;
