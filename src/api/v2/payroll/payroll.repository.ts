@@ -315,10 +315,17 @@ export class PayrollRepository {
           accConfirmedAt: updates?.accConfirmedAt,
           paidAt: updates.paidAt || undefined,
           manConfirmedAt: updates?.manConfirmedAt || null,
+          taxed: updates?.taxed,
         },
         include: {
-          employee: true,
-          salaries: true
+          employee: {
+            include: {
+              position: true,
+              branch: true,
+              contracts: true
+            }
+          },
+          salaries: true,
         }
       });
     } catch (e) {

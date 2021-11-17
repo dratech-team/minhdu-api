@@ -1,5 +1,5 @@
 import {IsBoolean, IsDate, IsOptional} from "class-validator";
-import {Type} from "class-transformer";
+import {Transform, Type} from "class-transformer";
 
 export class UpdatePayrollDto {
   @IsOptional()
@@ -10,16 +10,21 @@ export class UpdatePayrollDto {
   @IsOptional()
   @Type(() => Date)
   @IsDate()
-  accConfirmedAt?: Date;
+  readonly accConfirmedAt?: Date;
 
   /// TODO: Tạo endpoint mới cho việc này
   @IsOptional()
   @Type(() => Date)
   @IsDate()
-  manConfirmedAt?: Date;
+  readonly manConfirmedAt?: Date;
 
   @IsOptional()
   @Type(() => Date)
   @IsDate()
-  paidAt?: Date;
+  readonly paidAt?: Date;
+
+  @IsOptional()
+  @Type(() => Boolean)
+  @IsBoolean()
+  readonly taxed?: boolean;
 }
