@@ -171,10 +171,10 @@ export class PayrollRepository {
               lte: lastDatetimeOfMonth(search?.createdAt),
             },
             salaries: {
-              some: {
+              every: {
                 title: {startsWith: search?.salaryTitle, mode: "insensitive"},
-                price: search?.salaryPrice,
-                type: {in: search?.salaryType}
+                price: search?.salaryPrice || undefined,
+                type: search?.salaryType ? {in: search?.salaryType} : {}
               }
             },
             paidAt: null,
@@ -202,10 +202,10 @@ export class PayrollRepository {
               lte: lastDatetimeOfMonth(search?.createdAt),
             },
             salaries: {
-              some: {
+              every: {
                 title: {startsWith: search?.salaryTitle, mode: "insensitive"},
-                price: search?.salaryPrice,
-                type: {in: search?.salaryType}
+                price: search?.salaryPrice || undefined,
+                type: search?.salaryType ? {in: search?.salaryType} : {}
               }
             },
             paidAt: null,

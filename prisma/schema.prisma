@@ -13,7 +13,7 @@ generator client {
 
 datasource db {
   provider = "postgresql"
-  url      = "postgres://postgres:postgres@localhost:5432/postgres?schema=public"
+  url      = "postgres://postgres:minhdudb@localhost:5432/minhdudb?schema=public"
 }
 
 model Account {
@@ -283,7 +283,6 @@ model Customer {
   isPotential      Boolean?         @default(false)
   note             String?
   orders           Order[]
-  debt             Float?
   paymentHistories PaymentHistory[]
   timestamp        DateTime?        @default(now())
 }
@@ -364,8 +363,8 @@ model Salary {
   forgot     Boolean?      @default(false)
   partial    PartialDay?   @default(ALL_DAY)
   note       String?
-  payroll    Payroll      @relation(fields: [payrollId], references: [id])
-  payrollId  Int
+  payroll    Payroll?      @relation(fields: [payrollId], references: [id])
+  payrollId  Int?
   branch     Branch?       @relation(fields: [branchId], references: [id])
   branchId   Int?
   salaryId   Int?

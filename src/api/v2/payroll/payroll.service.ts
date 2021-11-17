@@ -60,7 +60,6 @@ export class PayrollService {
             type: employeeType || EmployeeType.FULL_TIME,
           }
         );
-
         if (employeeType) {
           const created = await Promise.all(employee.data.map(async employee => {
             return await this.repository.create({
