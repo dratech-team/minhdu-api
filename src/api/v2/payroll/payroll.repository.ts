@@ -156,9 +156,7 @@ export class PayrollRepository {
             where: {
               datetime: search?.salaryType === SalaryType.ABSENT || search?.salaryType === SalaryType.DAY_OFF ? {
                 in: search?.createdAt
-              } : {
-
-              },
+              } : {},
               title: {startsWith: search?.salaryTitle, mode: "insensitive"},
               price: search?.salaryPrice ? {equals: search?.salaryPrice} : {},
               type: search?.salaryType ? {in: search?.salaryType} : {},
@@ -170,9 +168,7 @@ export class PayrollRepository {
             where: {
               datetime: search?.salaryType === SalaryType.ABSENT || search?.salaryType === SalaryType.DAY_OFF ? {
                 in: search?.createdAt
-              } : {
-
-              },
+              } : {},
               title: {startsWith: search?.salaryTitle, mode: "insensitive"},
               price: search?.salaryPrice ? {equals: search?.salaryPrice} : {},
               type: search?.salaryType ? {in: search?.salaryType} : {},
@@ -195,7 +191,7 @@ export class PayrollRepository {
             return {
               employeeId: salary.payroll.employeeId,
               payrollId: salary.payrollId,
-              salary: salary,
+              salaries: Array.of(salary),
               employee: salary.payroll.employee
             };
           })
