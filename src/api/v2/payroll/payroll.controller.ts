@@ -164,9 +164,9 @@ export class PayrollController {
     @Res() res,
     @ReqProfile() user: ProfileEntity,
     @Query("filename") filename: string,
-    @Query("datetime", ParseDatetimePipe) datetime: any,
+    @Query("createdAt", ParseDatetimePipe) createdAt: any,
   ) {
-    return this.payrollService.export(res, user, filename, datetime);
+    return this.payrollService.export(res, user, filename, createdAt);
   }
 
   // async exportTimesheet(
