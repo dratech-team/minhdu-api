@@ -485,7 +485,8 @@ export class PayrollRepository {
           salaries: true,
           employee: {
             include: {
-              position: true
+              position: true,
+              contracts: true,
             }
           },
         },
@@ -496,4 +497,6 @@ export class PayrollRepository {
       throw new BadRequestException(err);
     }
   }
+
+
 }

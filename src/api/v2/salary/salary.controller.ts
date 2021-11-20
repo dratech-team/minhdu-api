@@ -19,7 +19,7 @@ export class SalaryController {
   constructor(private readonly salaryService: SalaryService) {
   }
 
-  @Roles(RoleEnum.CAMP_ACCOUNTING, RoleEnum.HUMAN_RESOURCE)
+  @Roles(RoleEnum.CAMP_ACCOUNTING, RoleEnum.HUMAN_RESOURCE, RoleEnum.ADMIN)
   @Post()
   async create(@Body() createSalaryDto: CreateSalaryDto) {
     return await this.salaryService.create(createSalaryDto);

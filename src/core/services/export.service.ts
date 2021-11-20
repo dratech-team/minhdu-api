@@ -75,9 +75,9 @@ export async function exportExcel(
 
   response.setHeader(
     "Content-Disposition",
-    `${result.name} (${moment(new Date()).format(
+    `${result.name} (${JSON.stringify(moment(new Date()).format(
       "DD-MM-YYYY"
-    )}).xlsx`
+    )) }).xlsx`
   );
 
   response.setHeader(
