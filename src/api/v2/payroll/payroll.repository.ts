@@ -157,8 +157,7 @@ export class PayrollRepository {
               datetime: search?.salaryType === SalaryType.ABSENT || search?.salaryType === SalaryType.DAY_OFF ? {
                 in: search?.createdAt
               } : {
-                gte: firstDatetimeOfMonth(search?.createdAt),
-                lte: lastDatetimeOfMonth(search?.createdAt),
+
               },
               title: {startsWith: search?.salaryTitle, mode: "insensitive"},
               price: search?.salaryPrice ? {equals: search?.salaryPrice} : {},
@@ -196,7 +195,7 @@ export class PayrollRepository {
             return {
               employeeId: salary.payroll.employeeId,
               payrollId: salary.payrollId,
-              salaries: Array.of(salary),
+              salary: salary,
               employee: salary.payroll.employee
             };
           })
