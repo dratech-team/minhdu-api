@@ -11,7 +11,6 @@ import {FullPayroll} from "../payroll/entities/payroll.entity";
 import {SearchSalaryDto} from "./dto/search-salary.dto";
 import {ProfileEntity} from "../../../common/entities/profile.entity";
 import {CreateForEmployeesDto} from "./dto/create-for-employees.dto";
-import {firstDatetimeOfMonth} from "../../../utils/datetime.util";
 
 const RATE_TIMES = 1;
 
