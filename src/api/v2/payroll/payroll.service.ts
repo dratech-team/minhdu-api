@@ -1356,14 +1356,13 @@ export class PayrollService {
       for (let j = 0; j < datetimes.length; j++) {
         const data = ticks.datetime.map(e => e[datetimes[j]]);
       }
-
       for (let j = 0; j < ticks.datetime.length; j++) {
       const data = ticks.datetime.map(e => e[datetimes[j]]);
       data.push(ticks.datetime[i][datetimes[j]]);
       }
     }
 
-    // console.log(data);
+    console.log(data);
 
     return exportExcel(
       response,
