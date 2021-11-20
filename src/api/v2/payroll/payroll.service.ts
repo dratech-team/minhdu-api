@@ -1267,7 +1267,6 @@ export class PayrollService {
 
   async export(response: Response, user: ProfileEntity, filename: string, datetime: Date) {
     const data = await this.repository.currentPayroll(user, datetime);
-
     /// FIXME: check Quản lý xác nhận tất cả phiếu lương mới được in
     // const confirmed = data.filter((e) => e.manConfirmedAt === null).length;
     // if (confirmed) {

@@ -456,7 +456,8 @@ export class PayrollRepository {
           salaries: true,
           employee: {
             include: {
-              position: true
+              position: true,
+              contracts: true,
             }
           },
         },
