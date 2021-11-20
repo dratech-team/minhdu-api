@@ -155,7 +155,7 @@ export class PayrollController {
     @Query("filename") filename: string,
     @Query("datetime", ParseDatetimePipe) datetime: any,
   ) {
-    return await this.payrollService.exportTimeSheet(res, profile, datetime);
+    return await this.payrollService.exportTimeSheet(res, profile, datetime,filename);
   }
 
   @Roles(RoleEnum.ADMIN, RoleEnum.HUMAN_RESOURCE, RoleEnum.CAMP_ACCOUNTING)

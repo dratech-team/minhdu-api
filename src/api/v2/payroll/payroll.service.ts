@@ -1340,7 +1340,6 @@ export class PayrollService {
 
   async exportTimeSheet(response: Response, profile: ProfileEntity, datetime: Date, filename?: string) {
     const payrolls = await this.repository.currentPayroll(profile, datetime);
-
     const datetimes = rageDaysInMonth(datetime).map(date => date.format("DD-MM"));
     datetimes.unshift("Họ tên");
     //
@@ -1357,11 +1356,11 @@ export class PayrollService {
       for (let j = 0; j < datetimes.length; j++) {
         const data = ticks.datetime.map(e => e[datetimes[j]]);
       }
-      // for (let j = 0; j < ticks.datetime.length; j++) {
-      // const data = ticks.datetime.map(e => e[datetimes[j]]);
-      // data.push(ticks.datetime[i][datetimes[j]]);
 
-      // }
+      for (let j = 0; j < ticks.datetime.length; j++) {
+      const data = ticks.datetime.map(e => e[datetimes[j]]);
+      data.push(ticks.datetime[i][datetimes[j]]);
+      }
     }
 
     // console.log(data);
@@ -1371,7 +1370,7 @@ export class PayrollService {
       {
         name: filename,
         customKeys: datetimes,
-        title: `Phiếu Chấm công tháng ${datetime.getMonth()}`,
+        title: `Phiếu Chấm công tháng ${datetime.getMonth() + 1}`,
         customHeaders: datetimes,
         data: data,
       },
