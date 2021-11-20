@@ -29,9 +29,8 @@ import {ConfirmPayrollDto} from "./dto/confirm-payroll.dto";
 import {SearchOvertimePayrollDto} from "./dto/search-overtime-payroll.dto";
 import {OvertimeTemplateService} from "../overtime-template/overtime-template.service";
 import {rageDaysInMonth, timesheet} from "./functions/timesheet";
-import {extendMoment} from 'moment-range';
+import * as moment from "moment";
 
-const moment = extendMoment(Moment);
 
 @Injectable()
 export class PayrollService {
@@ -668,7 +667,7 @@ export class PayrollService {
       : basicDaySalary * (actualDay > workday ? workday : actualDay);
 
     const totalStandard = basicSalary + staySalary;
-    const tax = payroll.employee?.contracts?.length && payroll.taxed? basic * TAX : 0;
+    const tax = payroll.employee?.contracts?.length && payroll.taxed ? basic * TAX : 0;
 
     const bsc = this.totalForgotBSC(payroll.salaries);
     const bscSalary = basicDaySalary * (bsc / 2);
@@ -1329,8 +1328,8 @@ export class PayrollService {
     return exportExcel(
       response,
       {
-        name: `data`,
-        title: `Bảng lương tháng ${new Date().getMonth()} năm ${new Date().getFullYear()}`,
+        name: filename,
+        title: `Bảng lương tháng ${new Date(datetime).getMonth() + 1} năm ${new Date(datetime).getFullYear()}`,
         customHeaders: customHeaders,
         customKeys: customKeys,
         data: payrolls,
