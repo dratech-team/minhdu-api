@@ -148,8 +148,51 @@ export class PayrollRepository {
     skip: number,
     take: number,
     search?: Partial<SearchPayrollDto>
-  ): Promise<ResponsePagination<OnePayroll>> {
+  ) {
     try {
+      if (search?.salaryTitle || search?.salaryPrice || search?.salaryType) {
+        const [total, data] = await Promise.all([
+          this.prisma.salary.count({
+            where: {
+              datetime: search?.createdAt || undefined,
+              title: {startsWith: search?.salaryTitle, mode: "insensitive"},
+              price: search?.salaryPrice ? {equals: search?.salaryPrice} : {},
+              type: search?.salaryType ? {in: search?.salaryType} : {},
+            }
+          }),
+          this.prisma.salary.findMany({
+            take: take || undefined,
+            skip: skip || undefined,
+            where: {
+              datetime: search?.createdAt || undefined,
+              title: {startsWith: search?.salaryTitle, mode: "insensitive"},
+              price: search?.salaryPrice ? {equals: search?.salaryPrice} : {},
+              type: search?.salaryType ? {in: search?.salaryType} : {},
+            },
+            include: {
+              payroll: {
+                include: {
+                  employee: {
+                    include: {
+                      position: true
+                    }
+                  }
+                }
+              }
+            }
+          })
+        ]);
+        return {
+          total, data: data.map(salary => {
+            return {
+              employeeId: salary.payroll.employeeId,
+              payrollId: salary.payrollId,
+              salaries: Array.of(salary),
+              employee: salary.payroll.employee
+            };
+          })
+        };
+      }
       const [total, data] = await Promise.all([
         this.prisma.payroll.count({
           where: {
@@ -169,13 +212,6 @@ export class PayrollRepository {
             createdAt: {
               gte: firstDatetimeOfMonth(search?.createdAt),
               lte: lastDatetimeOfMonth(search?.createdAt),
-            },
-            salaries: {
-              every: {
-                title: {startsWith: search?.salaryTitle, mode: "insensitive"},
-                price: search?.salaryPrice || undefined,
-                type: search?.salaryType ? {in: search?.salaryType} : {}
-              }
             },
             paidAt: null,
           },
@@ -200,13 +236,6 @@ export class PayrollRepository {
             createdAt: {
               gte: firstDatetimeOfMonth(search?.createdAt),
               lte: lastDatetimeOfMonth(search?.createdAt),
-            },
-            salaries: {
-              every: {
-                title: {startsWith: search?.salaryTitle, mode: "insensitive"},
-                price: search?.salaryPrice || undefined,
-                type: search?.salaryType ? {in: search?.salaryType} : {}
-              }
             },
             paidAt: null,
           },
