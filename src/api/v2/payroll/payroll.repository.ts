@@ -234,7 +234,11 @@ export class PayrollRepository {
           } : {},
           title: {startsWith: search?.salaryTitle, mode: "insensitive"},
           price: search?.salaryPrice ? {equals: search?.salaryPrice} : {},
-          type: search?.salaryType ? {in: search?.salaryType} : {},
+          type: search?.salaryType
+            ? {
+              in: search?.salaryType === SalaryType.BASIC ? [SalaryType.BASIC, SalaryType.BASIC_INSURANCE] : search.salaryType
+            }
+            : {},
         },
       }),
       this.prisma.salary.findMany({
@@ -246,7 +250,11 @@ export class PayrollRepository {
           } : {},
           title: {startsWith: search?.salaryTitle, mode: "insensitive"},
           price: search?.salaryPrice ? {equals: search?.salaryPrice} : {},
-          type: search?.salaryType ? {in: search?.salaryType} : {},
+          type: search?.salaryType
+            ? {
+              in: search?.salaryType === SalaryType.BASIC ? [SalaryType.BASIC, SalaryType.BASIC_INSURANCE] : search.salaryType
+            }
+            : {},
         },
         include: {
           payroll: {
