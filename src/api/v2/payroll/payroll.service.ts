@@ -1262,7 +1262,7 @@ export class PayrollService {
   }
 
 
-  async export(response: Response, user: ProfileEntity, filename: string, datetime: Date) {
+  async export(response: Response, user: ProfileEntity, filename: string, datetime: Date, ) {
     const data = await this.repository.currentPayroll(user, datetime);
     /// FIXME: check Quản lý xác nhận tất cả phiếu lương mới được in
     // const confirmed = data.filter((e) => e.manConfirmedAt === null).length;
@@ -1338,69 +1338,67 @@ export class PayrollService {
 
   async exportTimeSheet(response: Response, profile: ProfileEntity, datetime: Date, filename?: string) {
     const payrolls = await this.repository.currentPayroll(profile, datetime);
-
     const datetimes = rageDaysInMonth(datetime).map(date => date.format("DD-MM"));
-    datetimes.unshift("Họ tên");
-    //
-    // const data = payrolls.map((payroll, index) => {
-    //   const ticks = timesheet(payroll.createdAt, payroll.salaries);
-    //
-    //   console.log(ticks.datetime[index], datetimes[index]);
-    //   // return ticks.datetime.map(e => e[datetime]);
-    // });
+    const title = ['Họ và tên', ...datetimes];
     const data = [];
     for (let i = 0; i < payrolls.length; i++) {
-      const ticks = timesheet(payrolls[i].createdAt, payrolls[i].salaries);
-      data.push(payrolls[i].employee.lastName);
-      for (let j = 0; j < datetimes.length; j++) {
-        const data = ticks.datetime.map(e => e[datetimes[j]]);
-      }
-      // for (let j = 0; j < ticks.datetime.length; j++) {
-      // const data = ticks.datetime.map(e => e[datetimes[j]]);
-      // data.push(ticks.datetime[i][datetimes[j]]);
-
-      // }
+     const value = timesheet(payrolls[i].createdAt, payrolls[i].salaries).datetime;
+     const ticks = value.map((e, index) => {
+      return  e[datetimes[index]];
+     });
+     ticks.unshift(payrolls[i].employee.lastName);
+     data.push(ticks);
     }
-
-    // console.log(data);
-
     return exportExcel(
       response,
       {
         name: filename,
-        customKeys: datetimes,
-        title: `Phiếu Chấm công tháng ${datetime.getMonth()}`,
-        customHeaders: datetimes,
+        customKeys: title,
+        title: `Phiếu Chấm công tháng ${datetime.getMonth() + 1}`,
+        customHeaders: title,
         data: data,
       },
       201
     );
   }
 
-  // async exportTimesheet(
-  //   response: Response,
-  //   profile: ProfileEntity,
-  //   filename: string,
-  //   datetime: Date
-  // ) {
-  //   const payrolls = await this.repository.currentPayroll(profile, datetime);
-  //   const datetimes = rageDaysInMonth(datetime).map(date => date.format("DD-MM"));
-  //   const data = payrolls.map(payroll => {
-  //     const ticks = timesheet(payroll.createdAt, payroll.salaries);
-  //     return Object.assign(payroll, {timesheet: ticks});
-  //   });
-  //
-  //   return exportExcel(
-  //     response,
-  //     {
-  //       name: filename,
-  //       customKeys: datetimes,
-  //       title: `Phiếu Chấm công tháng ${datetime.getMonth()}`,
-  //       customHeaders: datetimes,
-  //       data: data,
-  //     },
-  //     201
-  //   );
-  // }
+  async exportOvertime(response: Response, user: ProfileEntity, filename: string, startedAt: Date, endedAt:Date, title?: string, name?: string ) {
+    const data = [];
+
+    const customs = {
+      name: "Họ và tên",
+      position: "Chức vụ",
+      basicSalary: "Lương cơ bản",
+      standardSalary: "Tổng lương chuẩn",
+      staySalary: "Tổng phụ cấp ở lại",
+      workday: "Ngày công chuẩn",
+      workdayNotInHoliday: "Ngày công thực tế trừ lễ",
+      payslipInHoliday: "Lương ngày lễ",
+      payslipNotInHoliday: "Lương trừ ngày lễ",
+      totalWorkday: "Tổng ngày thực tế",
+      payslipWorkDayNotInHoliday: "Tổng ngày trừ ngày lễ",
+      stay: "Tổng lương phụ cấp",
+      payslipOutOfWorkday: "Lương ngoài giờ x2",
+      allowance: "Phụ câp",
+      tax: "Thuế",
+      total: "Tổng lương",
+    };
+
+    const customKeys = Object.keys(customs);
+    const customHeaders = Object.values(customs);
+    return exportExcel(
+      response,
+      {
+        name: filename,
+        title: `Bảng tăng ca từ ngày ${new Date(startedAt).getDate()} tháng ${new Date(startedAt).getMonth() + 1} năm ${new Date(startedAt).getFullYear()}
+          đến ngày ${new Date(endedAt).getDate()} tháng ${new Date(endedAt).getMonth() + 1} năm ${new Date(endedAt).getFullYear()} `,
+        customHeaders: customHeaders,
+        customKeys: customKeys,
+        data: data,
+      },
+      200
+    );
+  }
+
 }
 
