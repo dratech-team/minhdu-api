@@ -14,7 +14,6 @@ export async function exportExcel(
   workbook.created = new Date();
   workbook.modified = new Date();
   workbook.lastPrinted = new Date();
-
   const worksheet = workbook.addWorksheet(result.title);
 
   /*

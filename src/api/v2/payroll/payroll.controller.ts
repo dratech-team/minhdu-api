@@ -169,6 +169,20 @@ export class PayrollController {
     return this.payrollService.export(res, user, filename, createdAt);
   }
 
+  @Roles(RoleEnum.ADMIN, RoleEnum.HUMAN_RESOURCE, RoleEnum.CAMP_ACCOUNTING)
+  @Get("/export-overtime/print")
+  async exportOvertime(
+    @Res() res,
+    @ReqProfile() user: ProfileEntity,
+    @Query("filename") filename: string,
+    @Query("startedAt", ParseDatetimePipe) startedAt: any,
+    @Query("endedAt", ParseDatetimePipe) endedAt: any,
+    @Query("title", ParseDatetimePipe) title: any,
+    @Query("name", ParseDatetimePipe) name: any,
+  ) {
+    return this.payrollService.exportOvertime(res, user, filename, startedAt,endedAt, title, name);
+  }
+
   // async exportTimesheet(
   //   @Res() res,
   //   @ReqProfile() profile: ProfileEntity,

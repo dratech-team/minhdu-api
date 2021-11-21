@@ -1264,7 +1264,7 @@ export class PayrollService {
   }
 
 
-  async export(response: Response, user: ProfileEntity, filename: string, datetime: Date) {
+  async export(response: Response, user: ProfileEntity, filename: string, datetime: Date, ) {
     const data = await this.repository.currentPayroll(user, datetime);
     /// FIXME: check Quản lý xác nhận tất cả phiếu lương mới được in
     // const confirmed = data.filter((e) => e.manConfirmedAt === null).length;
@@ -1364,30 +1364,43 @@ export class PayrollService {
     );
   }
 
-  // async exportTimesheet(
-  //   response: Response,
-  //   profile: ProfileEntity,
-  //   filename: string,
-  //   datetime: Date
-  // ) {
-  //   const payrolls = await this.repository.currentPayroll(profile, datetime);
-  //   const datetimes = rageDaysInMonth(datetime).map(date => date.format("DD-MM"));
-  //   const data = payrolls.map(payroll => {
-  //     const ticks = timesheet(payroll.createdAt, payroll.salaries);
-  //     return Object.assign(payroll, {timesheet: ticks});
-  //   });
-  //
-  //   return exportExcel(
-  //     response,
-  //     {
-  //       name: filename,
-  //       customKeys: datetimes,
-  //       title: `Phiếu Chấm công tháng ${datetime.getMonth()}`,
-  //       customHeaders: datetimes,
-  //       data: data,
-  //     },
-  //     201
-  //   );
-  // }
+  async exportOvertime(response: Response, user: ProfileEntity, filename: string, startedAt: Date, endedAt:Date, title?: string, name?: string ) {
+    const data = [];
+
+    const customs = {
+      name: "Họ và tên",
+      position: "Chức vụ",
+      basicSalary: "Lương cơ bản",
+      standardSalary: "Tổng lương chuẩn",
+      staySalary: "Tổng phụ cấp ở lại",
+      workday: "Ngày công chuẩn",
+      workdayNotInHoliday: "Ngày công thực tế trừ lễ",
+      payslipInHoliday: "Lương ngày lễ",
+      payslipNotInHoliday: "Lương trừ ngày lễ",
+      totalWorkday: "Tổng ngày thực tế",
+      payslipWorkDayNotInHoliday: "Tổng ngày trừ ngày lễ",
+      stay: "Tổng lương phụ cấp",
+      payslipOutOfWorkday: "Lương ngoài giờ x2",
+      allowance: "Phụ câp",
+      tax: "Thuế",
+      total: "Tổng lương",
+    };
+
+    const customKeys = Object.keys(customs);
+    const customHeaders = Object.values(customs);
+    return exportExcel(
+      response,
+      {
+        name: filename,
+        title: `Bảng tăng ca từ ngày ${new Date(startedAt).getDate()} tháng ${new Date(startedAt).getMonth() + 1} năm ${new Date(startedAt).getFullYear()}
+          đến ngày ${new Date(endedAt).getDate()} tháng ${new Date(endedAt).getMonth() + 1} năm ${new Date(endedAt).getFullYear()} `,
+        customHeaders: customHeaders,
+        customKeys: customKeys,
+        data: data,
+      },
+      200
+    );
+  }
+
 }
 
