@@ -153,7 +153,7 @@ export class PayrollRepository {
         const [total, data] = await Promise.all([
           this.prisma.salary.count({
             where: {
-              datetime: search?.salaryType === SalaryType.ABSENT || search?.salaryType === SalaryType.DAY_OFF ? {
+              datetime: (search?.salaryType === SalaryType.ABSENT || search?.salaryType === SalaryType.DAY_OFF) ? {
                 in: search?.createdAt
               } : {},
               title: {startsWith: search?.salaryTitle, mode: "insensitive"},
