@@ -7,7 +7,6 @@ import {CreatePayrollDto} from "./dto/create-payroll.dto";
 import {SearchPayrollDto} from "./dto/search-payroll.dto";
 import {UpdatePayrollDto} from "./dto/update-payroll.dto";
 import {OnePayroll} from "./entities/payroll.entity";
-import {ResponsePagination} from "../../../common/entities/response.pagination";
 import {CreateSalaryDto} from "../salary/dto/create-salary.dto";
 import {SearchOvertimePayrollDto} from "./dto/search-overtime-payroll.dto";
 import * as moment from "moment";
@@ -154,12 +153,9 @@ export class PayrollRepository {
         const [total, data] = await Promise.all([
           this.prisma.salary.count({
             where: {
-              datetime: search?.salaryType === SalaryType.ABSENT || search?.salaryType === SalaryType.DAY_OFF ? {
+              datetime: (search?.salaryType === SalaryType.ABSENT || search?.salaryType === SalaryType.DAY_OFF) ? {
                 in: search?.createdAt
-              } : {
-                gte: firstDatetimeOfMonth(search?.createdAt),
-                lte: lastDatetimeOfMonth(search?.createdAt),
-              },
+              } : {},
               title: {startsWith: search?.salaryTitle, mode: "insensitive"},
               price: search?.salaryPrice ? {equals: search?.salaryPrice} : {},
               type: search?.salaryType ? {in: search?.salaryType} : {},
@@ -169,11 +165,9 @@ export class PayrollRepository {
             take: take || undefined,
             skip: skip || undefined,
             where: {
-              datetime: search?.salaryType === SalaryType.ABSENT || search?.salaryType === SalaryType.DAY_OFF ? {
+              datetime: (search?.salaryType === SalaryType.ABSENT || search?.salaryType === SalaryType.DAY_OFF) ? {
                 in: search?.createdAt
-              } : {
-
-              },
+              } : {},
               title: {startsWith: search?.salaryTitle, mode: "insensitive"},
               price: search?.salaryPrice ? {equals: search?.salaryPrice} : {},
               type: search?.salaryType ? {in: search?.salaryType} : {},
@@ -195,7 +189,7 @@ export class PayrollRepository {
           total, data: data.map(salary => {
             return {
               employeeId: salary.payroll.employeeId,
-              payrollId: salary.payrollId,
+              id: salary.payrollId,
               salaries: Array.of(salary),
               employee: salary.payroll.employee
             };
