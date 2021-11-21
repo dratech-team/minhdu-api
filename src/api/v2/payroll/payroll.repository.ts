@@ -252,7 +252,11 @@ export class PayrollRepository {
           price: search?.salaryPrice ? {equals: search?.salaryPrice} : {},
           type: search?.salaryType
             ? {
-              in: search?.salaryType === SalaryType.BASIC ? [SalaryType.BASIC, SalaryType.BASIC_INSURANCE] : search.salaryType
+              in: search?.salaryType === SalaryType.BASIC
+                ? [SalaryType.BASIC, SalaryType.BASIC_INSURANCE]
+                : search.salaryType === SalaryType.ABSENT
+                  ? [SalaryType.ABSENT, SalaryType.DAY_OFF]
+                  : search.salaryType
             }
             : {},
         },
