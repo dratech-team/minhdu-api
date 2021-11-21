@@ -149,7 +149,7 @@ export class PayrollController {
 
   // export
   @Roles(RoleEnum.ADMIN, RoleEnum.HUMAN_RESOURCE, RoleEnum.CAMP_ACCOUNTING)
-  @Get("timekeeping/export/print")
+  @Get("export/timekeeping")
   async exportTimeSheet(
     @Res() res,
     @ReqProfile() profile: ProfileEntity,
@@ -160,7 +160,7 @@ export class PayrollController {
   }
 
   @Roles(RoleEnum.ADMIN, RoleEnum.HUMAN_RESOURCE, RoleEnum.CAMP_ACCOUNTING)
-  @Get("/export/print")
+  @Get("/export/payroll")
   async export(
     @Res() res,
     @ReqProfile() user: ProfileEntity,
