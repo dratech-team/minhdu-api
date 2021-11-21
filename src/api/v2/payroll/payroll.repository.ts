@@ -277,7 +277,7 @@ export class PayrollRepository {
       total, data: data.map(salary => {
         return {
           employeeId: salary.payroll.employeeId,
-          id: salary.payrollId,
+          id: salary.id,
           salaries: Array.of(salary),
           employee: salary.payroll.employee
         };
