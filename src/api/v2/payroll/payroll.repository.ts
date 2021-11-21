@@ -149,53 +149,6 @@ export class PayrollRepository {
     search?: Partial<SearchPayrollDto>
   ) {
     try {
-      if (search?.salaryTitle || search?.salaryPrice || search?.salaryType) {
-        const [total, data] = await Promise.all([
-          this.prisma.salary.count({
-            where: {
-              datetime: (search?.salaryType === SalaryType.ABSENT || search?.salaryType === SalaryType.DAY_OFF) ? {
-                in: search?.createdAt
-              } : {},
-              title: {startsWith: search?.salaryTitle, mode: "insensitive"},
-              price: search?.salaryPrice ? {equals: search?.salaryPrice} : {},
-              type: search?.salaryType ? {in: search?.salaryType} : {},
-            },
-          }),
-          this.prisma.salary.findMany({
-            take: take || undefined,
-            skip: skip || undefined,
-            where: {
-              datetime: (search?.salaryType === SalaryType.ABSENT || search?.salaryType === SalaryType.DAY_OFF) ? {
-                in: search?.createdAt
-              } : {},
-              title: {startsWith: search?.salaryTitle, mode: "insensitive"},
-              price: search?.salaryPrice ? {equals: search?.salaryPrice} : {},
-              type: search?.salaryType ? {in: search?.salaryType} : {},
-            },
-            include: {
-              payroll: {
-                include: {
-                  employee: {
-                    include: {
-                      position: true
-                    }
-                  }
-                }
-              }
-            }
-          })
-        ]);
-        return {
-          total, data: data.map(salary => {
-            return {
-              employeeId: salary.payroll.employeeId,
-              id: salary.payrollId,
-              salaries: Array.of(salary),
-              employee: salary.payroll.employee
-            };
-          })
-        };
-      }
       const [total, data] = await Promise.all([
         this.prisma.payroll.count({
           where: {
@@ -265,6 +218,71 @@ export class PayrollRepository {
       console.error(e);
       throw new BadRequestException(e);
     }
+  }
+
+  async findSalaries(
+    profile: ProfileEntity,
+    skip: number,
+    take: number,
+    search?: Partial<SearchPayrollDto>
+  ) {
+    const [total, data] = await Promise.all([
+      this.prisma.salary.count({
+        where: {
+          datetime: (search?.salaryType === SalaryType.ABSENT || search?.salaryType === SalaryType.DAY_OFF) ? {
+            in: search?.createdAt
+          } : {},
+          title: {startsWith: search?.salaryTitle, mode: "insensitive"},
+          price: search?.salaryPrice ? {equals: search?.salaryPrice} : {},
+          type: search?.salaryType
+            ? {
+              in: search?.salaryType === SalaryType.BASIC ? [SalaryType.BASIC, SalaryType.BASIC_INSURANCE] : search.salaryType
+            }
+            : {},
+        },
+      }),
+      this.prisma.salary.findMany({
+        take: take || undefined,
+        skip: skip || undefined,
+        where: {
+          datetime: (search?.salaryType === SalaryType.ABSENT || search?.salaryType === SalaryType.DAY_OFF) ? {
+            in: search?.createdAt
+          } : {},
+          title: {startsWith: search?.salaryTitle, mode: "insensitive"},
+          price: search?.salaryPrice ? {equals: search?.salaryPrice} : {},
+          type: search?.salaryType
+            ? {
+              in: search?.salaryType === SalaryType.BASIC
+                ? [SalaryType.BASIC, SalaryType.BASIC_INSURANCE]
+                : search.salaryType === SalaryType.ABSENT
+                  ? [SalaryType.ABSENT, SalaryType.DAY_OFF]
+                  : search.salaryType
+            }
+            : {},
+        },
+        include: {
+          payroll: {
+            include: {
+              employee: {
+                include: {
+                  position: true
+                }
+              }
+            }
+          }
+        }
+      })
+    ]);
+    return {
+      total, data: data.map(salary => {
+        return {
+          employeeId: salary.payroll.employeeId,
+          id: salary.payrollId,
+          salaries: Array.of(salary),
+          employee: salary.payroll.employee
+        };
+      })
+    };
   }
 
   async findFirst(query: any) {

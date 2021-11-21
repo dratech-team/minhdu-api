@@ -1,14 +1,5 @@
 import {BadRequestException, ConflictException, Injectable, NotFoundException} from "@nestjs/common";
-import {
-  DatetimeUnit,
-  EmployeeType,
-  PartialDay,
-  Payroll,
-  RecipeType,
-  RoleEnum,
-  Salary,
-  SalaryType,
-} from "@prisma/client";
+import {DatetimeUnit, EmployeeType, Payroll, RecipeType, RoleEnum, Salary, SalaryType,} from "@prisma/client";
 import {Response} from "express";
 import {ProfileEntity} from "../../../common/entities/profile.entity";
 import {lastDatetimeOfMonth, lastDayOfMonth} from "../../../utils/datetime.util";
@@ -24,12 +15,12 @@ import {includesDatetime, isEqualDatetime,} from "../../../common/utils/isEqual-
 import {ALL_DAY, PARTIAL_DAY,} from "../../../common/constant/datetime.constant";
 import {exportExcel} from "../../../core/services/export.service";
 import {FullSalary} from "../salary/entities/salary.entity";
-import * as Moment from "moment";
+import * as moment from "moment";
 import {ConfirmPayrollDto} from "./dto/confirm-payroll.dto";
 import {SearchOvertimePayrollDto} from "./dto/search-overtime-payroll.dto";
 import {OvertimeTemplateService} from "../overtime-template/overtime-template.service";
 import {rageDaysInMonth, timesheet} from "./functions/timesheet";
-import * as moment from "moment";
+import {FilterTypeEnum} from "./entities/filter-type.enum";
 
 
 @Injectable()
@@ -98,46 +89,53 @@ export class PayrollService {
 
   async findAll(profile: ProfileEntity, skip: number, take: number, search?: Partial<SearchPayrollDto>) {
     const {total, data} = await this.repository.findAll(profile, skip, take, search);
-    if (search?.isTimeSheet) {
-      return {
-        total,
-        data: data.map(payroll => {
-          return Object.assign(payroll, {timesheet: timesheet(payroll.createdAt, payroll.salaries)});
-        })
-      };
-    } else if (search?.employeeType) {
-      return {
-        total,
-        data: data.map(payroll => {
-          if (payroll.accConfirmedAt) {
-            return Object.assign(payroll, {payslip: this.totalSalaryCT3(payroll)});
-          }
-          return payroll;
-        }),
-      };
-    } else {
-      return {
-        total,
-        data: data.map(payroll => {
-          if (payroll.accConfirmedAt) {
-            if (payroll.employee.recipeType === RecipeType.CT1) {
-              return Object.assign(payroll, {payslip: this.totalSalaryCT1(payroll)});
-            } else if (payroll.employee.recipeType === RecipeType.CT2) {
-              return Object.assign(payroll, {payslip: this.totalSalaryCT2(payroll)});
-            } else if (payroll.employee.recipeType === RecipeType.CT3) {
+    switch (search.filterType) {
+      case FilterTypeEnum.TIME_SHEET: {
+        return {
+          total,
+          data: data.map(payroll => {
+            return Object.assign(payroll, {timesheet: timesheet(payroll.createdAt, payroll.salaries)});
+          })
+        };
+      }
+      case FilterTypeEnum.SALARY: {
+        return await this.repository.findSalaries(profile, skip, take, search);
+      }
+      case FilterTypeEnum.SEASONAL: {
+        return {
+          total,
+          data: data.map(payroll => {
+            if (payroll.accConfirmedAt) {
               return Object.assign(payroll, {payslip: this.totalSalaryCT3(payroll)});
-            } else if (payroll.employee.recipeType === RecipeType.CT4) {
-              return Object.assign(payroll, {payslip: this.totalSalaryCT4(payroll)});
-            } else if (payroll.employee.recipeType === RecipeType.CT5) {
-              return Object.assign(payroll, {payslip: this.totalSalaryCT5(payroll)});
-            } else {
-              throw new BadRequestException("Loại công thức không xác định");
             }
-          } else {
             return payroll;
-          }
-        })
-      };
+          }),
+        };
+      }
+      default: {
+        return {
+          total,
+          data: data.map(payroll => {
+            if (payroll.accConfirmedAt) {
+              if (payroll.employee.recipeType === RecipeType.CT1) {
+                return Object.assign(payroll, {payslip: this.totalSalaryCT1(payroll)});
+              } else if (payroll.employee.recipeType === RecipeType.CT2) {
+                return Object.assign(payroll, {payslip: this.totalSalaryCT2(payroll)});
+              } else if (payroll.employee.recipeType === RecipeType.CT3) {
+                return Object.assign(payroll, {payslip: this.totalSalaryCT3(payroll)});
+              } else if (payroll.employee.recipeType === RecipeType.CT4) {
+                return Object.assign(payroll, {payslip: this.totalSalaryCT4(payroll)});
+              } else if (payroll.employee.recipeType === RecipeType.CT5) {
+                return Object.assign(payroll, {payslip: this.totalSalaryCT5(payroll)});
+              } else {
+                throw new BadRequestException("Loại công thức không xác định");
+              }
+            } else {
+              return payroll;
+            }
+          })
+        };
+      }
     }
   }
 
