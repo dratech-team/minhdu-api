@@ -229,14 +229,18 @@ export class PayrollRepository {
     const [total, data] = await Promise.all([
       this.prisma.salary.count({
         where: {
-          datetime: (search?.salaryType === SalaryType.ABSENT || search?.salaryType === SalaryType.DAY_OFF) ? {
+          datetime: search?.createdAt && (search?.salaryType === SalaryType.ABSENT || search?.salaryType === SalaryType.DAY_OFF) ? {
             in: search?.createdAt
           } : {},
           title: {startsWith: search?.salaryTitle, mode: "insensitive"},
           price: search?.salaryPrice ? {equals: search?.salaryPrice} : {},
           type: search?.salaryType
             ? {
-              in: search?.salaryType === SalaryType.BASIC ? [SalaryType.BASIC, SalaryType.BASIC_INSURANCE] : search.salaryType
+              in: search?.salaryType === SalaryType.BASIC
+                ? [SalaryType.BASIC, SalaryType.BASIC_INSURANCE]
+                : search.salaryType === SalaryType.ABSENT
+                  ? [SalaryType.ABSENT, SalaryType.DAY_OFF]
+                  : search.salaryType
             }
             : {},
         },
@@ -245,7 +249,7 @@ export class PayrollRepository {
         take: take || undefined,
         skip: skip || undefined,
         where: {
-          datetime: (search?.salaryType === SalaryType.ABSENT || search?.salaryType === SalaryType.DAY_OFF) ? {
+          datetime: search?.createdAt && (search?.salaryType === SalaryType.ABSENT || search?.salaryType === SalaryType.DAY_OFF) ? {
             in: search?.createdAt
           } : {},
           title: {startsWith: search?.salaryTitle, mode: "insensitive"},
