@@ -171,7 +171,7 @@ export class PayrollController {
   }
 
   @Roles(RoleEnum.ADMIN, RoleEnum.HUMAN_RESOURCE, RoleEnum.CAMP_ACCOUNTING)
-  @Get("/export-overtime/print")
+  @Get("/export/overtime")
   async exportOvertime(
     @Res() res,
     @ReqProfile() user: ProfileEntity,
