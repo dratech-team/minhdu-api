@@ -14,6 +14,7 @@ import {EmployeeType, RoleEnum, SalaryType} from "@prisma/client";
 import {Roles} from "../../../core/decorators/roles.decorator";
 import {ConfirmPayrollDto} from "./dto/confirm-payroll.dto";
 import {SearchType} from "./entities/search.type.enum";
+import {FilterTypeEnum} from "./entities/filter-type.enum";
 
 @Controller(ApiV2Constant.PAYROLL)
 @UseGuards(JwtAuthGuard, ApiKeyGuard, RolesGuard)
@@ -51,11 +52,11 @@ export class PayrollController {
     @Query("createdAt", ParseDatetimePipe) createdAt: any,
     @Query("isConfirm") isConfirm: number,
     @Query("isPaid") isPaid: number,
-    @Query("isTimeSheet") isTimeSheet: boolean,
     @Query("employeeType") employeeType: EmployeeType,
     @Query("salaryTitle") salaryTitle: string,
     @Query("salaryPrice") salaryPrice: number,
     @Query("salaryType") salaryType: SalaryType,
+    @Query("filterType") filterType: FilterTypeEnum,
   ) {
     return this.payrollService.findAll(profile, +skip, +take, {
       employeeId: +employeeId,
@@ -69,7 +70,7 @@ export class PayrollController {
       salaryTitle,
       salaryPrice: +salaryPrice,
       salaryType,
-      isTimeSheet: Boolean(isTimeSheet)
+      filterType,
     });
   }
 

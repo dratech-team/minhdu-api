@@ -1,4 +1,5 @@
 import {EmployeeType, SalaryType} from "@prisma/client";
+import {FilterTypeEnum} from "../entities/filter-type.enum";
 
 export interface SearchPayrollDto {
   readonly employeeId: number;
@@ -9,8 +10,8 @@ export interface SearchPayrollDto {
   readonly createdAt: Date;
   readonly isConfirm: number;
   readonly isPaid: number;
-  readonly isTimeSheet: boolean;
   readonly salaryTitle: string;
   readonly salaryPrice: number;
   readonly salaryType: SalaryType;
+  readonly filterType: FilterTypeEnum;
 }
