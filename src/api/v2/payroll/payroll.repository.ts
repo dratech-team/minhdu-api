@@ -278,6 +278,7 @@ export class PayrollRepository {
         return {
           employeeId: salary.payroll.employeeId,
           id: salary.id,
+          payrollId: salary.payrollId,
           salaries: Array.of(salary),
           employee: salary.payroll.employee
         };
