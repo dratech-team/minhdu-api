@@ -1341,36 +1341,24 @@ export class PayrollService {
   async exportTimeSheet(response: Response, profile: ProfileEntity, datetime: Date, filename?: string) {
     const payrolls = await this.repository.currentPayroll(profile, datetime);
     const datetimes = rageDaysInMonth(datetime).map(date => date.format("DD-MM"));
-    datetimes.unshift("Họ tên");
-    //
-    // const data = payrolls.map((payroll, index) => {
-    //   const ticks = timesheet(payroll.createdAt, payroll.salaries);
-    //
-    //   console.log(ticks.datetime[index], datetimes[index]);
-    //   // return ticks.datetime.map(e => e[datetime]);
-    // });
+    const title = ['Họ và tên', ...datetimes];
     const data = [];
     for (let i = 0; i < payrolls.length; i++) {
-      const ticks = timesheet(payrolls[i].createdAt, payrolls[i].salaries);
-      data.push(payrolls[i].employee.lastName);
-      for (let j = 0; j < datetimes.length; j++) {
-        const data = ticks.datetime.map(e => e[datetimes[j]]);
-      }
-      for (let j = 0; j < ticks.datetime.length; j++) {
-      const data = ticks.datetime.map(e => e[datetimes[j]]);
-      data.push(ticks.datetime[i][datetimes[j]]);
-      }
+     const value = timesheet(payrolls[i].createdAt, payrolls[i].salaries).datetime;
+     const ticks = value.map((e, index) => {
+      return  e[datetimes[index]];
+     });
+     ticks.unshift(payrolls[i].employee.lastName);
+     data.push(ticks);
     }
-
     console.log(data);
-
     return exportExcel(
       response,
       {
         name: filename,
-        customKeys: datetimes,
+        customKeys: title,
         title: `Phiếu Chấm công tháng ${datetime.getMonth() + 1}`,
-        customHeaders: datetimes,
+        customHeaders: title,
         data: data,
       },
       201
