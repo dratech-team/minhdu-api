@@ -2,7 +2,7 @@ import {BadRequestException, ConflictException, Injectable, NotFoundException} f
 import {DatetimeUnit, EmployeeType, Payroll, RecipeType, RoleEnum, Salary, SalaryType,} from "@prisma/client";
 import {Response} from "express";
 import {ProfileEntity} from "../../../common/entities/profile.entity";
-import {lastDatetimeOfMonth, lastDayOfMonth} from "../../../utils/datetime.util";
+import {firstDatetimeOfMonth, lastDatetimeOfMonth, lastDayOfMonth} from "../../../utils/datetime.util";
 import {EmployeeService} from "../employee/employee.service";
 import {HolidayService} from "../holiday/holiday.service";
 import {CreatePayrollDto} from "./dto/create-payroll.dto";
@@ -44,7 +44,7 @@ export class PayrollService {
           undefined,
           {
             createdAt: {
-              datetime: body.createdAt,
+              datetime: lastDatetimeOfMonth(body.createdAt),
               compare: 'lte'
             },
             type: employeeType || EmployeeType.FULL_TIME,
@@ -1262,7 +1262,7 @@ export class PayrollService {
   }
 
 
-  async export(response: Response, user: ProfileEntity, filename: string, datetime: Date, ) {
+  async export(response: Response, user: ProfileEntity, filename: string, datetime: Date,) {
     const data = await this.repository.currentPayroll(user, datetime);
     /// FIXME: check Quản lý xác nhận tất cả phiếu lương mới được in
     // const confirmed = data.filter((e) => e.manConfirmedAt === null).length;
@@ -1342,12 +1342,12 @@ export class PayrollService {
     const title = ['Họ và tên', ...datetimes];
     const data = [];
     for (let i = 0; i < payrolls.length; i++) {
-     const value = timesheet(payrolls[i].createdAt, payrolls[i].salaries).datetime;
-     const ticks = value.map((e, index) => {
-      return  e[datetimes[index]];
-     });
-     ticks.unshift(payrolls[i].employee.lastName);
-     data.push(ticks);
+      const value = timesheet(payrolls[i].createdAt, payrolls[i].salaries).datetime;
+      const ticks = value.map((e, index) => {
+        return e[datetimes[index]];
+      });
+      ticks.unshift(payrolls[i].employee.lastName);
+      data.push(ticks);
     }
     return exportExcel(
       response,
@@ -1362,7 +1362,7 @@ export class PayrollService {
     );
   }
 
-  async exportOvertime(response: Response, user: ProfileEntity, filename: string, startedAt: Date, endedAt:Date, title?: string, name?: string ) {
+  async exportOvertime(response: Response, user: ProfileEntity, filename: string, startedAt: Date, endedAt: Date, title?: string, name?: string) {
     const data = [];
 
     const customs = {

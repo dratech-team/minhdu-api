@@ -81,9 +81,7 @@ export class PayrollRepository {
               salary.type === SalaryType.BASIC_INSURANCE ||
               salary.type === SalaryType.STAY
           );
-          if (salaries?.length) {
-            return await this.create(body, salaries);
-          }
+          return await this.create(body, salaries);
         }
       } else {
         // Chưa tòn tại phiếu lương nào
