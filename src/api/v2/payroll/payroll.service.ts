@@ -1351,7 +1351,6 @@ export class PayrollService {
      ticks.unshift(payrolls[i].employee.lastName);
      data.push(ticks);
     }
-    console.log(data);
     return exportExcel(
       response,
       {
