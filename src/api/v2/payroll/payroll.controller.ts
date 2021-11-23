@@ -57,6 +57,8 @@ export class PayrollController {
     @Query("salaryPrice") salaryPrice: number,
     @Query("salaryType") salaryType: SalaryType,
     @Query("filterType") filterType: FilterTypeEnum,
+    @Query("startedAt", ParseDatetimePipe) startedAt: any,
+    @Query("endedAt", ParseDatetimePipe) endedAt: any,
   ) {
     return this.payrollService.findAll(profile, +skip, +take, {
       employeeId: +employeeId,
@@ -71,6 +73,8 @@ export class PayrollController {
       salaryPrice: +salaryPrice,
       salaryType,
       filterType,
+      startedAt,
+      endedAt
     });
   }
 
@@ -156,7 +160,7 @@ export class PayrollController {
     @Query("filename") filename: string,
     @Query("datetime", ParseDatetimePipe) datetime: any,
   ) {
-    return await this.payrollService.exportTimeSheet(res, profile, datetime,filename);
+    return await this.payrollService.exportTimeSheet(res, profile, datetime, filename);
   }
 
   @Roles(RoleEnum.ADMIN, RoleEnum.HUMAN_RESOURCE, RoleEnum.CAMP_ACCOUNTING)
@@ -181,7 +185,7 @@ export class PayrollController {
     @Query("title", ParseDatetimePipe) title: any,
     @Query("name", ParseDatetimePipe) name: any,
   ) {
-    return this.payrollService.exportOvertime(res, user, filename, startedAt,endedAt, title, name);
+    return this.payrollService.exportOvertime(res, user, filename, startedAt, endedAt, title, name);
   }
 
   // async exportTimesheet(

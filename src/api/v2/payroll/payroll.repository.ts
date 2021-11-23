@@ -229,7 +229,10 @@ export class PayrollRepository {
         where: {
           datetime: search?.createdAt && (search?.salaryType === SalaryType.ABSENT || search?.salaryType === SalaryType.DAY_OFF) ? {
             in: search?.createdAt
-          } : {},
+          } : {
+            gte: search?.startedAt,
+            lte: search?.endedAt,
+          },
           title: {startsWith: search?.salaryTitle, mode: "insensitive"},
           price: search?.salaryPrice ? {equals: search?.salaryPrice} : {},
           type: search?.salaryType
@@ -249,7 +252,10 @@ export class PayrollRepository {
         where: {
           datetime: search?.createdAt && (search?.salaryType === SalaryType.ABSENT || search?.salaryType === SalaryType.DAY_OFF) ? {
             in: search?.createdAt
-          } : {},
+          } : {
+            gte: search?.startedAt,
+            lte: search?.endedAt,
+          },
           title: {startsWith: search?.salaryTitle, mode: "insensitive"},
           price: search?.salaryPrice ? {equals: search?.salaryPrice} : {},
           type: search?.salaryType

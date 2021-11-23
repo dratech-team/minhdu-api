@@ -8,6 +8,8 @@ export interface SearchPayrollDto {
   readonly branch: string;
   readonly position: string;
   readonly createdAt: Date;
+  readonly startedAt: Date;
+  readonly endedAt: Date;
   readonly isConfirm: number;
   readonly isPaid: number;
   readonly salaryTitle: string;
