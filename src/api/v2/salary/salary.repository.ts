@@ -11,6 +11,7 @@ import {FullPayroll} from "../payroll/entities/payroll.entity";
 import {SearchSalaryDto} from "./dto/search-salary.dto";
 import {ProfileEntity} from "../../../common/entities/profile.entity";
 import {CreateForEmployeesDto} from "./dto/create-for-employees.dto";
+import {UpdateManySalaryDto} from "./dto/update-many-salary.dto";
 
 const RATE_TIMES = 1;
 
@@ -310,7 +311,7 @@ export class SalaryRepository {
     }
   }
 
-  async update(id: number, updates: UpdateSalaryDto) {
+  async update(id: number, updates: Partial<UpdateSalaryDto & Pick<UpdateManySalaryDto, "allowanceDeleted">>) {
     try {
       const salary = await this.findOne(id);
       if (salary?.payroll?.paidAt) {
@@ -345,7 +346,11 @@ export class SalaryRepository {
                 },
               },
             }
-            : {},
+            : updates?.allowanceDeleted
+              ? {
+                delete: true
+              }
+              : {},
         },
         include: {
           payroll: {select: {employeeId: true}}
