@@ -24,8 +24,9 @@ export class CommodityService {
 
   async findOne(id: number) {
     const found = await this.repository.findOne(id);
+    console.log(found);
     if (!found) {
-      throw new BadRequestException('Error');
+      throw new BadRequestException(`Not found id ${id} or linked`);
     }
     return this.handleCommodity(found);
   }
@@ -55,7 +56,7 @@ export class CommodityService {
   * Tổng trị giá đơn hàng
   * */
   totalCommodity(commodity: Commodity): number {
-    if (commodity.more) {
+    if (commodity?.more) {
       return (commodity.amount * commodity.price) + (((commodity.amount + commodity.gift) / commodity.price) * commodity.more);
     } else {
       return commodity.amount * commodity.price;

@@ -34,12 +34,7 @@ export class CustomerService {
   }
 
   async findOne(id: number) {
-    const customer = await this.repository.findOne(id);
-    const order = this.orderService.orderTotal(customer.orders);
-
-    const payment = this.paymentService.totalPayment(customer.paymentHistories);
-    const debt = payment - order;
-    return Object.assign(customer, {debt});
+    return await this.repository.findOne(id);
   }
 
   async update(id: number, updates: UpdateCustomerDto) {
@@ -67,7 +62,7 @@ export class CustomerService {
           issuedBy: customer.issuedBy,
           address: customer.address,
           phone: customer.phone,
-          isPotential: customer.isPotential,
+          isPotential: customer.isPotential
         };
       }),
     }, 200);

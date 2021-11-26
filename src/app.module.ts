@@ -33,6 +33,7 @@ import { BasicTemplateModule } from './api/v2/basic-template/basic-template.modu
 import { SystemModule } from './api/v2/system/system.module';
 import { RoleModule } from './api/v2/role/role.module';
 import { ApplicationModule } from './api/v2/application/application.module';
+import { HrOverviewModule } from './api/v2/hr-overview/hr-overview.module';
 
 @Module({
   imports: [
@@ -68,6 +69,7 @@ import { ApplicationModule } from './api/v2/application/application.module';
     SystemModule,
     RoleModule,
     ApplicationModule,
+    HrOverviewModule,
   ],
   controllers: [AppController],
   providers: [PrismaService],

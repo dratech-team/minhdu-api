@@ -11,9 +11,9 @@ export class OrderRepository {
   constructor(private readonly prisma: PrismaService) {
   }
 
-  async create(body: CreateOrderDto) {
+  async create(body: CreateOrderDto, total?: number) {
     try {
-      return await this.prisma.order.create({
+      const order = this.prisma.order.create({
         data: {
           customerId: body.customerId,
           createdAt: body.createdAt,
@@ -27,6 +27,13 @@ export class OrderRepository {
           commodities: true,
         },
       });
+      const customer = this.prisma.customer.update({
+        where: {id: body.customerId},
+        data: {debt: -total}
+      });
+
+      await this.prisma.$transaction([order, customer]);
+      return order;
     } catch (err) {
       console.error("order create", err);
       throw new BadRequestException(err);
@@ -159,27 +166,7 @@ export class OrderRepository {
 
   async remove(id: number) {
     try {
-      await this.prisma.order.delete({where: {id}});
-    } catch (err) {
-      console.error(err);
-      throw new BadRequestException(err);
-    }
-  }
-
-  async transactionDebt(
-    handle: PrismaPromise<any>,
-    customerId: Customer["id"],
-    newDebt: number
-  ) {
-    try {
-      /// update debt customer for this order
-      // const updatedDebt = this.prisma.customer.update({
-      //   where: {id: customerId},
-      //   data: {debt: newDebt},
-      // });
-
-      /// handle transaction
-      // await this.prisma.$transaction([handle, updatedDebt]);
+      return await this.prisma.order.delete({where: {id}});
     } catch (err) {
       console.error(err);
       throw new BadRequestException(err);

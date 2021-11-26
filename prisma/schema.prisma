@@ -13,7 +13,7 @@ generator client {
 
 datasource db {
   provider = "postgresql"
-  url      = "postgres://postgres:minhdudb@localhost:5432/minhdudb?schema=public"
+  url      = "postgres://postgres:postgres@localhost:5432/postgres?schema=public"
 }
 
 model Account {
@@ -282,6 +282,7 @@ model Customer {
   resource         CustomerResource
   isPotential      Boolean?         @default(false)
   note             String?
+  debt             Float?
   orders           Order[]
   paymentHistories PaymentHistory[]
   timestamp        DateTime?        @default(now())
@@ -308,7 +309,7 @@ model Commodity {
   price   Float
   amount  Float
   gift    Float?        @default(0)
-  more    Float         @default(0)
+  more    Float?         @default(0)
   order   Order?        @relation(fields: [orderId], references: [id])
   orderId Int?
 }

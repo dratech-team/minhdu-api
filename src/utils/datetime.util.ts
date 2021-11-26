@@ -20,6 +20,6 @@ export function tomorrowDate(datetime?: Date) {
   return moment(datetime || new Date).add(1, 'day').toDate();
 }
 
-export function rangeDatetime(start: Date, end: Date) {
-  return Array.from(moment().range(start, tomorrowDate(end)).by('days', {excludeEnd: true}));
+export function rangeDatetime(start: Date, end: Date, type?: 'days' | 'years') {
+  return Array.from(moment().range(start, tomorrowDate(end)).by(type || 'day', {excludeEnd: true}));
 }
