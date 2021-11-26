@@ -24,7 +24,6 @@ export class CommodityService {
 
   async findOne(id: number) {
     const found = await this.repository.findOne(id);
-    console.log(found);
     if (!found) {
       throw new BadRequestException(`Not found id ${id} or linked`);
     }
