@@ -1,4 +1,4 @@
-import {IsBoolean, IsDate, IsOptional} from "class-validator";
+import {IsBoolean, IsDate, IsNumber, IsOptional} from "class-validator";
 import {Transform, Type} from "class-transformer";
 
 export class UpdatePayrollDto {
@@ -27,4 +27,9 @@ export class UpdatePayrollDto {
   @Type(() => Boolean)
   @IsBoolean()
   readonly taxed?: boolean;
+
+  @IsOptional()
+  @Type(() => Number)
+  @IsNumber()
+  readonly total?: number;
 }

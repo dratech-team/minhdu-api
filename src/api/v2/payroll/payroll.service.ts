@@ -2,7 +2,7 @@ import {BadRequestException, ConflictException, Injectable, NotFoundException} f
 import {DatetimeUnit, EmployeeType, Payroll, RecipeType, RoleEnum, Salary, SalaryType,} from "@prisma/client";
 import {Response} from "express";
 import {ProfileEntity} from "../../../common/entities/profile.entity";
-import {firstDatetimeOfMonth, lastDatetimeOfMonth, lastDayOfMonth} from "../../../utils/datetime.util";
+import {lastDatetimeOfMonth, lastDayOfMonth} from "../../../utils/datetime.util";
 import {EmployeeService} from "../employee/employee.service";
 import {HolidayService} from "../holiday/holiday.service";
 import {CreatePayrollDto} from "./dto/create-payroll.dto";
@@ -115,25 +115,9 @@ export class PayrollService {
       default: {
         return {
           total,
-          data: data.map(payroll => {
-            if (payroll.accConfirmedAt) {
-              if (payroll.employee.recipeType === RecipeType.CT1) {
-                return Object.assign(payroll, {payslip: this.totalSalaryCT1(payroll)});
-              } else if (payroll.employee.recipeType === RecipeType.CT2) {
-                return Object.assign(payroll, {payslip: this.totalSalaryCT2(payroll)});
-              } else if (payroll.employee.recipeType === RecipeType.CT3) {
-                return Object.assign(payroll, {payslip: this.totalSalaryCT3(payroll)});
-              } else if (payroll.employee.recipeType === RecipeType.CT4) {
-                return Object.assign(payroll, {payslip: this.totalSalaryCT4(payroll)});
-              } else if (payroll.employee.recipeType === RecipeType.CT5) {
-                return Object.assign(payroll, {payslip: this.totalSalaryCT5(payroll)});
-              } else {
-                throw new BadRequestException("Loại công thức không xác định");
-              }
-            } else {
-              return payroll;
-            }
-          })
+          data: await Promise.all(data.map(async payroll => {
+            return await this.mapPayslip(payroll);
+          }))
         };
       }
     }
@@ -157,6 +141,13 @@ export class PayrollService {
 
   async confirmPayroll(user: ProfileEntity, id: number, body: ConfirmPayrollDto) {
     let updated: Payroll;
+
+    const payroll = await this.findOne(id);
+    if (!payroll.salaries.filter(salary => salary.type === SalaryType.BASIC_INSURANCE).length) {
+      throw new BadRequestException(`Phiếu lương thiếu lương cơ bản trích BH. Cần thêm mục này để xác nhận`);
+    }
+    const payslip = await this.mapPayslip(payroll);
+
     switch (user.role) {
       case RoleEnum.CAMP_ACCOUNTING:
         updated = await this.repository.update(id, {accConfirmedAt: body.datetime || new Date()});
@@ -175,6 +166,10 @@ export class PayrollService {
         throw new BadRequestException(
           `${user.role} Bạn không có quyền xác nhận phiếu lương. Cảm ơn.`
         );
+    }
+
+    if (updated) {
+      await this.update(id, {total: payslip.total})
     }
 
     return Object.assign(updated, {totalWorkday: this.totalActualDay(updated as OnePayroll)});
@@ -252,10 +247,10 @@ export class PayrollService {
 
   async confirmPayslip(id: number) {
     const payroll = await this.repository.findOne(id);
-    return (await this.payslip(payroll)).payslip;
+    return (await this.mapPayslip(payroll)).payslip;
   }
 
-  async payslip(payroll) {
+  async mapPayslip(payroll) {
     try {
       switch (payroll.employee.recipeType) {
         case RecipeType.CT1: {
@@ -1276,7 +1271,7 @@ export class PayrollService {
       data.map(async (payroll) => {
         const name = payroll.employee.firstName + payroll.employee.lastName;
         const position = payroll.employee.position.name;
-        const payslip = (await this.payslip(payroll)).payslip;
+        const payslip = (await this.mapPayslip(payroll)).payslip;
 
         return {
           name,
