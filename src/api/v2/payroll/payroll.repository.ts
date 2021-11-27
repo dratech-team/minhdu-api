@@ -490,30 +490,39 @@ export class PayrollRepository {
       if (!datetime) {
         throw new BadRequestException("Vui lòng nhập tháng / năm để in phiếu chấm công. Xin cảm ơn!!!");
       }
-
       const employees = await this.prisma.employee.findMany({
         where: {
           branchId: profile?.branches?.length ? {in: profile?.branches.map(branch => branch.id)} : {},
         }
       });
-      return await Promise.all(employees.map(async employee => await this.prisma.payroll.findFirst({
-        where: {
-          employeeId: employee.id,
-          createdAt: {
-            gte: firstDatetimeOfMonth(datetime),
-            lte: lastDatetimeOfMonth(datetime),
-          }
-        },
-        include: {
-          salaries: true,
-          employee: {
-            include: {
-              position: true,
-              contracts: true,
+
+      return await Promise.all(employees.map(async employee => {
+        const payroll = await this.prisma.payroll.findFirst({
+          where: {
+            employeeId: employee.id,
+            createdAt: {
+              gte: firstDatetimeOfMonth(datetime),
+              lte: lastDatetimeOfMonth(datetime),
             }
           },
-        },
-      })));
+          include: {
+            salaries: true,
+            employee: {
+              include: {
+                position: true,
+                contracts: true,
+              }
+            },
+          },
+        });
+        if (!payroll.accConfirmedAt) {
+          throw `Cần xác nhận phiếu lương ${payroll.id} trước khi xuất`;
+        }
+        if (!payroll.salaries.filter(salary => salary.type === SalaryType.BASIC_INSURANCE).length) {
+          throw `Phiếu lương ${payroll.id} chưa có lương cơ bản trích BH. Vui lòng thêm mục này để hoàn thành xác nhận.`;
+        }
+        return payroll;
+      }));
     } catch (err) {
       console.error(err);
       throw new BadRequestException(err);

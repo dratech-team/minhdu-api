@@ -1261,37 +1261,51 @@ export class PayrollService {
     response: Response,
     profile: ProfileEntity,
     filename: string,
-    datetime: Date,
+    createdAt: Date,
     exportType?: FilterTypeEnum,
     startedAt?: Date,
     endedAt?: Date
   ) {
-    const data = await this.repository.currentPayroll(profile, datetime);
-    switch (exportType) {
-      case FilterTypeEnum.PAYROLL: {
-        console.log("payroll")
-        return await this.exportPayroll(response, filename, datetime, data);
-      }
-      case FilterTypeEnum.TIME_SHEET: {
-        return await this.exportTimeSheet(response, filename, datetime, data);
-      }
-      case FilterTypeEnum.OVERTIME: {
-        if (!(startedAt || endedAt)) {
-          throw new BadRequestException('Vui lòng chọn ngày bắt đầu và kết thúc');
-        }
-        return await this.exportOvertime(response, filename, startedAt, endedAt);
-      }
-    }
+    try {
+      const res = await this.findAll(profile, undefined, undefined, {
+        createdAt,
+        startedAt,
+        endedAt,
+        filterType: exportType
+      });
 
+      const payroll = res.data.filter(payroll => !payroll.accConfirmedAt).map(payroll => payroll.id);
+      if (payroll.length) {
+        throw new BadRequestException(`Các phiếu lương ${payroll.join(", ")} chưa được xác nhận. Vui lòng xác nhận phiếu lương để in.`)
+      }
+
+      switch (exportType) {
+        case FilterTypeEnum.PAYROLL: {
+          return await this.exportPayroll(response, filename, createdAt, res.data);
+        }
+        case FilterTypeEnum.TIME_SHEET: {
+          return await this.exportTimeSheet(response, filename, createdAt, res.data);
+        }
+        case FilterTypeEnum.OVERTIME: {
+          if (!(startedAt || endedAt)) {
+            throw new BadRequestException('Vui lòng chọn ngày bắt đầu và kết thúc');
+          }
+          return await this.exportOvertime(response, filename, startedAt, endedAt);
+        }
+      }
+
+    } catch (err) {
+      console.error(err);
+      throw new BadRequestException(err);
+    }
   }
 
   async exportPayroll(response: Response, filename: string, datetime: Date, data) {
     const payrolls = await Promise.all(
       data.map(async (payroll) => {
-        const name = payroll.employee.firstName + payroll.employee.lastName;
+        const name = payroll.employee.lastName;
         const position = payroll.employee.position.name;
         const payslip = (await this.mapPayslip(payroll)).payslip;
-
         return {
           name,
           position,

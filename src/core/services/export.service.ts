@@ -106,7 +106,6 @@ function autoFitColumnsHeader(input: InputExcel) {
       }
       if (typeof value[jsonKeys[j]] === 'number') {
         numFmt[j] = "#,##0.00";
-        console.log(numFmt[j]);
       }
     }
 
