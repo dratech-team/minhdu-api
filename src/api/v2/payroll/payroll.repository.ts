@@ -487,9 +487,6 @@ export class PayrollRepository {
 
   async currentPayroll(profile: ProfileEntity, datetime: Date) {
     try {
-      // if (!profile?.branches?.length) {
-      //   throw new NotFoundException("Không tìm thấy đơn vị hợp lệ cho account này. Vui lòng liên hệ admin để thêm quyền");
-      // }
       if (!datetime) {
         throw new BadRequestException("Vui lòng nhập tháng / năm để in phiếu chấm công. Xin cảm ơn!!!");
       }
@@ -503,8 +500,8 @@ export class PayrollRepository {
         where: {
           employeeId: employee.id,
           createdAt: {
-            gte: firstDatetimeOfMonth(datetime || new Date()),
-            lte: lastDatetimeOfMonth(datetime || new Date()),
+            gte: firstDatetimeOfMonth(datetime),
+            lte: lastDatetimeOfMonth(datetime),
           }
         },
         include: {
@@ -516,7 +513,6 @@ export class PayrollRepository {
             }
           },
         },
-        rejectOnNotFound: true,
       })));
     } catch (err) {
       console.error(err);

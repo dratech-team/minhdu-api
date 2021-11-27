@@ -1257,16 +1257,35 @@ export class PayrollService {
   }
 
 
-  async export(response: Response, user: ProfileEntity, filename: string, datetime: Date,) {
-    const data = await this.repository.currentPayroll(user, datetime);
-    /// FIXME: check Quản lý xác nhận tất cả phiếu lương mới được in
-    // const confirmed = data.filter((e) => e.manConfirmedAt === null).length;
-    // if (confirmed) {
-    //   throw new BadRequestException(
-    //     `Phiếu lương  chưa được xác nhận. Vui lòng đợi quản lý xác nhận tất cả trước khi in`
-    //   );
-    // }
+  async export(
+    response: Response,
+    profile: ProfileEntity,
+    filename: string,
+    datetime: Date,
+    exportType?: FilterTypeEnum,
+    startedAt?: Date,
+    endedAt?: Date
+  ) {
+    const data = await this.repository.currentPayroll(profile, datetime);
+    switch (exportType) {
+      case FilterTypeEnum.PAYROLL: {
+        console.log("payroll")
+        return await this.exportPayroll(response, filename, datetime, data);
+      }
+      case FilterTypeEnum.TIME_SHEET: {
+        return await this.exportTimeSheet(response, filename, datetime, data);
+      }
+      case FilterTypeEnum.OVERTIME: {
+        if (!(startedAt || endedAt)) {
+          throw new BadRequestException('Vui lòng chọn ngày bắt đầu và kết thúc');
+        }
+        return await this.exportOvertime(response, filename, startedAt, endedAt);
+      }
+    }
 
+  }
+
+  async exportPayroll(response: Response, filename: string, datetime: Date, data) {
     const payrolls = await Promise.all(
       data.map(async (payroll) => {
         const name = payroll.employee.firstName + payroll.employee.lastName;
@@ -1331,8 +1350,7 @@ export class PayrollService {
     );
   }
 
-  async exportTimeSheet(response: Response, profile: ProfileEntity, datetime: Date, filename?: string) {
-    const payrolls = await this.repository.currentPayroll(profile, datetime);
+  async exportTimeSheet(response: Response, filename: string, datetime: Date, payrolls) {
     const datetimes = rageDaysInMonth(datetime).map(date => date.format("DD-MM"));
     const title = ['Họ và tên', ...datetimes];
     const data = [];
@@ -1357,7 +1375,7 @@ export class PayrollService {
     );
   }
 
-  async exportOvertime(response: Response, user: ProfileEntity, filename: string, startedAt: Date, endedAt: Date, title?: string, name?: string) {
+  async exportOvertime(response: Response, filename: string, startedAt: Date, endedAt: Date) {
     const data = [];
 
     const customs = {

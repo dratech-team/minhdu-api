@@ -151,49 +151,17 @@ export class PayrollController {
     return await this.payrollService.confirmPayslip(+id);
   }
 
-  // export
-  @Roles(RoleEnum.ADMIN, RoleEnum.HUMAN_RESOURCE, RoleEnum.CAMP_ACCOUNTING)
-  @Get("export/timekeeping")
-  async exportTimeSheet(
-    @Res() res,
-    @ReqProfile() profile: ProfileEntity,
-    @Query("filename") filename: string,
-    @Query("datetime", ParseDatetimePipe) datetime: any,
-  ) {
-    return await this.payrollService.exportTimeSheet(res, profile, datetime, filename);
-  }
-
   @Roles(RoleEnum.ADMIN, RoleEnum.HUMAN_RESOURCE, RoleEnum.CAMP_ACCOUNTING)
   @Get("/export/payroll")
   async export(
     @Res() res,
-    @ReqProfile() user: ProfileEntity,
+    @ReqProfile() profile: ProfileEntity,
     @Query("filename") filename: string,
     @Query("createdAt", ParseDatetimePipe) createdAt: any,
-  ) {
-    return this.payrollService.export(res, user, filename, createdAt);
-  }
-
-  @Roles(RoleEnum.ADMIN, RoleEnum.HUMAN_RESOURCE, RoleEnum.CAMP_ACCOUNTING)
-  @Get("/export/overtime")
-  async exportOvertime(
-    @Res() res,
-    @ReqProfile() user: ProfileEntity,
-    @Query("filename") filename: string,
     @Query("startedAt", ParseDatetimePipe) startedAt: any,
     @Query("endedAt", ParseDatetimePipe) endedAt: any,
-    @Query("title", ParseDatetimePipe) title: any,
-    @Query("name", ParseDatetimePipe) name: any,
+    @Query("exportType") exportType: FilterTypeEnum,
   ) {
-    return this.payrollService.exportOvertime(res, user, filename, startedAt, endedAt, title, name);
+    return this.payrollService.export(res, profile, filename, createdAt, exportType, startedAt, endedAt);
   }
-
-  // async exportTimesheet(
-  //   @Res() res,
-  //   @ReqProfile() profile: ProfileEntity,
-  //   @Query("filename") filename: string,
-  //   @Query("datetime", ParseDatetimePipe) datetime: any,
-  // ) {
-  //   return this.payrollService.exportTimesheet(res, profile, filename, datetime);
-  // }
 }
