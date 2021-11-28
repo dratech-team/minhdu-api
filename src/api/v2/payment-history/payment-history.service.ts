@@ -9,8 +9,8 @@ export class PaymentHistoryService {
   constructor(private readonly repository: PaymentHistoryRepository) {
   }
 
-  async create(customerId: number, body: CreatePaymentHistoryDto) {
-    return await this.repository.create(customerId, body);
+  async create(body: CreatePaymentHistoryDto) {
+    return await this.repository.create(body);
   }
 
   async findAll(customerId: number, skip: number, take: number) {

@@ -8,11 +8,21 @@ export class PaymentHistoryRepository {
   constructor(private readonly prisma: PrismaService) {
   }
 
-  async create(customerId: number, body: CreatePaymentHistoryDto) {
+  async create(body: CreatePaymentHistoryDto) {
     try {
-      return await this.prisma.paymentHistory.create({
-        data: Object.assign(body, {customerId}),
+      const order = await this.prisma.order.findUnique({where: {id: body.orderId}, include: {customer: true}});
+
+      const pay = this.prisma.paymentHistory.create({
+        data: Object.assign(body, {customerId: order.customerId}),
       });
+
+      const debt = this.prisma.customer.update({
+        where: {id: order.customerId},
+        data: {
+          debt: order.customer.debt + body.total,
+        }
+      });
+      return (await this.prisma.$transaction([pay, debt]))[0];
     } catch (err) {
       console.error(err);
       throw new BadRequestException(err);
