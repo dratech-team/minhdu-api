@@ -32,7 +32,7 @@ export class OrderRepository {
         data: {debt: -total}
       });
 
-      return (await this.prisma.$transaction([order, customer])[0]);
+      return (await this.prisma.$transaction([order, customer]))[0];
     } catch (err) {
       console.error("order create", err);
       throw new BadRequestException(err);
@@ -80,8 +80,7 @@ export class OrderRepository {
         this.prisma.order.count({
           where: {
             deliveredAt: search?.delivered === 1 ? {not: null} : (search?.delivered === 0 ? null : undefined),
-            // paidAt: paidType === PaidEnum.PAID || paidType === PaidEnum.DEBT ? {not: null} : (paidType === PaidEnum.UNPAID ? {in: null} : {}),
-            // debt: paidType === PaidEnum.DEBT ? {not: 0} : {},
+            hide: search?.hide,
             customer: {
               AND: {
                 firstName: name?.firstName,
@@ -89,7 +88,6 @@ export class OrderRepository {
               },
               id: search?.customerId ? {equals: search?.customerId} : {}
             }
-            // payType: payType ? {in: payType} : {}
           },
         }),
         this.prisma.order.findMany({
@@ -97,8 +95,7 @@ export class OrderRepository {
           take: take || undefined,
           where: {
             deliveredAt: search?.delivered === 1 ? {not: null} : (search?.delivered === 0 ? null : undefined),
-            // paidAt: paidType === PaidEnum.PAID || paidType === PaidEnum.DEBT ? {not: null} : (paidType === PaidEnum.UNPAID ? {in: null} : {}),
-            // debt: paidType === PaidEnum.DEBT ? {not: 0} : {},
+            hide: search?.hide,
             customer: {
               AND: {
                 firstName: name?.firstName,
@@ -106,7 +103,6 @@ export class OrderRepository {
               },
               id: search?.customerId ? {equals: search?.customerId} : {}
             }
-            // payType: payType ? {in: payType} : {}
           },
           include: {
             commodities: true,

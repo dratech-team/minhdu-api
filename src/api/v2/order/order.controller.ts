@@ -34,11 +34,12 @@ export class OrderController {
     @Query("customer") customer?: string,
     @Query("payType") payType?: PaymentType,
     @Query("delivered", CustomParseBooleanPipe) delivered?: any,
+    @Query("hide", CustomParseBooleanPipe) hide?: any,
   ) {
     return this.orderService.findAll(
       +skip,
       +take,
-      {paidType, customerId: +customerId, customer, payType, delivered: +delivered},
+      {paidType, customerId: +customerId, customer, payType, delivered: +delivered, hide},
     );
   }
 

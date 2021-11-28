@@ -8,4 +8,5 @@ export class SearchOrderDto {
   readonly name: string;
   readonly payType: PaymentType;
   readonly delivered: number;
+  readonly hide: boolean;
 }

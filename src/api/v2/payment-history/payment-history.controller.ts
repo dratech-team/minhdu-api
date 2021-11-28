@@ -1,14 +1,19 @@
-import {Body, Controller, Delete, Get, Param, Patch, Query} from "@nestjs/common";
+import {Body, Controller, Delete, Get, Param, Patch, Query, UseGuards} from "@nestjs/common";
 import {UpdatePaymentHistoryDto} from "./dto/update-payment-history.dto";
 import {PaymentHistoryService} from "./payment-history.service";
+import {ApiKeyGuard} from "../../../core/guard/api-key-auth.guard";
+import {JwtAuthGuard} from "../../../core/guard/jwt-auth.guard";
+import {RolesGuard} from "../../../core/guard/role.guard";
+import {Roles} from "../../../core/decorators/roles.decorator";
+import {RoleEnum} from "@prisma/client";
 
-// @UseGuards(JwtAuthGuard, ApiKeyGuard, RolesGuard)
+@UseGuards(JwtAuthGuard, ApiKeyGuard, RolesGuard)
 @Controller("v2/payment-history")
 export class PaymentHistoryController {
   constructor(private readonly paymentHistoryService: PaymentHistoryService) {
   }
 
-  // @Roles(Role.ADMIN, Role.HUMAN_RESOURCE)
+  @Roles(RoleEnum.SALESMAN)
   @Get()
   findAll(
     @Query("customerId") customerId: number,
@@ -18,13 +23,13 @@ export class PaymentHistoryController {
     return this.paymentHistoryService.findAll(+customerId, +skip, +take);
   }
 
-  // @Roles(Role.ADMIN, Role.HUMAN_RESOURCE)
+  @Roles(RoleEnum.SALESMAN)
   @Get(":id")
   findOne(@Param("id") id: string) {
     return this.paymentHistoryService.findOne(+id);
   }
 
-  // @Roles(Role.ADMIN, Role.HUMAN_RESOURCE)
+  @Roles(RoleEnum.SALESMAN)
   @Patch(":id")
   update(
     @Param("id") id: string,
@@ -33,7 +38,7 @@ export class PaymentHistoryController {
     return this.paymentHistoryService.update(+id, updatePaymentHistoryDto);
   }
 
-  // @Roles(Role.ADMIN, Role.HUMAN_RESOURCE)
+  @Roles(RoleEnum.SALESMAN)
   @Delete(":id")
   remove(@Param("id") id: string) {
     return this.paymentHistoryService.remove(+id);
