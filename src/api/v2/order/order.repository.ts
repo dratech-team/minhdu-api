@@ -32,8 +32,7 @@ export class OrderRepository {
         data: {debt: -total}
       });
 
-      await this.prisma.$transaction([order, customer]);
-      return order;
+      return (await this.prisma.$transaction([order, customer])[0]);
     } catch (err) {
       console.error("order create", err);
       throw new BadRequestException(err);

@@ -21,7 +21,7 @@ export class OrderService {
   async create(body: CreateOrderDto) {
     const commodities = await Promise.all(body.commodityIds.map(async commodityId => {
       const commodity = await this.commodityService.findOne(commodityId);
-      return Object.assign(commodity, {more: commodity.more.amount})
+      return Object.assign(commodity, {more: commodity.more.amount});
     }));
     const total = this.commodityService.totalCommodities(commodities);
     return await this.repository.create(body, total);
