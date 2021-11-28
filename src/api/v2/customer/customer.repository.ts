@@ -133,7 +133,7 @@ export class CustomerRepository {
           debt: customer.debt + payment.total,
         }
       });
-      await this.prisma.$transaction([pay, debt]);
+      return (await this.prisma.$transaction([pay, debt]))[0];
     } catch (err) {
       console.error(err);
       throw new BadRequestException(err);
