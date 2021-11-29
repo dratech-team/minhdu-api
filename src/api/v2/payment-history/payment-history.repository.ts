@@ -66,10 +66,19 @@ export class PaymentHistoryRepository {
 
   async update(id: number, updates: UpdatePaymentHistoryDto) {
     try {
-      return await this.prisma.paymentHistory.update({
+      const payment = await this.findOne(id);
+      const customer = await this.prisma.customer.findUnique({where: {id: payment.customerId}});
+
+      const updatedPay = this.prisma.paymentHistory.update({
         where: {id},
         data: updates,
       });
+
+      const updatedCustomer = this.prisma.customer.update({
+        where: {id: customer.id},
+        data: {debt: customer.debt - payment.total + updates.total},
+      });
+      return (await this.prisma.$transaction([updatedPay, updatedCustomer]))[0];
     } catch (err) {
       console.error(err);
       throw new BadRequestException(err);
@@ -78,9 +87,18 @@ export class PaymentHistoryRepository {
 
   async remove(id: number) {
     try {
-      await this.prisma.paymentHistory.delete({
+      const payment = await this.findOne(id);
+      const customer = await this.prisma.customer.findUnique({where: {id: payment.customerId}});
+
+      const deleted = this.prisma.paymentHistory.delete({
         where: {id},
       });
+      const updated = this.prisma.customer.update({
+        where: {id: payment.customerId},
+        data: {debt: customer.debt - payment.total}
+      });
+
+      return (await this.prisma.$transaction([deleted, updated]))[0];
     } catch (err) {
       console.error(err);
       throw new BadRequestException(err);

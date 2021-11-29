@@ -34,7 +34,7 @@ export class CustomerService {
 
   async findOne(id: number) {
     const orders = await this.orderService.findAll(undefined, undefined, {customerId: id, hide: true});
-    const debt = orders.data.map(order => order.commodityTotal).reduce((a, b) => a + b);
+    const debt = orders.data.map(order => order.commodityTotal).reduce((a, b) => a + b, 0);
     const customer = await this.repository.findOne(id);
     return Object.assign(customer, {debt: customer.debt - debt});
   }
