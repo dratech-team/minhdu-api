@@ -10,9 +10,7 @@ export class BranchService {
   }
 
   async create(body: CreateBranchDto): Promise<Branch> {
-    if (!(await this.findBy(body)).length) {
-      return await this.repository.create(body);
-    }
+    return await this.repository.create(body);
   }
 
   async findAll() {
@@ -20,10 +18,6 @@ export class BranchService {
     return await Promise.all(
       branches.map(async branch => Object.assign(branch, Object.assign(branch._count, {employeeLeft: await this.repository.count(branch.id, true)})))
     );
-  }
-
-  async findBy(query: CreateBranchDto): Promise<Branch[]> {
-    return await this.repository.findMany(query);
   }
 
   async findOne(id: number) {

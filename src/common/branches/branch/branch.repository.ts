@@ -11,7 +11,12 @@ export class BranchRepository {
 
   async create(body: CreateBranchDto): Promise<Branch> {
     try {
-      return await this.prisma.branch.create({data: body});
+      return await this.prisma.branch.create({
+        data: {
+          name: body.name,
+          positions: {connect: body.positionIds.map(positionId => ({id: positionId}))}
+        }
+      });
     } catch (err) {
       console.error(err);
       throw new BadRequestException(err);
@@ -73,7 +78,10 @@ export class BranchRepository {
     try {
       return await this.prisma.branch.update({
         where: {id: id},
-        data: updates,
+        data: {
+          name: updates.name,
+          positions: {set: updates.positionIds.map(id => ({id}))}
+        },
         include: {
           allowances: true
         }
