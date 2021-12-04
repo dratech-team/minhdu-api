@@ -106,20 +106,21 @@ model Branch {
   code              String?            @unique
   name              String             @unique
   medicine          Medicine[]
-  positions         Position[]
   employees         Employee[]
   overtimeTemplates OvertimeTemplate[]
   timestamp         DateTime?          @default(now())
   workHistories     WorkHistory[]
   Account           Account[]
   allowances        Salary[]
+  positions         Position[]
 }
 
 model Position {
   id             Int                @id @default(autoincrement())
   name           String             @unique
   workday        Int?
-  branches       Branch[]
+  branchId       Int
+  branch         Branch             @relation(fields: [branchId], references: [id])
   employees      Employee[]
   templates      OvertimeTemplate[]
   holidays       Holiday[]
@@ -282,7 +283,7 @@ model Customer {
   resource         CustomerResource
   isPotential      Boolean?         @default(false)
   note             String?
-  debt             Float?  @default(0)
+  debt             Float?           @default(0)
   orders           Order[]
   paymentHistories PaymentHistory[]
   timestamp        DateTime?        @default(now())
@@ -309,7 +310,7 @@ model Commodity {
   price   Float
   amount  Float
   gift    Float?        @default(0)
-  more    Float?         @default(0)
+  more    Float?        @default(0)
   order   Order?        @relation(fields: [orderId], references: [id])
   orderId Int?
 }
