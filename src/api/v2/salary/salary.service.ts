@@ -109,7 +109,7 @@ export class SalaryService {
 
     for (let i = 0; i < updates.salaryIds.length; i++) {
       const salary = await this.findOne(updates.salaryIds[i]);
-      if (!isEqualDatetime(salary.datetime, salary.payroll.createdAt, "month")) {
+      if (!isEqualDatetime(updates.datetime as Date, salary.datetime, "month")) {
         updatedDatetime.push(await this.repository.changeDatetime(updates.salaryIds[i], updates));
       } else {
         updated.push(await this.update(updates.salaryIds[i], updates));

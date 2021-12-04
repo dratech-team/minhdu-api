@@ -12,6 +12,7 @@ import {SearchSalaryDto} from "./dto/search-salary.dto";
 import {ProfileEntity} from "../../../common/entities/profile.entity";
 import {CreateForEmployeesDto} from "./dto/create-for-employees.dto";
 import {UpdateManySalaryDto} from "./dto/update-many-salary.dto";
+import {firstDatetimeOfMonth, lastDatetimeOfMonth} from "../../../utils/datetime.util";
 
 const RATE_TIMES = 1;
 
@@ -396,18 +397,24 @@ export class SalaryRepository {
       const payroll = await this.prisma.payroll.findFirst({
         where: {
           createdAt: {
-            in: updates.datetime as Date
+            gte: firstDatetimeOfMonth(updates.datetime as Date),
+            lte: lastDatetimeOfMonth(updates.datetime as Date),
           }
         }
       });
 
-      const deleted = this.prisma.salary.delete({where: {id}});
-      const created = this.prisma.salary.create({data: Object.assign(salary, {payrollId: payroll.id})});
-
-      if (salary.datetime.getMonth() !== payroll.createdAt.getMonth()) {
-        return (await this.prisma.$transaction([deleted, created]))[1];
+      if (!payroll) {
+        throw new BadRequestException(`Không tồn tại phiếu lương của tháng ${moment(updates.datetime as Date).format("MM/YYYY")}`)
       }
-
+      
+      const deleted = this.prisma.salary.delete({where: {id}});
+      const created = this.prisma.salary.create({
+        data: Object.assign(salary, {
+          payrollId: payroll.id,
+          datetime: updates.datetime as Date
+        })
+      });
+      return (await this.prisma.$transaction([deleted, created]))[1];
     } catch (err) {
       console.error(err);
       throw new BadRequestException(err);
