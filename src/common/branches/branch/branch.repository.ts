@@ -14,7 +14,7 @@ export class BranchRepository {
       return await this.prisma.branch.create({
         data: {
           name: body.name,
-          positions: {connect: body.positionIds.map(positionId => ({id: positionId}))}
+          positions: body?.positionIds?.length ? {connect: body.positionIds.map(positionId => ({id: positionId}))} : {}
         }
       });
     } catch (err) {
@@ -80,7 +80,7 @@ export class BranchRepository {
         where: {id: id},
         data: {
           name: updates.name,
-          positions: {set: updates.positionIds.map(id => ({id}))}
+          positions: updates?.positionIds?.length ? {set: updates.positionIds.map(id => ({id}))} : {}
         },
         include: {
           allowances: true
