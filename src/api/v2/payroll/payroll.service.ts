@@ -227,7 +227,7 @@ export class PayrollService {
 
         return Object.assign(item, {
           salaries,
-          salary: {times, total, unit: overtime.unit},
+          salary: {times, total, unit: overtime?.unit},
         });
       });
 
@@ -235,12 +235,29 @@ export class PayrollService {
       const price = employees.map(employee => employee.salary.total).reduce((a, b) => a + b, 0);
 
       return {
-        employees: employees.filter(employee => employee.salaries?.length), total: {times, price, unit: overtime.unit}
+        employees: employees.filter(employee => employee.salaries?.length), total: {times, price, unit: overtime?.unit}
       };
     }
 
+    const employees = overtimes
+      .filter(overtime => overtime.salaries?.length)
+      .map(overtime => {
+        return Object.assign(overtime, {
+          salary: {
+            total: overtime.salaries.map(salary => {
+              if (salary.unit === DatetimeUnit.DAY && salary.times > 1) {
+                return (salary.times * salary.price) + (salary.allowance?.price * salary.times);
+              } else {
+                return salary.times * salary.price + (salary.allowance?.price || 0);
+              }
+            }).reduce((a, b) => a + b, 0),
+            unit: 'doing...',
+          }
+        })
+      });
+
     return {
-      employees: overtimes.filter(overtime => overtime.salaries?.length),
+      employees,
       total: null,
     };
   }

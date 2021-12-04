@@ -1,4 +1,4 @@
-import {BadRequestException, Body, Injectable} from "@nestjs/common";
+import {BadRequestException, Injectable} from "@nestjs/common";
 import {Salary, SalaryType} from "@prisma/client";
 import {firstDatetimeOfMonth, lastDatetimeOfMonth, rangeDatetime} from "../../../utils/datetime.util";
 import {EmployeeService} from "../employee/employee.service";
@@ -11,6 +11,7 @@ import {SearchSalaryDto} from "./dto/search-salary.dto";
 import {CreateForEmployeesDto} from "./dto/create-for-employees.dto";
 import {ProfileEntity} from "../../../common/entities/profile.entity";
 import {UpdateManySalaryDto} from "./dto/update-many-salary.dto";
+import {isEqualDatetime} from "../../../common/utils/isEqual-datetime.util";
 
 @Injectable()
 export class SalaryService {
@@ -104,8 +105,21 @@ export class SalaryService {
 
   async updateMany(profile: ProfileEntity, id: number, updates: UpdateManySalaryDto) {
     const updated = [];
+    const updatedDatetime = [];
+
     for (let i = 0; i < updates.salaryIds.length; i++) {
-      updated.push(await this.update(updates.salaryIds[i], updates));
+      const salary = await this.findOne(updates.salaryIds[i]);
+      if (!isEqualDatetime(salary.datetime, salary.payroll.createdAt, "month")) {
+        updatedDatetime.push(await this.repository.changeDatetime(updates.salaryIds[i], updates));
+      } else {
+        updated.push(await this.update(updates.salaryIds[i], updates));
+      }
+    }
+    if (updatedDatetime.length) {
+      return {
+        status: 201,
+        message: `Đã update cho ${updatedDatetime.length} trường đối tháng.`,
+      };
     }
     return {
       status: 201,

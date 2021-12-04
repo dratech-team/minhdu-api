@@ -138,7 +138,7 @@ export class SalaryRepository {
       // không thể thêm cùng vắng 1 buổi hoặc cùng vắng 1 ngày.
       if (body.partial === salary.partial) {
         throw new BadRequestException(`Ngày ${moment(body.datetime as Date).format(
-            "DD/MM/YYYY"
+          "DD/MM/YYYY"
           )} đã tồn tại đi trễ / về sớm / không đi làm / vắng đã tồn tại ${body.partial}. Vui lòng kiểm tra lại`
         );
       }
@@ -146,7 +146,7 @@ export class SalaryRepository {
       // Đã tổn tại vắng 1 buổi. chặn thêm văng 1 ngày
       if ((salary.partial === PartialDay.MORNING || salary.partial === PartialDay.AFTERNOON) && body.partial === PartialDay.ALL_DAY) {
         throw new BadRequestException(`Ngày ${moment(body.datetime as Date).format(
-            "DD/MM/YYYY"
+          "DD/MM/YYYY"
           )} đã tồn tại đi trễ / về sớm / không đi làm / vắng đã tồn tại 1 buổi ${salary.partial} nên không thể thêm vắng 1 ngày . Vui lòng kiểm tra lại`
         );
       }
@@ -154,7 +154,7 @@ export class SalaryRepository {
       // Đã tồn tại vắng 1 ngày. không thể thêm vắng 1 buổi.
       if ((salary.partial === PartialDay.ALL_DAY) && (body.partial === PartialDay.MORNING || PartialDay.AFTERNOON)) {
         throw new BadRequestException(`Ngày ${moment(body.datetime as Date).format(
-            "DD/MM/YYYY"
+          "DD/MM/YYYY"
           )} đã tồn tại đi trễ / về sớm / không đi làm / vắng đã tồn tại vắng 1 ngày nên không thể thêm vắng 1 buổi ${salary.partial}. Vui lòng kiểm tra lại`
         );
       }
@@ -383,6 +383,31 @@ export class SalaryRepository {
       }
 
       return await this.prisma.salary.delete({where: {id: id}});
+    } catch (err) {
+      console.error(err);
+      throw new BadRequestException(err);
+    }
+  }
+
+  // chuyển datetime trong salary này từ payroll này sang payroll khác.
+  async changeDatetime(id: number, updates: UpdateSalaryDto) {
+    try {
+      const salary = await this.prisma.salary.findUnique({where: {id}});
+      const payroll = await this.prisma.payroll.findFirst({
+        where: {
+          createdAt: {
+            in: updates.datetime as Date
+          }
+        }
+      });
+
+      const deleted = this.prisma.salary.delete({where: {id}});
+      const created = this.prisma.salary.create({data: Object.assign(salary, {payrollId: payroll.id})});
+
+      if (salary.datetime.getMonth() !== payroll.createdAt.getMonth()) {
+        return (await this.prisma.$transaction([deleted, created]))[1];
+      }
+
     } catch (err) {
       console.error(err);
       throw new BadRequestException(err);

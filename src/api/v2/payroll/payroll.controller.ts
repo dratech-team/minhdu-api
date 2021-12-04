@@ -93,6 +93,7 @@ export class PayrollController {
     @Query("title") title: string,
     @Query("name") name: string,
     @Query("position") position: string,
+    @Query("branch") branch: string,
     @Query("searchType") searchType: SearchType,
   ) {
     return this.payrollService.filterOvertime(profile, {startAt, endAt, title, name, searchType, position});

@@ -273,7 +273,8 @@ export class PayrollRepository {
             include: {
               employee: {
                 include: {
-                  position: true
+                  position: true,
+                  branch: true
                 }
               }
             }
@@ -410,7 +411,8 @@ export class PayrollRepository {
     const employees = await this.prisma.employee.findMany({
       where: {
         branchId: profile?.branches?.length ? {in: profile?.branches.map(branch => branch.id)} : {},
-        // position: search?.name ? {name: search?.name} : {},
+        position: search?.position ? {name: {startsWith: search?.position, mode: "insensitive"}} : {},
+        branch: search?.branch ? {name: {startsWith: search?.branch, mode: "insensitive"}} : {},
         lastName: search?.type === SearchType.EQUALS
           ? {equals: search?.name, mode: "insensitive"}
           : search?.type === SearchType.START_WITH
