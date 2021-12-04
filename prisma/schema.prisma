@@ -119,8 +119,7 @@ model Position {
   id             Int                @id @default(autoincrement())
   name           String             @unique
   workday        Int?
-  branchId       Int
-  branch         Branch             @relation(fields: [branchId], references: [id])
+  branches       Branch[]
   employees      Employee[]
   templates      OvertimeTemplate[]
   holidays       Holiday[]
