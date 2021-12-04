@@ -169,7 +169,7 @@ export class PayrollService {
     }
 
     if (updated) {
-      await this.update(id, {total: payslip.total})
+      await this.update(id, {total: payslip.total});
     }
 
     return Object.assign(updated, {totalWorkday: this.totalActualDay(updated as OnePayroll)});
@@ -253,7 +253,7 @@ export class PayrollService {
             }).reduce((a, b) => a + b, 0),
             unit: 'doing...',
           }
-        })
+        });
       });
 
     return {
@@ -362,6 +362,13 @@ export class PayrollService {
       });
 
     return {day, hour, minute};
+  }
+
+  totalDeduction(payroll: OnePayroll) {
+    return payroll.salaries
+      .filter(salary => salary.type === SalaryType.DEDUCTION)
+      .map(salary => salary.price)
+      .reduce((a, b) => a + b, 0);
   }
 
   totalAllowanceByActual(payroll: OnePayroll, actualDay: number, workday?: number) {
@@ -682,7 +689,7 @@ export class PayrollService {
     const bsc = this.totalForgotBSC(payroll.salaries);
     const bscSalary = basicDaySalary * (bsc / 2);
 
-    const deduction = absent.minute * ((basicSalary + this.totalStaySalary(payroll.salaries)) / workday / 8 / 60);
+    const deduction = absent.minute * ((basicSalary + this.totalStaySalary(payroll.salaries)) / workday / 8 / 60) + this.totalDeduction(payroll);
 
     const total = Math.round((payslipNormalDay + payslipInHoliday + payslipNotInHoliday + payslipOutOfWorkday + staySalary + allowanceTotal + overtime - tax - bscSalary - deduction) / 1000) * 1000;
 
@@ -850,7 +857,7 @@ export class PayrollService {
     });
 
     // Tổng tiền đi trễ. Ngày nghỉ là ngày đã đc trừ trên ngày đi làm thực tế, nên sẽ không tính vào tiền khấu trừ
-    const deductionSalary = absent.minute * ((basicSalary + staySalary) / workday / 8 / 60);
+    const deductionSalary = absent.minute * ((basicSalary + staySalary) / workday / 8 / 60) + this.totalDeduction(payroll);
 
     // Không quan tâm đến ngày công thực tế hay ngày công chuẩn. Nếu không đi làm trong ngày lễ thì vẫn được hưởng lương như thường
     payslipNotInHoliday = worksNotInHoliday.map(w => w.day).reduce((a, b) => a + b, 0) * (basic.price / PAYSLIP_WORKDAY_HOLIDAY);
@@ -1036,7 +1043,7 @@ export class PayrollService {
     });
 
     // Tổng tiền đi trễ. Ngày nghỉ là ngày đã đc trừ trên ngày đi làm thực tế, nên sẽ không tính vào tiền khấu trừ
-    const deductionSalary = absent.minute * (basicSalary / workday / 8 / 60);
+    const deductionSalary = absent.minute * (basicSalary / workday / 8 / 60) + this.totalDeduction(payroll);
 
     // Không quan tâm đến ngày công thực tế hay ngày công chuẩn. Nếu không đi làm trong ngày lễ thì vẫn được hưởng lương như thường
     payslipNotInHoliday = worksNotInHoliday.map(w => w.day).reduce((a, b) => a + b, 0) * (basic.price / PAYSLIP_WORKDAY_HOLIDAY);
@@ -1221,7 +1228,7 @@ export class PayrollService {
     const bscSalary = (bsc / 2) * basicSalary / PAYSLIP_WORKDAY_HOLIDAY;
 
     // Tổng tiền đi trễ. Ngày nghỉ là ngày đã đc trừ trên ngày đi làm thực tế, nên sẽ không tính vào tiền khấu trừ
-    const deductionSalary = absent.minute * ((basicSalary + staySalary) / workday / 8 / 60);
+    const deductionSalary = absent.minute * ((basicSalary + staySalary) / workday / 8 / 60) + this.totalDeduction(payroll);
 
     // Không quan tâm đến ngày công thực tế hay ngày công chuẩn. Nếu không đi làm trong ngày lễ thì vẫn được hưởng lương như thường
     payslipNotInHoliday = worksNotInHoliday.map(w => w.day).reduce((a, b) => a + b, 0) * (basic.price / PAYSLIP_WORKDAY_HOLIDAY);
@@ -1293,7 +1300,7 @@ export class PayrollService {
 
       const payroll = res.data.filter(payroll => !payroll.accConfirmedAt).map(payroll => payroll.id);
       if (payroll.length) {
-        throw new BadRequestException(`Các phiếu lương ${payroll.join(", ")} chưa được xác nhận. Vui lòng xác nhận phiếu lương để in.`)
+        throw new BadRequestException(`Các phiếu lương ${payroll.join(", ")} chưa được xác nhận. Vui lòng xác nhận phiếu lương để in.`);
       }
 
       switch (exportType) {
