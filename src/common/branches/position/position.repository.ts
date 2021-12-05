@@ -12,9 +12,6 @@ export class PositionRepository {
 
   async create(body: CreatePositionDto): Promise<Position> {
     try {
-      if (!body.branchId) {
-        throw new BadRequestException('Chức vụ này thuộc đơn vị nào ??? Vui lòng thêm branchId');
-      }
       const position = await this.prisma.position.create({
         data: {
           name: body.name,
@@ -22,12 +19,15 @@ export class PositionRepository {
         },
       });
 
-      await this.prisma.branch.update({
-        where: {id: body.branchId},
-        data: {
-          positions: {connect: {id: position.id}}
-        }
-      });
+      if (body.branchId) {
+        await this.prisma.branch.update({
+          where: {id: body.branchId},
+          data: {
+            positions: {connect: {id: position.id}}
+          }
+        });
+      }
+
       return position;
     } catch (e) {
       const found = await this.prisma.position.findFirst({
