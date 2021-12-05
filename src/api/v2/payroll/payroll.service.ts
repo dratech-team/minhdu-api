@@ -28,7 +28,6 @@ export class PayrollService {
   constructor(
     private readonly repository: PayrollRepository,
     private readonly employeeService: EmployeeService,
-    private readonly holidayService: HolidayService,
     private readonly overtimeService: OvertimeTemplateService,
   ) {
   }
@@ -499,7 +498,7 @@ export class PayrollService {
     let worksNotInHoliday = [];
 
     const payroll = await this.findOne(payrollId);
-    const currentHoliday = await this.holidayService.findCurrentHolidays(payroll.createdAt, payroll.employee.positionId);
+    const currentHoliday = await this.repository.findCurrentHolidays(payroll.createdAt, payroll.employee.positionId);
     if (!currentHoliday.length) {
       throw new NotFoundException(`Không tồn tại ngày lễ hợp lệ trong tháng ${moment(payroll.createdAt).format("MM/YYYY")}`);
     }
@@ -567,7 +566,7 @@ export class PayrollService {
    */
   async totalSalaryCT1(payroll: OnePayroll) {
     // datetime
-    const currentHoliday = await this.holidayService.findCurrentHolidays(payroll.createdAt, payroll.employee.positionId);
+    const currentHoliday = await this.repository.findCurrentHolidays(payroll.createdAt, payroll.employee.positionId);
     const workday = payroll.employee.workday;
 
     // day
@@ -749,7 +748,7 @@ export class PayrollService {
     let payslipInHoliday = 0;
     let payslipNotInHoliday = 0;
     //datetime
-    const currentHoliday = await this.holidayService.findCurrentHolidays(payroll.createdAt, payroll.employee.positionId);
+    const currentHoliday = await this.repository.findCurrentHolidays(payroll.createdAt, payroll.employee.positionId);
     const workday = payroll.employee.workday;
 
     let actualDay = this.totalActualDay(payroll);
@@ -931,7 +930,7 @@ export class PayrollService {
     let payslipInHoliday = 0;
     let payslipNotInHoliday = 0;
     //datetime
-    const currentHoliday = await this.holidayService.findCurrentHolidays(payroll.createdAt, payroll.employee.positionId);
+    const currentHoliday = await this.repository.findCurrentHolidays(payroll.createdAt, payroll.employee.positionId);
     const workday = payroll.employee.workday;
 
     let actualDay = this.totalActualDay(payroll);
@@ -1102,7 +1101,7 @@ export class PayrollService {
     let payslipInHoliday = 0;
     let payslipNotInHoliday = 0;
     //datetime
-    const currentHoliday = await this.holidayService.findCurrentHolidays(payroll.createdAt, payroll.employee.positionId);
+    const currentHoliday = await this.repository.findCurrentHolidays(payroll.createdAt, payroll.employee.positionId);
     const workday = payroll.employee.workday;
 
     let actualDay = this.totalActualDay(payroll);

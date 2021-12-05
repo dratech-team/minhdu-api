@@ -117,22 +117,4 @@ export class HolidayRepository {
     }
   }
 
-  async findCurrentHolidays(datetime: Date, positionId: Position["id"]) {
-    try {
-      return await this.prisma.holiday.findMany({
-        where: {
-          datetime: {
-            gte: firstDatetimeOfMonth(datetime),
-            lte: lastDatetimeOfMonth(datetime),
-          },
-          positions: {
-            some: {id: {in: positionId}}
-          },
-        },
-      });
-    } catch (err) {
-      console.error(err);
-      throw new BadRequestException("Lỗi get current holiday", err);
-    }
-  }
 }

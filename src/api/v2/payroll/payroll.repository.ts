@@ -1,5 +1,5 @@
 import {BadRequestException, Injectable, NotFoundException} from "@nestjs/common";
-import {EmployeeType, Payroll, Salary, SalaryType} from "@prisma/client";
+import {EmployeeType, Payroll, Position, Salary, SalaryType} from "@prisma/client";
 import {ProfileEntity} from "../../../common/entities/profile.entity";
 import {PrismaService} from "../../../prisma.service";
 import {firstDatetimeOfMonth, lastDatetimeOfMonth} from "../../../utils/datetime.util";
@@ -528,6 +528,26 @@ export class PayrollRepository {
     } catch (err) {
       console.error(err);
       throw new BadRequestException(err);
+    }
+  }
+
+
+  async findCurrentHolidays(datetime: Date, positionId: Position["id"]) {
+    try {
+      return await this.prisma.holiday.findMany({
+        where: {
+          datetime: {
+            gte: firstDatetimeOfMonth(datetime),
+            lte: lastDatetimeOfMonth(datetime),
+          },
+          positions: {
+            some: {id: {in: positionId}}
+          },
+        },
+      });
+    } catch (err) {
+      console.error(err);
+      throw new BadRequestException("Lỗi get current holiday", err);
     }
   }
 

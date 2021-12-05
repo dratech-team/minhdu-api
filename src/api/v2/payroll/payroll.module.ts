@@ -6,15 +6,12 @@ import {ConfigModule} from "../../../core/config/config.module";
 import {PayrollRepository} from "./payroll.repository";
 import {EmployeeModule} from "../employee/employee.module";
 import {EmployeeRepository} from "../employee/employee.repository";
-import {HolidayModule} from "../holiday/holiday.module";
-import {HolidayRepository} from "../holiday/holiday.repository";
-import {HolidayService} from "../holiday/holiday.service";
 import {OvertimeTemplateModule} from "../overtime-template/overtime-template.module";
 
 @Module({
-  imports: [ConfigModule, EmployeeModule, HolidayModule, OvertimeTemplateModule],
+  imports: [ConfigModule, EmployeeModule, OvertimeTemplateModule],
   controllers: [PayrollController],
-  providers: [PrismaService, PayrollService, PayrollRepository, EmployeeRepository, HolidayService, HolidayRepository],
+  providers: [PrismaService, PayrollService, PayrollRepository, EmployeeRepository],
   exports: [PayrollService]
 })
 export class PayrollModule {
