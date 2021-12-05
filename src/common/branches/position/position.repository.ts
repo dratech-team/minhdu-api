@@ -4,7 +4,6 @@ import {CreatePositionDto} from "./dto/create-position.dto";
 import {Position} from "@prisma/client";
 import {UpdatePositionDto} from "./dto/update-position.dto";
 import {OnePosition} from "./entities/position.entity";
-import {ResponsePagination} from "../../entities/response.pagination";
 
 @Injectable()
 export class PositionRepository {
@@ -13,12 +12,23 @@ export class PositionRepository {
 
   async create(body: CreatePositionDto): Promise<Position> {
     try {
-      return await this.prisma.position.create({
+      if (!body.branchId) {
+        throw new BadRequestException('Chức vụ này thuộc đơn vị nào ??? Vui lòng thêm branchId');
+      }
+      const position = await this.prisma.position.create({
         data: {
           name: body.name,
           workday: body.workday,
         },
       });
+
+      await this.prisma.branch.update({
+        where: {id: body.branchId},
+        data: {
+          positions: {connect: {id: position.id}}
+        }
+      });
+      return position;
     } catch (e) {
       const found = await this.prisma.position.findFirst({
         where: {name: body.name},

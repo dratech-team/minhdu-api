@@ -12,6 +12,11 @@ export class CreatePositionDto {
   @IsNumber()
   readonly positionId: number;
 
+  @Type(() => Number)
+  @IsOptional()
+  @IsNumber()
+  readonly branchId: number;
+
   @IsNotEmpty()
   @IsString()
   readonly name: string;
