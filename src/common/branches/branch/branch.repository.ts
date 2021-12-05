@@ -15,6 +15,9 @@ export class BranchRepository {
         data: {
           name: body.name,
           positions: body?.positionIds?.length ? {connect: body.positionIds.map(positionId => ({id: positionId}))} : {}
+        },
+        include: {
+          positions: true
         }
       });
     } catch (err) {
@@ -27,6 +30,7 @@ export class BranchRepository {
     try {
       return await this.prisma.branch.findMany({
         include: {
+          positions: true,
           _count: true,
           allowances: true,
         }
@@ -69,7 +73,8 @@ export class BranchRepository {
           orderBy: {
             datetime: "asc"
           }
-        }
+        },
+        positions: true
       },
     });
   }
@@ -80,10 +85,11 @@ export class BranchRepository {
         where: {id: id},
         data: {
           name: updates.name,
-          positions: updates?.positionIds?.length ? {set: updates.positionIds.map(id => ({id}))} : {}
+          positions: {set: updates.positionIds.map(id => ({id}))}
         },
         include: {
-          allowances: true
+          allowances: true,
+          positions: true
         }
       });
     } catch (err) {

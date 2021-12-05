@@ -19,7 +19,11 @@ export class HolidayService {
   }
 
   async findOne(id: number) {
-    return await this.repository.findOne(id);
+    const found = await this.repository.findOne(id);
+    return {
+      holiday: found.holiday,
+      employees: found.salaries.map(salary => Object.assign({}, salary.payroll.employee, {salary: salary})),
+    };
   }
 
   async update(id: number, updates: UpdateHolidayDto) {

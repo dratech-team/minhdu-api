@@ -1,4 +1,4 @@
-import {BadRequestException, Injectable} from "@nestjs/common";
+import {BadRequestException, Injectable, NotFoundException} from "@nestjs/common";
 import {PrismaService} from "../../../prisma.service";
 import {CreateHolidayDto} from "./dto/create-holiday.dto";
 import {UpdateHolidayDto} from "./dto/update-holiday.dto";
@@ -77,12 +77,37 @@ export class HolidayRepository {
 
   async findOne(id: number) {
     try {
-      return await this.prisma.holiday.findUnique({
+      const holiday = await this.prisma.holiday.findUnique({
         where: {id},
         include: {
           positions: true,
         },
       });
+
+      if (!holiday) {
+        throw new NotFoundException(`Not found by id ${id}`);
+      }
+
+      const salaries = await this.prisma.salary.findMany({
+        where: {
+          datetime: {
+            in: holiday.datetime,
+          },
+        },
+        include: {
+          payroll: {
+            include: {
+              employee: {
+                include: {
+                  position: true,
+                  branch: true
+                }
+              }
+            }
+          }
+        }
+      });
+      return {holiday, salaries};
     } catch (err) {
       console.error(err);
       throw new BadRequestException(err);

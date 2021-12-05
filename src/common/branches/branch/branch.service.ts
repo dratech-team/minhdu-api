@@ -16,7 +16,7 @@ export class BranchService {
   async findAll() {
     const branches = await this.repository.findAll();
     return await Promise.all(
-      branches.map(async branch => Object.assign(branch, Object.assign(branch._count, {employeeLeft: await this.repository.count(branch.id, true)})))
+      branches.map(async branch => Object.assign(branch, {_count: Object.assign(branch._count, {employeeLeft: await this.repository.count(branch.id, true)})}))
     );
   }
 
