@@ -406,7 +406,7 @@ export class SalaryRepository {
       if (!payroll) {
         throw new BadRequestException(`Không tồn tại phiếu lương của tháng ${moment(updates.datetime as Date).format("MM/YYYY")}`)
       }
-      
+
       const deleted = this.prisma.salary.delete({where: {id}});
       const created = this.prisma.salary.create({
         data: Object.assign(salary, {

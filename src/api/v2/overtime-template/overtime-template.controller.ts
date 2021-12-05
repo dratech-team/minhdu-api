@@ -1,23 +1,14 @@
-import {
-  Body,
-  Controller,
-  Delete,
-  Get,
-  Param,
-  ParseIntPipe,
-  Patch,
-  Post,
-  Query,
-} from "@nestjs/common";
-import { OvertimeTemplateService } from "./overtime-template.service";
-import { CreateOvertimeTemplateDto } from "./dto/create-overtime-template.dto";
-import { UpdateOvertimeTemplateDto } from "./dto/update-overtime-template.dto";
-import { ApiV2Constant } from "../../../common/constant/api.constant";
-import { DatetimeUnit } from "@prisma/client";
+import {Body, Controller, Delete, Get, Param, Patch, Post, Query,} from "@nestjs/common";
+import {OvertimeTemplateService} from "./overtime-template.service";
+import {CreateOvertimeTemplateDto} from "./dto/create-overtime-template.dto";
+import {UpdateOvertimeTemplateDto} from "./dto/update-overtime-template.dto";
+import {ApiV2Constant} from "../../../common/constant/api.constant";
+import {DatetimeUnit} from "@prisma/client";
 
 @Controller(ApiV2Constant.OVERTIME_TEMPLATE)
 export class OvertimeTemplateController {
-  constructor(private readonly service: OvertimeTemplateService) {}
+  constructor(private readonly service: OvertimeTemplateService) {
+  }
 
   @Post()
   async create(@Body() body: CreateOvertimeTemplateDto) {
@@ -31,13 +22,13 @@ export class OvertimeTemplateController {
     @Query("title") title: string,
     @Query("price") price: number,
     @Query("unit") unit: DatetimeUnit,
-    @Query("positionId") positionId: number
+    @Query("positionIds") positionIds: number[]
   ) {
     return this.service.findAll(+take, +skip, {
       title,
       price: +price,
       unit,
-      positionId: +positionId,
+      positionIds,
     });
   }
 

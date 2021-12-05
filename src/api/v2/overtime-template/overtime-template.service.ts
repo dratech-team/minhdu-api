@@ -18,7 +18,7 @@ export class OvertimeTemplateService {
     skip: number,
     search: Partial<SearchOvertimeTemplateDto>
   ) {
-    return await this.repository.findAll(take, skip, search);
+    return await this.repository.findAll(take, skip, Object.assign(search, {positionIds: search?.positionIds.map(id => +id)}));
   }
 
   async findFirst(query: any) {
