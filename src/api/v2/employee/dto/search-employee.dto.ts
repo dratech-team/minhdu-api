@@ -18,4 +18,7 @@ export interface SearchEmployeeDto {
   isLeft: boolean, // 0 | 1
   type: EmployeeType,
   recipeType: RecipeType,
+  province: string,
+  district: string,
+  ward: string,
 }

@@ -46,6 +46,9 @@ export class EmployeeController {
     @Query("employeeType") type: EmployeeType,
     @Query("recipeType") recipeType: RecipeType,
     @Query("overtimeTitle") overtimeTitle: string,
+    @Query("province") province: string,
+    @Query("district") district: string,
+    @Query("ward") ward: string,
   ) {
     return this.employeeService.findAll(profile, skip, take, {
       name,
@@ -60,6 +63,9 @@ export class EmployeeController {
       type,
       recipeType,
       templateId: +templateId,
+      province,
+      district,
+      ward
     });
   }
 

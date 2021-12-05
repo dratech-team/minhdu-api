@@ -128,7 +128,16 @@ export class EmployeeRepository {
               }
             } : {},
             type: {equals: search?.type || EmployeeType.FULL_TIME},
-            recipeType: search?.recipeType ? {in: search?.recipeType} : {}
+            recipeType: search?.recipeType ? {in: search?.recipeType} : {},
+            ward: {
+              name: {startsWith: search?.ward, mode: "insensitive"},
+              district: {
+                name: {startsWith: search?.district, mode: "insensitive"},
+                province: {
+                  name: {startsWith: search?.province, mode: "insensitive"}
+                }
+              }
+            }
           },
         }),
         this.prisma.employee.findMany({
@@ -165,7 +174,16 @@ export class EmployeeRepository {
               }
             } : {},
             type: {equals: search?.type || EmployeeType.FULL_TIME},
-            recipeType: search?.recipeType ? {in: search?.recipeType} : {}
+            recipeType: search?.recipeType ? {in: search?.recipeType} : {},
+            ward: {
+              name: {startsWith: search?.ward, mode: "insensitive"},
+              district: {
+                name: {startsWith: search?.district, mode: "insensitive"},
+                province: {
+                  name: {startsWith: search?.province, mode: "insensitive"}
+                }
+              }
+            }
           },
           include: {
             position: true,
