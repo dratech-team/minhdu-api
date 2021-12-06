@@ -96,8 +96,8 @@ export class HolidayRepository {
           payroll: {
             employee: {
               branch: {name: {startsWith: search?.branch, mode: "insensitive"}},
-              position: {name: {startsWith: search?.position, mode: "insensitive"}},
-            }
+              position: {name: {in: search?.positions?.map(position => position), mode: "insensitive"}},
+            },
           }
         },
         include: {

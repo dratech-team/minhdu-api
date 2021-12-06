@@ -4,5 +4,5 @@ export interface SearchHolidayDto {
   rate: number;
   department: string;
   branch: string;
-  position: string;
+  positions: string[];
 }
