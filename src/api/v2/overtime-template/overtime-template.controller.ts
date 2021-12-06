@@ -22,13 +22,13 @@ export class OvertimeTemplateController {
     @Query("title") title: string,
     @Query("price") price: number,
     @Query("unit") unit: DatetimeUnit,
-    @Query("positionIds") positionIds: number[]
+    @Query("positions") positions: string[]
   ) {
     return this.service.findAll(+take, +skip, {
       title,
       price: +price,
       unit,
-      positionIds,
+      positions,
     });
   }
 

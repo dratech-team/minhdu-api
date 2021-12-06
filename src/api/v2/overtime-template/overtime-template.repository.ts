@@ -53,9 +53,9 @@ export class OvertimeTemplateRepository {
             unit: {in: search?.unit || undefined},
             AND: {
               branch: {id: search?.branchId || undefined},
-              positions: search?.positionIds?.length
+              positions: search?.positions?.length
                 ? {
-                  some: {id: {in: search?.positionIds}},
+                  some: {name: {in: search?.positions}},
                 }
                 : {},
             }
@@ -70,9 +70,9 @@ export class OvertimeTemplateRepository {
             unit: {in: search?.unit || undefined},
             AND: {
               branch: {id: search?.branchId || undefined},
-              positions: search?.positionIds?.length
+              positions: search?.positions?.length
                 ? {
-                  some: {id: {in: search?.positionIds}},
+                  some: {name: {in: search?.positions}},
                 }
                 : {},
             }

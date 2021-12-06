@@ -35,9 +35,9 @@ export class HolidayController {
   findOne(
     @Param('id') id: string,
     @Query('branch') branch: string,
-    @Query('positions') positions: string[],
+    @Query('position') position: string,
     ) {
-    return this.holidayService.findOne(+id, {branch, positions});
+    return this.holidayService.findOne(+id, {branch, position});
   }
 
   @Patch(':id')
