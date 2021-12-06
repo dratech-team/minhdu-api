@@ -75,7 +75,7 @@ export class HolidayRepository {
     }
   }
 
-  async findOne(id: number) {
+  async findOne(id: number, search?: Partial<SearchHolidayDto>) {
     try {
       const holiday = await this.prisma.holiday.findUnique({
         where: {id},
@@ -93,6 +93,12 @@ export class HolidayRepository {
           datetime: {
             in: holiday.datetime,
           },
+          payroll: {
+            employee: {
+              branch: {name: {startsWith: search?.branch, mode: "insensitive"}},
+              position: {name: {startsWith: search?.position, mode: "insensitive"}},
+            }
+          }
         },
         include: {
           payroll: {

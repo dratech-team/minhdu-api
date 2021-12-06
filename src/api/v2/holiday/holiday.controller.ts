@@ -32,8 +32,12 @@ export class HolidayController {
   }
 
   @Get(':id')
-  findOne(@Param('id') id: string) {
-    return this.holidayService.findOne(+id);
+  findOne(
+    @Param('id') id: string,
+    @Query('branch') branch: string,
+    @Query('position') position: string,
+    ) {
+    return this.holidayService.findOne(+id, {branch, position});
   }
 
   @Patch(':id')

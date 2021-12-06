@@ -18,8 +18,8 @@ export class HolidayService {
     return await this.repository.findAll(take, skip, search);
   }
 
-  async findOne(id: number) {
-    const found = await this.repository.findOne(id);
+  async findOne(id: number, search?: Partial<SearchHolidayDto>) {
+    const found = await this.repository.findOne(id, search);
     return Object.assign(found.holiday, {employees: found.salaries.map(salary => Object.assign({}, salary.payroll.employee, {salary: salary}))});
   }
 

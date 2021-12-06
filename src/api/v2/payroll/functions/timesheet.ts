@@ -21,7 +21,7 @@ export const timesheet = (createdAt: Date, salaries: Salary[], isExport?: boolea
   let total = 0;
 
 
-  const allDay = salaries.filter(salary => salary.type === (SalaryType.ABSENT || salary.type === SalaryType.DAY_OFF) && salary.times === ALL_DAY && salary.unit === DatetimeUnit.DAY).map(salary => salary.datetime);
+  const allDay = salaries.filter(salary => (salary.type === SalaryType.ABSENT || salary.type === SalaryType.DAY_OFF) && salary.times === ALL_DAY && salary.unit === DatetimeUnit.DAY).map(salary => salary.datetime);
   const partialDay = salaries.filter(salary => (salary.type === SalaryType.ABSENT || salary.type === SalaryType.DAY_OFF) && salary.times === PARTIAL_DAY && salary.unit === DatetimeUnit.DAY).map(salary => salary.datetime);
 
   for (let i = 0; i < diff.length; i++) {

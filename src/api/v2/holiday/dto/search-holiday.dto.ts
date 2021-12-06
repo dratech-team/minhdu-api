@@ -3,4 +3,6 @@ export interface SearchHolidayDto {
   datetime: Date;
   rate: number;
   department: string;
+  branch: string;
+  position: string;
 }
