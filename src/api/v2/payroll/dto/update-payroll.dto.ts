@@ -32,4 +32,9 @@ export class UpdatePayrollDto {
   @Type(() => Number)
   @IsNumber()
   readonly total?: number;
+
+  @IsOptional()
+  @Type(() => Number)
+  @IsNumber()
+  readonly actualday?: number;
 }

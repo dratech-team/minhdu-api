@@ -167,7 +167,6 @@ export class PayrollService {
         );
     }
     if (updated) {
-      console.log(payslip.totalWorkday)
       await this.update(id, {total: payslip.total, actualday: payslip.totalWorkday});
       await this.generateHoliday(id);
     }

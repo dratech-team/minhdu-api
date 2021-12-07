@@ -375,6 +375,7 @@ export class PayrollRepository {
           accConfirmedAt: updates?.accConfirmedAt,
           paidAt: updates.paidAt || undefined,
           manConfirmedAt: updates?.manConfirmedAt || null,
+          actualday: updates.actualday,
           taxed: updates?.taxed,
         },
         include: {
