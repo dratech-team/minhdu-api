@@ -203,11 +203,15 @@ export class PayrollRepository {
               },
             },
           },
-          orderBy: {
-            employee: {
-              lastName: "asc"
+          orderBy: search?.employeeId
+            ? {
+              createdAt: "asc"
             }
-          }
+            : {
+              employee: {
+                lastName: "asc",
+              },
+            }
         }),
       ]);
 
@@ -279,7 +283,7 @@ export class PayrollRepository {
               }
             }
           }
-        }
+        },
       })
     ]);
     return {

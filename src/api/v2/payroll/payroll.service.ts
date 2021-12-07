@@ -4,7 +4,6 @@ import {Response} from "express";
 import {ProfileEntity} from "../../../common/entities/profile.entity";
 import {lastDatetimeOfMonth, lastDayOfMonth} from "../../../utils/datetime.util";
 import {EmployeeService} from "../employee/employee.service";
-import {HolidayService} from "../holiday/holiday.service";
 import {CreatePayrollDto} from "./dto/create-payroll.dto";
 import {SearchPayrollDto} from "./dto/search-payroll.dto";
 import {UpdatePayrollDto} from "./dto/update-payroll.dto";
@@ -168,7 +167,7 @@ export class PayrollService {
     }
     if (updated) {
       await this.update(id, {total: payslip.total, actualday: payslip.totalWorkday});
-      await this.generateHoliday(id);
+      await this.generateHoliday(id, false);
     }
 
     return Object.assign(updated, {totalWorkday: this.totalActualDay(updated as OnePayroll)});
@@ -492,14 +491,14 @@ export class PayrollService {
       .reduce((a, b) => a + b, 0);
   }
 
-  async generateHoliday(payrollId: number) {
+  async generateHoliday(payrollId: number, isValidate = true) {
     // throw new BadRequestException("Tính năng đang trong giai đoạn bảo trì. Thời gian hoàn thành dự kiến chưa xác định. Xin cảm ơn");
     let worksInHoliday = [];
     let worksNotInHoliday = [];
 
     const payroll = await this.findOne(payrollId);
     const currentHoliday = await this.repository.findCurrentHolidays(payroll.createdAt, payroll.employee.positionId);
-    if (!currentHoliday.length) {
+    if (!currentHoliday.length && isValidate) {
       throw new NotFoundException(`Không tồn tại ngày lễ hợp lệ trong tháng ${moment(payroll.createdAt).format("MM/YYYY")}`);
     }
     if (currentHoliday && currentHoliday.length) {
@@ -1297,9 +1296,9 @@ export class PayrollService {
         filterType: exportType
       });
 
-      const payroll = res.data.filter(payroll => !payroll.accConfirmedAt).map(payroll => payroll.id);
-      if (payroll.length) {
-        throw new BadRequestException(`Các phiếu lương ${payroll.join(", ")} chưa được xác nhận. Vui lòng xác nhận phiếu lương để in.`);
+      const payrolls = res.data.filter(payroll => !payroll.accConfirmedAt).map(payroll => payroll.id);
+      if (payrolls.length) {
+        throw `Các phiếu lương ${payrolls.join(", ")} chưa được xác nhận. Vui lòng xác nhận phiếu lương để in.`;
       }
 
       switch (exportType) {
