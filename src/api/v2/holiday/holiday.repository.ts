@@ -4,7 +4,7 @@ import {CreateHolidayDto} from "./dto/create-holiday.dto";
 import {UpdateHolidayDto} from "./dto/update-holiday.dto";
 import {SearchHolidayDto} from "./dto/search-holiday.dto";
 import {firstDatetimeOfMonth, lastDatetimeOfMonth,} from "../../../utils/datetime.util";
-import {Position} from "@prisma/client";
+import {Position, SalaryType} from "@prisma/client";
 
 @Injectable()
 export class HolidayRepository {
@@ -93,8 +93,10 @@ export class HolidayRepository {
           datetime: {
             in: holiday.datetime,
           },
+          type: {in: [SalaryType.HOLIDAY]},
           payroll: {
             employee: {
+              lastName: {startsWith: search?.name, mode: "insensitive"},
               branch: {name: {startsWith: search?.branch, mode: "insensitive"}},
               position: {name: {startsWith: search?.position, mode: "insensitive"}},
             },
