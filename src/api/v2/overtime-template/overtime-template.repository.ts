@@ -1,8 +1,4 @@
-import {
-  BadRequestException,
-  Injectable,
-  NotFoundException,
-} from "@nestjs/common";
+import {BadRequestException, Injectable, NotFoundException,} from "@nestjs/common";
 import {PrismaService} from "../../../prisma.service";
 import {CreateOvertimeTemplateDto} from "./dto/create-overtime-template.dto";
 import {SearchOvertimeTemplateDto} from "./dto/search-overtime-template.dto";

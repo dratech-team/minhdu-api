@@ -18,7 +18,12 @@ export class OvertimeTemplateService {
     skip: number,
     search: Partial<SearchOvertimeTemplateDto>
   ) {
-    return await this.repository.findAll(take, skip, Object.assign(search, {positionIds: Array.isArray(search?.positionIds) ? search?.positionIds?.map(id => Number(id)) : +search?.positionIds}));
+    const positionIds = (search?.positionIds || search?.positionIds?.length)
+      ? Array.isArray(search?.positionIds)
+        ? search?.positionIds?.map(id => Number(id))
+        : Array.from(search?.positionIds).map(positionId => Number(positionId))
+      : [];
+    return await this.repository.findAll(take, skip, Object.assign(search, {positionIds}));
   }
 
   async findFirst(query: any) {
