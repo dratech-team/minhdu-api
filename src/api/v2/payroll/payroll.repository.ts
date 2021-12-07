@@ -330,7 +330,7 @@ export class PayrollRepository {
         throw new NotFoundException("Phiếu lương không tồn tại");
       }
 
-      const payrolls = await this.findIds(payroll.createdAt, payroll.employee.type);
+      const payrolls = await this.findIds(payroll.createdAt, payroll.employee.type, payroll.employee.branchId);
       return Object.assign(payroll, {payrollIds: payrolls.map(payroll => payroll.id)});
     } catch (e) {
       console.error(e);
@@ -467,11 +467,12 @@ export class PayrollRepository {
     }));
   }
 
-  async findIds(createdAt: Date, employeeType?: EmployeeType) {
+  async findIds(createdAt: Date, employeeType?: EmployeeType, branchId?: number) {
     try {
       return await this.prisma.payroll.findMany({
         where: {
           employee: {
+            branch: {id: {in: branchId}},
             type: {equals: employeeType || EmployeeType.FULL_TIME}
           },
           createdAt: {

@@ -166,9 +166,10 @@ export class PayrollService {
           `${user.role} Bạn không có quyền xác nhận phiếu lương. Cảm ơn.`
         );
     }
-
     if (updated) {
-      await this.update(id, {total: payslip.total});
+      console.log(payslip.totalWorkday)
+      await this.update(id, {total: payslip.total, actualday: payslip.totalWorkday});
+      await this.generateHoliday(id);
     }
 
     return Object.assign(updated, {totalWorkday: this.totalActualDay(updated as OnePayroll)});
