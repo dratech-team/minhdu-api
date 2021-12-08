@@ -139,7 +139,7 @@ export class SalaryRepository {
       // không thể thêm cùng vắng 1 buổi hoặc cùng vắng 1 ngày.
       if (body.partial === salary.partial) {
         throw new BadRequestException(`Ngày ${moment(body.datetime as Date).format(
-          "DD/MM/YYYY"
+            "DD/MM/YYYY"
           )} đã tồn tại đi trễ / về sớm / không đi làm / vắng đã tồn tại ${body.partial}. Vui lòng kiểm tra lại`
         );
       }
@@ -147,7 +147,7 @@ export class SalaryRepository {
       // Đã tổn tại vắng 1 buổi. chặn thêm văng 1 ngày
       if ((salary.partial === PartialDay.MORNING || salary.partial === PartialDay.AFTERNOON) && body.partial === PartialDay.ALL_DAY) {
         throw new BadRequestException(`Ngày ${moment(body.datetime as Date).format(
-          "DD/MM/YYYY"
+            "DD/MM/YYYY"
           )} đã tồn tại đi trễ / về sớm / không đi làm / vắng đã tồn tại 1 buổi ${salary.partial} nên không thể thêm vắng 1 ngày . Vui lòng kiểm tra lại`
         );
       }
@@ -155,7 +155,7 @@ export class SalaryRepository {
       // Đã tồn tại vắng 1 ngày. không thể thêm vắng 1 buổi.
       if ((salary.partial === PartialDay.ALL_DAY) && (body.partial === PartialDay.MORNING || PartialDay.AFTERNOON)) {
         throw new BadRequestException(`Ngày ${moment(body.datetime as Date).format(
-          "DD/MM/YYYY"
+            "DD/MM/YYYY"
           )} đã tồn tại đi trễ / về sớm / không đi làm / vắng đã tồn tại vắng 1 ngày nên không thể thêm vắng 1 buổi ${salary.partial}. Vui lòng kiểm tra lại`
         );
       }
@@ -327,6 +327,7 @@ export class SalaryRepository {
           title: updates.title,
           type: updates.type,
           unit: updates.unit,
+          partial: updates.partial,
           datetime: updates.datetime as Date,
           times: updates.times,
           forgot: updates.forgot,
@@ -404,7 +405,7 @@ export class SalaryRepository {
       });
 
       if (!payroll) {
-        throw new BadRequestException(`Không tồn tại phiếu lương của tháng ${moment(updates.datetime as Date).format("MM/YYYY")}`)
+        throw new BadRequestException(`Không tồn tại phiếu lương của tháng ${moment(updates.datetime as Date).format("MM/YYYY")}`);
       }
 
       const deleted = this.prisma.salary.delete({where: {id}});
