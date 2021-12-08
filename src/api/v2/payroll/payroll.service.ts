@@ -104,10 +104,7 @@ export class PayrollService {
         return {
           total,
           data: data.map(payroll => {
-            if (payroll.accConfirmedAt) {
-              return Object.assign(payroll, {payslip: this.totalSalaryCT3(payroll)});
-            }
-            return payroll;
+            return Object.assign(payroll, {payslip: payroll.accConfirmedAt ? this.totalSalaryCT3(payroll) : null});
           }),
         };
       }
@@ -167,7 +164,7 @@ export class PayrollService {
         );
     }
     if (updated) {
-      await this.update(id, {total: payslip.total, actualday: payslip.totalWorkday});
+      await this.update(id, {total: payslip?.total, actualday: payslip?.totalWorkday});
       await this.generateHoliday(id, false);
     }
 
@@ -266,7 +263,7 @@ export class PayrollService {
     return (await this.mapPayslip(payroll)).payslip;
   }
 
-  async mapPayslip(payroll): Promise<{ payslip: PayslipEntity } | null> {
+  async mapPayslip(payroll) {
     try {
       switch (payroll.employee.recipeType) {
         case RecipeType.CT1: {
@@ -1232,24 +1229,6 @@ export class PayrollService {
     // Không quan tâm đến ngày công thực tế hay ngày công chuẩn. Nếu không đi làm trong ngày lễ thì vẫn được hưởng lương như thường
     payslipNotInHoliday = worksNotInHoliday.map(w => w.day).reduce((a, b) => a + b, 0) * (basic.price / PAYSLIP_WORKDAY_HOLIDAY);
 
-    /// FIXME: TESTING. DON'T DELETE IT
-    // console.warn("Lương cơ bản", basicSalary);
-    // console.warn("Ngày công chuẩn", workday);
-    // console.warn("Ngày công thực tế trừ ngày lễ", workdayNotInHoliday);
-    // console.warn("Tổng ngày công thực nhận lương", totalWorkday);
-    // console.warn("Tổng lương đi làm ngày lễ", payslipInHoliday);
-    // console.warn("Lương không đi làm ngày lễ", payslipNotInHoliday);
-    // console.warn("Tổng phụ cấp", staySalary);
-    // console.warn("Tổng tiền khấu trừ", absentDaySalary);
-    //
-    // console.warn("=====================================================");
-    //
-    // console.warn("Tổng lương đi làm ngày lễ", payslipInHoliday);
-    // console.warn("Tổng phụ cấp", staySalary);
-    // console.warn("Thuees", tax);
-    // console.warn("Tổng tiền tăng ca", overtimeSalary);
-    // console.warn("total", total);
-
     let total: number;
     if (actualDay >= workday) {
       total = basicDaySalary * actualDay + Math.ceil(allowanceTotal) + staySalary + payslipInHoliday + payslipNotInHoliday + overtimeSalary - deductionSalary - bscSalary - tax;
@@ -1290,6 +1269,25 @@ export class PayrollService {
     endedAt?: Date
   ) {
     try {
+
+      const customs = {
+        name: "Họ và tên",
+        position: "Chức vụ",
+        basicSalary: "Tổng Lương cơ bản",
+        staySalary: "Tổng phụ cấp ở lại",
+        workday: "Ngày công chuẩn",
+        workdayInHoliday: "Ngày Lễ đi làm",
+        payslipInHoliday: "Lương lễ đi làm",
+        workdayNotInHoliday: "Ngày Lễ không đi làm",
+        payslipNotInHoliday: "Lương lễ không đi làm",
+        totalWorkday: "Tổng ngày thực tế",
+        stay: "Tổng lương phụ cấp",
+        payslipOutOfWorkday: "Lương ngoài giờ x2",
+        allowance: "Phụ câp",
+        tax: "Thuế",
+        total: "Tổng lương",
+      };
+
       const res = await this.findAll(profile, undefined, undefined, {
         createdAt,
         startedAt,
@@ -1304,7 +1302,7 @@ export class PayrollService {
 
       switch (exportType) {
         case FilterTypeEnum.PAYROLL: {
-          return await this.exportPayroll(response, filename, createdAt, res.data);
+          return await this.exportPayroll(response, filename, createdAt, res.data, Object.keys(customs), Object.values(customs));
         }
         case FilterTypeEnum.TIME_SHEET: {
           return await this.exportTimeSheet(response, filename, createdAt, res.data);
@@ -1323,44 +1321,24 @@ export class PayrollService {
     }
   }
 
-  async exportPayroll(response: Response, filename: string, datetime: Date, data) {
+  async exportPayroll(response: Response, filename: string, datetime: Date, data, headers: string[], keys: string[]) {
     const payrolls = await Promise.all(
       data.map(async (payroll) => {
         const name = payroll.employee.lastName;
         const position = payroll.employee.position.name;
         const payslip = (await this.mapPayslip(payroll)).payslip;
-        return Object.assign(payslip, {name, position})
+        return Object.assign(payslip, {name, position});
       })
     );
 
-    const customs = {
-      name: "Họ và tên",
-      position: "Chức vụ",
-      basicSalary: "Tổng Lương cơ bản",
-      staySalary: "Tổng phụ cấp ở lại",
-      workday: "Ngày công chuẩn",
-      workdayInHoliday: "Ngày Lễ đi làm",
-      payslipInHoliday: "Lương lễ đi làm",
-      workdayNotInHoliday: "Ngày Lễ không đi làm",
-      payslipNotInHoliday: "Lương lễ không đi làm",
-      totalWorkday: "Tổng ngày thực tế",
-      stay: "Tổng lương phụ cấp",
-      payslipOutOfWorkday: "Lương ngoài giờ x2",
-      allowance: "Phụ câp",
-      tax: "Thuế",
-      total: "Tổng lương",
-    };
-
-    const customKeys = Object.keys(customs);
-    const customHeaders = Object.values(customs);
 
     return exportExcel(
       response,
       {
         name: filename,
         title: `Bảng lương tháng ${new Date(datetime).getMonth() + 1} năm ${new Date(datetime).getFullYear()}`,
-        customHeaders: customHeaders,
-        customKeys: customKeys,
+        customHeaders: headers,
+        customKeys: keys,
         data: payrolls,
       },
       200
