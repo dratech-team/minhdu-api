@@ -1273,39 +1273,51 @@ export class PayrollService {
       const customs = {
         name: "Họ và tên",
         position: "Chức vụ",
-        basicSalary: "Tổng Lương cơ bản",
-        staySalary: "Tổng phụ cấp ở lại",
+        basic: "Tổng Lương cơ bản",
+        stay: "Tổng phụ cấp ở lại",
+        overtime: "Tổng tiền tăng ca",
+        deduction: "Tổng tiền khấu trừ",
+        allowance: "Tổng tiền phụ cấp",
         workday: "Ngày công chuẩn",
-        workdayInHoliday: "Ngày Lễ đi làm",
+        bsc: "Quên giấy phép/BSC",
+        bscSalary: "Tổng tiền quên giấy phép/BSC",
+        workdayNotInHoliday: "Tổng công trừ ngày lễ",
+        payslipNormalDay: "Tổng lương trừ ngày lễ",
+        worksInHoliday: "Ngày Lễ đi làm",
         payslipInHoliday: "Lương lễ đi làm",
-        workdayNotInHoliday: "Ngày Lễ không đi làm",
+        worksNotInHoliday: "Ngày lễ không đi làm",
         payslipNotInHoliday: "Lương lễ không đi làm",
         totalWorkday: "Tổng ngày thực tế",
-        stay: "Tổng lương phụ cấp",
         payslipOutOfWorkday: "Lương ngoài giờ x2",
-        allowance: "Phụ câp",
         tax: "Thuế",
         total: "Tổng lương",
       };
 
-      const res = await this.findAll(profile, undefined, undefined, {
+      const res = (await this.findAll(profile, undefined, undefined, {
         createdAt,
         startedAt,
         endedAt,
         filterType: exportType
-      });
-
-      const payrolls = res.data.filter(payroll => !payroll.accConfirmedAt).map(payroll => payroll.id);
+      })).data.map((payroll) =>
+        Object.assign(payroll, {
+            payslip: Object.assign(payroll.payslip, {
+              worksInHoliday: payroll?.payslip?.worksInHoliday?.map(holiday => holiday?.day)?.reduce((a, b) => a + b, 0),
+              worksNotInHoliday: payroll?.payslip?.worksNotInHoliday?.map(holiday => holiday?.day)?.reduce((a, b) => a + b, 0),
+            })
+          }
+        )
+      );
+      const payrolls = res.filter(payroll => !payroll.accConfirmedAt).map(payroll => payroll.id);
       if (payrolls.length) {
         throw `Các phiếu lương ${payrolls.join(", ")} chưa được xác nhận. Vui lòng xác nhận phiếu lương để in.`;
       }
 
       switch (exportType) {
         case FilterTypeEnum.PAYROLL: {
-          return await this.exportPayroll(response, filename, createdAt, res.data, Object.keys(customs), Object.values(customs));
+          return await this.exportPayroll(response, filename, createdAt, res, Object.values(customs), Object.keys(customs));
         }
         case FilterTypeEnum.TIME_SHEET: {
-          return await this.exportTimeSheet(response, filename, createdAt, res.data);
+          return await this.exportTimeSheet(response, filename, createdAt, res);
         }
         case FilterTypeEnum.OVERTIME: {
           if (!(startedAt || endedAt)) {
@@ -1326,11 +1338,9 @@ export class PayrollService {
       data.map(async (payroll) => {
         const name = payroll.employee.lastName;
         const position = payroll.employee.position.name;
-        const payslip = (await this.mapPayslip(payroll)).payslip;
-        return Object.assign(payslip, {name, position});
+        return Object.assign(payroll.payslip, {name, position});
       })
     );
-
 
     return exportExcel(
       response,
