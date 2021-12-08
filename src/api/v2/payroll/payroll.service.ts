@@ -20,6 +20,7 @@ import {SearchOvertimePayrollDto} from "./dto/search-overtime-payroll.dto";
 import {OvertimeTemplateService} from "../overtime-template/overtime-template.service";
 import {rageDaysInMonth, timesheet} from "./functions/timesheet";
 import {FilterTypeEnum} from "./entities/filter-type.enum";
+import {PayslipEntity} from "./entities/payslip.entity";
 
 
 @Injectable()
@@ -144,7 +145,7 @@ export class PayrollService {
     if (!payroll.salaries.filter(salary => salary.type === SalaryType.BASIC_INSURANCE).length) {
       throw new BadRequestException(`Phiếu lương thiếu lương cơ bản trích BH. Cần thêm mục này để xác nhận`);
     }
-    const payslip = await this.mapPayslip(payroll);
+    const payslip = (await this.mapPayslip(payroll)).payslip;
 
     switch (user.role) {
       case RoleEnum.CAMP_ACCOUNTING:
@@ -265,7 +266,7 @@ export class PayrollService {
     return (await this.mapPayslip(payroll)).payslip;
   }
 
-  async mapPayslip(payroll) {
+  async mapPayslip(payroll): Promise<{ payslip: PayslipEntity } | null> {
     try {
       switch (payroll.employee.recipeType) {
         case RecipeType.CT1: {
@@ -892,7 +893,7 @@ export class PayrollService {
       allowance: allowanceTotal,
       payslipInHoliday,
       payslipNotInHoliday,
-      workdayNotInHoliday,
+      workdayNotInHoliday: workdayNotInHoliday,
       worksInHoliday,
       worksNotInHoliday,
       deduction: deductionSalary,
@@ -1328,41 +1329,21 @@ export class PayrollService {
         const name = payroll.employee.lastName;
         const position = payroll.employee.position.name;
         const payslip = (await this.mapPayslip(payroll)).payslip;
-        return {
-          name,
-          position,
-          basicSalary: Math.round(payslip.basic),
-          standardSalary: Math.round(payslip.totalStandard),
-          staySalary: Math.round(payslip.stay),
-          workday: payslip.workday,
-          workdayNotInHoliday: Math.round(payslip.workdayNotInHoliday),
-          payslipInHoliday: Math.round(payslip.payslipInHoliday),
-          payslipNotInHoliday: Math.round(payslip.payslipNotInHoliday),
-          totalWorkday: payslip.totalWorkday,
-          payslipWorkDayNotInHoliday: Math.round(
-            payslip.payslipWorkDayNotInHoliday
-          ),
-          stay: Math.round(payslip.stay),
-          payslipOutOfWorkday: Math.round(payslip.payslipOutOfWorkday),
-          allowance: Math.round(payslip.allowance),
-          tax: Math.round(payslip.tax),
-          total: Math.round(payslip.total),
-        };
+        return Object.assign(payslip, {name, position})
       })
     );
 
     const customs = {
       name: "Họ và tên",
       position: "Chức vụ",
-      basicSalary: "Lương cơ bản",
-      standardSalary: "Tổng lương chuẩn",
+      basicSalary: "Tổng Lương cơ bản",
       staySalary: "Tổng phụ cấp ở lại",
       workday: "Ngày công chuẩn",
-      workdayNotInHoliday: "Ngày công thực tế trừ lễ",
-      payslipInHoliday: "Lương ngày lễ",
-      payslipNotInHoliday: "Lương trừ ngày lễ",
+      workdayInHoliday: "Ngày Lễ đi làm",
+      payslipInHoliday: "Lương lễ đi làm",
+      workdayNotInHoliday: "Ngày Lễ không đi làm",
+      payslipNotInHoliday: "Lương lễ không đi làm",
       totalWorkday: "Tổng ngày thực tế",
-      payslipWorkDayNotInHoliday: "Tổng ngày trừ ngày lễ",
       stay: "Tổng lương phụ cấp",
       payslipOutOfWorkday: "Lương ngoài giờ x2",
       allowance: "Phụ câp",
