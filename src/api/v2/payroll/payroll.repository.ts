@@ -375,11 +375,12 @@ export class PayrollRepository {
       return await this.prisma.payroll.update({
         where: {id: id},
         data: {
-          isEdit: !!updates.accConfirmedAt,
+          isEdit: !!updates?.accConfirmedAt,
           accConfirmedAt: updates?.accConfirmedAt,
-          paidAt: updates.paidAt || undefined,
-          manConfirmedAt: updates?.manConfirmedAt || null,
-          actualday: updates.actualday,
+          paidAt: updates?.paidAt,
+          total: updates?.total,
+          manConfirmedAt: updates?.manConfirmedAt,
+          actualday: updates?.actualday,
           taxed: updates?.taxed,
         },
         include: {
