@@ -233,9 +233,12 @@ export class PayrollRepository {
         where: {
           datetime: search?.createdAt && (search?.salaryType === SalaryType.ABSENT || search?.salaryType === SalaryType.DAY_OFF) ? {
             in: search?.createdAt
-          } : {
+          } : search?.startedAt && search?.endedAt ? {
             gte: search?.startedAt,
             lte: search?.endedAt,
+          } : {
+            gte: firstDatetimeOfMonth(search?.createdAt),
+            lte: lastDatetimeOfMonth(search?.createdAt),
           },
           title: {startsWith: search?.salaryTitle, mode: "insensitive"},
           price: search?.salaryPrice ? {equals: search?.salaryPrice} : {},
@@ -256,9 +259,12 @@ export class PayrollRepository {
         where: {
           datetime: search?.createdAt && (search?.salaryType === SalaryType.ABSENT || search?.salaryType === SalaryType.DAY_OFF) ? {
             in: search?.createdAt
-          } : {
+          } : search?.startedAt && search?.endedAt ? {
             gte: search?.startedAt,
             lte: search?.endedAt,
+          } : {
+            gte: firstDatetimeOfMonth(search?.createdAt),
+            lte: lastDatetimeOfMonth(search?.createdAt),
           },
           title: {startsWith: search?.salaryTitle, mode: "insensitive"},
           price: search?.salaryPrice ? {equals: search?.salaryPrice} : {},
