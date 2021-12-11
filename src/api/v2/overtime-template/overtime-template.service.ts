@@ -21,7 +21,7 @@ export class OvertimeTemplateService {
     const positionIds = (search?.positionIds || search?.positionIds?.length)
       ? Array.isArray(search?.positionIds)
         ? search?.positionIds?.map(id => Number(id))
-        : Array.from(search?.positionIds).map(positionId => Number(positionId))
+        : Array.of(search?.positionIds).map(positionId => Number(positionId))
       : [];
     return await this.repository.findAll(take, skip, Object.assign(search, {positionIds}));
   }

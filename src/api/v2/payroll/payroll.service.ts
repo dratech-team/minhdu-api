@@ -1301,7 +1301,7 @@ export class PayrollService {
   ) {
     try {
       // const customs = items.reduce((a, v, index) => ({...a, [v['key']]: v['value']}), {});
-      const customs =  {
+      const customs = {
         name: "Họ và tên",
         position: "Chức vụ",
         basic: "Tổng Lương cơ bản",
@@ -1328,19 +1328,19 @@ export class PayrollService {
         startedAt,
         endedAt,
         filterType: exportType
-      })).data.map((payroll) =>
-        Object.assign(payroll, {
-            payslip: Object.assign(payroll.payslip, {
-              worksInHoliday: payroll?.payslip?.worksInHoliday?.map(holiday => holiday?.day)?.reduce((a, b) => a + b, 0),
-              worksNotInHoliday: payroll?.payslip?.worksNotInHoliday?.map(holiday => holiday?.day)?.reduce((a, b) => a + b, 0),
-            })
+      })).data.map((payroll) => {
+          if (!payroll.accConfirmedAt) {
+            throw new BadRequestException(`Phiếu lương ${payroll.id} chưa được xác nhận. Vui lòng xác nhận phiếu lương để in.`);
           }
-        )
+          return Object.assign(payroll, {
+              payslip: Object.assign(payroll.payslip, {
+                worksInHoliday: payroll?.payslip?.worksInHoliday?.map(holiday => holiday?.day)?.reduce((a, b) => a + b, 0),
+                worksNotInHoliday: payroll?.payslip?.worksNotInHoliday?.map(holiday => holiday?.day)?.reduce((a, b) => a + b, 0),
+              })
+            }
+          )
+        }
       );
-      const payrolls = res.filter(payroll => !payroll.accConfirmedAt).map(payroll => payroll.id);
-      if (payrolls.length) {
-        throw `Các phiếu lương ${payrolls.join(", ")} chưa được xác nhận. Vui lòng xác nhận phiếu lương để in.`;
-      }
 
       switch (exportType) {
         case FilterTypeEnum.PAYROLL: {

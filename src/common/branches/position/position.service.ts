@@ -1,30 +1,28 @@
-import { BadRequestException, Injectable } from "@nestjs/common";
-import { Position } from "@prisma/client";
-import { CreatePositionDto } from "./dto/create-position.dto";
-import { UpdatePositionDto } from "./dto/update-position.dto";
-import { PositionRepository } from "./position.repository";
-import { OnePosition } from "./entities/position.entity";
+import {BadRequestException, Injectable} from "@nestjs/common";
+import {Position} from "@prisma/client";
+import {CreatePositionDto} from "./dto/create-position.dto";
+import {UpdatePositionDto} from "./dto/update-position.dto";
+import {PositionRepository} from "./position.repository";
+import {OnePosition} from "./entities/position.entity";
+import {SearchPositionDto} from "./dto/search-position.dto";
 
 @Injectable()
 export class PositionService {
-  constructor(private readonly repository: PositionRepository) {}
+  constructor(private readonly repository: PositionRepository) {
+  }
 
   async create(body: CreatePositionDto): Promise<Position> {
-    const positions = this.findBy(body);
+    const found = await this.findOne(body.positionId);
+    const positions = this.findAll({position: found.name, workday: body.workday});
     if (!(await positions).length && body.name) {
       return await this.repository.create(body);
     } else if (body.positionId && body.workday) {
-      return await this.update(body.positionId, { workday: body.workday });
+      return await this.update(body.positionId, {workday: body.workday});
     }
   }
 
-  // @ts-ignore
-  async findAll(): Promise<Position[]> {
-    return this.repository.findAll();
-  }
-
-  async findBy(query: CreatePositionDto): Promise<Position[]> {
-    return await this.repository.findMany(query);
+  async findAll(search: Partial<SearchPositionDto>): Promise<Position[]> {
+    return this.repository.findAll(search);
   }
 
   findBranch(id: number): Promise<any> {

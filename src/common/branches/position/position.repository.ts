@@ -4,6 +4,7 @@ import {CreatePositionDto} from "./dto/create-position.dto";
 import {Position} from "@prisma/client";
 import {UpdatePositionDto} from "./dto/update-position.dto";
 import {OnePosition} from "./entities/position.entity";
+import {SearchPositionDto} from "./dto/search-position.dto";
 
 @Injectable()
 export class PositionRepository {
@@ -40,26 +41,16 @@ export class PositionRepository {
     }
   }
 
-  async findAll(): Promise<Position[]> {
-    try {
-      return await this.prisma.position.findMany({
-        include: {
-          _count: true
-        }
-      });
-    } catch (e) {
-      console.error(e);
-      throw new BadRequestException(e);
-    }
-  }
-
-  async findMany(search: CreatePositionDto): Promise<Position[]> {
+  async findAll(search: Partial<SearchPositionDto>): Promise<Position[]> {
     try {
       return await this.prisma.position.findMany({
         where: {
-          name: search.name,
-          workday: search.workday,
+          name: {startsWith: search?.position, mode: "insensitive"},
+          workday: search?.workday,
         },
+        include: {
+          _count: true
+        }
       });
     } catch (e) {
       console.error(e);

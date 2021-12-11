@@ -1,7 +1,8 @@
-import {Controller, Get, Post, Body, Patch, Param, Delete, Query} from '@nestjs/common';
+import {Body, Controller, Delete, Get, Param, Patch, Post, Query} from '@nestjs/common';
 import {PositionService} from './position.service';
 import {CreatePositionDto} from './dto/create-position.dto';
 import {UpdatePositionDto} from './dto/update-position.dto';
+import {SearchPositionDto} from "./dto/search-position.dto";
 
 @Controller('v2/position')
 export class PositionController {
@@ -14,8 +15,8 @@ export class PositionController {
   }
 
   @Get()
-  findAll() {
-    return this.positionService.findAll();
+  findAll(@Query() search: SearchPositionDto) {
+    return this.positionService.findAll(search);
   }
 
   @Get(':id')
