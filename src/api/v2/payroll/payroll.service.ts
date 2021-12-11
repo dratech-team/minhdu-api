@@ -893,6 +893,7 @@ export class PayrollService {
       workdayNotInHoliday: workdayNotInHoliday,
       worksInHoliday,
       worksNotInHoliday,
+      payslipOutOfWorkday: 0,
       deduction: deductionSalary,
       daySalary: basicDaySalary,
       totalWorkday: actualDay,
@@ -1079,6 +1080,7 @@ export class PayrollService {
       workdayNotInHoliday,
       worksInHoliday,
       worksNotInHoliday,
+      payslipOutOfWorkday: 0,
       deduction: deductionSalary,
       daySalary: basicDaySalary,
       totalWorkday: actualDay,
@@ -1246,6 +1248,7 @@ export class PayrollService {
       workdayNotInHoliday,
       worksInHoliday,
       worksNotInHoliday,
+      payslipOutOfWorkday: 0,
       deduction: deductionSalary,
       daySalary: basicDaySalary,
       totalWorkday: actualDay,
@@ -1297,7 +1300,29 @@ export class PayrollService {
     endedAt?: Date
   ) {
     try {
-      const customs = items.reduce((a, v, index) => ({...a, [v['key']]: v['value']}), {});
+      // const customs = items.reduce((a, v, index) => ({...a, [v['key']]: v['value']}), {});
+      const customs =  {
+        name: "Họ và tên",
+        position: "Chức vụ",
+        basic: "Tổng Lương cơ bản",
+        stay: "Tổng phụ cấp ở lại",
+        overtime: "Tổng tiền tăng ca",
+        deduction: "Tổng tiền khấu trừ",
+        allowance: "Tổng tiền phụ cấp",
+        workday: "Ngày công chuẩn",
+        bsc: "Quên giấy phép/BSC",
+        bscSalary: "Tổng tiền quên giấy phép/BSC",
+        workdayNotInHoliday: "Tổng công trừ ngày lễ",
+        payslipNormalDay: "Tổng lương trừ ngày lễ",
+        worksInHoliday: "Ngày Lễ đi làm",
+        payslipInHoliday: "Lương lễ đi làm",
+        worksNotInHoliday: "Ngày lễ không đi làm",
+        payslipNotInHoliday: "Lương lễ không đi làm",
+        totalWorkday: "Tổng ngày thực tế",
+        payslipOutOfWorkday: "Lương ngoài giờ x2",
+        tax: "Thuế",
+        total: "Tổng lương",
+      };
       const res = (await this.findAll(profile, undefined, undefined, {
         createdAt,
         startedAt,

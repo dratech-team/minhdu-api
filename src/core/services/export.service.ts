@@ -66,7 +66,7 @@ export async function exportExcel(
 
   worksheet.eachRow((row, _) => {
     row.eachCell((cell, colNumber) => {
-      if (cell.value) row.getCell(colNumber).border = borders;
+      row.getCell(colNumber).border = borders;
     });
   });
 
@@ -76,7 +76,7 @@ export async function exportExcel(
     "Content-Disposition",
     `${result.name} (${JSON.stringify(moment(new Date()).format(
       "DD-MM-YYYY"
-    )) }).xlsx`
+    ))}).xlsx`
   );
 
   response.setHeader(
