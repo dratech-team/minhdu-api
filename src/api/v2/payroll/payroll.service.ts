@@ -20,7 +20,7 @@ import {SearchOvertimePayrollDto} from "./dto/search-overtime-payroll.dto";
 import {OvertimeTemplateService} from "../overtime-template/overtime-template.service";
 import {rageDaysInMonth, timesheet} from "./functions/timesheet";
 import {FilterTypeEnum} from "./entities/filter-type.enum";
-import {PayslipEntity} from "./entities/payslip.entity";
+import {ItemExportDto} from "./dto/items-export.dto";
 
 
 @Injectable()
@@ -1258,41 +1258,46 @@ export class PayrollService {
     };
   }
 
+  itemsExport() {
+    const customs = {
+      name: "Họ và tên",
+      position: "Chức vụ",
+      basic: "Tổng Lương cơ bản",
+      stay: "Tổng phụ cấp ở lại",
+      overtime: "Tổng tiền tăng ca",
+      deduction: "Tổng tiền khấu trừ",
+      allowance: "Tổng tiền phụ cấp",
+      workday: "Ngày công chuẩn",
+      bsc: "Quên giấy phép/BSC",
+      bscSalary: "Tổng tiền quên giấy phép/BSC",
+      workdayNotInHoliday: "Tổng công trừ ngày lễ",
+      payslipNormalDay: "Tổng lương trừ ngày lễ",
+      worksInHoliday: "Ngày Lễ đi làm",
+      payslipInHoliday: "Lương lễ đi làm",
+      worksNotInHoliday: "Ngày lễ không đi làm",
+      payslipNotInHoliday: "Lương lễ không đi làm",
+      totalWorkday: "Tổng ngày thực tế",
+      payslipOutOfWorkday: "Lương ngoài giờ x2",
+      tax: "Thuế",
+      total: "Tổng lương",
+    };
+
+    return Object.keys(customs).map((key) => ({key: key, value: customs[key]}));
+  }
+
 
   async export(
     response: Response,
     profile: ProfileEntity,
     filename: string,
     createdAt: Date,
+    items: ItemExportDto[],
     exportType?: FilterTypeEnum,
     startedAt?: Date,
     endedAt?: Date
   ) {
     try {
-
-      const customs = {
-        name: "Họ và tên",
-        position: "Chức vụ",
-        basic: "Tổng Lương cơ bản",
-        stay: "Tổng phụ cấp ở lại",
-        overtime: "Tổng tiền tăng ca",
-        deduction: "Tổng tiền khấu trừ",
-        allowance: "Tổng tiền phụ cấp",
-        workday: "Ngày công chuẩn",
-        bsc: "Quên giấy phép/BSC",
-        bscSalary: "Tổng tiền quên giấy phép/BSC",
-        workdayNotInHoliday: "Tổng công trừ ngày lễ",
-        payslipNormalDay: "Tổng lương trừ ngày lễ",
-        worksInHoliday: "Ngày Lễ đi làm",
-        payslipInHoliday: "Lương lễ đi làm",
-        worksNotInHoliday: "Ngày lễ không đi làm",
-        payslipNotInHoliday: "Lương lễ không đi làm",
-        totalWorkday: "Tổng ngày thực tế",
-        payslipOutOfWorkday: "Lương ngoài giờ x2",
-        tax: "Thuế",
-        total: "Tổng lương",
-      };
-
+      const customs = items.reduce((a, v, index) => ({...a, [v['key']]: v['value']}), {});
       const res = (await this.findAll(profile, undefined, undefined, {
         createdAt,
         startedAt,

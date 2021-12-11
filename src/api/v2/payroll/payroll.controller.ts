@@ -15,6 +15,7 @@ import {Roles} from "../../../core/decorators/roles.decorator";
 import {ConfirmPayrollDto} from "./dto/confirm-payroll.dto";
 import {SearchType} from "./entities/search.type.enum";
 import {FilterTypeEnum} from "./entities/filter-type.enum";
+import {ItemExportDto} from "./dto/items-export.dto";
 
 @Controller(ApiV2Constant.PAYROLL)
 @UseGuards(JwtAuthGuard, ApiKeyGuard, RolesGuard)
@@ -162,7 +163,15 @@ export class PayrollController {
     @Query("startedAt", ParseDatetimePipe) startedAt: any,
     @Query("endedAt", ParseDatetimePipe) endedAt: any,
     @Query("exportType") exportType: FilterTypeEnum,
+    @Body('items') items: ItemExportDto[],
   ) {
-    return this.payrollService.export(res, profile, filename, createdAt, exportType, startedAt, endedAt);
+    return this.payrollService.export(res, profile, filename, createdAt, items, exportType, startedAt, endedAt);
+  }
+
+  @Roles(RoleEnum.ADMIN, RoleEnum.HUMAN_RESOURCE, RoleEnum.CAMP_ACCOUNTING)
+  @Get("/export/items")
+  async itemsExport(
+  ) {
+    return this.payrollService.itemsExport();
   }
 }
