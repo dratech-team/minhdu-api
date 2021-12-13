@@ -3,6 +3,7 @@ import {extendMoment} from "moment-range";
 
 const moment = extendMoment(Moment);
 
+
 export function firstDatetimeOfMonth(datetime: string | Date | undefined): Date | undefined {
   return datetime ? moment(datetime).clone().startOf('months').toDate() : undefined;
 }

@@ -1292,7 +1292,7 @@ export class PayrollService {
       }
       case FilterTypeEnum.TIME_SHEET: {
         customs = {
-          name: "Họ và tên",
+          lastName: "Họ và tên",
           position: "Chức vụ",
         };
       }
@@ -1377,21 +1377,20 @@ export class PayrollService {
 
   async exportTimeSheet(response: Response, filename: string, datetime: Date, payrolls, headers: string[], keys: string[]) {
     const datetimes = rageDaysInMonth(datetime).map(date => date.format("DD-MM"));
-    const title = ['Họ và tên', ...datetimes];
+    const title = [...headers, ...datetimes];
     const data = [];
     for (let i = 0; i < payrolls.length; i++) {
       const value = timesheet(payrolls[i].createdAt, payrolls[i].salaries).datetime;
       const ticks = value.map((e, index) => {
         return e[datetimes[index]];
       });
-      ticks.unshift(payrolls[i].employee.lastName);
-      data.push(ticks);
+      data.push(ticks.unshift(payrolls[i].employee));
     }
     return exportExcel(
       response,
       {
         name: filename,
-        customKeys: title,
+        customKeys: keys,
         title: `Phiếu Chấm công tháng ${datetime.getMonth() + 1}`,
         customHeaders: title,
         data: data,
