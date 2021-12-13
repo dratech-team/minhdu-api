@@ -4,12 +4,12 @@ import {extendMoment} from "moment-range";
 const moment = extendMoment(Moment);
 
 
-export function firstDatetimeOfMonth(datetime: string | Date | undefined): Date | undefined {
-  return datetime ? moment(datetime).clone().startOf('months').toDate() : undefined;
+export function firstDatetime(datetime: string | Date | undefined, type?: "years" | "months" | "days"): Date | undefined {
+  return datetime ? moment(datetime).clone().startOf(type || "months").toDate() : undefined;
 }
 
-export function lastDatetimeOfMonth(datetime: string | Date | undefined): Date | undefined {
-  return datetime ? moment(datetime).clone().endOf('months').toDate() : undefined;
+export function lastDatetime(datetime: string | Date | undefined, type?: "years" | "months" | "days"): Date | undefined {
+  return datetime ? moment(datetime).clone().endOf(type || "months").toDate() : undefined;
 }
 
 // Ngày cuối cùng của tháng. Nếu tháng hiện tại thì ngày cuối cùng của tháng là hôm nay

@@ -4,7 +4,7 @@ import {PrismaService} from "../../../prisma.service";
 import {CreateEmployeeDto} from "./dto/create-employee.dto";
 import {SearchEmployeeDto} from "./dto/search-employee.dto";
 import {UpdateEmployeeDto} from "./dto/update-employee.dto";
-import {firstDatetimeOfMonth, lastDatetimeOfMonth} from "../../../utils/datetime.util";
+import {firstDatetime, lastDatetime} from "../../../utils/datetime.util";
 import {EmployeeType} from "@prisma/client";
 import {SearchEmployeeByOvertimeDto} from "./dto/search-employee-by-overtime.dto";
 
@@ -122,8 +122,8 @@ export class EmployeeRepository {
             payrolls: search?.createdPayroll ? {
               some: {
                 createdAt: {
-                  gte: firstDatetimeOfMonth(search?.createdPayroll),
-                  lte: lastDatetimeOfMonth(search?.createdPayroll)
+                  gte: firstDatetime(search?.createdPayroll),
+                  lte: lastDatetime(search?.createdPayroll)
                 }
               }
             } : {},
@@ -161,15 +161,15 @@ export class EmployeeRepository {
             } : search?.createdAt.compare === 'lte' ? {
               lte: search?.createdAt?.datetime,
             } : {
-              gte: firstDatetimeOfMonth(search?.createdAt?.datetime),
-              lte: lastDatetimeOfMonth(search?.createdAt?.datetime)
+              gte: firstDatetime(search?.createdAt?.datetime),
+              lte: lastDatetime(search?.createdAt?.datetime)
             } : {},
             workedAt: search?.workedAt,
             payrolls: search?.createdPayroll ? {
               some: {
                 createdAt: {
-                  gte: firstDatetimeOfMonth(search?.createdPayroll),
-                  lte: lastDatetimeOfMonth(search?.createdPayroll)
+                  gte: firstDatetime(search?.createdPayroll),
+                  lte: lastDatetime(search?.createdPayroll)
                 }
               }
             } : {},

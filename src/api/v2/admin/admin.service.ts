@@ -4,7 +4,7 @@ import {UpdateAdminDto} from './dto/update-admin.dto';
 import {PrismaService} from "../../../prisma.service";
 import {SearchAdminDto} from "./dto/search-admin.dto";
 import {TypeEnum} from "./entities/type.enum";
-import {firstDatetimeOfMonth} from "../../../utils/datetime.util";
+import {firstDatetime} from "../../../utils/datetime.util";
 
 @Injectable()
 export class AdminService {

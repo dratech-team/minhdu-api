@@ -3,7 +3,7 @@ import {PrismaService} from "../../../prisma.service";
 import {CreateHolidayDto} from "./dto/create-holiday.dto";
 import {UpdateHolidayDto} from "./dto/update-holiday.dto";
 import {SearchHolidayDto} from "./dto/search-holiday.dto";
-import {firstDatetimeOfMonth, lastDatetimeOfMonth,} from "../../../utils/datetime.util";
+import {firstDatetime, lastDatetime} from "../../../utils/datetime.util";
 import {Position, SalaryType} from "@prisma/client";
 
 @Injectable()

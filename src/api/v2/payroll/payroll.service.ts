@@ -2,7 +2,7 @@ import {BadRequestException, ConflictException, Injectable, NotFoundException} f
 import {DatetimeUnit, EmployeeType, Payroll, RecipeType, RoleEnum, Salary, SalaryType,} from "@prisma/client";
 import {Response} from "express";
 import {ProfileEntity} from "../../../common/entities/profile.entity";
-import {lastDatetimeOfMonth, lastDayOfMonth} from "../../../utils/datetime.util";
+import {lastDatetime, lastDayOfMonth} from "../../../utils/datetime.util";
 import {EmployeeService} from "../employee/employee.service";
 import {CreatePayrollDto} from "./dto/create-payroll.dto";
 import {SearchPayrollDto} from "./dto/search-payroll.dto";
@@ -43,7 +43,7 @@ export class PayrollService {
           undefined,
           {
             createdAt: {
-              datetime: lastDatetimeOfMonth(body.createdAt),
+              datetime: lastDatetime(body.createdAt),
               compare: 'lte'
             },
             type: employeeType || EmployeeType.FULL_TIME,
@@ -389,7 +389,7 @@ export class PayrollService {
 
         // Lấy từ ngày đến ngày
         const start = moment(salary.datetime, "YYYY-MM-DD");
-        const end = moment(lastDatetimeOfMonth(payroll.createdAt), "YYYY-MM-DD");
+        const end = moment(lastDatetime(payroll.createdAt), "YYYY-MM-DD");
 
         // lấy những ngày vắng thuộc từ ngày bắt đầu tính tới cuối tháng
         const absents = payroll.salaries
