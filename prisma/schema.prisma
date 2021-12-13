@@ -404,7 +404,11 @@ model Payroll {
   isEdit         Boolean?  @default(true)
   manConfirmedAt DateTime?
   paidAt         DateTime?
-  actualday      Float?
+  actualday      Float? // Tổng số ngày làm thực tế
+  absent         Float? // tổng số ngày vắng
+  bsc            Float? // tổng số lần quên giấy phép / bsc
+  branch         String?
+  position       String?
   total          Float?
   taxed          Boolean?  @default(true)
   createdAt      DateTime? @default(now()) // ngay tao phieu luong, phieu luong cua thang

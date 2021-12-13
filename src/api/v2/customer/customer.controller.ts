@@ -11,19 +11,21 @@ import {RolesGuard} from "../../../core/guard/role.guard";
 import {LoggerGuard} from "../../../core/guard/logger.guard";
 import {Roles} from 'src/core/decorators/roles.decorator';
 
-// @UseGuards(JwtAuthGuard, ApiKeyGuard)
+@UseGuards(JwtAuthGuard, ApiKeyGuard)
 @Controller(ApiV2Constant.CUSTOMER)
 export class CustomerController {
   constructor(private readonly customerService: CustomerService) {
   }
 
-  // @UseGuards(RolesGuard, LoggerGuard)
-  // @Roles(RoleEnum.ADMIN)
+  @UseGuards(RolesGuard, LoggerGuard)
+  @Roles(RoleEnum.ADMIN, RoleEnum.SALESMAN)
   @Post()
   create(@Body() createCustomerDto: CreateCustomerDto) {
     return this.customerService.create(createCustomerDto);
   }
 
+  @UseGuards(RolesGuard, LoggerGuard)
+  @Roles(RoleEnum.ADMIN, RoleEnum.SALESMAN)
   @Get()
   findAll(
     @Query("skip") skip: number,
@@ -45,6 +47,8 @@ export class CustomerController {
     });
   }
 
+  @UseGuards(RolesGuard, LoggerGuard)
+  @Roles(RoleEnum.ADMIN, RoleEnum.SALESMAN)
   @Get(':id')
   findOne(@Param('id') id: string) {
     return this.customerService.findOne(+id);
