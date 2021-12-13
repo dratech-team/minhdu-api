@@ -1,11 +1,12 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete } from '@nestjs/common';
-import { CommodityService } from './commodity.service';
-import { CreateCommodityDto } from './dto/create-commodity.dto';
-import { UpdateCommodityDto } from './dto/update-commodity.dto';
+import {Controller, Get, Post, Body, Patch, Param, Delete, Query} from '@nestjs/common';
+import {CommodityService} from './commodity.service';
+import {CreateCommodityDto} from './dto/create-commodity.dto';
+import {UpdateCommodityDto} from './dto/update-commodity.dto';
 
 @Controller('v2/commodity')
 export class CommodityController {
-  constructor(private readonly commodityService: CommodityService) {}
+  constructor(private readonly commodityService: CommodityService) {
+  }
 
   @Post()
   create(@Body() body: CreateCommodityDto) {
@@ -13,8 +14,11 @@ export class CommodityController {
   }
 
   @Get()
-  findAll() {
-    return this.commodityService.findAll();
+  findAll(
+    @Query("take") take: number,
+    @Query("skip") skip: number,
+  ) {
+    return this.commodityService.findAll(+take, +skip);
   }
 
   @Get(':id')

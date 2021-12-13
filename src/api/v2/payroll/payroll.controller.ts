@@ -154,7 +154,7 @@ export class PayrollController {
   }
 
   @Roles(RoleEnum.ADMIN, RoleEnum.HUMAN_RESOURCE, RoleEnum.CAMP_ACCOUNTING)
-  @Get("/export/payroll")
+  @Post("/export/payroll")
   async export(
     @Res() res,
     @ReqProfile() profile: ProfileEntity,
@@ -170,8 +170,7 @@ export class PayrollController {
 
   @Roles(RoleEnum.ADMIN, RoleEnum.HUMAN_RESOURCE, RoleEnum.CAMP_ACCOUNTING)
   @Get("/export/items")
-  async itemsExport(
-  ) {
-    return this.payrollService.itemsExport();
+  async itemsExport(@Query("exportType") exportType: FilterTypeEnum) {
+    return this.payrollService.itemsExport(exportType);
   }
 }
