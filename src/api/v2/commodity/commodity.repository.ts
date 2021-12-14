@@ -31,13 +31,17 @@ export class CommodityRepository {
     }
   }
 
-  async findAll() {
+  async findAll(take: number, skip: number) {
     try {
       const [total, data] = await Promise.all([
         this.prisma.commodity.count({
           where: {order: null}
         }),
-        this.prisma.commodity.findMany({where: {order: null}}),
+        this.prisma.commodity.findMany({
+          take: take || undefined,
+          skip: skip || undefined,
+          where: {order: null}
+        }),
       ]);
       return {
         total, data

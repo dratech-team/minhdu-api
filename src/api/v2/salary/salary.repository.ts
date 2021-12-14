@@ -12,7 +12,7 @@ import {SearchSalaryDto} from "./dto/search-salary.dto";
 import {ProfileEntity} from "../../../common/entities/profile.entity";
 import {CreateForEmployeesDto} from "./dto/create-for-employees.dto";
 import {UpdateManySalaryDto} from "./dto/update-many-salary.dto";
-import {firstDatetimeOfMonth, lastDatetimeOfMonth} from "../../../utils/datetime.util";
+import {firstDatetime, lastDatetime} from "../../../utils/datetime.util";
 
 const RATE_TIMES = 1;
 
@@ -398,8 +398,8 @@ export class SalaryRepository {
       const payroll = await this.prisma.payroll.findFirst({
         where: {
           createdAt: {
-            gte: firstDatetimeOfMonth(updates.datetime as Date),
-            lte: lastDatetimeOfMonth(updates.datetime as Date),
+            gte: firstDatetime(updates.datetime as Date),
+            lte: lastDatetime(updates.datetime as Date),
           }
         }
       });

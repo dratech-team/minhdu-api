@@ -14,8 +14,8 @@ export class CommodityService {
     return this.handleCommodity(created);
   }
 
-  async findAll() {
-    const found = await this.repository.findAll();
+  async findAll(take: number, skip: number) {
+    const found = await this.repository.findAll(take, skip);
     return {
       total: found.total,
       data: found.data.map(commodity => this.handleCommodity(commodity))

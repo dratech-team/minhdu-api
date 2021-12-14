@@ -1,6 +1,6 @@
 import {BadRequestException, Injectable} from "@nestjs/common";
 import {Salary, SalaryType} from "@prisma/client";
-import {firstDatetimeOfMonth, lastDatetimeOfMonth, rangeDatetime} from "../../../utils/datetime.util";
+import {firstDatetime, lastDatetime, rangeDatetime} from "../../../utils/datetime.util";
 import {EmployeeService} from "../employee/employee.service";
 import {PayrollService} from "../payroll/payroll.service";
 import {CreateSalaryDto} from "./dto/create-salary.dto";
@@ -78,13 +78,13 @@ export class SalaryService {
     const payroll = await this.payrollService.findFirst({
       employeeId: employeeId,
       createdAt: {
-        gte: firstDatetimeOfMonth(datetime),
-        lte: lastDatetimeOfMonth(datetime),
+        gte: firstDatetime(datetime),
+        lte: lastDatetime(datetime),
       },
     });
     if (!payroll) {
       throw new BadRequestException(
-        `Bảng lương tháng ${firstDatetimeOfMonth(datetime)} của mã nhân viên ${employeeId} không tồn tại. `
+        `Bảng lương tháng ${firstDatetime(datetime)} của mã nhân viên ${employeeId} không tồn tại. `
       );
     }
     return payroll;

@@ -2,7 +2,7 @@ import {BadRequestException, Injectable, NotFoundException} from "@nestjs/common
 import {EmployeeType, Payroll, Position, Salary, SalaryType} from "@prisma/client";
 import {ProfileEntity} from "../../../common/entities/profile.entity";
 import {PrismaService} from "../../../prisma.service";
-import {firstDatetimeOfMonth, lastDatetimeOfMonth} from "../../../utils/datetime.util";
+import {firstDatetime, lastDatetime} from "../../../utils/datetime.util";
 import {CreatePayrollDto} from "./dto/create-payroll.dto";
 import {SearchPayrollDto} from "./dto/search-payroll.dto";
 import {UpdatePayrollDto} from "./dto/update-payroll.dto";
@@ -23,8 +23,8 @@ export class PayrollRepository {
       const exist = await this.prisma.payroll.findMany({
         where: {
           createdAt: {
-            gte: firstDatetimeOfMonth(body.createdAt),
-            lte: lastDatetimeOfMonth(body.createdAt),
+            gte: firstDatetime(body.createdAt),
+            lte: lastDatetime(body.createdAt),
           },
           employee: {
             id: {in: body.employeeId},
@@ -164,8 +164,8 @@ export class PayrollRepository {
               type: search?.employeeType ? {in: search?.employeeType} : {}
             },
             createdAt: {
-              gte: firstDatetimeOfMonth(search?.createdAt),
-              lte: lastDatetimeOfMonth(search?.createdAt),
+              gte: firstDatetime(search?.createdAt),
+              lte: lastDatetime(search?.createdAt),
             },
             paidAt: null,
           },
@@ -188,8 +188,8 @@ export class PayrollRepository {
               type: search?.employeeType ? {in: search?.employeeType} : {}
             },
             createdAt: {
-              gte: firstDatetimeOfMonth(search?.createdAt),
-              lte: lastDatetimeOfMonth(search?.createdAt),
+              gte: firstDatetime(search?.createdAt),
+              lte: lastDatetime(search?.createdAt),
             },
             paidAt: null,
           },
@@ -237,8 +237,8 @@ export class PayrollRepository {
             gte: search?.startedAt,
             lte: search?.endedAt,
           } : {
-            gte: firstDatetimeOfMonth(search?.createdAt),
-            lte: lastDatetimeOfMonth(search?.createdAt),
+            gte: firstDatetime(search?.createdAt),
+            lte: lastDatetime(search?.createdAt),
           },
           title: {startsWith: search?.salaryTitle, mode: "insensitive"},
           price: search?.salaryPrice ? {equals: search?.salaryPrice} : {},
@@ -263,8 +263,8 @@ export class PayrollRepository {
             gte: search?.startedAt,
             lte: search?.endedAt,
           } : {
-            gte: firstDatetimeOfMonth(search?.createdAt),
-            lte: lastDatetimeOfMonth(search?.createdAt),
+            gte: firstDatetime(search?.createdAt),
+            lte: lastDatetime(search?.createdAt),
           },
           title: {startsWith: search?.salaryTitle, mode: "insensitive"},
           price: search?.salaryPrice ? {equals: search?.salaryPrice} : {},
@@ -445,8 +445,8 @@ export class PayrollRepository {
         where: {
           employeeId: employee.id,
           createdAt: {
-            gte: firstDatetimeOfMonth(search.startAt),
-            lte: lastDatetimeOfMonth(search.endAt),
+            gte: firstDatetime(search.startAt),
+            lte: lastDatetime(search.endAt),
           }
         }
       });
@@ -488,8 +488,8 @@ export class PayrollRepository {
             type: {equals: employeeType || EmployeeType.FULL_TIME}
           },
           createdAt: {
-            gte: firstDatetimeOfMonth(createdAt),
-            lte: lastDatetimeOfMonth(createdAt),
+            gte: firstDatetime(createdAt),
+            lte: lastDatetime(createdAt),
           }
         },
         select: {id: true}
@@ -516,8 +516,8 @@ export class PayrollRepository {
           where: {
             employeeId: employee.id,
             createdAt: {
-              gte: firstDatetimeOfMonth(datetime),
-              lte: lastDatetimeOfMonth(datetime),
+              gte: firstDatetime(datetime),
+              lte: lastDatetime(datetime),
             }
           },
           include: {
@@ -550,8 +550,8 @@ export class PayrollRepository {
       return await this.prisma.holiday.findMany({
         where: {
           datetime: {
-            gte: firstDatetimeOfMonth(datetime),
-            lte: lastDatetimeOfMonth(datetime),
+            gte: firstDatetime(datetime),
+            lte: lastDatetime(datetime),
           },
           positions: {
             some: {id: {in: positionId}}

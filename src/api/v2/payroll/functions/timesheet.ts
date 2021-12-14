@@ -1,16 +1,16 @@
 import {DatetimeUnit, Salary, SalaryType} from "@prisma/client";
 import * as moment from "moment";
-import {firstDatetimeOfMonth, lastDatetimeOfMonth} from "../../../../utils/datetime.util";
+import {firstDatetime, lastDatetime} from "../../../../utils/datetime.util";
 import {includesDatetime} from "../../../../common/utils/isEqual-datetime.util";
 import {ALL_DAY, PARTIAL_DAY} from "../../../../common/constant/datetime.constant";
 
 export function rageDaysInMonth(datetime: Date): moment.Moment[] {
   const range = [];
-  const fromDate = moment(firstDatetimeOfMonth(datetime));
-  const toDate = moment(lastDatetimeOfMonth(datetime));
+  const fromDate = moment(firstDatetime(datetime));
+  const toDate = moment(lastDatetime(datetime));
   const diff = toDate.diff(fromDate, "days") + 1;
   for (let i = 0; i < diff; i++) {
-    range.push(moment(firstDatetimeOfMonth(datetime)).add(i, "days"));
+    range.push(moment(firstDatetime(datetime)).add(i, "days"));
   }
   return range;
 };

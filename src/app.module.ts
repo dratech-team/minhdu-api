@@ -35,6 +35,7 @@ import { RoleModule } from './api/v2/role/role.module';
 import { ApplicationModule } from './api/v2/application/application.module';
 import { HrOverviewModule } from './api/v2/hr-overview/hr-overview.module';
 import { FinanceModule } from './api/v2/finance/finance.module';
+import { AdminModule } from './api/v2/admin/admin.module';
 
 @Module({
   imports: [
@@ -72,6 +73,7 @@ import { FinanceModule } from './api/v2/finance/finance.module';
     ApplicationModule,
     HrOverviewModule,
     FinanceModule,
+    AdminModule,
   ],
   controllers: [AppController],
   providers: [PrismaService],
