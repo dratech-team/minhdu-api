@@ -4,7 +4,7 @@ import {UpdateAdminDto} from './dto/update-admin.dto';
 import {PrismaService} from "../../../prisma.service";
 import {SearchAdminDto} from "./dto/search-admin.dto";
 import {TypeEnum} from "./entities/type.enum";
-import {firstDatetime} from "../../../utils/datetime.util";
+import {firstDatetime, lastDatetime} from "../../../utils/datetime.util";
 
 @Injectable()
 export class AdminService {
@@ -24,18 +24,29 @@ export class AdminService {
         }
       });
 
-      // console.log(datetimes);
-      const hr = await Promise.all(datetimes.map(async datetime => {
-        // return await this.prisma.payroll.findMany({
-        //   take: take || undefined,
-        //   skip: skip || undefined,
-        //   where: {
-        //     createdAt: search.type === TypeEnum.YEAR ? {
-        //       gte: firstDatetimeOfMonth()
-        //     } : {}
-        //   }
-        // });
-      }))
+      const hr = await Promise.all(datetimes.map(async e => {
+        const payrolls = await this.prisma.payroll.findMany({
+          take: take || undefined,
+          skip: skip || undefined,
+          where: {
+            createdAt: search.type === TypeEnum.YEAR ? {
+              gte: firstDatetime(e.createdAt, "years"),
+              lte: lastDatetime(e.createdAt, "years"),
+            } : search.type === TypeEnum.MONTH ? {
+
+            } : {}
+          },
+          select: {
+            total: true
+          }
+        });
+
+        return {
+          datetime: e.createdAt,
+          total: payrolls.filter(payroll => payroll.total).map(payroll => payroll.total).reduce((a, b) => a + b, 0)
+        };
+      }));
+      console.log(hr);
     } catch (e) {
       console.error(e);
       throw new BadRequestException(e);
