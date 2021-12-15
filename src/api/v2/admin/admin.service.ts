@@ -19,8 +19,9 @@ export class AdminService {
     try {
       const [total, branches] = await Promise.all([
         this.prisma.branch.count({
-          take: take || undefined,
-          skip: skip || undefined,
+          where: {
+            name: {startsWith: search?.branch, mode: "insensitive"}
+          }
         }),
         this.prisma.branch.findMany({
           take: take || undefined,
