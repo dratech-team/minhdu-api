@@ -3,7 +3,6 @@ import {CreateAdminDto} from './dto/create-admin.dto';
 import {UpdateAdminDto} from './dto/update-admin.dto';
 import {PrismaService} from "../../../prisma.service";
 import {SearchAdminDto} from "./dto/search-admin.dto";
-import {TypeEnum} from "./entities/type.enum";
 import {firstDatetime, lastDatetime} from "../../../utils/datetime.util";
 import * as moment from "moment";
 
@@ -18,6 +17,17 @@ export class AdminService {
 
   async findAll(take: number, skip: number, search: Partial<SearchAdminDto>) {
     try {
+      const [total, branches] = await Promise.all([
+        this.prisma.branch.count({
+          take: take || undefined,
+          skip: skip || undefined
+        }),
+        this.prisma.branch.findMany({
+          take: take || undefined,
+          skip: skip || undefined
+        }),
+      ])
+
       const datetimes = (await this.prisma.payroll.groupBy({
         by: ['createdAt'],
         orderBy: {
@@ -36,64 +46,73 @@ export class AdminService {
         return [...acc, e];
       }, []);
 
-      switch (search.type) {
-        case TypeEnum.YEAR: {
-          return await Promise.all(yearsDiff.map(async e => {
-            const payrolls = await this.prisma.payroll.findMany({
-              take: take || undefined,
-              skip: skip || undefined,
-              where: {
-                createdAt: {
-                  gte: firstDatetime(e.createdAt, "years"),
-                  lte: lastDatetime(e.createdAt, "years"),
-                }
+      const data = await Promise.all(branches.map(async branch => {
+        return await Promise.all(yearsDiff.map(async e => {
+          const payrolls = await this.prisma.payroll.findMany({
+            where: {
+              createdAt: {
+                gte: firstDatetime(e.createdAt, "years"),
+                lte: lastDatetime(e.createdAt, "years"),
               },
-              select: {
-                total: true,
+              employee: {
+                branchId: branch.id,
               }
-            });
-
-            return {
-              name: "",
-              branch: "",
-              type: "",
-              datetime: e.createdAt,
-              total: payrolls.filter(payroll => payroll.total).map(payroll => payroll.total).reduce((a, b) => a + b, 0)
-            };
-          }));
-        }
-        case TypeEnum.MONTH: {
-          if (!search?.year) {
-            throw new BadRequestException('Nếu type là MONTH thì bắt buộc phải truyền year');
-          }
-          return await Promise.all([1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12].map(async month => {
-            const payrolls = await this.prisma.payroll.findMany({
-              where: {
-                createdAt: {
-                  gte: firstDatetime(new Date(`${search.year}-${month}-1`), "months"),
-                  lte: lastDatetime(new Date(`${search.year}-${month}-1`), "months"),
-                }
-              },
-              select: {
-                total: true
-              }
-            });
-
-            return {
-              month: month,
-              total: payrolls.filter(payroll => payroll.total).map(payroll => payroll.total).reduce((a, b) => a + b, 0)
-            };
-          }));
-        }
-      }
+            },
+            select: {
+              total: true,
+            }
+          });
+          return {
+            id: branch.id,
+            name: `Bảng lương năm ${moment(e.createdAt).year()} của ${branch.name}`,
+            branch: branch,
+            type: "Lương theo năm",
+            datetime: e.createdAt,
+            total: payrolls.filter(payroll => payroll.total).map(payroll => payroll.total).reduce((a, b) => a + b, 0)
+          };
+        }));
+      }));
+      return {total, data};
     } catch (e) {
       console.error(e);
       throw new BadRequestException(e);
     }
   }
 
-  findOne(id: number) {
-    return `This action returns a #${id} admin`;
+  async findOne(id: number, search: Partial<SearchAdminDto>) {
+    try {
+      if (!search?.year) {
+        throw new BadRequestException('year required')
+      }
+      const branch = await this.prisma.branch.findUnique({
+        where: {
+          id: id
+        }
+      });
+      return await Promise.all([1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12].map(async month => {
+        const payrolls = await this.prisma.payroll.findMany({
+          where: {
+            createdAt: {
+              gte: firstDatetime(new Date(`${search.year}-${month}-1`), "months"),
+              lte: lastDatetime(new Date(`${search.year}-${month}-1`), "months"),
+            },
+            employee: {
+              branchId: branch.id,
+            }
+          },
+          select: {
+            total: true,
+          }
+        });
+        return {
+          datetime: `${month}/${search.year}`,
+          total: payrolls.filter(payroll => payroll.total).map(payroll => payroll.total).reduce((a, b) => a + b, 0)
+        }
+      }));
+    } catch (e) {
+      console.error(e);
+      throw new BadRequestException(e);
+    }
   }
 
   update(id: number, updateAdminDto: UpdateAdminDto) {

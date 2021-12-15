@@ -31,9 +31,9 @@ export class AdminController {
     // return this.adminService.findAll(+take, +skip);
   }
 
-  @Get(':id')
-  findOne(@Param('id') id: string) {
-    return this.adminService.findOne(+id);
+  @Get('hr/:id')
+  findOne(@Param('id') id: string, @Query() search: SearchAdminDto) {
+    return this.adminService.findOne(+id, search);
   }
 
   @Patch(':id')
