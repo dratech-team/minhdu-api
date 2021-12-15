@@ -35,10 +35,10 @@ export class AdminService {
       const datetimes = (await this.prisma.payroll.groupBy({
         by: ['createdAt'],
         where: {
-          createdAt: {
+          createdAt: search?.year ? {
             gte: firstDatetime(new Date(`${search.year}-6-1`), "years"),
             lte: lastDatetime(new Date(`${search.year}-6-1`), "years"),
-          }
+          } : {}
         },
         orderBy: {
           createdAt: "asc"
