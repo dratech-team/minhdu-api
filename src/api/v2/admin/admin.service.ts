@@ -81,7 +81,7 @@ export class AdminService {
         });
       });
 
-      return {total, data: dataA};
+      return {total, data: dataA, totalSalary: dataA.map(e => e.total).reduce((a, b) => a + b, 0)};
     } catch (e) {
       console.error(e);
       throw new BadRequestException(e);
