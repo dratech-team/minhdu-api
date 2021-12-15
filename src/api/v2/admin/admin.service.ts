@@ -47,34 +47,41 @@ export class AdminService {
       }, []);
 
       const data = await Promise.all(branches.map(async branch => {
-        return {
-          data: await Promise.all(yearsDiff.map(async e => {
-            const payrolls = await this.prisma.payroll.findMany({
-              where: {
-                createdAt: {
-                  gte: firstDatetime(e.createdAt, "years"),
-                  lte: lastDatetime(e.createdAt, "years"),
-                },
-                employee: {
-                  branchId: branch.id,
-                }
+        return await Promise.all(yearsDiff.map(async e => {
+          const payrolls = await this.prisma.payroll.findMany({
+            where: {
+              createdAt: {
+                gte: firstDatetime(e.createdAt, "years"),
+                lte: lastDatetime(e.createdAt, "years"),
               },
-              select: {
-                total: true,
+              employee: {
+                branchId: branch.id,
               }
-            });
-            return {
-              id: branch.id,
-              name: `Bảng lương năm ${moment(e.createdAt).year()} của ${branch.name}`,
-              branch: branch,
-              type: "Lương theo năm",
-              datetime: e.createdAt,
-              total: payrolls.filter(payroll => payroll.total).map(payroll => payroll.total).reduce((a, b) => a + b, 0)
-            };
-          }))
-        };
+            },
+            select: {
+              total: true,
+            }
+          });
+          return {
+            id: branch.id,
+            name: `Bảng lương năm ${moment(e.createdAt).year()} của ${branch.name}`,
+            branch: branch,
+            type: "Lương theo năm",
+            datetime: e.createdAt,
+            total: payrolls.filter(payroll => payroll.total).map(payroll => payroll.total).reduce((a, b) => a + b, 0)
+          };
+        }));
       }));
-      return {total, data: data.map(e => e.data)};
+
+      /// FIXME: optimize code
+      const dataA = [];
+      data.forEach(e => {
+        e.forEach(a => {
+          dataA.push(a);
+        });
+      });
+
+      return {total, data: dataA};
     } catch (e) {
       console.error(e);
       throw new BadRequestException(e);
