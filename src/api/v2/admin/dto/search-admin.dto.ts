@@ -1,4 +1,4 @@
-import {IsNotEmpty, IsNumber, IsOptional} from "class-validator";
+import {IsNotEmpty, IsNumber, IsOptional, IsString} from "class-validator";
 import {Type} from "class-transformer";
 
 export class SearchAdminDto {
@@ -6,4 +6,8 @@ export class SearchAdminDto {
   @IsNumber()
   @Type(() => Number)
   readonly year: number;
+
+  @IsOptional()
+  @IsString()
+  readonly branch: string;
 }

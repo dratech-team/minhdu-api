@@ -20,16 +20,25 @@ export class AdminService {
       const [total, branches] = await Promise.all([
         this.prisma.branch.count({
           take: take || undefined,
-          skip: skip || undefined
+          skip: skip || undefined,
         }),
         this.prisma.branch.findMany({
           take: take || undefined,
-          skip: skip || undefined
+          skip: skip || undefined,
+          where: {
+            name: {startsWith: search?.branch, mode: "insensitive"}
+          }
         }),
       ]);
 
       const datetimes = (await this.prisma.payroll.groupBy({
         by: ['createdAt'],
+        where: {
+          createdAt: {
+            gte: firstDatetime(new Date(`${search.year}-6-1`), "years"),
+            lte: lastDatetime(new Date(`${search.year}-6-1`), "years"),
+          }
+        },
         orderBy: {
           createdAt: "asc"
         }
@@ -46,7 +55,7 @@ export class AdminService {
         return [...acc, e];
       }, []);
 
-      const data = await Promise.all(branches.map(async branch => {
+      const data = (await Promise.all(branches.map(async branch => {
         return await Promise.all(yearsDiff.map(async e => {
           const payrolls = await this.prisma.payroll.findMany({
             where: {
@@ -62,6 +71,7 @@ export class AdminService {
               total: true,
             }
           });
+
           return {
             id: branch.id,
             name: `Bảng lương năm ${moment(e.createdAt).year()} của ${branch.name}`,
@@ -71,17 +81,13 @@ export class AdminService {
             total: payrolls.filter(payroll => payroll.total).map(payroll => payroll.total).reduce((a, b) => a + b, 0)
           };
         }));
-      }));
+      }))).reduce((acc, item) => acc.concat(item), []);
 
-      /// FIXME: optimize code
-      const dataA = [];
-      data.forEach(e => {
-        e.forEach(a => {
-          dataA.push(a);
-        });
-      });
-
-      return {total, data: dataA, totalSalary: dataA.map(e => e.total).reduce((a, b) => a + b, 0)};
+      return {
+        total,
+        data,
+        totalSalary: data.map(e => e.total).reduce((a, b) => a + b, 0)
+      };
     } catch (e) {
       console.error(e);
       throw new BadRequestException(e);
