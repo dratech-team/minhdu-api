@@ -26,7 +26,7 @@ export class AdminService {
           take: take || undefined,
           skip: skip || undefined
         }),
-      ])
+      ]);
 
       const datetimes = (await this.prisma.payroll.groupBy({
         by: ['createdAt'],
@@ -46,8 +46,8 @@ export class AdminService {
         return [...acc, e];
       }, []);
 
-      const data = await Promise.all(branches.map(async branch => {
-        return await Promise.all(yearsDiff.map(async e => {
+      const data = await Promise.all(yearsDiff.map(async e => {
+        return await Promise.all(branches.map(async branch => {
           const payrolls = await this.prisma.payroll.findMany({
             where: {
               createdAt: {
@@ -82,7 +82,7 @@ export class AdminService {
   async findOne(id: number, search: Partial<SearchAdminDto>) {
     try {
       if (!search?.year) {
-        throw new BadRequestException('year required')
+        throw new BadRequestException('year required');
       }
       const branch = await this.prisma.branch.findUnique({
         where: {
@@ -107,7 +107,7 @@ export class AdminService {
         return {
           datetime: `${month}/${search.year}`,
           total: payrolls.filter(payroll => payroll.total).map(payroll => payroll.total).reduce((a, b) => a + b, 0)
-        }
+        };
       }));
     } catch (e) {
       console.error(e);
