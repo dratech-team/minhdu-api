@@ -1293,8 +1293,23 @@ export class PayrollService {
       case FilterTypeEnum.TIME_SHEET: {
         customs = {
           lastName: "Họ và tên",
+          branch: "Đơn vị",
           position: "Chức vụ",
         };
+        break;
+      }
+      case FilterTypeEnum.OVERTIME: {
+        customs = {
+          lastName: "Họ và tên",
+          branch: "Đơn vị",
+          position: "Chức vụ",
+          datetime: "Ngày",
+          title: "Loại tăng ca",
+          unit: "Đơn vị tính",
+          price: "Đơn giá",
+          total: "Tổng tiền"
+        };
+        break;
       }
     }
     return Object.keys(customs).map((key) => ({key: key, value: customs[key]}));
@@ -1343,7 +1358,7 @@ export class PayrollService {
           if (!(startedAt || endedAt)) {
             throw new BadRequestException('Vui lòng chọn ngày bắt đầu và kết thúc');
           }
-          return await this.exportOvertime(response, filename, startedAt, endedAt);
+          return await this.exportOvertime(response, filename, startedAt, endedAt, res, Object.values(customs), Object.keys(customs));
         }
       }
 
@@ -1410,39 +1425,16 @@ export class PayrollService {
     );
   }
 
-  async exportOvertime(response: Response, filename: string, startedAt: Date, endedAt: Date) {
-    const data = [];
-
-    const customs = {
-      name: "Họ và tên",
-      position: "Chức vụ",
-      basicSalary: "Lương cơ bản",
-      standardSalary: "Tổng lương chuẩn",
-      staySalary: "Tổng phụ cấp ở lại",
-      workday: "Ngày công chuẩn",
-      workdayNotInHoliday: "Ngày công thực tế trừ lễ",
-      payslipInHoliday: "Lương ngày lễ",
-      payslipNotInHoliday: "Lương trừ ngày lễ",
-      totalWorkday: "Tổng ngày thực tế",
-      payslipWorkDayNotInHoliday: "Tổng ngày trừ ngày lễ",
-      stay: "Tổng lương phụ cấp",
-      payslipOutOfWorkday: "Lương ngoài giờ x2",
-      allowance: "Phụ câp",
-      tax: "Thuế",
-      total: "Tổng lương",
-    };
-
-    const customKeys = Object.keys(customs);
-    const customHeaders = Object.values(customs);
+  async exportOvertime(response: Response, filename: string, startedAt: Date, endedAt: Date, payrolls, headers: string[], keys: string[]) {
     return exportExcel(
       response,
       {
         name: filename,
         title: `Bảng tăng ca từ ngày ${new Date(startedAt).getDate()} tháng ${new Date(startedAt).getMonth() + 1} năm ${new Date(startedAt).getFullYear()}
           đến ngày ${new Date(endedAt).getDate()} tháng ${new Date(endedAt).getMonth() + 1} năm ${new Date(endedAt).getFullYear()} `,
-        customHeaders: customHeaders,
-        customKeys: customKeys,
-        data: data,
+        customHeaders: headers,
+        customKeys: keys,
+        data: payrolls,
       },
       200
     );
