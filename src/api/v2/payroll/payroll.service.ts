@@ -86,8 +86,8 @@ export class PayrollService {
     }
   }
 
-  async findAll(profile: ProfileEntity, skip: number, take: number, search?: Partial<SearchPayrollDto>) {
-    const {total, data} = await this.repository.findAll(profile, skip, take, search);
+  async findAll(profile: ProfileEntity, search?: Partial<SearchPayrollDto>) {
+    const {total, data} = await this.repository.findAll(profile, search);
     switch (search.filterType) {
       case FilterTypeEnum.TIME_SHEET: {
         return {
@@ -98,7 +98,7 @@ export class PayrollService {
         };
       }
       case FilterTypeEnum.SALARY: {
-        return await this.repository.findSalaries(profile, skip, take, search);
+        return await this.repository.findSalaries(profile, search);
       }
       case FilterTypeEnum.SEASONAL: {
         return {
@@ -1328,7 +1328,7 @@ export class PayrollService {
   ) {
     try {
       const customs = items.reduce((a, v, index) => ({...a, [v['key']]: v['value']}), {});
-      const res = (await this.findAll(profile, undefined, undefined, {
+      const res = (await this.findAll(profile, {
         createdAt,
         startedAt,
         endedAt,

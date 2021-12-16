@@ -140,12 +140,7 @@ export class PayrollRepository {
     }
   }
 
-  async findAll(
-    profile: ProfileEntity,
-    skip: number,
-    take: number,
-    search?: Partial<SearchPayrollDto>
-  ) {
+  async findAll(profile: ProfileEntity, search?: Partial<SearchPayrollDto>) {
     try {
       const [total, data] = await Promise.all([
         this.prisma.payroll.count({
@@ -171,8 +166,8 @@ export class PayrollRepository {
           },
         }),
         this.prisma.payroll.findMany({
-          take: take || undefined,
-          skip: skip || undefined,
+          take: search?.take,
+          skip: search?.skip,
           where: {
             employeeId: search?.employeeId || undefined,
             employee: {
@@ -222,12 +217,7 @@ export class PayrollRepository {
     }
   }
 
-  async findSalaries(
-    profile: ProfileEntity,
-    skip: number,
-    take: number,
-    search?: Partial<SearchPayrollDto>
-  ) {
+  async findSalaries( profile: ProfileEntity, search?: Partial<SearchPayrollDto>) {
     const [total, data] = await Promise.all([
       this.prisma.salary.count({
         where: {
@@ -254,8 +244,8 @@ export class PayrollRepository {
         },
       }),
       this.prisma.salary.findMany({
-        take: take || undefined,
-        skip: skip || undefined,
+        take: search?.take,
+        skip: search?.skip,
         where: {
           datetime: search?.createdAt && (search?.salaryType === SalaryType.ABSENT || search?.salaryType === SalaryType.DAY_OFF) ? {
             in: search?.createdAt

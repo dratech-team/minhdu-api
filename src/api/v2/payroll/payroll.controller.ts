@@ -10,12 +10,13 @@ import {LoggerGuard} from "../../../core/guard/logger.guard";
 import {ProfileEntity} from "../../../common/entities/profile.entity";
 import {ApiKeyGuard} from "../../../core/guard/api-key-auth.guard";
 import {JwtAuthGuard} from "../../../core/guard/jwt-auth.guard";
-import {EmployeeType, RoleEnum, SalaryType} from "@prisma/client";
+import {EmployeeType, RoleEnum} from "@prisma/client";
 import {Roles} from "../../../core/decorators/roles.decorator";
 import {ConfirmPayrollDto} from "./dto/confirm-payroll.dto";
 import {SearchType} from "./entities/search.type.enum";
 import {FilterTypeEnum} from "./entities/filter-type.enum";
 import {ItemExportDto} from "./dto/items-export.dto";
+import {SearchPayrollDto} from "./dto/search-payroll.dto";
 
 @Controller(ApiV2Constant.PAYROLL)
 @UseGuards(JwtAuthGuard, ApiKeyGuard, RolesGuard)
@@ -44,39 +45,8 @@ export class PayrollController {
   )
   findAll(
     @ReqProfile() profile: ProfileEntity,
-    @Query("skip") skip: number,
-    @Query("take") take: number,
-    @Query("employeeId") employeeId: number,
-    @Query("name") name: string,
-    @Query("branch") branch: string,
-    @Query("position") position: string,
-    @Query("createdAt", ParseDatetimePipe) createdAt: any,
-    @Query("isConfirm") isConfirm: number,
-    @Query("isPaid") isPaid: number,
-    @Query("employeeType") employeeType: EmployeeType,
-    @Query("salaryTitle") salaryTitle: string,
-    @Query("salaryPrice") salaryPrice: number,
-    @Query("salaryType") salaryType: SalaryType,
-    @Query("filterType") filterType: FilterTypeEnum,
-    @Query("startedAt", ParseDatetimePipe) startedAt: any,
-    @Query("endedAt", ParseDatetimePipe) endedAt: any,
-  ) {
-    return this.payrollService.findAll(profile, +skip, +take, {
-      employeeId: +employeeId,
-      name,
-      branch,
-      position,
-      createdAt,
-      isConfirm,
-      isPaid,
-      employeeType,
-      salaryTitle,
-      salaryPrice: +salaryPrice,
-      salaryType,
-      filterType,
-      startedAt,
-      endedAt
-    });
+    @Query() search: SearchPayrollDto) {
+    return this.payrollService.findAll(profile, search);
   }
 
   @Roles(RoleEnum.ADMIN, RoleEnum.HUMAN_RESOURCE, RoleEnum.CAMP_ACCOUNTING)
