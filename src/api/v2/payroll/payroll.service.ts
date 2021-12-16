@@ -1322,13 +1322,13 @@ export class PayrollService {
           if (!payroll.accConfirmedAt) {
             throw new BadRequestException(`Phiếu lương ${payroll.id} chưa được xác nhận. Vui lòng xác nhận phiếu lương để in.`);
           }
-          return Object.assign(payroll, {
+          return Object.assign(payroll, exportType === FilterTypeEnum.PAYROLL ? {
               payslip: Object.assign(payroll.payslip, {
                 worksInHoliday: payroll?.payslip?.worksInHoliday?.map(holiday => holiday?.day)?.reduce((a, b) => a + b, 0),
                 worksNotInHoliday: payroll?.payslip?.worksNotInHoliday?.map(holiday => holiday?.day)?.reduce((a, b) => a + b, 0),
               })
-            }
-          )
+            } : {}
+          );
         }
       );
 
@@ -1377,22 +1377,33 @@ export class PayrollService {
 
   async exportTimeSheet(response: Response, filename: string, datetime: Date, payrolls, headers: string[], keys: string[]) {
     const datetimes = rageDaysInMonth(datetime).map(date => date.format("DD-MM"));
-    const title = [...headers, ...datetimes];
-    const data = [];
-    for (let i = 0; i < payrolls.length; i++) {
-      const value = timesheet(payrolls[i].createdAt, payrolls[i].salaries).datetime;
-      const ticks = value.map((e, index) => {
-        return e[datetimes[index]];
+    const customHeaders = [...headers, ...datetimes];
+    const customKeys = [...keys, ...datetimes];
+    const data = payrolls
+      .map(payroll => {
+        payroll.employee = Object.assign(payroll.employee, {
+          position: payroll.employee.position.name,
+          branch: payroll.employee.branch.name
+        });
+
+        const times = timesheet(payroll.createdAt, payroll.salaries).datetime
+          .map((e, index) => {
+            return e[datetimes[index]];
+          });
+
+        keys.forEach(key => {
+          times.unshift(payroll.employee[key]);
+        });
+        return times;
       });
-      data.push(ticks.unshift(payrolls[i].employee));
-    }
+
     return exportExcel(
       response,
       {
         name: filename,
-        customKeys: keys,
+        customKeys: customKeys,
         title: `Phiếu Chấm công tháng ${datetime.getMonth() + 1}`,
-        customHeaders: title,
+        customHeaders: customHeaders,
         data: data,
       },
       201
