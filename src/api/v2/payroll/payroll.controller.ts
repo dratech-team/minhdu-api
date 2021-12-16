@@ -17,6 +17,7 @@ import {SearchType} from "./entities/search.type.enum";
 import {FilterTypeEnum} from "./entities/filter-type.enum";
 import {ItemExportDto} from "./dto/items-export.dto";
 import {SearchPayrollDto} from "./dto/search-payroll.dto";
+import {SearchOvertimePayrollDto} from "./dto/search-overtime-payroll.dto";
 
 @Controller(ApiV2Constant.PAYROLL)
 @UseGuards(JwtAuthGuard, ApiKeyGuard, RolesGuard)
@@ -59,15 +60,9 @@ export class PayrollController {
   @Get("/overtime/filter")
   filterOvertime(
     @ReqProfile() profile: ProfileEntity,
-    @Query("startAt", ParseDatetimePipe) startAt: any,
-    @Query("endAt", ParseDatetimePipe) endAt: any,
-    @Query("title") title: string,
-    @Query("name") name: string,
-    @Query("position") position: string,
-    @Query("branch") branch: string,
-    @Query("searchType") searchType: SearchType,
+    @Query() search: SearchOvertimePayrollDto
   ) {
-    return this.payrollService.filterOvertime(profile, {startAt, endAt, title, name, searchType, position});
+    return this.payrollService.filterOvertime(profile, search);
   }
 
   @UseGuards(LoggerGuard)
