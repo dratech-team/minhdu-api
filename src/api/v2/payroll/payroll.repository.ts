@@ -469,10 +469,12 @@ export class PayrollRepository {
   }
 
   async findOvertimesV2(profile: ProfileEntity, search: Partial<SearchPayrollDto>) {
+    if (!search?.title) {
+
+    }
     const overtimeTitles = await this.prisma.salary.groupBy({
       by: ['title'],
       where: {
-        title: {startsWith: search?.title, mode: "insensitive"},
         datetime: {
           gte: search?.startedAt,
           lte: search?.endedAt
@@ -493,18 +495,19 @@ export class PayrollRepository {
         }
       },
     });
-    const total = await this.prisma.salary.count({
-      where: {
-        type: {in: SalaryType.OVERTIME},
-        title: search.title,
-        datetime: {
-          gte: search.startedAt,
-          lte: search.endedAt,
-        }
-      },
-    });
+
     const data = await Promise.all(overtimeTitles.map(async e => {
-      return await this.prisma.salary.findMany({
+      const total = await this.prisma.salary.count({
+        where: {
+          title: e.title,
+          type: {in: SalaryType.OVERTIME},
+          datetime: {
+            gte: search.startedAt,
+            lte: search.endedAt,
+          }
+        },
+      });
+      const salaries = await this.prisma.salary.findMany({
         take: Number(search?.take) || undefined,
         skip: Number(search?.skip) || undefined,
         where: {
@@ -525,9 +528,12 @@ export class PayrollRepository {
         },
         orderBy: {datetime: "asc"}
       });
+      return {total, salaries};
     }));
-
-    return {total, data};
+    return {
+      total: data.map(e => e.total).reduce((a, b) => a + b, 0),
+      data: data.map(e => e.salaries)
+    };
   }
 
   async findIds(createdAt: Date, employeeType?: EmployeeType, branchId?: number) {
