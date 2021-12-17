@@ -475,6 +475,7 @@ export class PayrollRepository {
     const overtimeTitles = await this.prisma.salary.groupBy({
       by: ['title'],
       where: {
+        title: {startsWith: search?.title, mode: "insensitive"},
         datetime: {
           gte: search?.startedAt,
           lte: search?.endedAt

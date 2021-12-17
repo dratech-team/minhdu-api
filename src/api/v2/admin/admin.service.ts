@@ -77,7 +77,7 @@ export class AdminService {
             id: branch.id,
             name: `Bảng lương năm ${moment(e.createdAt).year()} của ${branch.name}`,
             branch: branch,
-            type: "Lương theo năm",
+            type: "CHI",
             datetime: e.createdAt,
             total: payrolls.filter(payroll => payroll.total).map(payroll => payroll.total).reduce((a, b) => a + b, 0)
           };
