@@ -523,7 +523,12 @@ export class PayrollRepository {
           allowance: true,
           payroll: {
             include: {
-              employee: true
+              employee: {
+                include: {
+                  branch: true,
+                  position: true
+                }
+              }
             }
           }
         },
