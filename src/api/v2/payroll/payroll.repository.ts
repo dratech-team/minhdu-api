@@ -526,7 +526,6 @@ export class PayrollRepository {
         orderBy: {datetime: "asc"}
       });
     }));
-
     return {total, data};
   }
 

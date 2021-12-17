@@ -95,6 +95,9 @@ export class PayrollService {
         };
       }
       case FilterTypeEnum.SALARY: {
+        if (search?.salaryType === SalaryType.OVERTIME) {
+          return this.filterOvertime(profile, search);
+        }
         return await this.repository.findSalaries(profile, search);
       }
       case FilterTypeEnum.SEASONAL: {
@@ -104,9 +107,6 @@ export class PayrollService {
             return Object.assign(payroll, {payslip: payroll.accConfirmedAt ? this.totalSalaryCT3(payroll) : null});
           }),
         };
-      }
-      case FilterTypeEnum.OVERTIME: {
-        return this.filterOvertime(profile, search);
       }
       default: {
         return {
@@ -212,10 +212,10 @@ export class PayrollService {
 
       const total = employees.map(employee => {
         if (employee.unit === DatetimeUnit.DAY && employee.times > 1) {
-          days += 1
+          days += 1;
           return (employee.times * employee.price) + (employee.allowance?.price * employee.times);
         } else {
-          hours += 1
+          hours += 1;
           return employee.times * employee.price + (employee.allowance?.price || 0);
         }
       }).reduce((a, b) => a + b, 0);
@@ -225,14 +225,21 @@ export class PayrollService {
         salaries: employees,
         salary: {
           total,
-          unit: {days, hours}
+          unit: {days, hours},
+          payroll: employees[0].payroll,
         },
       });
     });
 
     return {
       total: e.total,
-      data,
+      data: data.map(e => ({
+        id: e.id,
+        payrollId: e.salary.payroll.id,
+        employee: e,
+        salaries: e.salaries,
+        salary: e.salary,
+      })),
       totalSalary: {
         total: data.map(e => e.salary.total).reduce((a, b) => a + b, 0),
         unit: {
@@ -240,7 +247,7 @@ export class PayrollService {
           hours: data.map(e => e.salary.unit.hours).reduce((a, b) => a + b, 0)
         },
       }
-    }
+    };
   }
 
   async confirmPayslip(id: number) {
