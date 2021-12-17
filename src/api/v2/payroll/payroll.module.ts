@@ -6,10 +6,9 @@ import {ConfigModule} from "../../../core/config/config.module";
 import {PayrollRepository} from "./payroll.repository";
 import {EmployeeModule} from "../employee/employee.module";
 import {EmployeeRepository} from "../employee/employee.repository";
-import {OvertimeTemplateModule} from "../overtime-template/overtime-template.module";
 
 @Module({
-  imports: [ConfigModule, EmployeeModule, OvertimeTemplateModule],
+  imports: [ConfigModule, EmployeeModule,],
   controllers: [PayrollController],
   providers: [PrismaService, PayrollService, PayrollRepository, EmployeeRepository],
   exports: [PayrollService]

@@ -13,11 +13,9 @@ import {JwtAuthGuard} from "../../../core/guard/jwt-auth.guard";
 import {EmployeeType, RoleEnum} from "@prisma/client";
 import {Roles} from "../../../core/decorators/roles.decorator";
 import {ConfirmPayrollDto} from "./dto/confirm-payroll.dto";
-import {SearchType} from "./entities/search.type.enum";
 import {FilterTypeEnum} from "./entities/filter-type.enum";
 import {ItemExportDto} from "./dto/items-export.dto";
 import {SearchPayrollDto} from "./dto/search-payroll.dto";
-import {SearchOvertimePayrollDto} from "./dto/search-overtime-payroll.dto";
 
 @Controller(ApiV2Constant.PAYROLL)
 @UseGuards(JwtAuthGuard, ApiKeyGuard, RolesGuard)
@@ -54,15 +52,6 @@ export class PayrollController {
   @Get(":id")
   findOne(@Param("id") id: string) {
     return this.payrollService.findOne(+id);
-  }
-
-  @Roles(RoleEnum.ADMIN, RoleEnum.HUMAN_RESOURCE, RoleEnum.CAMP_ACCOUNTING)
-  @Get("/overtime/filter")
-  filterOvertime(
-    @ReqProfile() profile: ProfileEntity,
-    @Query() search: SearchOvertimePayrollDto
-  ) {
-    return this.payrollService.filterOvertime(profile, search);
   }
 
   @UseGuards(LoggerGuard)

@@ -16,8 +16,6 @@ import {exportExcel} from "../../../core/services/export.service";
 import {FullSalary} from "../salary/entities/salary.entity";
 import * as moment from "moment";
 import {ConfirmPayrollDto} from "./dto/confirm-payroll.dto";
-import {SearchOvertimePayrollDto} from "./dto/search-overtime-payroll.dto";
-import {OvertimeTemplateService} from "../overtime-template/overtime-template.service";
 import {rageDaysInMonth, timesheet} from "./functions/timesheet";
 import {FilterTypeEnum} from "./entities/filter-type.enum";
 import {ItemExportDto} from "./dto/items-export.dto";
@@ -28,7 +26,6 @@ export class PayrollService {
   constructor(
     private readonly repository: PayrollRepository,
     private readonly employeeService: EmployeeService,
-    private readonly overtimeService: OvertimeTemplateService,
   ) {
   }
 
@@ -107,6 +104,9 @@ export class PayrollService {
             return Object.assign(payroll, {payslip: payroll.accConfirmedAt ? this.totalSalaryCT3(payroll) : null});
           }),
         };
+      }
+      case FilterTypeEnum.OVERTIME: {
+        return this.filterOvertime(profile, search);
       }
       default: {
         return {
@@ -200,62 +200,47 @@ export class PayrollService {
     return await this.repository.findFirst(query);
   }
 
-  async filterOvertime(profile: ProfileEntity, search: Partial<SearchOvertimePayrollDto>) {
-    const overtimes = await this.repository.findOvertimes(profile, search);
+  async filterOvertime(profile: ProfileEntity, search: Partial<SearchPayrollDto>) {
+    const e = await this.repository.findOvertimesV2(profile, search);
+    const overtimes = e.data.reduce((acc, e) => acc.concat(e), []);
+    const employeeIds = [...new Set(overtimes.map(overtime => overtime.payroll.employeeId))];
+    let hours = 0;
+    let days = 0;
 
-    if (search?.title) {
-      const overtime = await this.overtimeService.findFirst({
-        where: {
-          title: search.title
+    const data = employeeIds.map(employeeId => {
+      const employees = overtimes.filter(overtime => overtime.payroll.employeeId === employeeId);
+
+      const total = employees.map(employee => {
+        if (employee.unit === DatetimeUnit.DAY && employee.times > 1) {
+          days += 1
+          return (employee.times * employee.price) + (employee.allowance?.price * employee.times);
+        } else {
+          hours += 1
+          return employee.times * employee.price + (employee.allowance?.price || 0);
         }
+      }).reduce((a, b) => a + b, 0);
+
+
+      return Object.assign({}, employees[0].payroll.employee, {
+        salaries: employees,
+        salary: {
+          total,
+          unit: {days, hours}
+        },
       });
-
-      const employees = overtimes.map(item => {
-        const salaries = item.salaries.filter(salary => salary.title === search?.title);
-        const times = salaries.map(salary => salary.times).reduce((a, b) => a + b, 0);
-        const total = salaries.map(salary => {
-          if (salary.unit === DatetimeUnit.DAY && salary.times > 1) {
-            return (salary.times * salary.price) + (salary.allowance?.price * salary.times);
-          } else {
-            return salary.times * salary.price + (salary.allowance?.price || 0);
-          }
-        }).reduce((a, b) => a + b, 0);
-
-        return Object.assign(item, {
-          salaries,
-          salary: {times, total, unit: overtime?.unit},
-        });
-      });
-
-      const times = employees.map(employee => employee.salary.times).reduce((a, b) => a + b, 0);
-      const price = employees.map(employee => employee.salary.total).reduce((a, b) => a + b, 0);
-
-      return {
-        employees: employees.filter(employee => employee.salaries?.length), total: {times, price, unit: overtime?.unit}
-      };
-    }
-
-    const employees = overtimes
-      .filter(overtime => overtime.salaries?.length)
-      .map(overtime => {
-        return Object.assign(overtime, {
-          salary: {
-            total: overtime.salaries.map(salary => {
-              if (salary.unit === DatetimeUnit.DAY && salary.times > 1) {
-                return (salary.times * salary.price) + (salary.allowance?.price * salary.times);
-              } else {
-                return salary.times * salary.price + (salary.allowance?.price || 0);
-              }
-            }).reduce((a, b) => a + b, 0),
-            unit: 'doing...',
-          }
-        });
-      });
+    });
 
     return {
-      employees,
-      total: null,
-    };
+      total: e.total,
+      data,
+      totalSalary: {
+        total: data.map(e => e.salary.total).reduce((a, b) => a + b, 0),
+        unit: {
+          days: data.map(e => e.salary.unit.days).reduce((a, b) => a + b, 0),
+          hours: data.map(e => e.salary.unit.hours).reduce((a, b) => a + b, 0)
+        },
+      }
+    }
   }
 
   async confirmPayslip(id: number) {
