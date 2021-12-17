@@ -1320,7 +1320,7 @@ export class PayrollService {
         filterType: exportType
       })).data.map((payroll) => {
           if (!payroll.accConfirmedAt) {
-            throw new BadRequestException(`Phiếu lương ${payroll.id} chưa được xác nhận. Vui lòng xác nhận phiếu lương để in.`);
+            throw new BadRequestException(`Mã phiếu lương ${payroll.id} chưa được xác nhận. Vui lòng xác nhận phiếu lương để in.`);
           }
           return Object.assign(payroll, exportType === FilterTypeEnum.PAYROLL ? {
               payslip: Object.assign(payroll.payslip, {
