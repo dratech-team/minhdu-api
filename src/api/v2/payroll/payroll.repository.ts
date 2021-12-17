@@ -491,10 +491,11 @@ export class PayrollRepository {
                 : {contains: search?.name, mode: "insensitive"},
           }
         }
-      }
+      },
     });
     const total = await this.prisma.salary.count({
       where: {
+        type: {in: SalaryType.OVERTIME},
         title: search.title,
         datetime: {
           gte: search.startedAt,
@@ -508,6 +509,7 @@ export class PayrollRepository {
         skip: Number(search?.skip) || undefined,
         where: {
           title: e.title,
+          type: {in: SalaryType.OVERTIME},
           datetime: {
             gte: search.startedAt,
             lte: search.endedAt,
@@ -615,3 +617,6 @@ export class PayrollRepository {
 
 
 }
+
+
+
