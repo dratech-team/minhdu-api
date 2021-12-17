@@ -476,7 +476,9 @@ export class PayrollRepository {
       by: ['title'],
       where: {
         title: {startsWith: search?.title, mode: "insensitive"},
-        datetime: {
+        datetime: search?.createdAt ? {
+          in: search?.createdAt
+        } : {
           gte: search?.startedAt,
           lte: search?.endedAt
         },
@@ -502,10 +504,12 @@ export class PayrollRepository {
         where: {
           title: e.title,
           type: {in: SalaryType.OVERTIME},
-          datetime: {
-            gte: search.startedAt,
-            lte: search.endedAt,
-          }
+          datetime: search?.createdAt ? {
+            in: search?.createdAt
+          } : {
+            gte: search?.startedAt,
+            lte: search?.endedAt
+          },
         },
       });
       const salaries = await this.prisma.salary.findMany({
@@ -514,10 +518,12 @@ export class PayrollRepository {
         where: {
           title: e.title,
           type: {in: SalaryType.OVERTIME},
-          datetime: {
-            gte: search.startedAt,
-            lte: search.endedAt,
-          }
+          datetime: search?.createdAt ? {
+            in: search?.createdAt
+          } : {
+            gte: search?.startedAt,
+            lte: search?.endedAt
+          },
         },
         include: {
           allowance: true,
