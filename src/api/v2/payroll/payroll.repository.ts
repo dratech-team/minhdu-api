@@ -236,7 +236,7 @@ export class PayrollRepository {
               in: search?.salaryType === SalaryType.BASIC
                 ? [SalaryType.BASIC, SalaryType.BASIC_INSURANCE]
                 : search.salaryType === SalaryType.ABSENT
-                  ? [SalaryType.ABSENT, SalaryType.DAY_OFF]
+                  ? [SalaryType.ABSENT, SalaryType.DAY_OFF, SalaryType.DEDUCTION]
                   : search.salaryType
             }
             : {},
@@ -469,9 +469,6 @@ export class PayrollRepository {
   }
 
   async findOvertimesV2(profile: ProfileEntity, search: Partial<SearchPayrollDto>) {
-    if (!search?.title) {
-
-    }
     const overtimeTitles = await this.prisma.salary.groupBy({
       by: ['title'],
       where: {
@@ -512,9 +509,10 @@ export class PayrollRepository {
           },
         },
       });
+      /// TODO: Phân trang thì tổng sẽ lấy trong phạm vi được phân trang.
       const salaries = await this.prisma.salary.findMany({
-        take: Number(search?.take) || undefined,
-        skip: Number(search?.skip) || undefined,
+        // take: Number(search?.take) || undefined,
+        // skip: Number(search?.skip) || undefined,
         where: {
           title: e.title,
           type: {in: SalaryType.OVERTIME},
