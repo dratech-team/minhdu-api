@@ -204,21 +204,20 @@ export class PayrollService {
     const e = await this.repository.findOvertimesV2(profile, search);
     const overtimes = e.data.reduce((acc, e) => acc.concat(e), []);
     const employeeIds = [...new Set(overtimes.map(overtime => overtime.payroll.employeeId))];
-    let hours = 0;
-    let days = 0;
 
     const data = employeeIds.map(employeeId => {
       const employees = overtimes.filter(overtime => overtime.payroll.employeeId === employeeId);
 
       const total = employees.map(employee => {
         if (employee.unit === DatetimeUnit.DAY && employee.times > 1) {
-          days += 1;
           return (employee.times * employee.price) + (employee.allowance?.price * employee.times);
         } else {
-          hours += 1;
           return employee.times * employee.price + (employee.allowance?.price || 0);
         }
       }).reduce((a, b) => a + b, 0);
+
+      const days = employees.filter(employee => employee.unit === DatetimeUnit.DAY).map(employee => employee.times).reduce((a, b) => a + b, 0);
+      const hours = employees.filter(employee => employee.unit === DatetimeUnit.HOUR).map(employee => employee.times).reduce((a, b) => a + b, 0);
 
 
       return Object.assign({}, employees[0].payroll.employee, {
