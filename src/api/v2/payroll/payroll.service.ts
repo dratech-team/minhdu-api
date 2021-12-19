@@ -1326,17 +1326,22 @@ export class PayrollService {
       const data = await this.findAll(profile, Object.assign(search, {filterType: search.exportType}));
 
       const res = data.data.map((payroll) => {
+          let exportType;
           if (!payroll.accConfirmedAt) {
             throw new BadRequestException(`Mã nhân viên ${payroll.employee.id} chưa được xác nhận phiếu lương. Vui lòng xác nhận phiếu lương để in.`);
           }
-          return Object.assign(payroll, search?.exportType === FilterTypeEnum.PAYROLL
-            ? {
-              payslip: Object.assign(payroll.payslip, {
-                worksInHoliday: payroll?.payslip?.worksInHoliday?.map(holiday => holiday?.day)?.reduce((a, b) => a + b, 0),
-                worksNotInHoliday: payroll?.payslip?.worksNotInHoliday?.map(holiday => holiday?.day)?.reduce((a, b) => a + b, 0),
-              })
-            } : search?.exportType === FilterTypeEnum.OVERTIME
-              ? {
+          switch (search?.exportType) {
+            case FilterTypeEnum.PAYROLL: {
+              exportType = {
+                payslip: Object.assign(payroll.payslip, {
+                  worksInHoliday: payroll?.payslip?.worksInHoliday?.map(holiday => holiday?.day)?.reduce((a, b) => a + b, 0),
+                  worksNotInHoliday: payroll?.payslip?.worksNotInHoliday?.map(holiday => holiday?.day)?.reduce((a, b) => a + b, 0),
+                })
+              };
+              break;
+            }
+            case FilterTypeEnum.OVERTIME: {
+              exportType = {
                 lastName: payroll.employee.lastName,
                 branch: payroll.employee.branch.name,
                 position: payroll.employee.position.name,
@@ -1345,9 +1350,11 @@ export class PayrollService {
                 price: convertArrayToString(payroll.salaries.map(salary => salary.price)),
                 unit: payroll.salary.unit.days + " ngày, " + payroll.salary.unit.hours + " giờ",
                 total: payroll.salary.total,
-              }
-              : {},
-          );
+              };
+              break;
+            }
+          }
+          return Object.assign(payroll, exportType);
         }
       );
 
@@ -1444,7 +1451,7 @@ export class PayrollService {
       response,
       {
         name: filename,
-        title: `Bảng tăng ca từ ngày ${moment(startedAt).format("DD-MM-YYYY")} đến ngày ${moment(endedAt).format("DD-MM-YYYY")} ${titleLength > 1 ? '' :  'cho loại tăng ca ' +title[0]}`,
+        title: `Bảng tăng ca từ ngày ${moment(startedAt).format("DD-MM-YYYY")} đến ngày ${moment(endedAt).format("DD-MM-YYYY")} ${titleLength > 1 ? '' : 'cho loại tăng ca ' + title[0]}`,
         customHeaders: headers,
         customKeys: keys,
         data: payrolls,
