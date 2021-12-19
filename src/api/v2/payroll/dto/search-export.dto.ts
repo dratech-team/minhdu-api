@@ -1,29 +1,12 @@
 import {FilterTypeEnum} from "../entities/filter-type.enum";
-import {IsDate, IsEnum, IsNotEmpty, IsOptional, IsString} from "class-validator";
-import {Transform, Type} from "class-transformer";
+import {IsEnum, IsNotEmpty, IsString} from "class-validator";
+import {PartialType} from "@nestjs/swagger";
+import {SearchPayrollDto} from "./search-payroll.dto";
 
-export class SearchExportDto {
+export class SearchExportDto extends PartialType(SearchPayrollDto) {
   @IsNotEmpty()
   @IsString()
   readonly filename: string;
-
-  @IsOptional()
-  @Type(() => Date)
-  @Transform(val => new Date(val.value))
-  @IsDate()
-  readonly createdAt: Date;
-
-  @IsNotEmpty()
-  @Type(() => Date)
-  @Transform(val => new Date(val.value))
-  @IsDate()
-  readonly startedAt: Date;
-
-  @IsNotEmpty()
-  @Type(() => Date)
-  @Transform(val => new Date(val.value))
-  @IsDate()
-  readonly endedAt: Date;
 
   @IsNotEmpty()
   @IsEnum(FilterTypeEnum)

@@ -230,7 +230,7 @@ export class PayrollRepository {
             gte: firstDatetime(search?.createdAt),
             lte: lastDatetime(search?.createdAt),
           },
-          title: {startsWith: search?.salaryTitle, mode: "insensitive"},
+          title: {startsWith: search?.title, mode: "insensitive"},
           price: search?.salaryPrice ? {equals: search?.salaryPrice} : {},
           type: search?.filterType
             ? {
@@ -256,7 +256,7 @@ export class PayrollRepository {
             gte: firstDatetime(search?.createdAt),
             lte: lastDatetime(search?.createdAt),
           },
-          title: {startsWith: search?.salaryTitle, mode: "insensitive"},
+          title: {startsWith: search?.title, mode: "insensitive"},
           price: search?.salaryPrice ? {equals: search?.salaryPrice} : {},
           type: search?.filterType
             ? {

@@ -1,4 +1,4 @@
-import {EmployeeType, SalaryType} from "@prisma/client";
+import {EmployeeType} from "@prisma/client";
 import {FilterTypeEnum} from "../entities/filter-type.enum";
 import {Transform, Type} from "class-transformer";
 import {IsDate, IsEnum, IsNumber, IsOptional, IsString} from "class-validator";
@@ -66,10 +66,6 @@ export class SearchPayrollDto {
   @Transform(({value}) => +value)
   @IsNumber()
   readonly isPaid: number;
-
-  @IsOptional()
-  @IsString()
-  readonly salaryTitle: string;
 
   @IsOptional()
   @Type(() => Number)

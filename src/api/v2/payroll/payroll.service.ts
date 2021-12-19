@@ -1323,12 +1323,7 @@ export class PayrollService {
     try {
       const customs = items.reduce((a, v, index) => ({...a, [v['key']]: v['value']}), {});
 
-      const data = await this.findAll(profile, {
-        createdAt: search?.createdAt,
-        startedAt: search?.startedAt,
-        endedAt: search?.endedAt,
-        filterType: search?.exportType
-      });
+      const data = await this.findAll(profile, Object.assign(search, {filterType: search.exportType}));
 
       const res = data.data.map((payroll) => {
           if (!payroll.accConfirmedAt) {
@@ -1432,14 +1427,16 @@ export class PayrollService {
   }
 
   async exportOvertime(response: Response, filename: string, startedAt: Date, endedAt: Date, payrolls: any[], totalSalary: any, headers: string[], keys: string[]) {
+    const title = [...new Set(payrolls.map(payroll => payroll.title).filter(payroll => payroll !== ""))];
+    const titleLength = title.length;
     const total = {
       lastName: "Tổng tiền",
-      branch: " ",
-      position: " ",
-      datetime: " ",
-      title: " ",
-      unit: totalSalary.unit.days + " ngày, " + totalSalary.unit.hours + " giờ",
+      branch: "",
+      position: "",
+      datetime: "",
+      title: "",
       price: "",
+      unit: totalSalary.unit.days + " ngày, " + totalSalary.unit.hours + " giờ",
       total: totalSalary.total,
     };
     payrolls.push(total);
@@ -1447,7 +1444,7 @@ export class PayrollService {
       response,
       {
         name: filename,
-        title: `Bảng tăng ca từ ngày ${moment(startedAt).format("DD-MM-YYYY")} đến ngày ${moment(endedAt).format("DD-MM-YYYY")}`,
+        title: `Bảng tăng ca từ ngày ${moment(startedAt).format("DD-MM-YYYY")} đến ngày ${moment(endedAt).format("DD-MM-YYYY")} ${titleLength > 1 ? '' :  'cho loại tăng ca ' +title[0]}`,
         customHeaders: headers,
         customKeys: keys,
         data: payrolls,
