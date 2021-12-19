@@ -139,6 +139,9 @@ export class PayrollService {
     let updated: Payroll;
 
     const payroll = await this.findOne(id);
+    if (user.role === RoleEnum.CAMP_MANAGER && !payroll.accConfirmedAt) {
+      throw new BadRequestException(`Kế toán cần xác nhận phiếu lương trước!!!`);
+    }
     if (!payroll.salaries.filter(salary => salary.type === SalaryType.BASIC_INSURANCE).length) {
       throw new BadRequestException(`Phiếu lương thiếu lương cơ bản trích BH. Cần thêm mục này để xác nhận`);
     }
