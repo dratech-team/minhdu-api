@@ -20,6 +20,7 @@ import {rageDaysInMonth, timesheet} from "./functions/timesheet";
 import {FilterTypeEnum} from "./entities/filter-type.enum";
 import {ItemExportDto} from "./dto/items-export.dto";
 import {SearchExportDto} from "./dto/search-export.dto";
+import {convertArrayToString} from "./functions/convertArrayToString";
 
 
 @Injectable()
@@ -1344,19 +1345,9 @@ export class PayrollService {
                 lastName: payroll.employee.lastName,
                 branch: payroll.employee.branch.name,
                 position: payroll.employee.position.name,
-                datetime: payroll.salaries.length > 1
-                  ? payroll.salaries.map(salary => moment(salary.datetime).format("DD/MM/YYYY")).reduce((a, b, i) => {
-                    console.error(a, b, i)
-                  }, '')
-                  : payroll.salaries[0].datetime,
-                title: payroll.salaries.length > 1
-                  ? payroll.salaries.map(salary => salary.title).reduce((a, b) => {
-                    return [...a, " + ", b];
-                  }, '')
-                  : payroll.salaries[0].title,
-                price: payroll.salaries.length > 1
-                  ? payroll.salaries.map(salary => salary.price).reduce((a, b) => a + ', ' + b, '')
-                  : payroll.salaries[0].price,
+                datetime: convertArrayToString(payroll.salaries.map(salary => moment(salary.datetime).format("DD/MM/YYYY"))),
+                title: convertArrayToString(payroll.salaries.map(salary => salary.title)),
+                price: convertArrayToString(payroll.salaries.map(salary => salary.price)),
                 unit: payroll.salary.unit.days + " ngày, " + payroll.salary.unit.hours + " giờ",
                 total: payroll.salary.total,
               }
@@ -1396,7 +1387,7 @@ export class PayrollService {
       response,
       {
         name: filename,
-        title: `Bảng lương tháng ${new Date(datetime).getMonth() + 1} năm ${new Date(datetime).getFullYear()}`,
+        title: `Bảng lương tháng ${moment(datetime).format("MM-YYYY")}`,
         customHeaders: headers,
         customKeys: keys,
         data: payrolls,
@@ -1432,7 +1423,7 @@ export class PayrollService {
       {
         name: filename,
         customKeys: customKeys,
-        title: `Phiếu Chấm công tháng ${datetime.getMonth() + 1}`,
+        title: `Phiếu Chấm công tháng ${moment(datetime).format("MM")}`,
         customHeaders: customHeaders,
         data: data,
       },
@@ -1456,7 +1447,7 @@ export class PayrollService {
       response,
       {
         name: filename,
-        title: `Bảng tăng ca từ ngày ${moment(startedAt).format("DD-MM-YYYY").toString()} đến ngày ${moment(endedAt).format("DD-MM-YYYY").toString()}`,
+        title: `Bảng tăng ca từ ngày ${moment(startedAt).format("DD-MM-YYYY")} đến ngày ${moment(endedAt).format("DD-MM-YYYY")}`,
         customHeaders: headers,
         customKeys: keys,
         data: payrolls,
