@@ -94,11 +94,13 @@ export class PayrollService {
           })
         };
       }
-      case FilterTypeEnum.SALARY: {
-        if (search?.salaryType === SalaryType.OVERTIME) {
-          return this.filterOvertime(profile, search);
-        }
-        return await this.repository.findSalaries(profile, search);
+      case FilterTypeEnum.PAYROLL: {
+        return {
+          total,
+          data: await Promise.all(data.map(async payroll => {
+            return await this.mapPayslip(payroll);
+          }))
+        };
       }
       case FilterTypeEnum.SEASONAL: {
         return {
@@ -109,12 +111,7 @@ export class PayrollService {
         };
       }
       default: {
-        return {
-          total,
-          data: await Promise.all(data.map(async payroll => {
-            return await this.mapPayslip(payroll);
-          }))
-        };
+        return await this.repository.findSalaries(profile, search);
       }
     }
   }
@@ -1292,19 +1289,19 @@ export class PayrollService {
         };
         break;
       }
-      case FilterTypeEnum.OVERTIME: {
-        customs = {
-          lastName: "Họ và tên",
-          branch: "Đơn vị",
-          position: "Chức vụ",
-          datetime: "Ngày",
-          title: "Loại tăng ca",
-          unit: "Đơn vị tính",
-          price: "Đơn giá",
-          total: "Tổng tiền"
-        };
-        break;
-      }
+      // case FilterTypeEnum.OVERTIME: {
+      //   customs = {
+      //     lastName: "Họ và tên",
+      //     branch: "Đơn vị",
+      //     position: "Chức vụ",
+      //     datetime: "Ngày",
+      //     title: "Loại tăng ca",
+      //     unit: "Đơn vị tính",
+      //     price: "Đơn giá",
+      //     total: "Tổng tiền"
+      //   };
+      //   break;
+      // }
     }
     return Object.keys(customs).map((key) => ({key: key, value: customs[key]}));
   }
@@ -1348,12 +1345,12 @@ export class PayrollService {
         case FilterTypeEnum.TIME_SHEET: {
           return await this.exportTimeSheet(response, filename, createdAt, res, Object.values(customs), Object.keys(customs));
         }
-        case FilterTypeEnum.OVERTIME: {
-          if (!(startedAt || endedAt)) {
-            throw new BadRequestException('Vui lòng chọn ngày bắt đầu và kết thúc');
-          }
-          return await this.exportOvertime(response, filename, startedAt, endedAt, res, Object.values(customs), Object.keys(customs));
-        }
+        // case FilterTypeEnum.OVERTIME: {
+        //   if (!(startedAt || endedAt)) {
+        //     throw new BadRequestException('Vui lòng chọn ngày bắt đầu và kết thúc');
+        //   }
+        //   return await this.exportOvertime(response, filename, startedAt, endedAt, res, Object.values(customs), Object.keys(customs));
+        // }
       }
 
     } catch (err) {

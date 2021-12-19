@@ -78,10 +78,6 @@ export class SearchPayrollDto {
   readonly salaryPrice: number;
 
   @IsOptional()
-  @IsEnum(SalaryType)
-  readonly salaryType: SalaryType;
-
-  @IsOptional()
   @IsEnum(FilterTypeEnum)
   readonly filterType: FilterTypeEnum;
 

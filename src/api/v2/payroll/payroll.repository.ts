@@ -10,6 +10,7 @@ import {CreateSalaryDto} from "../salary/dto/create-salary.dto";
 import * as moment from "moment";
 import {SearchType} from "./entities/search.type.enum";
 import {Promise} from "es6-promise";
+import {FilterTypeEnum} from "./entities/filter-type.enum";
 
 @Injectable()
 export class PayrollRepository {
@@ -220,7 +221,7 @@ export class PayrollRepository {
     const [total, data] = await Promise.all([
       this.prisma.salary.count({
         where: {
-          datetime: search?.createdAt && (search?.salaryType === SalaryType.ABSENT || search?.salaryType === SalaryType.DAY_OFF) ? {
+          datetime: search?.createdAt && search?.filterType === SalaryType.ABSENT ? {
             in: search?.createdAt
           } : search?.startedAt && search?.endedAt ? {
             gte: search?.startedAt,
@@ -231,13 +232,13 @@ export class PayrollRepository {
           },
           title: {startsWith: search?.salaryTitle, mode: "insensitive"},
           price: search?.salaryPrice ? {equals: search?.salaryPrice} : {},
-          type: search?.salaryType
+          type: search?.filterType
             ? {
-              in: search?.salaryType === SalaryType.BASIC
+              in: search?.filterType === FilterTypeEnum.BASIC
                 ? [SalaryType.BASIC, SalaryType.BASIC_INSURANCE]
-                : search.salaryType === SalaryType.ABSENT
-                  ? [SalaryType.ABSENT, SalaryType.DAY_OFF, SalaryType.DEDUCTION]
-                  : search.salaryType
+                : search.filterType === FilterTypeEnum.ABSENT
+                  ? [SalaryType.ABSENT, SalaryType.DAY_OFF]
+                  : search.filterType as SalaryType
             }
             : {},
         },
@@ -246,7 +247,7 @@ export class PayrollRepository {
         take: search?.take,
         skip: search?.skip,
         where: {
-          datetime: search?.createdAt && (search?.salaryType === SalaryType.ABSENT || search?.salaryType === SalaryType.DAY_OFF) ? {
+          datetime: search?.createdAt && search?.filterType === SalaryType.ABSENT ? {
             in: search?.createdAt
           } : search?.startedAt && search?.endedAt ? {
             gte: search?.startedAt,
@@ -257,13 +258,13 @@ export class PayrollRepository {
           },
           title: {startsWith: search?.salaryTitle, mode: "insensitive"},
           price: search?.salaryPrice ? {equals: search?.salaryPrice} : {},
-          type: search?.salaryType
+          type: search?.filterType
             ? {
-              in: search?.salaryType === SalaryType.BASIC
+              in: search?.filterType === FilterTypeEnum.BASIC
                 ? [SalaryType.BASIC, SalaryType.BASIC_INSURANCE]
-                : search.salaryType === SalaryType.ABSENT
+                : search.filterType === FilterTypeEnum.ABSENT
                   ? [SalaryType.ABSENT, SalaryType.DAY_OFF]
-                  : search.salaryType
+                  : search.filterType as SalaryType
             }
             : {},
         },
