@@ -537,7 +537,7 @@ export class PayrollRepository {
             }
           }
         },
-        orderBy: {datetime: "asc"}
+        orderBy: {datetime: "desc"}
       });
       return {total, salaries};
     }));

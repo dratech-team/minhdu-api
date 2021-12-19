@@ -19,6 +19,7 @@ import {ConfirmPayrollDto} from "./dto/confirm-payroll.dto";
 import {rageDaysInMonth, timesheet} from "./functions/timesheet";
 import {FilterTypeEnum} from "./entities/filter-type.enum";
 import {ItemExportDto} from "./dto/items-export.dto";
+import {SearchExportDto} from "./dto/search-export.dto";
 
 
 @Injectable()
@@ -109,6 +110,9 @@ export class PayrollService {
             return Object.assign(payroll, {payslip: payroll.accConfirmedAt ? this.totalSalaryCT3(payroll) : null});
           }),
         };
+      }
+      case FilterTypeEnum.OVERTIME: {
+        return this.filterOvertime(profile, search);
       }
       default: {
         return await this.repository.findSalaries(profile, search);
@@ -235,8 +239,10 @@ export class PayrollService {
       data: data.map(e => ({
         id: e.id,
         payrollId: e.salary.payroll.id,
+        accConfirmedAt: e.salary.payroll.accConfirmedAt,
+        manConfirmedAt: e.salary.payroll.manConfirmedAt,
         employee: e,
-        salaries: e.salaries,
+        salaries: e.salaries.sort((a, b) => moment.utc(a.datetime).diff(moment.utc(b.datetime))),
         salary: e.salary,
       })),
       totalSalary: {
@@ -1289,19 +1295,19 @@ export class PayrollService {
         };
         break;
       }
-      // case FilterTypeEnum.OVERTIME: {
-      //   customs = {
-      //     lastName: "Họ và tên",
-      //     branch: "Đơn vị",
-      //     position: "Chức vụ",
-      //     datetime: "Ngày",
-      //     title: "Loại tăng ca",
-      //     unit: "Đơn vị tính",
-      //     price: "Đơn giá",
-      //     total: "Tổng tiền"
-      //   };
-      //   break;
-      // }
+      case FilterTypeEnum.OVERTIME: {
+        customs = {
+          lastName: "Họ và tên",
+          branch: "Đơn vị",
+          position: "Chức vụ",
+          datetime: "Ngày",
+          title: "Loại tăng ca",
+          unit: "Đơn vị tính",
+          price: "Đơn giá",
+          total: "Tổng tiền"
+        };
+        break;
+      }
     }
     return Object.keys(customs).map((key) => ({key: key, value: customs[key]}));
   }
@@ -1310,47 +1316,65 @@ export class PayrollService {
   async export(
     response: Response,
     profile: ProfileEntity,
-    filename: string,
-    createdAt: Date,
+    search: SearchExportDto,
     items: ItemExportDto[],
-    exportType?: FilterTypeEnum,
-    startedAt?: Date,
-    endedAt?: Date
   ) {
     try {
       const customs = items.reduce((a, v, index) => ({...a, [v['key']]: v['value']}), {});
-      const res = (await this.findAll(profile, {
-        createdAt,
-        startedAt,
-        endedAt,
-        filterType: exportType
-      })).data.map((payroll) => {
+
+      const data = await this.findAll(profile, {
+        createdAt: search?.createdAt,
+        startedAt: search?.startedAt,
+        endedAt: search?.endedAt,
+        filterType: search?.exportType
+      });
+
+      const res = data.data.map((payroll) => {
           if (!payroll.accConfirmedAt) {
-            throw new BadRequestException(`Mã phiếu lương ${payroll.id} chưa được xác nhận. Vui lòng xác nhận phiếu lương để in.`);
+            throw new BadRequestException(`Mã nhân viên ${payroll.employee.id} chưa được xác nhận phiếu lương. Vui lòng xác nhận phiếu lương để in.`);
           }
-          return Object.assign(payroll, exportType === FilterTypeEnum.PAYROLL ? {
+          return Object.assign(payroll, search?.exportType === FilterTypeEnum.PAYROLL
+            ? {
               payslip: Object.assign(payroll.payslip, {
                 worksInHoliday: payroll?.payslip?.worksInHoliday?.map(holiday => holiday?.day)?.reduce((a, b) => a + b, 0),
                 worksNotInHoliday: payroll?.payslip?.worksNotInHoliday?.map(holiday => holiday?.day)?.reduce((a, b) => a + b, 0),
               })
-            } : {}
+            } : search?.exportType === FilterTypeEnum.OVERTIME
+              ? {
+                lastName: payroll.employee.lastName,
+                branch: payroll.employee.branch.name,
+                position: payroll.employee.position.name,
+                datetime: payroll.salaries.length > 1
+                  ? payroll.salaries.map(salary => moment(salary.datetime).format("DD/MM/YYYY")).reduce((a, b, i) => {
+                    console.error(a, b, i)
+                  }, '')
+                  : payroll.salaries[0].datetime,
+                title: payroll.salaries.length > 1
+                  ? payroll.salaries.map(salary => salary.title).reduce((a, b) => {
+                    return [...a, " + ", b];
+                  }, '')
+                  : payroll.salaries[0].title,
+                price: payroll.salaries.length > 1
+                  ? payroll.salaries.map(salary => salary.price).reduce((a, b) => a + ', ' + b, '')
+                  : payroll.salaries[0].price,
+                unit: payroll.salary.unit.days + " ngày, " + payroll.salary.unit.hours + " giờ",
+                total: payroll.salary.total,
+              }
+              : {},
           );
         }
       );
 
-      switch (exportType) {
+      switch (search?.exportType) {
         case FilterTypeEnum.PAYROLL: {
-          return await this.exportPayroll(response, filename, createdAt, res, Object.values(customs), Object.keys(customs));
+          return await this.exportPayroll(response, search?.filename, search?.createdAt, res, Object.values(customs), Object.keys(customs));
         }
         case FilterTypeEnum.TIME_SHEET: {
-          return await this.exportTimeSheet(response, filename, createdAt, res, Object.values(customs), Object.keys(customs));
+          return await this.exportTimeSheet(response, search?.filename, search?.createdAt, res, Object.values(customs), Object.keys(customs));
         }
-        // case FilterTypeEnum.OVERTIME: {
-        //   if (!(startedAt || endedAt)) {
-        //     throw new BadRequestException('Vui lòng chọn ngày bắt đầu và kết thúc');
-        //   }
-        //   return await this.exportOvertime(response, filename, startedAt, endedAt, res, Object.values(customs), Object.keys(customs));
-        // }
+        case FilterTypeEnum.OVERTIME: {
+          return await this.exportOvertime(response, search?.filename, search?.startedAt, search?.endedAt, res, (data as any).totalSalary, Object.values(customs), Object.keys(customs));
+        }
       }
 
     } catch (err) {
@@ -1416,13 +1440,23 @@ export class PayrollService {
     );
   }
 
-  async exportOvertime(response: Response, filename: string, startedAt: Date, endedAt: Date, payrolls, headers: string[], keys: string[]) {
+  async exportOvertime(response: Response, filename: string, startedAt: Date, endedAt: Date, payrolls: any[], totalSalary: any, headers: string[], keys: string[]) {
+    const total = {
+      lastName: "Tổng tiền",
+      branch: " ",
+      position: " ",
+      datetime: " ",
+      title: " ",
+      unit: totalSalary.unit.days + " ngày, " + totalSalary.unit.hours + " giờ",
+      price: "",
+      total: totalSalary.total,
+    };
+    payrolls.push(total);
     return exportExcel(
       response,
       {
         name: filename,
-        title: `Bảng tăng ca từ ngày ${new Date(startedAt).getDate()} tháng ${new Date(startedAt).getMonth() + 1} năm ${new Date(startedAt).getFullYear()}
-          đến ngày ${new Date(endedAt).getDate()} tháng ${new Date(endedAt).getMonth() + 1} năm ${new Date(endedAt).getFullYear()} `,
+        title: `Bảng tăng ca từ ngày ${moment(startedAt).format("DD-MM-YYYY").toString()} đến ngày ${moment(endedAt).format("DD-MM-YYYY").toString()}`,
         customHeaders: headers,
         customKeys: keys,
         data: payrolls,
@@ -1430,6 +1464,5 @@ export class PayrollService {
       200
     );
   }
-
 }
 
