@@ -3,6 +3,7 @@ import {HrOverviewService} from './hr-overview.service';
 import {CreateHrOverviewDto} from './dto/create-hr-overview.dto';
 import {UpdateHrOverviewDto} from './dto/update-hr-overview.dto';
 import {HrOverviewFilterEnum} from "./entities/hr-overview-filter.enum";
+import {SearchHrOverviewDto} from "./dto/search-hr-overview.dto";
 
 @Controller('v2/hr-overview')
 export class HrOverviewController {
@@ -15,8 +16,8 @@ export class HrOverviewController {
   }
 
   @Get()
-  findAll(@Query("filter") filter: HrOverviewFilterEnum, @Query("isLeft") isLeft: boolean) {
-    return this.hrOverviewService.findAll(filter, Boolean(isLeft));
+  findAll(@Query() search: SearchHrOverviewDto) {
+    return this.hrOverviewService.findAll(search);
   }
 
   @Get(':id')

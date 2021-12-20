@@ -21,13 +21,14 @@ import {FilterTypeEnum} from "./entities/filter-type.enum";
 import {ItemExportDto} from "./dto/items-export.dto";
 import {SearchExportDto} from "./dto/search-export.dto";
 import {convertArrayToString} from "./functions/convertArrayToString";
-
+import {HttpService} from "@nestjs/axios";
 
 @Injectable()
 export class PayrollService {
   constructor(
     private readonly repository: PayrollRepository,
     private readonly employeeService: EmployeeService,
+    private readonly  httpService: HttpService
   ) {
   }
 
