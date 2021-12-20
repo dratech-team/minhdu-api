@@ -1501,21 +1501,18 @@ export class PayrollService {
     const data = payrolls
       .map(payroll => {
         payroll.employee = Object.assign(payroll.employee, {
-          position: payroll.employee.position.name,
-          branch: payroll.employee.branch.name
+          lastName: payroll.employee.lastName,
+          branch: payroll.employee.branch.name,
+          position: payroll.employee.position.name
         });
 
         const times = timesheet(payroll.createdAt, payroll.salaries).datetime
           .map((e, index) => {
             return e[datetimes[index]];
           });
-
-        keys.forEach(key => {
-          times.unshift(payroll.employee[key]);
-        });
+        times.unshift(...keys.map(key => payroll.employee[key]));
         return times;
       });
-
     return exportExcel(
       response,
       {
