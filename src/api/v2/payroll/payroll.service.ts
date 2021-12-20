@@ -1423,8 +1423,18 @@ export class PayrollService {
                 branch: payroll.employee.branch.name,
                 position: payroll.employee.position.name,
                 datetime: convertArrayToString(payroll.salaries.filter(salary => salary.datetime).map(salary => moment(salary.datetime).format("DD/MM/YYYY"))),
-                title: convertArrayToString(payroll.salaries.map(salary => salary.title)),
-                price: convertArrayToString(payroll.salaries.map(salary => salary.price)),
+                title: convertArrayToString(payroll.salaries.map(salary => {
+                  if (salary?.allowance?.title) {
+                    return salary.title + " + " + salary?.allowance?.title;
+                  }
+                  return salary.title;
+                })),
+                price: convertArrayToString(payroll.salaries.map(salary => {
+                  if (salary?.allowance?.price) {
+                    return salary.price + " + " + salary?.allowance?.price;
+                  }
+                  return salary.price;
+                })),
                 unit: payroll?.salary?.unit?.days + " ngày, " + payroll?.salary?.unit?.hours + " giờ",
                 total: payroll?.salary?.total,
               };
@@ -1443,7 +1453,7 @@ export class PayrollService {
           return this.exportTimeSheet(response, search?.filename, search?.createdAt, res, Object.values(customs), Object.keys(customs));
         }
         case FilterTypeEnum.SEASONAL: {
-          return this.exportSeasonal(response, search?.filename, search?.createdAt, res, Object.values(customs), Object.keys(customs))
+          return this.exportSeasonal(response, search?.filename, search?.createdAt, res, Object.values(customs), Object.keys(customs));
         }
         case FilterTypeEnum.OVERTIME: {
           return this.exportOvertime(response, search?.filename, search?.startedAt, search?.endedAt, res, (data as any).totalSalary, Object.values(customs), Object.keys(customs));
