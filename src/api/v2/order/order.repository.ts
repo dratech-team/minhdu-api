@@ -2,7 +2,6 @@ import {BadRequestException, Injectable} from "@nestjs/common";
 import {PrismaService} from "../../../prisma.service";
 import {CreateOrderDto} from "./dto/create-order.dto";
 import {UpdateOrderDto} from "./dto/update-order.dto";
-import {Customer, PrismaPromise} from "@prisma/client";
 import {SearchOrderDto} from "./dto/search-order.dto";
 import {searchName} from "../../../utils/search-name.util";
 
@@ -11,9 +10,9 @@ export class OrderRepository {
   constructor(private readonly prisma: PrismaService) {
   }
 
-  async create(body: CreateOrderDto, total?: number) {
+  async create(body: CreateOrderDto) {
     try {
-      const order = this.prisma.order.create({
+      return await this.prisma.order.create({
         data: {
           customerId: body.customerId,
           createdAt: body.createdAt,
@@ -27,14 +26,8 @@ export class OrderRepository {
           commodities: true,
         },
       });
-      const customer = this.prisma.customer.update({
-        where: {id: body.customerId},
-        data: {debt: -total}
-      });
-
-      return (await this.prisma.$transaction([order, customer]))[0];
     } catch (err) {
-      console.error("order create", err);
+      console.error(err);
       throw new BadRequestException(err);
     }
   }
@@ -139,7 +132,7 @@ export class OrderRepository {
    * */
   async update(id: number, updates: Partial<UpdateOrderDto>) {
     try {
-      return await this.prisma.order.update({
+      const updated = await this.prisma.order.update({
         where: {id},
         data: {
           commodities: {connect: updates?.commodityIds?.map((id) => ({id}))},
@@ -153,6 +146,13 @@ export class OrderRepository {
           commodities: true
         }
       });
+      if (updated.deliveredAt && updates.deliveredAt) {
+        await this.prisma.customer.update({
+          where: {id: updated.customerId},
+          data: {debt: -updates.total}
+        });
+      }
+      return updated;
     } catch (err) {
       console.error(err);
       throw new BadRequestException(err);
@@ -161,7 +161,15 @@ export class OrderRepository {
 
   async remove(id: number) {
     try {
-      return await this.prisma.order.delete({where: {id}});
+      const order = await this.prisma.order.findUnique({where: {id}});
+      const customer = await this.prisma.customer.findUnique({where: {id: order.customerId}});
+
+      const deleted = this.prisma.order.delete({where: {id}});
+      const updated = this.prisma.customer.update({
+        where: {id: order.customerId},
+        data: {debt: customer.debt + order.total}
+      });
+
     } catch (err) {
       console.error(err);
       throw new BadRequestException(err);
