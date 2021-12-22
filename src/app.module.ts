@@ -33,7 +33,7 @@ import { BasicTemplateModule } from './api/v2/basic-template/basic-template.modu
 import { SystemModule } from './api/v2/system/system.module';
 import { RoleModule } from './api/v2/role/role.module';
 import { ApplicationModule } from './api/v2/application/application.module';
-import { HrOverviewModule } from './api/v2/hr-overview/hr-overview.module';
+import { OverviewModule } from './api/v2/overview/overview.module';
 import { FinanceModule } from './api/v2/finance/finance.module';
 import { AdminModule } from './api/v2/admin/admin.module';
 
@@ -71,7 +71,7 @@ import { AdminModule } from './api/v2/admin/admin.module';
     SystemModule,
     RoleModule,
     ApplicationModule,
-    HrOverviewModule,
+    OverviewModule,
     FinanceModule,
     AdminModule,
   ],

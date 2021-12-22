@@ -1,11 +1,11 @@
-import {HrOverviewFilterEnum} from "../entities/hr-overview-filter.enum";
+import {OverviewFilterEnum} from "../entities/overview-filter.enum";
 import {IsBoolean, IsEnum, IsNotEmpty} from "class-validator";
 import {Type} from "class-transformer";
 
-export class SearchHrOverviewDto {
+export class SearchHROverviewDto {
   @IsNotEmpty()
-  @IsEnum(HrOverviewFilterEnum)
-  readonly filter: HrOverviewFilterEnum;
+  @IsEnum(OverviewFilterEnum)
+  readonly filter: OverviewFilterEnum;
 
   @IsNotEmpty()
   @Type(() => Boolean)

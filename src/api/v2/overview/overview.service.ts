@@ -1,24 +1,24 @@
 import {PrismaService} from "../../../prisma.service";
-import {CreateHrOverviewDto} from "./dto/create-hr-overview.dto";
-import {UpdateHrOverviewDto} from "./dto/update-hr-overview.dto";
+import {CreateOverviewDto} from "./dto/create-overview.dto";
+import {UpdateOverviewDto} from "./dto/update-overview.dto";
 import {BadRequestException} from "@nestjs/common";
-import {HrOverviewFilterEnum} from "./entities/hr-overview-filter.enum";
+import {OverviewFilterEnum} from "./entities/overview-filter.enum";
 import {firstDatetime, lastDatetime} from "../../../utils/datetime.util";
-import {SearchHrOverviewDto} from "./dto/search-hr-overview.dto";
+import {SearchHROverviewDto} from "./dto/search-h-r-overview.dto";
 import * as moment from "moment";
 
-export class HrOverviewService {
+export class OverviewService {
   constructor(private readonly prisma: PrismaService) {
   }
 
-  async create(body: CreateHrOverviewDto) {
+  async create(body: CreateOverviewDto) {
     return 'This action adds a new hrOverview';
   }
 
-  async findAll(search: SearchHrOverviewDto) {
+  async findAll(search: SearchHROverviewDto) {
     try {
       switch (search.filter) {
-        case HrOverviewFilterEnum.AGE: {
+        case OverviewFilterEnum.AGE: {
           const ages = (await this.prisma.employee.groupBy({
             by: ['birthday'],
             orderBy: {
@@ -28,7 +28,7 @@ export class HrOverviewService {
           console.log(ages)
           break;
         }
-        case HrOverviewFilterEnum.CREATED_AT: {
+        case OverviewFilterEnum.CREATED_AT: {
           const datetimes = await this.prisma.employee.groupBy({
             by: ['createdAt'],
             orderBy: {
@@ -58,7 +58,7 @@ export class HrOverviewService {
     return `This action returns a #${id} hrOverview`;
   }
 
-  update(id: number, updates: UpdateHrOverviewDto) {
+  update(id: number, updates: UpdateOverviewDto) {
     return `This action updates a #${id} hrOverview`;
   }
 
