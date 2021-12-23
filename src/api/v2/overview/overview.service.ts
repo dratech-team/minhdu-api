@@ -19,20 +19,13 @@ export class OverviewService {
           }
         })).map(e => moment().diff(e.birthday, "years"));
 
-        const uniqueAges = [...new Set(ages)];
-        const a = uniqueAges.map(age => {
+        return [...new Set(ages)].map((age, _, arr) => {
           const newAge = ages.filter(e => e === age);
           return {
-            key: age,
-            value: newAge.length / uniqueAges.length,
+            name: age,
+            value: newAge.length / arr.length,
           };
         });
-        console.log(a.map(e => e.value).reduce((a, b) => a + b, 0))
-        // return await Promise.all(ages.map(async age => {
-        //   return await this.prisma.employee.aggregate({
-        //     where
-        //   });
-        // }));
       }
     }
   }
