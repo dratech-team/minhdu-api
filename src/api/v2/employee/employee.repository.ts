@@ -5,8 +5,9 @@ import {CreateEmployeeDto} from "./dto/create-employee.dto";
 import {SearchEmployeeDto} from "./dto/search-employee.dto";
 import {UpdateEmployeeDto} from "./dto/update-employee.dto";
 import {firstDatetime, lastDatetime} from "../../../utils/datetime.util";
-import {EmployeeType} from "@prisma/client";
+import {EmployeeType, RecipeType} from "@prisma/client";
 import {SearchEmployeeByOvertimeDto} from "./dto/search-employee-by-overtime.dto";
+import * as faker from "faker";
 
 @Injectable()
 export class EmployeeRepository {

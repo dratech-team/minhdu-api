@@ -33,9 +33,9 @@ import { BasicTemplateModule } from './api/v2/basic-template/basic-template.modu
 import { SystemModule } from './api/v2/system/system.module';
 import { RoleModule } from './api/v2/role/role.module';
 import { ApplicationModule } from './api/v2/application/application.module';
-import { OverviewModule } from './api/v2/overview/overview.module';
 import { FinanceModule } from './api/v2/finance/finance.module';
 import { AdminModule } from './api/v2/admin/admin.module';
+import { OverviewModule } from './api/v2/overview/overview.module';
 
 @Module({
   imports: [
@@ -71,9 +71,9 @@ import { AdminModule } from './api/v2/admin/admin.module';
     SystemModule,
     RoleModule,
     ApplicationModule,
-    OverviewModule,
     FinanceModule,
     AdminModule,
+    OverviewModule,
   ],
   controllers: [AppController],
   providers: [PrismaService],

@@ -1,5 +1,6 @@
 import {EmployeeType, PrismaClient, RecipeType, RoleEnum} from "@prisma/client";
 import faker from "faker";
+
 const prisma = new PrismaClient();
 
 async function main() {
@@ -48,9 +49,8 @@ async function main() {
     ],
     skipDuplicates: true
   });
-
   for (let i = 0; i < 1000; i++) {
-    await this.prisma.employee.create({
+    await prisma.employee.create({
       data: {
         lastName: faker.name.lastName(),
         gender: "MALE",
@@ -60,6 +60,7 @@ async function main() {
         identify: "12345678" + i,
         idCardAt: faker.date.between('2000-01-01', '1980-01-05'),
         issuedBy: faker.address.cityName(),
+        createdAt: faker.date.between('2021-01-01', '2000-01-05'),
         workday: 26,
         ward: {connect: {id: 12}},
         address: faker.address.streetName(),
@@ -75,8 +76,6 @@ async function main() {
     });
     console.log(i);
   }
-
-
 }
 
 main().catch(err => console.error(err));
