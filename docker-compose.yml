@@ -5,7 +5,8 @@ services:
     image: postgres:latest
     restart: unless-stopped
     volumes:
-      - postgres-data:/var/lib/postgresql/data
+      - ./init-mongo.js:/docker-entrypoint-initdb.d/init-mongo.js:ro
+      - ./mongo-volume:/data/db
     environment:
       POSTGRES_PASSWORD: minhdudb
       POSTGRES_USER: postgres
