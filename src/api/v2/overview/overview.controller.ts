@@ -8,7 +8,12 @@ export class OverviewController {
   }
 
   @Get("hr")
-  findAll(@Query() search: SearchHrOverviewDto) {
-    return this.overviewService.findAll(search);
+  hr(@Query() search: SearchHrOverviewDto) {
+    return this.overviewService.hr(search);
+  }
+
+  @Get("sell")
+  sell(@Query() search: SearchHrOverviewDto) {
+    return this.overviewService.hr(search);
   }
 }
