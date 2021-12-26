@@ -19,12 +19,7 @@ export class OrderService {
   }
 
   async create(body: CreateOrderDto) {
-    const commodities = await Promise.all(body.commodityIds.map(async commodityId => {
-      const commodity = await this.commodityService.findOne(commodityId);
-      return Object.assign(commodity, {more: commodity.more.amount});
-    }));
-    const total = this.commodityService.totalCommodities(commodities);
-    return await this.repository.create(body, total);
+    return await this.repository.create(body);
   }
 
   async findAll(skip: number, take: number, search?: Partial<SearchOrderDto>) {
@@ -88,7 +83,7 @@ export class OrderService {
     //     return new BadRequestException(`Mặt hàng ${commodity.name} đã được liên kết với đơn hàng ${order.id} được tạo vào ngày ${order.createdAt}. Vui lòng hủy liên kết mặt hàng này cho đơn hàng ${order.id} trước khi liên kết nó với đơn hàng khác `)
     //   }
     // }
-    return await this.repository.update(id, updates);
+    return await this.repository.update(id, Object.assign(updates, {total: found.commodityTotal}));
   }
 
   updateHide(id: number, hide: boolean) {

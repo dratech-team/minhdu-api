@@ -328,6 +328,7 @@ model Order {
   deliveredAt      DateTime?
   hide             Boolean?         @default(false)
   destination      Ward?            @relation(fields: [wardId], references: [id])
+  total            Float?
   paymentHistories PaymentHistory[]
 }
 
