@@ -141,14 +141,7 @@ export class OrderRepository {
     try {
       return await this.prisma.order.update({
         where: {id},
-        data: {
-          commodities: {connect: updates?.commodityIds?.map((id) => ({id}))},
-          deliveredAt: updates?.deliveredAt,
-          hide: updates?.hide,
-          createdAt: updates?.createdAt,
-          explain: updates?.explain,
-          wardId: updates?.wardId,
-        },
+        data: Object.assign(updates, {commodities: {connect: updates?.commodityIds?.map((id) => ({id}))}}),
         include: {
           commodities: true
         }

@@ -323,6 +323,7 @@ model Order {
   explain          String?
   routes           Route[]
   commodities      Commodity[]
+  total            Float?
   wardId           Int?
   deliveredAt      DateTime?
   hide             Boolean?         @default(false)

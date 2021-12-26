@@ -74,7 +74,25 @@ export class CustomerRepository {
 
   async findOne(id: number) {
     try {
-      return await this.prisma.customer.findUnique({
+      const order = await this.prisma.order.aggregate({
+        where: {
+          customerId: id,
+          hide: false,
+        },
+        _sum: {
+          total: true,
+        }
+      });
+      const payment = await this.prisma.paymentHistory.aggregate({
+        where: {
+          customerId: id
+        },
+        _sum: {
+          total: true,
+        }
+      });
+
+      const customer = await this.prisma.customer.findUnique({
         where: {id},
         include: {
           ward: {
@@ -92,6 +110,7 @@ export class CustomerRepository {
           },
         },
       });
+      return Object.assign(customer, {debt: payment._sum.total - order._sum.total});
     } catch (err) {
       console.error(err);
       throw new BadRequestException(err);
