@@ -132,20 +132,13 @@ export class OrderRepository {
    * */
   async update(id: number, updates: Partial<UpdateOrderDto>) {
     try {
-      const updated = await this.prisma.order.update({
+      return await this.prisma.order.update({
         where: {id},
         data: Object.assign(updates, {commodities: {connect: updates?.commodityIds?.map((id) => ({id}))}}),
         include: {
           commodities: true
         }
       });
-      if (updated.deliveredAt && updates.deliveredAt) {
-        await this.prisma.customer.update({
-          where: {id: updated.customerId},
-          data: {debt: -updates.total}
-        });
-      }
-      return updated;
     } catch (err) {
       console.error(err);
       throw new BadRequestException(err);
@@ -154,15 +147,7 @@ export class OrderRepository {
 
   async remove(id: number) {
     try {
-      const order = await this.prisma.order.findUnique({where: {id}});
-      const customer = await this.prisma.customer.findUnique({where: {id: order.customerId}});
-
-      const deleted = this.prisma.order.delete({where: {id}});
-      const updated = this.prisma.customer.update({
-        where: {id: order.customerId},
-        data: {debt: customer.debt + order.total}
-      });
-
+      return await this.prisma.order.delete({where: {id}});
     } catch (err) {
       console.error(err);
       throw new BadRequestException(err);

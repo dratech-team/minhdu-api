@@ -5,9 +5,7 @@ import {PrismaService} from "../../../prisma.service";
 import {CustomerRepository} from "./customer.repository";
 import {PaymentHistoryModule} from "../payment-history/payment-history.module";
 import {PaymentHistoryService} from "../payment-history/payment-history.service";
-import {OrderService} from "../order/order.service";
 import {PaymentHistoryRepository} from "../payment-history/payment-history.repository";
-import {OrderRepository} from "../order/order.repository";
 import {CommodityService} from "../commodity/commodity.service";
 import {CommodityRepository} from "../commodity/commodity.repository";
 import {ConfigModule} from "../../../core/config/config.module";
@@ -21,8 +19,6 @@ import {ConfigModule} from "../../../core/config/config.module";
     CustomerRepository,
     PaymentHistoryService,
     PaymentHistoryRepository,
-    OrderService,
-    OrderRepository,
     CommodityService,
     CommodityRepository,
   ],

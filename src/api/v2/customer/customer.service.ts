@@ -3,11 +3,8 @@ import {CreateCustomerDto} from "./dto/create-customer.dto";
 import {UpdateCustomerDto} from "./dto/update-customer.dto";
 import {CustomerRepository} from "./customer.repository";
 import {Customer, GenderType} from "@prisma/client";
-import {searchName} from "../../../utils/search-name.util";
 import {CreatePaymentHistoryDto} from "../payment-history/dto/create-payment-history.dto";
 import {Response} from "express";
-import {PaymentHistoryService} from "../payment-history/payment-history.service";
-import {OrderService} from "../order/order.service";
 import {exportExcel} from "../../../core/services/export.service";
 import {SearchCustomerDto} from "./dto/search-customer.dto";
 import * as moment from "moment";
@@ -16,7 +13,6 @@ import * as moment from "moment";
 export class CustomerService {
   constructor(
     private readonly repository: CustomerRepository,
-    private readonly orderService: OrderService,
   ) {
   }
 
