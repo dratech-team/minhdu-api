@@ -1,6 +1,7 @@
 import {Controller, Get, Query} from '@nestjs/common';
 import {OverviewService} from './overview.service';
 import {SearchHrOverviewDto} from "./dto/search-hr-overview.dto";
+import {SearchSellOverviewDto} from "./dto/search-sell-overview.dto";
 
 @Controller('v2/overview')
 export class OverviewController {
@@ -13,7 +14,7 @@ export class OverviewController {
   }
 
   @Get("sell")
-  sell(@Query() search: SearchHrOverviewDto) {
-    return this.overviewService.hr(search);
+  sell(@Query() search: SearchSellOverviewDto) {
+    return this.overviewService.sell(search);
   }
 }

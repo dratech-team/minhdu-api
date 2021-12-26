@@ -127,9 +127,6 @@ export class OrderRepository {
     }
   }
 
-  /*
-   * Order thì Thêm mới hoặc xoá hàng hoá. 1 hàng hoá chỉ tồn tại cho 1 đơn hàng
-   * */
   async update(id: number, updates: Partial<UpdateOrderDto>) {
     try {
       return await this.prisma.order.update({

@@ -75,15 +75,7 @@ export class OrderService {
         "Không được sửa đơn hàng đã được giao thành công."
       );
     }
-    // // Nếu mặt hàng được liên kết với một dơn hàng khác trước đó và khác với đơn hàng hiện tại thì không được liên kết nó cho đơn hàng khác
-    // for (let i = 0; i < updates.commodityIds.length; i++) {
-    //   const commodity = await this.commodityService.findOne(updates.commodityIds[i]);
-    //   if (commodity.orderId && commodity.orderId !== id) {
-    //     const order = await this.findOne(commodity.orderId);
-    //     return new BadRequestException(`Mặt hàng ${commodity.name} đã được liên kết với đơn hàng ${order.id} được tạo vào ngày ${order.createdAt}. Vui lòng hủy liên kết mặt hàng này cho đơn hàng ${order.id} trước khi liên kết nó với đơn hàng khác `)
-    //   }
-    // }
-    return await this.repository.update(id, Object.assign(updates, {total: found.commodityTotal}));
+    return await this.repository.update(id, Object.assign(updates, updates.deliveredAt ? {total: found.commodityTotal} : {}));
   }
 
   updateHide(id: number, hide: boolean) {
