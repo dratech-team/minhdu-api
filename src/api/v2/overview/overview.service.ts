@@ -187,15 +187,19 @@ export class OverviewService {
         }));
       }
       case TypeSellEntity.YEAR: {
+        let years = [];
+        if (search?.startedAt && search?.endedAt) {
+          years = [...new Set(rageDateTime(search.startedAt, search.endedAt, "years").map(e => Number(moment(e).format("YYYY"))))];
+        }
         if (search.option === OptionFilterEnum.CUSTOMER) {
-          const years = search?.startedAt && search?.endedAt
-            ? [...new Set(rageDateTime(search.startedAt, search.endedAt, "years").map(e => Number(moment(e).format("YYYY"))))]
-            : [...new Set((await this.prisma.customer.groupBy({
+          if (!(search?.startedAt && search?.endedAt)) {
+            years = [...new Set((await this.prisma.customer.groupBy({
               by: ["timestamp"],
               orderBy: {
                 timestamp: "asc"
               }
             })).map(e => Number(moment(e.timestamp).format("YYYY"))))];
+          }
 
           return await Promise.all(years.map(async year => {
             const count = await Promise.all([CustomerType.AGENCY, CustomerType.RETAIL].map(async type => {
@@ -218,11 +222,92 @@ export class OverviewService {
               series: count
             };
           }));
+        } else if (search.option === OptionFilterEnum.SOLD) {
+          if (!(search?.startedAt && search?.endedAt)) {
+            years = [...new Set((await this.prisma.order.groupBy({
+              by: ["deliveredAt"],
+              orderBy: {
+                deliveredAt: "asc"
+              }
+            })).map(e => Number(moment(e.deliveredAt).format("YYYY"))))];
+          }
+
+          return await Promise.all(years.map(async year => {
+            const aggregate = await this.prisma.commodity.aggregate({
+              where: {
+                order: {
+                  deliveredAt: {
+                    gte: firstDatetime(new Date(`${year}-01-01`), "years"),
+                    lte: lastDatetime(new Date(`${year}-01-01`), "years"),
+                  }
+                }
+              },
+              _sum: {
+                more: true,
+                gift: true,
+                amount: true,
+              }
+            });
+            return {
+              name: year,
+              series: Array.of(
+                {
+                  name: "Gà bán",
+                  value: aggregate._sum.amount,
+                },
+                {
+                  name: "Gà mua thêm",
+                  value: aggregate._sum.more,
+                },
+                {
+                  name: "Gà tặng",
+                  value: aggregate._sum.gift,
+                },
+              )
+            };
+          }));
+        } else if (search.option === OptionFilterEnum.SALES) {
+          if (!(search?.startedAt && search?.endedAt)) {
+            years = [...new Set((await this.prisma.order.groupBy({
+              by: ["deliveredAt"],
+              orderBy: {
+                deliveredAt: "asc"
+              }
+            })).map(e => Number(moment(e.deliveredAt).format("YYYY"))))];
+          }
+
+          return await Promise.all(years.map(async (year) => {
+            const a = await Promise.all([true, false].map(async isDebt => {
+              const b = await this.prisma.order.aggregate({
+                _sum: {
+                  total: true
+                },
+                where: {
+                  hide: isDebt,
+                  deliveredAt: {
+                    gte: firstDatetime(new Date(`${year}-01-01`), "years"),
+                    lte: lastDatetime(new Date(`${year}-01-01`), "years"),
+                  }
+                },
+              });
+              return Array.of(
+                {
+                  name: isDebt ? "Ẩn nợ" : "Doanh thu",
+                  value: b._sum.total || 0,
+                }
+              );
+            }));
+            return {
+              name: year,
+              series: a
+            };
+          }));
+        } else {
+          throw new BadRequestException("Option unavailable.");
         }
-        break;
       }
       case TypeSellEntity.AGENCY: {
-        throw new BadRequestException("Đang làm...");
+        throw new BadRequestException("Thông kê theo đại lý đang làm...");
       }
       default: {
         throw new BadRequestException("filter không xác định");
