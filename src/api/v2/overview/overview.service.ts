@@ -5,6 +5,7 @@ import {FilterTypeEntity} from "./entities/filter-type.entity";
 import * as moment from "moment";
 import {SearchSellOverviewDto} from "./dto/search-sell-overview.dto";
 import {OptionFilterEnum, TypeSellEntity} from "./entities/type-sell.entity";
+import {firstDatetime, lastDatetime} from "../../../utils/datetime.util";
 
 @Injectable()
 export class OverviewService {
@@ -21,13 +22,54 @@ export class OverviewService {
           }
         })).map(e => moment().diff(e.birthday, "years"));
 
-        return [...new Set(ages)].map((age, _, arr) => {
-          const newAge = ages.filter(e => e === age);
+        return Array.of({
+            name: "Chưa đủ tuổi",
+            value: (ages.filter(e => e < 18).length * 100) / ages.length,
+          },
+          {
+            name: "Từ 18 - 30 tuổi",
+            value: (ages.filter(e => e >= 18 && e <= 30).length * 100) / ages.length,
+          },
+          {
+            name: "Từ 31 - 50 tuổi",
+            value: (ages.filter(e => e > 30 && e <= 50).length * 100) / ages.length,
+          },
+          {
+            name: "Ngoài 50 tuổi",
+            value: (ages.filter(e => e > 50).length * 100) / ages.length,
+          });
+      }
+      case FilterTypeEntity.CREATED_AT : {
+        const groupBy = (await this.prisma.employee.groupBy({
+          by: ["createdAt"],
+          orderBy: {
+            createdAt: "asc"
+          }
+        }));
+        return await Promise.all([...new Set(groupBy.map(e => Number(moment(e.createdAt).format("YYYY"))))].map(async e => {
+          const count = await Promise.all([true, false].map(async isLeft => {
+            const a = await this.prisma.employee.count({
+              where: {
+                leftAt: isLeft ? {notIn: null} : {in: null},
+                createdAt: {
+                  gte: firstDatetime(new Date(`${e}-01-01`), "years"),
+                  lte: lastDatetime(new Date(`${e}-01-01`), "years"),
+                }
+              }
+            });
+            return {
+              name: isLeft ? "Nghỉ việc" : "Vào làm",
+              value: a,
+            };
+          }));
           return {
-            name: age,
-            value: newAge.length / arr.length,
+            name: e,
+            series: count
           };
-        });
+        }));
+      }
+      default: {
+        throw new BadRequestException("filter không hợp lệ");
       }
     }
   }
