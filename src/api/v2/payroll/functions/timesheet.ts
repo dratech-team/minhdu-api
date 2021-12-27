@@ -4,19 +4,19 @@ import {firstDatetime, lastDatetime} from "../../../../utils/datetime.util";
 import {includesDatetime} from "../../../../common/utils/isEqual-datetime.util";
 import {ALL_DAY, PARTIAL_DAY} from "../../../../common/constant/datetime.constant";
 
-export function rageDaysInMonth(datetime: Date): moment.Moment[] {
+export function rageDateTime(startedAt: Date, endedAt: Date, type: "days" | "months" | "years" = "days"): moment.Moment[] {
   const range = [];
-  const fromDate = moment(firstDatetime(datetime));
-  const toDate = moment(lastDatetime(datetime));
-  const diff = toDate.diff(fromDate, "days") + 1;
+  const fromDate = moment(firstDatetime(startedAt));
+  const toDate = moment(lastDatetime(endedAt));
+  const diff = toDate.diff(fromDate, type || "days") + 1;
   for (let i = 0; i < diff; i++) {
-    range.push(moment(firstDatetime(datetime)).add(i, "days"));
+    range.push(moment(firstDatetime(startedAt)).add(i, type || "days"));
   }
   return range;
 };
 
 export const timesheet = (createdAt: Date, salaries: Salary[], isExport?: boolean) => {
-  const diff = rageDaysInMonth(createdAt);
+  const diff = rageDateTime(createdAt, createdAt);
   const range = [];
   let total = 0;
 

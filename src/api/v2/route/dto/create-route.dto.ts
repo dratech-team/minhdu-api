@@ -1,4 +1,4 @@
-import {IsArray, IsDate, IsNotEmpty, IsNumber, IsOptional, IsString} from "class-validator";
+import {IsArray, IsDate, IsNotEmpty, IsNumber, IsOptional, IsString, MaxDate} from "class-validator";
 import {Type} from "class-transformer";
 
 export class CreateRouteDto {
@@ -14,6 +14,7 @@ export class CreateRouteDto {
   @IsOptional()
   @Type(() => Date)
   @IsDate()
+  @MaxDate(new Date())
   readonly endedAt: Date;
 
   @IsOptional()

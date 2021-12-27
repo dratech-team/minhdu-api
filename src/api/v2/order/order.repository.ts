@@ -3,7 +3,6 @@ import {PrismaService} from "../../../prisma.service";
 import {CreateOrderDto} from "./dto/create-order.dto";
 import {UpdateOrderDto} from "./dto/update-order.dto";
 import {SearchOrderDto} from "./dto/search-order.dto";
-import {searchName} from "../../../utils/search-name.util";
 
 @Injectable()
 export class OrderRepository {
@@ -62,44 +61,34 @@ export class OrderRepository {
     }
   }
 
-  async findAll(
-    skip: number,
-    take: number,
-    search?: Partial<SearchOrderDto>,
-  ) {
+  async findAll(search: SearchOrderDto) {
     try {
-      const name = searchName(search?.customer);
       const [total, data] = await Promise.all([
         this.prisma.order.count({
           where: {
-            deliveredAt: search?.delivered === 1 ? {not: null} : (search?.delivered === 0 ? null : undefined),
+            deliveredAt: search?.status !== undefined && search?.status !== null ? (search.status === 1 ? {notIn: null} : {in: null}) : undefined,
             hide: search?.hide,
             customer: {
-              AND: {
-                firstName: name?.firstName,
-                lastName: name?.lastName,
-              },
+              lastName: search?.name,
               id: search?.customerId ? {equals: search?.customerId} : {}
             }
           },
         }),
         this.prisma.order.findMany({
-          skip: skip || undefined,
-          take: take || undefined,
+          skip: search?.skip || undefined,
+          take: search?.take || undefined,
           where: {
-            deliveredAt: search?.delivered === 1 ? {not: null} : (search?.delivered === 0 ? null : undefined),
+            deliveredAt: search?.status !== undefined && search?.status !== null ? (search.status === 1 ? {notIn: null} : {in: null}) : undefined,
             hide: search?.hide,
             customer: {
-              AND: {
-                firstName: name?.firstName,
-                lastName: name?.lastName,
-              },
+              lastName: search?.name,
               id: search?.customerId ? {equals: search?.customerId} : {}
             }
           },
           include: {
             commodities: true,
             customer: true,
+            routes: true,
             destination: {
               include: {
                 district: {
@@ -131,7 +120,14 @@ export class OrderRepository {
     try {
       return await this.prisma.order.update({
         where: {id},
-        data: Object.assign(updates, {commodities: {connect: updates?.commodityIds?.map((id) => ({id}))}}),
+        data: {
+          commodities: {connect: updates?.commodityIds?.map((id) => ({id}))},
+          wardId: updates?.wardId,
+          hide: updates?.hide,
+          deliveredAt: updates?.deliveredAt,
+          explain: updates?.explain,
+          total: updates?.total,
+        },
         include: {
           commodities: true
         }

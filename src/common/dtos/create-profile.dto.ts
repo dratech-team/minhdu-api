@@ -15,12 +15,6 @@ import {ValidatorMessage} from "../constant/validator.constant";
 import {tomorrowDate} from "../../utils/datetime.util";
 
 export class CreateProfileDto {
-    @IsOptional()
-    @IsString()
-    @MinLength(2)
-    @Transform((val) => val.value.trim())
-    readonly firstName: string;
-
     @IsNotEmpty()
     @IsString()
     @MinLength(2)

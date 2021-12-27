@@ -16,7 +16,7 @@ import {exportExcel} from "../../../core/services/export.service";
 import {FullSalary} from "../salary/entities/salary.entity";
 import * as moment from "moment";
 import {ConfirmPayrollDto} from "./dto/confirm-payroll.dto";
-import {rageDaysInMonth, timesheet} from "./functions/timesheet";
+import {rageDateTime, timesheet} from "./functions/timesheet";
 import {FilterTypeEnum} from "./entities/filter-type.enum";
 import {ItemExportDto} from "./dto/items-export.dto";
 import {SearchExportDto} from "./dto/search-export.dto";
@@ -1496,7 +1496,7 @@ export class PayrollService {
   }
 
   exportTimeSheet(response: Response, filename: string, datetime: Date, payrolls, headers: string[], keys: string[]) {
-    const datetimes = rageDaysInMonth(datetime).map(date => date.format("DD-MM"));
+    const datetimes = rageDateTime(datetime, datetime).map(date => date.format("DD-MM"));
     const customHeaders = [...headers, ...datetimes];
     const customKeys = [...keys, ...datetimes];
     const data = payrolls

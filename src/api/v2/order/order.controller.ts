@@ -11,6 +11,7 @@ import {RolesGuard} from "../../../core/guard/role.guard";
 import {Roles} from "../../../core/decorators/roles.decorator";
 import {LoggerGuard} from "../../../core/guard/logger.guard";
 import {ApiV2Constant} from "../../../common/constant/api.constant";
+import {SearchOrderDto} from "./dto/search-order.dto";
 
 // @UseGuards(JwtAuthGuard, ApiKeyGuard)
 @Controller(ApiV2Constant.ORDER)
@@ -27,20 +28,9 @@ export class OrderController {
 
   @Get()
   findAll(
-    @Query("skip") skip: number,
-    @Query("take") take: number,
-    @Query("paidType") paidType?: PaidEnum,
-    @Query("customerId") customerId?: number,
-    @Query("customer") customer?: string,
-    @Query("payType") payType?: PaymentType,
-    @Query("delivered", CustomParseBooleanPipe) delivered?: any,
-    @Query("hide", CustomParseBooleanPipe) hide?: any,
+    @Query() search: SearchOrderDto
   ) {
-    return this.orderService.findAll(
-      +skip,
-      +take,
-      {paidType, customerId: +customerId, customer, payType, delivered: +delivered, hide},
-    );
+    return this.orderService.findAll(search);
   }
 
   @Get(":id")

@@ -66,7 +66,11 @@ export class CommodityRepository {
 
   async remove(id: number) {
     try {
-      await this.prisma.commodity.delete({where: {id}});
+      const found = await this.prisma.commodity.findUnique({where: {id}, select: {order: true}});
+      if (found.order.deliveredAt) {
+        throw new BadRequestException('Đơn hàng đã giao. không được phép xóa');
+      }
+      return await this.prisma.commodity.delete({where: {id}});
     } catch (err) {
       console.error(err);
       throw new BadRequestException(err);

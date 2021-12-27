@@ -29,7 +29,6 @@ export class EmployeeRepository {
       }
       return await this.prisma.employee.create({
         data: {
-          firstName: body.firstName,
           lastName: body.lastName,
           gender: body.gender,
           phone: body.phone,
@@ -310,7 +309,6 @@ export class EmployeeRepository {
       const employee = await this.prisma.employee.update({
         where: {id: id},
         data: {
-          firstName: updates.firstName,
           lastName: updates.lastName,
           gender: updates.gender,
           phone: updates.phone,

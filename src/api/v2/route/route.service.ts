@@ -17,12 +17,8 @@ export class RouteService {
     return await this.repository.create(body);
   }
 
-  async findAll(
-    skip: number,
-    take: number,
-    search: Partial<SearchRouteDto>
-  ) {
-    return await this.repository.findAll(skip, take, search);
+  async findAll(search: SearchRouteDto) {
+    return await this.repository.findAll(search);
   }
 
   async findOne(id: number) {
@@ -30,10 +26,6 @@ export class RouteService {
   }
 
   async update(id: number, updates: UpdateRouteDto) {
-    const found = await this.findOne(id);
-    if (moment(found.endedAt).isBefore(new Date())) {
-      throw new BadRequestException("Chuyến xe này đã kết thúc. Bạn không có được phép sửa đơn hàng..");
-    }
     return await this.repository.update(id, updates);
   }
 
@@ -41,8 +33,8 @@ export class RouteService {
     return await this.repository.remove(id);
   }
 
-  async export(response?: Response, search?: Partial<CreateRouteDto>) {
-    const data = await this.repository.findAll(undefined, undefined, search);
+  async export(response?: Response, search?: SearchRouteDto) {
+    const data = await this.repository.findAll(search);
     return await exportExcel(
       response,
       {

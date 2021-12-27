@@ -22,8 +22,8 @@ export class OrderService {
     return await this.repository.create(body);
   }
 
-  async findAll(skip: number, take: number, search?: Partial<SearchOrderDto>) {
-    const result = await this.repository.findAll(skip, take, search);
+  async findAll(search: SearchOrderDto) {
+    const result = await this.repository.findAll(search);
 
     return {
       total: result.total,
@@ -71,9 +71,7 @@ export class OrderService {
 
     // Đơn hàng giao thành công thì không được phép sửa
     if (found.deliveredAt) {
-      return new BadRequestException(
-        "Không được sửa đơn hàng đã được giao thành công."
-      );
+      throw new BadRequestException("Không được sửa đơn hàng đã được giao thành công.");
     }
     return await this.repository.update(id, Object.assign(updates, updates.deliveredAt ? {total: found.commodityTotal} : {}));
   }
@@ -101,9 +99,9 @@ export class OrderService {
   async export(
     response?: Response,
     customerId?: number,
-    search?: Partial<SearchOrderDto>
+    search?: SearchOrderDto
   ) {
-    const data = await this.findAll(undefined, undefined, search);
+    const data = await this.findAll(search);
     return await exportExcel(
       response,
       {

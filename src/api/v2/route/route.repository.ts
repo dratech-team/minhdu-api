@@ -28,31 +28,25 @@ export class RouteRepository {
     }
   }
 
-  async findAll(
-    skip?: number,
-    take?: number,
-    search?: Partial<SearchRouteDto>
-  ) {
+  async findAll(search: SearchRouteDto) {
     try {
       const [total, data] = await Promise.all([
         this.prisma.route.count({
-          skip: skip,
-          take: take,
           where: {
             name: {contains: search?.name},
             startedAt: {gte: search?.startedAt},
-            endedAt: {lte: search?.endedAt},
-            driver: {contains: search?.driver || undefined},
+            endedAt: search?.status === 1 ? {notIn: null} : search?.status === 0 ? {in: null} : undefined,
+            driver: {contains: search?.driver},
             bsx: {contains: search?.bsx},
           },
         }),
         this.prisma.route.findMany({
-          skip: skip,
-          take: take,
+          skip: search?.skip,
+          take: search?.take,
           where: {
             name: {contains: search?.name},
-            startedAt: {gte: search?.startedAt},
-            endedAt: {lte: search?.endedAt},
+            startedAt: search?.startedAt,
+            endedAt: search?.status === 1 ? {notIn: null} : search?.status === 0 ? {in: null} : undefined,
             driver: {contains: search?.driver || undefined},
             bsx: {contains: search?.bsx},
           },
@@ -91,11 +85,23 @@ export class RouteRepository {
     }
   }
 
-  /*
-   * Route thì set lại đơn hàng. Vì đơn hàng của nhiều khách hàng khác nhau có thể được chọn lại trên những xe khác nhau
-   * */
   async update(id: number, updates: UpdateRouteDto) {
     try {
+      const found = await this.prisma.route.findUnique({where: {id}});
+      if (found.endedAt) {
+        throw new BadRequestException("Chuyến xe đã hoàn thành. không được phép sửa.");
+      }
+      if (updates?.endedAt) {
+        const route = await this.prisma.route.findUnique({where: {id}, select: {orders: true}});
+        await Promise.all(route.orders.map(async order => {
+          await this.prisma.order.update({
+            where: {id: order.id},
+            data: {
+              deliveredAt: updates.endedAt
+            }
+          });
+        }));
+      }
       return await this.prisma.route.update({
         where: {id},
         data: {
@@ -116,14 +122,10 @@ export class RouteRepository {
 
   async remove(id: number) {
     try {
-      await this.prisma.route.delete({where: {id}});
+      return await this.prisma.route.delete({where: {id}});
     } catch (err) {
       console.error(err);
       throw new BadRequestException(err);
     }
-  }
-
-  async finds(search?: Partial<CreateRouteDto>) {
-    return await this.prisma.route.findMany();
   }
 }
