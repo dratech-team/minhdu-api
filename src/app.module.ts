@@ -24,7 +24,6 @@ import {CommodityModule} from './api/v2/commodity/commodity.module';
 import {BillModule} from './api/v2/bill/bill.module';
 import {RouteModule} from './api/v2/route/route.module';
 import {LocationModule} from './api/v2/location/location.module';
-import {StatisticalModule} from './api/v2/statistical/statistical.module';
 import {PaymentHistoryModule} from './api/v2/payment-history/payment-history.module';
 import {HolidayModule} from './api/v2/holiday/holiday.module';
 import {MedicineModule} from './api/v2/medicine/medicine.module';
@@ -62,7 +61,6 @@ import { OverviewModule } from './api/v2/overview/overview.module';
     BillModule,
     RouteModule,
     LocationModule,
-    StatisticalModule,
     PaymentHistoryModule,
     HolidayModule,
     MedicineModule,

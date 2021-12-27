@@ -1,6 +1,0 @@
-export enum NationType {
-  CUSTOMER = 'CUSTOMER',
-  ORDER = 'ORDER',
-  COMMODITY = 'COMMODITY',
-  COMMODITY_DETAIL = 'COMMODITY_DETAIL',
-}

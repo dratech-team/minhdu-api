@@ -1,5 +1,0 @@
-export enum RouteType {
-  CUSTOMER = "CUSTOMER",
-  MONEY = "MONEY",
-  TOTAL_COMMODITY = "TOTAL_COMMODITY",
-}
