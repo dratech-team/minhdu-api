@@ -15,11 +15,10 @@ export class RouteRepository {
         data: {
           name: body.name,
           driver: body.driver,
-          employee: body.employeeId ? {connect: {id: body.employeeId}} : {},
           garage: body.garage,
           bsx: body.bsx,
           startedAt: body.startedAt,
-          endedAt: body.endedAt,
+          endedAt: body?.endedAt,
           orders: {connect: body?.orderIds?.map((id) => ({id: id}))},
         },
       });

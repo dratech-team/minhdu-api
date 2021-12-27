@@ -481,7 +481,6 @@ export class PayrollRepository {
           lte: search?.endedAt
         },
         type: {in: SalaryType.OVERTIME},
-        salaryId: {in: null},
         payroll: {
           employee: {
             branchId: profile?.branches?.length ? {in: profile?.branches.map(branch => branch.id)} : {},

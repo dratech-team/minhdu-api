@@ -1,6 +1,5 @@
-import {Body, Controller, Delete, Get, Param, Patch, Query} from '@nestjs/common';
+import {Controller, Get, Query} from '@nestjs/common';
 import {StatisticalService} from './statistical.service';
-import {UpdateStatisticalDto} from './dto/update-statistical.dto';
 import {NationType} from "./enums/nation-type.enum";
 import {CustomerType} from "./enums/customer-type.enum";
 
