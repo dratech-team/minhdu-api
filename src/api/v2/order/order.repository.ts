@@ -71,7 +71,8 @@ export class OrderRepository {
             customer: {
               lastName: search?.name,
               id: search?.customerId ? {equals: search?.customerId} : {}
-            }
+            },
+            deleted: false
           },
         }),
         this.prisma.order.findMany({
@@ -83,7 +84,8 @@ export class OrderRepository {
             customer: {
               lastName: search?.name,
               id: search?.customerId ? {equals: search?.customerId} : {}
-            }
+            },
+            deleted: false
           },
           include: {
             commodities: true,
@@ -140,7 +142,10 @@ export class OrderRepository {
 
   async remove(id: number) {
     try {
-      return await this.prisma.order.delete({where: {id}});
+      return await this.prisma.order.update({
+        where: {id},
+        data: {deleted: true}
+      });
     } catch (err) {
       console.error(err);
       throw new BadRequestException(err);

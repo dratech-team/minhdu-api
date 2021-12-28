@@ -38,6 +38,7 @@ export class RouteRepository {
             endedAt: search?.status === 1 ? {notIn: null} : search?.status === 0 ? {in: null} : undefined,
             driver: {contains: search?.driver},
             bsx: {contains: search?.bsx},
+            deleted: false
           },
         }),
         this.prisma.route.findMany({
@@ -49,6 +50,7 @@ export class RouteRepository {
             endedAt: search?.status === 1 ? {notIn: null} : search?.status === 0 ? {in: null} : undefined,
             driver: {contains: search?.driver || undefined},
             bsx: {contains: search?.bsx},
+            deleted: false
           },
           include: {
             employee: true,
@@ -122,7 +124,10 @@ export class RouteRepository {
 
   async remove(id: number) {
     try {
-      return await this.prisma.route.delete({where: {id}});
+      return await this.prisma.route.update({
+        where: {id},
+        data: {deleted: true}
+      });
     } catch (err) {
       console.error(err);
       throw new BadRequestException(err);

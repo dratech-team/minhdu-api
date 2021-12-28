@@ -586,9 +586,9 @@ export class OverviewService {
             };
           });
         } else if (search.option === OptionFilterEnum.ORDER) {
-          throw new BadRequestException("Đang làm");
+          throw new BadRequestException("fiter customer - option order đang làm");
         } else if (search.option === OptionFilterEnum.ROUTE) {
-          throw new BadRequestException("Đang làm");
+          throw new BadRequestException("fiter customer - option route đang làm");
         } else {
           throw new BadRequestException("Option unavailable. option for filter customer are: SOLD | SALES | DEBT | ORDER | ROUTE");
         }
