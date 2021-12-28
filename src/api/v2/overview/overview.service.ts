@@ -6,7 +6,6 @@ import * as moment from "moment";
 import {SearchSellOverviewDto} from "./dto/search-sell-overview.dto";
 import {OptionFilterEnum, TypeSellEntity} from "./entities/type-sell.entity";
 import {firstDatetime, lastDatetime} from "../../../utils/datetime.util";
-import {rageDateTime} from "../payroll/functions/timesheet";
 import {CustomerType} from '@prisma/client';
 
 @Injectable()
@@ -79,127 +78,153 @@ export class OverviewService {
   async sell(search: SearchSellOverviewDto) {
     switch (search.filter) {
       case TypeSellEntity.NATION: {
-        const group = await this.prisma.order.groupBy({
+        const orderGroup = await this.prisma.order.groupBy({
           by: ["wardId"],
+          where: {
+            deliveredAt: search?.startedAt && search?.endedAt ? {
+              gte: search.startedAt,
+              lte: search.endedAt,
+            } : {}
+          }
         });
 
-        const data = await Promise.all(group.map(async ({wardId}) => {
-          return await this.prisma.ward.findUnique({
-            where: {id: wardId},
-            select: {
-              district: {
-                select: {
-                  province: true
+        const customerGroup = await this.prisma.customer.groupBy({
+          by: ['wardId'],
+          where: {
+            timestamp: search?.startedAt && search?.endedAt ? {
+              gte: search.startedAt,
+              lte: search.endedAt
+            } : {}
+          }
+        });
+
+        if (search.option === OptionFilterEnum.SOLD) {
+          return await Promise.all(orderGroup.map(async e => {
+            const province = await this.prisma.ward.findUnique({
+              where: {id: e.wardId},
+              select: {
+                district: {
+                  select: {
+                    province: true
+                  }
                 }
               }
-            }
-          });
-        }));
-        return await Promise.all(data.map(async (province) => {
-          const name = province.district.province.name;
-          if (search.option === OptionFilterEnum.CUSTOMER) {
-            const customers = await Promise.all([true, false].map(async isPotential => {
+            });
+
+            const aggregate = await this.prisma.commodity.aggregate({
+              _sum: {
+                amount: true,
+                gift: true,
+                more: true
+              },
+              where: {
+                order: {
+                  wardId: e.wardId,
+                  deliveredAt: search?.startedAt && search?.endedAt ? {
+                    gte: search.startedAt,
+                    lte: search.endedAt,
+                  } : {}
+                }
+              }
+            });
+
+            return {
+              name: province.district.province.name,
+              series: Array.of(
+                {
+                  name: "Gà bán",
+                  value: Number(aggregate._sum.amount),
+                },
+                {
+                  name: "Gà mua thêm",
+                  value: Number(aggregate._sum.more),
+                },
+                {
+                  name: "Gà tặng",
+                  value: Number(aggregate._sum.gift),
+                }
+              )
+            };
+          }));
+        } else if (search.option === OptionFilterEnum.CUSTOMER) {
+          return await Promise.all(customerGroup.map(async e => {
+            const ward = await this.prisma.ward.findUnique({
+              where: {id: e.wardId},
+              select: {
+                district: {
+                  select: {
+                    province: true
+                  }
+                }
+              }
+            });
+            const a = await Promise.all([CustomerType.AGENCY, CustomerType.RETAIL].map(async type => {
               const count = await this.prisma.customer.count({
                 where: {
-                  isPotential: isPotential,
-                  ward: {
-                    district: {id: province.district.province.id}
-                  },
-                  timestamp: search?.startedAt && search?.endedAt ? {
-                    gte: search?.startedAt,
-                    lte: search?.endedAt,
-                  } : {}
+                  type,
+                  wardId: e.wardId,
                 }
               });
               return {
-                name: isPotential ? "Tiềm năng" : "Không tìêm năng",
-                value: count
+                name: type === CustomerType.AGENCY ? "Đại lý" : "Khách lẻ",
+                value: count,
               };
             }));
             return {
-              name,
-              series: customers,
+              name: ward.district.province.name,
+              series: a,
             };
-          } else if (search.option === OptionFilterEnum.SOLD) {
-            const aggregate = await this.prisma.commodity.aggregate({
-              where: {
-                order: {
-                  deliveredAt: search?.startedAt && search?.endedAt ? {
-                    gte: search?.startedAt,
-                    lte: search?.endedAt,
-                  } : {notIn: null},
-                  destination: {
-                    district: {id: province.district.province.id}
+          }));
+        } else if (search.option === OptionFilterEnum.SALES) {
+          return await Promise.all(orderGroup.map(async e => {
+            const ward = await this.prisma.ward.findUnique({
+              where: {id: e.wardId},
+              select: {
+                district: {
+                  select: {
+                    province: true,
                   }
-                },
-              },
-              _sum: {
-                amount: true,
-                more: true,
-                gift: true,
+                }
               }
             });
-            return {
-              name,
-              series: [
-                {
-                  name: "Mua",
-                  value: aggregate._sum.amount || 0,
+            const a = await Promise.all([true, false].map(async isHide => {
+              const aggregate = await this.prisma.order.aggregate({
+                where: {
+                  hide: isHide,
+                  wardId: e.wardId,
                 },
-                {
-                  name: "Mua thêm",
-                  value: aggregate._sum.more || 0,
-                },
-                {
-                  name: "Tặng",
-                  value: aggregate._sum.gift || 0,
-                },
-              ],
-            };
-          } else if (search.option === OptionFilterEnum.SALES) {
-            const aggregate = await this.prisma.order.aggregate({
-              where: {
-                deliveredAt: search?.startedAt && search?.endedAt ? {
-                  gte: search?.startedAt,
-                  lte: search?.endedAt,
-                } : {notIn: null},
-                destination: {
-                  district: {id: province.district.province.id}
+                _sum: {
+                  total: true,
                 }
-              },
-              _sum: {
-                total: true,
-              }
-            });
-
+              });
+              return {
+                name: isHide ? "Ẩn nợ" : "Doanh thu",
+                value: Number(aggregate._sum.total),
+              };
+            }));
             return {
-              name,
-              series: [
-                {
-                  name: "Tổng tiền",
-                  value: aggregate._sum.total || 0
-                }
-              ],
+              name: ward.district.province.name,
+              series: a,
             };
-          } else {
-            throw new BadRequestException(`Option unavailable. Please, check again`);
-          }
-        }));
+          }));
+        } else {
+          throw new BadRequestException("option unavailable");
+        }
       }
       case TypeSellEntity.YEAR: {
-        let years = [];
-        if (search?.startedAt && search?.endedAt) {
-          years = [...new Set(rageDateTime(search.startedAt, search.endedAt, "years").map(e => Number(moment(e).format("YYYY"))))];
-        }
         if (search.option === OptionFilterEnum.CUSTOMER) {
-          if (!(search?.startedAt && search?.endedAt)) {
-            years = [...new Set((await this.prisma.customer.groupBy({
-              by: ["timestamp"],
-              orderBy: {
-                timestamp: "asc"
-              }
-            })).map(e => Number(moment(e.timestamp).format("YYYY"))))];
-          }
+          const years = [...new Set((await this.prisma.customer.groupBy({
+            by: ["timestamp"],
+            orderBy: {
+              timestamp: "asc"
+            },
+            where: {
+              timestamp: search?.startedAt && search?.endedAt ? {
+                gte: search.startedAt,
+                lte: search.endedAt,
+              } : {}
+            }
+          })).map(e => Number(moment(e.timestamp).format("YYYY"))))];
 
           return await Promise.all(years.map(async year => {
             const count = await Promise.all([CustomerType.AGENCY, CustomerType.RETAIL].map(async type => {
@@ -223,14 +248,18 @@ export class OverviewService {
             };
           }));
         } else if (search.option === OptionFilterEnum.SOLD) {
-          if (!(search?.startedAt && search?.endedAt)) {
-            years = [...new Set((await this.prisma.order.groupBy({
-              by: ["deliveredAt"],
-              orderBy: {
-                deliveredAt: "asc"
-              }
-            })).map(e => Number(moment(e.deliveredAt).format("YYYY"))))];
-          }
+          const years = [...new Set((await this.prisma.order.groupBy({
+            by: ["deliveredAt"],
+            orderBy: {
+              deliveredAt: "asc"
+            },
+            where: {
+              deliveredAt: search?.startedAt && search?.endedAt ? {
+                gte: search.startedAt,
+                lte: search.endedAt,
+              } : {}
+            }
+          })).map(e => Number(moment(e.deliveredAt).format("YYYY"))))];
 
           return await Promise.all(years.map(async year => {
             const aggregate = await this.prisma.commodity.aggregate({
@@ -267,23 +296,27 @@ export class OverviewService {
             };
           }));
         } else if (search.option === OptionFilterEnum.SALES) {
-          if (!(search?.startedAt && search?.endedAt)) {
-            years = [...new Set((await this.prisma.order.groupBy({
-              by: ["deliveredAt"],
-              orderBy: {
-                deliveredAt: "asc"
-              }
-            })).map(e => Number(moment(e.deliveredAt).format("YYYY"))))];
-          }
+          const years = [...new Set((await this.prisma.order.groupBy({
+            by: ["deliveredAt"],
+            orderBy: {
+              deliveredAt: "asc"
+            },
+            where: {
+              deliveredAt: search?.startedAt && search?.endedAt ? {
+                gte: search.startedAt,
+                lte: search.endedAt,
+              } : {}
+            }
+          })).map(e => Number(moment(e.deliveredAt).format("YYYY"))))];
 
           return await Promise.all(years.map(async (year) => {
-            const a = await Promise.all([true, false].map(async isDebt => {
+            const a = await Promise.all([true, false].map(async isHide => {
               const b = await this.prisma.order.aggregate({
                 _sum: {
                   total: true
                 },
                 where: {
-                  hide: isDebt,
+                  hide: isHide,
                   deliveredAt: {
                     gte: firstDatetime(new Date(`${year}-01-01`), "years"),
                     lte: lastDatetime(new Date(`${year}-01-01`), "years"),
@@ -292,7 +325,7 @@ export class OverviewService {
               });
               return Array.of(
                 {
-                  name: isDebt ? "Ẩn nợ" : "Doanh thu",
+                  name: isHide ? "Ẩn nợ" : "Doanh thu",
                   value: b._sum.total || 0,
                 }
               );
