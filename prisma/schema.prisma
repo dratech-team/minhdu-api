@@ -328,6 +328,7 @@ model Order {
   hide             Boolean?         @default(false)
   destination      Ward?            @relation(fields: [wardId], references: [id])
   total            Float?
+  deleted         Boolean?         @default(false)
   paymentHistories PaymentHistory[]
 }
 

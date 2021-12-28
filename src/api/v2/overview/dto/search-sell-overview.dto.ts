@@ -1,11 +1,11 @@
 import {IsDate, IsEnum, IsNotEmpty, IsOptional, IsString} from "class-validator";
-import {OptionFilterEnum, TypeSellEntity} from "../entities/type-sell.entity";
+import {OptionFilterEnum, FilterSellEntity} from "../entities/filter-sell.entity";
 import {Type} from "class-transformer";
 
 export class SearchSellOverviewDto {
   @IsString()
-  @IsEnum(TypeSellEntity)
-  readonly filter: TypeSellEntity;
+  @IsEnum(FilterSellEntity)
+  readonly filter: FilterSellEntity;
 
   @IsString()
   @IsEnum(OptionFilterEnum)

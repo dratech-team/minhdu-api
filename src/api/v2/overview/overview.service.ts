@@ -4,7 +4,7 @@ import {SearchHrOverviewDto} from "./dto/search-hr-overview.dto";
 import {FilterTypeEntity} from "./entities/filter-type.entity";
 import * as moment from "moment";
 import {SearchSellOverviewDto} from "./dto/search-sell-overview.dto";
-import {OptionFilterEnum, TypeSellEntity} from "./entities/type-sell.entity";
+import {DELIVERY_STATUS, FilterSellEntity, OptionFilterEnum} from "./entities/filter-sell.entity";
 import {firstDatetime, lastDatetime} from "../../../utils/datetime.util";
 import {CustomerType} from '@prisma/client';
 
@@ -77,7 +77,7 @@ export class OverviewService {
 
   async sell(search: SearchSellOverviewDto) {
     switch (search.filter) {
-      case TypeSellEntity.NATION: {
+      case FilterSellEntity.NATION: {
         const orderGroup = await this.prisma.order.groupBy({
           by: ["wardId"],
           where: {
@@ -207,11 +207,43 @@ export class OverviewService {
               series: a,
             };
           }));
+        } else if (search.option === OptionFilterEnum.ORDER) {
+          return await Promise.all(orderGroup.map(async e => {
+            const ward = await this.prisma.ward.findUnique({
+              where: {id: e.wardId},
+              select: {
+                district: {
+                  select: {
+                    province: true,
+                  }
+                }
+              }
+            });
+            const series = await Promise.all([DELIVERY_STATUS.COMPLETE, DELIVERY_STATUS.DELIVERY, DELIVERY_STATUS.CANCEL].map(async status => {
+              const count = await this.prisma.order.count({
+                where: {
+                  wardId: e.wardId,
+                  deleted: status === DELIVERY_STATUS.CANCEL,
+                  deliveredAt: status === DELIVERY_STATUS.COMPLETE ? {notIn: null} : {in: null}
+                }
+              });
+              return {
+                name: status === DELIVERY_STATUS.COMPLETE ? "Hoàn thành" : status === DELIVERY_STATUS.DELIVERY ? "Đang giao" : "Đã hủy",
+                value: count,
+              };
+            }));
+            return {
+              name: ward.district.province.name,
+              series: series
+            };
+          }));
+        } else if (search.option === OptionFilterEnum.ROUTE) {
+          throw new BadRequestException("Đang làm");
         } else {
-          throw new BadRequestException("option unavailable");
+          throw new BadRequestException("Option unavailable. option for filter NATION are: SOLD | SALES | CUSTOMER");
         }
       }
-      case TypeSellEntity.YEAR: {
+      case FilterSellEntity.YEAR: {
         if (search.option === OptionFilterEnum.CUSTOMER) {
           const years = [...new Set((await this.prisma.customer.groupBy({
             by: ["timestamp"],
@@ -335,12 +367,141 @@ export class OverviewService {
               series: a
             };
           }));
+        } else if (search.option === OptionFilterEnum.ORDER) {
+          throw new BadRequestException("Đang làm");
+        } else if (search.option === OptionFilterEnum.ROUTE) {
+          throw new BadRequestException("Đang làm");
         } else {
-          throw new BadRequestException("Option unavailable.");
+          throw new BadRequestException("Option unavailable. option for filter YEAR are: SOLD | SALES | CUSTOMER");
         }
       }
-      case TypeSellEntity.AGENCY: {
-        throw new BadRequestException("Thông kê theo đại lý đang làm...");
+      case FilterSellEntity.CUSTOMER: {
+        const customerGroup = await this.prisma.customer.groupBy({
+          by: ['id'],
+          where: {
+            timestamp: search?.startedAt && search?.endedAt ? {
+              gte: search.startedAt,
+              lte: search.endedAt
+            } : {}
+          }
+        });
+        if (search.option === OptionFilterEnum.SALES) {
+          return await Promise.all(customerGroup.map(async e => {
+            const customer = await this.prisma.customer.findUnique({
+              where: {id: e.id},
+              select: {
+                lastName: true,
+              }
+            });
+            const a = await Promise.all([true, false].map(async isHide => {
+              const aggregate = await this.prisma.order.aggregate({
+                where: {
+                  customerId: e.id,
+                  hide: isHide,
+                },
+                _sum: {
+                  total: true
+                },
+              });
+              return {
+                name: isHide ? "Ẩn nợ" : "Doanh thu",
+                value: Number(aggregate._sum.total),
+              };
+            }));
+            return {
+              name: customer.lastName,
+              series: a
+            };
+          }));
+        } else if (search.option === OptionFilterEnum.SOLD) {
+          const customers = await Promise.all(customerGroup.map(async e => {
+            const customer = await this.prisma.customer.findUnique({
+              where: {id: e.id},
+              select: {
+                lastName: true,
+              }
+            });
+            const aggregate = await this.prisma.commodity.aggregate({
+              where: {
+                order: {
+                  customerId: e.id,
+                }
+              },
+              _sum: {
+                amount: true,
+                more: true,
+                gift: true,
+              }
+            });
+
+            return {
+              name: customer.lastName,
+              amount: aggregate._sum.amount,
+              more: aggregate._sum.more,
+              gift: aggregate._sum.gift,
+            };
+          }));
+          return customers.filter(customer => customer.amount && customer.more && customer.gift).map(e => {
+            return {
+              name: e.name,
+              series: [
+                {
+                  name: "Gà bán",
+                  value: e.amount
+                },
+                {
+                  name: "Gà mua thêm",
+                  value: e.name
+                },
+                {
+                  name: "Gà tặng",
+                  value: e.gift
+                }
+              ],
+            };
+          });
+        } else if (search.option === OptionFilterEnum.DEBT) {
+          const customers = await Promise.all(customerGroup.map(async e => {
+            const customer = await this.prisma.customer.findUnique({
+              where: {id: e.id},
+              select: {
+                lastName: true,
+              }
+            });
+            const aggregate = await this.prisma.order.aggregate({
+              where: {
+                customerId: e.id,
+                hide: true,
+                total: {notIn: null},
+                deliveredAt: {notIn: null}
+              },
+              _sum: {
+                total: true
+              }
+            });
+            return {
+              name: customer.lastName,
+              value: Number(aggregate._sum.total)
+            };
+          }));
+          return customers.filter(customer => customer.value).map(e => {
+            return {
+              name: e.name,
+              series: [
+                {
+                  name: e.name,
+                  value: e.value,
+                }
+              ]
+            };
+          });
+        } else if (search.option === OptionFilterEnum.ORDER) {
+          throw new BadRequestException("Đang làm");
+        } else if (search.option === OptionFilterEnum.ROUTE) {
+          throw new BadRequestException("Đang làm");
+        } else {
+          throw new BadRequestException("Option unavailable. option for filter customer are: SOLD | SALES | DEBT");
+        }
       }
       default: {
         throw new BadRequestException("filter không xác định");
