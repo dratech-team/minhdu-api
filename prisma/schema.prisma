@@ -328,8 +328,9 @@ model Order {
   hide             Boolean?         @default(false)
   destination      Ward?            @relation(fields: [wardId], references: [id])
   total            Float?
-  deleted         Boolean?         @default(false)
+  deleted          Boolean?         @default(false)
   paymentHistories PaymentHistory[]
+  timestamp        DateTime?        @default(now())
 }
 
 model Route {
@@ -341,9 +342,11 @@ model Route {
   employeeId Int?
   driver     String?
   garage     String?
-  orders     Order[]
   bsx        String
+  deleted    Boolean?   @default(false)
+  orders     Order[]
   locations  Location[]
+  timestamp  DateTime?  @default(now())
 }
 
 model Location {

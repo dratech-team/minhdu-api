@@ -14,7 +14,7 @@ export enum OptionFilterEnum {
 }
 
 export enum DELIVERY_STATUS {
-  COMPLETE,
-  DELIVERY,
-  CANCEL
+  COMPLETE = "Hoàn thành",
+  DELIVERY = "Đang giao",
+  CANCEL = "Đã hủy"
 }

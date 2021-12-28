@@ -228,7 +228,7 @@ export class OverviewService {
                 }
               });
               return {
-                name: status === DELIVERY_STATUS.COMPLETE ? "Hoàn thành" : status === DELIVERY_STATUS.DELIVERY ? "Đang giao" : "Đã hủy",
+                name: status,
                 value: count,
               };
             }));
@@ -238,27 +238,80 @@ export class OverviewService {
             };
           }));
         } else if (search.option === OptionFilterEnum.ROUTE) {
-          throw new BadRequestException("Đang làm");
+          const data = await Promise.all(orderGroup.map(async e => {
+            const ward = await this.prisma.ward.findUnique({
+              where: {id: e.wardId},
+              select: {district: {select: {province: true}}}
+            });
+            return {
+              name: ward.district.province.name,
+              series: await Promise.all([DELIVERY_STATUS.COMPLETE, DELIVERY_STATUS.DELIVERY, DELIVERY_STATUS.CANCEL].map(async status => {
+                return {
+                  name: status === DELIVERY_STATUS.COMPLETE ? "Hoàn thành" : status === DELIVERY_STATUS.DELIVERY ? "Đang giao" : "Đã hủy",
+                  value: Number(
+                    await this.prisma.route.count({
+                      where: {
+                        deleted: status === DELIVERY_STATUS.CANCEL,
+                        endedAt: status === DELIVERY_STATUS.COMPLETE ? {notIn: null} : status === DELIVERY_STATUS.DELIVERY ? {in: null} : {},
+                        orders: {
+                          some: {
+                            wardId: e.wardId,
+                          },
+                        }
+                      },
+                    })
+                  ),
+                };
+              })),
+            };
+          }));
+          return data.filter(e => e.series.map(e => e.value).reduce((a, b) => a + b, 0) !== 0);
         } else {
           throw new BadRequestException("Option unavailable. option for filter NATION are: SOLD | SALES | CUSTOMER");
         }
       }
       case FilterSellEntity.YEAR: {
-        if (search.option === OptionFilterEnum.CUSTOMER) {
-          const years = [...new Set((await this.prisma.customer.groupBy({
-            by: ["timestamp"],
-            orderBy: {
-              timestamp: "asc"
-            },
-            where: {
-              timestamp: search?.startedAt && search?.endedAt ? {
-                gte: search.startedAt,
-                lte: search.endedAt,
-              } : {}
-            }
-          })).map(e => Number(moment(e.timestamp).format("YYYY"))))];
+        const yearsOrder = [...new Set((await this.prisma.order.groupBy({
+          by: ["deliveredAt"],
+          orderBy: {
+            deliveredAt: "asc"
+          },
+          where: {
+            deliveredAt: search?.startedAt && search?.endedAt ? {
+              gte: search.startedAt,
+              lte: search.endedAt,
+            } : {}
+          }
+        })).map(e => Number(moment(e.deliveredAt).format("YYYY"))))];
 
-          return await Promise.all(years.map(async year => {
+        const yearsCustomer = [...new Set((await this.prisma.customer.groupBy({
+          by: ["timestamp"],
+          orderBy: {
+            timestamp: "asc"
+          },
+          where: {
+            timestamp: search?.startedAt && search?.endedAt ? {
+              gte: search.startedAt,
+              lte: search.endedAt,
+            } : {}
+          }
+        })).map(e => Number(moment(e.timestamp).format("YYYY"))))];
+
+        const yearsRoute = [...new Set((await this.prisma.route.groupBy({
+          by: ["startedAt"],
+          orderBy: {
+            startedAt: "asc"
+          },
+          where: {
+            startedAt: search?.startedAt && search?.endedAt ? {
+              gte: search.startedAt,
+              lte: search.endedAt,
+            } : {}
+          }
+        })).map(e => Number(moment(e.startedAt).format("YYYY"))))];
+
+        if (search.option === OptionFilterEnum.CUSTOMER) {
+          return await Promise.all(yearsCustomer.map(async year => {
             const count = await Promise.all([CustomerType.AGENCY, CustomerType.RETAIL].map(async type => {
               const value = await this.prisma.customer.count({
                 where: {
@@ -292,7 +345,6 @@ export class OverviewService {
               } : {}
             }
           })).map(e => Number(moment(e.deliveredAt).format("YYYY"))))];
-
           return await Promise.all(years.map(async year => {
             const aggregate = await this.prisma.commodity.aggregate({
               where: {
@@ -328,20 +380,7 @@ export class OverviewService {
             };
           }));
         } else if (search.option === OptionFilterEnum.SALES) {
-          const years = [...new Set((await this.prisma.order.groupBy({
-            by: ["deliveredAt"],
-            orderBy: {
-              deliveredAt: "asc"
-            },
-            where: {
-              deliveredAt: search?.startedAt && search?.endedAt ? {
-                gte: search.startedAt,
-                lte: search.endedAt,
-              } : {}
-            }
-          })).map(e => Number(moment(e.deliveredAt).format("YYYY"))))];
-
-          return await Promise.all(years.map(async (year) => {
+          return await Promise.all(yearsOrder.map(async (year) => {
             const a = await Promise.all([true, false].map(async isHide => {
               const b = await this.prisma.order.aggregate({
                 _sum: {
@@ -368,9 +407,60 @@ export class OverviewService {
             };
           }));
         } else if (search.option === OptionFilterEnum.ORDER) {
-          throw new BadRequestException("Đang làm");
+          return await Promise.all(yearsOrder.map(async year => {
+            return {
+              name: year,
+              series: await Promise.all([DELIVERY_STATUS.COMPLETE, DELIVERY_STATUS.DELIVERY, DELIVERY_STATUS.CANCEL].map(async status => {
+                return {
+                  name: status,
+                  value: await this.prisma.order.count({
+                    where: {
+                      deleted: status === DELIVERY_STATUS.CANCEL,
+                      createdAt: status === DELIVERY_STATUS.DELIVERY ? {
+                        gte: firstDatetime(new Date(`${year}-01-01`), "years"),
+                        lte: lastDatetime(new Date(`${year}-01-01`), "years"),
+                      } : {},
+                      deliveredAt: status === DELIVERY_STATUS.COMPLETE
+                        ? {
+                          notIn: null,
+                          gte: firstDatetime(new Date(`${year}-01-01`), "years"),
+                          lte: lastDatetime(new Date(`${year}-01-01`), "years"),
+                        }
+                        : status === DELIVERY_STATUS.DELIVERY
+                          ? {in: null}
+                          : {},
+                    }
+                  }),
+                };
+              })),
+            };
+          }));
         } else if (search.option === OptionFilterEnum.ROUTE) {
-          throw new BadRequestException("Đang làm");
+          return await Promise.all(yearsRoute.map(async year => {
+            return {
+              name: year,
+              series: await Promise.all([DELIVERY_STATUS.COMPLETE, DELIVERY_STATUS.DELIVERY, DELIVERY_STATUS.CANCEL].map(async status => {
+                return {
+                  name: status,
+                  value: await this.prisma.route.count({
+                    where: {
+                      deleted: status === DELIVERY_STATUS.CANCEL,
+                      startedAt: status === DELIVERY_STATUS.DELIVERY ? {
+                        gte: firstDatetime(new Date(`${year}-01-01`), "years"),
+                        lte: lastDatetime(new Date(`${year}-01-01`), "years"),
+                      } : {},
+                      endedAt: status === DELIVERY_STATUS.COMPLETE ? {
+                        gte: firstDatetime(new Date(`${year}-01-01`), "years"),
+                        lte: lastDatetime(new Date(`${year}-01-01`), "years"),
+                      } : status === DELIVERY_STATUS.DELIVERY ? {
+                        in: null
+                      } : {}
+                    },
+                  }),
+                };
+              })),
+            };
+          }));
         } else {
           throw new BadRequestException("Option unavailable. option for filter YEAR are: SOLD | SALES | CUSTOMER");
         }
@@ -500,7 +590,7 @@ export class OverviewService {
         } else if (search.option === OptionFilterEnum.ROUTE) {
           throw new BadRequestException("Đang làm");
         } else {
-          throw new BadRequestException("Option unavailable. option for filter customer are: SOLD | SALES | DEBT");
+          throw new BadRequestException("Option unavailable. option for filter customer are: SOLD | SALES | DEBT | ORDER | ROUTE");
         }
       }
       default: {
