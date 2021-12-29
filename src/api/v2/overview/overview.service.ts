@@ -137,6 +137,80 @@ export class OverviewService {
     }
   }
 
+  private async overviewSellYear(search: SearchSellOverviewDto) {
+    const yearsOrder = [...new Set((await this.prisma.order.groupBy({
+      by: ["deliveredAt"],
+      orderBy: {
+        deliveredAt: "asc"
+      },
+      where: {
+        deliveredAt: search?.startedAt && search?.endedAt ? {
+          gte: search.startedAt,
+          lte: search.endedAt,
+        } : {}
+      }
+    })).map(e => Number(moment(e.deliveredAt).format("YYYY"))))];
+
+    const yearsCustomer = [...new Set((await this.prisma.customer.groupBy({
+      by: ["timestamp"],
+      orderBy: {
+        timestamp: "asc"
+      },
+      where: {
+        timestamp: search?.startedAt && search?.endedAt ? {
+          gte: search.startedAt,
+          lte: search.endedAt,
+        } : {}
+      }
+    })).map(e => Number(moment(e.timestamp).format("YYYY"))))];
+
+    const yearsRoute = [...new Set((await this.prisma.route.groupBy({
+      by: ["startedAt"],
+      orderBy: {
+        startedAt: "asc"
+      },
+      where: {
+        startedAt: search?.startedAt && search?.endedAt ? {
+          gte: search.startedAt,
+          lte: search.endedAt,
+        } : {}
+      }
+    })).map(e => Number(moment(e.startedAt).format("YYYY"))))];
+
+    if (search.option === OptionFilterEnum.CUSTOMER) {
+      return await this.yearCustomer(yearsCustomer);
+    } else if (search.option === OptionFilterEnum.SOLD) {
+      return await this.yearSold(yearsOrder);
+    } else if (search.option === OptionFilterEnum.SALES) {
+      return await this.yearSales(yearsOrder);
+    } else if (search.option === OptionFilterEnum.ORDER) {
+      return await this.yearOrder(yearsOrder);
+    } else if (search.option === OptionFilterEnum.ROUTE) {
+      return await this.yearRoute(yearsRoute);
+    } else {
+      throw new BadRequestException("Option unavailable. option for filter YEAR are: SOLD | SALES | CUSTOMER | ORDER | ROUTE");
+    }
+  }
+
+  private async overviewSellCustomer(search: SearchSellOverviewDto) {
+    const customerGroup = await this.prisma.customer.groupBy({
+      by: ['id'],
+    });
+    if (search.option === OptionFilterEnum.SALES) {
+      return await this.customerSales(customerGroup);
+    } else if (search.option === OptionFilterEnum.SOLD) {
+      return await this.customerSold(customerGroup);
+    } else if (search.option === OptionFilterEnum.DEBT) {
+      return await this.customerDebt(customerGroup);
+    } else if (search.option === OptionFilterEnum.ORDER) {
+      return await this.customerOrder(customerGroup, search);
+    } else if (search.option === OptionFilterEnum.ROUTE) {
+      return await this.customerRoute(customerGroup, search);
+    } else {
+      throw new BadRequestException("Option unavailable. option for filter customer are: SOLD | SALES | DEBT | ORDER | ROUTE");
+    }
+  }
+
   private async nationSold(orderGroup: any, search: SearchSellOverviewDto) {
     return await Promise.all(orderGroup.map(async e => {
       const province = await this.prisma.ward.findUnique({
@@ -315,61 +389,6 @@ export class OverviewService {
     return filterStatusNotNull(data);
   }
 
-  private async overviewSellYear(search: SearchSellOverviewDto) {
-    const yearsOrder = [...new Set((await this.prisma.order.groupBy({
-      by: ["deliveredAt"],
-      orderBy: {
-        deliveredAt: "asc"
-      },
-      where: {
-        deliveredAt: search?.startedAt && search?.endedAt ? {
-          gte: search.startedAt,
-          lte: search.endedAt,
-        } : {}
-      }
-    })).map(e => Number(moment(e.deliveredAt).format("YYYY"))))];
-
-    const yearsCustomer = [...new Set((await this.prisma.customer.groupBy({
-      by: ["timestamp"],
-      orderBy: {
-        timestamp: "asc"
-      },
-      where: {
-        timestamp: search?.startedAt && search?.endedAt ? {
-          gte: search.startedAt,
-          lte: search.endedAt,
-        } : {}
-      }
-    })).map(e => Number(moment(e.timestamp).format("YYYY"))))];
-
-    const yearsRoute = [...new Set((await this.prisma.route.groupBy({
-      by: ["startedAt"],
-      orderBy: {
-        startedAt: "asc"
-      },
-      where: {
-        startedAt: search?.startedAt && search?.endedAt ? {
-          gte: search.startedAt,
-          lte: search.endedAt,
-        } : {}
-      }
-    })).map(e => Number(moment(e.startedAt).format("YYYY"))))];
-
-    if (search.option === OptionFilterEnum.CUSTOMER) {
-      return await this.yearCustomer(yearsCustomer);
-    } else if (search.option === OptionFilterEnum.SOLD) {
-      return await this.yearSold(yearsOrder);
-    } else if (search.option === OptionFilterEnum.SALES) {
-      return await this.yearSales(yearsOrder);
-    } else if (search.option === OptionFilterEnum.ORDER) {
-      return await this.yearOrder(yearsOrder);
-    } else if (search.option === OptionFilterEnum.ROUTE) {
-      return await this.yearRoute(yearsRoute);
-    } else {
-      throw new BadRequestException("Option unavailable. option for filter YEAR are: SOLD | SALES | CUSTOMER | ORDER | ROUTE");
-    }
-  }
-
   private async yearCustomer(yearsCustomer: any) {
     return await Promise.all(yearsCustomer.map(async year => {
       const count = await Promise.all([CustomerType.AGENCY, CustomerType.RETAIL].map(async type => {
@@ -517,25 +536,6 @@ export class OverviewService {
         })),
       };
     }));
-  }
-
-  private async overviewSellCustomer(search: SearchSellOverviewDto) {
-    const customerGroup = await this.prisma.customer.groupBy({
-      by: ['id'],
-    });
-    if (search.option === OptionFilterEnum.SALES) {
-      return await this.customerSales(customerGroup);
-    } else if (search.option === OptionFilterEnum.SOLD) {
-      return await this.customerSold(customerGroup);
-    } else if (search.option === OptionFilterEnum.DEBT) {
-      return await this.customerDebt(customerGroup);
-    } else if (search.option === OptionFilterEnum.ORDER) {
-      return await this.customerOrder(customerGroup, search);
-    } else if (search.option === OptionFilterEnum.ROUTE) {
-      return await this.customerRoute(customerGroup, search);
-    } else {
-      throw new BadRequestException("Option unavailable. option for filter customer are: SOLD | SALES | DEBT | ORDER | ROUTE");
-    }
   }
 
   private async customerSales(customerGroup: { id: number }[]) {
