@@ -26,7 +26,6 @@ import {RouteModule} from './api/v2/route/route.module';
 import {LocationModule} from './api/v2/location/location.module';
 import {PaymentHistoryModule} from './api/v2/payment-history/payment-history.module';
 import {HolidayModule} from './api/v2/holiday/holiday.module';
-import {MedicineModule} from './api/v2/medicine/medicine.module';
 import { LoggerModule } from './api/v2/logger/logger.module';
 import { BasicTemplateModule } from './api/v2/basic-template/basic-template.module';
 import { SystemModule } from './api/v2/system/system.module';
@@ -63,7 +62,6 @@ import { OverviewModule } from './api/v2/overview/overview.module';
     LocationModule,
     PaymentHistoryModule,
     HolidayModule,
-    MedicineModule,
     LoggerModule,
     BasicTemplateModule,
     SystemModule,

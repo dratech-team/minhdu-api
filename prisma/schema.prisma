@@ -105,7 +105,6 @@ model Branch {
   id                Int                @id @default(autoincrement())
   code              String?            @unique
   name              String             @unique
-  medicine          Medicine[]
   employees         Employee[]
   overtimeTemplates OvertimeTemplate[]
   timestamp         DateTime?          @default(now())
@@ -443,25 +442,6 @@ model Role {
   accounts Account[]
 }
 
-// start medicine
-
-model Medicine {
-  id        Int          @id @default(autoincrement())
-  code      String
-  barcode   String?
-  name      String
-  provider  String?
-  expire    DateTime
-  price     Float // đơn giá trên 1 sp
-  discount  Float?
-  invoice   String?
-  unit      MedicineUnit
-  amount    Float
-  createdAt DateTime?    @default(now()) // ngayf nhap kho
-  branch    Branch?      @relation(fields: [branchId], references: [id]) // kho tong, kho con
-  branchId  Int?
-}
-
 enum PartialDay {
   MORNING
   AFTERNOON
@@ -486,14 +466,6 @@ enum RecipeType {
 enum EmployeeType {
   FULL_TIME
   SEASONAL
-}
-
-enum MedicineUnit {
-  VIEN
-  LO
-  LIT
-  KG
-  BI
 }
 
 // end medicine

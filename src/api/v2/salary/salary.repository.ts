@@ -139,7 +139,7 @@ export class SalaryRepository {
       // không thể thêm cùng vắng 1 buổi hoặc cùng vắng 1 ngày.
       if (body.partial === salary.partial) {
         throw new BadRequestException(`Ngày ${moment(body.datetime as Date).format(
-            "DD/MM/YYYY"
+          "DD/MM/YYYY"
           )} đã tồn tại đi trễ / về sớm / không đi làm / vắng đã tồn tại ${body.partial}. Vui lòng kiểm tra lại`
         );
       }
@@ -147,7 +147,7 @@ export class SalaryRepository {
       // Đã tổn tại vắng 1 buổi. chặn thêm văng 1 ngày
       if ((salary.partial === PartialDay.MORNING || salary.partial === PartialDay.AFTERNOON) && body.partial === PartialDay.ALL_DAY) {
         throw new BadRequestException(`Ngày ${moment(body.datetime as Date).format(
-            "DD/MM/YYYY"
+          "DD/MM/YYYY"
           )} đã tồn tại đi trễ / về sớm / không đi làm / vắng đã tồn tại 1 buổi ${salary.partial} nên không thể thêm vắng 1 ngày . Vui lòng kiểm tra lại`
         );
       }
@@ -155,7 +155,7 @@ export class SalaryRepository {
       // Đã tồn tại vắng 1 ngày. không thể thêm vắng 1 buổi.
       if ((salary.partial === PartialDay.ALL_DAY) && (body.partial === PartialDay.MORNING || PartialDay.AFTERNOON)) {
         throw new BadRequestException(`Ngày ${moment(body.datetime as Date).format(
-            "DD/MM/YYYY"
+          "DD/MM/YYYY"
           )} đã tồn tại đi trễ / về sớm / không đi làm / vắng đã tồn tại vắng 1 ngày nên không thể thêm vắng 1 buổi ${salary.partial}. Vui lòng kiểm tra lại`
         );
       }
@@ -321,6 +321,16 @@ export class SalaryRepository {
         );
       }
 
+      const payroll = await this.prisma.payroll.findFirst({
+        where: {
+          employeeId: updates?.employeeId,
+          createdAt: {
+            gte: firstDatetime(salary.payroll.createdAt, "months"),
+            lte: lastDatetime(salary.payroll.createdAt, "months"),
+          },
+        }
+      });
+
       const updated = await this.prisma.salary.update({
         where: {id: id},
         data: {
@@ -334,6 +344,7 @@ export class SalaryRepository {
           rate: updates.rate,
           price: updates.price,
           note: updates.note,
+          payroll: payroll?.id && updates?.employeeId ? {connect: {id: payroll.id}} : {},
           allowance: updates.allowance
             ? {
               upsert: {
