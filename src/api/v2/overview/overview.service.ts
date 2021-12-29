@@ -17,61 +17,13 @@ export class OverviewService {
   async hr(search: SearchHrOverviewDto) {
     switch (search.filter) {
       case FilterTypeEntity.AGE: {
-        const ages = (await this.prisma.employee.groupBy({
-          by: ["birthday"],
-          orderBy: {
-            birthday: "asc"
-          }
-        })).map(e => moment().diff(e.birthday, "years"));
-
-        return Array.of({
-            name: "Chưa đủ tuổi",
-            value: (ages.filter(e => e < 18).length * 100) / ages.length,
-          },
-          {
-            name: "Từ 18 - 30 tuổi",
-            value: (ages.filter(e => e >= 18 && e <= 30).length * 100) / ages.length,
-          },
-          {
-            name: "Từ 31 - 50 tuổi",
-            value: (ages.filter(e => e > 30 && e <= 50).length * 100) / ages.length,
-          },
-          {
-            name: "Ngoài 50 tuổi",
-            value: (ages.filter(e => e > 50).length * 100) / ages.length,
-          });
+        return await this.overviewHrAge(search);
       }
       case FilterTypeEntity.CREATED_AT : {
-        const groupBy = [...new Set((await this.prisma.employee.groupBy({
-          by: ["createdAt"],
-          orderBy: {
-            createdAt: "asc"
-          }
-        })).map(e => Number(moment(e.createdAt).format("YYYY"))))];
-        return await Promise.all(groupBy.map(async e => {
-          const count = await Promise.all([true, false].map(async isLeft => {
-            const a = await this.prisma.employee.count({
-              where: {
-                leftAt: isLeft ? {notIn: null} : {in: null},
-                createdAt: {
-                  gte: firstDatetime(new Date(`${e}-01-01`), "years"),
-                  lte: lastDatetime(new Date(`${e}-01-01`), "years"),
-                }
-              }
-            });
-            return {
-              name: isLeft ? "Nghỉ việc" : "Vào làm",
-              value: a,
-            };
-          }));
-          return {
-            name: e,
-            series: count
-          };
-        }));
+        return await this.overviewHrCreatedAt(search);
       }
       default: {
-        throw new BadRequestException("filter không hợp lệ");
+        throw new BadRequestException("filter hr unavailable. filer include: AGE | CREATED_AT");
       }
     }
   }
@@ -87,9 +39,67 @@ export class OverviewService {
       case FilterSellEntity.CUSTOMER: {
         return await this.overviewSellCustomer(search);
       }
+      default: {
+        throw new BadRequestException("filter sell unavailable. filer include: NATION | YEAR | CUSTOMER");
+      }
     }
   }
 
+  private async overviewHrAge(search: SearchHrOverviewDto) {
+    const ages = (await this.prisma.employee.groupBy({
+      by: ["birthday"],
+      orderBy: {
+        birthday: "asc"
+      }
+    })).map(e => moment().diff(e.birthday, "years"));
+
+    return Array.of({
+        name: "Chưa đủ tuổi",
+        value: (ages.filter(e => e < 18).length * 100) / ages.length,
+      },
+      {
+        name: "Từ 18 - 30 tuổi",
+        value: (ages.filter(e => e >= 18 && e <= 30).length * 100) / ages.length,
+      },
+      {
+        name: "Từ 31 - 50 tuổi",
+        value: (ages.filter(e => e > 30 && e <= 50).length * 100) / ages.length,
+      },
+      {
+        name: "Ngoài 50 tuổi",
+        value: (ages.filter(e => e > 50).length * 100) / ages.length,
+      });
+  }
+
+  private async overviewHrCreatedAt(search: SearchHrOverviewDto) {
+    const groupBy = [...new Set((await this.prisma.employee.groupBy({
+      by: ["createdAt"],
+      orderBy: {
+        createdAt: "asc"
+      }
+    })).map(e => Number(moment(e.createdAt).format("YYYY"))))];
+    return await Promise.all(groupBy.map(async e => {
+      const count = await Promise.all([true, false].map(async isLeft => {
+        const a = await this.prisma.employee.count({
+          where: {
+            leftAt: isLeft ? {notIn: null} : {in: null},
+            createdAt: {
+              gte: firstDatetime(new Date(`${e}-01-01`), "years"),
+              lte: lastDatetime(new Date(`${e}-01-01`), "years"),
+            }
+          }
+        });
+        return {
+          name: isLeft ? "Nghỉ việc" : "Vào làm",
+          value: a,
+        };
+      }));
+      return {
+        name: e,
+        series: count
+      };
+    }));
+  }
 
   private async overviewSellNation(search: SearchSellOverviewDto) {
     const orderGroup = await this.prisma.order.groupBy({
@@ -123,7 +133,7 @@ export class OverviewService {
     } else if (search.option === OptionFilterEnum.ROUTE) {
       return await this.nationRoute(orderGroup);
     } else {
-      throw new BadRequestException("Option unavailable. option for filter NATION are: SOLD | SALES | CUSTOMER");
+      throw new BadRequestException("Option unavailable. option for filter NATION include: SOLD | SALES | CUSTOMER | ORDER | ROUTE");
     }
   }
 
@@ -356,7 +366,7 @@ export class OverviewService {
     } else if (search.option === OptionFilterEnum.ROUTE) {
       return await this.yearRoute(yearsRoute);
     } else {
-      throw new BadRequestException("Option unavailable. option for filter YEAR are: SOLD | SALES | CUSTOMER");
+      throw new BadRequestException("Option unavailable. option for filter YEAR are: SOLD | SALES | CUSTOMER | ORDER | ROUTE");
     }
   }
 
