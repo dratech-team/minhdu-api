@@ -7,6 +7,7 @@ import {SearchSellOverviewDto} from "./dto/search-sell-overview.dto";
 import {DELIVERY_STATUS, FilterSellEntity, OptionFilterEnum} from "./entities/filter-sell.entity";
 import {firstDatetime, lastDatetime} from "../../../utils/datetime.util";
 import {CustomerType} from '@prisma/client';
+import {filterStatusNotNull} from "./functions/filter-numeric.func";
 
 @Injectable()
 export class OverviewService {
@@ -41,13 +42,13 @@ export class OverviewService {
           });
       }
       case FilterTypeEntity.CREATED_AT : {
-        const groupBy = (await this.prisma.employee.groupBy({
+        const groupBy = [...new Set((await this.prisma.employee.groupBy({
           by: ["createdAt"],
           orderBy: {
             createdAt: "asc"
           }
-        }));
-        return await Promise.all([...new Set(groupBy.map(e => Number(moment(e.createdAt).format("YYYY"))))].map(async e => {
+        })).map(e => Number(moment(e.createdAt).format("YYYY"))))];
+        return await Promise.all(groupBy.map(async e => {
           const count = await Promise.all([true, false].map(async isLeft => {
             const a = await this.prisma.employee.count({
               where: {
@@ -265,7 +266,7 @@ export class OverviewService {
               })),
             };
           }));
-          return data.filter(e => e.series.map(e => e.value).reduce((a, b) => a + b, 0) !== 0);
+          return filterStatusNotNull(data);
         } else {
           throw new BadRequestException("Option unavailable. option for filter NATION are: SOLD | SALES | CUSTOMER");
         }
@@ -468,12 +469,6 @@ export class OverviewService {
       case FilterSellEntity.CUSTOMER: {
         const customerGroup = await this.prisma.customer.groupBy({
           by: ['id'],
-          where: {
-            timestamp: search?.startedAt && search?.endedAt ? {
-              gte: search.startedAt,
-              lte: search.endedAt
-            } : {}
-          }
         });
         if (search.option === OptionFilterEnum.SALES) {
           return await Promise.all(customerGroup.map(async e => {
@@ -586,9 +581,55 @@ export class OverviewService {
             };
           });
         } else if (search.option === OptionFilterEnum.ORDER) {
-          throw new BadRequestException("fiter customer - option order đang làm");
+          const data = await Promise.all(customerGroup.map(async e => {
+            const customer = await this.prisma.customer.findUnique({where: {id: e.id}, select: {lastName: true}});
+            return {
+              name: customer.lastName,
+              series: await Promise.all([DELIVERY_STATUS.COMPLETE, DELIVERY_STATUS.DELIVERY, DELIVERY_STATUS.CANCEL].map(async status => {
+                return {
+                  name: status,
+                  value: await this.prisma.order.count({
+                    where: {
+                      customerId: e.id,
+                      deleted: status === DELIVERY_STATUS.CANCEL,
+                      deliveredAt: status === DELIVERY_STATUS.COMPLETE && search?.startedAt && search?.endedAt ? {
+                        gte: search.startedAt,
+                        lte: search.endedAt
+                      } : (status === DELIVERY_STATUS.DELIVERY && !(search?.startedAt && search?.endedAt)) || status === DELIVERY_STATUS.CANCEL ? {
+                        in: null,
+                      } : {}
+                    }
+                  }),
+                };
+              })),
+            };
+          }));
+          return filterStatusNotNull(data);
         } else if (search.option === OptionFilterEnum.ROUTE) {
-          throw new BadRequestException("fiter customer - option route đang làm");
+          const data = await Promise.all(customerGroup.map(async e => {
+            const customer = await this.prisma.customer.findUnique({where: {id: e.id}, select: {lastName: true}});
+            return {
+              name: customer.lastName,
+              series: await Promise.all([DELIVERY_STATUS.COMPLETE, DELIVERY_STATUS.DELIVERY, DELIVERY_STATUS.CANCEL].map(async status => {
+                return {
+                  name: status,
+                  value: await this.prisma.route.count({
+                    where: {
+                      id: e.id,
+                      deleted: status === DELIVERY_STATUS.CANCEL,
+                      endedAt: status === DELIVERY_STATUS.COMPLETE && search?.startedAt && search?.endedAt ? {
+                        gte: search.startedAt,
+                        lte: search.endedAt
+                      } : (status === DELIVERY_STATUS.DELIVERY && !(search?.startedAt && search?.endedAt)) || status === DELIVERY_STATUS.CANCEL ? {
+                        in: null,
+                      } : {}
+                    }
+                  }),
+                };
+              })),
+            };
+          }));
+          return filterStatusNotNull(data);
         } else {
           throw new BadRequestException("Option unavailable. option for filter customer are: SOLD | SALES | DEBT | ORDER | ROUTE");
         }
@@ -599,3 +640,5 @@ export class OverviewService {
     }
   }
 }
+
+
