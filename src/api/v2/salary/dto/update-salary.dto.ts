@@ -7,5 +7,5 @@ export class UpdateSalaryDto extends PartialType(CreateSalaryDto) {
   @IsOptional()
   @IsNumber()
   @Type(() => Number)
-  readonly employeeId: number;
+  readonly employeeId?: number;
 }
