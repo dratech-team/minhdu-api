@@ -112,7 +112,7 @@ model Branch {
   Account           Account[]
   allowances        Salary[]
   positions         Position[]
-  warehouses        Warehouse[]
+  products          Product[]
 }
 
 model Position {
@@ -423,18 +423,39 @@ model Payroll {
 // warehouse
 
 // loại kho văn phòng phẩm, thuốc, trứng...
-model WarehouseType {
-  id         Int         @id @default(autoincrement())
-  name       String
-  warehouses Warehouse[]
+model Warehouse {
+  id       Int       @id @default(autoincrement())
+  name     String
+  products Product[]
 }
 
-model Warehouse {
-  id       Int           @id @default(autoincrement())
-  branch   Branch        @relation(fields: [branchId], references: [id])
-  branchId Int
-  type     WarehouseType @relation(fields: [typeId], references: [id])
-  typeId   Int
+model Provider {
+  id       Int       @id @default(autoincrement())
+  name     String
+  products Product[]
+}
+
+model Product {
+  id          Int           @id @default(autoincrement())
+  name        String
+  code        String?
+  mfg         String?
+  exp         String?
+  accountedAt DateTime? // ngày hạch toán
+  billedAt    DateTime? // ngày chứng từ
+  billCode    String? // số chứng từ
+  branch      Branch        @relation(fields: [branchId], references: [id])
+  branchId    Int
+  type        Warehouse     @relation(fields: [typeId], references: [id])
+  typeId      Int
+  price       Float // Đơn giá
+  amount      Float // Số lượng
+  discount    Float?
+  provider    Provider      @relation(fields: [providerId], references: [id])
+  providerId  Int
+  paid        Float?
+  note        String?
+  unit        WarehouseUnit
 }
 
 model System {
@@ -567,6 +588,12 @@ enum CustomerType {
 enum CommodityUnit {
   KG
   CON
+}
+
+enum WarehouseUnit {
+  LIT
+  KG
+  BAO
 }
 
 enum CustomerResource {
