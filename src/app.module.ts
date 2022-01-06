@@ -34,6 +34,8 @@ import { ApplicationModule } from './api/v2/application/application.module';
 import { FinanceModule } from './api/v2/finance/finance.module';
 import { AdminModule } from './api/v2/admin/admin.module';
 import { OverviewModule } from './api/v2/overview/overview.module';
+import { WarehourseTypeModule } from './api/v2/warehourse-type/warehourse-type.module';
+import { WarehourseModule } from './api/v2/warehourse/warehourse.module';
 
 @Module({
   imports: [
@@ -70,6 +72,8 @@ import { OverviewModule } from './api/v2/overview/overview.module';
     FinanceModule,
     AdminModule,
     OverviewModule,
+    WarehourseTypeModule,
+    WarehourseModule,
   ],
   controllers: [AppController],
   providers: [PrismaService],

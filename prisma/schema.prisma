@@ -112,6 +112,7 @@ model Branch {
   Account           Account[]
   allowances        Salary[]
   positions         Position[]
+  warehouses        Warehouse[]
 }
 
 model Position {
@@ -417,6 +418,23 @@ model Payroll {
   taxed          Boolean?  @default(true)
   createdAt      DateTime? @default(now()) // ngay tao phieu luong, phieu luong cua thang
   timestamp      DateTime? @default(now()) // ngay them vao ghi lai lich su
+}
+
+// warehouse
+
+// loại kho văn phòng phẩm, thuốc, trứng...
+model WarehouseType {
+  id         Int         @id @default(autoincrement())
+  name       String
+  warehouses Warehouse[]
+}
+
+model Warehouse {
+  id       Int           @id @default(autoincrement())
+  branch   Branch        @relation(fields: [branchId], references: [id])
+  branchId Int
+  type     WarehouseType @relation(fields: [typeId], references: [id])
+  typeId   Int
 }
 
 model System {
