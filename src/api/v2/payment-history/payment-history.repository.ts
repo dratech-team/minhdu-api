@@ -12,7 +12,7 @@ export class PaymentHistoryRepository {
     try {
       const order = await this.prisma.order.findUnique({where: {id: body.orderId}, include: {customer: true}});
 
-      const pay = this.prisma.paymentHistory.create({
+      const pay = this.prisma.payment.create({
         data: Object.assign(body, {customerId: order.customerId}),
       });
 
@@ -32,12 +32,12 @@ export class PaymentHistoryRepository {
   async findAll(customerId: number, skip: number, take: number) {
     try {
       const [total, data] = await Promise.all([
-        this.prisma.paymentHistory.count({
+        this.prisma.payment.count({
           where: {
             customer: {id: customerId},
           },
         }),
-        this.prisma.paymentHistory.findMany({
+        this.prisma.payment.findMany({
           take,
           skip,
           where: {
@@ -57,7 +57,7 @@ export class PaymentHistoryRepository {
 
   async findOne(id: number) {
     try {
-      return await this.prisma.paymentHistory.findUnique({where: {id}});
+      return await this.prisma.payment.findUnique({where: {id}});
     } catch (err) {
       console.error(err);
       throw new BadRequestException(err);
@@ -69,7 +69,7 @@ export class PaymentHistoryRepository {
       const payment = await this.findOne(id);
       const customer = await this.prisma.customer.findUnique({where: {id: payment.customerId}});
 
-      const updatedPay = this.prisma.paymentHistory.update({
+      const updatedPay = this.prisma.payment.update({
         where: {id},
         data: updates,
       });
@@ -90,7 +90,7 @@ export class PaymentHistoryRepository {
       const payment = await this.findOne(id);
       const customer = await this.prisma.customer.findUnique({where: {id: payment.customerId}});
 
-      const deleted = this.prisma.paymentHistory.delete({
+      const deleted = this.prisma.payment.delete({
         where: {id},
       });
       const updated = this.prisma.customer.update({

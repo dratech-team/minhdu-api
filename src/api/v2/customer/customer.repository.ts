@@ -83,7 +83,7 @@ export class CustomerRepository {
           total: true,
         }
       });
-      const payment = await this.prisma.paymentHistory.aggregate({
+      const payment = await this.prisma.payment.aggregate({
         where: {
           customerId: id
         },
@@ -110,7 +110,6 @@ export class CustomerRepository {
           },
         },
       });
-      console.log(payment._sum.total,  order._sum.total)
       return Object.assign(customer, {debt: payment._sum.total - order._sum.total});
     } catch (err) {
       console.error(err);
@@ -143,7 +142,7 @@ export class CustomerRepository {
     try {
       const customer = await this.prisma.customer.findUnique({where: {id: customerId}});
 
-      const pay = this.prisma.paymentHistory.create({
+      const pay = this.prisma.payment.create({
         data: Object.assign(payment, {customerId}),
       });
 
