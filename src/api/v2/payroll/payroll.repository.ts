@@ -65,24 +65,27 @@ export class PayrollRepository {
 
   async generate(body: CreatePayrollDto) {
     try {
-      const payrolls = await this.prisma.payroll.findMany({
+      const payroll = await this.prisma.payroll.findFirst({
         where: {
-          employee: {id: {in: body.employeeId}}
+          employee: {id: {in: body.employeeId}},
+          salaries: {
+            some: {
+              type: {in: [SalaryType.BASIC, SalaryType.BASIC_INSURANCE, SalaryType.STAY]}
+            },
+          }
         },
         include: {salaries: true},
       });
 
       // Đã tồn tại phiếu lương
-      if (payrolls?.length) {
-        for (let i = 0; i < payrolls.length; i++) {
-          const salaries = payrolls[i].salaries.filter(
-            (salary) =>
-              salary.type === SalaryType.BASIC ||
-              salary.type === SalaryType.BASIC_INSURANCE ||
-              salary.type === SalaryType.STAY
-          );
-          return await this.create(body, salaries);
-        }
+      if (payroll?.salaries?.length) {
+        const salaries = payroll.salaries.filter(
+          (salary) =>
+            salary.type === SalaryType.BASIC ||
+            salary.type === SalaryType.BASIC_INSURANCE ||
+            salary.type === SalaryType.STAY
+        );
+        return await this.create(body, salaries);
       } else {
         // Chưa tòn tại phiếu lương nào
         return await this.create(body);
