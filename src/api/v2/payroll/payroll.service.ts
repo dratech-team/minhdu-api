@@ -28,7 +28,7 @@ export class PayrollService {
   constructor(
     private readonly repository: PayrollRepository,
     private readonly employeeService: EmployeeService,
-    private readonly  httpService: HttpService
+    private readonly httpService: HttpService
   ) {
   }
 
@@ -116,8 +116,14 @@ export class PayrollService {
       case FilterTypeEnum.OVERTIME: {
         return this.filterOvertime(profile, search);
       }
-      default: {
+      case FilterTypeEnum.BASIC:
+      case FilterTypeEnum.ABSENT:
+      case FilterTypeEnum.ALLOWANCE:
+      case FilterTypeEnum.STAY: {
         return await this.repository.findSalaries(profile, search);
+      }
+      default: {
+        return {total, data};
       }
     }
   }
