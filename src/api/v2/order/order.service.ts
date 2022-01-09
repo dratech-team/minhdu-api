@@ -37,7 +37,7 @@ export class OrderService {
           },
           {
             paymentTotal: this.paymentService.totalPayment(
-              order.payments
+              order.paymentHistories
             ),
           }
         );
@@ -62,7 +62,7 @@ export class OrderService {
         ),
       },
       {commodityTotal: commodityTotal},
-      {paymentTotal: this.paymentService.totalPayment(order.payments)}
+      {paymentTotal: this.paymentService.totalPayment(order.paymentHistories)}
     );
   }
 
@@ -133,9 +133,9 @@ export class OrderService {
           destination: `${e.destination.name}, ${e.destination.district.name}, ${e.destination.district.province.name}, ${e.destination.district.province.nation.name}`,
           lengthTotal: e.commodities.length,
           commodityTotal: this.commodityService.totalCommodities(e.commodities),
-          payTotal: this.paymentService.totalPayment(e.payments),
+          payTotal: this.paymentService.totalPayment(e.paymentHistories),
           debtTotal:
-            this.paymentService.totalPayment(e.payments) -
+            this.paymentService.totalPayment(e.paymentHistories) -
             this.commodityService.totalCommodities(e.commodities),
           explain: e.explain,
         })),

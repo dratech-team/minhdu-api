@@ -34,6 +34,9 @@ import { ProvinceModule } from './common/nations/province/province.module';
 import { WardModule } from './common/nations/ward/ward.module';
 import { ConfigModule } from "./core/config/config.module";
 import { PrismaService } from "./prisma.service";
+import { ProviderModule } from './api/v2/provider/provider.module';
+import { WarehouseModule } from './api/v2/warehouse/warehouse.module';
+import { ProductModule } from './api/v2/product/product.module';
 
 @Module({
   imports: [
@@ -70,6 +73,9 @@ import { PrismaService } from "./prisma.service";
     FinanceModule,
     AdminModule,
     OverviewModule,
+    ProviderModule,
+    WarehouseModule,
+    ProductModule,
   ],
   controllers: [AppController],
   providers: [PrismaService],

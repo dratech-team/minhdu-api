@@ -52,7 +52,7 @@ export class OrderRepository {
               },
             },
           },
-          payments: true,
+          paymentHistories: true
         },
       });
     } catch (err) {
@@ -104,7 +104,7 @@ export class OrderRepository {
                 },
               },
             },
-            payments: true
+            paymentHistories: true
           },
         }),
       ]);

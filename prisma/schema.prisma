@@ -259,36 +259,36 @@ model Relative {
 }
 
 model Customer {
-  id          Int              @id @default(autoincrement())
-  firstName   String?
-  lastName    String
-  avt         String?
-  gender      GenderType?
-  phone       String
-  workPhone   String?
-  birthday    DateTime
-  birthplace  String?
-  identify    String?
-  idCardAt    DateTime?
-  issuedBy    String?
-  ward        Ward?            @relation(fields: [wardId], references: [id])
-  wardId      Int?
-  address     String?
-  email       String?
-  religion    String?
-  ethnicity   String?
-  mst         String?
-  type        CustomerType
-  resource    CustomerResource
-  isPotential Boolean?         @default(false)
-  note        String?
-  debt        Float?           @default(0)
-  orders      Order[]
-  payment     Payment[]
-  timestamp   DateTime?        @default(now())
+  id               Int              @id @default(autoincrement())
+  firstName        String?
+  lastName         String
+  avt              String?
+  gender           GenderType?
+  phone            String
+  workPhone        String?
+  birthday         DateTime
+  birthplace       String?
+  identify         String?
+  idCardAt         DateTime?
+  issuedBy         String?
+  ward             Ward?            @relation(fields: [wardId], references: [id])
+  wardId           Int?
+  address          String?
+  email            String?
+  religion         String?
+  ethnicity        String?
+  mst              String?
+  type             CustomerType
+  resource         CustomerResource
+  isPotential      Boolean?         @default(false)
+  note             String?
+  debt             Float?           @default(0)
+  orders           Order[]
+  paymentHistories PaymentHistory[]
+  timestamp        DateTime?        @default(now())
 }
 
-model Payment {
+model PaymentHistory {
   id         Int           @id @default(autoincrement())
   total      Float
   paidAt     DateTime?     @default(now())
@@ -317,22 +317,22 @@ model Commodity {
 }
 
 model Order {
-  id          Int         @id @default(autoincrement())
-  customer    Customer    @relation(fields: [customerId], references: [id])
-  customerId  Int
-  createdAt   DateTime
-  createdBy   String?
-  explain     String?
-  routes      Route[]
-  commodities Commodity[]
-  wardId      Int?
-  deliveredAt DateTime?
-  hide        Boolean?    @default(false)
-  destination Ward?       @relation(fields: [wardId], references: [id])
-  total       Float?
-  deleted     Boolean?    @default(false)
-  payments    Payment[]
-  timestamp   DateTime?   @default(now())
+  id               Int              @id @default(autoincrement())
+  customer         Customer         @relation(fields: [customerId], references: [id])
+  customerId       Int
+  createdAt        DateTime
+  createdBy        String?
+  explain          String?
+  routes           Route[]
+  commodities      Commodity[]
+  wardId           Int?
+  deliveredAt      DateTime?
+  hide             Boolean?         @default(false)
+  destination      Ward?            @relation(fields: [wardId], references: [id])
+  total            Float?
+  deleted          Boolean?         @default(false)
+  paymentHistories PaymentHistory[]
+  timestamp        DateTime?        @default(now())
 }
 
 model Route {
@@ -438,27 +438,26 @@ model Provider {
 }
 
 model Product {
-  id          Int           @id @default(autoincrement())
-  name        String
-  code        String?
-  mfg         String?
-  exp         String?
-  accountedAt DateTime? // ngày hạch toán
-  billedAt    DateTime? // ngày chứng từ
-  billCode    String? // số chứng từ
-  branch      Branch        @relation(fields: [branchId], references: [id])
-  branchId    Int
-  type        Warehouse     @relation(fields: [typeId], references: [id])
-  typeId      Int
-  price       Float // Đơn giá
-  amount      Float // Số lượng
-  discount    Float?
-  provider    Provider      @relation(fields: [providerId], references: [id])
-  providerId  Int
-  paid        Float?
-  note        String?
-  unit        WarehouseUnit
-  payments    Payment[]
+  id               Int              @id @default(autoincrement())
+  name             String
+  code             String?
+  mfg              DateTime? // ngày sản xuất
+  exp              DateTime? // hạn sử dụng
+  accountedAt      DateTime? // ngày hạch toán
+  billedAt         DateTime? // ngày chứng từ
+  billCode         String? // số chứng từ
+  branch           Branch?           @relation(fields: [branchId], references: [id])
+  branchId         Int
+  type             Warehouse?        @relation(fields: [typeId], references: [id])
+  typeId           Int
+  price            Float // Đơn giá
+  amount           Float // Số lượng
+  discount         Float?
+  provider         Provider?         @relation(fields: [providerId], references: [id])
+  providerId       Int
+  note             String?
+  unit             WarehouseUnit
+  paymentHistories PaymentHistory[]
 }
 
 model System {

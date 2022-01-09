@@ -1,5 +1,5 @@
 import {Injectable} from '@nestjs/common';
-import {Payment} from '@prisma/client';
+import {PaymentHistory} from '@prisma/client';
 import {CreatePaymentHistoryDto} from './dto/create-payment-history.dto';
 import {UpdatePaymentHistoryDto} from './dto/update-payment-history.dto';
 import {PaymentHistoryRepository} from "./payment-history.repository";
@@ -29,7 +29,7 @@ export class PaymentHistoryService {
     await this.repository.remove(id);
   }
 
-  totalPayment(payments: Payment[]) {
+  totalPayment(payments: PaymentHistory[]) {
     return Math.ceil(payments?.map(pay => pay.total)?.reduce((a, b) => a + b, 0));
   }
 }

@@ -83,7 +83,7 @@ export class CustomerRepository {
           total: true,
         }
       });
-      const payment = await this.prisma.payment.aggregate({
+      const payment = await this.prisma.paymentHistory.aggregate({
         where: {
           customerId: id
         },
@@ -142,7 +142,7 @@ export class CustomerRepository {
     try {
       const customer = await this.prisma.customer.findUnique({where: {id: customerId}});
 
-      const pay = this.prisma.payment.create({
+      const pay = this.prisma.paymentHistory.create({
         data: Object.assign(payment, {customerId}),
       });
 
