@@ -1,5 +1,7 @@
 import {IsArray, IsDate, IsNotEmpty, IsNumber, IsOptional, IsString, MaxDate} from "class-validator";
 import {Type} from "class-transformer";
+import * as moment from "moment";
+import {tomorrowDate} from "../../../../utils/datetime.util";
 
 export class CreateRouteDto {
   @IsNotEmpty()
@@ -14,7 +16,7 @@ export class CreateRouteDto {
   @IsOptional()
   @Type(() => Date)
   @IsDate()
-  @MaxDate(new Date())
+  @MaxDate(tomorrowDate())
   readonly endedAt: Date;
 
   @IsOptional()

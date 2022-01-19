@@ -95,7 +95,7 @@ export class RouteRepository {
       }
       if (updates?.endedAt) {
         const route = await this.prisma.route.findUnique({where: {id}, select: {orders: true}});
-        await Promise.all(route.orders.map(async order => {
+        await Promise.all(route.orders?.map(async order => {
           await this.prisma.order.update({
             where: {id: order.id},
             data: {
@@ -113,7 +113,7 @@ export class RouteRepository {
           bsx: updates.bsx,
           startedAt: updates.startedAt,
           endedAt: updates.endedAt,
-          orders: {set: updates.orderIds.map((id) => ({id: id}))},
+          orders: {set: updates.orderIds?.map((id) => ({id: id}))},
         },
       });
     } catch (err) {
