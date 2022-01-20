@@ -1,7 +1,7 @@
 import {PaidEnum} from "../enums/paid.enum";
 import {Customer, PaymentType} from "@prisma/client";
-import {IsBoolean, IsEnum, IsNumber, IsOptional, IsString} from "class-validator";
-import {Type} from "class-transformer";
+import {IsBoolean, IsDate, IsEnum, IsNumber, IsOptional, IsString} from "class-validator";
+import {Transform, Type} from "class-transformer";
 
 export class SearchOrderDto {
   @IsOptional()
@@ -13,6 +13,18 @@ export class SearchOrderDto {
   @IsNumber()
   @Type(() => Number)
   readonly take: number;
+
+  @IsOptional()
+  @Transform((val) => new Date(val.value))
+  readonly createdAt: Date;
+
+  @IsOptional()
+  @Transform((val) => new Date(val.value))
+  readonly deliveredAt: Date;
+
+  @IsOptional()
+  @IsString()
+  readonly commodity: string;
 
   @IsOptional()
   readonly paidType: PaidEnum;
@@ -37,7 +49,7 @@ export class SearchOrderDto {
   @IsOptional()
   @IsNumber()
   @Type(() => Number)
-  readonly status: 0 | 1
+  readonly status: 0 | 1;
 
   @IsOptional()
   @IsBoolean()

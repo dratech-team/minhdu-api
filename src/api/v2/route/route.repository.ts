@@ -55,7 +55,11 @@ export class RouteRepository {
           include: {
             employee: true,
             locations: true,
-            orders: true,
+            orders: {
+              include: {
+                customer: true
+              }
+            },
           },
         }),
       ]);

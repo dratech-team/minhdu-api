@@ -3,6 +3,7 @@ import {PrismaService} from "../../../prisma.service";
 import {CreateOrderDto} from "./dto/create-order.dto";
 import {UpdateOrderDto} from "./dto/update-order.dto";
 import {SearchOrderDto} from "./dto/search-order.dto";
+import {isDate} from "moment";
 
 @Injectable()
 export class OrderRepository {
@@ -66,25 +67,35 @@ export class OrderRepository {
       const [total, data] = await Promise.all([
         this.prisma.order.count({
           where: {
-            deliveredAt: search?.status !== undefined && search?.status !== null ? (search.status === 1 ? {notIn: null} : {in: null}) : undefined,
+            deliveredAt: search?.status !== undefined && search?.status !== null && !search?.deliveredAt
+              ? (search.status === 1
+                ? {notIn: null}
+                : {in: null})
+              : search?.deliveredAt ? {in: search.deliveredAt} : {},
             hide: search?.hide,
             customer: {
               lastName: search?.name,
               id: search?.customerId ? {equals: search?.customerId} : {}
             },
+            createdAt: search?.createdAt ? {in: search.createdAt} : {},
             deleted: false
           },
         }),
         this.prisma.order.findMany({
-          skip: search?.skip || undefined,
-          take: search?.take || undefined,
+          skip: search?.skip,
+          take: search?.take,
           where: {
-            deliveredAt: search?.status !== undefined && search?.status !== null ? (search.status === 1 ? {notIn: null} : {in: null}) : undefined,
+            deliveredAt: search?.status !== undefined && search?.status !== null && !search?.deliveredAt
+              ? (search.status === 1
+                ? {notIn: null}
+                : {in: null})
+              : search?.deliveredAt ? {in: search.deliveredAt} : {},
             hide: search?.hide,
             customer: {
               lastName: search?.name,
               id: search?.customerId ? {equals: search?.customerId} : {}
             },
+            createdAt: search?.createdAt ? {in: search.createdAt} : {},
             deleted: false
           },
           include: {
@@ -108,10 +119,8 @@ export class OrderRepository {
           },
         }),
       ]);
-      return {
-        total,
-        data,
-      };
+      console.log(total);
+      return {total, data};
     } catch (err) {
       console.error(err);
       throw new BadRequestException(err);
