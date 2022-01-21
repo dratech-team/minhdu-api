@@ -520,15 +520,13 @@ export class OverviewService {
             }
           },
         });
-        return Array.of(
-          {
-            name: isHide ? "Ẩn nợ" : "Doanh thu",
-            value: b._sum.total || 0,
-          }
-        );
+        return {
+          name: isHide ? "Ẩn nợ" : "Doanh thu",
+          value: b._sum.total || 0,
+        };
       }));
       return {
-        name: year,
+        name: year.toString(),
         series: a
       };
     }));
@@ -662,7 +660,7 @@ export class OverviewService {
           },
           {
             name: "Gà mua thêm",
-            value: e.name
+            value: e.more
           },
           {
             name: "Gà tặng",
