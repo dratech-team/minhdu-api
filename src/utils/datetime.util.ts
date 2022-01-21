@@ -3,7 +3,6 @@ import {extendMoment} from "moment-range";
 
 const moment = extendMoment(Moment);
 
-
 export function firstDatetime(datetime: string | Date | undefined, type?: "years" | "months" | "days"): Date | undefined {
   return datetime ? moment(datetime).clone().startOf(type || "months").toDate() : undefined;
 }
@@ -23,4 +22,8 @@ export function tomorrowDate(datetime?: Date) {
 
 export function rangeDatetime(start: Date, end: Date, type?: 'days' | 'years') {
   return Array.from(moment().range(start, tomorrowDate(end)).by(type || 'day', {excludeEnd: true}));
+}
+
+export function beforeDatetime(i: number, type?: "days" | "months" | "years") {
+  return moment(new Date()).subtract(i, type || "months").toDate();
 }

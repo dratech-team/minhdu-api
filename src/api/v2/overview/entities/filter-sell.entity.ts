@@ -2,6 +2,7 @@ export enum FilterSellEntity {
   NATION = "NATION",
   CUSTOMER = "CUSTOMER",
   YEAR = "YEAR",
+  MONTH = "MONTH",
 }
 
 export enum OptionFilterEnum {

@@ -24,7 +24,7 @@ export class CustomerController {
     return this.customerService.create(createCustomerDto);
   }
 
-  @UseGuards(RolesGuard, LoggerGuard)
+  @UseGuards(RolesGuard)
   @Roles(RoleEnum.ADMIN, RoleEnum.SALESMAN)
   @Get()
   findAll(
@@ -47,7 +47,7 @@ export class CustomerController {
     });
   }
 
-  @UseGuards(RolesGuard, LoggerGuard)
+  @UseGuards(RolesGuard)
   @Roles(RoleEnum.ADMIN, RoleEnum.SALESMAN)
   @Get(':id')
   findOne(@Param('id') id: string) {

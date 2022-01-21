@@ -5,7 +5,7 @@ import {FilterTypeEntity} from "./entities/filter-type.entity";
 import * as moment from "moment";
 import {SearchSellOverviewDto} from "./dto/search-sell-overview.dto";
 import {DELIVERY_STATUS, FilterSellEntity, OptionFilterEnum} from "./entities/filter-sell.entity";
-import {firstDatetime, lastDatetime} from "../../../utils/datetime.util";
+import {beforeDatetime, firstDatetime, lastDatetime} from "../../../utils/datetime.util";
 import {CustomerType} from '@prisma/client';
 import {filterStatusNotNull} from "./functions/filter-numeric.func";
 
@@ -35,6 +35,9 @@ export class OverviewService {
       }
       case FilterSellEntity.YEAR: {
         return await this.overviewSellYear(search);
+      }
+      case FilterSellEntity.MONTH: {
+        return await this.overviewSellMonth(search);
       }
       case FilterSellEntity.CUSTOMER: {
         return await this.overviewSellCustomer(search);
@@ -190,6 +193,58 @@ export class OverviewService {
     } else {
       throw new BadRequestException("Option unavailable. option for filter YEAR are: SOLD | SALES | CUSTOMER | ORDER | ROUTE");
     }
+  }
+
+  private async overviewSellMonth(search: SearchSellOverviewDto) {
+    const aggregate = await Promise.all([beforeDatetime(1, "months"), new Date()].map(async e => {
+      return await this.prisma.order.aggregate({
+        where: {
+          deliveredAt: {
+            gte: firstDatetime(e),
+            lte: lastDatetime(e),
+          }
+        },
+        _sum: {
+          total: true,
+        }
+      });
+    }));
+
+    const count = await Promise.all([beforeDatetime(1, "months"), new Date()].map(async e => {
+      return await this.prisma.order.count({
+        where: {
+          deliveredAt: {
+            gte: firstDatetime(e),
+            lte: lastDatetime(e),
+          }
+        }
+      });
+    }));
+
+    const customer = await Promise.all([true, false].map(async isPotential => {
+      return await this.prisma.customer.count({
+        where: {isPotential}
+      });
+    }));
+
+    return {
+      datetime: new Date(),
+      order: {
+        rate: ((count[1] - count[0]) / (count[0] + count[1])) * 100,
+        total: count[0] + count[1],
+        link: "",
+        income: {
+          rate: ((aggregate[1]._sum.total - aggregate[0]._sum.total) / (aggregate[1]._sum.total + aggregate[0]._sum.total)) * 100,
+          total: aggregate[1]._sum.total + aggregate[0]._sum.total,
+          link: "",
+        }
+      },
+      customer: {
+        potential: customer[0],
+        total: customer[0] + customer[1],
+        link: "",
+      },
+    };
   }
 
   private async overviewSellCustomer(search: SearchSellOverviewDto) {
@@ -539,7 +594,7 @@ export class OverviewService {
   }
 
   private async customerSales(customerGroup: { id: number }[]) {
-    return await Promise.all(customerGroup.map(async e => {
+    const a = await Promise.all(customerGroup.map(async e => {
       const customer = await this.prisma.customer.findUnique({
         where: {id: e.id},
         select: {
@@ -563,9 +618,10 @@ export class OverviewService {
       }));
       return {
         name: customer.lastName,
-        series: a
+        series: a.filter(e => e.value),
       };
     }));
+    return a.filter(e => e.series.length);
   }
 
   private async customerSold(customerGroup: { id: number }[]) {

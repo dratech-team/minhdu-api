@@ -7,6 +7,7 @@ export class SearchSellOverviewDto {
   @IsEnum(FilterSellEntity)
   readonly filter: FilterSellEntity;
 
+  @IsOptional()
   @IsString()
   @IsEnum(OptionFilterEnum)
   readonly option: OptionFilterEnum;
