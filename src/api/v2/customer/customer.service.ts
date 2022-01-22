@@ -20,12 +20,8 @@ export class CustomerService {
     return await this.repository.create(body);
   }
 
-  async findAll(
-    skip: number,
-    take: number,
-    search?: Partial<SearchCustomerDto>,
-  ) {
-    return await this.repository.findAll(skip, take, search);
+  async findAll(search: SearchCustomerDto) {
+    return await this.repository.findAll(search);
   }
 
   findOne(id: number) {
@@ -40,8 +36,8 @@ export class CustomerService {
     return await this.repository.remove(id);
   }
 
-  async export(response: Response, search?: Partial<SearchCustomerDto>) {
-    const data = await this.findAll(undefined, undefined, search);
+  async export(response: Response, search: SearchCustomerDto) {
+    const data = await this.findAll(search);
     return await exportExcel(response, {
       title: "Danh sách khách hàng",
       name: "Danh sách khách hàng",

@@ -1,6 +1,5 @@
 import {BadRequestException, Injectable} from "@nestjs/common";
 import {Customer} from "@prisma/client";
-import {searchName} from "src/utils/search-name.util";
 import {PrismaService} from "../../../prisma.service";
 import {CreatePaymentHistoryDto} from "../payment-history/dto/create-payment-history.dto";
 import {CreateCustomerDto} from "./dto/create-customer.dto";
@@ -21,32 +20,29 @@ export class CustomerRepository {
     }
   }
 
-  async findAll(
-    skip: number,
-    take: number,
-    search?: Partial<SearchCustomerDto>
-  ) {
+  async findAll(search: SearchCustomerDto) {
     try {
-      const name = searchName(search?.name);
-
       const [total, data] = await Promise.all([
-        this.prisma.customer.count(),
-        this.prisma.customer.findMany({
-          skip,
-          take,
+        this.prisma.customer.count({
           where: {
-            AND: {
-              firstName: {startsWith: name?.firstName, mode: "insensitive"},
-              lastName: {startsWith: name?.lastName, mode: "insensitive"},
-            },
+            lastName: search?.name,
             phone: {startsWith: search?.phone, mode: "insensitive"},
             // ward: {district: {province: {nation: {id: nationId}}}},
-            type: search?.type ? {in: search?.type} : {},
+            type: search?.customerType ? {in: search.customerType} : {},
             resource: search?.resource ? {in: search?.resource} : {},
-            /// FIXME: bug
-            isPotential: search?.isPotential
-              ? {equals: search?.isPotential !== 0}
-              : {},
+            isPotential: search?.isPotential,
+          }
+        }),
+        this.prisma.customer.findMany({
+          skip: search?.skip,
+          take: search?.take,
+          where: {
+            lastName: search?.name,
+            phone: {startsWith: search?.phone, mode: "insensitive"},
+            // ward: {district: {province: {nation: {id: nationId}}}},
+            type: search?.customerType ? {in: search.customerType} : {},
+            resource: search?.resource ? {in: search.resource} : {},
+            isPotential: search?.isPotential,
           },
           include: {
             ward: {
