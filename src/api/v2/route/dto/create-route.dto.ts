@@ -1,7 +1,6 @@
-import {IsArray, IsDate, IsNotEmpty, IsNumber, IsOptional, IsString, MaxDate} from "class-validator";
-import {Type} from "class-transformer";
+import {IsArray, IsDate, IsNotEmpty, IsNumber, IsOptional, IsString} from "class-validator";
+import {Transform, Type} from "class-transformer";
 import * as moment from "moment";
-import {tomorrowDate} from "../../../../utils/datetime.util";
 
 export class CreateRouteDto {
   @IsNotEmpty()
@@ -11,12 +10,13 @@ export class CreateRouteDto {
   @IsNotEmpty()
   @Type(() => Date)
   @IsDate()
+  @Transform((val) => new Date(moment(val.value).format('YYYY-MM-DD')))
   readonly startedAt: Date;
 
   @IsOptional()
   @Type(() => Date)
   @IsDate()
-  @MaxDate(tomorrowDate())
+  @Transform((val) => new Date(moment(val.value).format('YYYY-MM-DD')))
   readonly endedAt: Date;
 
   @IsOptional()

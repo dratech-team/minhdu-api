@@ -2,7 +2,6 @@ import {Body, Controller, Delete, Get, Param, Patch, Post, Query, Res,} from "@n
 import {RouteService} from "./route.service";
 import {CreateRouteDto} from "./dto/create-route.dto";
 import {UpdateRouteDto} from "./dto/update-route.dto";
-import {ParseDatetimePipe} from "../../../core/pipe/datetime.pipe";
 import {SearchRouteDto} from "./dto/search-route.dto";
 
 @Controller("v2/route")

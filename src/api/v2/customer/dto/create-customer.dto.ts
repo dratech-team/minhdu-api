@@ -1,5 +1,5 @@
 import {CustomerResource, CustomerType} from "@prisma/client";
-import {IsBoolean, IsEnum, IsNotEmpty, IsOptional, IsString, ValidateNested} from "class-validator";
+import {IsBoolean, IsEnum, IsNotEmpty, IsOptional, IsString} from "class-validator";
 import {CreateProfileDto} from "../../../../common/dtos/create-profile.dto";
 
 export class CreateCustomerDto extends CreateProfileDto {

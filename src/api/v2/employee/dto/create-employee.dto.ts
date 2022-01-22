@@ -17,6 +17,7 @@ import {CreateProfileDto} from "../../../../common/dtos/create-profile.dto";
 import {tomorrowDate} from "../../../../utils/datetime.util";
 import {CreateContractDto} from "../../contract/dto/create-contract.dto";
 import {CreateSocialDto} from "./create-social.dto";
+import * as moment from "moment";
 
 export class CreateEmployeeDto extends CreateProfileDto {
   @IsOptional()
@@ -24,18 +25,14 @@ export class CreateEmployeeDto extends CreateProfileDto {
 
   @IsOptional()
   @Type(() => Date)
-  @Transform((val) => new Date(val.value))
-  // @MaxDate(tomorrowDate(), {
-  //   message: `createdAt ${ValidatorMessage.datetime}`,
-  // })
+  @Transform((val) => new Date(moment(val.value).format('YYYY-MM-DD')))
   @IsDate()
   readonly createdAt: Date;
 
   @IsOptional()
-  @Transform((val) => new Date(val.value))
   @Type(() => Date)
   @IsDate()
-  // @MaxDate(tomorrowDate(), { message: `workedAt ${ValidatorMessage.datetime}` })
+  @Transform((val) => new Date(moment(val.value).format('YYYY-MM-DD')))
   readonly workedAt: Date;
 
   @Type(() => Boolean)

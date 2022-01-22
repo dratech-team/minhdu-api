@@ -1,10 +1,12 @@
 import {IsEnum, IsNumber, IsOptional} from "class-validator";
 import {Transform, Type} from "class-transformer";
 import {PaymentType} from "@prisma/client";
+import * as moment from "moment";
 
 export class PaymentCustomerDto {
   @IsOptional()
   @Type(() => Date)
+  @Transform((val) => new Date(moment(val.value).format('YYYY-MM-DD')))
   readonly paidAt?: Date;
 
   @IsOptional()

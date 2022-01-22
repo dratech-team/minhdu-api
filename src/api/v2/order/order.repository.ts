@@ -64,6 +64,18 @@ export class OrderRepository {
 
   async findAll(search: SearchOrderDto) {
     try {
+      console.log(await this.prisma.order.count({
+        where: {
+          deliveredAt: {in: search.deliveredAt},
+          hide: search?.hide,
+          customer: {
+            lastName: search?.name,
+            id: search?.customerId ? {equals: search?.customerId} : {}
+          },
+          createdAt: search?.createdAt ? {in: search.createdAt} : {},
+          deleted: false
+        },
+      }))
       const [total, data] = await Promise.all([
         this.prisma.order.count({
           where: {
@@ -119,7 +131,6 @@ export class OrderRepository {
           },
         }),
       ]);
-      console.log(total);
       return {total, data};
     } catch (err) {
       console.error(err);

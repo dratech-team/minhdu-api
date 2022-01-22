@@ -74,7 +74,6 @@ async function main() {
         branch: true,
       },
     });
-    console.log(i);
   }
 }
 

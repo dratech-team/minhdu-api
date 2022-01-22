@@ -1,7 +1,8 @@
 import {DegreeLevel, DegreeStatus, DegreeType, FormalityType} from "@prisma/client";
 import {IsDate, IsEnum, IsNotEmpty, IsNumber, IsOptional, IsString, MaxDate} from "class-validator";
-import {Type} from "class-transformer";
+import {Transform, Type} from "class-transformer";
 import {tomorrowDate} from "../../../../utils/datetime.util";
+import * as moment from "moment";
 
 export class CreateDegreeDto {
   @IsNotEmpty()
@@ -15,13 +16,13 @@ export class CreateDegreeDto {
   @IsNotEmpty()
   @Type(() => Date)
   @IsDate()
-  @MaxDate(tomorrowDate())
+  @Transform((val) => new Date(moment(val.value).format('YYYY-MM-DD')))
   readonly startedAt: Date;
 
   @IsNotEmpty()
   @Type(() => Date)
   @IsDate()
-  @MaxDate(tomorrowDate())
+  @Transform((val) => new Date(moment(val.value).format('YYYY-MM-DD')))
   readonly endedAt: Date;
 
   @IsNotEmpty()

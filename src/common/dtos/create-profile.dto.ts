@@ -13,6 +13,7 @@ import {
 import {Transform, Type} from "class-transformer";
 import {ValidatorMessage} from "../constant/validator.constant";
 import {tomorrowDate} from "../../utils/datetime.util";
+import * as moment from "moment";
 
 export class CreateProfileDto {
     @IsNotEmpty()
@@ -38,7 +39,7 @@ export class CreateProfileDto {
     @IsNotEmpty()
     @Type(() => Date)
     @IsDate()
-    // @MaxDate(tomorrowDate(), {message: `birthday profile ${ValidatorMessage.datetime}`})
+    @Transform((val) => new Date(moment(val.value).format('YYYY-MM-DD')))
     readonly birthday: Date;
 
     @IsOptional()
@@ -53,7 +54,7 @@ export class CreateProfileDto {
     @IsOptional()
     @Type(() => Date)
     @IsDate()
-    // @MaxDate(tomorrowDate(), {message: `birthday profile ${ValidatorMessage.datetime}`})
+    @Transform((val) => new Date(moment(val.value).format('YYYY-MM-DD')))
     readonly idCardAt: Date;
 
     @IsOptional()

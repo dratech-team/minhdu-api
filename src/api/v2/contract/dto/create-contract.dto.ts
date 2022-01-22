@@ -8,9 +8,10 @@ import {
   IsString,
   MaxDate,
 } from "class-validator";
-import { Type } from "class-transformer";
+import {Transform, Type} from "class-transformer";
 import { ValidatorMessage } from "../../../../common/constant/validator.constant";
 import { tomorrowDate } from "../../../../utils/datetime.util";
+import * as moment from "moment";
 
 export class CreateContractDto {
   @IsOptional()
@@ -27,11 +28,13 @@ export class CreateContractDto {
 
   @Type(() => Date)
   @IsDate()
+  @Transform((val) => new Date(moment(val.value).format('YYYY-MM-DD')))
   readonly createdAt: Date;
 
   @IsOptional()
   @Type(() => Date)
   @IsDate()
+  @Transform((val) => new Date(moment(val.value).format('YYYY-MM-DD')))
   readonly expiredAt: Date;
 
   @IsNotEmpty()
