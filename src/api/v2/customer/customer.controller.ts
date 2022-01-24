@@ -29,7 +29,6 @@ export class CustomerController {
   @Roles(RoleEnum.ADMIN, RoleEnum.SALESMAN)
   @Get()
   findAll(@Query() search: SearchCustomerDto) {
-    console.log(search?.isPotential)
     return this.customerService.findAll(search);
   }
 

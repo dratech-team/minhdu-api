@@ -25,24 +25,32 @@ export class CustomerRepository {
       const [total, data] = await Promise.all([
         this.prisma.customer.count({
           where: {
-            lastName: search?.name,
+            lastName: {startsWith: search?.name, mode: "insensitive"},
             phone: {startsWith: search?.phone, mode: "insensitive"},
-            // ward: {district: {province: {nation: {id: nationId}}}},
+            gender: search?.gender ? {in: search.gender} : {},
             type: search?.customerType ? {in: search.customerType} : {},
             resource: search?.resource ? {in: search?.resource} : {},
-            isPotential: search?.isPotential,
+            isPotential: search?.isPotential === 1
+              ? true
+              : search?.isPotential === 0
+                ? false
+                : {},
           }
         }),
         this.prisma.customer.findMany({
           skip: search?.skip,
           take: search?.take,
           where: {
-            lastName: search?.name,
+            lastName: {startsWith: search?.name, mode: "insensitive"},
             phone: {startsWith: search?.phone, mode: "insensitive"},
-            // ward: {district: {province: {nation: {id: nationId}}}},
+            gender: search?.gender ? {in: search.gender} : {},
             type: search?.customerType ? {in: search.customerType} : {},
             resource: search?.resource ? {in: search.resource} : {},
-            isPotential: search?.isPotential,
+            isPotential: search?.isPotential === 1
+              ? true
+              : search?.isPotential === 0
+                ? false
+                : {},
           },
           include: {
             ward: {

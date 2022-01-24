@@ -1,4 +1,4 @@
-import {CustomerResource, CustomerType} from "@prisma/client";
+import {CustomerResource, CustomerType, GenderType} from "@prisma/client";
 import {IsBoolean, IsEnum, IsNumber, IsOptional, IsString} from "class-validator";
 import {Type} from "class-transformer";
 
@@ -33,7 +33,9 @@ export class SearchCustomerDto {
   readonly resource: CustomerResource;
 
   @IsOptional()
-  @IsBoolean()
-  @Type(() => Boolean)
-  readonly isPotential: boolean;
+  @Type(() => Number)
+  readonly isPotential: Number;
+
+  @IsOptional()
+  readonly gender: GenderType;
 }

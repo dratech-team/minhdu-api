@@ -3,7 +3,7 @@ import {PrismaService} from "../../../prisma.service";
 import {CreateOrderDto} from "./dto/create-order.dto";
 import {UpdateOrderDto} from "./dto/update-order.dto";
 import {SearchOrderDto} from "./dto/search-order.dto";
-import {isDate} from "moment";
+import {inspect} from "util";
 
 @Injectable()
 export class OrderRepository {
@@ -64,32 +64,28 @@ export class OrderRepository {
 
   async findAll(search: SearchOrderDto) {
     try {
-      console.log(await this.prisma.order.count({
-        where: {
-          deliveredAt: {in: search.deliveredAt},
-          hide: search?.hide,
-          customer: {
-            lastName: search?.name,
-            id: search?.customerId ? {equals: search?.customerId} : {}
-          },
-          createdAt: search?.createdAt ? {in: search.createdAt} : {},
-          deleted: false
-        },
-      }))
       const [total, data] = await Promise.all([
         this.prisma.order.count({
           where: {
-            deliveredAt: search?.status !== undefined && search?.status !== null && !search?.deliveredAt
-              ? (search.status === 1
+            deliveredAt: search?.status !== undefined && search?.status !== null && !search?.deliveryStartedAt
+              ? search.status === 1
                 ? {notIn: null}
-                : {in: null})
-              : search?.deliveredAt ? {in: search.deliveredAt} : {},
+                : search.status === 0
+                  ? {in: null}
+                  : {}
+              : search?.deliveryStartedAt && search?.deliveryEndedAt ? {
+                gte: search?.deliveryStartedAt,
+                lte: search?.deliveryEndedAt
+              } : {},
             hide: search?.hide,
             customer: {
-              lastName: search?.name,
+              lastName: {startsWith: search?.name, mode: "insensitive"},
               id: search?.customerId ? {equals: search?.customerId} : {}
             },
-            createdAt: search?.createdAt ? {in: search.createdAt} : {},
+            createdAt: search?.createStartedAt && search?.createEndedAt ? {
+              gte: search.createStartedAt,
+              lte: search.createEndedAt,
+            } : {},
             deleted: false
           },
         }),
@@ -97,17 +93,25 @@ export class OrderRepository {
           skip: search?.skip,
           take: search?.take,
           where: {
-            deliveredAt: search?.status !== undefined && search?.status !== null && !search?.deliveredAt
-              ? (search.status === 1
+            deliveredAt: search?.status !== undefined && search?.status !== null && !search?.deliveryStartedAt
+              ? search.status === 1
                 ? {notIn: null}
-                : {in: null})
-              : search?.deliveredAt ? {in: search.deliveredAt} : {},
+                : search.status === 0
+                  ? {in: null}
+                  : {}
+              : search?.deliveryStartedAt && search?.deliveryEndedAt ? {
+                gte: search?.deliveryStartedAt,
+                lte: search?.deliveryEndedAt
+              } : {},
             hide: search?.hide,
             customer: {
-              lastName: search?.name,
+              lastName: {startsWith: search?.name, mode: "insensitive"},
               id: search?.customerId ? {equals: search?.customerId} : {}
             },
-            createdAt: search?.createdAt ? {in: search.createdAt} : {},
+            createdAt: search?.createStartedAt && search?.createEndedAt ? {
+              gte: search.createStartedAt,
+              lte: search.createEndedAt,
+            } : {},
             deleted: false
           },
           include: {

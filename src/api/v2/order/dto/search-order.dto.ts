@@ -1,6 +1,6 @@
 import {PaidEnum} from "../enums/paid.enum";
 import {Customer, PaymentType} from "@prisma/client";
-import {IsBoolean, IsDate, IsEnum, IsNumber, IsOptional, IsString} from "class-validator";
+import {IsBoolean, IsEnum, IsNumber, IsOptional, IsString} from "class-validator";
 import {Transform, Type} from "class-transformer";
 import * as moment from "moment";
 
@@ -16,12 +16,36 @@ export class SearchOrderDto {
   readonly take: number;
 
   @IsOptional()
-  @Transform((val) => new Date(moment(val.value).format('YYYY-MM-DD')))
-  readonly createdAt: Date;
+  @Transform((val) => {
+    if (val.value) {
+      return new Date(moment(val.value).format('YYYY-MM-DD'))
+    }
+  })
+  readonly createStartedAt: Date;
 
   @IsOptional()
-  @Transform((val) => new Date(moment(val.value).format('YYYY-MM-DD')))
-  readonly deliveredAt: Date;
+  @Transform((val) => {
+    if (val.value) {
+      return new Date(moment(val.value).format('YYYY-MM-DD'))
+    }
+  })
+  readonly createEndedAt: Date;
+
+  @IsOptional()
+  @Transform((val) => {
+    if (val.value) {
+      return new Date(moment(val.value).format('YYYY-MM-DD'))
+    }
+  })
+  readonly deliveryStartedAt: Date;
+
+  @IsOptional()
+  @Transform((val) => {
+    if (val.value) {
+      return new Date(moment(val.value).format('YYYY-MM-DD'))
+    }
+  })
+  readonly deliveryEndedAt: Date;
 
   @IsOptional()
   @IsString()
@@ -49,7 +73,7 @@ export class SearchOrderDto {
 
   @IsOptional()
   @IsNumber()
-  @Type(() => Number)
+  @Type((v) => Number)
   readonly status: 0 | 1;
 
   @IsOptional()
