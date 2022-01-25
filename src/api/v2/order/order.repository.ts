@@ -95,6 +95,19 @@ export class OrderRepository {
                   every: {total: {}}
                 }
                 : {},
+            destination: {district: {province: {name: {contains: search?.destination, mode: "insensitive"}}}},
+            commodities: search?.commodity ? {
+              some: {
+                OR: [
+                  {
+                    code: {contains: search?.commodity},
+                  },
+                  {
+                    name: {contains: search?.commodity},
+                  }
+                ]
+              }
+            } : {},
             deleted: false
           },
         }),
@@ -129,6 +142,19 @@ export class OrderRepository {
             createdAt: search?.createStartedAt && search?.createEndedAt ? {
               gte: search.createStartedAt,
               lte: search.createEndedAt,
+            } : {},
+            destination: {district: {province: {name: {contains: search?.destination, mode: "insensitive"}}}},
+            commodities: search?.commodity ? {
+              some: {
+                OR: [
+                  {
+                    code: {contains: search?.commodity},
+                  },
+                  {
+                    name: {contains: search?.commodity},
+                  }
+                ]
+              }
             } : {},
             deleted: false
           },
