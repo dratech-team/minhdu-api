@@ -3,7 +3,7 @@ import {PrismaService} from "../../../prisma.service";
 import {CreateOrderDto} from "./dto/create-order.dto";
 import {UpdateOrderDto} from "./dto/update-order.dto";
 import {SearchOrderDto} from "./dto/search-order.dto";
-import {inspect} from "util";
+import {PaidEnum} from "./enums/paid.enum";
 
 @Injectable()
 export class OrderRepository {
@@ -86,6 +86,15 @@ export class OrderRepository {
               gte: search.createStartedAt,
               lte: search.createEndedAt,
             } : {},
+            paymentHistories: search?.paidType === PaidEnum.PAID
+              ? {
+                some: {total: {gte: 0}}
+              }
+              : search?.paidType === PaidEnum.UNPAID
+                ? {
+                  every: {total: {}}
+                }
+                : {},
             deleted: false
           },
         }),
@@ -104,6 +113,15 @@ export class OrderRepository {
                 lte: search?.deliveryEndedAt
               } : {},
             hide: search?.hide,
+            paymentHistories: search?.paidType === PaidEnum.PAID
+              ? {
+                some: {total: {gte: 0}}
+              }
+              : search?.paidType === PaidEnum.UNPAID
+                ? {
+                  every: {total: {}}
+                }
+                : {},
             customer: {
               lastName: {startsWith: search?.name, mode: "insensitive"},
               id: search?.customerId ? {equals: search?.customerId} : {}

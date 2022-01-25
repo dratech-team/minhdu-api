@@ -82,6 +82,8 @@ export class CustomerRepository {
         where: {
           customerId: id,
           hide: false,
+          deleted: false,
+          deliveredAt: {not: null}
         },
         _sum: {
           total: true,
@@ -89,7 +91,7 @@ export class CustomerRepository {
       });
       const payment = await this.prisma.paymentHistory.aggregate({
         where: {
-          customerId: id
+          customerId: id,
         },
         _sum: {
           total: true,
@@ -114,6 +116,8 @@ export class CustomerRepository {
           },
         },
       });
+
+      console.log(order._sum.total)
       return Object.assign(customer, {debt: payment._sum.total - order._sum.total});
     } catch (err) {
       console.error(err);
