@@ -31,11 +31,12 @@ export class CommodityService {
   }
 
   async update(id: number, updates: UpdateCommodityDto) {
-    return await this.repository.update(id, updates);
+    const updated = await this.repository.update(id, updates);
+    return this.handleCommodity(updated);
   }
 
   async remove(id: number) {
-    await this.repository.remove(id);
+    return await this.repository.remove(id);
   }
 
 

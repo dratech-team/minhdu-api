@@ -308,7 +308,7 @@ model Commodity {
   code    String
   name    String
   unit    CommodityUnit
-  price   Float
+  price   Float?
   amount  Float
   gift    Float?        @default(0)
   more    Float?        @default(0)

@@ -1,5 +1,5 @@
 import {CommodityUnit} from "@prisma/client";
-import {IsEnum, IsNotEmpty, IsNumber, IsString} from "class-validator";
+import {IsEnum, IsNotEmpty, IsNumber, IsOptional, IsString} from "class-validator";
 import {Type} from "class-transformer";
 
 export class CreateCommodityDto {
@@ -15,7 +15,7 @@ export class CreateCommodityDto {
   @IsEnum(CommodityUnit)
   readonly unit: CommodityUnit;
 
-  @IsNotEmpty()
+  @IsOptional()
   @Type(() => Number)
   @IsNumber()
   readonly price: number;
