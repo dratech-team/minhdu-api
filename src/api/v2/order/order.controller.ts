@@ -12,6 +12,7 @@ import {Roles} from "../../../core/decorators/roles.decorator";
 import {LoggerGuard} from "../../../core/guard/logger.guard";
 import {ApiV2Constant} from "../../../common/constant/api.constant";
 import {SearchOrderDto} from "./dto/search-order.dto";
+import {ItemExportDto} from "../../../common/interfaces/items-export.dto";
 
 // @UseGuards(JwtAuthGuard, ApiKeyGuard)
 @Controller(ApiV2Constant.ORDER)
@@ -65,7 +66,7 @@ export class OrderController {
   }
 
   @Get("/export/print")
-  async print(@Res() res) {
-    return this.orderService.export(res);
+  async print(@Res() res, @Body('items') items: ItemExportDto[], @Query() search: SearchOrderDto) {
+    return this.orderService.export(res, items, search);
   }
 }

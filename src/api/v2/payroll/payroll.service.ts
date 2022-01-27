@@ -18,7 +18,7 @@ import * as moment from "moment";
 import {ConfirmPayrollDto} from "./dto/confirm-payroll.dto";
 import {rageDateTime, timesheet} from "./functions/timesheet";
 import {FilterTypeEnum} from "./entities/filter-type.enum";
-import {ItemExportDto} from "./dto/items-export.dto";
+import {ItemExportDto} from "../../../common/interfaces/items-export.dto";
 import {SearchExportDto} from "./dto/search-export.dto";
 import {convertArrayToString} from "./functions/convertArrayToString";
 import {HttpService} from "@nestjs/axios";

@@ -10,6 +10,7 @@ import {SearchOrderDto} from "./dto/search-order.dto";
 import {FullOrder} from "./entities/order.entity";
 import * as moment from "moment";
 import {FilterTypeEnum} from "../payroll/entities/filter-type.enum";
+import {ItemExportDto} from "../../../common/interfaces/items-export.dto";
 
 @Injectable()
 export class OrderService {
@@ -100,41 +101,31 @@ export class OrderService {
 
   itemsExport() {
     const customs = {
-      customer: 'Tên khách hàng'
+      customer: 'Tên khách hàng',
+      createdAt: 'Ngày tạo',
+      deliveredAt: 'Ngày giao hàng',
+      bsx: 'Xe xuất',
+      destination: 'Điểm đến',
+      commodities: 'Hàng hoá',
+      total: 'Tiền hàng',
+      payment: 'Thanh toán',
+      unit: 'Đơn vị tiền',
+      note: 'Diễn giải',
+      status: 'Trạng thái đơn hàng',
     };
     return Object.keys(customs).map((key) => ({key: key, value: customs[key]}));
   }
 
-  async export(
-    response?: Response,
-    customerId?: number,
-    search?: SearchOrderDto
-  ) {
+  async export(response: Response, items: ItemExportDto[], search: SearchOrderDto) {
     const data = await this.findAll(search);
+    const customs = items.reduce((a, v, index) => ({...a, [v['key']]: v['value']}), {});
+
     return await exportExcel(
       response,
       {
         title: `Danh sách đơn hàng`,
-        customHeaders: [
-          "Khách hàng",
-          "Ngày tạo",
-          "Điểm đến",
-          "Tổng đơn hàng",
-          "Tổng Tiền hàng",
-          "Tổng tiền đã thanh toán",
-          "Tổng tiền chưa thanh toán",
-          "Diễn giả",
-        ],
-        customKeys: [
-          "name",
-          "createdAt",
-          "destination",
-          "lengthTotal",
-          "commodityTotal",
-          "payTotal",
-          "debtTotal",
-          "explain",
-        ],
+        customHeaders: Object.values(customs),
+        customKeys: Object.keys(customs),
         name: "data",
         data: data.data.map((e) => ({
           name: e.customer.firstName + e.customer.lastName,

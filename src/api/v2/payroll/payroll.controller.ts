@@ -14,7 +14,7 @@ import {EmployeeType, RoleEnum} from "@prisma/client";
 import {Roles} from "../../../core/decorators/roles.decorator";
 import {ConfirmPayrollDto} from "./dto/confirm-payroll.dto";
 import {FilterTypeEnum} from "./entities/filter-type.enum";
-import {ItemExportDto} from "./dto/items-export.dto";
+import {ItemExportDto} from "../../../common/interfaces/items-export.dto";
 import {SearchPayrollDto} from "./dto/search-payroll.dto";
 import {SearchExportDto} from "./dto/search-export.dto";
 
