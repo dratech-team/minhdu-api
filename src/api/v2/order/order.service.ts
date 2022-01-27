@@ -9,6 +9,7 @@ import {exportExcel} from "../../../core/services/export.service";
 import {SearchOrderDto} from "./dto/search-order.dto";
 import {FullOrder} from "./entities/order.entity";
 import * as moment from "moment";
+import {FilterTypeEnum} from "../payroll/entities/filter-type.enum";
 
 @Injectable()
 export class OrderService {
@@ -94,6 +95,14 @@ export class OrderService {
     return orders
       .map((order) => this.commodityService.totalCommodities(order.commodities))
       .reduce((a, b) => a + b, 0);
+  }
+
+
+  itemsExport() {
+    const customs = {
+      customer: 'Tên khách hàng'
+    };
+    return Object.keys(customs).map((key) => ({key: key, value: customs[key]}));
   }
 
   async export(

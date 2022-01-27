@@ -59,6 +59,11 @@ export class OrderController {
     return this.orderService.remove(+id);
   }
 
+  @Get("/export/items")
+  async items() {
+    return this.orderService.itemsExport();
+  }
+
   @Get("/export/print")
   async print(@Res() res) {
     return this.orderService.export(res);

@@ -34,6 +34,18 @@ export class RouteController {
     return this.routeService.remove(+id);
   }
 
+  @Get("/export/items")
+  async items(
+    @Res() res,
+    // @Query("name") name: string,
+    // @Query("startedAt") startedAt: Date,
+    // @Query("endedAt") endedAt: Date,
+    // @Query("driver") driver: string,
+    // @Query("bsx") bsx: string
+  ) {
+    return this.routeService.export(res);
+  }
+
   @Get("/export/print")
   async print(
     @Res() res,
