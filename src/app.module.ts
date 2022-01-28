@@ -37,6 +37,7 @@ import { PrismaService } from "./prisma.service";
 import { ProviderModule } from './api/v2/provider/provider.module';
 import { WarehouseModule } from './api/v2/warehouse/warehouse.module';
 import { ProductModule } from './api/v2/product/product.module';
+import { CommodityTemplateModule } from './api/v2/commodity-template/commodity-template.module';
 
 @Module({
   imports: [
@@ -76,6 +77,7 @@ import { ProductModule } from './api/v2/product/product.module';
     ProviderModule,
     WarehouseModule,
     ProductModule,
+    CommodityTemplateModule,
   ],
   controllers: [AppController],
   providers: [PrismaService],

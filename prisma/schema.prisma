@@ -316,6 +316,12 @@ model Commodity {
   orderId Int?
 }
 
+model CommodityTemplate {
+  id   Int    @id @default(autoincrement())
+  code String @unique
+  name String
+}
+
 model Order {
   id               Int              @id @default(autoincrement())
   customer         Customer         @relation(fields: [customerId], references: [id])
@@ -446,14 +452,14 @@ model Product {
   accountedAt      DateTime? // ngày hạch toán
   billedAt         DateTime? // ngày chứng từ
   billCode         String? // số chứng từ
-  branch           Branch?           @relation(fields: [branchId], references: [id])
+  branch           Branch?          @relation(fields: [branchId], references: [id])
   branchId         Int
-  type             Warehouse?        @relation(fields: [typeId], references: [id])
+  type             Warehouse?       @relation(fields: [typeId], references: [id])
   typeId           Int
   price            Float // Đơn giá
   amount           Float // Số lượng
   discount         Float?
-  provider         Provider?         @relation(fields: [providerId], references: [id])
+  provider         Provider?        @relation(fields: [providerId], references: [id])
   providerId       Int
   note             String?
   unit             WarehouseUnit
