@@ -39,13 +39,15 @@ export class CustomerController {
     return this.customerService.findOne(+id);
   }
 
-  // @UseGuards(RolesGuard, LoggerGuard)
-  @Roles(RoleEnum.ADMIN)
+  @UseGuards(RolesGuard, LoggerGuard)
+  @Roles(RoleEnum.SALESMAN)
   @Patch(':id')
   update(@Param('id') id: string, @Body() updateCustomerDto: UpdateCustomerDto) {
     return this.customerService.update(+id, updateCustomerDto);
   }
 
+  @UseGuards(RolesGuard, LoggerGuard)
+  @Roles(RoleEnum.SALESMAN)
   @Delete(':id')
   remove(@Param('id') id: string) {
     return this.customerService.remove(+id);

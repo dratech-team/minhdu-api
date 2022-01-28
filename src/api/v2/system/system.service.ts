@@ -2,6 +2,7 @@ import {Injectable} from '@nestjs/common';
 import {CreateSystemDto} from './dto/create-system.dto';
 import {UpdateSystemDto} from './dto/update-system.dto';
 import {PrismaService} from "../../../prisma.service";
+import {ProfileEntity} from "../../../common/entities/profile.entity";
 
 @Injectable()
 export class SystemService {
@@ -25,7 +26,7 @@ export class SystemService {
       where: {id},
       data: {
         title: updates.title,
-        
+
       },
     });
   }

@@ -17,7 +17,7 @@ export class LoggerService {
     const [total, data] = await Promise.all([
       this.prisma.systemHistory.count({
         where: {
-          appName: profile?.appName || undefined
+          appName: {in: profile.appName}
         }
       }),
       this.prisma.systemHistory.findMany({
@@ -25,7 +25,7 @@ export class LoggerService {
         skip: skip || undefined,
         orderBy: {createdAt: "desc"},
         where: {
-          appName: profile?.appName || undefined
+          appName: {in: profile.appName}
         },
       }),
     ]);

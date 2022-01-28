@@ -3,8 +3,10 @@ import {RouteService} from './route.service';
 import {RouteController} from './route.controller';
 import {PrismaService} from "../../../prisma.service";
 import {RouteRepository} from "./route.repository";
+import {ConfigModule} from "../../../core/config/config.module";
 
 @Module({
+  imports: [ConfigModule],
   controllers: [RouteController],
   providers: [RouteService, PrismaService, RouteRepository]
 })
