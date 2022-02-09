@@ -22,5 +22,8 @@ export class SearchSellOverviewDto {
   @Type(() => Date)
   readonly endedAt: Date;
 
-
+  @IsOptional()
+  @IsDate()
+  @Type(() => Date)
+  readonly datetime: Date;
 }

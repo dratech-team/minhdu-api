@@ -196,7 +196,7 @@ export class OverviewService {
   }
 
   private async overviewSellMonth(search: SearchSellOverviewDto) {
-    const aggregate = await Promise.all([beforeDatetime(1, "months"), new Date()].map(async e => {
+    const aggregate = await Promise.all([beforeDatetime(1, "months", search.datetime), search.datetime].map(async e => {
       return await this.prisma.order.aggregate({
         where: {
           deliveredAt: {
@@ -228,7 +228,7 @@ export class OverviewService {
     }));
 
     return {
-      datetime: new Date(),
+      datetime: search.datetime,
       order: {
         rate: ((count[1] - count[0]) / (count[0] + count[1])) * 100,
         total: count[0] + count[1],
