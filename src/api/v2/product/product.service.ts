@@ -2,6 +2,7 @@ import { Injectable } from '@nestjs/common';
 import { CreateProductDto } from './dto/create-product.dto';
 import { UpdateProductDto } from './dto/update-product.dto';
 import {ProductRepository} from "./product.repository";
+import {SearchProductDto} from "./dto/search-product.dto";
 
 @Injectable()
 export class ProductService {
@@ -12,8 +13,8 @@ export class ProductService {
     return await this.repository.create(body);
   }
 
-  async findAll() {
-    return await this.repository.findAll();
+  async findAll(search: SearchProductDto) {
+    return await this.repository.findAll(search);
   }
 
   async findOne(id: number) {

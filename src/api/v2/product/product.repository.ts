@@ -2,6 +2,7 @@ import {BadRequestException, Injectable} from '@nestjs/common';
 import {CreateProductDto} from './dto/create-product.dto';
 import {UpdateProductDto} from './dto/update-product.dto';
 import {PrismaService} from "../../../prisma.service";
+import {SearchProductDto} from "./dto/search-product.dto";
 
 @Injectable()
 export class ProductRepository {
@@ -20,7 +21,7 @@ export class ProductRepository {
           billedAt: body.billedAt,
           billCode: body.billCode,
           branch: {connect: {id: body.branchId}},
-          type: {connect: {id: body.typeId}},
+          warehouse: {connect: {id: body.typeId}},
           price: body.price,
           amount: body.amount,
           discount: body.discount,
@@ -35,9 +36,27 @@ export class ProductRepository {
     }
   }
 
-  async findAll() {
+  async findAll(search: SearchProductDto) {
     try {
-      return await this.prisma.product.findMany();
+      const [total, data] = await Promise.all([
+        this.prisma.product.count({
+          where: {
+            warehouseId: search?.warehouseId,
+          },
+        }),
+        this.prisma.product.findMany({
+          take: search?.take,
+          skip: search?.skip,
+          where: {
+            warehouseId: search?.warehouseId,
+          },
+          include: {
+            provider: true,
+            warehouse: true
+          }
+        }),
+      ]);
+      return {total, data};
     } catch (err) {
       console.error(err);
       throw new BadRequestException(err);
@@ -66,7 +85,7 @@ export class ProductRepository {
           billedAt: updates.billedAt,
           billCode: updates.billCode,
           branch: updates?.branchId ? {connect: {id: updates.branchId}} : {},
-          type: updates?.typeId ? {connect: {id: updates.typeId}} : {},
+          warehouse: updates?.typeId ? {connect: {id: updates.typeId}} : {},
           price: updates.price,
           amount: updates.amount,
           discount: updates.discount,
