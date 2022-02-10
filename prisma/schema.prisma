@@ -453,14 +453,14 @@ model Product {
   billedAt         DateTime? // ngày chứng từ
   billCode         String? // số chứng từ
   branch           Branch?          @relation(fields: [branchId], references: [id])
-  branchId         Int
+  branchId         Int?
   type             Warehouse?       @relation(fields: [typeId], references: [id])
-  typeId           Int
+  typeId           Int?
   price            Float // Đơn giá
   amount           Float // Số lượng
   discount         Float?
   provider         Provider?        @relation(fields: [providerId], references: [id])
-  providerId       Int
+  providerId       Int?
   note             String?
   unit             WarehouseUnit
   paymentHistories PaymentHistory[]
