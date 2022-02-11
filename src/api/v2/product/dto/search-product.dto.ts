@@ -1,4 +1,4 @@
-import {IsNotEmpty, IsNumber} from "class-validator";
+import {IsNotEmpty, IsNumber, IsOptional} from "class-validator";
 import {Type} from "class-transformer";
 
 export class SearchProductDto {
@@ -12,8 +12,8 @@ export class SearchProductDto {
   @Type(() => Number)
   readonly skip: number;
 
-  @IsNotEmpty()
-  @IsNumber()
+  @IsOptional()
+  // @IsNumber()
   @Type(() => Number)
   readonly warehouseId: number;
 }

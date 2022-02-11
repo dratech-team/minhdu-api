@@ -1,12 +1,13 @@
-import { BadRequestException, Injectable } from "@nestjs/common";
-import { CreateProductDto } from "./dto/create-product.dto";
-import { UpdateProductDto } from "./dto/update-product.dto";
-import { PrismaService } from "../../../prisma.service";
-import { SearchProductDto } from "./dto/search-product.dto";
+import {BadRequestException, Injectable} from "@nestjs/common";
+import {CreateProductDto} from "./dto/create-product.dto";
+import {UpdateProductDto} from "./dto/update-product.dto";
+import {PrismaService} from "../../../prisma.service";
+import {SearchProductDto} from "./dto/search-product.dto";
 
 @Injectable()
 export class ProductRepository {
-  constructor(private readonly prisma: PrismaService) {}
+  constructor(private readonly prisma: PrismaService) {
+  }
 
   async create(body: CreateProductDto) {
     try {
@@ -21,14 +22,14 @@ export class ProductRepository {
           billCode: body.billCode,
           branch: {
             connect: body?.branchId
-              ? { id: body.branchId }
-              : { name: body.branch },
+              ? {id: body.branchId}
+              : {name: body.branch},
           },
-          warehouse: { connect: { id: body.warehouseId } },
+          warehouse: {connect: {id: body.warehouseId}},
           price: body.price,
           amount: body.amount,
           discount: body.discount,
-          provider: { connect: { id: body.providerId } },
+          provider: {connect: {id: body.providerId}},
           note: body.note,
           unit: body.unit,
         },
@@ -44,14 +45,14 @@ export class ProductRepository {
       const [total, data] = await Promise.all([
         this.prisma.product.count({
           where: {
-            warehouseId: search?.warehouseId,
+            warehouse: search?.warehouseId ? {id: search.warehouseId} : {},
           },
         }),
         this.prisma.product.findMany({
           take: search?.take,
           skip: search?.skip,
           where: {
-            warehouseId: search?.warehouseId,
+            warehouse: search?.warehouseId ? {id: search.warehouseId} : {},
           },
           include: {
             provider: true,
@@ -59,7 +60,7 @@ export class ProductRepository {
           },
         }),
       ]);
-      return { total, data };
+      return {total, data};
     } catch (err) {
       console.error(err);
       throw new BadRequestException(err);
@@ -68,7 +69,7 @@ export class ProductRepository {
 
   async findOne(id: number) {
     try {
-      return await this.prisma.product.findUnique({ where: { id } });
+      return await this.prisma.product.findUnique({where: {id}});
     } catch (err) {
       console.error(err);
       throw new BadRequestException(err);
@@ -78,7 +79,7 @@ export class ProductRepository {
   async update(id: number, updates: UpdateProductDto) {
     try {
       return await this.prisma.product.update({
-        where: { id },
+        where: {id},
         data: {
           name: updates.name,
           code: updates.code,
@@ -88,14 +89,16 @@ export class ProductRepository {
           billedAt: updates.billedAt,
           billCode: updates.billCode,
           branch: updates?.branchId
-            ? { connect: { id: updates.branchId } }
+            ? {connect: {id: updates.branchId}}
             : {},
-          warehouse: updates?.warehouseId ? { connect: { id: updates.warehouseId } } : {},
+          warehouse: updates?.warehouseId
+            ? {connect: {id: updates.warehouseId}}
+            : {},
           price: updates.price,
           amount: updates.amount,
           discount: updates.discount,
           provider: updates?.providerId
-            ? { connect: { id: updates.providerId } }
+            ? {connect: {id: updates.providerId}}
             : {},
           note: updates.note,
           unit: updates.unit,
@@ -109,7 +112,7 @@ export class ProductRepository {
 
   async remove(id: number) {
     try {
-      return await this.prisma.product.delete({ where: { id } });
+      return await this.prisma.product.delete({where: {id}});
     } catch (err) {
       console.error(err);
       throw new BadRequestException(err);
