@@ -682,5 +682,6 @@ enum RoleEnum {
   CAMP_DIRECTOR //giam doc trai
   HATCHERY_ACCOUNTING // ke toan trai ap
   HATCHERY_MANAGEMENT // quan ly trai ap
+  WAREHOUSE
   NONE // deo co chuc vu
 }

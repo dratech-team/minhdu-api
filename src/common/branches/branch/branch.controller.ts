@@ -15,7 +15,7 @@ export class BranchController {
   }
 
   @UseGuards(RolesGuard)
-  @Roles(RoleEnum.ADMIN, RoleEnum.HUMAN_RESOURCE)
+  @Roles(RoleEnum.ADMIN, RoleEnum.HUMAN_RESOURCE, RoleEnum.WAREHOUSE)
   @Post()
   create(@Body() createBranchDto: CreateBranchDto) {
     return this.branchService.create(createBranchDto);

@@ -3,7 +3,6 @@ import {IsArray, IsNotEmpty, IsOptional, IsString, MinLength} from "class-valida
 export class CreateBranchDto {
   @IsNotEmpty()
   @IsString()
-  @MinLength(7)
   readonly name: string;
 
   @IsOptional()
