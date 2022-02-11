@@ -1,6 +1,13 @@
-import {IsDate, IsEnum, IsNotEmpty, IsNumber, IsOptional, IsString} from "class-validator";
-import {Type} from "class-transformer";
-import {WarehouseUnit} from "@prisma/client";
+import {
+  IsDate,
+  IsEnum,
+  IsNotEmpty,
+  IsNumber,
+  IsOptional,
+  IsString,
+} from "class-validator";
+import { Type } from "class-transformer";
+import { WarehouseUnit } from "@prisma/client";
 
 export class CreateProductDto {
   @IsNotEmpty()
@@ -35,15 +42,19 @@ export class CreateProductDto {
   @IsString()
   readonly billCode?: string;
 
-  @IsNotEmpty()
-  @IsNumber()
+  @IsOptional()
+  @IsString()
+  readonly branch?: string;
+
+  @IsOptional()
+  @IsString()
   @Type(() => Number)
   readonly branchId?: number;
 
   @IsNotEmpty()
   @IsNumber()
   @Type(() => Number)
-  readonly typeId?: number;
+  readonly warehouseId?: number;
 
   @IsNotEmpty()
   @IsNumber()
@@ -71,5 +82,5 @@ export class CreateProductDto {
 
   @IsOptional()
   @IsString()
-  readonly note?: string
+  readonly note?: string;
 }
