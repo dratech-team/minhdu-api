@@ -75,6 +75,7 @@ model Province {
   nationId     Int
   districts    District[]
   customers    Customer[]
+  orders       Order[]
 }
 
 model District {
@@ -87,6 +88,7 @@ model District {
   provinceId   Int
   wards        Ward[]
   customers    Customer[]
+  orders       Order[]
 }
 
 model Ward {
@@ -261,7 +263,7 @@ model Relative {
 }
 
 model Customer {
-  id               Int              @id @default(autoincrement())
+  id               Int               @id @default(autoincrement())
   firstName        String?
   lastName         String
   avt              String?
@@ -273,11 +275,11 @@ model Customer {
   identify         String?
   idCardAt         DateTime?
   issuedBy         String?
-  province         Province        @relation(fields: [provinceId], references: [id])
+  province         Province          @relation(fields: [provinceId], references: [id])
   provinceId       Int
-  district         District?        @relation(fields: [districtId], references: [id])
+  district         District?         @relation(fields: [districtId], references: [id])
   districtId       Int?
-  ward             Ward?            @relation(fields: [wardId], references: [id])
+  ward             Ward?             @relation(fields: [wardId], references: [id])
   wardId           Int?
   address          String?
   email            String?
@@ -286,12 +288,12 @@ model Customer {
   mst              String?
   type             CustomerType?
   resource         CustomerResource?
-  isPotential      Boolean?         @default(false)
+  isPotential      Boolean?          @default(false)
   note             String?
-  debt             Float?           @default(0)
+  debt             Float?            @default(0)
   orders           Order[]
   paymentHistories PaymentHistory[]
-  timestamp        DateTime?        @default(now())
+  timestamp        DateTime?         @default(now())
 }
 
 model PaymentHistory {
@@ -337,10 +339,14 @@ model Order {
   explain          String?
   routes           Route[]
   commodities      Commodity[]
+  province         Province?        @relation(fields: [provinceId], references: [id])
+  provinceId       Int?
+  district         District?        @relation(fields: [districtId], references: [id])
+  districtId       Int?
+  ward             Ward?            @relation(fields: [wardId], references: [id])
   wardId           Int?
   deliveredAt      DateTime?
   hide             Boolean?         @default(false)
-  destination      Ward?            @relation(fields: [wardId], references: [id])
   total            Float?
   deleted          Boolean?         @default(false)
   paymentHistories PaymentHistory[]

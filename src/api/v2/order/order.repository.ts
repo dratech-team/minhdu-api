@@ -20,6 +20,7 @@ export class OrderRepository {
           commodities: {
             connect: body.commodityIds.map((id) => ({id})),
           },
+          provinceId: body?.provinceId,
           wardId: body.wardId,
         },
         include: {
@@ -40,7 +41,7 @@ export class OrderRepository {
           commodities: true,
           customer: true,
           routes: true,
-          destination: {
+          ward: {
             include: {
               district: {
                 include: {
@@ -95,7 +96,7 @@ export class OrderRepository {
                   every: {total: {}}
                 }
                 : {},
-            destination: {district: {province: {name: {contains: search?.destination, mode: "insensitive"}}}},
+            ward: {district: {province: {name: {contains: search?.ward, mode: "insensitive"}}}},
             commodities: search?.commodity ? {
               some: {
                 OR: [
@@ -143,7 +144,7 @@ export class OrderRepository {
               gte: search.createStartedAt,
               lte: search.createEndedAt,
             } : {},
-            destination: {district: {province: {name: {contains: search?.destination, mode: "insensitive"}}}},
+            ward: {district: {province: {name: {contains: search?.ward, mode: "insensitive"}}}},
             commodities: search?.commodity ? {
               some: {
                 OR: [
@@ -162,7 +163,7 @@ export class OrderRepository {
             commodities: true,
             customer: true,
             routes: true,
-            destination: {
+            ward: {
               include: {
                 district: {
                   include: {
@@ -192,6 +193,7 @@ export class OrderRepository {
         where: {id},
         data: {
           commodities: {connect: updates?.commodityIds?.map((id) => ({id}))},
+          provinceId: updates?.provinceId,
           wardId: updates?.wardId,
           hide: updates?.hide,
           deliveredAt: updates?.deliveredAt,

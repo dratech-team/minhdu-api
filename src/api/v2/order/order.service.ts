@@ -105,7 +105,7 @@ export class OrderService {
       createdAt: 'Ngày tạo',
       deliveredAt: 'Ngày giao hàng',
       bsx: 'Xe xuất',
-      destination: 'Điểm đến',
+      ward: 'Điểm đến',
       commodities: 'Hàng hoá',
       total: 'Tiền hàng',
       payment: 'Thanh toán',
@@ -130,7 +130,7 @@ export class OrderService {
         data: data.data.map((e) => ({
           name: e.customer.firstName + e.customer.lastName,
           createdAt: e.createdAt,
-          destination: `${e.destination.name}, ${e.destination.district.name}, ${e.destination.district.province.name}, ${e.destination.district.province.nation.name}`,
+          ward: `${e.ward.name}, ${e.ward.district.name}, ${e.ward.district.province.name}, ${e.ward.district.province.nation.name}`,
           lengthTotal: e.commodities.length,
           commodityTotal: this.commodityService.totalCommodities(e.commodities),
           payTotal: this.paymentService.totalPayment(e.paymentHistories),
