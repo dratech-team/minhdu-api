@@ -74,17 +74,19 @@ model Province {
   nation       Nation     @relation(fields: [nationId], references: [id])
   nationId     Int
   districts    District[]
+  customers    Customer[]
 }
 
 model District {
-  id           Int      @id @default(autoincrement())
+  id           Int        @id @default(autoincrement())
   code         Int
   codename     String
   divisionType String
   name         String
-  province     Province @relation(fields: [provinceId], references: [id])
+  province     Province   @relation(fields: [provinceId], references: [id])
   provinceId   Int
   wards        Ward[]
+  customers    Customer[]
 }
 
 model Ward {
@@ -266,11 +268,15 @@ model Customer {
   gender           GenderType?
   phone            String
   workPhone        String?
-  birthday         DateTime
+  birthday         DateTime?
   birthplace       String?
   identify         String?
   idCardAt         DateTime?
   issuedBy         String?
+  province         Province        @relation(fields: [provinceId], references: [id])
+  provinceId       Int
+  district         District?        @relation(fields: [districtId], references: [id])
+  districtId       Int?
   ward             Ward?            @relation(fields: [wardId], references: [id])
   wardId           Int?
   address          String?
@@ -278,8 +284,8 @@ model Customer {
   religion         String?
   ethnicity        String?
   mst              String?
-  type             CustomerType
-  resource         CustomerResource
+  type             CustomerType?
+  resource         CustomerResource?
   isPotential      Boolean?         @default(false)
   note             String?
   debt             Float?           @default(0)
@@ -463,7 +469,7 @@ model Product {
   providerId       Int?
   note             String?
   unit             WarehouseUnit
-  createdAt DateTime? @default(now())
+  createdAt        DateTime?        @default(now())
   paymentHistories PaymentHistory[]
 }
 

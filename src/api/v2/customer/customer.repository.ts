@@ -13,7 +13,30 @@ export class CustomerRepository {
 
   async create(body: CreateCustomerDto) {
     try {
-      return await this.prisma.customer.create({data: body});
+      return await this.prisma.customer.create({
+        data: {
+          lastName: body.lastName,
+          gender: body?.gender,
+          phone: body.phone,
+          workPhone: body?.workPhone,
+          birthday: body?.birthday,
+          birthplace: body?.birthplace,
+          identify: body?.identify,
+          idCardAt: body?.idCardAt,
+          issuedBy: body?.issuedBy,
+          province: body?.provinceId ? {connect: {id: body.provinceId}} : {},
+          district: body?.districtId ? {connect: {id: body.districtId}} : {},
+          ward: body?.wardId ? {connect: {id: body.wardId}} : {},
+          address: body?.address,
+          religion: body?.religion,
+          // ethnicity: body?.ethnicity,
+          mst: body?.mst,
+          type: body?.type,
+          resource: body?.resource,
+          isPotential: body?.isPotential,
+          note: body?.note,
+        },
+      });
     } catch (err) {
       console.error(err);
       throw new BadRequestException(err);
@@ -30,12 +53,13 @@ export class CustomerRepository {
             gender: search?.gender ? {in: search.gender} : {},
             type: search?.customerType ? {in: search.customerType} : {},
             resource: search?.resource ? {in: search?.resource} : {},
-            isPotential: search?.isPotential === 1
-              ? true
-              : search?.isPotential === 0
+            isPotential:
+              search?.isPotential === 1
+                ? true
+                : search?.isPotential === 0
                 ? false
                 : {},
-          }
+          },
         }),
         this.prisma.customer.findMany({
           skip: search?.skip,
@@ -46,9 +70,10 @@ export class CustomerRepository {
             gender: search?.gender ? {in: search.gender} : {},
             type: search?.customerType ? {in: search.customerType} : {},
             resource: search?.resource ? {in: search.resource} : {},
-            isPotential: search?.isPotential === 1
-              ? true
-              : search?.isPotential === 0
+            isPotential:
+              search?.isPotential === 1
+                ? true
+                : search?.isPotential === 0
                 ? false
                 : {},
           },
@@ -83,11 +108,11 @@ export class CustomerRepository {
           customerId: id,
           hide: false,
           deleted: false,
-          deliveredAt: {not: null}
+          deliveredAt: {not: null},
         },
         _sum: {
           total: true,
-        }
+        },
       });
       const payment = await this.prisma.paymentHistory.aggregate({
         where: {
@@ -95,7 +120,7 @@ export class CustomerRepository {
         },
         _sum: {
           total: true,
-        }
+        },
       });
 
       const customer = await this.prisma.customer.findUnique({
@@ -114,11 +139,14 @@ export class CustomerRepository {
               },
             },
           },
+          province: true
         },
       });
 
-      console.log(order._sum.total)
-      return Object.assign(customer, {debt: payment._sum.total - order._sum.total});
+      console.log(order._sum.total);
+      return Object.assign(customer, {
+        debt: payment._sum.total - order._sum.total,
+      });
     } catch (err) {
       console.error(err);
       throw new BadRequestException(err);
@@ -148,7 +176,9 @@ export class CustomerRepository {
 
   async payment(customerId: Customer["id"], payment: CreatePaymentHistoryDto) {
     try {
-      const customer = await this.prisma.customer.findUnique({where: {id: customerId}});
+      const customer = await this.prisma.customer.findUnique({
+        where: {id: customerId},
+      });
 
       const pay = this.prisma.paymentHistory.create({
         data: Object.assign(payment, {customerId}),
@@ -158,7 +188,7 @@ export class CustomerRepository {
         where: {id: customerId},
         data: {
           debt: customer.debt + payment.total,
-        }
+        },
       });
       return (await this.prisma.$transaction([pay, debt]))[0];
     } catch (err) {

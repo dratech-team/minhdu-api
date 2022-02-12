@@ -1,14 +1,31 @@
-import {CustomerResource, CustomerType} from "@prisma/client";
-import {IsBoolean, IsEnum, IsNotEmpty, IsOptional, IsString} from "class-validator";
-import {CreateProfileDto} from "../../../../common/dtos/create-profile.dto";
+import { PartialType } from "@nestjs/mapped-types";
+import { CustomerResource, CustomerType } from "@prisma/client";
+import { Type } from "class-transformer";
+import {
+  IsBoolean,
+  IsNotEmpty,
+  IsNumber,
+  IsOptional,
+  IsString,
+} from "class-validator";
+import { CreateProfileDto } from "../../../../common/dtos/create-profile.dto";
 
-export class CreateCustomerDto extends CreateProfileDto {
+export class CreateCustomerDto extends PartialType(CreateProfileDto) {
   @IsNotEmpty()
-  @IsEnum(CustomerType)
+  @IsNumber()
+  @Type(() => Number)
+  readonly provinceId: number;
+
+  @IsOptional()
+  @Type(() => Number)
+  readonly districtId: number;
+
+  @IsOptional()
+  // @IsEnum(CustomerType)
   readonly type: CustomerType;
 
-  @IsNotEmpty()
-  @IsEnum(CustomerResource)
+  @IsOptional()
+  // @IsEnum(CustomerResource)
   readonly resource: CustomerResource;
 
   @IsOptional()
