@@ -47,7 +47,7 @@ export class CreateProductDto {
   readonly branch?: string;
 
   @IsOptional()
-  @IsString()
+  @IsNumber()
   @Type(() => Number)
   readonly branchId?: number;
 
@@ -71,8 +71,7 @@ export class CreateProductDto {
   @Type(() => Number)
   readonly discount: number;
 
-  @IsNotEmpty()
-  @IsNumber()
+  @IsOptional()
   @Type(() => Number)
   readonly providerId: number;
 

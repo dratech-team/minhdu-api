@@ -452,7 +452,7 @@ model Product {
   accountedAt      DateTime? // ngày hạch toán
   billedAt         DateTime? // ngày chứng từ
   billCode         String? // số chứng từ
-  branch           Branch?          @relation(fields: [branchId], references: [id])
+  branch           Branch?          @relation(fields: [branchId], references: [id]) // Nếu rỗng thì nó là kho tổng
   branchId         Int?
   warehouse        Warehouse?       @relation(fields: [warehouseId], references: [id])
   warehouseId      Int?
