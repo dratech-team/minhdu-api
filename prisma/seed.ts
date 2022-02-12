@@ -32,6 +32,10 @@ async function main() {
         name: "Gà loại 3"
       },
       {
+        code: "MD3S.BD",
+        name: "MD3S.BD"
+      },
+      {
         code: "GM",
         name: "Gà mía"
       },
