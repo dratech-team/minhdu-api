@@ -60,8 +60,9 @@ export class OrderService {
     return Object.assign(
       order,
       {
-        commodities: order.commodities.map((commodity) =>
-          this.commodityService.handleCommodity(commodity)
+        commodities: order.commodities.map((commodity) => {
+            return this.commodityService.handleCommodity(commodity);
+          }
         ),
       },
       {commodityTotal: commodityTotal},
@@ -130,7 +131,7 @@ export class OrderService {
         data: data.data.map((e) => ({
           name: e.customer.firstName + e.customer.lastName,
           createdAt: e.createdAt,
-          ward: `${e.ward.name}, ${e.ward.district.name}, ${e.ward.district.province.name}, ${e.ward.district.province.nation.name}`,
+          // ward: `${e.ward.name}, ${e.ward.district.name}, ${e.ward.district.province.name}, ${e.ward.district.province.nation.name}`,
           lengthTotal: e.commodities.length,
           commodityTotal: this.commodityService.totalCommodities(e.commodities),
           payTotal: this.paymentService.totalPayment(e.paymentHistories),

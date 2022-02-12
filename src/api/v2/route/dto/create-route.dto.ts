@@ -15,8 +15,12 @@ export class CreateRouteDto {
 
   @IsOptional()
   @Type(() => Date)
-  @IsDate()
-  @Transform((val) => new Date(moment(val.value).format('YYYY-MM-DD')))
+  // @IsDate()
+  @Transform((val) => {
+    if (val.value) {
+      return new Date(moment(val.value).format('YYYY-MM-DD'));
+    }
+  })
   readonly endedAt: Date;
 
   @IsOptional()

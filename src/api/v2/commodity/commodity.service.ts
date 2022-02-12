@@ -44,12 +44,12 @@ export class CommodityService {
    * Nếu có more thì giá trị trả về trong đơn hàng sẽ ở dạng này*/
   handleCommodity(commodity: Commodity) {
     const priceMore = Math.ceil((commodity.price * commodity.amount) / (commodity.amount + commodity.more));
-    return Object.assign(commodity, {
+    return Object.assign(commodity, commodity.more ? {
       more: {
         amount: commodity.more,
         price: priceMore,
       }
-    });
+    } : {});
   }
 
   /*

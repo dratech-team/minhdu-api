@@ -69,7 +69,7 @@ export class SearchOrderDto {
 
   @IsOptional()
   @IsString()
-  readonly ward: string;
+  readonly province: string;
 
   @IsOptional()
   @IsEnum(PaymentType)

@@ -96,7 +96,7 @@ export class OrderRepository {
                   every: {total: {}}
                 }
                 : {},
-            ward: {district: {province: {name: {contains: search?.ward, mode: "insensitive"}}}},
+            province: search?.province ? {name: {contains: search?.province, mode: "insensitive"}} : {},
             commodities: search?.commodity ? {
               some: {
                 OR: [
@@ -144,7 +144,7 @@ export class OrderRepository {
               gte: search.createStartedAt,
               lte: search.createEndedAt,
             } : {},
-            ward: {district: {province: {name: {contains: search?.ward, mode: "insensitive"}}}},
+            province: search?.province ? {name: {contains: search?.province, mode: "insensitive"}} : {},
             commodities: search?.commodity ? {
               some: {
                 OR: [
@@ -163,19 +163,9 @@ export class OrderRepository {
             commodities: true,
             customer: true,
             routes: true,
-            ward: {
-              include: {
-                district: {
-                  include: {
-                    province: {
-                      include: {
-                        nation: true,
-                      },
-                    },
-                  },
-                },
-              },
-            },
+            province: true,
+            district: true,
+            ward: true,
             paymentHistories: true
           },
         }),
