@@ -49,7 +49,7 @@ export class CommodityService {
         amount: commodity.more,
         price: priceMore,
       }
-    } : {});
+    } : null);
   }
 
   /*

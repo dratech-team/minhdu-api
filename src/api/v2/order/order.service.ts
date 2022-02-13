@@ -8,8 +8,6 @@ import {Response} from "express";
 import {exportExcel} from "../../../core/services/export.service";
 import {SearchOrderDto} from "./dto/search-order.dto";
 import {FullOrder} from "./entities/order.entity";
-import * as moment from "moment";
-import {FilterTypeEnum} from "../payroll/entities/filter-type.enum";
 import {ItemExportDto} from "../../../common/interfaces/items-export.dto";
 
 @Injectable()
@@ -28,23 +26,30 @@ export class OrderService {
   async findAll(search: SearchOrderDto) {
     const result = await this.repository.findAll(search);
 
+    const orders = result.data.map((e) => {
+      const order = Object.assign(
+        e,
+        {
+          commodityTotal: this.commodityService.totalCommodities(
+            e.commodities
+          ),
+        },
+        {
+          paymentTotal: this.paymentService.totalPayment(
+            e.paymentHistories
+          ),
+        }
+      );
+      return Object.assign(order, {
+        commodities: order.commodities.map(commodity => {
+          return this.commodityService.handleCommodity(commodity);
+        }),
+      });
+    });
+
     return {
       total: result.total,
-      data: result.data.map((order) => {
-        return Object.assign(
-          order,
-          {
-            commodityTotal: this.commodityService.totalCommodities(
-              order.commodities
-            ),
-          },
-          {
-            paymentTotal: this.paymentService.totalPayment(
-              order.paymentHistories
-            ),
-          }
-        );
-      }),
+      data: orders,
     };
   }
 
