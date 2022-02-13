@@ -339,8 +339,8 @@ model Order {
   explain          String?
   routes           Route[]
   commodities      Commodity[]
-  province         Province?        @relation(fields: [provinceId], references: [id])
-  provinceId       Int?
+  province         Province        @relation(fields: [provinceId], references: [id])
+  provinceId       Int
   district         District?        @relation(fields: [districtId], references: [id])
   districtId       Int?
   ward             Ward?            @relation(fields: [wardId], references: [id])

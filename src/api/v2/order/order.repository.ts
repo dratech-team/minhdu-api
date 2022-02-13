@@ -41,19 +41,9 @@ export class OrderRepository {
           commodities: true,
           customer: true,
           routes: true,
-          ward: {
-            include: {
-              district: {
-                include: {
-                  province: {
-                    include: {
-                      nation: true,
-                    },
-                  },
-                },
-              },
-            },
-          },
+          province: true,
+          district: true,
+          ward: true,
           paymentHistories: true
         },
       });

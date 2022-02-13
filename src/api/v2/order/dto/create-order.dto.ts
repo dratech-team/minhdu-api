@@ -32,9 +32,10 @@ export class CreateOrderDto {
   @IsArray()
   readonly commodityIds?: number[];
 
-  @IsOptional()
+  @IsNotEmpty()
+  @IsNumber()
   @Type(() => Number)
-  readonly provinceId?: number;
+  readonly provinceId: number;
 
   @IsOptional()
   @Type(() => Number)
