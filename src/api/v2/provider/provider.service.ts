@@ -10,7 +10,12 @@ export class ProviderService {
 
   async create(body: CreateProviderDto) {
     try {
-      return await this.prisma.provider.create({data: body});
+      console.log(body);
+      return await this.prisma.provider.create({
+        data: {
+          name: body.name
+        }
+      });
     } catch (err) {
       console.error(err);
       throw new BadRequestException(err);

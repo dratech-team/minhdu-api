@@ -6,39 +6,53 @@ import {
   IsOptional,
   IsString,
 } from "class-validator";
-import { Type } from "class-transformer";
-import { WarehouseUnit } from "@prisma/client";
+import {Transform, Type} from "class-transformer";
+import {ProductUnit} from "@prisma/client";
 
 export class CreateProductDto {
   @IsNotEmpty()
   @IsString()
   readonly name: string;
 
-  @IsNotEmpty()
+  @IsOptional()
   @IsString()
   readonly code?: string;
 
   @IsOptional()
-  @IsDate()
-  @Type()
+  @Transform((val) => {
+    if (val.value) {
+      return new Date(val.value);
+    }
+  })
   readonly mfg?: Date;
 
   @IsOptional()
-  @IsDate()
-  @Type()
+  @Transform((val) => {
+    if (val.value) {
+      return new Date(val.value);
+    }
+  })
   readonly exp?: Date;
 
   @IsOptional()
   @IsDate()
-  @Type()
+  @Transform((val) => {
+    if (val.value) {
+      return new Date(val.value);
+    }
+  })
   readonly accountedAt?: Date;
 
   @IsOptional()
   @IsDate()
-  @Type()
+  @Transform((val) => {
+    if (val.value) {
+      return new Date(val.value);
+    }
+  })
   readonly billedAt?: Date;
 
-  @IsNotEmpty()
+  @IsOptional()
   @IsString()
   readonly billCode?: string;
 
@@ -51,7 +65,11 @@ export class CreateProductDto {
   @Type(() => Number)
   readonly branchId?: number;
 
-  @IsNotEmpty()
+  @IsOptional()
+  @IsString()
+  readonly warehouse?: string;
+
+  @IsOptional()
   @IsNumber()
   @Type(() => Number)
   readonly warehouseId?: number;
@@ -66,18 +84,22 @@ export class CreateProductDto {
   @Type(() => Number)
   readonly amount: number;
 
-  @IsNotEmpty()
+  @IsOptional()
   @IsNumber()
   @Type(() => Number)
   readonly discount: number;
+
+  @IsOptional()
+  @IsString()
+  readonly provider?: string;
 
   @IsOptional()
   @Type(() => Number)
   readonly providerId: number;
 
   @IsNotEmpty()
-  @IsEnum(WarehouseUnit)
-  readonly unit: WarehouseUnit;
+  @IsEnum(ProductUnit)
+  readonly unit: ProductUnit;
 
   @IsOptional()
   @IsString()

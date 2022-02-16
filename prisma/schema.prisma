@@ -445,13 +445,13 @@ model Payroll {
 // loại kho văn phòng phẩm, thuốc, trứng...
 model Warehouse {
   id       Int       @id @default(autoincrement())
-  name     String
+  name     String @unique
   products Product[]
 }
 
 model Provider {
   id       Int       @id @default(autoincrement())
-  name     String
+  name     String @unique
   products Product[]
 }
 
@@ -474,7 +474,7 @@ model Product {
   provider         Provider?        @relation(fields: [providerId], references: [id])
   providerId       Int?
   note             String?
-  unit             WarehouseUnit
+  unit             ProductUnit
   createdAt        DateTime?        @default(now())
   paymentHistories PaymentHistory[]
 }
@@ -611,10 +611,11 @@ enum CommodityUnit {
   CON
 }
 
-enum WarehouseUnit {
+enum ProductUnit {
   LIT
   KG
   BAO
+  VIEN
 }
 
 enum CustomerResource {
