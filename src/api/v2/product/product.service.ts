@@ -1,13 +1,13 @@
-import { Injectable } from '@nestjs/common';
-import { CreateProductDto } from './dto/create-product.dto';
-import { UpdateProductDto } from './dto/update-product.dto';
-import {ProductRepository} from "./product.repository";
-import {SearchProductDto} from "./dto/search-product.dto";
+import { Injectable } from "@nestjs/common";
+import { CreateProductDto } from "./dto/create-product.dto";
+import { SearchProductDto } from "./dto/search-product.dto";
+import { UpdateProductDto } from "./dto/update-product.dto";
+import { ActionProduct } from "./entities/action-product.enum";
+import { ProductRepository } from "./product.repository";
 
 @Injectable()
 export class ProductService {
-  constructor(private readonly repository: ProductRepository) {
-  }
+  constructor(private readonly repository: ProductRepository) {}
 
   async create(body: CreateProductDto) {
     return await this.repository.create(body);
@@ -21,8 +21,8 @@ export class ProductService {
     return await this.repository.findOne(id);
   }
 
-  async update(id: number, updateProductDto: UpdateProductDto) {
-    return await this.repository.update(id, updateProductDto);
+  async update(id: number, updates: UpdateProductDto) {
+    return await this.repository.update(id, updates);
   }
 
   async remove(id: number) {
