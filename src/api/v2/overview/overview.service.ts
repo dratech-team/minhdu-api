@@ -232,11 +232,11 @@ export class OverviewService {
       order: {
         rate: ((count[1] - count[0]) / (count[0] + count[1])) * 100,
         total: count[0] + count[1],
-        link: "",
+        link: "http://localhost:4001/#/don-hang",
         income: {
           rate: ((aggregate[1]._sum.total - aggregate[0]._sum.total) / (aggregate[1]._sum.total + aggregate[0]._sum.total)) * 100,
           total: aggregate[1]._sum.total + aggregate[0]._sum.total,
-          link: "",
+          link: "http://localhost:4001/#/don-hang",
         }
       },
       customer: {
