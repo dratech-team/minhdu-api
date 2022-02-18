@@ -472,7 +472,7 @@ model Product {
   warehouseId      Int
   price            Float // Đơn giá
   amount           Float // Số lượng
-  discount         Float?
+  discount         Float?   @default(0)
   provider         Provider         @relation(fields: [providerId], references: [id])
   providerId       Int
   note             String?

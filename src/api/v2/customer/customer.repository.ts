@@ -78,19 +78,9 @@ export class CustomerRepository {
                 : {},
           },
           include: {
-            ward: {
-              include: {
-                district: {
-                  include: {
-                    province: {
-                      include: {
-                        nation: true,
-                      },
-                    },
-                  },
-                },
-              },
-            },
+            ward: true,
+            district: true,
+            province: true
           },
         }),
       ]);

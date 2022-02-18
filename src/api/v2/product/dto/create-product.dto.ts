@@ -1,6 +1,7 @@
 import {IsDate, IsEnum, IsNotEmpty, IsNumber, IsOptional, IsString,} from "class-validator";
 import {Transform, Type} from "class-transformer";
 import {ProductUnit} from "@prisma/client";
+import * as moment from "moment";
 
 export class CreateProductDto {
   @IsNotEmpty()
@@ -14,7 +15,7 @@ export class CreateProductDto {
   @IsOptional()
   @Transform((val) => {
     if (val.value) {
-      return new Date(val.value);
+      return new Date(moment(val.value).format('YYYY-MM-DD'));
     }
   })
   readonly mfg?: Date;
@@ -22,7 +23,7 @@ export class CreateProductDto {
   @IsOptional()
   @Transform((val) => {
     if (val.value) {
-      return new Date(val.value);
+      return new Date(moment(val.value).format('YYYY-MM-DD'));
     }
   })
   readonly exp?: Date;
@@ -31,7 +32,7 @@ export class CreateProductDto {
   @IsDate()
   @Transform((val) => {
     if (val.value) {
-      return new Date(val.value);
+      return new Date(moment(val.value).format('YYYY-MM-DD'));
     }
   })
   readonly accountedAt?: Date;
@@ -40,7 +41,7 @@ export class CreateProductDto {
   @IsDate()
   @Transform((val) => {
     if (val.value) {
-      return new Date(val.value);
+      return new Date(moment(val.value).format('YYYY-MM-DD'));
     }
   })
   readonly billedAt?: Date;
