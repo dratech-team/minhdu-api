@@ -339,7 +339,7 @@ model Order {
   explain          String?
   routes           Route[]
   commodities      Commodity[]
-  province         Province        @relation(fields: [provinceId], references: [id])
+  province         Province         @relation(fields: [provinceId], references: [id])
   provinceId       Int
   district         District?        @relation(fields: [districtId], references: [id])
   districtId       Int?
@@ -444,15 +444,17 @@ model Payroll {
 
 // loại kho văn phòng phẩm, thuốc, trứng...
 model Warehouse {
-  id       Int       @id @default(autoincrement())
-  name     String @unique
-  products Product[]
+  id        Int       @id @default(autoincrement())
+  name      String    @unique
+  products  Product[]
+  timestamp DateTime? @default(now())
 }
 
 model Provider {
-  id       Int       @id @default(autoincrement())
-  name     String @unique
-  products Product[]
+  id        Int       @id @default(autoincrement())
+  name      String    @unique
+  products  Product[]
+  timestamp DateTime? @default(now())
 }
 
 model Product {
@@ -466,17 +468,28 @@ model Product {
   billCode         String? // số chứng từ
   branch           Branch?          @relation(fields: [branchId], references: [id]) // Nếu rỗng thì nó là kho tổng
   branchId         Int?
-  warehouse        Warehouse       @relation(fields: [warehouseId], references: [id])
+  warehouse        Warehouse        @relation(fields: [warehouseId], references: [id])
   warehouseId      Int
   price            Float // Đơn giá
   amount           Float // Số lượng
   discount         Float?
-  provider         Provider        @relation(fields: [providerId], references: [id])
+  provider         Provider         @relation(fields: [providerId], references: [id])
   providerId       Int
   note             String?
   unit             ProductUnit
   createdAt        DateTime?        @default(now())
   paymentHistories PaymentHistory[]
+  importExports    ImportExport[]
+  timestamp        DateTime?        @default(now())
+}
+
+model ImportExport {
+  id        Int              @id @default(autoincrement())
+  product   Product          @relation(fields: [productId], references: [id])
+  productId Int
+  type      ImportExportType
+  amount    Int
+  timestamp DateTime?        @default(now())
 }
 
 model System {
@@ -484,6 +497,11 @@ model System {
   title    String
   type     SystemType
   datetime DateTime?  @default(now())
+}
+
+enum ImportExportType {
+  IMPORT
+  EXPORT
 }
 
 enum SystemType {
