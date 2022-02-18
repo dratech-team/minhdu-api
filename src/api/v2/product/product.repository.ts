@@ -53,6 +53,7 @@ export class ProductRepository {
       const [total, data] = await Promise.all([
         this.prisma.product.count({
           where: {
+            name: search?.name ? {contains: search.name} : {},
             warehouse: search?.warehouseId ? {id: search.warehouseId} : {},
           },
         }),
@@ -60,6 +61,7 @@ export class ProductRepository {
           take: search?.take,
           skip: search?.skip,
           where: {
+            name: search?.name ? {contains: search.name} : {},
             warehouse: search?.warehouseId ? {id: search.warehouseId} : {},
           },
           include: {
