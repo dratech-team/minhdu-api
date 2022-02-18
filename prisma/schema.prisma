@@ -466,13 +466,13 @@ model Product {
   billCode         String? // số chứng từ
   branch           Branch?          @relation(fields: [branchId], references: [id]) // Nếu rỗng thì nó là kho tổng
   branchId         Int?
-  warehouse        Warehouse?       @relation(fields: [warehouseId], references: [id])
-  warehouseId      Int?
+  warehouse        Warehouse       @relation(fields: [warehouseId], references: [id])
+  warehouseId      Int
   price            Float // Đơn giá
   amount           Float // Số lượng
   discount         Float?
-  provider         Provider?        @relation(fields: [providerId], references: [id])
-  providerId       Int?
+  provider         Provider        @relation(fields: [providerId], references: [id])
+  providerId       Int
   note             String?
   unit             ProductUnit
   createdAt        DateTime?        @default(now())

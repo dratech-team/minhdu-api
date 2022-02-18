@@ -46,6 +46,8 @@ async function main() {
     ],
     skipDuplicates: true,
   });
+
+  await prisma.provider.createMany({data: {name: "Khác"}, skipDuplicates: true});
   // await prisma.position.createMany({
   //   data: [
   //     {

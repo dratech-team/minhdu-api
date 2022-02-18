@@ -21,27 +21,26 @@ export class ProductRepository {
           accountedAt: body.accountedAt,
           billedAt: body.billedAt,
           billCode: body.billCode,
-          branch: {
-            connect: body?.branchId
-              ? {id: body.branchId}
-              : {name: body.branch},
-          },
+          branch: body?.branchId || body?.branch ? {
+            connect: body?.branchId ? {id: body.branchId} : {name: body.name},
+          } : {},
           warehouse: {
-            connect: body?.warehouseId
-              ? {id: body.warehouseId}
-              : {name: body.warehouse}
+            connect: body?.warehouseId ? {id: body.warehouseId} : {name: body.warehouse}
           },
           price: body.price,
           amount: body.amount,
           discount: body.discount,
           provider: {
-            connect: body?.providerId
-              ? {id: body.providerId}
-              : {name: body.provider}
+            connect: body?.providerId ? {id: body.providerId} : {name: body.provider}
           },
           note: body.note,
           unit: body.unit,
         },
+        include: {
+          provider: true,
+          warehouse: true,
+          branch: true
+        }
       });
     } catch (err) {
       console.error(err);
@@ -66,6 +65,7 @@ export class ProductRepository {
           include: {
             provider: true,
             warehouse: true,
+            branch: true
           },
         }),
       ]);
