@@ -19,9 +19,9 @@ export class ProductRepository {
           name: body.name,
           mfg: {in: body.mfg},
           exp: {in: body.exp},
-          provider: {name: body.name},
+          provider: {name: body.provider},
           price: body.price,
-          branch: {OR: {name: body.name, id: body.branchId}},
+          branch: {name: body.branch},
           discount: body.discount,
         }
       });
