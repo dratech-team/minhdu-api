@@ -1,11 +1,13 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete } from '@nestjs/common';
-import { ImportExportService } from './import-export.service';
-import { CreateImportExportDto } from './dto/create-import-export.dto';
-import { UpdateImportExportDto } from './dto/update-import-export.dto';
+import {Body, Controller, Delete, Get, Param, Patch, Post, Query} from '@nestjs/common';
+import {ImportExportService} from './import-export.service';
+import {CreateImportExportDto} from './dto/create-import-export.dto';
+import {UpdateImportExportDto} from './dto/update-import-export.dto';
+import {SearchImportExportDto} from "./dto/search-import-export.dto";
 
 @Controller('v2/import-export')
 export class ImportExportController {
-  constructor(private readonly importExportService: ImportExportService) {}
+  constructor(private readonly importExportService: ImportExportService) {
+  }
 
   @Post()
   create(@Body() createImportExportDto: CreateImportExportDto) {
@@ -13,8 +15,8 @@ export class ImportExportController {
   }
 
   @Get()
-  findAll() {
-    return this.importExportService.findAll();
+  findAll(@Query() search: SearchImportExportDto) {
+    return this.importExportService.findAll(search);
   }
 
   @Get(':id')
