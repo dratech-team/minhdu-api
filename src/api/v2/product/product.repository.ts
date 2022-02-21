@@ -22,7 +22,7 @@ export class ProductRepository {
           exp: {in: body.exp},
           provider: {name: body.provider},
           price: body.price,
-          branch: {name: body.branch},
+          branch: body?.branch ? {name: body.branch} : {},
           discount: body.discount,
         }
       });
