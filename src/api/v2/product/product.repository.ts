@@ -4,7 +4,7 @@ import {UpdateProductDto} from "./dto/update-product.dto";
 import {PrismaService} from "../../../prisma.service";
 import {SearchProductDto} from "./dto/search-product.dto";
 import {ActionProduct} from "./entities/action-product.enum";
-import {ImportExportType} from "@prisma/client";
+import {WarehouseHistoryType} from "@prisma/client";
 import {InventoryProductsDto} from "./dto/inventory-product.dto";
 
 @Injectable()
@@ -69,10 +69,10 @@ export class ProductRepository {
           branch: true,
         },
       });
-      await this.prisma.importExport.create({
+      await this.prisma.warehouseHistory.create({
         data: {
           productId: created.id,
-          type: ImportExportType.IMPORT,
+          type: WarehouseHistoryType.IMPORT,
           amount: created.amount,
         },
       });
@@ -156,17 +156,17 @@ export class ProductRepository {
                 amount: des.amount + updates.amount,
               },
             }),
-            this.prisma.importExport.create({
+            this.prisma.warehouseHistory.create({
               data: {
                 productId: id,
-                type: ImportExportType.EXPORT,
+                type: WarehouseHistoryType.EXPORT,
                 amount: updates.amount,
               },
             }),
-            this.prisma.importExport.create({
+            this.prisma.warehouseHistory.create({
               data: {
                 productId: updates.desWarehouseId,
-                type: ImportExportType.IMPORT,
+                type: WarehouseHistoryType.IMPORT,
                 amount: updates.amount,
               },
             }),

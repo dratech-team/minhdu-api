@@ -479,16 +479,17 @@ model Product {
   unit             ProductUnit
   createdAt        DateTime?        @default(now())
   paymentHistories PaymentHistory[]
-  importExports    ImportExport[]
+  warehouseHistories    WarehouseHistory[]
   timestamp        DateTime?        @default(now())
 }
 
-model ImportExport {
+model WarehouseHistory {
   id        Int              @id @default(autoincrement())
   product   Product          @relation(fields: [productId], references: [id])
   productId Int
-  type      ImportExportType
+  type      WarehouseHistoryType
   amount    Int
+  account   String?
   timestamp DateTime?        @default(now())
 }
 
@@ -499,9 +500,10 @@ model System {
   datetime DateTime?  @default(now())
 }
 
-enum ImportExportType {
+enum WarehouseHistoryType {
   IMPORT
   EXPORT
+  INVENTORY
 }
 
 enum SystemType {

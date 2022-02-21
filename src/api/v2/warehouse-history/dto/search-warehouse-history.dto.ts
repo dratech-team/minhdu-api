@@ -1,8 +1,8 @@
 import {IsEnum, IsNotEmpty, IsNumber, IsOptional, IsString} from "class-validator";
 import {Type} from "class-transformer";
-import {ImportExportType} from "@prisma/client";
+import { WarehouseHistoryType } from "@prisma/client";
 
-export class SearchImportExportDto {
+export class SearchWarehouseHistoryDto {
   @IsNotEmpty()
   @IsNumber()
   @Type(() => Number)
@@ -14,8 +14,8 @@ export class SearchImportExportDto {
   readonly skip: number;
 
   @IsOptional()
-  @IsEnum(ImportExportType)
-  readonly type: ImportExportType;
+  @IsEnum(WarehouseHistoryType)
+  readonly type: WarehouseHistoryType;
 
   @IsOptional()
   @IsString()

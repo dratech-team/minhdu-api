@@ -1,28 +1,28 @@
 import {BadRequestException, Injectable} from "@nestjs/common";
 import {PrismaService} from "src/prisma.service";
-import {CreateImportExportDto} from "./dto/create-import-export.dto";
-import {UpdateImportExportDto} from "./dto/update-import-export.dto";
-import {SearchImportExportDto} from "./dto/search-import-export.dto";
+import {CreateWarehouseHistoryDto} from "./dto/create-warehouse-history.dto";
+import {UpdateWarehouseHistoryDto} from "./dto/update-warehouse-history.dto";
+import {SearchWarehouseHistoryDto} from "./dto/search-warehouse-history.dto";
 
 @Injectable()
-export class ImportExportService {
+export class WarehouseHistoryService {
   constructor(private readonly prisma: PrismaService) {
   }
 
-  async create(body: CreateImportExportDto) {
+  async create(body: CreateWarehouseHistoryDto) {
     return "This action adds a new importExport";
   }
 
-  async findAll(search: SearchImportExportDto) {
+  async findAll(search: SearchWarehouseHistoryDto) {
     try {
       const [total, data] = await Promise.all([
-        this.prisma.importExport.count({
+        this.prisma.warehouseHistory.count({
           where: {
             type: search?.type ? {in: search?.type} : {},
             product: search?.product ? {name: {contains: search?.product}} : {},
           }
         }),
-        this.prisma.importExport.findMany({
+        this.prisma.warehouseHistory.findMany({
           take: search?.take,
           skip: search?.skip,
           where: {
@@ -45,7 +45,7 @@ export class ImportExportService {
     return `This action returns a #${id} importExport`;
   }
 
-  async update(id: number, updates: UpdateImportExportDto) {
+  async update(id: number, updates: UpdateWarehouseHistoryDto) {
     return `This action updates a #${id} importExport`;
   }
 
