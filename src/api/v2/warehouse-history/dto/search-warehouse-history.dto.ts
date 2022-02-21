@@ -13,7 +13,7 @@ export class SearchWarehouseHistoryDto {
   @Type(() => Number)
   readonly skip: number;
 
-  @IsOptional()
+  @IsNotEmpty()
   @IsEnum(WarehouseHistoryType)
   readonly type: WarehouseHistoryType;
 

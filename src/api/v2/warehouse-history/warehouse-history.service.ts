@@ -3,6 +3,7 @@ import {PrismaService} from "src/prisma.service";
 import {CreateWarehouseHistoryDto} from "./dto/create-warehouse-history.dto";
 import {UpdateWarehouseHistoryDto} from "./dto/update-warehouse-history.dto";
 import {SearchWarehouseHistoryDto} from "./dto/search-warehouse-history.dto";
+import {WarehouseHistoryType} from "@prisma/client";
 
 @Injectable()
 export class WarehouseHistoryService {
@@ -13,12 +14,22 @@ export class WarehouseHistoryService {
     return (await Promise.all(body.products.map(async (product) => {
       const found = await this.prisma.product.findUnique({where: {id: product.id}});
       if (found.amount !== product.amount) {
-        return await this.prisma.product.update({
-          where: {id: product.id},
-          data: {
-            amount: product.amount
-          }
-        });
+        return (await this.prisma.$transaction([
+          this.prisma.product.update({
+            where: {id: product.id},
+            data: {
+              amount: product.amount
+            }
+          }),
+          this.prisma.warehouseHistory.create({
+            data: {
+              product: {connect: {id: product.id}},
+              amount: product.amount,
+              inventoryTotal: found.amount,
+              type: WarehouseHistoryType.INVENTORY,
+            }
+          })
+        ]))[0];
       }
     }))).filter(product => product);
   }
@@ -28,7 +39,7 @@ export class WarehouseHistoryService {
       const [total, data] = await Promise.all([
         this.prisma.warehouseHistory.count({
           where: {
-            type: search?.type ? {in: search?.type} : {},
+            type: {in: search.type},
             product: search?.product ? {name: {contains: search?.product}} : {},
           }
         }),
@@ -36,7 +47,7 @@ export class WarehouseHistoryService {
           take: search?.take,
           skip: search?.skip,
           where: {
-            type: search?.type ? {in: search?.type} : {},
+            type: {in: search.type},
             product: search?.product ? {name: {contains: search?.product}} : {},
           },
           include: {
