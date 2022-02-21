@@ -5,7 +5,7 @@ import {PrismaService} from "../../../prisma.service";
 import {SearchProductDto} from "./dto/search-product.dto";
 import {ActionProduct} from "./entities/action-product.enum";
 import {ImportExportType} from "@prisma/client";
-import {InventoryProductDto, InventoryProductsDto} from "./dto/inventory-product.dto";
+import {InventoryProductsDto} from "./dto/inventory-product.dto";
 
 @Injectable()
 export class ProductRepository {
@@ -225,11 +225,16 @@ export class ProductRepository {
   }
 
   async inventory(body: InventoryProductsDto) {
-    return await Promise.all(body.products.map(async product => {
+    return (await Promise.all(body.products.map(async (product) => {
       const found = await this.findOne(product.id);
       if (found.amount !== product.amount) {
-        return await this.update(product.id, {amount: product.amount});
+        return await this.prisma.product.update({
+          where: {id: product.id},
+          data: {
+            amount: product.amount
+          }
+        });
       }
-    }));
+    }))).filter(product => product);
   }
 }

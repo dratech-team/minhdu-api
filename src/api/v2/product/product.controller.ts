@@ -36,7 +36,7 @@ export class ProductController {
   }
 
   @Post('/inventory')
-  inventory(@Query() body: InventoryProductsDto) {
+  inventory(@Body() body: InventoryProductsDto) {
     return this.productService.inventory(body);
   }
 }
