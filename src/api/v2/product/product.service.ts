@@ -2,9 +2,7 @@ import {Injectable} from "@nestjs/common";
 import {CreateProductDto} from "./dto/create-product.dto";
 import {SearchProductDto} from "./dto/search-product.dto";
 import {UpdateProductDto} from "./dto/update-product.dto";
-import {ActionProduct} from "./entities/action-product.enum";
 import {ProductRepository} from "./product.repository";
-import {InventoryProductDto, InventoryProductsDto} from "./dto/inventory-product.dto";
 
 @Injectable()
 export class ProductService {
@@ -32,9 +30,5 @@ export class ProductService {
 
   async remove(id: number) {
     return await this.repository.remove(id);
-  }
-
-  async inventory(body: InventoryProductsDto) {
-    return await this.repository.inventory(body);
   }
 }

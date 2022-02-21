@@ -489,6 +489,7 @@ model WarehouseHistory {
   productId Int
   type      WarehouseHistoryType
   amount    Int
+  inventoryTotal Int
   account   String?
   timestamp DateTime?        @default(now())
 }

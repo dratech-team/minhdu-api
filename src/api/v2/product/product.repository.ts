@@ -5,7 +5,6 @@ import {PrismaService} from "../../../prisma.service";
 import {SearchProductDto} from "./dto/search-product.dto";
 import {ActionProduct} from "./entities/action-product.enum";
 import {WarehouseHistoryType} from "@prisma/client";
-import {InventoryProductsDto} from "./dto/inventory-product.dto";
 
 @Injectable()
 export class ProductRepository {
@@ -27,56 +26,62 @@ export class ProductRepository {
         }
       });
 
-      const created = product ? await this.prisma.product.update({
-        where: {id: product.id},
-        data: {amount: product.amount + body.amount},
-      }) : await this.prisma.product.create({
-        data: {
-          name: body.name,
-          code: body.code,
-          mfg: body.mfg,
-          exp: body.exp,
-          accountedAt: body.accountedAt,
-          billedAt: body.billedAt,
-          billCode: body.billCode,
-          branch:
-            body?.branchId || body?.branch
-              ? {
-                connect: body?.branchId
-                  ? {id: body.branchId}
-                  : {name: body.name},
-              }
-              : {},
-          warehouse: {
-            connect: body?.warehouseId
-              ? {id: body.warehouseId}
-              : {name: body.warehouse},
+      if (product) {
+        return (await this.prisma.$transaction([
+          this.prisma.product.update({
+            where: {id: product.id},
+            data: {amount: product.amount + body.amount},
+          }),
+          this.prisma.warehouseHistory.create({
+            data: {
+              productId: product.id,
+              type: WarehouseHistoryType.IMPORT,
+              amount: product.amount,
+              inventoryTotal: product.amount,
+            },
+          })
+        ]))[0];
+      } else {
+        return await this.prisma.product.create({
+          data: {
+            name: body.name,
+            code: body.code,
+            mfg: body.mfg,
+            exp: body.exp,
+            accountedAt: body.accountedAt,
+            billedAt: body.billedAt,
+            billCode: body.billCode,
+            branch:
+              body?.branchId || body?.branch
+                ? {
+                  connect: body?.branchId
+                    ? {id: body.branchId}
+                    : {name: body.name},
+                }
+                : {},
+            warehouse: {
+              connect: body?.warehouseId
+                ? {id: body.warehouseId}
+                : {name: body.warehouse},
+            },
+            price: body.price,
+            amount: body.amount,
+            discount: body.discount,
+            provider: {
+              connect: body?.providerId
+                ? {id: body.providerId}
+                : {name: body.provider},
+            },
+            note: body.note,
+            unit: body.unit,
           },
-          price: body.price,
-          amount: body.amount,
-          discount: body.discount,
-          provider: {
-            connect: body?.providerId
-              ? {id: body.providerId}
-              : {name: body.provider},
+          include: {
+            provider: true,
+            warehouse: true,
+            branch: true,
           },
-          note: body.note,
-          unit: body.unit,
-        },
-        include: {
-          provider: true,
-          warehouse: true,
-          branch: true,
-        },
-      });
-      await this.prisma.warehouseHistory.create({
-        data: {
-          productId: created.id,
-          type: WarehouseHistoryType.IMPORT,
-          amount: created.amount,
-        },
-      });
-      return created;
+        });
+      }
     } catch (err) {
       console.error(err);
       throw new BadRequestException(err);
@@ -161,6 +166,7 @@ export class ProductRepository {
                 productId: id,
                 type: WarehouseHistoryType.EXPORT,
                 amount: updates.amount,
+                inventoryTotal: from.amount,
               },
             }),
             this.prisma.warehouseHistory.create({
@@ -168,6 +174,7 @@ export class ProductRepository {
                 productId: updates.desWarehouseId,
                 type: WarehouseHistoryType.IMPORT,
                 amount: updates.amount,
+                inventoryTotal: des.amount,
               },
             }),
           ]);
@@ -222,19 +229,5 @@ export class ProductRepository {
       console.error(err);
       throw new BadRequestException(err);
     }
-  }
-
-  async inventory(body: InventoryProductsDto) {
-    return (await Promise.all(body.products.map(async (product) => {
-      const found = await this.findOne(product.id);
-      if (found.amount !== product.amount) {
-        return await this.prisma.product.update({
-          where: {id: product.id},
-          data: {
-            amount: product.amount
-          }
-        });
-      }
-    }))).filter(product => product);
   }
 }

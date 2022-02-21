@@ -3,7 +3,6 @@ import {ProductService} from './product.service';
 import {CreateProductDto} from './dto/create-product.dto';
 import {UpdateProductDto} from './dto/update-product.dto';
 import {SearchProductDto} from "./dto/search-product.dto";
-import {InventoryProductDto, InventoryProductsDto} from "./dto/inventory-product.dto";
 
 @Controller('v2/product')
 export class ProductController {
@@ -33,10 +32,5 @@ export class ProductController {
   @Delete(':id')
   remove(@Param('id') id: string) {
     return this.productService.remove(+id);
-  }
-
-  @Post('/inventory')
-  inventory(@Body() body: InventoryProductsDto) {
-    return this.productService.inventory(body);
   }
 }

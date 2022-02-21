@@ -10,7 +10,17 @@ export class WarehouseHistoryService {
   }
 
   async create(body: CreateWarehouseHistoryDto) {
-    return "This action adds a new importExport";
+    return (await Promise.all(body.products.map(async (product) => {
+      const found = await this.prisma.product.findUnique({where: {id: product.id}});
+      if (found.amount !== product.amount) {
+        return await this.prisma.product.update({
+          where: {id: product.id},
+          data: {
+            amount: product.amount
+          }
+        });
+      }
+    }))).filter(product => product);
   }
 
   async findAll(search: SearchWarehouseHistoryDto) {
