@@ -5,6 +5,7 @@ import {PrismaService} from "../../../prisma.service";
 import {SearchProductDto} from "./dto/search-product.dto";
 import {ActionProduct} from "./entities/action-product.enum";
 import {ImportExportType} from "@prisma/client";
+import {InventoryProductsDto} from "./dto/inventory-product.dto";
 
 @Injectable()
 export class ProductRepository {
@@ -221,5 +222,9 @@ export class ProductRepository {
       console.error(err);
       throw new BadRequestException(err);
     }
+  }
+
+  async inventory(body: InventoryProductsDto) {
+
   }
 }
