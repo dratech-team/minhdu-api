@@ -458,40 +458,40 @@ model Provider {
 }
 
 model Product {
-  id               Int              @id @default(autoincrement())
-  name             String
-  code             String?
-  mfg              DateTime? // ngày sản xuất
-  exp              DateTime? // hạn sử dụng
-  accountedAt      DateTime? // ngày hạch toán
-  billedAt         DateTime? // ngày chứng từ
-  billCode         String? // số chứng từ
-  branch           Branch?          @relation(fields: [branchId], references: [id]) // Nếu rỗng thì nó là kho tổng
-  branchId         Int?
-  warehouse        Warehouse        @relation(fields: [warehouseId], references: [id])
-  warehouseId      Int
-  price            Float // Đơn giá
-  amount           Float // Số lượng
-  discount         Float?   @default(0)
-  provider         Provider         @relation(fields: [providerId], references: [id])
-  providerId       Int
-  note             String?
-  unit             ProductUnit
-  createdAt        DateTime?        @default(now())
-  paymentHistories PaymentHistory[]
-  warehouseHistories    WarehouseHistory[]
-  timestamp        DateTime?        @default(now())
+  id                 Int                @id @default(autoincrement())
+  name               String
+  code               String?
+  mfg                DateTime? // ngày sản xuất
+  exp                DateTime? // hạn sử dụng
+  accountedAt        DateTime? // ngày hạch toán
+  billedAt           DateTime? // ngày chứng từ
+  billCode           String? // số chứng từ
+  branch             Branch?            @relation(fields: [branchId], references: [id]) // Nếu rỗng thì nó là kho tổng
+  branchId           Int?
+  warehouse          Warehouse          @relation(fields: [warehouseId], references: [id])
+  warehouseId        Int
+  price              Float // Đơn giá
+  amount             Float // Số lượng
+  discount           Float?             @default(0)
+  provider           Provider           @relation(fields: [providerId], references: [id])
+  providerId         Int
+  note               String?
+  unit               ProductUnit
+  createdAt          DateTime?          @default(now())
+  paymentHistories   PaymentHistory[]
+  warehouseHistories WarehouseHistory[]
+  timestamp          DateTime?          @default(now())
 }
 
 model WarehouseHistory {
-  id        Int              @id @default(autoincrement())
-  product   Product          @relation(fields: [productId], references: [id])
-  productId Int
-  type      WarehouseHistoryType
-  amount    Int
+  id             Int                  @id @default(autoincrement())
+  product        Product              @relation(fields: [productId], references: [id])
+  productId      Int
+  type           WarehouseHistoryType
+  amount         Int
   inventoryTotal Int
-  account   String?
-  timestamp DateTime?        @default(now())
+  account        String?
+  timestamp      DateTime?            @default(now())
 }
 
 model System {
