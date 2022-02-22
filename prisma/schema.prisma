@@ -117,6 +117,7 @@ model Branch {
   allowances        Salary[]
   positions         Position[]
   products          Product[]
+  eggs              Egg[]
 }
 
 model Position {
@@ -483,6 +484,16 @@ model Product {
   timestamp          DateTime?          @default(now())
 }
 
+model Egg {
+  id        Int       @id @default(autoincrement())
+  type      EggType
+  amount    Int
+  branch    Branch    @relation(fields: [branchId], references: [id])
+  branchId  Int
+  createdAt DateTime? @default(now())
+  timestamp DateTime? @default(now())
+}
+
 model WarehouseHistory {
   id             Int                  @id @default(autoincrement())
   product        Product              @relation(fields: [productId], references: [id])
@@ -499,6 +510,14 @@ model System {
   title    String
   type     SystemType
   datetime DateTime?  @default(now())
+}
+
+enum EggType {
+  AP
+  TRONG
+  TAN
+  NUT
+  THOI
 }
 
 enum WarehouseHistoryType {

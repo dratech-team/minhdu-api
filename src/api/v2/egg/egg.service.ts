@@ -1,0 +1,31 @@
+import {Injectable} from '@nestjs/common';
+import {CreateEggDto} from './dto/create-egg.dto';
+import {UpdateEggDto} from './dto/update-egg.dto';
+import {SearchEggDto} from "./dto/search-egg.dto";
+import {EggRepository} from "./egg.repository";
+
+@Injectable()
+export class EggService {
+  constructor(private readonly repository: EggRepository) {
+  }
+
+  async create(body: CreateEggDto) {
+    return await this.repository.create(body);
+  }
+
+  async findAll(search: SearchEggDto) {
+    return await this.repository.findAll(search);
+  }
+
+  async findOne(id: number) {
+    return await this.repository.findOne(id);
+  }
+
+  async update(id: number, updates: UpdateEggDto) {
+    return await this.repository.update(id, updates);
+  }
+
+  async remove(id: number) {
+    return await this.repository.remove(id);
+  }
+}
