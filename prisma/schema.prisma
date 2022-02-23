@@ -335,7 +335,8 @@ model Order {
   id               Int              @id @default(autoincrement())
   customer         Customer         @relation(fields: [customerId], references: [id])
   customerId       Int
-  createdAt        DateTime
+  createdAt        DateTime //ngày tạo đơn hàng
+  endedAt          DateTime? //ngày hẹn giao
   createdBy        String?
   explain          String?
   routes           Route[]
@@ -346,7 +347,7 @@ model Order {
   districtId       Int?
   ward             Ward?            @relation(fields: [wardId], references: [id])
   wardId           Int?
-  deliveredAt      DateTime?
+  deliveredAt      DateTime? // ngày giao thành công
   hide             Boolean?         @default(false)
   total            Float?
   deleted          Boolean?         @default(false)

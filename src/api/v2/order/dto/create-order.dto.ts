@@ -21,6 +21,12 @@ export class CreateOrderDto {
   readonly deliveredAt: Date;
 
   @IsOptional()
+  @Type(() => Date)
+  @IsDate()
+  @Transform((val) => new Date(moment(val.value).format('YYYY-MM-DD')))
+  readonly endedAt: Date;
+
+  @IsOptional()
   @IsString()
   readonly explain?: string;
 
