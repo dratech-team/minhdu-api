@@ -518,6 +518,7 @@ enum EggType {
   TAN
   NUT
   THOI
+  PHOI_SONG
 }
 
 enum WarehouseHistoryType {

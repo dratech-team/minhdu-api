@@ -11,11 +11,26 @@ export class EggRepository {
 
   async create(body: CreateEggDto) {
     try {
+      const found = await this.prisma.egg.findFirst({
+        where: {
+          createdAt: {in: body.createdAt},
+          type: body.eggType,
+        }
+      });
+      if (found) {
+        return await this.prisma.egg.update({
+          where: {id: found.id},
+          data: {
+            amount: found.amount + body.amount,
+          }
+        });
+      }
       return await this.prisma.egg.create({
         data: {
           type: body.eggType,
           amount: body.amount,
           branch: {connect: {id: body.branchId}},
+          createdAt: body.createdAt,
         }
       });
     } catch (err) {
