@@ -36,6 +36,11 @@ export class CustomerRepository {
           isPotential: body?.isPotential,
           note: body?.note,
         },
+        include: {
+          province: true,
+          district: true,
+          ward: true
+        }
       });
     } catch (err) {
       console.error(err);
