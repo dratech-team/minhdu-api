@@ -498,7 +498,7 @@ model Egg {
 
 model EggType {
   id   Int    @id @default(autoincrement())
-  name String
+  name String @unique
   rated Boolean? @default(true)
   eggs Egg[]
 }

@@ -10,6 +10,7 @@ export class InventoryProductDto extends PickType(CreateProductDto, ["amount"]) 
   readonly id: number;
 }
 
+
 export class CreateWarehouseHistoryDto {
   @IsArray()
   @ValidateNested()
