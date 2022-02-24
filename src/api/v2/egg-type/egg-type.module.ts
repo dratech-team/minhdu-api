@@ -5,7 +5,7 @@ import {PrismaService} from "../../../prisma.service";
 
 @Module({
   controllers: [EggTypeController],
-  providers: [EggTypeService, PrismaService]
+  providers: [EggTypeService, PrismaService, EggTypeService]
 })
 export class EggTypeModule {
 }

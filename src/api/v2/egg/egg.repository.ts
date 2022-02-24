@@ -14,7 +14,7 @@ export class EggRepository {
       const found = await this.prisma.egg.findFirst({
         where: {
           createdAt: {in: body.createdAt},
-          type: body.eggType,
+          type: {id: body.eggTypeId}
         }
       });
       if (found) {
@@ -27,7 +27,7 @@ export class EggRepository {
       }
       return await this.prisma.egg.create({
         data: {
-          type: body.eggType,
+          type: {connect: {id: body.eggTypeId}},
           amount: body.amount,
           branch: {connect: {id: body.branchId}},
           createdAt: body.createdAt,
@@ -44,7 +44,7 @@ export class EggRepository {
       const [total, data] = await Promise.all([
         this.prisma.egg.count({
           where: {
-            type: search?.eggType ? {in: search?.eggType} : {},
+            type: {name: {startsWith: search?.eggType, mode: "insensitive"}},
             createdAt: {
               gte: search.startedAt,
               lte: search.endedAt
@@ -55,7 +55,7 @@ export class EggRepository {
           take: search?.take,
           skip: search?.skip,
           where: {
-            type: search?.eggType ? {in: search?.eggType} : {},
+            type: {name: {startsWith: search?.eggType, mode: "insensitive"}},
             createdAt: {
               gte: search.startedAt,
               lte: search.endedAt

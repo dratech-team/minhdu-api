@@ -5,10 +5,14 @@ import {SearchEggDto} from "./dto/search-egg.dto";
 import {EggRepository} from "./egg.repository";
 import {EggType} from '@prisma/client';
 import * as moment from "moment";
+import {EggTypeService} from "../egg-type/egg-type.service";
 
 @Injectable()
 export class EggService {
-  constructor(private readonly repository: EggRepository) {
+  constructor(
+    private readonly repository: EggRepository,
+    private readonly eggTypeService: EggTypeService
+  ) {
   }
 
   async create(body: CreateEggDto) {
@@ -17,18 +21,19 @@ export class EggService {
 
   async findAll(search: SearchEggDto) {
     const paginate = await this.repository.findAll(search);
+    const eggTypes = await this.eggTypeService.findAll();
 
-    const total = [EggType.TRONG, EggType.TAN, EggType.NUT, EggType.THOI, EggType.PHOI_SONG].map(type => {
-      return paginate.data.find(egg => egg.type === type)?.amount || 0;
+    const total = eggTypes.map(type => {
+      return paginate.data.find(egg => egg.eggTypeId === type.id)?.amount || 0;
     }).reduce((a, b) => a + b, 0);
 
 
-    const total2 = [EggType.TRONG, EggType.TAN, EggType.NUT, EggType.THOI].map(type => {
-      return paginate.data.find(egg => egg.type === type)?.amount || 0;
+    const total2 = eggTypes.map(type => {
+      return paginate.data.find(egg => egg.eggTypeId === type.id)?.amount || 0;
     }).reduce((a, b) => a + b, 0);
 
-    const eggs = [EggType.TRONG, EggType.TAN, EggType.NUT, EggType.THOI, EggType.PHOI_SONG].map(type => {
-      const amountEgg = paginate.data.find(egg => egg.type === type)?.amount || 0;
+    const eggs = eggTypes.map(type => {
+      const amountEgg = paginate.data.find(egg => egg.eggTypeId === type.id)?.amount || 0;
       return {
         type: type,
         amount: amountEgg,

@@ -5,8 +5,9 @@ import * as moment from "moment";
 
 export class CreateEggDto {
   @IsNotEmpty()
-  @IsEnum(EggType)
-  readonly eggType: EggType;
+  @IsNumber()
+  @Type(() => Number)
+  readonly eggTypeId: number;
 
   @IsNotEmpty()
   @IsNumber()

@@ -1,5 +1,5 @@
 import {SearchBaseDto} from "../../../../common/dtos/search-base.dto";
-import {IsDate, IsNotEmpty, IsOptional} from "class-validator";
+import {IsDate, IsNotEmpty, IsOptional, IsString} from "class-validator";
 import {Type} from "class-transformer";
 import {EggType} from "@prisma/client";
 
@@ -15,5 +15,6 @@ export class SearchEggDto extends SearchBaseDto {
   readonly endedAt: Date;
 
   @IsOptional()
-  readonly eggType: EggType;
+  @IsString()
+  readonly eggType: string;
 }
