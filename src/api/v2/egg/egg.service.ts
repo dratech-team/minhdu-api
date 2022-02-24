@@ -35,7 +35,7 @@ export class EggService {
     const eggs = eggTypes.map(type => {
       const amountEgg = paginate.data.find(egg => egg.eggTypeId === type.id)?.amount || 0;
       return {
-        type: type,
+        type: type.name,
         amount: amountEgg,
         rate: (amountEgg / total) * 100,
       };
