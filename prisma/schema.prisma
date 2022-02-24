@@ -487,12 +487,20 @@ model Product {
 
 model Egg {
   id        Int       @id @default(autoincrement())
-  type      EggType
+  type      EggType   @relation(fields: [eggTypeId], references: [id])
+  eggTypeId Int
   amount    Int
   branch    Branch    @relation(fields: [branchId], references: [id])
   branchId  Int
   createdAt DateTime? @default(now())
   timestamp DateTime? @default(now())
+}
+
+model EggType {
+  id   Int    @id @default(autoincrement())
+  name String
+  rated Boolean? @default(true)
+  eggs Egg[]
 }
 
 model WarehouseHistory {
@@ -511,15 +519,6 @@ model System {
   title    String
   type     SystemType
   datetime DateTime?  @default(now())
-}
-
-enum EggType {
-  AP
-  TRONG
-  TAN
-  NUT
-  THOI
-  PHOI_SONG
 }
 
 enum WarehouseHistoryType {

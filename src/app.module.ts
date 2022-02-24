@@ -40,6 +40,7 @@ import { ProductModule } from "./api/v2/product/product.module";
 import { CommodityTemplateModule } from "./api/v2/commodity-template/commodity-template.module";
 import { WarehouseHistoryModule } from "./api/v2/warehouse-history/warehouse-history.module";
 import { EggModule } from './api/v2/egg/egg.module';
+import { EggTypeModule } from './api/v2/egg-type/egg-type.module';
 
 @Module({
   imports: [
@@ -82,6 +83,7 @@ import { EggModule } from './api/v2/egg/egg.module';
     CommodityTemplateModule,
     WarehouseHistoryModule,
     EggModule,
+    EggTypeModule,
   ],
   controllers: [AppController],
   providers: [PrismaService],
