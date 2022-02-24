@@ -39,7 +39,7 @@ export class WarehouseHistoryService {
       const [total, data] = await Promise.all([
         this.prisma.warehouseHistory.count({
           where: {
-            type: {in: search.type},
+            type: {in: search.historyType},
             product: search?.product ? {name: {contains: search?.product}} : {},
           }
         }),
@@ -47,7 +47,7 @@ export class WarehouseHistoryService {
           take: search?.take,
           skip: search?.skip,
           where: {
-            type: {in: search.type},
+            type: {in: search.historyType},
             product: search?.product ? {name: {contains: search?.product}} : {},
           },
           include: {

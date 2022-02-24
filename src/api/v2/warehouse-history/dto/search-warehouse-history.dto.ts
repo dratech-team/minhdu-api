@@ -15,7 +15,7 @@ export class SearchWarehouseHistoryDto {
 
   @IsNotEmpty()
   @IsEnum(WarehouseHistoryType)
-  readonly type: WarehouseHistoryType;
+  readonly historyType: WarehouseHistoryType;
 
   @IsOptional()
   @IsString()
