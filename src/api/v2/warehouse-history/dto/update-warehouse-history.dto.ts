@@ -1,4 +1,4 @@
 import { PartialType } from '@nestjs/swagger';
-import { CreateWarehouseHistoryDto } from './create-warehouse-history.dto';
+import {CreateWarehouseHistoryDto} from "./inventory-warehouse-history.dto";
 
 export class UpdateWarehouseHistoryDto extends PartialType(CreateWarehouseHistoryDto) {}

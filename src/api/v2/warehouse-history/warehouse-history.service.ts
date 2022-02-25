@@ -1,18 +1,18 @@
 import {BadRequestException, Injectable} from "@nestjs/common";
 import {PrismaService} from "src/prisma.service";
-import {CreateWarehouseHistoryDto} from "./dto/create-warehouse-history.dto";
 import {UpdateWarehouseHistoryDto} from "./dto/update-warehouse-history.dto";
 import {SearchWarehouseHistoryDto} from "./dto/search-warehouse-history.dto";
 import {WarehouseHistoryType} from "@prisma/client";
+import {InventoryProductDto} from "./dto/inventory-warehouse-history.dto";
 
 @Injectable()
 export class WarehouseHistoryService {
   constructor(private readonly prisma: PrismaService) {
   }
 
-  async create(body: CreateWarehouseHistoryDto) {
-    return (await Promise.all(body.products.map(async (product) => {
-      const found = await this.prisma.product.findUnique({where: {id: product.id}});
+  async create(products: InventoryProductDto[]) {
+    return (await Promise.all(products.map(async (product) => {
+      const found = await this.prisma.product.findUnique({where: {id: +product.id}});
       if (found.amount !== product.amount) {
         return (await this.prisma.$transaction([
           this.prisma.product.update({
@@ -39,7 +39,7 @@ export class WarehouseHistoryService {
       const [total, data] = await Promise.all([
         this.prisma.warehouseHistory.count({
           where: {
-            type: {in: search.type},
+            type: {in: search.historyType},
             product: search?.product ? {name: {contains: search?.product}} : {},
           }
         }),
@@ -47,7 +47,7 @@ export class WarehouseHistoryService {
           take: search?.take,
           skip: search?.skip,
           where: {
-            type: {in: search.type},
+            type: {in: search.historyType},
             product: search?.product ? {name: {contains: search?.product}} : {},
           },
           include: {
@@ -73,4 +73,6 @@ export class WarehouseHistoryService {
   async remove(id: number) {
     return `This action removes a #${id} importExport`;
   }
+
+
 }
