@@ -43,12 +43,14 @@ export class EggService {
 
     return {
       total: paginate.total,
-      data: {
-        createdAt: search.startedAt,
-        endedAt: moment(search.startedAt).subtract(21, "days").toDate(),
-        totalEgg: total,
-        eggs: eggs,
-      }
+      data: paginate.data.map(e => {
+        return {
+          createdAt: e.createdAt,
+          endedAt: moment(e.createdAt).subtract(21, "days").toDate(),
+          totalEgg: total,
+          eggs: eggs,
+        };
+      })
     };
   }
 
