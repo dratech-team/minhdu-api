@@ -54,10 +54,54 @@ export class CommodityRepository {
 
   async update(id: number, updates: UpdateCommodityDto) {
     try {
-      return await this.prisma.commodity.update({
+      const commodity = await this.prisma.commodity.findUnique({where: {id}});
+
+      const updated = await this.prisma.commodity.update({
         where: {id},
-        data: updates,
+        data: {
+          name: updates?.name,
+          code: updates?.code,
+          amount: updates?.amount,
+          more: updates?.more,
+          gift: updates?.gift,
+          price: updates?.price,
+          closed: updates?.closed,
+        },
       });
+      if (updates.histored) {
+        const updownBuy = updated?.amount
+          ? updated.amount > commodity.amount
+            ? `Tăng thêm ${updated.amount - commodity.amount} con (gà mua)`
+            : updated.amount < commodity.amount
+              ? `Giảm đi ${commodity.amount - updated.amount} con (gà mua)`
+              : null
+          : null;
+        const updownGift = updated?.gift
+          ? updated.gift > commodity.gift
+            ? `Tăng thêm ${updated.gift - commodity.gift} con (gà tặng)`
+            : updated.gift < commodity.gift
+              ? `Giảm đi ${commodity.gift - updated.gift} con (gà tặng)`
+              : null
+          : null;
+        const updownMore = updated?.more
+          ? updated.more > commodity.more
+            ? `Tăng thêm ${updated.more - commodity.more} con (mua thêm)`
+            : updated.more < commodity.more
+              ? `Giảm đi ${commodity.more - updated.more} con (mua thêm)`
+              : null
+          : null;
+
+        if (updownBuy || updownGift || updownMore) {
+          await this.prisma.orderHistory.create({
+            data: {
+              order: {connect: {id: commodity?.orderId}},
+              type: commodity.name,
+              note: updownBuy ? updownBuy : '' + updownGift ? '. ' + updownGift : '' + '. ' + updownMore ? updownMore : '',
+            }
+          });
+        }
+      }
+      return updated;
     } catch (err) {
       console.error('commodity update', err);
       throw new BadRequestException(err);

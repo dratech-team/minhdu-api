@@ -24,4 +24,19 @@ export class CreateCommodityDto {
   @Type(() => Number)
   @IsNumber()
   readonly amount: number;
+
+  @IsNotEmpty()
+  @IsNumber()
+  @Type(() => Number)
+  readonly gift: number;
+
+  @IsNotEmpty()
+  @IsNumber()
+  @Type(() => Number)
+  readonly more: number;
+
+  @IsNotEmpty()
+  @IsNumber()
+  @Type(() => Boolean)
+  readonly closed: boolean;
 }
