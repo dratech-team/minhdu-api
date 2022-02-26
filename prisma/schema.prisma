@@ -118,6 +118,7 @@ model Branch {
   positions         Position[]
   products          Product[]
   eggs              Egg[]
+  Incubator         Incubator[]
 }
 
 model Position {
@@ -485,22 +486,34 @@ model Product {
   timestamp          DateTime?          @default(now())
 }
 
-model Egg {
+model Incubator {
   id        Int       @id @default(autoincrement())
-  type      EggType   @relation(fields: [eggTypeId], references: [id])
-  eggTypeId Int
-  amount    Int
   branch    Branch    @relation(fields: [branchId], references: [id])
   branchId  Int
   createdAt DateTime? @default(now())
   timestamp DateTime? @default(now())
+  eggs      Egg[]
+}
+
+model Egg {
+  id          Int       @id @default(autoincrement())
+  type        EggType   @relation(fields: [eggTypeId], references: [id])
+  eggTypeId   Int       @unique
+  incubator   Incubator @relation(fields: [incubatorId], references: [id])
+  incubatorId Int
+  amount      Int
+  timestamp   DateTime? @default(now())
+  Branch      Branch?   @relation(fields: [branchId], references: [id])
+  branchId    Int?
 }
 
 model EggType {
-  id   Int    @id @default(autoincrement())
-  name String @unique
+  id    Int      @id @default(autoincrement())
+  name  String   @unique
   rated Boolean? @default(true)
-  eggs Egg[]
+  stt   Int?
+  added Boolean? @default(true) //được cộng vào tổng soi loại để chia
+  eggs  Egg[]
 }
 
 model WarehouseHistory {

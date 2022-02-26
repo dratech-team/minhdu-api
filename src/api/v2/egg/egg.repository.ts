@@ -17,22 +17,24 @@ export class EggRepository {
           type: {id: body.eggTypeId}
         }
       });
-      if (found) {
+      if (found?.id) {
         return await this.prisma.egg.update({
           where: {id: found.id},
           data: {
             amount: found.amount + body.amount,
           }
         });
+      } else {
+        console.log(found)
+        return await this.prisma.egg.create({
+          data: {
+            type: {connect: {id: body.eggTypeId}},
+            amount: body.amount,
+            branch: {connect: {id: body.branchId}},
+            createdAt: body.createdAt,
+          }
+        });
       }
-      return await this.prisma.egg.create({
-        data: {
-          type: {connect: {id: body.eggTypeId}},
-          amount: body.amount,
-          branch: {connect: {id: body.branchId}},
-          createdAt: body.createdAt,
-        }
-      });
     } catch (err) {
       console.error(err);
       throw new BadRequestException(err);
