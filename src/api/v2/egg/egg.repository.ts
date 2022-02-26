@@ -11,30 +11,13 @@ export class EggRepository {
 
   async create(body: CreateEggDto) {
     try {
-      const found = await this.prisma.egg.findFirst({
-        where: {
-          createdAt: {in: body.createdAt},
-          type: {id: body.eggTypeId}
+      return await this.prisma.egg.create({
+        data: {
+          type: {connect: {id: body.eggTypeId}},
+          amount: body.amount,
+          incubator: {connect: {id: body.incubatorId}},
         }
       });
-      if (found?.id) {
-        return await this.prisma.egg.update({
-          where: {id: found.id},
-          data: {
-            amount: found.amount + body.amount,
-          }
-        });
-      } else {
-        console.log(found)
-        return await this.prisma.egg.create({
-          data: {
-            type: {connect: {id: body.eggTypeId}},
-            amount: body.amount,
-            branch: {connect: {id: body.branchId}},
-            createdAt: body.createdAt,
-          }
-        });
-      }
     } catch (err) {
       console.error(err);
       throw new BadRequestException(err);
@@ -47,22 +30,11 @@ export class EggRepository {
         this.prisma.egg.count({
           where: {
             type: {name: {startsWith: search?.eggType, mode: "insensitive"}},
-            createdAt: {
-              gte: search.startedAt,
-              lte: search.endedAt
-            }
           }
         }),
         this.prisma.egg.findMany({
           take: search?.take,
           skip: search?.skip,
-          where: {
-            type: {name: {startsWith: search?.eggType, mode: "insensitive"}},
-            createdAt: {
-              gte: search.startedAt,
-              lte: search.endedAt
-            }
-          }
         }),
       ]);
       return {total, data};
@@ -83,7 +55,12 @@ export class EggRepository {
 
   async update(id: number, updates: UpdateEggDto) {
     try {
-
+      return await this.prisma.egg.update({
+        where: {id},
+        data: {
+          amount: updates.amount,
+        }
+      });
     } catch (err) {
       console.error(err);
       throw new BadRequestException(err);
@@ -92,7 +69,7 @@ export class EggRepository {
 
   async remove(id: number) {
     try {
-
+      return await this.prisma.egg.delete({where: {id}});
     } catch (err) {
       console.error(err);
       throw new BadRequestException(err);

@@ -19,35 +19,7 @@ export class EggService {
   }
 
   async findAll(search: SearchEggDto) {
-    const paginate = await this.repository.findAll(search);
-    const eggTypes = await this.eggTypeService.findAll();
-
-    const total = eggTypes.map(type => {
-      return paginate.data.find(egg => egg.eggTypeId === type.id)?.amount || 0;
-    }).reduce((a, b) => a + b, 0);
-
-
-    const eggs = eggTypes.map(type => {
-      const amountEgg = paginate.data.find(egg => egg.eggTypeId === type.id)?.amount || 0;
-      return {
-        type: type,
-        amount: amountEgg,
-        rate: (amountEgg / total),
-      };
-    });
-
-    return {
-      total: paginate.total,
-      data: paginate.data.map(e => {
-        return {
-          id: e.id,
-          createdAt: e.createdAt,
-          endedAt: moment(e.createdAt).subtract(21, "days").toDate(),
-          totalEgg: total,
-          eggs: eggs,
-        };
-      })
-    };
+    return await this.repository.findAll(search);
   }
 
   async findOne(id: number) {

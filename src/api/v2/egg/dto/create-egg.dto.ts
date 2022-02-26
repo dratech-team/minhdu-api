@@ -1,7 +1,5 @@
-import {IsDate, IsEnum, IsNotEmpty, IsNumber} from "class-validator";
-import {Transform, Type} from "class-transformer";
-import {EggType} from "@prisma/client";
-import * as moment from "moment";
+import {IsNotEmpty, IsNumber} from "class-validator";
+import {Type} from "class-transformer";
 
 export class CreateEggDto {
   @IsNotEmpty()
@@ -17,10 +15,7 @@ export class CreateEggDto {
   @IsNotEmpty()
   @IsNumber()
   @Type(() => Number)
-  readonly branchId: number;
+  readonly incubatorId: number;
 
-  @IsNotEmpty()
-  @IsDate()
-  @Transform((val) => new Date(moment(val.value).format('YYYY-MM-DD')))
-  readonly createdAt: Date;
+
 }

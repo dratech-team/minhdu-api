@@ -117,8 +117,7 @@ model Branch {
   allowances        Salary[]
   positions         Position[]
   products          Product[]
-  eggs              Egg[]
-  Incubator         Incubator[]
+  icubators         Incubator[]
 }
 
 model Position {
@@ -490,9 +489,9 @@ model Incubator {
   id        Int       @id @default(autoincrement())
   branch    Branch    @relation(fields: [branchId], references: [id])
   branchId  Int
+  eggs      Egg[]
   createdAt DateTime? @default(now())
   timestamp DateTime? @default(now())
-  eggs      Egg[]
 }
 
 model Egg {
@@ -503,8 +502,6 @@ model Egg {
   incubatorId Int
   amount      Int
   timestamp   DateTime? @default(now())
-  Branch      Branch?   @relation(fields: [branchId], references: [id])
-  branchId    Int?
 }
 
 model EggType {
