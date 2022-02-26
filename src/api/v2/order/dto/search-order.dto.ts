@@ -18,7 +18,7 @@ export class SearchOrderDto {
   @IsOptional()
   @Transform((val) => {
     if (val.value) {
-      return new Date(moment(val.value).format('YYYY-MM-DD'))
+      return new Date(moment(val.value).format('YYYY-MM-DD'));
     }
   })
   readonly createStartedAt: Date;
@@ -26,7 +26,7 @@ export class SearchOrderDto {
   @IsOptional()
   @Transform((val) => {
     if (val.value) {
-      return new Date(moment(val.value).format('YYYY-MM-DD'))
+      return new Date(moment(val.value).format('YYYY-MM-DD'));
     }
   })
   readonly createEndedAt: Date;
@@ -34,7 +34,7 @@ export class SearchOrderDto {
   @IsOptional()
   @Transform((val) => {
     if (val.value) {
-      return new Date(moment(val.value).format('YYYY-MM-DD'))
+      return new Date(moment(val.value).format('YYYY-MM-DD'));
     }
   })
   readonly deliveryStartedAt: Date;
@@ -42,10 +42,26 @@ export class SearchOrderDto {
   @IsOptional()
   @Transform((val) => {
     if (val.value) {
-      return new Date(moment(val.value).format('YYYY-MM-DD'))
+      return new Date(moment(val.value).format('YYYY-MM-DD'));
     }
   })
   readonly deliveryEndedAt: Date;
+
+  @IsOptional()
+  @Transform((val) => {
+    if (val.value) {
+      return new Date(moment(val.value).format('YYYY-MM-DD'));
+    }
+  })
+  readonly startedAt: Date;
+
+  @IsOptional()
+  @Transform((val) => {
+    if (val.value) {
+      return new Date(moment(val.value).format('YYYY-MM-DD'));
+    }
+  })
+  readonly endedAt: Date;
 
   @IsOptional()
   @IsString()
