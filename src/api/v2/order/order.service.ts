@@ -9,6 +9,8 @@ import {exportExcel} from "../../../core/services/export.service";
 import {SearchOrderDto} from "./dto/search-order.dto";
 import {FullOrder} from "./entities/order.entity";
 import {ItemExportDto} from "../../../common/interfaces/items-export.dto";
+import * as _ from 'lodash';
+import {Commodity} from '@prisma/client';
 
 @Injectable()
 export class OrderService {
@@ -47,10 +49,22 @@ export class OrderService {
       });
     });
 
+    const flatCommodities = _.flattenDeep(orders.map(order => order.commodities));
+    const uniqCommodities: Commodity[] = _.uniqBy(flatCommodities, "code");
+
+    const commodityUniq = uniqCommodities.map(uniq => {
+      const amount = flatCommodities.filter(flat => flat.code === uniq.code).map(c => c.amount + (c.gift || 0) + (c.more?.amount || 0)).reduce((a, b) => a + b);
+      return {
+        code: uniq.code,
+        name: uniq.name,
+        amount,
+      };
+    });
+
     return {
       total: result.total,
       data: orders,
-    };
+      commodityUniq    };
   }
 
   async findOne(id: number) {
