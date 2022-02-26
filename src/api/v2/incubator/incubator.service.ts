@@ -1,26 +1,31 @@
 import { Injectable } from '@nestjs/common';
 import { CreateIncubatorDto } from './dto/create-incubator.dto';
 import { UpdateIncubatorDto } from './dto/update-incubator.dto';
+import {IncubatorRepository} from "./incubator.repository";
+import {SearchIncubatorDto} from "./dto/search-incubator.dto";
 
 @Injectable()
 export class IncubatorService {
-  create(createIncubatorDto: CreateIncubatorDto) {
-    return 'This action adds a new incubator';
+  constructor(private readonly repository: IncubatorRepository) {
   }
 
-  findAll() {
-    return `This action returns all incubator`;
+ async create(body: CreateIncubatorDto) {
+    return await this.repository.create(body);
   }
 
-  findOne(id: number) {
-    return `This action returns a #${id} incubator`;
+  async findAll(search: SearchIncubatorDto) {
+    return await this.repository.findAll(search);
   }
 
-  update(id: number, updateIncubatorDto: UpdateIncubatorDto) {
-    return `This action updates a #${id} incubator`;
+  async findOne(id: number) {
+    return await this.repository.findOne(id);
   }
 
-  remove(id: number) {
-    return `This action removes a #${id} incubator`;
+  async update(id: number, updates: UpdateIncubatorDto) {
+    return await this.repository.update(id, updates);
+  }
+
+  async remove(id: number) {
+    return await this.repository.remove(id);
   }
 }

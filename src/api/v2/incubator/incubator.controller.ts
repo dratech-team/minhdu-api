@@ -1,7 +1,8 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete } from '@nestjs/common';
+import {Controller, Get, Post, Body, Patch, Param, Delete, Query} from '@nestjs/common';
 import { IncubatorService } from './incubator.service';
 import { CreateIncubatorDto } from './dto/create-incubator.dto';
 import { UpdateIncubatorDto } from './dto/update-incubator.dto';
+import {SearchIncubatorDto} from "./dto/search-incubator.dto";
 
 @Controller('v2/incubator')
 export class IncubatorController {
@@ -13,8 +14,8 @@ export class IncubatorController {
   }
 
   @Get()
-  findAll() {
-    return this.incubatorService.findAll();
+  findAll(@Query() search: SearchIncubatorDto) {
+    return this.incubatorService.findAll(search);
   }
 
   @Get(':id')

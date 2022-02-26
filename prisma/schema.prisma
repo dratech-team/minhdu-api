@@ -313,16 +313,21 @@ model PaymentHistory {
 }
 
 model Commodity {
-  id      Int           @id @default(autoincrement())
-  code    String
-  name    String
-  unit    CommodityUnit
-  price   Float?
-  amount  Float
-  gift    Float?        @default(0)
-  more    Float?        @default(0)
-  order   Order?        @relation(fields: [orderId], references: [id])
-  orderId Int?
+  id             Int           @id @default(autoincrement())
+  code           String
+  name           String
+  unit           CommodityUnit
+  price          Float?
+  amount         Float
+  gift           Float?        @default(0)
+  more           Float?        @default(0)
+  closed         Boolean?      @default(false)
+  order          Order?        @relation(fields: [orderId], references: [id])
+  orderId        Int?
+  route          Route?        @relation(fields: [routeId], references: [id])
+  routeId        Int?
+  OrderHistory   OrderHistory? @relation(fields: [orderHistoryId], references: [id])
+  orderHistoryId Int?
 }
 
 model CommodityTemplate {
@@ -339,8 +344,6 @@ model Order {
   endedAt          DateTime? //ngày hẹn giao
   createdBy        String?
   explain          String?
-  routes           Route[]
-  commodities      Commodity[]
   province         Province         @relation(fields: [provinceId], references: [id])
   provinceId       Int
   district         District?        @relation(fields: [districtId], references: [id])
@@ -351,24 +354,38 @@ model Order {
   hide             Boolean?         @default(false)
   total            Float?
   deleted          Boolean?         @default(false)
-  paymentHistories PaymentHistory[]
   timestamp        DateTime?        @default(now())
+  note             String?
+  orderHistories   OrderHistory[]
+  routes           Route[]
+  commodities      Commodity[]
+  paymentHistories PaymentHistory[]
+}
+
+model OrderHistory {
+  id          Int         @id @default(autoincrement())
+  order       Order       @relation(fields: [orderId], references: [id])
+  orderId     Int
+  commodities Commodity[]
+  note        String?
+  timestamp   DateTime?   @default(now())
 }
 
 model Route {
-  id         Int        @id @default(autoincrement())
-  name       String
-  startedAt  DateTime
-  endedAt    DateTime?
-  employee   Employee?  @relation(fields: [employeeId], references: [id], onDelete: Cascade)
-  employeeId Int?
-  driver     String?
-  garage     String?
-  bsx        String
-  deleted    Boolean?   @default(false)
-  orders     Order[]
-  locations  Location[]
-  timestamp  DateTime?  @default(now())
+  id          Int         @id @default(autoincrement())
+  name        String
+  startedAt   DateTime
+  endedAt     DateTime?
+  employee    Employee?   @relation(fields: [employeeId], references: [id], onDelete: Cascade)
+  employeeId  Int?
+  driver      String?
+  garage      String?
+  bsx         String
+  deleted     Boolean?    @default(false)
+  timestamp   DateTime?   @default(now())
+  orders      Order[]
+  locations   Location[]
+  commodities Commodity[]
 }
 
 model Location {
