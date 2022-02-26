@@ -77,6 +77,7 @@ export class RouteRepository {
         include: {
           orders: {
             include: {
+              commodities: true,
               customer: true,
               ward: true,
             },

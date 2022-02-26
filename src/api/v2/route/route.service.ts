@@ -1,18 +1,20 @@
-import {BadRequestException, Injectable} from "@nestjs/common";
+import {Injectable} from "@nestjs/common";
 import {CreateRouteDto} from "./dto/create-route.dto";
 import {UpdateRouteDto} from "./dto/update-route.dto";
 import {RouteRepository} from "./route.repository";
 import {Response} from "express";
 import {exportExcel} from "../../../core/services/export.service";
 import {SearchRouteDto} from "./dto/search-route.dto";
-import * as moment from "moment";
+import {OrderService} from "../order/order.service";
 
 @Injectable()
 export class RouteService {
   constructor(
     private readonly repository: RouteRepository,
+    private readonly orderService: OrderService,
   ) {
   }
+
   async create(body: CreateRouteDto) {
     return await this.repository.create(body);
   }
@@ -22,7 +24,8 @@ export class RouteService {
   }
 
   async findOne(id: number) {
-    return await this.repository.findOne(id);
+    const found = await this.repository.findOne(id);
+    return Object.assign(found, {orders: this.orderService.orderUniq(found.orders)});
   }
 
   async update(id: number, updates: UpdateRouteDto) {

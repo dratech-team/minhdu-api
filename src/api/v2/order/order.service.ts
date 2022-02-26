@@ -49,22 +49,11 @@ export class OrderService {
       });
     });
 
-    const flatCommodities = _.flattenDeep(orders.map(order => order.commodities));
-    const uniqCommodities: Commodity[] = _.uniqBy(flatCommodities, "code");
-
-    const commodityUniq = uniqCommodities.map(uniq => {
-      const amount = flatCommodities.filter(flat => flat.code === uniq.code).map(c => c.amount + (c.gift || 0) + (c.more?.amount || 0)).reduce((a, b) => a + b);
-      return {
-        code: uniq.code,
-        name: uniq.name,
-        amount,
-      };
-    });
-
     return {
       total: result.total,
       data: orders,
-      commodityUniq    };
+      commodityUniq: this.orderUniq(orders),
+    };
   }
 
   async findOne(id: number) {
@@ -116,6 +105,20 @@ export class OrderService {
     return orders
       .map((order) => this.commodityService.totalCommodities(order.commodities))
       .reduce((a, b) => a + b, 0);
+  }
+
+  orderUniq(order: FullOrder[]) {
+    const flatCommodities = _.flattenDeep(order.map(order => order.commodities));
+    const uniqCommodities: Commodity[] = _.uniqBy(flatCommodities, "code");
+
+    return uniqCommodities.map(uniq => {
+      const amount = flatCommodities.filter(flat => flat.code === uniq.code).map(c => c.amount + (c.gift || 0) + ((c.more as any)?.amount || 0)).reduce((a, b) => a + b);
+      return {
+        code: uniq.code,
+        name: uniq.name,
+        amount,
+      };
+    });
   }
 
 
