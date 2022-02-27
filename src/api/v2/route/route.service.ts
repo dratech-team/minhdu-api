@@ -24,8 +24,7 @@ export class RouteService {
   }
 
   async findOne(id: number) {
-    const found = await this.repository.findOne(id);
-    return Object.assign(found, {orders: this.orderService.orderUniq(found.orders)});
+    return await this.repository.findOne(id);
   }
 
   async update(id: number, updates: UpdateRouteDto) {

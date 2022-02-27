@@ -46,9 +46,9 @@ export class RouteRepository {
           take: search?.take,
           where: {
             name: {contains: search?.name},
-            startedAt: search?.startedAt,
+            startedAt: {gte: search?.startedAt},
             endedAt: search?.status === 1 ? {notIn: null} : search?.status === 0 ? {in: null} : undefined,
-            driver: {contains: search?.driver || undefined},
+            driver: {contains: search?.driver},
             bsx: {contains: search?.bsx},
             deleted: false
           },
@@ -57,7 +57,8 @@ export class RouteRepository {
             locations: true,
             orders: {
               include: {
-                customer: true
+                customer: true,
+                commodities: true
               }
             },
           },

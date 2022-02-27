@@ -53,6 +53,7 @@ export class OrderService {
       total: result.total,
       data: orders,
       commodityUniq: this.orderUniq(orders),
+      commodityTotal: orders.map(order => order.commodityTotal).reduce((a, b) => a + b, 0)
     };
   }
 

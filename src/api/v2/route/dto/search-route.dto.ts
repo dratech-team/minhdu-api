@@ -1,4 +1,4 @@
-import {IsNumber, IsOptional, IsString} from "class-validator";
+import {IsDate, IsNumber, IsOptional, IsString} from "class-validator";
 import {Transform, Type} from "class-transformer";
 import * as moment from "moment";
 
@@ -18,13 +18,13 @@ export class SearchRouteDto {
   readonly name: string;
 
   @IsOptional()
-  @IsNumber()
+  @IsDate()
   @Type(() => Date)
   @Transform((val) => new Date(moment(val.value).format('YYYY-MM-DD')))
   readonly startedAt: Date;
 
   @IsOptional()
-  @IsNumber()
+  @IsDate()
   @Type(() => Date)
   @Transform((val) => new Date(moment(val.value).format('YYYY-MM-DD')))
   readonly endedAt: Date;
