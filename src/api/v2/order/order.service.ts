@@ -92,14 +92,14 @@ export class OrderService {
     return this.repository.update(id, {hide: hide});
   }
 
-  async remove(id: number) {
+  async remove(id: number, canceled?: boolean) {
     const order = await this.findOne(id);
     if (order.deliveredAt) {
       throw new BadRequestException(
         "Đơn hàng đã giao thành công. Bạn không được phép xóa."
       );
     }
-    await this.repository.remove(id);
+   return  await this.repository.remove(id, canceled);
   }
 
   orderTotal(orders: FullOrder[]): number {

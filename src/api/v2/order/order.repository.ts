@@ -230,11 +230,15 @@ export class OrderRepository {
     }
   }
 
-  async remove(id: number) {
+  async remove(id: number, canceled?: boolean) {
     try {
       return await this.prisma.order.update({
         where: {id},
-        data: {deleted: true},
+        data: canceled ? {
+          canceledAt: new Date(),
+        } : {
+          deleted: true
+        },
       });
     } catch (err) {
       console.error(err);

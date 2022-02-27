@@ -55,6 +55,13 @@ export class OrderController {
 
   @UseGuards(LoggerGuard)
   @Roles(RoleEnum.SALESMAN)
+  @Delete(":id/cancel")
+  cancel(@Param("id") id: string) {
+    return this.orderService.remove(+id, true);
+  }
+
+  @UseGuards(LoggerGuard)
+  @Roles(RoleEnum.SALESMAN)
   @Delete(":id")
   remove(@Param("id") id: string) {
     return this.orderService.remove(+id);

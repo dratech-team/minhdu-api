@@ -1,7 +1,8 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete } from '@nestjs/common';
+import {Controller, Get, Post, Body, Patch, Param, Delete, Query} from '@nestjs/common';
 import { OrderHistoryService } from './order-history.service';
 import { CreateOrderHistoryDto } from './dto/create-order-history.dto';
 import { UpdateOrderHistoryDto } from './dto/update-order-history.dto';
+import {SearchOrderHistoryDto} from "./dto/search-order-history.dto";
 
 @Controller('v2/order-history')
 export class OrderHistoryController {
@@ -13,8 +14,8 @@ export class OrderHistoryController {
   }
 
   @Get()
-  findAll() {
-    return this.orderHistoryService.findAll();
+  findAll(@Query() search: SearchOrderHistoryDto) {
+    return this.orderHistoryService.findAll(search);
   }
 
   @Get(':id')

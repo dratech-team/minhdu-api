@@ -351,6 +351,7 @@ model Order {
   deliveredAt      DateTime? // ngày giao thành công
   hide             Boolean?         @default(false)
   total            Float?
+  canceledAt          DateTime?
   deleted          Boolean?         @default(false)
   timestamp        DateTime?        @default(now())
   note             String?

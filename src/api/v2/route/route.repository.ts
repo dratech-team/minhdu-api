@@ -20,6 +20,7 @@ export class RouteRepository {
           startedAt: body.startedAt,
           endedAt: body?.endedAt,
           orders: {connect: body?.orderIds?.map((id) => ({id: id}))},
+          commodities: {connect: body?.commodityIds?.map((id) => ({id: id}))},
         },
       });
     } catch (err) {
@@ -120,6 +121,7 @@ export class RouteRepository {
           startedAt: updates.startedAt,
           endedAt: updates.endedAt,
           orders: {set: updates.orderIds?.map((id) => ({id: id}))},
+          commodities: {set: updates?.commodityIds?.map((id) => ({id: id}))},
         },
       });
     } catch (err) {

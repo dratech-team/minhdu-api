@@ -1,5 +1,5 @@
 import {CommodityUnit} from "@prisma/client";
-import {IsEnum, IsNotEmpty, IsNumber, IsOptional, IsString} from "class-validator";
+import {IsBoolean, IsEnum, IsNotEmpty, IsNumber, IsOptional, IsString} from "class-validator";
 import {Type} from "class-transformer";
 
 export class CreateCommodityDto {
@@ -36,7 +36,7 @@ export class CreateCommodityDto {
   readonly more: number;
 
   @IsNotEmpty()
-  @IsNumber()
+  @IsBoolean()
   @Type(() => Boolean)
   readonly closed: boolean;
 }

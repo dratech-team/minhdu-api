@@ -40,6 +40,10 @@ export class CreateRouteDto {
   @IsArray()
   readonly orderIds: number[];
 
+  @IsOptional()
+  @IsArray()
+  readonly commodityIds: number[];
+
   @IsNotEmpty()
   @IsString()
   readonly bsx: string;
