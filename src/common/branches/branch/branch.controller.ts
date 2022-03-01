@@ -7,6 +7,7 @@ import {ApiKeyGuard} from "../../../core/guard/api-key-auth.guard";
 import {RolesGuard} from "../../../core/guard/role.guard";
 import {Roles} from "../../../core/decorators/roles.decorator";
 import {RoleEnum} from "@prisma/client";
+import {LoggerGuard} from "../../../core/guard/logger.guard";
 
 @UseGuards(JwtAuthGuard, ApiKeyGuard, RolesGuard)
 @Controller('v2/branch')
@@ -14,7 +15,7 @@ export class BranchController {
   constructor(private readonly branchService: BranchService) {
   }
 
-  @UseGuards(RolesGuard)
+  @UseGuards(LoggerGuard)
   @Roles(RoleEnum.ADMIN, RoleEnum.HUMAN_RESOURCE, RoleEnum.WAREHOUSE, RoleEnum.CAMP_ACCOUNTING)
   @Post()
   create(@Body() createBranchDto: CreateBranchDto) {
@@ -34,21 +35,21 @@ export class BranchController {
     return this.branchService.findOne(+id);
   }
 
-  @UseGuards(RolesGuard)
+  @UseGuards(LoggerGuard)
   @Roles(RoleEnum.ADMIN, RoleEnum.HUMAN_RESOURCE, RoleEnum.WAREHOUSE, RoleEnum.CAMP_ACCOUNTING)
   @Patch(':id')
   update(@Param('id') id: number, @Body() updateBranchDto: UpdateBranchDto) {
     return this.branchService.update(+id, updateBranchDto);
   }
 
-  @UseGuards(RolesGuard)
+  @UseGuards(LoggerGuard)
   @Roles(RoleEnum.ADMIN, RoleEnum.HUMAN_RESOURCE, RoleEnum.WAREHOUSE, RoleEnum.CAMP_ACCOUNTING)
   @Delete(':id')
   remove(@Param('id') id: number) {
     return this.branchService.remove(+id);
   }
 
-  @UseGuards(RolesGuard)
+  @UseGuards(LoggerGuard)
   @Roles(RoleEnum.ADMIN, RoleEnum.HUMAN_RESOURCE, RoleEnum.WAREHOUSE, RoleEnum.CAMP_ACCOUNTING)
   @Delete('/allowance/:id')
   removeAlowance(@Param('id') id: number) {
