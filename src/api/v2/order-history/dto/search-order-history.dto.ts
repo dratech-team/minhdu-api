@@ -15,4 +15,8 @@ export class SearchOrderHistoryDto {
   @IsOptional()
   @IsString()
   readonly commodity: string;
+
+  @IsOptional()
+  @IsString()
+  readonly content: string;
 }

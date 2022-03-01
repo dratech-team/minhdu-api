@@ -156,7 +156,7 @@ export class PayrollRepository {
               },
               branch: {
                 id: profile.branches?.length ? {in: profile.branches.map(branch => branch.id)} : {},
-                name: {startsWith: search?.branch, mode: "insensitive"},
+                name: !profile.branches?.length ? {startsWith: search?.branch, mode: "insensitive"} : {},
               },
               lastName: {contains: search?.name, mode: "insensitive"},
               type: search?.employeeType ? {in: search?.employeeType} : {}
@@ -180,7 +180,7 @@ export class PayrollRepository {
               },
               branch: {
                 id: profile.branches?.length ? {in: profile.branches.map(branch => branch.id)} : {},
-                name: {startsWith: search?.branch, mode: "insensitive"},
+                name: !profile.branches?.length ? {startsWith: search?.branch, mode: "insensitive"} : {},
               },
               lastName: {contains: search?.name, mode: "insensitive"},
               type: search?.employeeType ? {in: search?.employeeType} : {}
@@ -244,6 +244,13 @@ export class PayrollRepository {
                   : search.filterType as SalaryType
             }
             : {},
+          payroll: {
+            employee: {
+              branch: {
+                id: profile.branches?.length ? {in: profile.branches.map(branch => branch.id)} : {}
+              }
+            }
+          }
         },
       }),
       this.prisma.salary.findMany({
@@ -270,6 +277,13 @@ export class PayrollRepository {
                   : search.filterType as SalaryType
             }
             : {},
+          payroll: {
+            employee: {
+              branch: {
+                id: profile.branches?.length ? {in: profile.branches.map(branch => branch.id)} : {}
+              }
+            }
+          }
         },
         include: {
           payroll: {

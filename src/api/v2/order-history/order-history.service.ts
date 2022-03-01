@@ -18,14 +18,16 @@ export class OrderHistoryService {
       const [total, data] = await Promise.all([
         this.prisma.orderHistory.count({
           where: {
-            type: {startsWith: search.commodity, mode: "insensitive"}
+            type: {startsWith: search.commodity, mode: "insensitive"},
+            note: {contains: search?.content, mode: "insensitive"},
           }
         }),
         this.prisma.orderHistory.findMany({
           take: search?.take,
           skip: search?.skip,
           where: {
-            type: {startsWith: search.commodity, mode: "insensitive"}
+            type: {startsWith: search.commodity, mode: "insensitive"},
+            note: {contains: search?.content, mode: "insensitive"},
           }
         }),
       ]);

@@ -72,12 +72,13 @@ export class EmployeeController {
   @Roles(RoleEnum.ADMIN, RoleEnum.HUMAN_RESOURCE, RoleEnum.CAMP_ACCOUNTING)
   @Get('/salary/overtime')
   async findEmployeeByOvertime(
+    @ReqProfile() profile: ProfileEntity,
     @Query("title") title: string,
     @Query("datetime", ParseDatetimePipe) datetime: any,
     @Query("unit") unit: DatetimeUnit,
     @Query("times") times: number,
   ) {
-    return await this.employeeService.findEmployeesByOvertime({title, datetime, unit, times: +times});
+    return await this.employeeService.findEmployeesByOvertime(profile, {title, datetime, unit, times: +times});
   }
 
   @Roles(RoleEnum.ADMIN, RoleEnum.HUMAN_RESOURCE, RoleEnum.CAMP_ACCOUNTING)

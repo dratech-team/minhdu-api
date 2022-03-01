@@ -3,6 +3,7 @@ import {PrismaService} from "../../../prisma.service";
 import {CreateOvertimeTemplateDto} from "./dto/create-overtime-template.dto";
 import {SearchOvertimeTemplateDto} from "./dto/search-overtime-template.dto";
 import {UpdateOvertimeTemplateDto} from "./dto/update-overtime-template.dto";
+import {ProfileEntity} from "../../../common/entities/profile.entity";
 
 @Injectable()
 export class OvertimeTemplateRepository {
@@ -38,6 +39,7 @@ export class OvertimeTemplateRepository {
   async findAll(
     take: number,
     skip: number,
+    profile: ProfileEntity,
     search: Partial<SearchOvertimeTemplateDto>
   ) {
     try {
@@ -48,7 +50,11 @@ export class OvertimeTemplateRepository {
             price: search?.price ? {in: search?.price} : {},
             unit: {in: search?.unit || undefined},
             AND: {
-              branch: {id: search?.branchId || undefined},
+              branch: profile.branches?.length
+                ? {id: {in: profile.branches.map(branch => branch.id)}}
+                : !profile.branches?.length && search?.branchId
+                  ? {id: search.branchId}
+                  : {},
               positions: search?.positionIds?.length
                 ? {
                   some: {id: {in: search?.positionIds}},
@@ -65,7 +71,11 @@ export class OvertimeTemplateRepository {
             price: search?.price ? {in: search?.price} : {},
             unit: {in: search?.unit || undefined},
             AND: {
-              branch: {id: search?.branchId || undefined},
+              branch: profile.branches?.length
+                ? {id: {in: profile.branches.map(branch => branch.id)}}
+                : !profile.branches?.length && search?.branchId
+                  ? {id: search.branchId}
+                  : {},
               positions: search?.positionIds?.length
                 ? {
                   some: {id: {in: search?.positionIds}},

@@ -5,6 +5,7 @@ import {UpdateHolidayDto} from "./dto/update-holiday.dto";
 import {SearchHolidayDto} from "./dto/search-holiday.dto";
 import {firstDatetime, lastDatetime} from "../../../utils/datetime.util";
 import {Position, SalaryType} from "@prisma/client";
+import {ProfileEntity} from "../../../common/entities/profile.entity";
 
 @Injectable()
 export class HolidayRepository {
@@ -48,10 +49,16 @@ export class HolidayRepository {
     }
   }
 
-  async findAll(take: number, skip: number, search: Partial<SearchHolidayDto>) {
+  async findAll(take: number, skip: number, profile: ProfileEntity, search: Partial<SearchHolidayDto>) {
     try {
       const [total, data] = await Promise.all([
-        this.prisma.holiday.count(),
+        this.prisma.holiday.count({
+          where: {
+            name: {startsWith: search?.name},
+            datetime: search?.datetime || undefined,
+            rate: search?.rate || undefined,
+          },
+        }),
         this.prisma.holiday.findMany({
           take: take || undefined,
           skip: skip || undefined,

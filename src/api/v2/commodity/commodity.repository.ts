@@ -96,7 +96,7 @@ export class CommodityRepository {
             data: {
               order: {connect: {id: commodity?.orderId}},
               type: commodity.name,
-              note: updownBuy ? updownBuy : '' + updownGift ? '. ' + updownGift : '' + '. ' + updownMore ? updownMore : '',
+              note: updownBuy ? updownBuy : '' + updownGift + '. ' ? updownGift + '. ' : '' + updownMore ? updownMore : '',
             }
           });
         }

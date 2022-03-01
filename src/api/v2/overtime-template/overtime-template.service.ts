@@ -3,6 +3,7 @@ import {CreateOvertimeTemplateDto} from "./dto/create-overtime-template.dto";
 import {SearchOvertimeTemplateDto} from "./dto/search-overtime-template.dto";
 import {UpdateOvertimeTemplateDto} from "./dto/update-overtime-template.dto";
 import {OvertimeTemplateRepository} from "./overtime-template.repository";
+import {ProfileEntity} from "../../../common/entities/profile.entity";
 
 @Injectable()
 export class OvertimeTemplateService {
@@ -16,6 +17,7 @@ export class OvertimeTemplateService {
   async findAll(
     take: number,
     skip: number,
+    profile: ProfileEntity,
     search: Partial<SearchOvertimeTemplateDto>
   ) {
     const positionIds = (search?.positionIds || search?.positionIds?.length)
@@ -23,7 +25,7 @@ export class OvertimeTemplateService {
         ? search?.positionIds?.map(id => Number(id))
         : Array.of(search?.positionIds).map(positionId => Number(positionId))
       : [];
-    return await this.repository.findAll(take, skip, Object.assign(search, {positionIds}));
+    return await this.repository.findAll(take, skip, profile, Object.assign(search, {positionIds}));
   }
 
   async findFirst(query: any) {

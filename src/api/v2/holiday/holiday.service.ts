@@ -4,6 +4,7 @@ import {UpdateHolidayDto} from './dto/update-holiday.dto';
 import {HolidayRepository} from "./holiday.repository";
 import {SearchHolidayDto} from "./dto/search-holiday.dto";
 import {Position} from "@prisma/client";
+import {ProfileEntity} from "../../../common/entities/profile.entity";
 
 @Injectable()
 export class HolidayService {
@@ -14,8 +15,8 @@ export class HolidayService {
     return await this.repository.create(body);
   }
 
-  async findAll(take: number, skip: number, search: Partial<SearchHolidayDto>) {
-    return await this.repository.findAll(take, skip, search);
+  async findAll(take: number, skip: number, profile: ProfileEntity, search: Partial<SearchHolidayDto>) {
+    return await this.repository.findAll(take, skip, profile, search);
   }
 
   async findOne(id: number, search?: Partial<SearchHolidayDto>) {

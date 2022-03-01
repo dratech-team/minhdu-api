@@ -12,6 +12,7 @@ import {ApiKeyGuard} from "../../../core/guard/api-key-auth.guard";
 import {RolesGuard} from "../../../core/guard/role.guard";
 import {Roles} from "../../../core/decorators/roles.decorator";
 import {UpdateManySalaryDto} from "./dto/update-many-salary.dto";
+import {LoggerGuard} from "../../../core/guard/logger.guard";
 
 @UseGuards(JwtAuthGuard, ApiKeyGuard, RolesGuard)
 @Controller("v2/salary")
@@ -19,6 +20,7 @@ export class SalaryController {
   constructor(private readonly salaryService: SalaryService) {
   }
 
+  @UseGuards(LoggerGuard)
   @Roles(RoleEnum.CAMP_ACCOUNTING, RoleEnum.HUMAN_RESOURCE, RoleEnum.ADMIN)
   @Post()
   async create(@Body() createSalaryDto: CreateSalaryDto) {
@@ -45,18 +47,21 @@ export class SalaryController {
     return this.salaryService.findOne(+id);
   }
 
+  @UseGuards(LoggerGuard)
   @Roles(RoleEnum.CAMP_ACCOUNTING, RoleEnum.HUMAN_RESOURCE)
   @Patch(":id")
   async update(@Param("id") id: string, @Body() updateSalaryDto: UpdateSalaryDto) {
     return await this.salaryService.update(+id, updateSalaryDto);
   }
 
+  @UseGuards(LoggerGuard)
   @Roles(RoleEnum.CAMP_ACCOUNTING, RoleEnum.HUMAN_RESOURCE)
   @Patch("salaries/ids")
   async updateMany(@ReqProfile() profile: ProfileEntity, @Param("id") id: number, @Body() updateSalaryDto: UpdateManySalaryDto) {
     return await this.salaryService.updateMany(profile, +id, updateSalaryDto);
   }
 
+  @UseGuards(LoggerGuard)
   @Roles(RoleEnum.HUMAN_RESOURCE)
   @Delete(":id")
   remove(@Param("id") id: string) {

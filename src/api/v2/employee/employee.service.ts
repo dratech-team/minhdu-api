@@ -25,8 +25,8 @@ export class EmployeeService {
     return await this.repository.findAll(profile, skip, take, search);
   }
 
-  async findEmployeesByOvertime(search: SearchEmployeeByOvertimeDto) {
-    const salaries = await this.repository.findEmployeesByOvertime(search);
+  async findEmployeesByOvertime(profile: ProfileEntity, search: SearchEmployeeByOvertimeDto) {
+    const salaries = await this.repository.findEmployeesByOvertime(profile, search);
     return salaries.map(salary => {
       return {
         employee: salary.payroll.employee,
@@ -52,8 +52,8 @@ export class EmployeeService {
       employee.contracts[0]?.createdAt && employee.contracts[0]?.expiredAt
         ? "Có thời hạn"
         : employee.contracts[0]?.createdAt && !employee.contracts[0]?.expiredAt
-          ? "Vô  thời hạn"
-          : "Chưa có hợp đồng";
+        ? "Vô  thời hạn"
+        : "Chưa có hợp đồng";
 
     const salaryHistories = employee.salaryHistories.map(salary => Object.assign(salary, {datetime: salary.timestamp}));
     return Object.assign(employee, {contractType: contactType, salaryHistories});

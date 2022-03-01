@@ -5,9 +5,8 @@ import {CreateEmployeeDto} from "./dto/create-employee.dto";
 import {SearchEmployeeDto} from "./dto/search-employee.dto";
 import {UpdateEmployeeDto} from "./dto/update-employee.dto";
 import {firstDatetime, lastDatetime} from "../../../utils/datetime.util";
-import {EmployeeType, RecipeType} from "@prisma/client";
+import {EmployeeType} from "@prisma/client";
 import {SearchEmployeeByOvertimeDto} from "./dto/search-employee-by-overtime.dto";
-import * as faker from "faker";
 
 @Injectable()
 export class EmployeeRepository {
@@ -107,7 +106,7 @@ export class EmployeeRepository {
             },
             branch: {
               id: profile.branches?.length ? {in: profile.branches.map(branch => branch.id)} : {},
-              name: {startsWith: search?.branch, mode: "insensitive"},
+              name: !profile.branches?.length ? {startsWith: search?.branch, mode: "insensitive"} : {},
             },
             positionId: positionIds?.length ? {in: positionIds} : {},
             lastName: {contains: search?.name, mode: "insensitive"},
@@ -150,7 +149,7 @@ export class EmployeeRepository {
             },
             branch: {
               id: profile.branches?.length ? {in: profile.branches.map(branch => branch.id)} : {},
-              name: {startsWith: search?.branch, mode: "insensitive"},
+              name: !profile.branches?.length ? {startsWith: search?.branch, mode: "insensitive"} : {},
             },
             positionId: positionIds?.length ? {in: positionIds} : {},
             lastName: {contains: search?.name, mode: "insensitive"},
@@ -205,7 +204,7 @@ export class EmployeeRepository {
     }
   }
 
-  async findEmployeesByOvertime(search: SearchEmployeeByOvertimeDto) {
+  async findEmployeesByOvertime(profile: ProfileEntity, search: SearchEmployeeByOvertimeDto) {
     if (!(search?.title || search?.times || search?.datetime || search?.unit)) {
       throw new BadRequestException(`[DEVELOPMENT] {title, times, datetime, unit} NOT NULL `);
     }
@@ -216,6 +215,9 @@ export class EmployeeRepository {
         title: search.title,
         unit: search.unit,
         times: search.times,
+        branch: {
+          id: profile.branches?.length ? {in: profile.branches.map(branch => branch.id)} : {},
+        },
       },
       include: {
         payroll: {
