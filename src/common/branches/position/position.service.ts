@@ -12,9 +12,6 @@ export class PositionService {
   }
 
   async create(body: CreatePositionDto): Promise<Position> {
-    if(body?.positionId && body.workday) {
-      return await this.update(body.positionId, {workday: body.workday});
-    }
     return await this.repository.create(body);
   }
 

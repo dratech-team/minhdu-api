@@ -20,7 +20,7 @@ export class PositionRepository {
         },
       });
 
-      if (body.branchId) {
+      if (body?.branchId) {
         await this.prisma.branch.update({
           where: {id: body.branchId},
           data: {
@@ -89,7 +89,11 @@ export class PositionRepository {
     try {
       return await this.prisma.position.update({
         where: {id: id},
-        data: updates,
+        data: {
+          name: updates?.name,
+          workday: updates?.workday,
+          branches: updates?.branchId ? {connect: {id: updates.branchId}} : {},
+        },
       });
     } catch (e) {
       throw new BadRequestException(e);

@@ -20,12 +20,10 @@ export class EmployeeRepository {
       });
 
       // Nếu tạo nhân viên có workday thuộc position này nhưng khác ngày công chuẩn thì cập nhật lại ngày công chuẩn cho position đó
-      if (position.name && body.workday !== position.workday) {
-        this.prisma.position.update({
-          where: {id: body.positionId},
-          data: {workday: body.workday},
-        });
-      }
+      await this.prisma.position.update({
+        where: {id: body.positionId},
+        data: {workday: body.workday},
+      });
       return await this.prisma.employee.create({
         data: {
           lastName: body.lastName,
