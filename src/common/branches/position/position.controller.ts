@@ -23,11 +23,13 @@ export class PositionController {
     return this.positionService.create(createPositionDto);
   }
 
+  @Roles(RoleEnum.ADMIN, RoleEnum.HUMAN_RESOURCE, RoleEnum.WAREHOUSE, RoleEnum.CAMP_ACCOUNTING)
   @Get()
   findAll(@Query() search: SearchPositionDto) {
     return this.positionService.findAll(search);
   }
 
+  @Roles(RoleEnum.ADMIN, RoleEnum.HUMAN_RESOURCE, RoleEnum.WAREHOUSE, RoleEnum.CAMP_ACCOUNTING)
   @Get(':id')
   findOne(@Param('id') id: string) {
     return this.positionService.findOne(+id);

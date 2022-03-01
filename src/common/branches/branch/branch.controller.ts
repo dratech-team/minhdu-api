@@ -21,12 +21,14 @@ export class BranchController {
     return this.branchService.create(createBranchDto);
   }
 
+  @Roles(RoleEnum.ADMIN, RoleEnum.HUMAN_RESOURCE, RoleEnum.WAREHOUSE, RoleEnum.CAMP_ACCOUNTING)
   @Get()
   findAll() {
     return this.branchService.findAll();
   }
 
 
+  @Roles(RoleEnum.ADMIN, RoleEnum.HUMAN_RESOURCE, RoleEnum.WAREHOUSE, RoleEnum.CAMP_ACCOUNTING)
   @Get(':id')
   async findOne(@Param('id') id: number) {
     return this.branchService.findOne(+id);
