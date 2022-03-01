@@ -14,10 +14,11 @@ export class LoggerService {
   }
 
   async findAll(profile: ProfileEntity, take: number, skip: number) {
+    const account = await this.prisma.account.findUnique({where: {id: profile.id}});
     const [total, data] = await Promise.all([
       this.prisma.systemHistory.count({
         where: {
-          appName: {in: profile.appName}
+          appName: {in: account.appName}
         }
       }),
       this.prisma.systemHistory.findMany({
@@ -25,7 +26,7 @@ export class LoggerService {
         skip: skip || undefined,
         orderBy: {createdAt: "desc"},
         where: {
-          appName: {in: profile.appName}
+          appName: {in: account.appName}
         },
       }),
     ]);
