@@ -41,7 +41,6 @@ export class PayrollController {
     RoleEnum.HUMAN_RESOURCE,
     RoleEnum.CAMP_ACCOUNTING,
     RoleEnum.CAMP_MANAGER,
-    RoleEnum.ACCOUNTANT_CASH_FUND
   )
   findAll(
     @ReqProfile() profile: ProfileEntity,
@@ -83,7 +82,7 @@ export class PayrollController {
   }
 
   @UseGuards(LoggerGuard)
-  @Roles(RoleEnum.HUMAN_RESOURCE)
+  @Roles(RoleEnum.HUMAN_RESOURCE, RoleEnum.CAMP_ACCOUNTING)
   @Patch("restore/:id")
   restorePayslip(@ReqProfile() profile: ProfileEntity, @Param("id") id: number) {
     return this.payrollService.restorePayslip(profile, +id);
@@ -95,7 +94,6 @@ export class PayrollController {
     RoleEnum.HUMAN_RESOURCE,
     RoleEnum.CAMP_ACCOUNTING,
     RoleEnum.CAMP_MANAGER,
-    RoleEnum.ACCOUNTANT_CASH_FUND
   )
   @Delete(":id")
   remove(@Param("id") id: number) {
