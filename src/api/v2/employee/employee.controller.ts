@@ -21,9 +21,12 @@ export class EmployeeController {
   }
 
   @UseGuards(LoggerGuard)
-  @Roles(RoleEnum.ADMIN, RoleEnum.HUMAN_RESOURCE)
+  @Roles(RoleEnum.ADMIN, RoleEnum.HUMAN_RESOURCE, RoleEnum.CAMP_ACCOUNTING)
   @Post()
-  create(@Body() createEmployeeDto: CreateEmployeeDto) {
+  create(
+    @ReqProfile() profile: ProfileEntity,
+    @Body() createEmployeeDto: CreateEmployeeDto
+  ) {
     return this.employeeService.create(createEmployeeDto);
   }
 
