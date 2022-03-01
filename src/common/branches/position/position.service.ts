@@ -12,13 +12,10 @@ export class PositionService {
   }
 
   async create(body: CreatePositionDto): Promise<Position> {
-    const found = await this.findOne(body.positionId);
-    const positions = this.findAll({position: found.name, workday: body.workday});
-    if (!(await positions).length && body.name) {
-      return await this.repository.create(body);
-    } else if (body.positionId && body.workday) {
+    if(body?.positionId && body.workday) {
       return await this.update(body.positionId, {workday: body.workday});
     }
+    return await this.repository.create(body);
   }
 
   async findAll(search: Partial<SearchPositionDto>): Promise<Position[]> {
