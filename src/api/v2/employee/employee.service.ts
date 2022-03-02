@@ -72,7 +72,7 @@ export class EmployeeService {
     return this.repository.leave(id, leftAt);
   }
 
-  async remove(id: number) {
-    return this.repository.remove(id);
+  async remove(id: number, workHistory?: boolean) {
+    return this.repository.remove(id, workHistory);
   }
 }

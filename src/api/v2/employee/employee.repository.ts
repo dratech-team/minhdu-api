@@ -419,10 +419,14 @@ export class EmployeeRepository {
     }
   }
 
-  async remove(id: number) {
+  async remove(id: number, workHistory: boolean) {
     try {
       // return await this.prisma.employee.delete({where: {id}});
-
+      if (workHistory) {
+        return await this.prisma.workHistory.delete({
+          where: {id}
+        });
+      }
       throw new BadRequestException('Điều này sẽ làm mất đi toàn bộ thông tin của nhân viên bao gồm phiếu lương, thông tin nhân viên và hàng loạt những thông tin khác. Vì vậy chức năng này chưa được phép sử dụng..');
     } catch (err) {
       console.error(err);
