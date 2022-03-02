@@ -169,7 +169,7 @@ model Employee {
   religion        String?
   ethnicity       String?
   mst             String?
-  createdAt       DateTime?       @default() //Ngày thử việc (vào làm)
+  createdAt       DateTime? //Ngày thử việc (vào làm)
   workedAt        DateTime? //Ngày làm chính thức
   leftAt          DateTime?
   isFlatSalary    Boolean?        @default(false)
