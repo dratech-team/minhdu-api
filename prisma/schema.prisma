@@ -109,9 +109,10 @@ model Branch {
   id                Int                @id @default(autoincrement())
   code              String?            @unique
   name              String             @unique
+  recipe            RecipeType?
+  timestamp         DateTime?          @default(now())
   employees         Employee[]
   overtimeTemplates OvertimeTemplate[]
-  timestamp         DateTime?          @default(now())
   workHistories     WorkHistory[]
   Account           Account[]
   allowances        Salary[]
@@ -351,7 +352,7 @@ model Order {
   deliveredAt      DateTime? // ngày giao thành công
   hide             Boolean?         @default(false)
   total            Float?
-  canceledAt          DateTime?
+  canceledAt       DateTime?
   deleted          Boolean?         @default(false)
   timestamp        DateTime?        @default(now())
   note             String?

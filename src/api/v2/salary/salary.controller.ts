@@ -62,7 +62,7 @@ export class SalaryController {
   }
 
   @UseGuards(LoggerGuard)
-  @Roles(RoleEnum.HUMAN_RESOURCE)
+  @Roles(RoleEnum.HUMAN_RESOURCE, RoleEnum.CAMP_ACCOUNTING)
   @Delete(":id")
   remove(@Param("id") id: string) {
     return this.salaryService.remove(+id);
