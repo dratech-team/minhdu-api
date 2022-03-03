@@ -115,7 +115,7 @@ export class EmployeeController {
   }
 
   @UseGuards(LoggerGuard)
-  @Roles(RoleEnum.ADMIN, RoleEnum.CAMP_ACCOUNTING)
+  @Roles(RoleEnum.ADMIN, RoleEnum.HUMAN_RESOURCE, RoleEnum.CAMP_ACCOUNTING)
   @Delete(":id/work-history")
   removeWorkHistory(@Param("id") id: number) {
     return this.employeeService.remove(+id, true);
