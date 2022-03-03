@@ -21,14 +21,14 @@ export class PositionRepository {
         },
       });
 
-      body?.branchIds.forEach(branchId => {
+      Promise.all(body?.branchIds?.map(async branchId => {
         this.prisma.branch.update({
           where: {id: branchId},
           data: {
             positions: {connect: {id: position.id}}
           }
         }).then();
-      });
+      })).then();
 
       return position;
     } catch (e) {
