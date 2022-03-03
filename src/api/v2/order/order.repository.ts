@@ -186,7 +186,11 @@ export class OrderRepository {
             deleted: false,
           },
           include: {
-            commodities: true,
+            commodities: {
+              include: {
+                route: true
+              }
+            },
             customer: true,
             routes: true,
             province: true,

@@ -1,4 +1,4 @@
-import {IsDate, IsNumber, IsOptional, IsString} from "class-validator";
+import {IsBoolean, IsDate, IsNumber, IsOptional, IsString} from "class-validator";
 import {Transform, Type} from "class-transformer";
 import * as moment from "moment";
 
@@ -41,4 +41,9 @@ export class SearchRouteDto {
   @IsNumber()
   @Type(() => Number)
   readonly status: 0 | 1
+
+  @IsOptional()
+  @IsBoolean()
+  @Type(() => Boolean)
+  readonly isRoute: boolean
 }

@@ -48,7 +48,6 @@ export class OrderService {
         }),
       });
     });
-
     return {
       total: result.total,
       data: orders,
@@ -99,7 +98,7 @@ export class OrderService {
         "Đơn hàng đã giao thành công. Bạn không được phép xóa."
       );
     }
-   return  await this.repository.remove(id, canceled);
+    return await this.repository.remove(id, canceled);
   }
 
   orderTotal(orders: FullOrder[]): number {

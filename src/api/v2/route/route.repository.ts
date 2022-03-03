@@ -39,6 +39,11 @@ export class RouteRepository {
             endedAt: search?.status === 1 ? {notIn: null} : search?.status === 0 ? {in: null} : undefined,
             driver: {contains: search?.driver},
             bsx: {contains: search?.bsx},
+            commodities: {
+              every: {
+                routeId: {in: null}
+              }
+            },
             deleted: false
           },
         }),
@@ -51,6 +56,11 @@ export class RouteRepository {
             endedAt: search?.status === 1 ? {notIn: null} : search?.status === 0 ? {in: null} : undefined,
             driver: {contains: search?.driver},
             bsx: {contains: search?.bsx},
+            commodities: {
+              every: {
+                routeId: {in: null}
+              },
+            },
             deleted: false
           },
           include: {
