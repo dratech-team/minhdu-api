@@ -295,13 +295,7 @@ export class EmployeeRepository {
             },
           },
           salaryHistories: true,
-          workHistories: {
-            select: {
-              branch: {select: {name: true}},
-              position: {select: {name: true}},
-              createdAt: true
-            }
-          },
+          workHistories: true,
         },
       });
     } catch (e) {
