@@ -17,17 +17,18 @@ export class PositionRepository {
         data: {
           name: body.name,
           workday: body.workday,
+          branches: {connect: body.branchIds.map(id => ({id: +id}))},
         },
       });
 
-      if (body?.branchId) {
-        await this.prisma.branch.update({
-          where: {id: body.branchId},
+      body?.branchIds.forEach(branchId => {
+        this.prisma.branch.update({
+          where: {id: branchId},
           data: {
             positions: {connect: {id: position.id}}
           }
-        });
-      }
+        }).then();
+      });
 
       return position;
     } catch (e) {
@@ -65,6 +66,7 @@ export class PositionRepository {
         include: {
           employees: true,
           templates: true,
+          branches: true,
         },
       });
     } catch (e) {
@@ -92,7 +94,7 @@ export class PositionRepository {
         data: {
           name: updates?.name,
           workday: updates?.workday,
-          branches: updates?.branchId ? {connect: {id: updates.branchId}} : {},
+          branches: {set: updates.branchIds.map((id) => ({id: +id}))}
         },
       });
     } catch (e) {

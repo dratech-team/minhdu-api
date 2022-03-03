@@ -6,7 +6,6 @@ import {SearchEmployeeDto} from "./dto/search-employee.dto";
 import {ProfileEntity} from "../../../common/entities/profile.entity";
 import {SearchEmployeeByOvertimeDto} from "./dto/search-employee-by-overtime.dto";
 
-
 @Injectable()
 export class EmployeeService {
   constructor(private readonly repository: EmployeeRepository) {

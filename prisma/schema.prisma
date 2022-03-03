@@ -440,12 +440,11 @@ model WorkHistory {
 }
 
 model Payroll {
-  id             Int       @id @default(autoincrement())
-  salaries       Salary[]
-  employee       Employee  @relation(fields: [employeeId], references: [id], onDelete: Cascade)
+  id             Int        @id @default(autoincrement())
+  employee       Employee   @relation(fields: [employeeId], references: [id], onDelete: Cascade)
   employeeId     Int
   accConfirmedAt DateTime?
-  isEdit         Boolean?  @default(true)
+  isEdit         Boolean?   @default(true)
   manConfirmedAt DateTime?
   paidAt         DateTime?
   actualday      Float? // Tổng số ngày làm thực tế
@@ -454,9 +453,12 @@ model Payroll {
   branch         String?
   position       String?
   total          Float?
-  taxed          Boolean?  @default(true)
-  createdAt      DateTime? @default(now()) // ngay tao phieu luong, phieu luong cua thang
-  timestamp      DateTime? @default(now()) // ngay them vao ghi lai lich su
+  isFlatSalary   Boolean?
+  recipe         RecipeType?
+  salaries       Salary[]
+  taxed          Boolean?   @default(true)
+  createdAt      DateTime?  @default(now()) // ngay tao phieu luong, phieu luong cua thang
+  timestamp      DateTime?  @default(now()) // ngay them vao ghi lai lich su
 }
 
 // warehouse

@@ -1,5 +1,6 @@
 import { Type } from "class-transformer";
 import {
+  IsArray,
   IsNotEmpty,
   IsNumber,
   IsOptional,
@@ -14,8 +15,8 @@ export class CreatePositionDto {
 
   @Type(() => Number)
   @IsOptional()
-  @IsNumber()
-  readonly branchId: number;
+  @IsArray()
+  readonly branchIds: number[];
 
   @IsNotEmpty()
   @IsString()
