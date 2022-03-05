@@ -3,6 +3,7 @@ import {CreateBranchDto} from "./dto/create-branch.dto";
 import {Branch} from "@prisma/client";
 import {BranchRepository} from "./branch.repository";
 import {UpdateBranchDto} from "./dto/update-branch.dto";
+import {ProfileEntity} from "../../entities/profile.entity";
 
 @Injectable()
 export class BranchService {
@@ -13,8 +14,8 @@ export class BranchService {
     return await this.repository.create(body);
   }
 
-  async findAll() {
-    const branches = await this.repository.findAll();
+  async findAll(profile: ProfileEntity) {
+    const branches = await this.repository.findAll(profile);
     return await Promise.all(
       branches.map(async branch => Object.assign(branch, {_count: Object.assign(branch._count, {employeeLeft: await this.repository.count(branch.id, true)})}))
     );

@@ -3,6 +3,7 @@ import {PrismaService} from "../../../prisma.service";
 import {CreateBranchDto} from "./dto/create-branch.dto";
 import {Branch} from "@prisma/client";
 import {UpdateBranchDto} from "./dto/update-branch.dto";
+import {ProfileEntity} from "../../entities/profile.entity";
 
 @Injectable()
 export class BranchRepository {
@@ -26,9 +27,14 @@ export class BranchRepository {
     }
   }
 
-  async findAll() {
+  async findAll(profile: ProfileEntity) {
     try {
+      const acc = await this.prisma.account.findUnique({where: {id: profile.id}, include: {branches: true}});
+
       return await this.prisma.branch.findMany({
+        where: {
+          name: acc.branches.length ? {in: acc.branches.map(branch => branch.name)} : {}
+        },
         include: {
           positions: true,
           _count: true,

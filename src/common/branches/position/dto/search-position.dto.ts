@@ -9,5 +9,10 @@ export class SearchPositionDto {
   @IsOptional()
   @IsNumber()
   @Type(() => Number)
+  readonly branchId: number;
+
+  @IsOptional()
+  @IsNumber()
+  @Type(() => Number)
   readonly workday: number;
 }

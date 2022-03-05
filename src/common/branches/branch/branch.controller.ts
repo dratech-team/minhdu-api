@@ -8,6 +8,8 @@ import {RolesGuard} from "../../../core/guard/role.guard";
 import {Roles} from "../../../core/decorators/roles.decorator";
 import {RoleEnum} from "@prisma/client";
 import {LoggerGuard} from "../../../core/guard/logger.guard";
+import {ReqProfile} from "../../../core/decorators/req-profile.decorator";
+import {ProfileEntity} from "../../entities/profile.entity";
 
 @UseGuards(JwtAuthGuard, ApiKeyGuard, RolesGuard)
 @Controller('v2/branch')
@@ -24,8 +26,8 @@ export class BranchController {
 
   @Roles(RoleEnum.ADMIN, RoleEnum.HUMAN_RESOURCE, RoleEnum.WAREHOUSE, RoleEnum.CAMP_ACCOUNTING)
   @Get()
-  findAll() {
-    return this.branchService.findAll();
+  findAll(@ReqProfile() profile: ProfileEntity) {
+    return this.branchService.findAll(profile);
   }
 
 
