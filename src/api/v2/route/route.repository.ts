@@ -10,6 +10,20 @@ export class RouteRepository {
   }
 
   async create(body: CreateRouteDto) {
+    let orderIds: number[];
+    let commodityIds: number[];
+
+    if (body?.commodityIds?.length && !body?.orderIds?.length) {
+      const commodities = await Promise.all(body.commodityIds.map(async commodityId => {
+        return await this.prisma.commodity.findUnique({where: {id: commodityId}});
+      }));
+      orderIds = commodities.map(commodity => commodity.orderId);
+    }
+
+    if (body?.orderIds?.length && !body?.commodityIds?.length) {
+
+    }
+
     try {
       return await this.prisma.route.create({
         data: {
@@ -19,7 +33,7 @@ export class RouteRepository {
           bsx: body.bsx,
           startedAt: body.startedAt,
           endedAt: body?.endedAt,
-          orders: {connect: body?.orderIds?.map((id) => ({id: id}))},
+          orders: body?.orderIds?.length ? {connect: body.orderIds.map((id) => ({id: id}))} : {connect: orderIds?.map(id => ({id}))},
           commodities: {connect: body?.commodityIds?.map((id) => ({id: id}))},
         },
       });
@@ -133,6 +147,17 @@ export class RouteRepository {
           orders: {set: updates.orderIds?.map((id) => ({id: id}))},
           commodities: {set: updates?.commodityIds?.map((id) => ({id: id}))},
         },
+        include: {
+          orders: {
+            include: {
+              commodities: true,
+              customer: true,
+              ward: true,
+            },
+          },
+          locations: true,
+          employee: true,
+        }
       });
     } catch (err) {
       console.error(err);

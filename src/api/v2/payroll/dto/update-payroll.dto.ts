@@ -1,4 +1,4 @@
-import {IsBoolean, IsDate, IsNumber, IsOptional} from "class-validator";
+import {IsBoolean, IsDate, IsNumber, IsOptional, IsString} from "class-validator";
 import {Transform, Type} from "class-transformer";
 
 export class UpdatePayrollDto {
@@ -37,4 +37,8 @@ export class UpdatePayrollDto {
   @Type(() => Number)
   @IsNumber()
   readonly actualday?: number;
+
+  @IsOptional()
+  @IsString()
+  readonly note?: string;
 }

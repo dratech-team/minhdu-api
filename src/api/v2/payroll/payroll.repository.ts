@@ -359,27 +359,16 @@ export class PayrollRepository {
     try {
       // Chỉ xác nhận khi phiếu lương có tồn tại giá trị
       const payroll = await this.findOne(id);
-      if (!payroll.salaries.length) {
-        throw new BadRequestException(`Không thể xác nhận phiếu lương rỗng`);
-      } else {
-        const salaries = payroll.salaries.filter(
-          (salary) =>
-            salary.type === SalaryType.BASIC_INSURANCE || SalaryType.BASIC
-        );
-        if (!salaries.length) {
-          throw new BadRequestException(
-            `Không thể xác nhận phiếu lương có lương cơ bản rỗng`
-          );
+      if ((updates?.manConfirmedAt || updates?.accConfirmedAt)) {
+        if (!payroll.salaries.length) {
+          throw new BadRequestException(`Không thể xác nhận phiếu lương rỗng`);
+        }
+        if (payroll.salaries.every(salary => (salary.type === SalaryType.BASIC_INSURANCE || salary.type === SalaryType.BASIC))) {
+          throw new BadRequestException(`Không thể xác nhận phiếu lương có lương cơ bản rỗng`);
         }
       }
 
-      const employee = await this.prisma.employee.findFirst({
-        where: {
-          payrolls: {
-            some: {id}
-          }
-        }
-      });
+      const employee = await this.prisma.employee.findUnique({where: {id: payroll.employeeId}});
 
       if (moment(updates?.accConfirmedAt || updates?.manConfirmedAt).isBefore(employee.createdAt)) {
         throw new BadRequestException(`Không thể xác nhận phiếu lương trước ngày vào làm. Vui lòng kiểm tra lại.`);
@@ -395,6 +384,7 @@ export class PayrollRepository {
           manConfirmedAt: updates?.manConfirmedAt,
           actualday: updates?.actualday,
           taxed: updates?.taxed,
+          note: updates?.note,
         },
         include: {
           employee: {
