@@ -45,5 +45,5 @@ export class SearchRouteDto {
   @IsOptional()
   @IsBoolean()
   @Type(() => Boolean)
-  readonly isRoute: boolean
+  readonly hasRoute: boolean
 }

@@ -53,11 +53,11 @@ export class RouteRepository {
             endedAt: search?.status === 1 ? {notIn: null} : search?.status === 0 ? {in: null} : undefined,
             driver: {contains: search?.driver},
             bsx: {contains: search?.bsx},
-            commodities: {
+            commodities: search?.hasRoute ? {
               every: {
-                routeId: {in: null}
+                routeId: search.hasRoute ? {notIn: null} : {in: null},
               }
-            },
+            } : {},
             deleted: false
           },
         }),
@@ -70,11 +70,11 @@ export class RouteRepository {
             endedAt: search?.status === 1 ? {notIn: null} : search?.status === 0 ? {in: null} : undefined,
             driver: {contains: search?.driver},
             bsx: {contains: search?.bsx},
-            commodities: {
+            commodities: search?.hasRoute ? {
               every: {
-                routeId: {in: null}
-              },
-            },
+                routeId: search.hasRoute ? {notIn: null} : {in: null},
+              }
+            } : {},
             deleted: false
           },
           include: {
