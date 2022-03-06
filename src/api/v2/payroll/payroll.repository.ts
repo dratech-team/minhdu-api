@@ -211,15 +211,11 @@ export class PayrollRepository {
               },
             },
           },
-          orderBy: search?.employeeId
-            ? {
-              createdAt: "asc"
+          orderBy: {
+            employee: {
+              stt: "asc"
             }
-            : {
-              employee: {
-                lastName: "asc",
-              },
-            }
+          }
         }),
       ]);
 
