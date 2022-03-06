@@ -56,5 +56,5 @@ export class SearchEmployeeDto {
 
   @IsOptional()
   @IsEnum(OrderbyEmployeeEnum)
-  readonly ordeBy: OrderbyEmployeeEnum
+  readonly orderBy: OrderbyEmployeeEnum
 }

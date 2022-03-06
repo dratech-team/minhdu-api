@@ -200,9 +200,9 @@ export class EmployeeRepository {
               },
             },
           },
-          orderBy: search?.ordeBy === OrderbyEmployeeEnum.STT
+          orderBy: search?.orderBy === OrderbyEmployeeEnum.STT
             ? {stt: search.orderType === SortEnum.UP ? "asc" : "desc"}
-            : search?.ordeBy === OrderbyEmployeeEnum.NAME
+            : search?.orderBy === OrderbyEmployeeEnum.NAME
               ? {lastName: search.orderType === SortEnum.UP ? "asc" : "desc"}
               : {}
         }),
