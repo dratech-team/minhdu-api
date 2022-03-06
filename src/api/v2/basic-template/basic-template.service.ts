@@ -1,5 +1,4 @@
 import {BadRequestException, Injectable} from "@nestjs/common";
-import {catchError} from "rxjs/operators";
 import {PrismaService} from "src/prisma.service";
 import {CreateBasicTemplateDto} from "./dto/create-basic-template.dto";
 import {UpdateBasicTemplateDto} from "./dto/update-basic-template.dto";
@@ -13,7 +12,11 @@ export class BasicTemplateService {
   async create(body: CreateBasicTemplateDto) {
     try {
       return await this.prisma.basicTemplate.create({
-        data: body,
+        data: {
+          title: body.title,
+          type: body.type,
+          branches: {connect: body.branchIds.map(id => ({id}))}
+        },
       });
     } catch (err) {
       console.error(err);
@@ -54,7 +57,11 @@ export class BasicTemplateService {
     try {
       return await this.prisma.basicTemplate.update({
         where: {id},
-        data: updates,
+        data: {
+          title: updates?.title,
+          type: updates?.type,
+          branches: {connect: updates?.branchIds?.map(id => ({id}))}
+        },
       });
     } catch (err) {
       console.error(err);

@@ -119,6 +119,7 @@ model Branch {
   positions         Position[]
   products          Product[]
   icubators         Incubator[]
+  basicTemplates    BasicTemplate[]
 }
 
 model Position {
@@ -233,6 +234,7 @@ model BasicTemplate {
   partialDay PartialDay?
   position   Position?     @relation(fields: [positionId], references: [id])
   positionId Int?
+  branches   Branch[]
   timestamp  DateTime?     @default(now())
 
   @@unique([title, price])
@@ -736,6 +738,7 @@ enum SalaryType {
   DAY_OFF // nghỉ được nghỉ
   PART_TIME // dùng cho nhân viên thời vụ (công nhật)
   DEDUCTION
+  WFH
 }
 
 enum DatetimeUnit {
