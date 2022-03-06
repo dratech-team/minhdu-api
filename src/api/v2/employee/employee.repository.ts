@@ -3,7 +3,7 @@ import {ProfileEntity} from "../../../common/entities/profile.entity";
 import {PrismaService} from "../../../prisma.service";
 import {CreateEmployeeDto} from "./dto/create-employee.dto";
 import {SearchEmployeeDto} from "./dto/search-employee.dto";
-import {UpdateEmployeeDto} from "./dto/update-employee.dto";
+import {Sort, UpdateEmployeeDto} from "./dto/update-employee.dto";
 import {firstDatetime, lastDatetime} from "../../../utils/datetime.util";
 import {SearchEmployeeByOvertimeDto} from "./dto/search-employee-by-overtime.dto";
 import {OrderbyEmployeeEnum} from "./enums/orderby-employee.enum";
@@ -103,7 +103,7 @@ export class EmployeeRepository {
       const [total, data] = await Promise.all([
         this.prisma.employee.count({
           where: {
-            leftAt: search?.isLeft ? {notIn: null} : {in: null},
+            leftAt: search?.isLeft === 'true' ? {notIn: null} : {in: null},
             position: {
               name: {startsWith: search?.position, mode: "insensitive"},
             },
@@ -147,7 +147,7 @@ export class EmployeeRepository {
           skip: search?.skip,
           take: search?.take,
           where: {
-            leftAt: search?.isLeft ? {notIn: null} : {in: null},
+            leftAt: search?.isLeft === 'true' ? {notIn: null} : {in: null},
             position: {
               name: {startsWith: search?.position, mode: "insensitive"},
             },
@@ -317,62 +317,49 @@ export class EmployeeRepository {
 
   async update(id: number, updates: UpdateEmployeeDto) {
     try {
-      if (updates?.sort?.length) {
-        Promise.all(updates.sort.map(item => {
-          this.prisma.employee.findUnique({where: {id: item.id}}).then((employee) => {
-            if (employee.stt !== item.stt) {
-              this.prisma.employee.update({
-                where: {id: item.id},
-                data: {stt: item.stt},
-              }).then();
-            }
-          });
-        })).then();
-      } else {
-        const employee = await this.prisma.employee.update({
-          where: {id: id},
-          data: {
-            lastName: updates.lastName,
-            gender: updates.gender,
-            phone: updates.phone,
-            workPhone: updates.workPhone,
-            birthday: updates.birthday,
-            birthplace: updates.birthplace,
-            identify: updates.identify,
-            idCardAt: updates.idCardAt,
-            issuedBy: updates.issuedBy,
-            ward: updates?.wardId ? {connect: {id: updates.wardId}} : {},
-            position: updates?.positionId ? {connect: {id: updates.positionId}} : {},
-            branch: updates?.branchId ? {connect: {id: updates.branchId}} : {},
-            address: updates.address,
-            religion: updates.religion,
-            workday: updates.workday,
-            mst: updates.mst,
-            email: updates.email,
-            zalo: updates.zalo,
-            facebook: updates.facebook,
-            avt: updates.avt,
-            ethnicity: updates.ethnicity,
-            createdAt: updates.createdAt,
-            workedAt: updates.workedAt,
-            isFlatSalary: updates.isFlatSalary,
-            recipeType: updates.recipeType,
-            note: updates.note,
-            type: updates.type,
-          },
-          include: {
-            degrees: true,
-            contracts: true,
-            relatives: {
-              include: {
-                ward: {
-                  include: {
-                    district: {
-                      include: {
-                        province: {
-                          include: {
-                            nation: true,
-                          },
+      const employee = await this.prisma.employee.update({
+        where: {id: id},
+        data: {
+          lastName: updates.lastName,
+          gender: updates.gender,
+          phone: updates.phone,
+          workPhone: updates.workPhone,
+          birthday: updates.birthday,
+          birthplace: updates.birthplace,
+          identify: updates.identify,
+          idCardAt: updates.idCardAt,
+          issuedBy: updates.issuedBy,
+          ward: updates?.wardId ? {connect: {id: updates.wardId}} : {},
+          position: updates?.positionId ? {connect: {id: updates.positionId}} : {},
+          branch: updates?.branchId ? {connect: {id: updates.branchId}} : {},
+          address: updates.address,
+          religion: updates.religion,
+          workday: updates.workday,
+          mst: updates.mst,
+          email: updates.email,
+          zalo: updates.zalo,
+          facebook: updates.facebook,
+          avt: updates.avt,
+          ethnicity: updates.ethnicity,
+          createdAt: updates.createdAt,
+          workedAt: updates.workedAt,
+          isFlatSalary: updates.isFlatSalary,
+          recipeType: updates.recipeType,
+          note: updates.note,
+          type: updates.type,
+        },
+        include: {
+          degrees: true,
+          contracts: true,
+          relatives: {
+            include: {
+              ward: {
+                include: {
+                  district: {
+                    include: {
+                      province: {
+                        include: {
+                          nation: true,
                         },
                       },
                     },
@@ -380,43 +367,43 @@ export class EmployeeRepository {
                 },
               },
             },
-            banks: true,
-            position: true,
-            branch: true,
-            ward: {
-              include: {
-                district: {
-                  include: {
-                    province: {
-                      include: {
-                        nation: true,
-                      },
+          },
+          banks: true,
+          position: true,
+          branch: true,
+          ward: {
+            include: {
+              district: {
+                include: {
+                  province: {
+                    include: {
+                      nation: true,
                     },
                   },
                 },
               },
             },
-            salaryHistories: true,
-            workHistories: {
-              select: {
-                branch: {select: {name: true}},
-                position: {select: {name: true}},
-                createdAt: true
-              }
-            },
           },
-        });
-        if (updates.positionId || updates.branchId) {
-          this.prisma.workHistory.create({
-            data: {
-              positionId: employee.positionId,
-              branchId: employee.branchId,
-              employeeId: employee.id,
+          salaryHistories: true,
+          workHistories: {
+            select: {
+              branch: {select: {name: true}},
+              position: {select: {name: true}},
+              createdAt: true
             }
-          }).then();
-        }
-        return employee;
+          },
+        },
+      });
+      if (updates.positionId || updates.branchId) {
+        this.prisma.workHistory.create({
+          data: {
+            positionId: employee.positionId,
+            branchId: employee.branchId,
+            employeeId: employee.id,
+          }
+        }).then();
       }
+      return employee;
     } catch (err) {
       console.error(err);
       throw new BadRequestException(err);
@@ -446,6 +433,24 @@ export class EmployeeRepository {
         });
       }
       throw new BadRequestException('Điều này sẽ làm mất đi toàn bộ thông tin của nhân viên bao gồm phiếu lương, thông tin nhân viên và hàng loạt những thông tin khác. Vì vậy chức năng này chưa được phép sử dụng..');
+    } catch (err) {
+      console.error(err);
+      throw new BadRequestException(err);
+    }
+  }
+
+  async sortable(sort: Sort[]) {
+    try {
+      Promise.all(sort.map(item => {
+        this.prisma.employee.findUnique({where: {id: item.id}}).then((employee) => {
+          if (employee.stt !== item.stt) {
+            this.prisma.employee.update({
+              where: {id: item.id},
+              data: {stt: item.stt},
+            }).then();
+          }
+        });
+      })).then();
     } catch (err) {
       console.error(err);
       throw new BadRequestException(err);

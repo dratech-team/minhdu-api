@@ -1,9 +1,9 @@
-import {Body, Controller, Delete, Get, Param, Patch, Post, Query, UseGuards,} from "@nestjs/common";
+import {Body, Controller, Delete, Get, Param, Patch, Post, Put, Query, UseGuards,} from "@nestjs/common";
 import {EmployeeService} from "./employee.service";
 import {CreateEmployeeDto} from "./dto/create-employee.dto";
 import {Roles} from "../../../core/decorators/roles.decorator";
 import {ReqProfile} from "../../../core/decorators/req-profile.decorator";
-import {UpdateEmployeeDto} from "./dto/update-employee.dto";
+import {Sort, UpdateEmployeeDto} from "./dto/update-employee.dto";
 import {ApiV2Constant} from "../../../common/constant/api.constant";
 import {DatetimeUnit, EmployeeType, GenderType, RecipeType, RoleEnum} from "@prisma/client";
 import {ParseDatetimePipe} from "../../../core/pipe/datetime.pipe";
@@ -88,4 +88,12 @@ export class EmployeeController {
   removeWorkHistory(@Param("id") id: number) {
     return this.employeeService.remove(+id, true);
   }
+
+  @Roles(RoleEnum.ADMIN, RoleEnum.HUMAN_RESOURCE, RoleEnum.CAMP_ACCOUNTING)
+  @Patch("sort/stt")
+  sortable(@Body("sort") sort: Sort[]) {
+    return this.employeeService.sortable(sort);
+  }
+
+
 }

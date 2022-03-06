@@ -1,7 +1,7 @@
 import {Injectable, NotFoundException} from "@nestjs/common";
 import {CreateEmployeeDto} from "./dto/create-employee.dto";
 import {EmployeeRepository} from "./employee.repository";
-import {UpdateEmployeeDto} from "./dto/update-employee.dto";
+import {Sort, UpdateEmployeeDto} from "./dto/update-employee.dto";
 import {SearchEmployeeDto} from "./dto/search-employee.dto";
 import {ProfileEntity} from "../../../common/entities/profile.entity";
 import {SearchEmployeeByOvertimeDto} from "./dto/search-employee-by-overtime.dto";
@@ -71,5 +71,9 @@ export class EmployeeService {
 
   async remove(id: number, workHistory?: boolean) {
     return this.repository.remove(id, workHistory);
+  }
+
+  async sortable(sort: Sort[]) {
+    return this.repository.sortable(sort);
   }
 }

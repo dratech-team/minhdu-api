@@ -28,13 +28,9 @@ export class UpdateEmployeeDto extends PartialType(OmitType(CreateEmployeeDto, [
   @Type(() => Date)
   @IsDate()
   readonly leftAt?: Date;
-
-  @IsOptional()
-  @ValidateNested()
-  readonly sort?: Sort[];
 }
 
-class Sort {
+export class Sort {
   @IsNotEmpty()
   @IsNumber()
   @Type(() => Number)
