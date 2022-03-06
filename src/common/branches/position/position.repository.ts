@@ -94,7 +94,7 @@ export class PositionRepository {
         data: {
           name: updates?.name,
           workday: updates?.workday,
-          branches: {set: updates.branchIds.map((id) => ({id: +id}))}
+          branches: updates?.branchIds?.length ? {set: updates.branchIds?.map((id) => ({id: +id}))} : {}
         },
       });
     } catch (e) {
