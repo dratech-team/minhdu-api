@@ -99,7 +99,6 @@ export class EmployeeRepository {
         })
         : null;
       const positionIds = template?.positions?.map((position) => position.id);
-
       const [total, data] = await Promise.all([
         this.prisma.employee.count({
           where: {
@@ -114,13 +113,13 @@ export class EmployeeRepository {
             positionId: positionIds?.length ? {in: positionIds} : {},
             lastName: {contains: search?.name, mode: "insensitive"},
             gender: search?.gender ? {equals: search?.gender} : {},
-            isFlatSalary: search?.isFlatSalary,
+            isFlatSalary: search?.isFlatSalary || undefined,
             createdAt: search?.createdAt ? search?.createdAt.compare === 'gte' ? {
               gte: search?.createdAt?.datetime,
             } : search?.createdAt.compare === 'lte' ? {
               lte: search?.createdAt?.datetime,
             } : {in: search?.createdAt?.datetime} : {},
-            workedAt: search?.workedAt,
+            workedAt: search?.workedAt || undefined,
             payrolls: search?.createdPayroll ? {
               some: {
                 createdAt: {
@@ -140,7 +139,7 @@ export class EmployeeRepository {
                 }
               }
             },
-            category: search?.categoryId ? {id: search.categoryId} : {},
+            category: search?.categoryId ? {id: {in: +search.categoryId}} : {},
           },
         }),
         this.prisma.employee.findMany({
@@ -158,7 +157,7 @@ export class EmployeeRepository {
             positionId: positionIds?.length ? {in: positionIds} : {},
             lastName: {contains: search?.name, mode: "insensitive"},
             gender: search?.gender ? {equals: search?.gender} : {},
-            isFlatSalary: search?.isFlatSalary,
+            isFlatSalary: search?.isFlatSalary || undefined,
             createdAt: search?.createdAt ? search?.createdAt.compare === 'gte' ? {
               gte: search?.createdAt?.datetime,
             } : search?.createdAt.compare === 'lte' ? {
@@ -167,7 +166,7 @@ export class EmployeeRepository {
               gte: firstDatetime(search?.createdAt?.datetime),
               lte: lastDatetime(search?.createdAt?.datetime)
             } : {},
-            workedAt: search?.workedAt,
+            workedAt: search?.workedAt || undefined,
             payrolls: search?.createdPayroll ? {
               some: {
                 createdAt: {
@@ -187,7 +186,7 @@ export class EmployeeRepository {
                 }
               }
             },
-            category: search?.categoryId ? {id: search.categoryId} : {},
+            category: search?.categoryId ? {id: {in: +search.categoryId}} : {},
           },
           include: {
             position: true,
@@ -441,16 +440,15 @@ export class EmployeeRepository {
 
   async sortable(sort: Sort[]) {
     try {
-      Promise.all(sort.map(item => {
-        this.prisma.employee.findUnique({where: {id: item.id}}).then((employee) => {
-          if (employee.stt !== item.stt) {
-            this.prisma.employee.update({
-              where: {id: item.id},
-              data: {stt: item.stt},
-            }).then();
-          }
-        });
-      })).then();
+      await Promise.all(sort.map(async item => {
+        const employee = await this.prisma.employee.findUnique({where: {id: item.id}});
+        if (employee.stt !== item.stt) {
+          await this.prisma.employee.update({
+            where: {id: item.id},
+            data: {stt: item.stt},
+          });
+        }
+      }));
     } catch (err) {
       console.error(err);
       throw new BadRequestException(err);

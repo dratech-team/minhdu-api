@@ -48,7 +48,11 @@ export class SearchEmployeeDto {
   province: string;
   district: string;
   ward: string;
-  categoryId: number;
+
+  @IsOptional()
+  @IsNumber()
+  @Type(() => Number)
+  readonly categoryId: number;
 
   @IsOptional()
   @IsEnum(SortEnum)
