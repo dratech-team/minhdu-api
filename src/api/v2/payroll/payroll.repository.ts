@@ -1,5 +1,5 @@
 import {BadRequestException, Injectable, NotFoundException} from "@nestjs/common";
-import {EmployeeType, Payroll, Position, Salary, SalaryType} from "@prisma/client";
+import {EmployeeType, Payroll, Position, RoleEnum, Salary, SalaryType} from "@prisma/client";
 import {ProfileEntity} from "../../../common/entities/profile.entity";
 import {PrismaService} from "../../../prisma.service";
 import {firstDatetime, lastDatetime} from "../../../utils/datetime.util";
@@ -144,11 +144,21 @@ export class PayrollRepository {
   }
 
   async findAll(profile: ProfileEntity, search?: Partial<SearchPayrollDto>) {
+    const acc = await this.prisma.account.findUnique({
+      where: {id: profile.id},
+      include: {branches: true, role: true}
+    });
+
     try {
       const [total, data] = await Promise.all([
         this.prisma.payroll.count({
           where: {
             employeeId: Number(search?.employeeId) || undefined,
+            // branch: {
+            //   name: acc.role.role !== RoleEnum.HUMAN_RESOURCE
+            //     ? {startsWith: search?.branch, mode: "insensitive"}
+            //     : {},
+            // },
             employee: {
               leftAt: null,
               position: {

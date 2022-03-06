@@ -13,6 +13,7 @@ import {RolesGuard} from "../../../core/guard/role.guard";
 import {LoggerGuard} from "../../../core/guard/logger.guard";
 import {ProfileEntity} from "../../../common/entities/profile.entity";
 import {CustomParseBooleanPipe} from "../../../core/pipe/custom-boolean.pipe";
+import {SearchEmployeeDto} from "./dto/search-employee.dto";
 
 @UseGuards(JwtAuthGuard, ApiKeyGuard, RolesGuard)
 @Controller(ApiV2Constant.EMPLOYEE)
@@ -34,42 +35,9 @@ export class EmployeeController {
   @Get()
   findAll(
     @ReqProfile() profile: ProfileEntity,
-    @Query("skip") skip: number,
-    @Query("take") take: number,
-    @Query("name") name: string,
-    @Query("gender") gender: GenderType,
-    @Query("createdAt", ParseDatetimePipe) createdAt: any,
-    @Query("workedAt", ParseDatetimePipe) workedAt: any,
-    @Query("isFlatSalary", CustomParseBooleanPipe) isFlatSalary: any,
-    @Query("branch") branch: string,
-    @Query("position") position: string,
-    @Query("templateId") templateId: number,
-    @Query("createdPayroll", ParseDatetimePipe) createdPayroll: any,
-    @Query("isLeft") isLeft: boolean,
-    @Query("employeeType") type: EmployeeType,
-    @Query("recipeType") recipeType: RecipeType,
-    @Query("overtimeTitle") overtimeTitle: string,
-    @Query("province") province: string,
-    @Query("district") district: string,
-    @Query("ward") ward: string,
+    @Query() search: SearchEmployeeDto
   ) {
-    return this.employeeService.findAll(profile, skip, take, {
-      name,
-      gender,
-      createdAt,
-      workedAt,
-      isFlatSalary,
-      branch,
-      position,
-      createdPayroll,
-      isLeft,
-      type,
-      recipeType,
-      templateId: +templateId,
-      province,
-      district,
-      ward
-    });
+    return this.employeeService.findAll(profile, search);
   }
 
   @Roles(RoleEnum.ADMIN, RoleEnum.HUMAN_RESOURCE, RoleEnum.CAMP_ACCOUNTING)

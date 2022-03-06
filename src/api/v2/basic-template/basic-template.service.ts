@@ -15,8 +15,12 @@ export class BasicTemplateService {
         data: {
           title: body.title,
           type: body.type,
+          price: body?.price,
           branches: {connect: body.branchIds.map(id => ({id}))}
         },
+        include: {
+          branches: true
+        }
       });
     } catch (err) {
       console.error(err);
@@ -34,6 +38,9 @@ export class BasicTemplateService {
           },
           orderBy: {
             price: "desc"
+          },
+          include: {
+            branches: true
           }
         }),
       ]);
@@ -60,8 +67,12 @@ export class BasicTemplateService {
         data: {
           title: updates?.title,
           type: updates?.type,
+          price: updates?.price,
           branches: {connect: updates?.branchIds?.map(id => ({id}))}
         },
+        include: {
+          branches: true
+        }
       });
     } catch (err) {
       console.error(err);

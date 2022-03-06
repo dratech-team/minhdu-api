@@ -1,5 +1,5 @@
 import {OmitType, PartialType} from "@nestjs/mapped-types";
-import {IsDate, IsOptional, IsString,} from "class-validator";
+import {IsDate, IsNotEmpty, IsNumber, IsOptional, IsString, ValidateNested,} from "class-validator";
 import {CreateEmployeeDto} from "./create-employee.dto";
 import {Transform, Type} from "class-transformer";
 import * as moment from "moment";
@@ -28,4 +28,20 @@ export class UpdateEmployeeDto extends PartialType(OmitType(CreateEmployeeDto, [
   @Type(() => Date)
   @IsDate()
   readonly leftAt?: Date;
+
+  @IsOptional()
+  @ValidateNested()
+  readonly sort?: Sort[];
+}
+
+class Sort {
+  @IsNotEmpty()
+  @IsNumber()
+  @Type(() => Number)
+  readonly id: number;
+
+  @IsNotEmpty()
+  @IsNumber()
+  @Type(() => Number)
+  readonly stt: number;
 }

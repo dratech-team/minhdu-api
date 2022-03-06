@@ -17,11 +17,9 @@ export class EmployeeService {
 
   async findAll(
     profile: ProfileEntity,
-    skip: number,
-    take: number,
     search?: Partial<SearchEmployeeDto>
   ) {
-    return await this.repository.findAll(profile, skip, take, search);
+    return await this.repository.findAll(profile, search);
   }
 
   async findEmployeesByOvertime(profile: ProfileEntity, search: SearchEmployeeByOvertimeDto) {

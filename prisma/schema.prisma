@@ -120,6 +120,7 @@ model Branch {
   products          Product[]
   icubators         Incubator[]
   basicTemplates    BasicTemplate[]
+  Category          Category[]
 }
 
 model Position {
@@ -147,6 +148,15 @@ model Contract {
   employee   Employee      @relation(fields: [employeeId], references: [id], onDelete: Cascade)
   employeeId Int
   timestamp  DateTime?     @default(now())
+}
+
+model Category {
+  id        Int        @id @default(autoincrement())
+  name      String
+  app       String
+  branch    Branch     @relation(fields: [branchId], references: [id])
+  branchId  Int
+  employees Employee[]
 }
 
 model Employee {
@@ -193,6 +203,11 @@ model Employee {
   salaryHistories SalaryHistory[]
   workHistories   WorkHistory[]
   timestamp       DateTime?       @default(now())
+  category        Category?       @relation(fields: [categoryId], references: [id])
+  categoryId      Int?
+  stt             Int?
+
+  // @@unique([branchId, stt])
 }
 
 model Holiday {
