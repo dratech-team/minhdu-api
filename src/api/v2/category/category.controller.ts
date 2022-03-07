@@ -45,4 +45,10 @@ export class CategoryController {
   remove(@Param('id') id: string) {
     return this.categoryService.remove(+id);
   }
+
+  @Roles(RoleEnum.CAMP_ACCOUNTING, RoleEnum.HUMAN_RESOURCE)
+  @Patch(':id/employee')
+  removeEmployee(@Param('id') id: number, @Body("employeeId") employeeId: number) {
+    return this.categoryService.removeEmployee(+id, employeeId);
+  }
 }

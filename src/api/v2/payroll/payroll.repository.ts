@@ -169,7 +169,8 @@ export class PayrollRepository {
                 name: !profile.branches?.length ? {startsWith: search?.branch, mode: "insensitive"} : {},
               },
               lastName: {contains: search?.name, mode: "insensitive"},
-              type: search?.employeeType ? {in: search?.employeeType} : {}
+              type: search?.employeeType ? {in: search?.employeeType} : {},
+              category: search?.categoryId ? {id: {in: search?.categoryId}} : {}
             },
             createdAt: {
               gte: firstDatetime(search?.createdAt),
@@ -193,7 +194,8 @@ export class PayrollRepository {
                 name: !profile.branches?.length ? {startsWith: search?.branch, mode: "insensitive"} : {},
               },
               lastName: {contains: search?.name, mode: "insensitive"},
-              type: search?.employeeType ? {in: search?.employeeType} : {}
+              type: search?.employeeType ? {in: search?.employeeType} : {},
+              category: search?.categoryId ? {id: {in: search?.categoryId}} : {}
             },
             createdAt: {
               gte: firstDatetime(search?.createdAt),
@@ -208,6 +210,7 @@ export class PayrollRepository {
                 contracts: true,
                 position: true,
                 branch: true,
+                category: true
               },
             },
           },
@@ -344,6 +347,7 @@ export class PayrollRepository {
               contracts: true,
               position: true,
               branch: true,
+              category: true
             },
           },
         },

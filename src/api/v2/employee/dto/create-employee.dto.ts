@@ -77,4 +77,9 @@ export class CreateEmployeeDto extends CreateProfileDto {
 
   @IsOptional()
   contract: CreateContractDto;
+
+  @IsOptional()
+  @IsNumber()
+  @Type(() => Number)
+  readonly categoryId: number;
 }

@@ -84,4 +84,9 @@ export class SearchPayrollDto {
   @IsOptional()
   @IsString()
   readonly title: string;
+
+  @IsOptional()
+  @Type(() => Number)
+  @IsNumber()
+  readonly categoryId: number;
 }

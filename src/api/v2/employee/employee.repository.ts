@@ -65,10 +65,12 @@ export class EmployeeRepository {
               },
             }
             : {},
+          category: body?.categoryId ? {connect: {id: body.categoryId}} : {}
         },
         include: {
           position: true,
           branch: true,
+          category: true
         },
       });
     } catch (err) {
@@ -198,6 +200,7 @@ export class EmployeeRepository {
                 },
               },
             },
+            category: true
           },
           orderBy: search?.orderBy === OrderbyEmployeeEnum.STT
             ? {stt: search.orderType === SortEnum.UP ? "asc" : "desc"}
@@ -308,6 +311,7 @@ export class EmployeeRepository {
               position: true
             }
           },
+          category: true
         },
       });
     } catch (e) {
@@ -348,6 +352,7 @@ export class EmployeeRepository {
           recipeType: updates.recipeType,
           note: updates.note,
           type: updates.type,
+          category: updates?.categoryId ? {connect: {id: updates.categoryId}} : {}
         },
         include: {
           degrees: true,
@@ -393,6 +398,7 @@ export class EmployeeRepository {
               createdAt: true
             }
           },
+          category: true
         },
       });
       if (updates.positionId || updates.branchId) {

@@ -78,4 +78,18 @@ export class CategoryService {
       throw new BadRequestException(err);
     }
   }
+
+  async removeEmployee(id: number, employeeId: number) {
+    try {
+      return await this.prisma.category.update({
+        where: {id},
+        data: {
+          employees: {delete: {id: employeeId}},
+        }
+      });
+    } catch (err) {
+      console.error(err);
+      throw new BadRequestException(err);
+    }
+  }
 }
