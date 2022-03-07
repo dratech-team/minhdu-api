@@ -50,8 +50,13 @@ export class CategoryService {
       return await this.prisma.category.findUnique({
         where: {id},
         include: {
-          employees: true,
-          branch: true
+          employees: {
+            include: {
+              branch: true,
+              position: true
+            }
+          },
+          branch: true,
         }
       });
     } catch (err) {

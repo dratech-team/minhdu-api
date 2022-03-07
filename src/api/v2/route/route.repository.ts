@@ -3,6 +3,7 @@ import {PrismaService} from "../../../prisma.service";
 import {CreateRouteDto} from "./dto/create-route.dto";
 import {UpdateRouteDto} from "./dto/update-route.dto";
 import {SearchRouteDto} from "./dto/search-route.dto";
+import {CancelRouteDto} from "./dto/cancel-route.dto";
 
 @Injectable()
 export class RouteRepository {
@@ -170,6 +171,31 @@ export class RouteRepository {
       return await this.prisma.route.update({
         where: {id},
         data: {deleted: true}
+      });
+    } catch (err) {
+      console.error(err);
+      throw new BadRequestException(err);
+    }
+  }
+
+  async cancel(id: number, body: CancelRouteDto) {
+    try {
+      return await this.prisma.route.update({
+        where: {id},
+        data: body.cancelType === "COMMODITY"
+          ? {commodities: {disconnect: {id: body.desId}}}
+          : {orders: {disconnect: {id: body.desId}}},
+        include: {
+          orders: {
+            include: {
+              commodities: true,
+              customer: true,
+              ward: true,
+            },
+          },
+          locations: true,
+          employee: true,
+        }
       });
     } catch (err) {
       console.error(err);

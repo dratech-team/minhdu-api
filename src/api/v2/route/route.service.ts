@@ -6,6 +6,7 @@ import {Response} from "express";
 import {exportExcel} from "../../../core/services/export.service";
 import {SearchRouteDto} from "./dto/search-route.dto";
 import {OrderService} from "../order/order.service";
+import {CancelRouteDto} from "./dto/cancel-route.dto";
 
 @Injectable()
 export class RouteService {
@@ -33,6 +34,10 @@ export class RouteService {
 
   async remove(id: number) {
     return await this.repository.remove(id);
+  }
+
+  async cancel(id: number, body: CancelRouteDto) {
+    return await this.repository.cancel(id, body);
   }
 
   async export(response?: Response, search?: SearchRouteDto) {

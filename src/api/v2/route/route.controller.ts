@@ -9,6 +9,7 @@ import {RolesGuard} from "../../../core/guard/role.guard";
 import {LoggerGuard} from "../../../core/guard/logger.guard";
 import {Roles} from "../../../core/decorators/roles.decorator";
 import {RoleEnum} from "@prisma/client";
+import {CancelRouteDto} from "./dto/cancel-route.dto";
 
 @UseGuards(JwtAuthGuard, ApiKeyGuard, RolesGuard)
 @Controller("v2/route")
@@ -47,6 +48,13 @@ export class RouteController {
   @Delete(":id")
   remove(@Param("id") id: string) {
     return this.routeService.remove(+id);
+  }
+
+  @UseGuards(LoggerGuard)
+  @Roles(RoleEnum.SALESMAN)
+  @Patch(":id/cancel")
+  cancel(@Param("id") id: string, @Body() body: CancelRouteDto) {
+    return this.routeService.cancel(+id, body);
   }
 
   @Get("/export/items")
