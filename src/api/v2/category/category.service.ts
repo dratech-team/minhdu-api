@@ -47,7 +47,12 @@ export class CategoryService {
 
   async findOne(id: number) {
     try {
-      return await this.prisma.category.findUnique({where: {id}});
+      return await this.prisma.category.findUnique({
+        where: {id},
+        includes: {
+          employees: true
+        }
+      });
     } catch (err) {
       console.error(err);
       throw new BadRequestException(err);
