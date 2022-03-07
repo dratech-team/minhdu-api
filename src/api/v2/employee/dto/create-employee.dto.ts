@@ -23,7 +23,7 @@ export class CreateEmployeeDto extends CreateProfileDto {
   @IsOptional()
   code: string;
 
-  @IsOptional()
+  @IsNotEmpty({message: 'Ngày vào làm không được để trống. Để tránh ảnh hưởng tới việc tạo tự động phiếu lương xảy ra sai sót.. Xin cảm ơn'})
   @Type(() => Date)
   @Transform((val) => new Date(moment(val.value).format('YYYY-MM-DD')))
   @IsDate()

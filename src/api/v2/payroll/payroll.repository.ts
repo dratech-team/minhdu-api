@@ -306,6 +306,13 @@ export class PayrollRepository {
             }
           }
         },
+        orderBy: {
+          payroll: {
+            employee: {
+              stt: "asc"
+            }
+          }
+        }
       })
     ]);
     return {
@@ -443,7 +450,7 @@ export class PayrollRepository {
         branch: {select: {name: true}},
       },
       orderBy: {
-        lastName: "asc"
+        stt: "asc"
       }
     });
 
@@ -553,7 +560,13 @@ export class PayrollRepository {
             }
           }
         },
-        orderBy: {datetime: "desc"}
+        orderBy: {
+          payroll: {
+            employee: {
+              stt: "asc"
+            }
+          }
+        }
       });
       return {total, salaries};
     }));
@@ -576,7 +589,12 @@ export class PayrollRepository {
             lte: lastDatetime(createdAt),
           }
         },
-        select: {id: true}
+        select: {id: true},
+        orderBy: {
+          employee: {
+            stt: "asc"
+          }
+        }
       });
     } catch (err) {
       console.error(err);
