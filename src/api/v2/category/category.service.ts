@@ -49,8 +49,9 @@ export class CategoryService {
     try {
       return await this.prisma.category.findUnique({
         where: {id},
-        includes: {
-          employees: true
+        include: {
+          employees: true,
+          branch: true
         }
       });
     } catch (err) {
@@ -89,7 +90,7 @@ export class CategoryService {
       return await this.prisma.category.update({
         where: {id},
         data: {
-          employees: {delete: {id: employeeId}},
+          employees: {disconnect: {id: employeeId}},
         }
       });
     } catch (err) {
