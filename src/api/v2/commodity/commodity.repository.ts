@@ -10,7 +10,18 @@ export class CommodityRepository {
 
   async create(body: CreateCommodityDto) {
     try {
-      return await this.prisma.commodity.create({data: body});
+      return await this.prisma.commodity.create({
+        data: {
+          name: body.name,
+          code: body.code,
+          amount: body.amount,
+          price: body?.price,
+          unit: body?.unit,
+          more: body?.more,
+          gift: body?.gift,
+          closed: body?.closed,
+        }
+      });
     } catch (err) {
       console.error(err);
       throw new BadRequestException(err);
@@ -111,7 +122,7 @@ export class CommodityRepository {
   async remove(id: number) {
     try {
       const found = await this.prisma.commodity.findUnique({where: {id}, select: {order: true}});
-      if (found.order.deliveredAt) {
+      if (found?.order?.deliveredAt) {
         throw new BadRequestException('Đơn hàng đã giao. không được phép xóa');
       }
       return await this.prisma.commodity.delete({where: {id}});
