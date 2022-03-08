@@ -1,5 +1,5 @@
 import {EmployeeType, GenderType, RecipeType} from "@prisma/client";
-import {IsBoolean, IsEnum, IsNotEmpty, IsNumber, IsOptional, IsString} from "class-validator";
+import {IsEnum, IsNotEmpty, IsNumber, IsOptional, IsString} from "class-validator";
 import {Type} from "class-transformer";
 import {SortEnum} from "../../../../common/enum/sort.enum";
 import {OrderbyEmployeeEnum} from "../enums/orderby-employee.enum";
@@ -31,7 +31,11 @@ export class SearchEmployeeDto {
   @IsOptional()
   workedAt: Date;
 
-  isFlatSalary: boolean; // 0 | 1
+  @IsOptional()
+  @IsNumber()
+  @Type(() => Number)
+  isFlatSalary: number; // 0 | 1
+
   branch: string;
   branchId: number;
   position: string;
@@ -60,5 +64,13 @@ export class SearchEmployeeDto {
 
   @IsOptional()
   @IsEnum(OrderbyEmployeeEnum)
-  readonly orderBy: OrderbyEmployeeEnum
+  readonly orderBy: OrderbyEmployeeEnum;
+
+  @IsOptional()
+  @IsString()
+  readonly phone: string;
+
+  @IsOptional()
+  @IsString()
+  readonly address: string;
 }
