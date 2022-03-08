@@ -1,6 +1,6 @@
 import {EmployeeType, GenderType, RecipeType} from "@prisma/client";
 import {IsEnum, IsNotEmpty, IsNumber, IsOptional, IsString} from "class-validator";
-import {Type} from "class-transformer";
+import {Transform, Type} from "class-transformer";
 import {SortEnum} from "../../../../common/enum/sort.enum";
 import {OrderbyEmployeeEnum} from "../enums/orderby-employee.enum";
 
@@ -33,8 +33,13 @@ export class SearchEmployeeDto {
 
   @IsOptional()
   @IsNumber()
-  @Type(() => Number)
-  isFlatSalary: number; // 0 | 1
+  @Transform((val) => {
+    if (!val['isFlatSalary']) {
+      return -1;
+    }
+    return +val.value;
+  })
+  readonly isFlatSalary: number; // 0 | 1
 
   branch: string;
   branchId: number;
