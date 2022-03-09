@@ -22,7 +22,7 @@ export class CreateCustomerDto extends PartialType(CreateProfileDto) {
 
   @IsOptional()
   // @IsEnum(CustomerType)
-  readonly type: CustomerType;
+  readonly customerType: CustomerType;
 
   @IsOptional()
   // @IsEnum(CustomerResource)

@@ -31,7 +31,7 @@ export class CustomerRepository {
           religion: body?.religion,
           // ethnicity: body?.ethnicity,
           mst: body?.mst,
-          type: body?.type,
+          type: body?.customerType,
           resource: body?.resource,
           isPotential: body?.isPotential,
           note: body?.note,

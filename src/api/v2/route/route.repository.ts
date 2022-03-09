@@ -55,7 +55,7 @@ export class RouteRepository {
             driver: {contains: search?.driver},
             bsx: {contains: search?.bsx},
             commodities: search?.hasRoute ? {
-              every: {
+              some: {
                 routeId: search.hasRoute ? {notIn: null} : {in: null},
               }
             } : {},
@@ -72,7 +72,7 @@ export class RouteRepository {
             driver: {contains: search?.driver},
             bsx: {contains: search?.bsx},
             commodities: search?.hasRoute ? {
-              every: {
+              some: {
                 routeId: search.hasRoute ? {notIn: null} : {in: null},
               }
             } : {},
