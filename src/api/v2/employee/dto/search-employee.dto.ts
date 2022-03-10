@@ -33,12 +33,7 @@ export class SearchEmployeeDto {
 
   @IsOptional()
   @IsNumber()
-  @Transform((val) => {
-    if (!val['isFlatSalary']) {
-      return -1;
-    }
-    return +val.value;
-  })
+  @Type(() => Number)
   readonly isFlatSalary: number; // 0 | 1
 
   branch: string;
