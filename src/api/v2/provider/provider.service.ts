@@ -2,6 +2,7 @@ import {BadRequestException, Injectable} from '@nestjs/common';
 import {CreateProviderDto} from './dto/create-provider.dto';
 import {UpdateProviderDto} from './dto/update-provider.dto';
 import {PrismaService} from "../../../prisma.service";
+import {SearchProviderDto} from "./dto/search-provider.dto";
 
 @Injectable()
 export class ProviderService {
@@ -10,7 +11,6 @@ export class ProviderService {
 
   async create(body: CreateProviderDto) {
     try {
-      console.log(body);
       return await this.prisma.provider.create({
         data: {
           name: body.name
@@ -22,9 +22,16 @@ export class ProviderService {
     }
   }
 
-  async findAll() {
+  async findAll(search: SearchProviderDto) {
     try {
-      return await this.prisma.provider.findMany();
+      const [total, data] = await Promise.all([
+        this.prisma.provider.count(),
+        this.prisma.provider.findMany({
+          take: search?.take,
+          skip: search?.skip,
+        })
+      ]);
+      return {total, data};
     } catch (err) {
       console.error(err);
       throw new BadRequestException(err);
