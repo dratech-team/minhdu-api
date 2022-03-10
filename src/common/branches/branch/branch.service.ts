@@ -22,8 +22,8 @@ export class BranchService {
     return await this.repository.findOne(profile, id);
   }
 
-  update(id: number, updates: UpdateBranchDto): Promise<any> {
-    return this.repository.update(id, updates);
+  update(profile: ProfileEntity, id: number, updates: UpdateBranchDto): Promise<any> {
+    return this.repository.update(profile, id, updates);
   }
 
   remove(id: number) {

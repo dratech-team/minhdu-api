@@ -13,7 +13,7 @@ export class BranchRepository {
   async create(profile: ProfileEntity, body: CreateBranchDto): Promise<Branch> {
     try {
       const acc = await this.prisma.account.findUnique({where: {id: profile.id}});
-      if (acc.appName || !acc) {
+      if (!(acc.appName || acc)) {
         throw new ForbiddenException(`Account Chưa được phân quyền ${acc.appName + acc}. Vui lòng liên hệ admin.`);
       }
       return await this.prisma.branch.create({
@@ -118,19 +118,48 @@ export class BranchRepository {
     return await this.mapToBranch(branch, acc.appName);
   }
 
-  async update(id: number, updates: UpdateBranchDto) {
+  async update(profile: ProfileEntity, id: number, updates: UpdateBranchDto) {
+    const acc = await this.prisma.account.findUnique({where: {id: profile.id}, include: {branches: true}});
     try {
-      return await this.prisma.branch.update({
+      const branch = await this.prisma.branch.update({
         where: {id: id},
         data: {
           name: updates.name,
-          positions: {set: updates.positionIds.map(id => ({id}))}
+          positions: {set: updates?.positionIds?.map(id => ({id}))},
+          phone: updates?.phone ? {
+            upsert: {
+              where: {
+                app_branchId: {app: acc.appName, branchId: id},
+              },
+              update: {phone: updates.phone},
+              create: {
+                app: acc.appName,
+                phone: updates.phone
+              },
+            }
+          } : {},
+          status: (updates?.status !== null && updates.status !== undefined) ? {
+            upsert: {
+              where: {
+                app_branchId: {app: acc.appName, branchId: id},
+              },
+              update: {status: updates.status},
+              create: {
+                app: acc.appName,
+                status: updates.status
+              },
+            }
+          } : {}
         },
         include: {
-          allowances: true,
-          positions: true
+          positions: acc.appName === AppEnum.HR,
+          _count: acc.appName === AppEnum.HR,
+          allowances: acc.appName === AppEnum.HR,
+          status: true,
+          phone: true
         }
       });
+      return await this.mapToBranch(branch, acc.appName);
     } catch (err) {
       throw new BadRequestException(err);
     }
@@ -138,7 +167,9 @@ export class BranchRepository {
 
   async remove(id: number) {
     try {
-      return await this.prisma.branch.delete({where: {id: id}});
+      return await this.prisma.branch.delete({
+        where: {id: id},
+      });
     } catch (err) {
       console.error(err);
       throw new BadRequestException("Không thể xóa.", err);
