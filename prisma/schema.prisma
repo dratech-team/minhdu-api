@@ -110,6 +110,7 @@ model Branch {
   code              String?            @unique
   name              String             @unique
   recipe            RecipeType?
+  address           String?
   timestamp         DateTime?          @default(now())
   employees         Employee[]
   overtimeTemplates OvertimeTemplate[]
@@ -121,6 +122,28 @@ model Branch {
   icubators         Incubator[]
   basicTemplates    BasicTemplate[]
   Category          Category[]
+  status            BranchStatus[]
+  phone             BranchPhone[]
+}
+
+model BranchStatus {
+  id       Int     @id @default(autoincrement())
+  app      AppEnum
+  status   Boolean @default(true)
+  branch   Branch  @relation(fields: [branchId], references: [id])
+  branchId Int
+
+  @@unique([app, branchId, status])
+}
+
+model BranchPhone {
+  id       Int     @id @default(autoincrement())
+  app      AppEnum
+  phone    String
+  branch   Branch? @relation(fields: [branchId], references: [id])
+  branchId Int?
+
+  @@unique([app, branchId, phone])
 }
 
 model Position {

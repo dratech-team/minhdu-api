@@ -20,11 +20,11 @@ export class BranchController {
   @UseGuards(LoggerGuard)
   @Roles(RoleEnum.ADMIN, RoleEnum.HUMAN_RESOURCE, RoleEnum.WAREHOUSE)
   @Post()
-  create(@Body() createBranchDto: CreateBranchDto) {
-    return this.branchService.create(createBranchDto);
+  create(@ReqProfile() profile: ProfileEntity, @Body() createBranchDto: CreateBranchDto) {
+    return this.branchService.create(profile, createBranchDto);
   }
 
-  @Roles(RoleEnum.ADMIN, RoleEnum.HUMAN_RESOURCE, RoleEnum.WAREHOUSE, RoleEnum.CAMP_ACCOUNTING)
+  @Roles(RoleEnum.ADMIN, RoleEnum.HUMAN_RESOURCE, RoleEnum.WAREHOUSE, RoleEnum.CAMP_ACCOUNTING, RoleEnum.SALESMAN)
   @Get()
   findAll(@ReqProfile() profile: ProfileEntity) {
     return this.branchService.findAll(profile);
@@ -33,8 +33,8 @@ export class BranchController {
 
   @Roles(RoleEnum.ADMIN, RoleEnum.HUMAN_RESOURCE, RoleEnum.WAREHOUSE, RoleEnum.CAMP_ACCOUNTING)
   @Get(':id')
-  async findOne(@Param('id') id: number) {
-    return this.branchService.findOne(+id);
+  async findOne(@ReqProfile() profile: ProfileEntity, @Param('id') id: number) {
+    return this.branchService.findOne(profile, +id);
   }
 
   @UseGuards(LoggerGuard)

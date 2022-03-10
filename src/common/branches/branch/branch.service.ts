@@ -10,21 +10,16 @@ export class BranchService {
   constructor(private readonly repository: BranchRepository) {
   }
 
-  async create(body: CreateBranchDto): Promise<Branch> {
-    return await this.repository.create(body);
+  async create(profile: ProfileEntity, body: CreateBranchDto): Promise<Branch> {
+    return await this.repository.create(profile, body);
   }
 
   async findAll(profile: ProfileEntity) {
-    const branches = await this.repository.findAll(profile);
-    return await Promise.all(
-      branches.map(async branch => Object.assign(branch, {_count: Object.assign(branch._count, {employeeLeft: await this.repository.count(branch.id, true)})}))
-    );
+    return await this.repository.findAll(profile);
   }
 
-  async findOne(id: number) {
-    const employee = await this.repository.count(id, true);
-    const branch = await this.repository.findOne(id);
-    return Object.assign(branch, {_count: Object.assign(branch._count, {employeesLeft: employee})});
+  async findOne(profile: ProfileEntity, id: number) {
+    return await this.repository.findOne(profile, id);
   }
 
   update(id: number, updates: UpdateBranchDto): Promise<any> {
