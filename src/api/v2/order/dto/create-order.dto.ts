@@ -17,13 +17,21 @@ export class CreateOrderDto {
   @IsOptional()
   @Type(() => Date)
   @IsDate()
-  @Transform((val) => new Date(moment(val.value).format('YYYY-MM-DD')))
+  @Transform((val) => {
+    if (val?.value) {
+      new Date(moment(val.value).format('YYYY-MM-DD'))
+    }
+  })
   readonly deliveredAt: Date;
 
   @IsOptional()
   @Type(() => Date)
   @IsDate()
-  @Transform((val) => new Date(moment(val.value).format('YYYY-MM-DD')))
+  @Transform((val) => {
+    if (val?.value) {
+      new Date(moment(val.value).format('YYYY-MM-DD'))
+    }
+  })
   readonly endedAt: Date;
 
   @IsOptional()
