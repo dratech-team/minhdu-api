@@ -27,6 +27,16 @@ export class OrderRepository {
         },
         include: {
           commodities: true,
+          province: true,
+          ward: {
+            include: {
+              district: {
+                include: {
+                  province: true
+                }
+              }
+            }
+          },
         },
       });
     } catch (err) {
@@ -45,7 +55,15 @@ export class OrderRepository {
           routes: true,
           province: true,
           district: true,
-          ward: true,
+          ward: {
+            include: {
+              district: {
+                include: {
+                  province: true
+                }
+              }
+            }
+          },
           paymentHistories: true,
         },
       });
@@ -195,7 +213,15 @@ export class OrderRepository {
             routes: true,
             province: true,
             district: true,
-            ward: true,
+            ward: {
+              include: {
+                district: {
+                  include: {
+                    province: true
+                  }
+                }
+              }
+            },
             paymentHistories: true,
           },
         }),
@@ -226,6 +252,16 @@ export class OrderRepository {
         },
         include: {
           commodities: true,
+          province: true,
+          ward: {
+            include: {
+              district: {
+                include: {
+                  province: true
+                }
+              }
+            }
+          },
         },
       });
     } catch (err) {

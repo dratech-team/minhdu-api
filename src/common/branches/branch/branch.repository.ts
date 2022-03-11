@@ -1,7 +1,7 @@
 import {BadRequestException, ForbiddenException, Injectable,} from "@nestjs/common";
 import {PrismaService} from "../../../prisma.service";
 import {CreateBranchDto} from "./dto/create-branch.dto";
-import {AppEnum, Branch} from "@prisma/client";
+import {AppEnum, Branch, RoleEnum} from "@prisma/client";
 import {UpdateBranchDto} from "./dto/update-branch.dto";
 import {ProfileEntity} from "../../entities/profile.entity";
 
@@ -119,7 +119,8 @@ export class BranchRepository {
   }
 
   async update(profile: ProfileEntity, id: number, updates: UpdateBranchDto) {
-    const acc = await this.prisma.account.findUnique({where: {id: profile.id}, include: {branches: true}});
+    const acc = await this.prisma.account.findUnique({where: {id: profile.id}, include: {branches: true, role: true}});
+
     try {
       const branch = await this.prisma.branch.update({
         where: {id: id},

@@ -38,7 +38,7 @@ export class BranchController {
   }
 
   @UseGuards(LoggerGuard)
-  @Roles(RoleEnum.ADMIN, RoleEnum.HUMAN_RESOURCE, RoleEnum.WAREHOUSE)
+  @Roles(RoleEnum.ADMIN, RoleEnum.HUMAN_RESOURCE, RoleEnum.WAREHOUSE, RoleEnum.CAMP_ACCOUNTING)
   @Patch(':id')
   update(@ReqProfile() profile: ProfileEntity, @Param('id') id: number, @Body() updateBranchDto: UpdateBranchDto) {
     return this.branchService.update(profile, +id, updateBranchDto);

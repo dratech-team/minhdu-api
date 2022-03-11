@@ -121,24 +121,20 @@ export class CustomerRepository {
       const customer = await this.prisma.customer.findUnique({
         where: {id},
         include: {
+          province: true,
+          district: true,
           ward: {
             include: {
               district: {
                 include: {
-                  province: {
-                    include: {
-                      nation: true,
-                    },
-                  },
-                },
-              },
-            },
+                  province: true
+                }
+              }
+            }
           },
-          province: true
         },
       });
 
-      console.log(order._sum.total);
       return Object.assign(customer, {
         debt: payment._sum.total - order._sum.total,
       });
@@ -152,7 +148,33 @@ export class CustomerRepository {
     try {
       return await this.prisma.customer.update({
         where: {id},
-        data: updates,
+        data: {
+          lastName: updates?.lastName,
+          gender: updates?.gender,
+          phone: updates.phone,
+          workPhone: updates?.workPhone,
+          birthday: updates?.birthday,
+          birthplace: updates?.birthplace,
+          identify: updates?.identify,
+          idCardAt: updates?.idCardAt,
+          issuedBy: updates?.issuedBy,
+          province: updates?.provinceId ? {connect: {id: updates.provinceId}} : {},
+          district: updates?.districtId ? {connect: {id: updates.districtId}} : {},
+          ward: updates?.wardId ? {connect: {id: updates.wardId}} : {},
+          address: updates?.address,
+          religion: updates?.religion,
+          // ethnicity: body?.ethnicity,
+          mst: updates?.mst,
+          type: updates?.customerType,
+          resource: updates?.resource,
+          isPotential: updates?.isPotential,
+          note: updates?.note,
+        },
+        include: {
+          province: true,
+          district: true,
+          ward: true
+        }
       });
     } catch (err) {
       console.error(err);
