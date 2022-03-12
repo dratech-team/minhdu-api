@@ -12,6 +12,11 @@ export class CreateOrderDto {
   @IsNotEmpty()
   @Type(() => Date)
   @IsDate()
+  @Transform((val) => {
+    if (val?.value) {
+      return new Date(moment(val.value).format('YYYY-MM-DD'));
+    }
+  })
   readonly createdAt?: Date;
 
   @IsOptional()
@@ -19,7 +24,7 @@ export class CreateOrderDto {
   @IsDate()
   @Transform((val) => {
     if (val?.value) {
-      new Date(moment(val.value).format('YYYY-MM-DD'))
+      return new Date(moment(val.value).format('YYYY-MM-DD'));
     }
   })
   readonly deliveredAt: Date;
@@ -29,7 +34,7 @@ export class CreateOrderDto {
   @IsDate()
   @Transform((val) => {
     if (val?.value) {
-      new Date(moment(val.value).format('YYYY-MM-DD'))
+      return new Date(moment(val.value).format('YYYY-MM-DD'))
     }
   })
   readonly endedAt: Date;

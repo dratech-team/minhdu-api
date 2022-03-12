@@ -13,9 +13,10 @@ import {RolesGuard} from "../../../core/guard/role.guard";
 import {Roles} from "../../../core/decorators/roles.decorator";
 import {UpdateManySalaryDto} from "./dto/update-many-salary.dto";
 import {LoggerGuard} from "../../../core/guard/logger.guard";
+import {ApiV2Constant} from "../../../common/constant/api.constant";
 
 @UseGuards(JwtAuthGuard, ApiKeyGuard, RolesGuard)
-@Controller("v2/salary")
+@Controller(ApiV2Constant.SALARY)
 export class SalaryController {
   constructor(private readonly salaryService: SalaryService) {
   }

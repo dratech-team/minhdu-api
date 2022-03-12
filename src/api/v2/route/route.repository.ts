@@ -108,6 +108,7 @@ export class RouteRepository {
             : {startedAt: "asc"}
         }),
       ]);
+
       return {total, data};
     } catch (err) {
       console.error(err);

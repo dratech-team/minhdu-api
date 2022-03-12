@@ -18,12 +18,11 @@ export class LoggerGuard implements CanActivate {
     const path = request.route.path;
     const method = request.method;
     const body = request.body;
-
     // path for define app name
     if ((path.includes(ApiV2Constant.ORDER))) {
       appName = AppEnum.SELL;
-    } else if ((request.route.path.includes(ApiV2Constant.ORDER))) {
-
+    } else if ((path.includes(ApiV2Constant.EMPLOYEE || ApiV2Constant.PAYROLL))) {
+      appName = AppEnum.HR;
     }
 
     /// TODO: convert body object to string for save db

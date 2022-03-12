@@ -100,7 +100,6 @@ export class OrderRepository {
             hide: search?.hide,
             customer: {
               lastName: {startsWith: search?.name, mode: "insensitive"},
-              id: search?.customerId ? {equals: search?.customerId} : {},
             },
             createdAt:
               search?.createStartedAt && search?.createEndedAt
@@ -175,7 +174,6 @@ export class OrderRepository {
                 : {},
             customer: {
               lastName: {startsWith: search?.name, mode: "insensitive"},
-              id: search?.customerId ? {equals: search?.customerId} : {},
             },
             createdAt:
               search?.createStartedAt && search?.createEndedAt
