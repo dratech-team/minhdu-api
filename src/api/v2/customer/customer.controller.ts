@@ -1,9 +1,9 @@
-import {Body, Controller, Delete, Get, Param, Patch, Post, Query, Res, UseGuards} from '@nestjs/common';
+import {Body, Controller, Delete, Get, Param, Patch, Post, Query, UseGuards} from '@nestjs/common';
 import {CustomerService} from './customer.service';
 import {CreateCustomerDto} from './dto/create-customer.dto';
 import {UpdateCustomerDto} from './dto/update-customer.dto';
 import {ApiV2Constant} from "../../../common/constant/api.constant";
-import {CustomerResource, CustomerType, RoleEnum} from '@prisma/client';
+import {RoleEnum} from '@prisma/client';
 import {CreatePaymentHistoryDto} from "../payment-history/dto/create-payment-history.dto";
 import {JwtAuthGuard} from "../../../core/guard/jwt-auth.guard";
 import {ApiKeyGuard} from "../../../core/guard/api-key-auth.guard";
@@ -12,41 +12,39 @@ import {LoggerGuard} from "../../../core/guard/logger.guard";
 import {Roles} from 'src/core/decorators/roles.decorator';
 import {SearchCustomerDto} from "./dto/search-customer.dto";
 
-@UseGuards(JwtAuthGuard, ApiKeyGuard)
+@UseGuards(JwtAuthGuard, ApiKeyGuard, RolesGuard)
 @Controller(ApiV2Constant.CUSTOMER)
 export class CustomerController {
   constructor(private readonly customerService: CustomerService) {
   }
 
-  @UseGuards(RolesGuard, LoggerGuard)
+  @UseGuards(LoggerGuard)
   @Roles(RoleEnum.ADMIN, RoleEnum.SALESMAN)
   @Post()
   create(@Body() createCustomerDto: CreateCustomerDto) {
     return this.customerService.create(createCustomerDto);
   }
 
-  @UseGuards(RolesGuard)
   @Roles(RoleEnum.ADMIN, RoleEnum.SALESMAN)
   @Get()
   findAll(@Query() search: SearchCustomerDto) {
     return this.customerService.findAll(search);
   }
 
-  @UseGuards(RolesGuard)
   @Roles(RoleEnum.ADMIN, RoleEnum.SALESMAN)
   @Get(':id')
   findOne(@Param('id') id: string) {
     return this.customerService.findOne(+id);
   }
 
-  @UseGuards(RolesGuard, LoggerGuard)
+  @UseGuards(LoggerGuard)
   @Roles(RoleEnum.SALESMAN)
   @Patch(':id')
   update(@Param('id') id: string, @Body() updateCustomerDto: UpdateCustomerDto) {
     return this.customerService.update(+id, updateCustomerDto);
   }
 
-  @UseGuards(RolesGuard, LoggerGuard)
+  @UseGuards(LoggerGuard)
   @Roles(RoleEnum.SALESMAN)
   @Delete(':id')
   remove(@Param('id') id: string) {

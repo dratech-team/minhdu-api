@@ -7,18 +7,21 @@ import {RolesGuard} from "../../../core/guard/role.guard";
 import {Roles} from "../../../core/decorators/roles.decorator";
 import {RoleEnum} from "@prisma/client";
 import {CreatePaymentHistoryDto} from "./dto/create-payment-history.dto";
+import {LoggerGuard} from "../../../core/guard/logger.guard";
+import {ApiV2Constant} from "../../../common/constant/api.constant";
 
 @UseGuards(JwtAuthGuard, ApiKeyGuard, RolesGuard)
-@Controller("v2/payment-history")
+@Controller(ApiV2Constant.PAYMENT_HISTORY)
 export class PaymentHistoryController {
   constructor(private readonly paymentHistoryService: PaymentHistoryService) {
   }
+
+  @UseGuards(LoggerGuard)
   @Roles(RoleEnum.SALESMAN)
   @Post()
   create(@Body() body: CreatePaymentHistoryDto) {
     return this.paymentHistoryService.create(body);
   }
-
 
   @Roles(RoleEnum.SALESMAN)
   @Get()
@@ -36,6 +39,7 @@ export class PaymentHistoryController {
     return this.paymentHistoryService.findOne(+id);
   }
 
+  @UseGuards(LoggerGuard)
   @Roles(RoleEnum.SALESMAN)
   @Patch(":id")
   update(
@@ -45,6 +49,7 @@ export class PaymentHistoryController {
     return this.paymentHistoryService.update(+id, updatePaymentHistoryDto);
   }
 
+  @UseGuards(LoggerGuard)
   @Roles(RoleEnum.SALESMAN)
   @Delete(":id")
   remove(@Param("id") id: string) {

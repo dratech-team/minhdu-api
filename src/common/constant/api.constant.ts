@@ -20,7 +20,7 @@ export const ApiV2Constant = {
   ORDER_HISTORY: 'v2/order-history',
   ORGCHART: 'v2/orgchart',
   OVERTIME_TEMPLATE: 'v2/overtime-template',
-  PAYMENT_HISTORY: 'v2/payment-history',
+  PAYMENT_HISTORY: "v2/payment-history",
   PAYROLL: 'v2/payroll',
   PRODUCT: 'v2/product',
   PROVIDER: 'v2/provider',

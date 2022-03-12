@@ -55,12 +55,14 @@ export class HolidayController {
     return this.holidayService.findOne(+id, {name, branch, position});
   }
 
+  @UseGuards(LoggerGuard)
   @Roles(RoleEnum.ADMIN, RoleEnum.HUMAN_RESOURCE)
   @Patch(':id')
   update(@Param('id') id: string, @Body() updateHolidayDto: UpdateHolidayDto) {
     return this.holidayService.update(+id, updateHolidayDto);
   }
 
+  @UseGuards(LoggerGuard)
   @Roles(RoleEnum.ADMIN, RoleEnum.HUMAN_RESOURCE, RoleEnum.CAMP_ACCOUNTING)
   @Delete(':id')
   remove(@Param('id') id: string) {

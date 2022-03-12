@@ -95,11 +95,14 @@ export class PayrollController {
     RoleEnum.CAMP_ACCOUNTING,
     RoleEnum.CAMP_MANAGER,
   )
+
+  @UseGuards(LoggerGuard)
   @Delete(":id")
   remove(@Param("id") id: number) {
     return this.payrollService.remove(+id);
   }
 
+  @UseGuards(LoggerGuard)
   @Roles(RoleEnum.ADMIN, RoleEnum.HUMAN_RESOURCE, RoleEnum.CAMP_ACCOUNTING)
   @Get("/:id/payslip")
   async confirmPayslip(@Param("id") id: number) {

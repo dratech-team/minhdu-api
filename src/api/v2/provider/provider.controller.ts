@@ -3,8 +3,9 @@ import {ProviderService} from './provider.service';
 import {CreateProviderDto} from './dto/create-provider.dto';
 import {UpdateProviderDto} from './dto/update-provider.dto';
 import {SearchProviderDto} from "./dto/search-provider.dto";
+import {ApiV2Constant} from "../../../common/constant/api.constant";
 
-@Controller('v2/provider')
+@Controller(ApiV2Constant.PROVIDER)
 export class ProviderController {
   constructor(private readonly providerService: ProviderService) {
   }

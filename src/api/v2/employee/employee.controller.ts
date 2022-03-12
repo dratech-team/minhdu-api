@@ -94,6 +94,4 @@ export class EmployeeController {
   sortable(@Body("sort") sort: Sort[]) {
     return this.employeeService.sortable(sort);
   }
-
-
 }
