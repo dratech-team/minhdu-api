@@ -88,6 +88,9 @@ export class RouteRepository {
               }
             },
           },
+          orderBy: {
+            startedAt: "asc"
+          }
         }),
       ]);
       return {total, data};
@@ -147,8 +150,8 @@ export class RouteRepository {
           bsx: updates.bsx,
           startedAt: updates.startedAt,
           endedAt: updates.endedAt,
-          orders: {set: updates.orderIds?.map((id) => ({id: id}))},
-          commodities: {set: updates?.commodityIds?.map((id) => ({id: id}))},
+          orders: {connect: updates.orderIds?.map((id) => ({id: id}))},
+          commodities: {connect: updates?.commodityIds?.map((id) => ({id: id}))},
         },
         include: {
           orders: {
@@ -181,6 +184,18 @@ export class RouteRepository {
 
   async cancel(id: number, body: CancelRouteDto) {
     try {
+      if (body.desId && body.cancelType === "ORDER") {
+        this.prisma.order.findUnique({
+          where: {id: body.desId},
+          include: {commodities: true}
+        }).then(order => {
+          const commodityIds = order.commodities.map(commodity => commodity.id);
+          this.prisma.route.update({
+            where: {id: id},
+            data: {commodities: {disconnect: commodityIds.map(id => ({id}))}}
+          }).then();
+        });
+      }
       return await this.prisma.route.update({
         where: {id},
         data: body.cancelType === "COMMODITY"
