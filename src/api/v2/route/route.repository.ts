@@ -104,7 +104,9 @@ export class RouteRepository {
         include: {
           orders: {
             include: {
-              commodities: true,
+              commodities: {
+                include: {route: true}
+              },
               customer: true,
               ward: true,
             },
@@ -168,9 +170,8 @@ export class RouteRepository {
 
   async remove(id: number) {
     try {
-      return await this.prisma.route.update({
+      return await this.prisma.route.delete({
         where: {id},
-        data: {deleted: true}
       });
     } catch (err) {
       console.error(err);
