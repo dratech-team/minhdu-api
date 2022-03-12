@@ -300,7 +300,11 @@ export class EmployeeRepository {
           },
           banks: true,
           position: true,
-          branch: true,
+          branch: {
+            include: {
+              positions: true
+            }
+          },
           ward: {
             include: {
               district: {
@@ -386,7 +390,11 @@ export class EmployeeRepository {
           },
           banks: true,
           position: true,
-          branch: true,
+          branch: {
+            include: {
+              positions: true
+            }
+          },
           ward: {
             include: {
               district: {

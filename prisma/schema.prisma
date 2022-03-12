@@ -210,6 +210,7 @@ model Employee {
   isFlatSalary    Boolean?        @default(false)
   position        Position        @relation(fields: [positionId], references: [id])
   positionId      Int
+
   branch          Branch          @relation(fields: [branchId], references: [id])
   branchId        Int
   note            String?
