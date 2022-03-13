@@ -48,7 +48,6 @@ export class RouteRepository {
   async findAll(search: SearchRouteDto) {
     try {
       const sortType = search?.sortType === SortType.UP ? "asc" : "desc";
-
       const [total, data] = await Promise.all([
         this.prisma.route.count({
           where: {
@@ -57,11 +56,6 @@ export class RouteRepository {
             endedAt: search?.status === 1 ? {notIn: null} : search?.status === 0 ? {in: null} : undefined,
             driver: {contains: search?.driver},
             bsx: {contains: search?.bsx},
-            commodities: search?.hasRoute ? {
-              some: {
-                routeId: search.hasRoute ? {notIn: null} : {in: null},
-              }
-            } : {},
             deleted: false
           },
         }),
@@ -69,16 +63,11 @@ export class RouteRepository {
           skip: search?.skip,
           take: search?.take,
           where: {
-            name: {contains: search?.name},
+            name: {startsWith: search?.name, mode: "insensitive"},
             startedAt: {gte: search?.startedAt},
             endedAt: search?.status === 1 ? {notIn: null} : search?.status === 0 ? {in: null} : undefined,
             driver: {contains: search?.driver},
             bsx: {contains: search?.bsx},
-            commodities: search?.hasRoute ? {
-              some: {
-                routeId: search.hasRoute ? {notIn: null} : {in: null},
-              }
-            } : {},
             deleted: false
           },
           include: {

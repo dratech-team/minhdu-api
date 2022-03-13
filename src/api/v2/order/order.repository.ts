@@ -97,9 +97,9 @@ export class OrderRepository {
               gte: search.startedAt,
               lte: search.endedAt,
             } : {},
-            hide: search?.hide,
+            hide: search?.hide === 'true',
             customer: {
-              lastName: {startsWith: search?.name, mode: "insensitive"},
+              lastName: {startsWith: search?.customer, mode: "insensitive"},
             },
             createdAt:
               search?.createStartedAt && search?.createEndedAt
@@ -121,20 +121,19 @@ export class OrderRepository {
             province: search?.province
               ? {name: {contains: search?.province, mode: "insensitive"}}
               : {},
-            commodities: search?.commodity
-              ? {
-                some: {
-                  OR: [
-                    {
-                      code: {contains: search?.commodity},
-                    },
-                    {
-                      name: {contains: search?.commodity},
-                    },
-                  ],
-                },
-              }
-              : {},
+            commodities: search?.filterRoute === 'true' ? {
+              some: {
+                // OR: [
+                //   {
+                //     code: {startsWith: search?.commodity, mode: "insensitive"},
+                //   },
+                //   {
+                //     name: {contains: search?.commodity, mode: "insensitive"},
+                //   },
+                // ],
+                routeId: {in: null}
+              },
+            } : {},
             deleted: false,
           },
         }),
@@ -161,7 +160,7 @@ export class OrderRepository {
               gte: search.startedAt,
               lte: search.endedAt,
             } : {},
-            hide: search?.hide,
+            hide: search?.hide === 'true',
             paymentHistories:
               search?.paidType === PaidEnum.PAID
                 ? {
@@ -173,7 +172,7 @@ export class OrderRepository {
                 }
                 : {},
             customer: {
-              lastName: {startsWith: search?.name, mode: "insensitive"},
+              lastName: {startsWith: search?.customer, mode: "insensitive"},
             },
             createdAt:
               search?.createStartedAt && search?.createEndedAt
@@ -185,20 +184,19 @@ export class OrderRepository {
             province: search?.province
               ? {name: {contains: search?.province, mode: "insensitive"}}
               : {},
-            commodities: search?.commodity
-              ? {
-                some: {
-                  OR: [
-                    {
-                      code: {contains: search?.commodity},
-                    },
-                    {
-                      name: {contains: search?.commodity},
-                    },
-                  ],
-                },
-              }
-              : {},
+            commodities: search?.filterRoute === 'true' ? {
+              some: {
+                // OR: [
+                //   {
+                //     code: {startsWith: search?.commodity, mode: "insensitive"},
+                //   },
+                //   {
+                //     name: {contains: search?.commodity, mode: "insensitive"},
+                //   },
+                // ],
+                routeId: {in: null}
+              },
+            } : {},
             deleted: false,
           },
           include: {

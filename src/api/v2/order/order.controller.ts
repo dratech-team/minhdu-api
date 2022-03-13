@@ -27,9 +27,7 @@ export class OrderController {
 
   @Roles(RoleEnum.ADMIN, RoleEnum.SALESMAN)
   @Get()
-  findAll(
-    @Query() search: SearchOrderDto
-  ) {
+  findAll(@Query() search: SearchOrderDto) {
     return this.orderService.findAll(search);
   }
 

@@ -97,7 +97,9 @@ export class SearchOrderDto {
   readonly status: 0 | 1;
 
   @IsOptional()
-  @IsBoolean()
-  @Type(() => Boolean)
-  readonly hide: boolean;
+  readonly hide: string;
+
+
+  @IsOptional()
+  readonly filterRoute: string;
 }

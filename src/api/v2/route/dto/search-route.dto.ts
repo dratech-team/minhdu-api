@@ -43,10 +43,6 @@ export class SearchRouteDto {
   @Type(() => Number)
   readonly status: 0 | 1
 
-  @IsOptional()
-  @IsBoolean()
-  @Type(() => Boolean)
-  readonly hasRoute: boolean
 
   @IsOptional()
   @IsEnum(SortRouteEnum)
