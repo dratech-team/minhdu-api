@@ -220,7 +220,7 @@ export class EmployeeRepository {
                 : search.orderBy === OrderbyEmployeeEnum.NAME
                   ? {lastName: search.orderType}
                   : {}
-            : {stt: "desc"}
+            : {stt: "asc"}
         }),
       ]);
       return {total, data};
