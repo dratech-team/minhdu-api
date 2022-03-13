@@ -3,7 +3,7 @@ import {OvertimeTemplateService} from "./overtime-template.service";
 import {CreateOvertimeTemplateDto} from "./dto/create-overtime-template.dto";
 import {UpdateOvertimeTemplateDto} from "./dto/update-overtime-template.dto";
 import {ApiV2Constant} from "../../../common/constant/api.constant";
-import {DatetimeUnit, RoleEnum} from "@prisma/client";
+import {RoleEnum} from "@prisma/client";
 import {ReqProfile} from "../../../core/decorators/req-profile.decorator";
 import {ProfileEntity} from "../../../common/entities/profile.entity";
 import {JwtAuthGuard} from "../../../core/guard/jwt-auth.guard";
@@ -11,6 +11,7 @@ import {ApiKeyGuard} from "../../../core/guard/api-key-auth.guard";
 import {RolesGuard} from "../../../core/guard/role.guard";
 import {Roles} from "../../../core/decorators/roles.decorator";
 import {LoggerGuard} from "../../../core/guard/logger.guard";
+import {SearchOvertimeTemplateDto} from "./dto/search-overtime-template.dto";
 
 @UseGuards(JwtAuthGuard, ApiKeyGuard, RolesGuard)
 @Controller(ApiV2Constant.OVERTIME_TEMPLATE)
@@ -29,19 +30,9 @@ export class OvertimeTemplateController {
   @Get()
   findAll(
     @ReqProfile() profile: ProfileEntity,
-    @Query("take") take: number,
-    @Query("skip") skip: number,
-    @Query("title") title: string,
-    @Query("price") price: number,
-    @Query("unit") unit: DatetimeUnit,
-    @Query("positionIds") positionIds: number[]
+    @Query() search: SearchOvertimeTemplateDto
   ) {
-    return this.service.findAll(+take, +skip, profile, {
-      title,
-      price: +price,
-      unit,
-      positionIds,
-    });
+    return this.service.findAll(profile, search);
   }
 
   @Roles(RoleEnum.ADMIN, RoleEnum.HUMAN_RESOURCE, RoleEnum.CAMP_ACCOUNTING)

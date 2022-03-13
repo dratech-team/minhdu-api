@@ -14,18 +14,13 @@ export class OvertimeTemplateService {
     return await this.repository.create(body);
   }
 
-  async findAll(
-    take: number,
-    skip: number,
-    profile: ProfileEntity,
-    search: Partial<SearchOvertimeTemplateDto>
-  ) {
+  async findAll(profile: ProfileEntity, search: SearchOvertimeTemplateDto) {
     const positionIds = (search?.positionIds || search?.positionIds?.length)
       ? Array.isArray(search?.positionIds)
         ? search?.positionIds?.map(id => Number(id))
         : Array.of(search?.positionIds).map(positionId => Number(positionId))
       : [];
-    return await this.repository.findAll(take, skip, profile, Object.assign(search, {positionIds}));
+    return await this.repository.findAll(profile, Object.assign(search, {positionIds}));
   }
 
   async findFirst(query: any) {

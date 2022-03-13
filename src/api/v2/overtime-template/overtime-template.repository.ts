@@ -36,13 +36,10 @@ export class OvertimeTemplateRepository {
 
   // every: Search những id có trong id positionId và bao gồm overtime có positions null
   // some: Search những postitionId có trong overtime. k bao gồm positions rỗng
-  async findAll(
-    take: number,
-    skip: number,
-    profile: ProfileEntity,
-    search: Partial<SearchOvertimeTemplateDto>
-  ) {
+  async findAll(profile: ProfileEntity, search: SearchOvertimeTemplateDto) {
     try {
+      const acc = await this.prisma.account.findUnique({where: {id: profile.id}, include: {branches: true}});
+
       const [total, data] = await Promise.all([
         this.prisma.overtimeTemplate.count({
           where: {
@@ -50,36 +47,28 @@ export class OvertimeTemplateRepository {
             price: search?.price ? {in: search?.price} : {},
             unit: {in: search?.unit || undefined},
             AND: {
-              branch: profile.branches?.length
-                ? {id: {in: profile.branches.map(branch => branch.id)}}
-                : !profile.branches?.length && search?.branchId
-                  ? {id: search.branchId}
-                  : {},
+              branch: acc.branches?.length
+                ? {id: {in: acc.branches.map(branch => branch.id)}}
+                : {id: {in: search?.branchId}},
               positions: search?.positionIds?.length
-                ? {
-                  some: {id: {in: search?.positionIds}},
-                }
+                ? {some: {id: {in: search?.positionIds}}}
                 : {},
             }
           },
         }),
         this.prisma.overtimeTemplate.findMany({
-          take: take || undefined,
-          skip: skip || undefined,
+          take: search?.take,
+          skip: search?.skip,
           where: {
             title: {startsWith: search?.title, mode: "insensitive"},
             price: search?.price ? {in: search?.price} : {},
             unit: {in: search?.unit || undefined},
             AND: {
-              branch: profile.branches?.length
-                ? {id: {in: profile.branches.map(branch => branch.id)}}
-                : !profile.branches?.length && search?.branchId
-                  ? {id: search.branchId}
-                  : {},
+              branch: acc.branches?.length
+                ? {id: {in: acc.branches.map(branch => branch.id)}}
+                : {id: {in: search?.branchId}},
               positions: search?.positionIds?.length
-                ? {
-                  some: {id: {in: search?.positionIds}},
-                }
+                ? {some: {id: {in: search?.positionIds}}}
                 : {},
             }
           },
