@@ -429,70 +429,6 @@ export class PayrollRepository {
     }
   }
 
-  async findOvertimes(profile: ProfileEntity, search: Partial<SearchPayrollDto>) {
-    if (!(search?.startedAt && search?.endedAt)) {
-      throw new BadRequestException("Vui lòng nhập ngày bắt đầu và ngày kết thúc");
-    }
-
-    const employees = await this.prisma.employee.findMany({
-      where: {
-        branchId: profile?.branches?.length ? {in: profile?.branches.map(branch => branch.id)} : {},
-        position: search?.position ? {name: {startsWith: search?.position, mode: "insensitive"}} : {},
-        branch: search?.branch ? {name: {startsWith: search?.branch, mode: "insensitive"}} : {},
-        lastName: search?.type === SearchType.EQUALS
-          ? {equals: search?.name, mode: "insensitive"}
-          : search?.type === SearchType.START_WITH
-            ? {startsWith: search?.name, mode: "insensitive"}
-            : {contains: search?.name, mode: "insensitive"},
-      },
-      include: {
-        position: {select: {name: true}},
-        branch: {select: {name: true}},
-      },
-      orderBy: {
-        stt: "asc"
-      }
-    });
-
-    const payrolls = await Promise.all(employees.map(async employee => {
-      const payroll = await this.prisma.payroll.findFirst({
-        where: {
-          employeeId: employee.id,
-          createdAt: {
-            gte: firstDatetime(search.startedAt),
-            lte: lastDatetime(search.endedAt),
-          }
-        }
-      });
-      if (payroll) {
-        return Object.assign(employee, {payrollId: payroll.id});
-      }
-    }));
-
-    return await Promise.all(payrolls.filter(payroll => payroll).map(async employee => {
-      if (employee && employee?.payrollId) {
-        const salaries = await this.prisma.salary.findMany({
-          where: {
-            payrollId: employee.payrollId,
-            payroll: {
-              employeeId: employee.id,
-            },
-            type: SalaryType.OVERTIME,
-            datetime: {
-              gte: moment(search.startedAt).startOf("day").toDate(),
-              lte: moment(search.endedAt).endOf("day").toDate(),
-            }
-          },
-          include: {
-            allowance: true
-          },
-          orderBy: {datetime: "asc"}
-        });
-        return Object.assign(employee, {salaries});
-      }
-    }));
-  }
-
   async findOvertimesV2(profile: ProfileEntity, search: Partial<SearchPayrollDto>) {
     const acc = await this.prisma.account.findUnique({where: {id: profile.id}, include: {branches: true}});
 
@@ -509,12 +445,14 @@ export class PayrollRepository {
         type: {in: SalaryType.OVERTIME},
         payroll: {
           employee: {
-            branch: acc.branches?.length ? {id: {in: profile?.branches.map(branch => branch.id)}} : {
-              name: {
-                startsWith: search?.branch,
-                mode: "insensitive"
-              }
-            },
+            branch: acc.branches?.length
+              ? {id: {in: profile?.branches.map(branch => branch.id)}}
+              : {
+                name: {
+                  startsWith: search?.branch,
+                  mode: "insensitive"
+                }
+              },
             position: {name: {startsWith: search?.position, mode: "insensitive"}},
             lastName: search?.type === SearchType.EQUALS
               ? {equals: search?.name, mode: "insensitive"}
@@ -527,55 +465,72 @@ export class PayrollRepository {
     });
 
     const data = await Promise.all(overtimeTitles.map(async e => {
-      const total = await this.prisma.salary.count({
-        where: {
-          title: e.title,
-          type: {in: SalaryType.OVERTIME},
-          datetime: search?.createdAt ? {
-            in: search?.createdAt
-          } : {
-            gte: search?.startedAt,
-            lte: search?.endedAt
-          },
-        },
-      });
-      /// TODO: Phân trang thì tổng sẽ lấy trong phạm vi được phân trang.
-      const salaries = await this.prisma.salary.findMany({
-        // take: Number(search?.take) || undefined,
-        // skip: Number(search?.skip) || undefined,
-        where: {
-          title: e.title,
-          type: {in: SalaryType.OVERTIME},
-          datetime: search?.createdAt ? {
-            in: search?.createdAt
-          } : {
-            gte: search?.startedAt,
-            lte: search?.endedAt
-          },
-        },
-        include: {
-          allowance: true,
-          payroll: {
-            include: {
+      const [total, salaries] = await Promise.all([
+        this.prisma.salary.count({
+          where: {
+            title: e.title,
+            type: {in: SalaryType.OVERTIME},
+            datetime: search?.createdAt ? {
+              in: search?.createdAt
+            } : {
+              gte: search?.startedAt,
+              lte: search?.endedAt
+            },
+            payroll: {
               employee: {
-                include: {
-                  branch: true,
-                  position: true
+                branch: acc.branches?.length
+                  ? {id: {in: acc.branches.map(branch => branch.id)}}
+                  : {name: {startsWith: search?.branch, mode: "insensitive"}}
+              }
+            }
+          },
+        }),
+        this.prisma.salary.findMany({
+          // take: Number(search?.take) || undefined,
+          // skip: Number(search?.skip) || undefined,
+          where: {
+            title: e.title,
+            type: {in: SalaryType.OVERTIME},
+            datetime: search?.createdAt ? {
+              in: search?.createdAt
+            } : {
+              gte: search?.startedAt,
+              lte: search?.endedAt
+            },
+            payroll: {
+              employee: {
+                branch: acc.branches?.length
+                  ? {id: {in: acc.branches.map(branch => branch.id)}}
+                  : {name: {startsWith: search?.branch, mode: "insensitive"}}
+              }
+            }
+          },
+          include: {
+            allowance: true,
+            payroll: {
+              include: {
+                employee: {
+                  include: {
+                    branch: true,
+                    position: true
+                  }
                 }
               }
             }
-          }
-        },
-        orderBy: {
-          payroll: {
-            employee: {
-              stt: "asc"
+          },
+          orderBy: {
+            payroll: {
+              employee: {
+                stt: "asc"
+              }
             }
           }
-        }
-      });
+        })
+      ]);
+      /// TODO: Phân trang thì tổng sẽ lấy trong phạm vi được phân trang.
       return {total, salaries};
     }));
+
     return {
       total: data.map(e => e.total).reduce((a, b) => a + b, 0),
       data: data.map(e => e.salaries)

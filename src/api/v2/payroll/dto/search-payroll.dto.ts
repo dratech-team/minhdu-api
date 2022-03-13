@@ -2,6 +2,7 @@ import {EmployeeType} from "@prisma/client";
 import {FilterTypeEnum} from "../entities/filter-type.enum";
 import {Transform, Type} from "class-transformer";
 import {IsDate, IsEnum, IsNumber, IsOptional, IsString} from "class-validator";
+import * as moment from "moment";
 
 export class SearchPayrollDto {
   @IsOptional()
@@ -39,19 +40,31 @@ export class SearchPayrollDto {
 
   @IsOptional()
   @Type(() => Date)
-  @Transform(({value}) => new Date(value))
+  @Transform(({value}) => {
+    if (value) {
+      return new Date(moment(value).format('YYYY-MM-DD'));
+    }
+  })
   @IsDate()
   readonly createdAt: Date;
 
   @IsOptional()
   @Type(() => Date)
-  @Transform(({value}) => new Date(value))
+  @Transform(({value}) => {
+    if (value) {
+      return new Date(moment(value).format('YYYY-MM-DD'));
+    }
+  })
   @IsDate()
   readonly startedAt: Date;
 
   @IsOptional()
   @Type(() => Date)
-  @Transform(({value}) => new Date(value))
+  @Transform(({value}) => {
+    if (value) {
+      return new Date(moment(value).format('YYYY-MM-DD'));
+    }
+  })
   @IsDate()
   readonly endedAt: Date;
 
