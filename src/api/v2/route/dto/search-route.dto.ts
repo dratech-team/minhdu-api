@@ -1,7 +1,7 @@
-import {IsBoolean, IsDate, IsEnum, IsNumber, IsOptional, IsString} from "class-validator";
+import {IsDate, IsEnum, IsNumber, IsOptional, IsString} from "class-validator";
 import {Transform, Type} from "class-transformer";
 import * as moment from "moment";
-import {SortRouteEnum, SortType} from "../enums/sort-route.enum";
+import {SortRouteEnum} from "../enums/sort-route.enum";
 
 export class SearchRouteDto {
   @IsOptional()
@@ -49,6 +49,6 @@ export class SearchRouteDto {
   readonly sort: SortRouteEnum;
 
   @IsOptional()
-  @IsEnum(SortType)
-  readonly sortType: SortType;
+  @IsString()
+  readonly sortType: "asc" | "desc";
 }

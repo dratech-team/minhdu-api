@@ -7,8 +7,3 @@ export enum SortRouteEnum {
   BSX = "BSX",
   GARAGE = "GARAGE_",
 }
-
-export enum SortType {
-  UP = "UP",
-  DOWM = "DOWN"
-}

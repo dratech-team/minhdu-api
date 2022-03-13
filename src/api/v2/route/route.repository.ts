@@ -4,7 +4,7 @@ import {CreateRouteDto} from "./dto/create-route.dto";
 import {UpdateRouteDto} from "./dto/update-route.dto";
 import {SearchRouteDto} from "./dto/search-route.dto";
 import {CancelRouteDto} from "./dto/cancel-route.dto";
-import {SortRouteEnum, SortType} from "./enums/sort-route.enum";
+import {SortRouteEnum} from "./enums/sort-route.enum";
 
 @Injectable()
 export class RouteRepository {
@@ -47,7 +47,7 @@ export class RouteRepository {
 
   async findAll(search: SearchRouteDto) {
     try {
-      const sortType = search?.sortType === SortType.UP ? "asc" : "desc";
+      console.log(search)
       const [total, data] = await Promise.all([
         this.prisma.route.count({
           where: {
@@ -82,17 +82,17 @@ export class RouteRepository {
           },
           orderBy: search?.sort && search?.sortType
             ? search?.sort === SortRouteEnum.NAME
-              ? {name: sortType}
+              ? {name: search.sortType}
               : search?.sort === SortRouteEnum.START
-                ? {startedAt: sortType}
+                ? {startedAt: search.sortType}
                 : search?.sort === SortRouteEnum.END
-                  ? {endedAt: sortType}
+                  ? {endedAt: search.sortType}
                   : search?.sort === SortRouteEnum.DRIVER
-                    ? {driver: sortType}
+                    ? {driver: search.sortType}
                     : search?.sort === SortRouteEnum.BSX
-                      ? {bsx: sortType}
+                      ? {bsx: search.sortType}
                       : search?.sort === SortRouteEnum.GARAGE
-                        ? {garage: sortType}
+                        ? {garage: search.sortType}
                         : {}
             : {startedAt: "asc"}
         }),
