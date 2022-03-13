@@ -51,16 +51,16 @@ export class BranchRepository {
       const branches = await this.prisma.branch.findMany({
         where: {
           name: acc.branches.length ? {in: acc.branches.map(branch => branch.name)} : {},
-          status: {
-            every: {
-              app: acc.appName,
-            }
-          },
-          phone: {
-            every: {
-              app: acc.appName,
-            }
-          }
+          // status: {
+          //   every: {
+          //     app: acc.appName,
+          //   }
+          // },
+          // phone: {
+          //   every: {
+          //     app: acc.appName,
+          //   }
+          // }
         },
         include: {
           positions: acc.appName === AppEnum.HR,

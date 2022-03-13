@@ -64,29 +64,27 @@ export class OrderRepository {
       const [total, data] = await Promise.all([
         this.prisma.order.count({
           where: {
-            deliveredAt:
-              search?.status !== undefined &&
-              search?.status !== null &&
-              !search?.deliveryStartedAt
-                ? search.status === 1
+            deliveredAt: (search?.status !== undefined && search?.status !== null && !search?.deliveryStartedAt)
+              ? search.status === 1
                 ? {notIn: null}
                 : search.status === 0
                   ? {in: null}
                   : {}
-                : search?.deliveryStartedAt && search?.deliveryEndedAt
+              : search?.deliveryStartedAt && search?.deliveryEndedAt
                 ? {
                   gte: search?.deliveryStartedAt,
                   lte: search?.deliveryEndedAt,
                 }
                 : {},
-            endedAt: search?.startedAt && search?.endedAt ? {
-              gte: search.startedAt,
-              lte: search.endedAt,
-            } : {},
+            endedAt: (search?.startedAt && search?.endedAt)
+              ? {
+                gte: search.startedAt,
+                lte: search.endedAt,
+              } : {},
             hide: search?.hide === 'true',
-            customer: {
-              lastName: {startsWith: search?.customer, mode: "insensitive"},
-            },
+            customer: search?.customerId ? {
+              id: {in: search?.customerId},
+            } : {lastName: {startsWith: search?.customer, mode: "insensitive"}},
             createdAt:
               search?.createStartedAt && search?.createEndedAt
                 ? {
@@ -157,9 +155,9 @@ export class OrderRepository {
                   every: {total: {}},
                 }
                 : {},
-            customer: {
-              lastName: {startsWith: search?.customer, mode: "insensitive"},
-            },
+            customer: search?.customerId ? {
+              id: {in: search?.customerId},
+            } : {lastName: {startsWith: search?.customer, mode: "insensitive"}},
             createdAt:
               search?.createStartedAt && search?.createEndedAt
                 ? {

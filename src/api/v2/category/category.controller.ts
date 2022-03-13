@@ -1,4 +1,4 @@
-import {Body, Controller, Delete, Get, Param, Patch, Post, UseGuards} from '@nestjs/common';
+import {Body, Controller, Delete, Get, Param, Patch, Post, Query, UseGuards} from '@nestjs/common';
 import {CategoryService} from './category.service';
 import {CreateCategoryDto} from './dto/create-category.dto';
 import {UpdateCategoryDto} from './dto/update-category.dto';
@@ -10,6 +10,7 @@ import {RoleEnum} from "@prisma/client";
 import {ReqProfile} from "../../../core/decorators/req-profile.decorator";
 import {ProfileEntity} from "../../../common/entities/profile.entity";
 import {LoggerGuard} from "../../../core/guard/logger.guard";
+import {SearchCategoryDto} from "./dto/search-category.dto";
 
 @UseGuards(JwtAuthGuard, ApiKeyGuard, RolesGuard)
 @Controller('v2/category')
@@ -26,8 +27,8 @@ export class CategoryController {
 
   @Roles(RoleEnum.CAMP_ACCOUNTING, RoleEnum.HUMAN_RESOURCE)
   @Get()
-  findAll(@ReqProfile() profile: ProfileEntity) {
-    return this.categoryService.findAll(profile);
+  findAll(@ReqProfile() profile: ProfileEntity, @Query() search: SearchCategoryDto) {
+    return this.categoryService.findAll(profile, search);
   }
 
   @Roles(RoleEnum.CAMP_ACCOUNTING, RoleEnum.HUMAN_RESOURCE)

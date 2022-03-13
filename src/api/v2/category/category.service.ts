@@ -3,6 +3,7 @@ import {CreateCategoryDto} from './dto/create-category.dto';
 import {UpdateCategoryDto} from './dto/update-category.dto';
 import {PrismaService} from "../../../prisma.service";
 import {ProfileEntity} from "../../../common/entities/profile.entity";
+import {SearchCategoryDto} from "./dto/search-category.dto";
 
 @Injectable()
 export class CategoryService {
@@ -27,7 +28,7 @@ export class CategoryService {
     }
   }
 
-  async findAll(profile: ProfileEntity) {
+  async findAll(profile: ProfileEntity, search: SearchCategoryDto) {
     try {
       const acc = await this.prisma.account.findUnique({
         where: {id: profile.id},
@@ -36,7 +37,7 @@ export class CategoryService {
       return await this.prisma.category.findMany({
         where: {
           app: acc.appName,
-          branch: acc.branches?.length ? {id: {in: acc.branches.map(branch => branch.id)}} : {},
+          branch: acc.branches?.length ? {id: {in: acc.branches.map(branch => branch.id)}} : {name: search?.branch},
         }
       });
     } catch (err) {
