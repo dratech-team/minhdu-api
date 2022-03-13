@@ -582,7 +582,8 @@ export class PayrollRepository {
         where: {
           employee: {
             branch: {id: {in: branchId}},
-            type: {equals: employeeType || EmployeeType.FULL_TIME}
+            type: {equals: employeeType || EmployeeType.FULL_TIME},
+            leftAt: {in: null}
           },
           createdAt: {
             gte: firstDatetime(createdAt),

@@ -23,20 +23,14 @@ export class OrderRepository {
             connect: body.commodityIds.map((id) => ({id})),
           },
           provinceId: body?.provinceId,
+          districtId: body?.districtId,
           wardId: body.wardId,
         },
         include: {
           commodities: true,
           province: true,
-          ward: {
-            include: {
-              district: {
-                include: {
-                  province: true
-                }
-              }
-            }
-          },
+          district: true,
+          ward: true
         },
       });
     } catch (err) {
@@ -55,15 +49,7 @@ export class OrderRepository {
           routes: true,
           province: true,
           district: true,
-          ward: {
-            include: {
-              district: {
-                include: {
-                  province: true
-                }
-              }
-            }
-          },
+          ward: true,
           paymentHistories: true,
         },
       });
@@ -209,15 +195,7 @@ export class OrderRepository {
             routes: true,
             province: true,
             district: true,
-            ward: {
-              include: {
-                district: {
-                  include: {
-                    province: true
-                  }
-                }
-              }
-            },
+            ward: true,
             paymentHistories: true,
           },
         }),
@@ -238,6 +216,7 @@ export class OrderRepository {
             connect: updates?.commodityIds?.map((id) => ({id})),
           },
           provinceId: updates?.provinceId,
+          districtId: updates?.districtId,
           wardId: updates?.wardId,
           hide: updates?.hide,
           createdAt: updates?.createdAt,
@@ -249,15 +228,8 @@ export class OrderRepository {
         include: {
           commodities: true,
           province: true,
-          ward: {
-            include: {
-              district: {
-                include: {
-                  province: true
-                }
-              }
-            }
-          },
+          district: true,
+          ward: true,
         },
       });
     } catch (err) {
