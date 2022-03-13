@@ -212,13 +212,15 @@ export class EmployeeRepository {
             },
             category: true
           },
-          orderBy: search?.orderBy === OrderbyEmployeeEnum.STT
-            ? {stt: search.orderType === SortEnum.UP ? "asc" : "desc"}
-            : search?.orderBy === OrderbyEmployeeEnum.POSITION
-              ? {position: {name: search.orderType === SortEnum.UP ? "asc" : "desc"}}
-              : search?.orderBy === OrderbyEmployeeEnum.NAME
-                ? {lastName: search.orderType === SortEnum.UP ? "asc" : "desc"}
-                : {createdAt: search.orderType === SortEnum.UP ? "asc" : "desc"}
+          orderBy: search?.orderBy && search?.orderType
+            ? search.orderBy === OrderbyEmployeeEnum.CREATE
+              ? {createdAt: search.orderType}
+              : search.orderBy === OrderbyEmployeeEnum.POSITION
+                ? {position: {name: search.orderType}}
+                : search.orderBy === OrderbyEmployeeEnum.NAME
+                  ? {lastName: search.orderType}
+                  : {}
+            : {stt: "desc"}
         }),
       ]);
       return {total, data};

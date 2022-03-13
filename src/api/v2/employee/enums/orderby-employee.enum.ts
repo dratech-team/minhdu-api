@@ -4,4 +4,5 @@ export enum OrderbyEmployeeEnum {
   RECIPE = "RECIPE",
   BRANCH = "BRANCH",
   POSITION = "POSITION",
+  CREATE = "CREATE",
 }
