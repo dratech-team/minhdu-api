@@ -1,5 +1,5 @@
 import {BadRequestException, Injectable, NotFoundException} from "@nestjs/common";
-import {EmployeeType, Payroll, Position, RoleEnum, Salary, SalaryType} from "@prisma/client";
+import {EmployeeType, Payroll, Position, Salary, SalaryType} from "@prisma/client";
 import {ProfileEntity} from "../../../common/entities/profile.entity";
 import {PrismaService} from "../../../prisma.service";
 import {firstDatetime, lastDatetime} from "../../../utils/datetime.util";
@@ -494,6 +494,8 @@ export class PayrollRepository {
   }
 
   async findOvertimesV2(profile: ProfileEntity, search: Partial<SearchPayrollDto>) {
+    const acc = await this.prisma.account.findUnique({where: {id: profile.id}, include: {branches: true}});
+
     const overtimeTitles = await this.prisma.salary.groupBy({
       by: ['title'],
       where: {
@@ -507,9 +509,13 @@ export class PayrollRepository {
         type: {in: SalaryType.OVERTIME},
         payroll: {
           employee: {
-            branchId: profile?.branches?.length ? {in: profile?.branches.map(branch => branch.id)} : {},
-            position: search?.position ? {name: {startsWith: search?.position, mode: "insensitive"}} : {},
-            branch: search?.branch ? {name: {startsWith: search?.branch, mode: "insensitive"}} : {},
+            branch: acc.branches?.length ? {id: {in: profile?.branches.map(branch => branch.id)}} : {
+              name: {
+                startsWith: search?.branch,
+                mode: "insensitive"
+              }
+            },
+            position: {name: {startsWith: search?.position, mode: "insensitive"}},
             lastName: search?.type === SearchType.EQUALS
               ? {equals: search?.name, mode: "insensitive"}
               : search?.type === SearchType.START_WITH
