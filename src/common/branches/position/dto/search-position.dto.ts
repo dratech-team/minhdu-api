@@ -12,6 +12,10 @@ export class SearchPositionDto {
   readonly branchId: number;
 
   @IsOptional()
+  @IsString()
+  readonly branch: string;
+
+  @IsOptional()
   @IsNumber()
   @Type(() => Number)
   readonly workday: number;
