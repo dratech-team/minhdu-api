@@ -94,7 +94,7 @@ export class BranchRepository {
     const acc = await this.prisma.account.findUnique({where: {id: profile.id}, include: {branches: true}});
 
     const branch = await this.prisma.branch.findUnique({
-      where: {id: id},
+      where: {id},
       include: {
         _count: {
           select: {
