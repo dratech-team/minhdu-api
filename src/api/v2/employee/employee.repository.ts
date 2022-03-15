@@ -7,7 +7,6 @@ import {Sort, UpdateEmployeeDto} from "./dto/update-employee.dto";
 import {firstDatetime, lastDatetime} from "../../../utils/datetime.util";
 import {SearchEmployeeByOvertimeDto} from "./dto/search-employee-by-overtime.dto";
 import {OrderbyEmployeeEnum} from "./enums/orderby-employee.enum";
-import {SortEnum} from "../../../common/enum/sort.enum";
 
 @Injectable()
 export class EmployeeRepository {

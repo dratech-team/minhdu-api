@@ -49,7 +49,7 @@ export class OvertimeTemplateRepository {
             AND: {
               branch: acc.branches?.length
                 ? {id: {in: acc.branches.map(branch => branch.id)}}
-                : {id: {in: search?.branchId}},
+                : search?.branchId ? {id: {in: search?.branchId}} : {},
               positions: search?.positionIds?.length
                 ? {some: {id: {in: search?.positionIds}}}
                 : {},
@@ -66,7 +66,7 @@ export class OvertimeTemplateRepository {
             AND: {
               branch: acc.branches?.length
                 ? {id: {in: acc.branches.map(branch => branch.id)}}
-                : {id: {in: search?.branchId}},
+                : search?.branchId ? {id: {in: search?.branchId}} : {},
               positions: search?.positionIds?.length
                 ? {some: {id: {in: search?.positionIds}}}
                 : {},
