@@ -32,8 +32,8 @@ export class BranchController {
 
 
   @Roles(RoleEnum.ADMIN, RoleEnum.HUMAN_RESOURCE, RoleEnum.WAREHOUSE, RoleEnum.CAMP_ACCOUNTING)
-  @Get(':id/:name')
-  async findOne(@ReqProfile() profile: ProfileEntity, @Param('id') id: number, @Param('name') name: string) {
+  @Get(':id')
+  async findOne(@ReqProfile() profile: ProfileEntity, @Param('id') id: number) {
     return this.branchService.findOne(profile, +id);
   }
 

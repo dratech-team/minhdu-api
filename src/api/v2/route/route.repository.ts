@@ -47,7 +47,6 @@ export class RouteRepository {
 
   async findAll(search: SearchRouteDto) {
     try {
-      console.log(search)
       const [total, data] = await Promise.all([
         this.prisma.route.count({
           where: {
@@ -75,6 +74,9 @@ export class RouteRepository {
             locations: true,
             orders: {
               include: {
+                province: true,
+                district: true,
+                ward: true,
                 customer: true,
                 commodities: true
               }
@@ -116,6 +118,8 @@ export class RouteRepository {
                 include: {route: true}
               },
               customer: true,
+              province: true,
+              district: true,
               ward: true,
             },
           },
@@ -163,6 +167,8 @@ export class RouteRepository {
             include: {
               commodities: true,
               customer: true,
+              province: true,
+              district: true,
               ward: true,
             },
           },

@@ -214,8 +214,8 @@ export class BranchRepository {
 
   private async mapToBranch(branch, appName: AppEnum) {
     return Object.assign(branch, {
-        status: branch.status.map(status => status.status).toString(),
-        phone: branch.phone.map(phone => phone.phone).toString()
+        status: branch.status?.map(status => status.status)?.toString(),
+        phone: branch.phone?.map(phone => phone.phone)?.toString()
       }, appName === AppEnum.HR
       ? {_count: Object.assign(branch._count, {employeeLeft: await this.count(branch.id, true)})}
       : {}
