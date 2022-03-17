@@ -24,6 +24,10 @@ export function rangeDatetime(start: Date, end: Date, type?: 'days' | 'years') {
   return Array.from(moment().range(start, tomorrowDate(end)).by(type || 'day', {excludeEnd: true}));
 }
 
-export function beforeDatetime(i: number,  type?: "days" | "months" | "years", datetime?: Date) {
+export function beforeDatetime(i: number, type?: "days" | "months" | "years", datetime?: Date) {
   return moment(datetime || new Date()).subtract(i, type || "months").toDate();
+}
+
+export const compareDatetime = (date1: Date, date2: Date, unitOfType?: "days" | "months" | "years") => {
+  return moment(date1).diff(date2, unitOfType || "days") === 0;
 }

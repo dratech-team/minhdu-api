@@ -2,7 +2,7 @@ import {BadRequestException, ConflictException, Injectable, NotFoundException} f
 import {DatetimeUnit, EmployeeType, Payroll, RecipeType, RoleEnum, Salary, SalaryType,} from "@prisma/client";
 import {Response} from "express";
 import {ProfileEntity} from "../../../common/entities/profile.entity";
-import {lastDatetime, lastDayOfMonth} from "../../../utils/datetime.util";
+import {compareDatetime, firstDatetime, lastDatetime, lastDayOfMonth} from "../../../utils/datetime.util";
 import {EmployeeService} from "../employee/employee.service";
 import {CreatePayrollDto} from "./dto/create-payroll.dto";
 import {SearchPayrollDto} from "./dto/search-payroll.dto";
@@ -93,7 +93,9 @@ export class PayrollService {
         return {
           total,
           data: data.map(payroll => {
-            return Object.assign(payroll, {timesheet: timesheet(payroll.createdAt, payroll.salaries)});
+            const createdAt = compareDatetime(payroll.employee.createdAt, payroll.createdAt, "months") ? payroll.employee.createdAt : payroll.createdAt;
+            if (payroll.employeeId === 28)
+              return Object.assign(payroll, {timesheet: timesheet(createdAt, payroll.salaries)});
           })
         };
       }
@@ -1505,7 +1507,7 @@ export class PayrollService {
   }
 
   exportTimeSheet(response: Response, filename: string, datetime: Date, payrolls, headers: string[], keys: string[]) {
-    const datetimes = rageDateTime(datetime, datetime).map(date => date.format("DD-MM"));
+    const datetimes = rageDateTime(firstDatetime(datetime), lastDatetime(datetime)).map(date => date.format("DD-MM"));
     const customHeaders = [...headers, ...datetimes];
     const customKeys = [...keys, ...datetimes];
     const data = payrolls

@@ -154,19 +154,14 @@ export class PayrollRepository {
         this.prisma.payroll.count({
           where: {
             employeeId: Number(search?.employeeId) || undefined,
-            // branch: {
-            //   name: acc.role.role !== RoleEnum.HUMAN_RESOURCE
-            //     ? {startsWith: search?.branch, mode: "insensitive"}
-            //     : {},
-            // },
             employee: {
               leftAt: null,
               position: {
                 name: {startsWith: search?.position, mode: "insensitive"},
               },
               branch: {
-                id: profile.branches?.length ? {in: profile.branches.map(branch => branch.id)} : {},
-                name: !profile.branches?.length ? {startsWith: search?.branch, mode: "insensitive"} : {},
+                id: acc.branches?.length ? {in: acc.branches.map(branch => branch.id)} : {},
+                name: !acc.branches?.length ? {startsWith: search?.branch, mode: "insensitive"} : {},
               },
               lastName: {contains: search?.name, mode: "insensitive"},
               type: search?.employeeType ? {in: search?.employeeType} : {},
@@ -180,8 +175,8 @@ export class PayrollRepository {
           },
         }),
         this.prisma.payroll.findMany({
-          take: +search?.take || undefined,
-          skip: +search?.skip || undefined,
+          take: search?.take,
+          skip: search?.skip,
           where: {
             employeeId: Number(search?.employeeId) || undefined,
             employee: {
@@ -190,8 +185,8 @@ export class PayrollRepository {
                 name: {startsWith: search?.position, mode: "insensitive"},
               },
               branch: {
-                id: profile.branches?.length ? {in: profile.branches.map(branch => branch.id)} : {},
-                name: !profile.branches?.length ? {startsWith: search?.branch, mode: "insensitive"} : {},
+                id: acc.branches?.length ? {in: acc.branches.map(branch => branch.id)} : {},
+                name: !acc.branches?.length ? {startsWith: search?.branch, mode: "insensitive"} : {},
               },
               lastName: {contains: search?.name, mode: "insensitive"},
               type: search?.employeeType ? {in: search?.employeeType} : {},
