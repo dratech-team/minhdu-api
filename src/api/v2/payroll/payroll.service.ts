@@ -94,8 +94,7 @@ export class PayrollService {
           total,
           data: data.map(payroll => {
             const createdAt = compareDatetime(payroll.employee.createdAt, payroll.createdAt, "months") ? payroll.employee.createdAt : payroll.createdAt;
-            if (payroll.employeeId === 28)
-              return Object.assign(payroll, {timesheet: timesheet(createdAt, payroll.salaries)});
+            return Object.assign(payroll, {timesheet: timesheet(createdAt, payroll.salaries)});
           })
         };
       }
