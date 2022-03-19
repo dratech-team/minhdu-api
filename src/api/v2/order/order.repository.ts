@@ -196,6 +196,9 @@ export class OrderRepository {
             ward: true,
             paymentHistories: true,
           },
+          orderBy: {
+            createdAt: "desc"
+          }
         }),
       ]);
       return {total, data};
