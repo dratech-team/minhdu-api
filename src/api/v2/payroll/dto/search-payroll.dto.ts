@@ -3,8 +3,9 @@ import {FilterTypeEnum} from "../entities/filter-type.enum";
 import {Transform, Type} from "class-transformer";
 import {IsBoolean, IsDate, IsEnum, IsNumber, IsOptional, IsString} from "class-validator";
 import * as moment from "moment";
+import {SortDto} from "../../../../common/dtos/sort.dto";
 
-export class SearchPayrollDto {
+export class SearchPayrollDto extends SortDto {
   @IsOptional()
   @Type(() => Number)
   @Transform(({value}) => Number(value))

@@ -21,7 +21,6 @@ import {FilterTypeEnum} from "./entities/filter-type.enum";
 import {ItemExportDto} from "../../../common/interfaces/items-export.dto";
 import {SearchExportDto} from "./dto/search-export.dto";
 import {convertArrayToString} from "./functions/convertArrayToString";
-import {HttpService} from "@nestjs/axios";
 import {SearchSalaryDto} from "./dto/search-salary.dto";
 
 @Injectable()
@@ -51,7 +50,7 @@ export class PayrollService {
         const created = await Promise.all(employees.data.map(async employee => {
           return await this.repository.generate({
             employeeId: employee.id,
-            createdAt: body.createdAt,
+            createdAt: compareDatetime(body.createdAt, employee.createdAt) ? employee.createdAt : body.createdAt,
           });
         }));
         return {
@@ -74,6 +73,7 @@ export class PayrollService {
 
   async findAll(profile: ProfileEntity, search?: Partial<SearchPayrollDto>) {
     const {total, data} = await this.repository.findAll(profile, search);
+
     switch (search.filterType) {
       case FilterTypeEnum.TIME_SHEET: {
         return {
@@ -453,26 +453,24 @@ export class PayrollService {
       ?.reduce((a, b) => a + b, 0);
   }
 
-  // endDay: Ngày cuối cùng của tháng do mình quy định. Áp dụng đối với lương cố dịnh
-  totalActualDay(payroll: OnePayroll, endDay?: number) {
+  totalActualDay(payroll: OnePayroll) {
+    // endDay: Ngày cuối cùng của tháng do mình quy định. Áp dụng đối với lương cố dịnh
+    const endDay = payroll.employee.isFlatSalary
+      ? 30
+      : isEqualDatetime(new Date(), payroll.createdAt, "month")
+        ? new Date().getDate()
+        : lastDayOfMonth(payroll.createdAt);
+
     // absent trừ cho ngày vào làm nếu ngày vào làm là tháng đc tính lương
     const absent = this.totalAbsent(payroll);
     const confirmedAt = payroll.accConfirmedAt;
-    const absentDay = absent.day + (isEqualDatetime(payroll.employee.createdAt, payroll.createdAt, "month")
-      ? payroll.employee.createdAt.getDate()
-      : 0);
 
     if (!confirmedAt) {
-      // Phiếu lương chưa được xác nhận và là phiếu lương của tháng hiện tại
-      if (isEqualDatetime(new Date(), payroll.createdAt, "month")) {
-        return (endDay || new Date().getDate()) - absentDay;
-      } else {
-        // Phiếu lương chưa được xác nhận và là phiếu lương của tháng trước
-        return (endDay || lastDayOfMonth(payroll.createdAt)) - absentDay;
-      }
+      // Phiếu lương chưa được xác nhận
+      return endDay - absent.day;
     } else {
       // Phiếu lương đã được xác nhận và là phiếu lương của tháng hiện tại
-      return (endDay || lastDayOfMonth(payroll.createdAt)) - (absentDay + ((endDay || lastDayOfMonth(payroll.createdAt)) - confirmedAt.getDate()));
+      return endDay - (absent.day + (endDay - confirmedAt.getDate()));
     }
   }
 
@@ -744,7 +742,7 @@ export class PayrollService {
 
     let actualDay = this.totalActualDay(payroll);
     if (payroll.employee.isFlatSalary) {
-      actualDay = this.totalActualDay(payroll, 30);
+      actualDay = this.totalActualDay(payroll);
     }
 
     // basic
@@ -927,7 +925,7 @@ export class PayrollService {
 
     let actualDay = this.totalActualDay(payroll);
     if (payroll.employee.isFlatSalary) {
-      actualDay = this.totalActualDay(payroll, 30);
+      actualDay = this.totalActualDay(payroll);
     }
 
     // basic
@@ -1099,7 +1097,7 @@ export class PayrollService {
 
     let actualDay = this.totalActualDay(payroll);
     if (payroll.employee.isFlatSalary) {
-      actualDay = this.totalActualDay(payroll, 30);
+      actualDay = this.totalActualDay(payroll);
     }
 
     // basic

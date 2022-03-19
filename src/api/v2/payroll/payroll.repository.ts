@@ -12,6 +12,7 @@ import {SearchType} from "./entities/search.type.enum";
 import {Promise} from "es6-promise";
 import {FilterTypeEnum} from "./entities/filter-type.enum";
 import {SearchSalaryDto} from "./dto/search-salary.dto";
+import {OrderbyEmployeeEnum} from "../employee/enums/orderby-employee.enum";
 
 @Injectable()
 export class PayrollRepository {
@@ -214,9 +215,15 @@ export class PayrollRepository {
             },
           },
           orderBy: {
-            employee: {
-              stt: "asc"
-            }
+            employee: search?.orderBy && search?.orderType
+              ? search.orderBy === OrderbyEmployeeEnum.CREATE
+                ? {createdAt: search.orderType}
+                : search.orderBy === OrderbyEmployeeEnum.POSITION
+                  ? {position: {name: search.orderType}}
+                  : search.orderBy === OrderbyEmployeeEnum.NAME
+                    ? {lastName: search.orderType}
+                    : {}
+              : {stt: "asc"}
           }
         }),
       ]);
@@ -392,7 +399,7 @@ export class PayrollRepository {
         }
       });
 
-      if (moment(updates?.accConfirmedAt || updates?.manConfirmedAt).isBefore(employee.createdAt)) {
+      if (moment(updates?.accConfirmedAt || updates?.manConfirmedAt).isBefore(payroll.createdAt)) {
         throw new BadRequestException(`Không thể xác nhận phiếu lương trước ngày vào làm. Vui lòng kiểm tra lại.`);
       }
 
@@ -408,6 +415,7 @@ export class PayrollRepository {
           manConfirmedAt: updates?.manConfirmedAt,
           actualday: updates?.actualday,
           taxed: updates?.taxed,
+          createdAt: updates?.createdAt,
           note: updates?.note,
         },
         include: {

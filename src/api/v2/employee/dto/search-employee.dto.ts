@@ -2,8 +2,9 @@ import {EmployeeType, GenderType, RecipeType} from "@prisma/client";
 import {IsEnum, IsNotEmpty, IsNumber, IsOptional, IsString} from "class-validator";
 import {Type} from "class-transformer";
 import {OrderbyEmployeeEnum} from "../enums/orderby-employee.enum";
+import {SortDto} from "../../../../common/dtos/sort.dto";
 
-export class SearchEmployeeDto {
+export class SearchEmployeeDto  extends SortDto{
   @IsNotEmpty()
   @IsNumber()
   @Type(() => Number)
@@ -74,14 +75,6 @@ export class SearchEmployeeDto {
   @IsNumber()
   @Type(() => Number)
   readonly categoryId: number;
-
-  @IsOptional()
-  @IsString()
-  readonly orderType: "asc" | "desc";
-
-  @IsOptional()
-  @IsEnum(OrderbyEmployeeEnum)
-  readonly orderBy: OrderbyEmployeeEnum;
 
   @IsOptional()
   @IsString()
