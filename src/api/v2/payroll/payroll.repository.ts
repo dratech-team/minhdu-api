@@ -555,6 +555,8 @@ export class PayrollRepository {
         },
       }),
       this.prisma.salary.findMany({
+        take: search?.take,
+        skip: search?.skip,
         where: {
           title: {startsWith: search?.title, mode: "insensitive"},
           type: {in: SalaryType.OVERTIME},
