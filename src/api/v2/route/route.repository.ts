@@ -38,6 +38,19 @@ export class RouteRepository {
           orders: body?.orderIds?.length ? {connect: body.orderIds.map((id) => ({id: id}))} : {connect: orderIds?.map(id => ({id}))},
           commodities: {connect: body?.commodityIds?.map((id) => ({id: id}))},
         },
+        include: {
+          employee: true,
+          locations: true,
+          orders: {
+            include: {
+              province: true,
+              district: true,
+              ward: true,
+              customer: true,
+              commodities: true
+            }
+          },
+        },
       });
     } catch (err) {
       console.error(err);

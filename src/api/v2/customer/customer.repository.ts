@@ -13,6 +13,16 @@ export class CustomerRepository {
 
   async create(body: CreateCustomerDto) {
     try {
+      // for (let i = 156; i < 200; i++) {
+      //   const ran = Math.round(Math.random() * 20);
+      //   await this.prisma.customer.create({
+      //     data: {
+      //       lastName: "Tester " + i,
+      //       phone: "0123456789",
+      //       province: {connect: {id: ran === 0 ? 1 : ran}},
+      //     },
+      //   });
+      // }
       return await this.prisma.customer.create({
         data: {
           lastName: body.lastName,
