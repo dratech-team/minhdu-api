@@ -1,8 +1,9 @@
-import {DatetimeUnit, Salary, SalaryType} from "@prisma/client";
+import {DatetimeUnit, Payroll, Salary, SalaryType} from "@prisma/client";
 import * as moment from "moment";
 import {firstDatetime, lastDatetime} from "../../../../utils/datetime.util";
 import {includesDatetime} from "../../../../common/utils/isEqual-datetime.util";
 import {ALL_DAY, PARTIAL_DAY} from "../../../../common/constant/datetime.constant";
+import {OnePayroll} from "../entities/payroll.entity";
 
 export function rageDateTime(startedAt: Date, endedAt: Date, type: "days" | "months" | "years" = "days"): moment.Moment[] {
   const range = [];
@@ -15,20 +16,20 @@ export function rageDateTime(startedAt: Date, endedAt: Date, type: "days" | "mon
   return range;
 };
 
-export const timesheet = (createdAt: Date, salaries: Salary[], isExport?: boolean) => {
-  const diff = rageDateTime(firstDatetime(createdAt), lastDatetime(createdAt));
+export const timesheet = (payroll: any, isExport?: boolean) => {
+  const diff = rageDateTime(firstDatetime(payroll.createdAt), lastDatetime(payroll.createdAt));
   const range = [];
   let total = 0;
 
-  const allDay = salaries.filter(salary => (salary.type === SalaryType.ABSENT || salary.type === SalaryType.DAY_OFF) && salary.times === ALL_DAY && salary.unit === DatetimeUnit.DAY).map(salary => salary.datetime);
-  const partialDay = salaries.filter(salary => (salary.type === SalaryType.ABSENT || salary.type === SalaryType.DAY_OFF) && salary.times === PARTIAL_DAY && salary.unit === DatetimeUnit.DAY).map(salary => salary.datetime);
+  const allDay = payroll.salaries.filter(salary => (salary.type === SalaryType.ABSENT || salary.type === SalaryType.DAY_OFF) && salary.times === ALL_DAY && salary.unit === DatetimeUnit.DAY).map(salary => salary.datetime);
+  const partialDay = payroll.salaries.filter(salary => (salary.type === SalaryType.ABSENT || salary.type === SalaryType.DAY_OFF) && salary.times === PARTIAL_DAY && salary.unit === DatetimeUnit.DAY).map(salary => salary.datetime);
 
   for (let i = 0; i < diff.length; i++) {
     const datetime = diff[i];
     let tick: string;
     let color = "#E02401";
 
-    if (moment(diff[i]).isBefore(createdAt, "days")) {
+    if (moment(diff[i]).isBefore(payroll.createdAt, "days") || moment(diff[i]).isAfter(payroll?.accConfirmedAt, "days")) {
       tick = "N/A";
       color = "#717171";
     } else {

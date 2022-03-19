@@ -1,7 +1,7 @@
 import {EmployeeType} from "@prisma/client";
 import {FilterTypeEnum} from "../entities/filter-type.enum";
 import {Transform, Type} from "class-transformer";
-import {IsDate, IsEnum, IsNumber, IsOptional, IsString} from "class-validator";
+import {IsBoolean, IsDate, IsEnum, IsNumber, IsOptional, IsString} from "class-validator";
 import * as moment from "moment";
 
 export class SearchPayrollDto {
@@ -67,6 +67,12 @@ export class SearchPayrollDto {
   })
   @IsDate()
   readonly endedAt: Date;
+
+
+  @IsOptional()
+  @IsBoolean()
+  @Type(() => Boolean)
+  readonly isLeave: boolean;
 
   @IsOptional()
   @Type(() => Number)

@@ -156,7 +156,7 @@ export class PayrollService {
     if (!payroll.salaries.filter(salary => salary.type === SalaryType.BASIC_INSURANCE).length && payroll.employee.type !== EmployeeType.SEASONAL) {
       throw new BadRequestException(`Phiếu lương thiếu lương cơ bản trích BH. Cần thêm mục này để xác nhận`);
     }
-    if (payroll.employee.createdAt) {
+    if (!payroll.employee.createdAt) {
       throw new BadRequestException(`Vui lòng thêm ngày vào làm / ngày thử việc của nhân viên để đảm bảo phiếu lương hoạt động đúng..`);
     }
     const payslip = (await this.mapPayslip(payroll)).payslip;

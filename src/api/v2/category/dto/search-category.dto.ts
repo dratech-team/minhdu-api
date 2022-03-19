@@ -3,7 +3,7 @@ import {Type} from "class-transformer";
 
 export class SearchCategoryDto {
   @IsOptional()
-  @IsNumber()
+  // @IsNumber()
   @Type(() => Number)
   readonly branchId: number;
 

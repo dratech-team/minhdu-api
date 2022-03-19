@@ -24,7 +24,7 @@ export class SearchEmployeeDto {
 
   readonly createdAt: {
     datetime: Date,
-    compare: 'gte' | 'lte' | 'in',
+    compare?: 'gte' | 'lte' | 'in',
   };
 
   @IsOptional()

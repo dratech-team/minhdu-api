@@ -114,7 +114,7 @@ export class EmployeeRepository {
             positionId: positionIds?.length ? {in: positionIds} : {},
             lastName: {contains: search?.name, mode: "insensitive"},
             gender: search?.gender ? {equals: search?.gender} : {},
-            isFlatSalary: search?.isFlatSalary !== -1 ? {equals: +search.isFlatSalary === 1} : undefined,
+            isFlatSalary: search?.isFlatSalary !== -1 ? {equals: +search.isFlatSalary === 1} : {},
             createdAt: search?.createdAt ? search?.createdAt.compare === 'gte' ? {
               gte: search?.createdAt?.datetime,
             } : search?.createdAt.compare === 'lte' ? {
@@ -163,7 +163,7 @@ export class EmployeeRepository {
             positionId: positionIds?.length ? {in: positionIds} : {},
             lastName: {contains: search?.name, mode: "insensitive"},
             gender: search?.gender ? {equals: search?.gender} : {},
-            isFlatSalary: search?.isFlatSalary !== -1 ? {equals: +search.isFlatSalary === 1} : undefined,
+            isFlatSalary: search?.isFlatSalary !== -1 ? {equals: +search.isFlatSalary === 1} : {},
             createdAt: search?.createdAt ? search?.createdAt.compare === 'gte' ? {
               gte: search?.createdAt?.datetime,
             } : search?.createdAt.compare === 'lte' ? {

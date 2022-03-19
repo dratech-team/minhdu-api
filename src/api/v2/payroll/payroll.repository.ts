@@ -163,7 +163,7 @@ export class PayrollRepository {
           where: {
             employeeId: Number(search?.employeeId) || undefined,
             employee: {
-              leftAt: null,
+              leftAt: search?.isLeave ? {notIn: null} : {in: null},
               position: {
                 name: {startsWith: search?.position, mode: "insensitive"},
               },
@@ -188,7 +188,7 @@ export class PayrollRepository {
           where: {
             employeeId: Number(search?.employeeId) || undefined,
             employee: {
-              leftAt: null,
+              leftAt: search?.isLeave ? {notIn: null} : {in: null},
               position: {
                 name: {startsWith: search?.position, mode: "insensitive"},
               },
