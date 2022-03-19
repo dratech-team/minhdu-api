@@ -651,24 +651,6 @@ export class PayrollRepository {
     });
   }
 
-  async ov() {
-    const payrolls = await this.prisma.payroll.findMany();
-    await Promise.all(payrolls.map(async payroll => {
-      const employee = await this.prisma.employee.findUnique({
-        where: {id: payroll.employeeId},
-        include: {branch: true, position: true}
-      });
-
-      await this.prisma.payroll.update({
-        where: {id: payroll.id},
-        data: {
-          branch: employee.branch.name,
-          position: employee.position.name
-        }
-      });
-    }));
-  }
-
   async currentPayroll(profile: ProfileEntity, datetime: Date) {
     try {
       if (!datetime) {

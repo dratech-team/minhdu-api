@@ -132,10 +132,4 @@ export class PayrollController {
   async overtimeTemplate(@Query() search: SearchSalaryDto) {
     return this.payrollService.overtimeTemplate(search);
   }
-
-  @Roles(RoleEnum.ADMIN, RoleEnum.HUMAN_RESOURCE, RoleEnum.CAMP_ACCOUNTING)
-  @Get('/overtime/template/update')
-  async overtime() {
-    return this.payrollService.overtimeupdate();
-  }
 }
