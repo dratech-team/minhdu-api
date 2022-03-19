@@ -29,41 +29,26 @@ export class PayrollService {
   constructor(
     private readonly repository: PayrollRepository,
     private readonly employeeService: EmployeeService,
-    private readonly httpService: HttpService
   ) {
   }
 
-  async create(profile: ProfileEntity, body: CreatePayrollDto, employeeType: EmployeeType) {
+  async create(profile: ProfileEntity, body: CreatePayrollDto) {
     try {
       if (!body?.employeeId) {
         // throw new BadRequestException("Tính năng đang được phát triển. Xin cảm ơn");
         /// FIXME: I need deep testing befrore release
-        const employee = await this.employeeService.findAll(
+        const employees = await this.employeeService.findAll(
           profile,
           {
             take: undefined,
             skip: undefined,
             createdAt: {
-              datetime: lastDatetime(body.createdAt),
-              compare: 'lte'
-            },
-            type: employeeType || EmployeeType.FULL_TIME,
+              datetime: body.createdAt,
+              compare: "inMonth"
+            }
           }
         );
-        if (employeeType) {
-          const created = await Promise.all(employee.data.map(async employee => {
-            return await this.repository.create({
-              employeeId: employee.id,
-              createdAt: body.createdAt,
-            });
-          }));
-          return {
-            status: 201,
-            message: `Đã tự động tạo phiếu lương tháng ${moment(body.createdAt).format("MM/YYYY")} cho ${created.length} nhân viên`,
-          };
-        }
-
-        const created = await Promise.all(employee.data.map(async employee => {
+        const created = await Promise.all(employees.data.map(async employee => {
           return await this.repository.generate({
             employeeId: employee.id,
             createdAt: body.createdAt,
@@ -94,8 +79,7 @@ export class PayrollService {
         return {
           total,
           data: data.map(payroll => {
-            const createdAt = compareDatetime(payroll.employee.createdAt, payroll.createdAt, "months") ? payroll.employee.createdAt : payroll.createdAt;
-            return Object.assign(payroll, {timesheet: timesheet(createdAt, payroll.salaries)});
+            return Object.assign(payroll, {timesheet: timesheet(payroll)});
           })
         };
       }

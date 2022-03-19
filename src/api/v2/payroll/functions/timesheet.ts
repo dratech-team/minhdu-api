@@ -1,6 +1,6 @@
 import {DatetimeUnit, Payroll, Salary, SalaryType} from "@prisma/client";
 import * as moment from "moment";
-import {firstDatetime, lastDatetime} from "../../../../utils/datetime.util";
+import {compareDatetime, firstDatetime, lastDatetime} from "../../../../utils/datetime.util";
 import {includesDatetime} from "../../../../common/utils/isEqual-datetime.util";
 import {ALL_DAY, PARTIAL_DAY} from "../../../../common/constant/datetime.constant";
 import {OnePayroll} from "../entities/payroll.entity";
@@ -17,6 +17,7 @@ export function rageDateTime(startedAt: Date, endedAt: Date, type: "days" | "mon
 };
 
 export const timesheet = (payroll: any, isExport?: boolean) => {
+  const createdAt = compareDatetime(payroll.employee.createdAt, payroll.createdAt, "months") ? payroll.employee.createdAt : payroll.createdAt;
   const diff = rageDateTime(firstDatetime(payroll.createdAt), lastDatetime(payroll.createdAt));
   const range = [];
   let total = 0;
@@ -29,7 +30,7 @@ export const timesheet = (payroll: any, isExport?: boolean) => {
     let tick: string;
     let color = "#E02401";
 
-    if (moment(diff[i]).isBefore(payroll.createdAt, "days") || moment(diff[i]).isAfter(payroll?.accConfirmedAt, "days")) {
+    if (moment(diff[i]).isBefore(createdAt, "days") || moment(diff[i]).isAfter(payroll?.accConfirmedAt, "days")) {
       tick = "N/A";
       color = "#717171";
     } else {

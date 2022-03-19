@@ -31,9 +31,8 @@ export class PayrollController {
   create(
     @ReqProfile() user: ProfileEntity,
     @Body() body: CreatePayrollDto,
-    @Query("employeeType") employeeType: EmployeeType
   ) {
-    return this.payrollService.create(user, body, employeeType);
+    return this.payrollService.create(user, body);
   }
 
   @Get()

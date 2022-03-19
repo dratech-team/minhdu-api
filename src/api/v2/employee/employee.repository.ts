@@ -93,6 +93,7 @@ export class EmployeeRepository {
     search: Partial<SearchEmployeeDto>
   ) {
     try {
+      const acc = await this.prisma.account.findUnique({where: {id: profile.id}, include: {branches: true}});
       const template = search?.templateId
         ? await this.prisma.overtimeTemplate.findUnique({
           where: {id: search?.templateId},
@@ -104,23 +105,27 @@ export class EmployeeRepository {
         this.prisma.employee.count({
           where: {
             leftAt: search?.isLeft === 'true' ? {notIn: null} : {in: null},
-            position: {
-              name: {startsWith: search?.position, mode: "insensitive"},
-            },
+            position: {name: {startsWith: search?.position, mode: "insensitive"}},
             branch: {
-              id: profile.branches?.length ? {in: profile.branches.map(branch => branch.id)} : {},
-              name: !profile.branches?.length ? {startsWith: search?.branch, mode: "insensitive"} : {},
+              id: acc.branches?.length ? {in: acc.branches.map(branch => branch.id)} : {},
+              name: !acc.branches?.length ? {startsWith: search?.branch, mode: "insensitive"} : {},
             },
             positionId: positionIds?.length ? {in: positionIds} : {},
-            lastName: {contains: search?.name, mode: "insensitive"},
+            lastName: {startsWith: search?.name, mode: "insensitive"},
             gender: search?.gender ? {equals: search?.gender} : {},
-            isFlatSalary: search?.isFlatSalary !== -1 ? {equals: +search.isFlatSalary === 1} : {},
-            createdAt: search?.createdAt ? search?.createdAt.compare === 'gte' ? {
-              gte: search?.createdAt?.datetime,
-            } : search?.createdAt.compare === 'lte' ? {
-              lte: search?.createdAt?.datetime,
-            } : {in: search?.createdAt?.datetime} : {},
-            workedAt: search?.workedAt || undefined,
+            isFlatSalary: (search?.isFlatSalary == 1 || search?.isFlatSalary == 0) ? {equals: +search.isFlatSalary === 1} : {},
+            createdAt: search?.createdAt ? search?.createdAt.compare === 'gte'
+              ? {gte: search?.createdAt?.datetime}
+              : search?.createdAt.compare === 'lte'
+                ? {lte: search?.createdAt?.datetime}
+                : search?.createdAt.compare === 'in'
+                  ? {in: search?.createdAt?.datetime}
+                  : search?.createdAt.compare === 'inMonth' ? {
+                    gte: firstDatetime(search?.createdAt?.datetime),
+                    lte: lastDatetime(search?.createdAt?.datetime)
+                  } : {}
+              : {},
+            workedAt: {in: search?.workedAt},
             payrolls: search?.createdPayroll ? {
               some: {
                 createdAt: {
@@ -141,11 +146,8 @@ export class EmployeeRepository {
               }
             },
             category: search?.categoryId ? {id: {in: +search.categoryId}} : {},
-            phone: search?.phone?.trim() !== '' ? {contains: search.phone, mode: "insensitive"} : {},
-            address: search?.address?.trim() !== '' ? {
-              contains: search.address,
-              mode: "insensitive"
-            } : {}
+            phone: {startsWith: search.phone, mode: "insensitive"},
+            address: {startsWith: search?.address, mode: "insensitive"}
           },
         }),
         this.prisma.employee.findMany({
@@ -153,26 +155,27 @@ export class EmployeeRepository {
           take: search?.take,
           where: {
             leftAt: search?.isLeft === 'true' ? {notIn: null} : {in: null},
-            position: {
-              name: {startsWith: search?.position, mode: "insensitive"},
-            },
+            position: {name: {startsWith: search?.position, mode: "insensitive"}},
             branch: {
-              id: profile.branches?.length ? {in: profile.branches.map(branch => branch.id)} : {},
-              name: !profile.branches?.length ? {startsWith: search?.branch, mode: "insensitive"} : {},
+              id: acc.branches?.length ? {in: acc.branches.map(branch => branch.id)} : {},
+              name: !acc.branches?.length ? {startsWith: search?.branch, mode: "insensitive"} : {},
             },
             positionId: positionIds?.length ? {in: positionIds} : {},
-            lastName: {contains: search?.name, mode: "insensitive"},
+            lastName: {startsWith: search?.name, mode: "insensitive"},
             gender: search?.gender ? {equals: search?.gender} : {},
-            isFlatSalary: search?.isFlatSalary !== -1 ? {equals: +search.isFlatSalary === 1} : {},
-            createdAt: search?.createdAt ? search?.createdAt.compare === 'gte' ? {
-              gte: search?.createdAt?.datetime,
-            } : search?.createdAt.compare === 'lte' ? {
-              lte: search?.createdAt?.datetime,
-            } : {
-              gte: firstDatetime(search?.createdAt?.datetime),
-              lte: lastDatetime(search?.createdAt?.datetime)
-            } : {},
-            workedAt: search?.workedAt || undefined,
+            isFlatSalary: (search?.isFlatSalary == 1 || search?.isFlatSalary == 0) ? {equals: +search.isFlatSalary === 1} : {},
+            createdAt: search?.createdAt ? search?.createdAt.compare === 'gte'
+              ? {gte: search?.createdAt?.datetime}
+              : search?.createdAt.compare === 'lte'
+                ? {lte: search?.createdAt?.datetime}
+                : search?.createdAt.compare === 'in'
+                  ? {in: search?.createdAt?.datetime}
+                  : search?.createdAt.compare === 'inMonth' ? {
+                    gte: firstDatetime(search?.createdAt?.datetime),
+                    lte: lastDatetime(search?.createdAt?.datetime)
+                  } : {}
+              : {},
+            workedAt: {in: search?.workedAt},
             payrolls: search?.createdPayroll ? {
               some: {
                 createdAt: {
@@ -193,11 +196,8 @@ export class EmployeeRepository {
               }
             },
             category: search?.categoryId ? {id: {in: +search.categoryId}} : {},
-            phone: search?.phone?.trim() !== '' ? {contains: search.phone, mode: "insensitive"} : {},
-            address: search?.address?.trim() !== '' ? {
-              contains: search.address,
-              mode: "insensitive"
-            } : {}
+            phone: {startsWith: search.phone, mode: "insensitive"},
+            address: {startsWith: search?.address, mode: "insensitive"}
           },
           include: {
             position: true,

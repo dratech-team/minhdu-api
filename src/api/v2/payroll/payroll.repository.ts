@@ -164,17 +164,15 @@ export class PayrollRepository {
             employeeId: Number(search?.employeeId) || undefined,
             employee: {
               leftAt: search?.isLeave ? {notIn: null} : {in: null},
-              position: {
-                name: {startsWith: search?.position, mode: "insensitive"},
-              },
-              branch: {
-                id: acc.branches?.length ? {in: acc.branches.map(branch => branch.id)} : {},
-                name: !acc.branches?.length ? {startsWith: search?.branch, mode: "insensitive"} : {},
-              },
               lastName: {contains: search?.name, mode: "insensitive"},
               type: search?.employeeType ? {in: search?.employeeType} : {},
               category: search?.categoryId ? {id: {in: search?.categoryId}} : {}
             },
+            branch: acc.branches?.length ? {
+              in: acc.branches.map(branch => branch.name),
+              mode: "insensitive"
+            } : {startsWith: search?.branch, mode: "insensitive"},
+            position: {startsWith: search?.position, mode: "insensitive"},
             createdAt: {
               gte: firstDatetime(search?.createdAt),
               lte: lastDatetime(search?.createdAt),
@@ -189,17 +187,15 @@ export class PayrollRepository {
             employeeId: Number(search?.employeeId) || undefined,
             employee: {
               leftAt: search?.isLeave ? {notIn: null} : {in: null},
-              position: {
-                name: {startsWith: search?.position, mode: "insensitive"},
-              },
-              branch: {
-                id: acc.branches?.length ? {in: acc.branches.map(branch => branch.id)} : {},
-                name: !acc.branches?.length ? {startsWith: search?.branch, mode: "insensitive"} : {},
-              },
               lastName: {contains: search?.name, mode: "insensitive"},
               type: search?.employeeType ? {in: search?.employeeType} : {},
               category: search?.categoryId ? {id: {in: search?.categoryId}} : {}
             },
+            branch: acc.branches?.length ? {
+              in: acc.branches.map(branch => branch.name),
+              mode: "insensitive"
+            } : {startsWith: search?.branch, mode: "insensitive"},
+            position: {startsWith: search?.position, mode: "insensitive"},
             createdAt: {
               gte: firstDatetime(search?.createdAt),
               lte: lastDatetime(search?.createdAt),

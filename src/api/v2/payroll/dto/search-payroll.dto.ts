@@ -68,10 +68,12 @@ export class SearchPayrollDto {
   @IsDate()
   readonly endedAt: Date;
 
-
   @IsOptional()
   @IsBoolean()
-  @Type(() => Boolean)
+  @Transform((val) => {
+    return val.value === 'true';
+
+  })
   readonly isLeave: boolean;
 
   @IsOptional()
