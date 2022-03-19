@@ -183,33 +183,33 @@ model Category {
 }
 
 model Employee {
-  id              Int             @id @default(autoincrement())
-  code            String?         @unique
-  firstName       String?
-  lastName        String
-  avt             String?
-  gender          GenderType
-  phone           String?
-  workPhone       String?
-  birthday        DateTime
-  birthplace      String?
-  identify        String?         @unique
-  idCardAt        DateTime?
-  issuedBy        String?
-  workday         Int
-  ward            Ward            @relation(fields: [wardId], references: [id])
-  wardId          Int
-  address         String
-  email           String?
-  religion        String?
-  ethnicity       String?
-  mst             String?
-  createdAt       DateTime? //Ngày thử việc (vào làm)
-  workedAt        DateTime? //Ngày làm chính thức
-  leftAt          DateTime?
-  isFlatSalary    Boolean?        @default(false)
-  position        Position        @relation(fields: [positionId], references: [id])
-  positionId      Int
+  id           Int        @id @default(autoincrement())
+  code         String?    @unique
+  firstName    String?
+  lastName     String
+  avt          String?
+  gender       GenderType
+  phone        String?
+  workPhone    String?
+  birthday     DateTime
+  birthplace   String?
+  identify     String?    @unique
+  idCardAt     DateTime?
+  issuedBy     String?
+  workday      Int
+  ward         Ward       @relation(fields: [wardId], references: [id])
+  wardId       Int
+  address      String
+  email        String?
+  religion     String?
+  ethnicity    String?
+  mst          String?
+  createdAt    DateTime? //Ngày thử việc (vào làm)
+  workedAt     DateTime? //Ngày làm chính thức
+  leftAt       DateTime?
+  isFlatSalary Boolean?   @default(false)
+  position     Position   @relation(fields: [positionId], references: [id])
+  positionId   Int
 
   branch          Branch          @relation(fields: [branchId], references: [id])
   branchId        Int
@@ -488,6 +488,7 @@ model Payroll {
   isEdit         Boolean?    @default(true)
   manConfirmedAt DateTime?
   paidAt         DateTime?
+  workday        Float? // ngày công chuẩn
   actualday      Float? // Tổng số ngày làm thực tế
   absent         Float? // tổng số ngày vắng
   bsc            Float? // tổng số lần quên giấy phép / bsc

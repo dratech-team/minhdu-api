@@ -9,6 +9,8 @@ import {RolesGuard} from "../../../core/guard/role.guard";
 import {LoggerGuard} from "../../../core/guard/logger.guard";
 import {Roles} from "../../../core/decorators/roles.decorator";
 import {RoleEnum} from "@prisma/client";
+import {ReqProfile} from "../../../core/decorators/req-profile.decorator";
+import {ProfileEntity} from "../../entities/profile.entity";
 
 @UseGuards(JwtAuthGuard, ApiKeyGuard, RolesGuard)
 @Controller('v2/position')
@@ -25,8 +27,8 @@ export class PositionController {
 
   @Roles(RoleEnum.ADMIN, RoleEnum.HUMAN_RESOURCE, RoleEnum.WAREHOUSE, RoleEnum.CAMP_ACCOUNTING)
   @Get()
-  findAll(@Query() search: SearchPositionDto) {
-    return this.positionService.findAll(search);
+  findAll(@ReqProfile() profile: ProfileEntity, @Query() search: SearchPositionDto) {
+    return this.positionService.findAll(profile, search);
   }
 
   @Roles(RoleEnum.ADMIN, RoleEnum.HUMAN_RESOURCE, RoleEnum.WAREHOUSE, RoleEnum.CAMP_ACCOUNTING)

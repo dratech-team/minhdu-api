@@ -5,6 +5,8 @@ import {Position} from "@prisma/client";
 import {UpdatePositionDto} from "./dto/update-position.dto";
 import {OnePosition} from "./entities/position.entity";
 import {SearchPositionDto} from "./dto/search-position.dto";
+import {ProfileEntity} from "../../entities/profile.entity";
+import * as _ from 'lodash';
 
 @Injectable()
 export class PositionRepository {
@@ -42,7 +44,7 @@ export class PositionRepository {
     }
   }
 
-  async findAll(search: Partial<SearchPositionDto>): Promise<Position[]> {
+  async findAll(profile: ProfileEntity, search: Partial<SearchPositionDto>): Promise<Position[]> {
     try {
       return await this.prisma.position.findMany({
         where: {
