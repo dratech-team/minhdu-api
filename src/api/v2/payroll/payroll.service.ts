@@ -1276,6 +1276,10 @@ export class PayrollService {
     return data.map(e => e.title);
   }
 
+  async overtimeupdate() {
+    return await this.repository.ov();
+  }
+
   itemsExport(exportType: FilterTypeEnum) {
     let customs: any;
     switch (exportType) {

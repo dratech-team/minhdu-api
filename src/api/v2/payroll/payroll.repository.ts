@@ -33,10 +33,17 @@ export class PayrollRepository {
         },
       });
       if (!exist?.length) {
+        const employee = await this.prisma.employee.findUnique({
+          where: {id: body.employeeId},
+          include: {branch: true, position: true}
+        });
+
         return await this.prisma.payroll.create({
           data: {
             employee: {connect: {id: body.employeeId}},
             createdAt: body.createdAt,
+            branch: employee.branch.name,
+            position: employee.position.name,
             salaries: salaries?.length
               ? {
                 createMany: {
@@ -381,7 +388,13 @@ export class PayrollRepository {
         }
       }
 
-      const employee = await this.prisma.employee.findUnique({where: {id: payroll.employeeId}});
+      const employee = await this.prisma.employee.findUnique({
+        where: {id: payroll.employeeId},
+        include: {
+          branch: {select: {name: true}},
+          position: {select: {name: true}},
+        }
+      });
 
       if (moment(updates?.accConfirmedAt || updates?.manConfirmedAt).isBefore(employee.createdAt)) {
         throw new BadRequestException(`Không thể xác nhận phiếu lương trước ngày vào làm. Vui lòng kiểm tra lại.`);
@@ -393,6 +406,8 @@ export class PayrollRepository {
           isEdit: !!updates?.accConfirmedAt,
           accConfirmedAt: updates?.accConfirmedAt,
           paidAt: updates?.paidAt,
+          branch: employee.branch.name,
+          position: employee.position.name,
           total: updates?.total,
           manConfirmedAt: updates?.manConfirmedAt,
           actualday: updates?.actualday,
@@ -630,10 +645,28 @@ export class PayrollRepository {
         },
         payroll: {
           branch: search?.branch ? {startsWith: search.branch, mode: "insensitive"} : {},
-          position: search?.position ? {startsWith: search.position, mode: "insensitive"} : {}
+          position: search?.position ? {startsWith: search.position, mode: "insensitive"} : {},
         }
       },
     });
+  }
+
+  async ov() {
+    const payrolls = await this.prisma.payroll.findMany();
+    await Promise.all(payrolls.map(async payroll => {
+      const employee = await this.prisma.employee.findUnique({
+        where: {id: payroll.employeeId},
+        include: {branch: true, position: true}
+      });
+
+      await this.prisma.payroll.update({
+        where: {id: payroll.id},
+        data: {
+          branch: employee.branch.name,
+          position: employee.position.name
+        }
+      });
+    }));
   }
 
   async currentPayroll(profile: ProfileEntity, datetime: Date) {

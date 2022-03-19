@@ -46,14 +46,19 @@ export class OvertimeTemplateRepository {
             title: {startsWith: search?.title, mode: "insensitive"},
             price: search?.price ? {in: search?.price} : {},
             unit: {in: search?.unit || undefined},
-            AND: {
-              branch: acc.branches?.length
-                ? {id: {in: acc.branches.map(branch => branch.id)}}
-                : search?.branchId ? {id: {in: search?.branchId}} : {},
-              positions: search?.positionIds?.length
-                ? {some: {id: {in: search?.positionIds}}}
-                : {},
-            }
+            OR: [
+              {branchId: {in: null}},
+              {
+                branch: {
+                  id: acc.branches?.length
+                    ? {in: acc.branches.map(branch => branch.id)}
+                    : search?.branchId ? {in: search?.branchId} : {}
+                }
+              }
+            ],
+            positions: search?.positionIds?.length
+              ? {some: {id: {in: search?.positionIds}}}
+              : {},
           },
         }),
         this.prisma.overtimeTemplate.findMany({
@@ -63,14 +68,19 @@ export class OvertimeTemplateRepository {
             title: {startsWith: search?.title, mode: "insensitive"},
             price: search?.price ? {in: search?.price} : {},
             unit: {in: search?.unit || undefined},
-            AND: {
-              branch: acc.branches?.length
-                ? {id: {in: acc.branches.map(branch => branch.id)}}
-                : search?.branchId ? {id: {in: search?.branchId}} : {},
-              positions: search?.positionIds?.length
-                ? {some: {id: {in: search?.positionIds}}}
-                : {},
-            }
+            OR: [
+              {branchId: {in: null}},
+              {
+                branch: {
+                  id: acc.branches?.length
+                    ? {in: acc.branches.map(branch => branch.id)}
+                    : search?.branchId ? {in: search?.branchId} : {}
+                }
+              }
+            ],
+            positions: search?.positionIds?.length
+              ? {some: {id: {in: search?.positionIds}}}
+              : {},
           },
           include: {
             positions: true,

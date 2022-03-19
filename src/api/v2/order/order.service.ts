@@ -26,7 +26,7 @@ export class OrderService {
   }
 
   async findAll(search: SearchOrderDto) {
-    const resultFull = await this.repository.findAll(Object.assign(search, {take: undefined, skip: undefined}));
+    const resultFull = await this.repository.findAll(Object.assign({}, search, {take: undefined, skip: undefined}));
     const result = await this.repository.findAll(search);
 
     const orders = result.data.map((e) => {

@@ -21,18 +21,18 @@ export class BranchRepository {
           name: body.name,
           positions: body?.positionIds?.length ? {connect: body.positionIds.map(positionId => ({id: positionId}))} : {},
           address: body?.address,
-          status: {
+          status: body.status ? {
             create: {
               app: acc.appName,
               status: body.status,
             }
-          },
-          phone: {
+          } : {},
+          phone: body.phone ? {
             create: {
               app: acc.appName,
               phone: body.phone
             }
-          }
+          } : {}
         },
         include: {
           positions: true
