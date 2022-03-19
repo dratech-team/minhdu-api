@@ -17,6 +17,7 @@ import {FilterTypeEnum} from "./entities/filter-type.enum";
 import {ItemExportDto} from "../../../common/interfaces/items-export.dto";
 import {SearchPayrollDto} from "./dto/search-payroll.dto";
 import {SearchExportDto} from "./dto/search-export.dto";
+import {SearchSalaryDto} from "./dto/search-salary.dto";
 
 @Controller(ApiV2Constant.PAYROLL)
 @UseGuards(JwtAuthGuard, ApiKeyGuard, RolesGuard)
@@ -124,5 +125,11 @@ export class PayrollController {
   @Get("/export/items")
   async itemsExport(@Query("exportType") exportType: FilterTypeEnum) {
     return this.payrollService.itemsExport(exportType);
+  }
+
+  @Roles(RoleEnum.ADMIN, RoleEnum.HUMAN_RESOURCE, RoleEnum.CAMP_ACCOUNTING)
+  @Get('/overtime/template')
+  async overtimeTemplate(@Query() search: SearchSalaryDto) {
+    return this.payrollService.overtimeTemplate(search);
   }
 }

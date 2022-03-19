@@ -38,6 +38,7 @@ export async function exportExcel(
    * Title
    * */
   worksheet.getRow(4).values = result.customHeaders;
+  worksheet.getRow(4).values = result.customHeaders;
 
   // font
   worksheet.getRow(4).font = {

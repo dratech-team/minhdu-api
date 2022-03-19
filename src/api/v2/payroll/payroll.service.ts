@@ -22,6 +22,7 @@ import {ItemExportDto} from "../../../common/interfaces/items-export.dto";
 import {SearchExportDto} from "./dto/search-export.dto";
 import {convertArrayToString} from "./functions/convertArrayToString";
 import {HttpService} from "@nestjs/axios";
+import {SearchSalaryDto} from "./dto/search-salary.dto";
 
 @Injectable()
 export class PayrollService {
@@ -1268,6 +1269,10 @@ export class PayrollService {
       tax: tax,
       total: Math.round(total / 1000) * 1000,
     };
+  }
+
+  async overtimeTemplate(search: SearchSalaryDto) {
+    return await this.repository.overtimeTemplate(search);
   }
 
   itemsExport(exportType: FilterTypeEnum) {

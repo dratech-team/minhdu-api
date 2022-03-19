@@ -11,6 +11,7 @@ import * as moment from "moment";
 import {SearchType} from "./entities/search.type.enum";
 import {Promise} from "es6-promise";
 import {FilterTypeEnum} from "./entities/filter-type.enum";
+import {SearchSalaryDto} from "./dto/search-salary.dto";
 
 @Injectable()
 export class PayrollRepository {
@@ -614,6 +615,26 @@ export class PayrollRepository {
       console.error(err);
       throw new BadRequestException(err);
     }
+  }
+
+  async overtimeTemplate(search: SearchSalaryDto) {
+    return await this.prisma.salary.findMany({
+      where: {
+        type: {in: [SalaryType.OVERTIME]},
+        datetime: {
+          gte: search.startedAt,
+          lte: search.endedAt,
+        },
+        payroll: {
+          branch: search?.branch ? {startsWith: search.branch, mode: "insensitive"} : {},
+          position: search?.position ? {startsWith: search.position, mode: "insensitive"} : {}
+        }
+      },
+      select: {
+        id: true,
+        title: true
+      }
+    });
   }
 
   async currentPayroll(profile: ProfileEntity, datetime: Date) {
