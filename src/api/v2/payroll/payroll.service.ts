@@ -217,7 +217,7 @@ export class PayrollService {
   }
 
   async filterOvertime(profile: ProfileEntity, search: Partial<SearchPayrollDto>) {
-    const e = await this.repository.findOvertimesV2(profile, search);
+    const e = await this.repository.findOvertimesV3(profile, search);
     const overtimes = e.data.reduce((acc, e) => acc.concat(e), []);
     const employeeIds = [...new Set(overtimes.map(overtime => overtime.payroll.employeeId))];
 

@@ -458,12 +458,11 @@ export class PayrollRepository {
         }
       },
     });
-
     const data = await Promise.all(overtimeTitles.map(async e => {
       const [total, salaries] = await Promise.all([
         this.prisma.salary.count({
           where: {
-            title: e.title,
+            title: {startsWith: e.title, mode: "insensitive"},
             type: {in: SalaryType.OVERTIME},
             datetime: search?.createdAt ? {
               in: search?.createdAt
@@ -484,7 +483,7 @@ export class PayrollRepository {
           // take: Number(search?.take) || undefined,
           // skip: Number(search?.skip) || undefined,
           where: {
-            title: e.title,
+            title: {startsWith: e.title, mode: "insensitive"},
             type: {in: SalaryType.OVERTIME},
             datetime: search?.createdAt ? {
               in: search?.createdAt
@@ -530,6 +529,64 @@ export class PayrollRepository {
       total: data.map(e => e.total).reduce((a, b) => a + b, 0),
       data: data.map(e => e.salaries)
     };
+  }
+
+  async findOvertimesV3(profile: ProfileEntity, search: Partial<SearchPayrollDto>) {
+    const acc = await this.prisma.account.findUnique({where: {id: profile.id}, include: {branches: true}});
+    const [total, data] = await Promise.all([
+      this.prisma.salary.count({
+        where: {
+          title: {startsWith: search?.title, mode: "insensitive"},
+          type: {in: SalaryType.OVERTIME},
+          datetime: search?.createdAt ? {
+            in: search?.createdAt
+          } : {
+            gte: search?.startedAt,
+            lte: search?.endedAt
+          },
+          payroll: {
+            employee: {
+              branch: acc.branches?.length
+                ? {id: {in: acc.branches.map(branch => branch.id)}}
+                : {name: {startsWith: search?.branch, mode: "insensitive"}}
+            }
+          }
+        },
+      }),
+      this.prisma.salary.findMany({
+        where: {
+          title: {startsWith: search?.title, mode: "insensitive"},
+          type: {in: SalaryType.OVERTIME},
+          datetime: search?.createdAt ? {
+            in: search?.createdAt
+          } : {
+            gte: search?.startedAt,
+            lte: search?.endedAt
+          },
+          payroll: {
+            employee: {
+              branch: acc.branches?.length
+                ? {id: {in: acc.branches.map(branch => branch.id)}}
+                : {name: {startsWith: search?.branch, mode: "insensitive"}}
+            }
+          }
+        },
+        include: {
+          allowance: true,
+          payroll: {
+            include: {
+              employee: {
+                include: {
+                  branch: true,
+                  position: true
+                }
+              }
+            }
+          }
+        },
+      })
+    ]);
+    return {total, data};
   }
 
   async findIds(createdAt: Date, employeeType?: EmployeeType, branchId?: number) {
