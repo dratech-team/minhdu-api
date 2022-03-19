@@ -1272,7 +1272,8 @@ export class PayrollService {
   }
 
   async overtimeTemplate(search: SearchSalaryDto) {
-    return await this.repository.overtimeTemplate(search);
+    const data = await this.repository.overtimeTemplate(search);
+    return data.map(e => e.title);
   }
 
   itemsExport(exportType: FilterTypeEnum) {

@@ -620,7 +620,8 @@ export class PayrollRepository {
   }
 
   async overtimeTemplate(search: SearchSalaryDto) {
-    return await this.prisma.salary.findMany({
+    return await this.prisma.salary.groupBy({
+      by: ['title'],
       where: {
         type: {in: [SalaryType.OVERTIME]},
         datetime: {
@@ -632,10 +633,6 @@ export class PayrollRepository {
           position: search?.position ? {startsWith: search.position, mode: "insensitive"} : {}
         }
       },
-      select: {
-        id: true,
-        title: true
-      }
     });
   }
 

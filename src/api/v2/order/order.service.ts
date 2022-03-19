@@ -26,6 +26,7 @@ export class OrderService {
   }
 
   async findAll(search: SearchOrderDto) {
+    const resultFull = await this.repository.findAll(Object.assign(search, {take: undefined, skip: undefined}));
     const result = await this.repository.findAll(search);
 
     const orders = result.data.map((e) => {
@@ -51,8 +52,8 @@ export class OrderService {
     return {
       total: result.total,
       data: orders,
-      commodityUniq: this.orderUniq(orders),
-      commodityTotal: orders.map(order => order.commodityTotal).reduce((a, b) => a + b, 0)
+      commodityUniq: this.orderUniq(resultFull.data),
+      commodityTotal: resultFull.data.map(order => this.commodityService.totalCommodities(order.commodities)).reduce((a, b) => a + b, 0)
     };
   }
 
