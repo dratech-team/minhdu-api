@@ -221,10 +221,9 @@ export class PayrollRepository {
             }
             : {},
           payroll: {
-            employee: {
-              branch: {
-                id: profile.branches?.length ? {in: profile.branches.map(branch => branch.id)} : {}
-              }
+            branch: profile.branches?.length ? {in: profile.branches.map(branch => branch.name)} : {
+              startsWith: search?.branch,
+              mode: "insensitive"
             }
           }
         },
@@ -254,10 +253,9 @@ export class PayrollRepository {
             }
             : {},
           payroll: {
-            employee: {
-              branch: {
-                id: profile.branches?.length ? {in: profile.branches.map(branch => branch.id)} : {}
-              }
+            branch: profile.branches?.length ? {in: profile.branches.map(branch => branch.name)} : {
+              startsWith: search?.branch,
+              mode: "insensitive"
             }
           }
         },
@@ -516,11 +514,9 @@ export class PayrollRepository {
             lte: search?.endedAt
           },
           payroll: {
-            employee: {
-              branch: acc.branches?.length
-                ? {id: {in: acc.branches.map(branch => branch.id)}}
-                : {name: {startsWith: search?.branch, mode: "insensitive"}}
-            }
+            branch: acc.branches?.length
+              ? {in: acc.branches.map(branch => branch.name)}
+              : {startsWith: search?.branch, mode: "insensitive"}
           }
         },
       }),
@@ -537,11 +533,9 @@ export class PayrollRepository {
             lte: search?.endedAt
           },
           payroll: {
-            employee: {
-              branch: acc.branches?.length
-                ? {id: {in: acc.branches.map(branch => branch.id)}}
-                : {name: {startsWith: search?.branch, mode: "insensitive"}}
-            }
+            branch: acc.branches?.length
+              ? {in: acc.branches.map(branch => branch.name)}
+              : {startsWith: search?.branch, mode: "insensitive"}
           }
         },
         include: {
