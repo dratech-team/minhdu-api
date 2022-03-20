@@ -146,7 +146,7 @@ export class EmployeeRepository {
               }
             },
             category: search?.categoryId ? {id: {in: +search.categoryId}} : {},
-            phone: {startsWith: search.phone, mode: "insensitive"},
+            // phone: {startsWith: search?.phone, mode: "insensitive"},
             address: {startsWith: search?.address, mode: "insensitive"}
           },
         }),
@@ -196,7 +196,7 @@ export class EmployeeRepository {
               }
             },
             category: search?.categoryId ? {id: {in: +search.categoryId}} : {},
-            phone: {startsWith: search.phone, mode: "insensitive"},
+            // phone: {startsWith: search?.phone, mode: "insensitive"},
             address: {startsWith: search?.address, mode: "insensitive"}
           },
           include: {

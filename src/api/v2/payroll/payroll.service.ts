@@ -50,7 +50,7 @@ export class PayrollService {
         const created = await Promise.all(employees.data.map(async employee => {
           return await this.repository.generate({
             employeeId: employee.id,
-            createdAt: compareDatetime(body.createdAt, employee.createdAt) ? employee.createdAt : body.createdAt,
+            createdAt: isEqualDatetime(body.createdAt, employee.createdAt, "month") ? employee.createdAt : body.createdAt,
           });
         }));
         return {
