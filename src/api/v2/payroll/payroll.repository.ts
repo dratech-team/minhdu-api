@@ -221,10 +221,9 @@ export class PayrollRepository {
             }
             : {},
           payroll: {
-            branch: profile.branches?.length ? {in: profile.branches.map(branch => branch.name)} : {
-              startsWith: search?.branch,
-              mode: "insensitive"
-            }
+            branch: profile.branches?.length
+              ? {in: profile.branches.map(branch => branch.name)}
+              : {startsWith: search?.branch, mode: "insensitive"}
           }
         },
       }),
@@ -253,10 +252,9 @@ export class PayrollRepository {
             }
             : {},
           payroll: {
-            branch: profile.branches?.length ? {in: profile.branches.map(branch => branch.name)} : {
-              startsWith: search?.branch,
-              mode: "insensitive"
-            }
+            branch: profile.branches?.length
+              ? {in: profile.branches.map(branch => branch.name)}
+              : {startsWith: search?.branch, mode: "insensitive"}
           }
         },
         include: {
