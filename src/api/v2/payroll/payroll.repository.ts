@@ -352,14 +352,6 @@ export class PayrollRepository {
         }
       }
 
-      const employee = await this.prisma.employee.findUnique({
-        where: {id: payroll.employeeId},
-        include: {
-          branch: {select: {name: true}},
-          position: {select: {name: true}},
-        }
-      });
-
       if (moment(updates?.accConfirmedAt || updates?.manConfirmedAt).isBefore(payroll.createdAt)) {
         throw new BadRequestException(`Không thể xác nhận phiếu lương trước ngày vào làm. Vui lòng kiểm tra lại.`);
       }
@@ -370,8 +362,6 @@ export class PayrollRepository {
           isEdit: !!updates?.accConfirmedAt,
           accConfirmedAt: updates?.accConfirmedAt,
           paidAt: updates?.paidAt,
-          branch: employee.branch.name,
-          position: employee.position.name,
           total: updates?.total,
           manConfirmedAt: updates?.manConfirmedAt,
           actualday: updates?.actualday,

@@ -137,11 +137,11 @@ export class PayrollService {
     return await this.repository.update(id, updates);
   }
 
-  async confirmPayroll(user: ProfileEntity, id: number, body: ConfirmPayrollDto) {
+  async confirmPayroll(profile: ProfileEntity, id: number, body: ConfirmPayrollDto) {
     let updated: Payroll;
 
     const payroll = await this.findOne(id);
-    if (user.role === RoleEnum.CAMP_MANAGER && !payroll.accConfirmedAt) {
+    if (profile.role === RoleEnum.CAMP_MANAGER && !payroll.accConfirmedAt) {
       throw new BadRequestException(`Kế toán cần xác nhận phiếu lương trước!!!`);
     }
     if (!payroll.salaries.filter(salary => salary.type === SalaryType.BASIC_INSURANCE).length && payroll.employee.type !== EmployeeType.SEASONAL) {
@@ -152,23 +152,17 @@ export class PayrollService {
     }
     const payslip = (await this.mapPayslip(payroll)).payslip;
 
-    switch (user.role) {
+    switch (profile.role) {
       case RoleEnum.CAMP_ACCOUNTING:
-        updated = await this.repository.update(id, {accConfirmedAt: body.datetime || new Date()});
+      case RoleEnum.HUMAN_RESOURCE:
+        updated = await this.repository.update(id, {accConfirmedAt: body.datetime});
         break;
       case RoleEnum.CAMP_MANAGER:
-        updated = await this.repository.update(id, {manConfirmedAt: body?.datetime});
-        break;
-      case RoleEnum.ACCOUNTANT_CASH_FUND:
-        updated = await this.repository.update(id, {paidAt: body.datetime || new Date()});
-        break;
-      /// FIXME: dummy for testing
-      case RoleEnum.HUMAN_RESOURCE:
-        updated = await this.repository.update(id, {accConfirmedAt: body.datetime || new Date()});
+        updated = await this.repository.update(id, {manConfirmedAt: body.datetime});
         break;
       default:
         throw new BadRequestException(
-          `${user.role} Bạn không có quyền xác nhận phiếu lương. Cảm ơn.`
+          `${profile.role} Bạn không có quyền xác nhận phiếu lương. Cảm ơn.`
         );
     }
     if (updated) {
@@ -461,24 +455,17 @@ export class PayrollService {
   }
 
   totalActualDay(payroll: OnePayroll) {
-    // endDay: Ngày cuối cùng của tháng do mình quy định. Áp dụng đối với lương cố dịnh
+    // total: Ngày cuối cùng của tháng do mình quy định. Áp dụng đối với lương cố dịnh
+    const confirmedAt = payroll.accConfirmedAt;
     const total = payroll.employee.isFlatSalary
       ? 30
-      : isEqualDatetime(new Date(), payroll.createdAt, "month")
+      : isEqualDatetime(new Date(), payroll.createdAt, "month") && !confirmedAt
         ? new Date().getDate() - (payroll.createdAt.getDate() - 1)
-        : lastDayOfMonth(payroll.createdAt) - (payroll.createdAt.getDate() - 1);
+        : confirmedAt.getDate() - (payroll.createdAt.getDate() - 1);
 
     // absent trừ cho ngày vào làm nếu ngày vào làm là tháng đc tính lương
     const absent = this.totalAbsent(payroll);
-    const confirmedAt = payroll.accConfirmedAt;
-
-    if (!confirmedAt) {
-      // Phiếu lương chưa được xác nhận
-      return total - absent.day;
-    } else {
-      // Phiếu lương đã được xác nhận và là phiếu lương của tháng hiện tại
-      return confirmedAt.getDate() - total - absent.day;
-    }
+    return total - absent.day;
   }
 
   totalForgotBSC(salaries: Salary[]) {
