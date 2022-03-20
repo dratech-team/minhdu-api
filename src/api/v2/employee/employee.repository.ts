@@ -111,7 +111,7 @@ export class EmployeeRepository {
               name: !acc.branches?.length ? {startsWith: search?.branch, mode: "insensitive"} : {},
             },
             positionId: positionIds?.length ? {in: positionIds} : {},
-            lastName: {startsWith: search?.name, mode: "insensitive"},
+            lastName: {contains: search?.name, mode: "insensitive"},
             gender: search?.gender ? {equals: search?.gender} : {},
             isFlatSalary: (search?.isFlatSalary == 1 || search?.isFlatSalary == 0) ? {equals: +search.isFlatSalary === 1} : {},
             createdAt: search?.createdAt ? search?.createdAt.compare === 'gte'
@@ -147,7 +147,7 @@ export class EmployeeRepository {
             },
             category: search?.categoryId ? {id: {in: +search.categoryId}} : {},
             // phone: {startsWith: search?.phone, mode: "insensitive"},
-            address: {startsWith: search?.address, mode: "insensitive"}
+            address: {contains: search?.address, mode: "insensitive"}
           },
         }),
         this.prisma.employee.findMany({
@@ -161,7 +161,7 @@ export class EmployeeRepository {
               name: !acc.branches?.length ? {startsWith: search?.branch, mode: "insensitive"} : {},
             },
             positionId: positionIds?.length ? {in: positionIds} : {},
-            lastName: {startsWith: search?.name, mode: "insensitive"},
+            lastName: {contains: search?.name, mode: "insensitive"},
             gender: search?.gender ? {equals: search?.gender} : {},
             isFlatSalary: (search?.isFlatSalary == 1 || search?.isFlatSalary == 0) ? {equals: +search.isFlatSalary === 1} : {},
             createdAt: search?.createdAt ? search?.createdAt.compare === 'gte'
@@ -197,7 +197,7 @@ export class EmployeeRepository {
             },
             category: search?.categoryId ? {id: {in: +search.categoryId}} : {},
             // phone: {startsWith: search?.phone, mode: "insensitive"},
-            address: {startsWith: search?.address, mode: "insensitive"}
+            address: {contains: search?.address, mode: "insensitive"}
           },
           include: {
             position: true,
