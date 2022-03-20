@@ -514,7 +514,10 @@ export class PayrollRepository {
           payroll: {
             branch: acc.branches?.length
               ? {in: acc.branches.map(branch => branch.name)}
-              : {startsWith: search?.branch, mode: "insensitive"}
+              : {startsWith: search?.branch, mode: "insensitive"},
+            employee: {
+              lastName: {contains: search?.name, mode: "insensitive"}
+            }
           }
         },
       }),
@@ -533,7 +536,10 @@ export class PayrollRepository {
           payroll: {
             branch: acc.branches?.length
               ? {in: acc.branches.map(branch => branch.name)}
-              : {startsWith: search?.branch, mode: "insensitive"}
+              : {startsWith: search?.branch, mode: "insensitive"},
+            employee: {
+              lastName: {contains: search?.name, mode: "insensitive"}
+            }
           }
         },
         include: {
