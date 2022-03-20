@@ -5,7 +5,7 @@ export class CreatePayrollDto {
   @IsOptional()
   @Type(() => Number)
   @IsNumber()
-  readonly employeeId: number;
+  readonly employeeId?: number;
 
   @IsNotEmpty()
   @Type(() => Date)

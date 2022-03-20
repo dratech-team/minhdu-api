@@ -1,5 +1,5 @@
 import {BadRequestException, Injectable, NotFoundException} from "@nestjs/common";
-import {EmployeeType, Payroll, Position, Salary, SalaryType} from "@prisma/client";
+import {Branch, Employee, EmployeeType, Payroll, Position, SalaryType} from "@prisma/client";
 import {ProfileEntity} from "../../../common/entities/profile.entity";
 import {PrismaService} from "../../../prisma.service";
 import {firstDatetime, lastDatetime} from "../../../utils/datetime.util";
@@ -19,62 +19,9 @@ export class PayrollRepository {
   constructor(private readonly prisma: PrismaService) {
   }
 
-  async create(body: CreatePayrollDto, salaries?: Salary[]) {
+  async create(body: CreatePayrollDto & { employee?: Employee & { branch: Branch, position: Position } }) {
     try {
-      /// FIXME: If đầu có thẻ gây tốn performance cao
-      const exist = await this.prisma.payroll.findMany({
-        where: {
-          createdAt: {
-            gte: firstDatetime(body.createdAt),
-            lte: lastDatetime(body.createdAt),
-          },
-          employee: {
-            id: {in: body.employeeId},
-          }
-        },
-      });
-      if (!exist?.length) {
-        const employee = await this.prisma.employee.findUnique({
-          where: {id: body.employeeId},
-          include: {branch: true, position: true}
-        });
-
-        return await this.prisma.payroll.create({
-          data: {
-            employee: {connect: {id: body.employeeId}},
-            createdAt: body.createdAt,
-            branch: employee.branch.name,
-            position: employee.position.name,
-            salaries: salaries?.length
-              ? {
-                createMany: {
-                  data: salaries.map((salary) => {
-                    delete salary.payrollId;
-                    delete salary.id;
-                    return salary;
-                  }),
-                },
-              }
-              : {},
-          },
-          include: {salaries: true},
-        });
-      }
-    } catch (err) {
-      console.error(err);
-      if (err.code === "P2003") {
-        throw new BadRequestException(
-          "[DEVELOPMENT] Mã nhân viên không tồn tại ",
-          err
-        );
-      }
-      throw new BadRequestException(err);
-    }
-  }
-
-  async generate(body: CreatePayrollDto) {
-    try {
-      const payroll = await this.prisma.payroll.findFirst({
+      const payrolls = await this.prisma.payroll.findMany({
         where: {
           employee: {id: {in: body.employeeId}},
           salaries: {
@@ -86,19 +33,33 @@ export class PayrollRepository {
         include: {salaries: true},
       });
 
-      // Đã tồn tại phiếu lương
-      if (payroll?.salaries?.length) {
-        const salaries = payroll.salaries.filter(
-          (salary) =>
-            salary.type === SalaryType.BASIC ||
-            salary.type === SalaryType.BASIC_INSURANCE ||
-            salary.type === SalaryType.STAY
-        );
-        return await this.create(body, salaries);
-      } else {
-        // Chưa tòn tại phiếu lương nào
-        return await this.create(body);
-      }
+      const salaries = payrolls.find(payroll => payroll.salaries.length)?.salaries?.filter(
+        (salary) =>
+          salary.type === SalaryType.BASIC ||
+          salary.type === SalaryType.BASIC_INSURANCE ||
+          salary.type === SalaryType.STAY
+      );
+
+      return await this.prisma.payroll.create({
+        data: {
+          employee: {connect: {id: body?.employeeId || body.employee.id}},
+          createdAt: body.createdAt,
+          branch: body.employee.branch.name,
+          position: body.employee.position.name,
+          salaries: salaries?.length
+            ? {
+              createMany: {
+                data: salaries.map((salary) => {
+                  delete salary.payrollId;
+                  delete salary.id;
+                  return salary;
+                }),
+              },
+            }
+            : {},
+        },
+        include: {salaries: true},
+      });
     } catch (err) {
       console.error(err);
       if (err.code === "P2003") {
@@ -162,7 +123,7 @@ export class PayrollRepository {
       const [total, data] = await Promise.all([
         this.prisma.payroll.count({
           where: {
-            employeeId: Number(search?.employeeId) || undefined,
+            employeeId: search?.employeeId ? {in: +search.employeeId} : {},
             employee: {
               leftAt: search?.isLeave ? {notIn: null} : {in: null},
               lastName: {contains: search?.name, mode: "insensitive"},
@@ -185,7 +146,7 @@ export class PayrollRepository {
           take: search?.take,
           skip: search?.skip,
           where: {
-            employeeId: Number(search?.employeeId) || undefined,
+            employeeId: search?.employeeId ? {in: +search.employeeId} : {},
             employee: {
               leftAt: search?.isLeave ? {notIn: null} : {in: null},
               lastName: {contains: search?.name, mode: "insensitive"},

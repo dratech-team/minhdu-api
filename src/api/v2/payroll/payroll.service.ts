@@ -2,7 +2,7 @@ import {BadRequestException, ConflictException, Injectable, NotFoundException} f
 import {DatetimeUnit, EmployeeType, Payroll, RecipeType, RoleEnum, Salary, SalaryType,} from "@prisma/client";
 import {Response} from "express";
 import {ProfileEntity} from "../../../common/entities/profile.entity";
-import {compareDatetime, firstDatetime, lastDatetime, lastDayOfMonth} from "../../../utils/datetime.util";
+import {firstDatetime, lastDatetime, lastDayOfMonth} from "../../../utils/datetime.util";
 import {EmployeeService} from "../employee/employee.service";
 import {CreatePayrollDto} from "./dto/create-payroll.dto";
 import {SearchPayrollDto} from "./dto/search-payroll.dto";
@@ -48,10 +48,17 @@ export class PayrollService {
           }
         );
         const created = await Promise.all(employees.data.map(async employee => {
-          return await this.repository.generate({
+          const payrolls = await this.repository.findAll(profile, {
+            createdAt: body.createdAt,
             employeeId: employee.id,
-            createdAt: isEqualDatetime(body.createdAt, employee.createdAt, "month") ? employee.createdAt : body.createdAt,
           });
+
+          if (!payrolls.data.length) {
+            return await this.repository.create({
+              employee: employee,
+              createdAt: isEqualDatetime(body.createdAt, employee.createdAt, "month") ? employee.createdAt : body.createdAt,
+            });
+          }
         }));
         return {
           status: 201,
@@ -62,7 +69,7 @@ export class PayrollService {
         if (moment(employee.createdAt).isAfter(body.createdAt)) {
           throw new BadRequestException(`Không được tạo phiếu lương trước ngày nhân viên vào làm. Xin cảm ơn`);
         }
-        return await this.repository.generate(body);
+        return await this.repository.create(Object.assign(body, {employee}));
       }
 
     } catch (err) {
