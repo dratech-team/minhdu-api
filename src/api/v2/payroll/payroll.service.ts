@@ -244,6 +244,7 @@ export class PayrollService {
       total: total,
       data: payrolls.map(payroll => {
         return Object.assign(payroll, {
+          payrollId: payroll.id,
           salaries: payroll.salaries.sort((a, b) => moment.utc(a.datetime).diff(moment.utc(b.datetime))),
           salary: payroll.salary,
         });
