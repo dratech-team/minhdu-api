@@ -279,9 +279,15 @@ export class PayrollRepository {
         },
         orderBy: {
           payroll: {
-            employee: {
-              stt: "asc"
-            }
+            employee: search?.orderBy && search?.orderType
+              ? search.orderBy === OrderbyEmployeeEnum.CREATE
+                ? {createdAt: search.orderType}
+                : search.orderBy === OrderbyEmployeeEnum.POSITION
+                  ? {position: {name: search.orderType}}
+                  : search.orderBy === OrderbyEmployeeEnum.NAME
+                    ? {lastName: search.orderType}
+                    : {}
+              : {stt: "asc"}
           }
         }
       })
@@ -423,8 +429,8 @@ export class PayrollRepository {
         },
       }),
       this.prisma.salary.findMany({
-        take: search?.take,
-        skip: search?.skip,
+        take: undefined,
+        skip: undefined,
         where: {
           title: {in: search?.overtimes, mode: "insensitive"},
           type: {in: SalaryType.OVERTIME},
@@ -450,7 +456,17 @@ export class PayrollRepository {
           }
         },
         orderBy: {
-          id: "desc"
+          payroll: {
+            employee: search?.orderBy && search?.orderType
+              ? search.orderBy === OrderbyEmployeeEnum.CREATE
+                ? {createdAt: search.orderType}
+                : search.orderBy === OrderbyEmployeeEnum.POSITION
+                  ? {position: {name: search.orderType}}
+                  : search.orderBy === OrderbyEmployeeEnum.NAME
+                    ? {lastName: search.orderType}
+                    : {}
+              : {stt: "asc"}
+          }
         }
       })
     ]);
