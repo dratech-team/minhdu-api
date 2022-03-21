@@ -256,12 +256,11 @@ model OvertimeTemplate {
   unit         DatetimeUnit? @default(HOUR)
   note         String?
   positions    Position[]
-  branch       Branch?       @relation(fields: [branchId], references: [id])
-  branchId     Int?
+  branches     Branch[]
   employeeType EmployeeType? @default(FULL_TIME)
   timestamp    DateTime?     @default(now())
 
-  @@unique([title, type, price, rate, unit, branchId])
+  @@unique([title, type, price, rate, unit])
 }
 
 model BasicTemplate {

@@ -33,6 +33,7 @@ export class PayrollService {
 
   async create(profile: ProfileEntity, body: CreatePayrollDto) {
     try {
+      // Tạo hàng loạt
       if (!body?.employeeId) {
         // throw new BadRequestException("Tính năng đang được phát triển. Xin cảm ơn");
         /// FIXME: I need deep testing befrore release
@@ -54,10 +55,12 @@ export class PayrollService {
           });
 
           if (!payrolls.data.length) {
-            return await this.repository.create({
-              employee: employee,
+            return await this.repository.create(Object.assign(body, {
               createdAt: isEqualDatetime(body.createdAt, employee.createdAt, "month") ? employee.createdAt : body.createdAt,
-            });
+              employeeId: employee.id,
+              branch: employee.branch,
+              position: employee.position
+            }));
           }
         }));
         return {
@@ -65,11 +68,16 @@ export class PayrollService {
           message: `Đã tự động tạo phiếu lương tháng ${moment(body.createdAt).format("MM/YYYY")} cho ${created.filter(e => e).length} nhân viên`,
         };
       } else {
+        // Tạo 1
         const employee = await this.employeeService.findOne(body.employeeId);
         if (moment(employee.createdAt).isAfter(body.createdAt)) {
           throw new BadRequestException(`Không được tạo phiếu lương trước ngày nhân viên vào làm. Xin cảm ơn`);
         }
-        return await this.repository.create(Object.assign(body, {employee}));
+        return await this.repository.create(Object.assign(body, {
+          employeeId: employee.id,
+          branch: employee.branch,
+          position: employee.position
+        }), true);
       }
 
     } catch (err) {
@@ -234,15 +242,19 @@ export class PayrollService {
 
     return {
       total: e.total,
-      data: data.map(e => ({
-        id: e.id,
-        payrollId: e.salary.payroll.id,
-        accConfirmedAt: e.salary.payroll.accConfirmedAt,
-        manConfirmedAt: e.salary.payroll.manConfirmedAt,
-        employee: e,
-        salaries: e.salaries.sort((a, b) => moment.utc(a.datetime).diff(moment.utc(b.datetime))),
-        salary: e.salary,
-      })),
+      data: data.map(e => {
+        return {
+          id: e.salary.id,
+          payrollId: e.salary.payroll.id,
+          accConfirmedAt: e.salary.payroll.accConfirmedAt,
+          manConfirmedAt: e.salary.payroll.manConfirmedAt,
+          branch: e.salary.payroll.branch,
+          position: e.salary.payroll.position,
+          employee: e,
+          salaries: e.salaries.sort((a, b) => moment.utc(a.datetime).diff(moment.utc(b.datetime))),
+          salary: e.salary,
+        };
+      }),
       totalSalary: {
         total: data.map(e => e.salary.total).reduce((a, b) => a + b, 0),
         unit: {

@@ -1,5 +1,5 @@
 import {BadRequestException, Injectable, NotFoundException} from "@nestjs/common";
-import {Branch, Employee, EmployeeType, Payroll, Position, SalaryType} from "@prisma/client";
+import {Branch, EmployeeType, Payroll, Position, SalaryType} from "@prisma/client";
 import {ProfileEntity} from "../../../common/entities/profile.entity";
 import {PrismaService} from "../../../prisma.service";
 import {firstDatetime, lastDatetime} from "../../../utils/datetime.util";
@@ -8,7 +8,6 @@ import {SearchPayrollDto} from "./dto/search-payroll.dto";
 import {UpdatePayrollDto} from "./dto/update-payroll.dto";
 import {CreateSalaryDto} from "../salary/dto/create-salary.dto";
 import * as moment from "moment";
-import {SearchType} from "./entities/search.type.enum";
 import {Promise} from "es6-promise";
 import {FilterTypeEnum} from "./entities/filter-type.enum";
 import {SearchSalaryDto} from "./dto/search-salary.dto";
@@ -19,7 +18,7 @@ export class PayrollRepository {
   constructor(private readonly prisma: PrismaService) {
   }
 
-  async create(body: CreatePayrollDto & { employee?: Employee & { branch: Branch, position: Position } }) {
+  async create(body: CreatePayrollDto & { branch: Branch, position: Position }, isInit?: boolean) {
     try {
       const payrolls = await this.prisma.payroll.findMany({
         where: {
@@ -42,11 +41,11 @@ export class PayrollRepository {
 
       return await this.prisma.payroll.create({
         data: {
-          employee: {connect: {id: body?.employeeId || body.employee.id}},
+          employee: {connect: {id: body?.employeeId}},
           createdAt: body.createdAt,
-          branch: body.employee.branch.name,
-          position: body.employee.position.name,
-          salaries: salaries?.length
+          branch: body.branch.name,
+          position: body.position.name,
+          salaries: !isInit && salaries?.length
             ? {
               createMany: {
                 data: salaries.map((salary) => {
@@ -119,6 +118,15 @@ export class PayrollRepository {
       include: {branches: true, role: true}
     });
 
+    const template = search?.templateId
+      ? await this.prisma.overtimeTemplate.findUnique({
+        where: {id: search?.templateId},
+        include: {positions: true},
+      })
+      : null;
+
+    const positions = template?.positions?.map((position) => position.name);
+
     try {
       const [total, data] = await Promise.all([
         this.prisma.payroll.count({
@@ -134,7 +142,9 @@ export class PayrollRepository {
               in: acc.branches.map(branch => branch.name),
               mode: "insensitive"
             } : {startsWith: search?.branch, mode: "insensitive"},
-            position: {startsWith: search?.position, mode: "insensitive"},
+            position: positions?.length
+              ? {in: positions.map(position => position)}
+              : {startsWith: search?.position, mode: "insensitive"},
             createdAt: {
               gte: firstDatetime(search?.createdAt),
               lte: lastDatetime(search?.createdAt),
@@ -157,7 +167,9 @@ export class PayrollRepository {
               in: acc.branches.map(branch => branch.name),
               mode: "insensitive"
             } : {startsWith: search?.branch, mode: "insensitive"},
-            position: {startsWith: search?.position, mode: "insensitive"},
+            position: positions?.length
+              ? {in: positions.map(position => position)}
+              : {startsWith: search?.position, mode: "insensitive"},
             createdAt: {
               gte: firstDatetime(search?.createdAt),
               lte: lastDatetime(search?.createdAt),
@@ -391,119 +403,12 @@ export class PayrollRepository {
     }
   }
 
-  async findOvertimesV2(profile: ProfileEntity, search: Partial<SearchPayrollDto>) {
-    const acc = await this.prisma.account.findUnique({where: {id: profile.id}, include: {branches: true}});
-
-    const overtimeTitles = await this.prisma.salary.groupBy({
-      by: ['title'],
-      where: {
-        title: {startsWith: search?.title, mode: "insensitive"},
-        datetime: search?.createdAt ? {
-          in: search?.createdAt
-        } : {
-          gte: search?.startedAt,
-          lte: search?.endedAt
-        },
-        type: {in: SalaryType.OVERTIME},
-        payroll: {
-          employee: {
-            branch: acc.branches?.length
-              ? {id: {in: profile?.branches.map(branch => branch.id)}}
-              : {
-                name: {
-                  startsWith: search?.branch,
-                  mode: "insensitive"
-                }
-              },
-            position: {name: {startsWith: search?.position, mode: "insensitive"}},
-            lastName: search?.type === SearchType.EQUALS
-              ? {equals: search?.name, mode: "insensitive"}
-              : search?.type === SearchType.START_WITH
-                ? {startsWith: search?.name, mode: "insensitive"}
-                : {contains: search?.name, mode: "insensitive"},
-          }
-        }
-      },
-    });
-    const data = await Promise.all(overtimeTitles.map(async e => {
-      const [total, salaries] = await Promise.all([
-        this.prisma.salary.count({
-          where: {
-            title: {startsWith: e.title, mode: "insensitive"},
-            type: {in: SalaryType.OVERTIME},
-            datetime: search?.createdAt ? {
-              in: search?.createdAt
-            } : {
-              gte: search?.startedAt,
-              lte: search?.endedAt
-            },
-            payroll: {
-              employee: {
-                branch: acc.branches?.length
-                  ? {id: {in: acc.branches.map(branch => branch.id)}}
-                  : {name: {startsWith: search?.branch, mode: "insensitive"}}
-              }
-            }
-          },
-        }),
-        this.prisma.salary.findMany({
-          // take: Number(search?.take) || undefined,
-          // skip: Number(search?.skip) || undefined,
-          where: {
-            title: {startsWith: e.title, mode: "insensitive"},
-            type: {in: SalaryType.OVERTIME},
-            datetime: search?.createdAt ? {
-              in: search?.createdAt
-            } : {
-              gte: search?.startedAt,
-              lte: search?.endedAt
-            },
-            payroll: {
-              employee: {
-                branch: acc.branches?.length
-                  ? {id: {in: acc.branches.map(branch => branch.id)}}
-                  : {name: {startsWith: search?.branch, mode: "insensitive"}}
-              }
-            }
-          },
-          include: {
-            allowance: true,
-            payroll: {
-              include: {
-                employee: {
-                  include: {
-                    branch: true,
-                    position: true
-                  }
-                }
-              }
-            }
-          },
-          orderBy: {
-            payroll: {
-              employee: {
-                stt: "asc"
-              }
-            }
-          }
-        })
-      ]);
-      /// TODO: Phân trang thì tổng sẽ lấy trong phạm vi được phân trang.
-      return {total, salaries};
-    }));
-
-    return {
-      total: data.map(e => e.total).reduce((a, b) => a + b, 0),
-      data: data.map(e => e.salaries)
-    };
-  }
-
   async findOvertimesV3(profile: ProfileEntity, search: Partial<SearchPayrollDto>) {
     const acc = await this.prisma.account.findUnique({where: {id: profile.id}, include: {branches: true}});
     const [total, data] = await Promise.all([
       this.prisma.salary.count({
         where: {
-          title: {startsWith: search?.title, mode: "insensitive"},
+          title: {in: search?.overtimes, mode: "insensitive"},
           type: {in: SalaryType.OVERTIME},
           datetime: search?.createdAt ? {
             in: search?.createdAt
@@ -525,7 +430,7 @@ export class PayrollRepository {
         take: search?.take,
         skip: search?.skip,
         where: {
-          title: {startsWith: search?.title, mode: "insensitive"},
+          title: {in: search?.overtimes, mode: "insensitive"},
           type: {in: SalaryType.OVERTIME},
           datetime: search?.createdAt ? {
             in: search?.createdAt
@@ -544,17 +449,11 @@ export class PayrollRepository {
         },
         include: {
           allowance: true,
-          payroll: {
-            include: {
-              employee: {
-                include: {
-                  branch: true,
-                  position: true
-                }
-              }
-            }
-          }
+          payroll: true
         },
+        orderBy: {
+          id: "desc"
+        }
       })
     ]);
     return {total, data};
