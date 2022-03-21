@@ -22,6 +22,7 @@ import {ItemExportDto} from "../../../common/interfaces/items-export.dto";
 import {SearchExportDto} from "./dto/search-export.dto";
 import {convertArrayToString} from "./functions/convertArrayToString";
 import {SearchSalaryDto} from "./dto/search-salary.dto";
+import *as _ from "lodash";
 
 @Injectable()
 export class PayrollService {
@@ -211,14 +212,14 @@ export class PayrollService {
   }
 
   async filterOvertime(profile: ProfileEntity, search: Partial<SearchPayrollDto>) {
-    const e = await this.repository.findOvertimesV3(profile, search);
-    const overtimes = e.data.reduce((acc, e) => acc.concat(e), []);
-    const employeeIds = [...new Set(overtimes.map(overtime => overtime.payroll.employeeId))];
+    const {total, data} = await this.repository.findOvertimes(profile, search);
+    const employeeIds = [...new Set(data.map(overtime => overtime.payroll.employee.id))];
 
-    const data = employeeIds.map(employeeId => {
-      const employees = overtimes.filter(overtime => overtime.payroll.employeeId === employeeId);
+    const payrolls = employeeIds.map(employeeId => {
+      const payroll = data.find(overtime => overtime.payroll.employee.id === employeeId).payroll;
+      const overtimesOfEmployee = data.filter(overtime => overtime.payroll.employee.id === employeeId);
 
-      const total = employees.map(employee => {
+      const totalInOvertime = overtimesOfEmployee.map(employee => {
         if (employee.unit === DatetimeUnit.DAY && employee.times > 1) {
           return (employee.times * employee.price) + (employee.allowance?.price * employee.times);
         } else {
@@ -226,40 +227,32 @@ export class PayrollService {
         }
       }).reduce((a, b) => a + b, 0);
 
-      const days = employees.filter(employee => employee.unit === DatetimeUnit.DAY).map(employee => employee.times).reduce((a, b) => a + b, 0);
-      const hours = employees.filter(employee => employee.unit === DatetimeUnit.HOUR).map(employee => employee.times).reduce((a, b) => a + b, 0);
+      const days = overtimesOfEmployee.filter(employee => employee.unit === DatetimeUnit.DAY).map(employee => employee.times).reduce((a, b) => a + b, 0);
+      const hours = overtimesOfEmployee.filter(employee => employee.unit === DatetimeUnit.HOUR).map(employee => employee.times).reduce((a, b) => a + b, 0);
 
 
-      return Object.assign({}, employees[0].payroll.employee, {
-        salaries: employees,
+      return Object.assign(payroll, {
+        salaries: overtimesOfEmployee.map(overtime => _.omit(overtime, ["payroll"])),
         salary: {
-          total,
+          total: totalInOvertime,
           unit: {days, hours},
-          payroll: employees[0].payroll,
         },
       });
     });
 
     return {
-      total: e.total,
-      data: data.map(e => {
-        return {
-          id: e.salary.id,
-          payrollId: e.salary.payroll.id,
-          accConfirmedAt: e.salary.payroll.accConfirmedAt,
-          manConfirmedAt: e.salary.payroll.manConfirmedAt,
-          branch: e.salary.payroll.branch,
-          position: e.salary.payroll.position,
-          employee: e,
-          salaries: e.salaries.sort((a, b) => moment.utc(a.datetime).diff(moment.utc(b.datetime))),
-          salary: e.salary,
-        };
+      total: total,
+      data: payrolls.map(payroll => {
+        return Object.assign(payroll, {
+          salaries: payroll.salaries.sort((a, b) => moment.utc(a.datetime).diff(moment.utc(b.datetime))),
+          salary: payroll.salary,
+        });
       }),
       totalSalary: {
-        total: data.map(e => e.salary.total).reduce((a, b) => a + b, 0),
+        total: payrolls.map(payroll => payroll.salary.total).reduce((a, b) => a + b, 0),
         unit: {
-          days: data.map(e => e.salary.unit.days).reduce((a, b) => a + b, 0),
-          hours: data.map(e => e.salary.unit.hours).reduce((a, b) => a + b, 0)
+          days: payrolls.map(payroll => payroll.salary.unit.days).reduce((a, b) => a + b, 0),
+          hours: payrolls.map(payroll => payroll.salary.unit.hours).reduce((a, b) => a + b, 0)
         },
       }
     };

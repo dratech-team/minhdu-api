@@ -50,11 +50,6 @@ export class SearchEmployeeDto  extends SortDto{
   @Type(() => Number)
   readonly positionId: number;
 
-  @IsOptional()
-  @IsNumber()
-  @Type(() => Number)
-  readonly templateId: number;
-
   readonly createdPayroll: Date;
 
   @IsNotEmpty()

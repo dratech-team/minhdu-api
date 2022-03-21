@@ -27,26 +27,15 @@ export class SalaryService {
     const allowances: string[] = [];
 
     /// Thêm phụ cấp tăng ca hàng loạt
-    if (body.employeeIds && body.employeeIds.length) {
-      // get all payroll in body.datetime for employee
-      const payrolls = await Promise.all(
-        body.employeeIds.map(async (employeeId) => {
-          return await this.findPayrollByEmployee(employeeId, body.datetime as Date);
-        })
-      );
-
-      if (payrolls.length !== body.employeeIds.length) {
-        throw new BadRequestException(`Có nhân viên nào đó chưa có bảng lương trong tháng ${body.datetime}. Vui lòng kiểm tra lại.`);
-      }
-
-      for (let i = 0; i < payrolls.length; i++) {
+    if (body?.payrollIds?.length) {
+      for (let i = 0; i < body?.payrollIds.length; i++) {
         // Tạo overtime / absent trong payroll cho nhân viên
         //  Nếu body.allowEmpIds thì Thêm phụ cấp tiền ăn / phụ cấp trong giờ làm  tăng ca hàng loạt.  vì allowance đi chung với body nên cần dặt lại giá trị là null để nó khỏi gán cho nhân viên khác
         // copy obj body nếu k {} thì nó sẽ khi đè lên bên trong thuộc tính body và làm thay đổi giá trị body
-        const salary = Object.assign({},
-          body, {
-            payrollId: payrolls[i].id,
-            allowance: body?.allowEmpIds?.includes(payrolls[i].employeeId) && body.type === SalaryType.OVERTIME ? body?.allowance : null,
+        const payroll = await this.payrollService.findOne(body.payrollIds[i]);
+        const salary = Object.assign(body, {
+            payrollId: body?.payrollIds[i],
+            allowance: body?.allowPayrollIds?.includes(payroll.employeeId) && body.type === SalaryType.OVERTIME ? body?.allowance : null,
           }
         );
 

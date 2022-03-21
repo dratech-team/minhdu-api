@@ -1,7 +1,7 @@
 import {EmployeeType} from "@prisma/client";
 import {FilterTypeEnum} from "../entities/filter-type.enum";
 import {Transform, Type} from "class-transformer";
-import {IsBoolean, IsDate, IsEnum, IsNumber, IsOptional, IsString} from "class-validator";
+import {IsArray, IsBoolean, IsDate, IsEnum, IsNumber, IsOptional, IsString} from "class-validator";
 import * as moment from "moment";
 import {SortDto} from "../../../../common/dtos/sort.dto";
 
@@ -34,6 +34,11 @@ export class SearchPayrollDto extends SortDto {
   @IsOptional()
   @IsString()
   readonly branch: string;
+
+  @IsOptional()
+  @IsNumber()
+  @Type(() => Number)
+  readonly templateId: number;
 
   @IsOptional()
   @IsString()
@@ -102,6 +107,10 @@ export class SearchPayrollDto extends SortDto {
   @IsOptional()
   @IsString()
   readonly type: string;
+
+  @IsOptional()
+  @IsArray()
+  readonly overtimes: string[];
 
   @IsOptional()
   @IsString()

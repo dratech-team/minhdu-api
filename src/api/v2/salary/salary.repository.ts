@@ -235,13 +235,13 @@ export class SalaryRepository {
     }
 
     // Check thêm tăng ca đúng với datetime của payroll. Apply cho detail payroll
-    if (!body?.employeeIds && body.times === 1 && !isEqualDatetime(body.datetime as Date, payroll.createdAt, "month")) {
-      throw new BadRequestException(
-        `Ngày tăng ca phải là ngày của tháng ${moment(payroll.createdAt).format(
-          "MM/YYYY"
-        )}.`
-      );
-    }
+    // if (!body?.employeeIds && body.times === 1 && !isEqualDatetime(body.datetime as Date, payroll.createdAt, "month")) {
+    //   throw new BadRequestException(
+    //     `Ngày tăng ca phải là ngày của tháng ${moment(payroll.createdAt).format(
+    //       "MM/YYYY"
+    //     )}.`
+    //   );
+    // }
 
     // if (includesDatetime(payroll.salaries.map(salary => salary.datetime), body.datetime as Date) && body.unit === DatetimeUnit.DAY) {
     //   throw new BadRequestException(`Ngày ${moment(body.datetime as Date).format("dd/MM/yyyy")} đã tồn tại ngày tăng ca. Vui lòng kiểm tra lại`);

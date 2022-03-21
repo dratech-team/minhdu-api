@@ -19,7 +19,7 @@ export class OvertimeTemplateRepository {
               id: positionId,
             })),
           },
-          branch: body?.branchId ? {connect: {id: body?.branchId}} : {},
+          branches: {connect: body.branchIds?.map(id => ({id}))},
           title: body.title,
           price: body.price,
           rate: body.rate,
@@ -39,23 +39,19 @@ export class OvertimeTemplateRepository {
   async findAll(profile: ProfileEntity, search: SearchOvertimeTemplateDto) {
     try {
       const acc = await this.prisma.account.findUnique({where: {id: profile.id}, include: {branches: true}});
-
       const [total, data] = await Promise.all([
         this.prisma.overtimeTemplate.count({
           where: {
             title: {startsWith: search?.title, mode: "insensitive"},
             price: search?.price ? {in: search?.price} : {},
             unit: {in: search?.unit || undefined},
-            OR: [
-              {branchId: {in: null}},
-              {
-                branch: {
-                  id: acc.branches?.length
-                    ? {in: acc.branches.map(branch => branch.id)}
-                    : search?.branchId ? {in: search?.branchId} : {}
-                }
+            branches: {
+              every: {
+                id: acc.branches?.length
+                  ? {in: acc.branches.map(branch => branch.id)}
+                  : search?.branchId ? {in: search?.branchId} : {}
               }
-            ],
+            },
             positions: search?.positionIds?.length
               ? {some: {id: {in: search?.positionIds}}}
               : {},
@@ -68,23 +64,20 @@ export class OvertimeTemplateRepository {
             title: {startsWith: search?.title, mode: "insensitive"},
             price: search?.price ? {in: search?.price} : {},
             unit: {in: search?.unit || undefined},
-            OR: [
-              {branchId: {in: null}},
-              {
-                branch: {
-                  id: acc.branches?.length
-                    ? {in: acc.branches.map(branch => branch.id)}
-                    : search?.branchId ? {in: search?.branchId} : {}
-                }
+            branches: {
+              every: {
+                id: acc.branches?.length
+                  ? {in: acc.branches.map(branch => branch.id)}
+                  : search?.branchId ? {in: search?.branchId} : {}
               }
-            ],
+            },
             positions: search?.positionIds?.length
               ? {some: {id: {in: search?.positionIds}}}
               : {},
           },
           include: {
             positions: true,
-            branch: true,
+            branches: true,
           },
           orderBy: {
             price: "desc",
@@ -104,7 +97,7 @@ export class OvertimeTemplateRepository {
         where: {id},
         include: {
           positions: true,
-          branch: true,
+          branches: true,
         },
       });
     } catch (err) {
@@ -125,14 +118,12 @@ export class OvertimeTemplateRepository {
           positions: {
             set: updates.positionIds?.map((id) => ({id})),
           },
-          branch: updates?.branchId
-            ? {connect: {id: updates?.branchId}}
-            : {disconnect: true},
+          branches: {set: updates?.branchIds.map(id => ({id}))},
           employeeType: updates.employeeType,
         },
         include: {
           positions: true,
-          branch: true,
+          branches: true,
         },
       });
     } catch (err) {

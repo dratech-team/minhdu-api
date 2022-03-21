@@ -12,6 +12,7 @@ import {Promise} from "es6-promise";
 import {FilterTypeEnum} from "./entities/filter-type.enum";
 import {SearchSalaryDto} from "./dto/search-salary.dto";
 import {OrderbyEmployeeEnum} from "../employee/enums/orderby-employee.enum";
+import *as _ from "lodash";
 
 @Injectable()
 export class PayrollRepository {
@@ -48,11 +49,7 @@ export class PayrollRepository {
           salaries: !isInit && salaries?.length
             ? {
               createMany: {
-                data: salaries.map((salary) => {
-                  delete salary.payrollId;
-                  delete salary.id;
-                  return salary;
-                }),
+                data: salaries.map((salary) => _.omit(salary, ["payrollId", "id"])),
               },
             }
             : {},
@@ -200,7 +197,6 @@ export class PayrollRepository {
           }
         }),
       ]);
-
       return {total, data};
     } catch (e) {
       console.error(e);
@@ -403,7 +399,7 @@ export class PayrollRepository {
     }
   }
 
-  async findOvertimesV3(profile: ProfileEntity, search: Partial<SearchPayrollDto>) {
+  async findOvertimes(profile: ProfileEntity, search: Partial<SearchPayrollDto>) {
     const acc = await this.prisma.account.findUnique({where: {id: profile.id}, include: {branches: true}});
     const [total, data] = await Promise.all([
       this.prisma.salary.count({
@@ -449,7 +445,9 @@ export class PayrollRepository {
         },
         include: {
           allowance: true,
-          payroll: true
+          payroll: {
+            include: {employee: true}
+          }
         },
         orderBy: {
           id: "desc"

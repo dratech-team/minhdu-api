@@ -21,11 +21,11 @@ export class CreateSalaryDto extends ICreateSalaryDto {
 
   @IsOptional()
   @IsArray()
-  readonly employeeIds?: number[];
+  readonly payrollIds?: number[];
 
   @IsOptional()
   @IsArray()
-  readonly allowEmpIds: number[];
+  readonly allowPayrollIds: number[];
 
   @ValidateNested()
   readonly allowance: CreateAllowanceDto;

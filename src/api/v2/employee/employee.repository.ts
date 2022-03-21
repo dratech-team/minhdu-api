@@ -94,13 +94,7 @@ export class EmployeeRepository {
   ) {
     try {
       const acc = await this.prisma.account.findUnique({where: {id: profile.id}, include: {branches: true}});
-      const template = search?.templateId
-        ? await this.prisma.overtimeTemplate.findUnique({
-          where: {id: search?.templateId},
-          include: {positions: true},
-        })
-        : null;
-      const positionIds = template?.positions?.map((position) => position.id);
+
       const [total, data] = await Promise.all([
         this.prisma.employee.count({
           where: {
@@ -110,7 +104,6 @@ export class EmployeeRepository {
               id: acc.branches?.length ? {in: acc.branches.map(branch => branch.id)} : {},
               name: !acc.branches?.length ? {startsWith: search?.branch, mode: "insensitive"} : {},
             },
-            positionId: positionIds?.length ? {in: positionIds} : {},
             lastName: {contains: search?.name, mode: "insensitive"},
             gender: search?.gender ? {equals: search?.gender} : {},
             isFlatSalary: (search?.isFlatSalary == 1 || search?.isFlatSalary == 0) ? {equals: +search.isFlatSalary === 1} : {},
@@ -160,7 +153,6 @@ export class EmployeeRepository {
               id: acc.branches?.length ? {in: acc.branches.map(branch => branch.id)} : {},
               name: !acc.branches?.length ? {startsWith: search?.branch, mode: "insensitive"} : {},
             },
-            positionId: positionIds?.length ? {in: positionIds} : {},
             lastName: {contains: search?.name, mode: "insensitive"},
             gender: search?.gender ? {equals: search?.gender} : {},
             isFlatSalary: (search?.isFlatSalary == 1 || search?.isFlatSalary == 0) ? {equals: +search.isFlatSalary === 1} : {},
