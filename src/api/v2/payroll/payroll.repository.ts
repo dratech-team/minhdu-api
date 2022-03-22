@@ -266,14 +266,7 @@ export class PayrollRepository {
         },
         include: {
           payroll: {
-            include: {
-              employee: {
-                include: {
-                  position: true,
-                  branch: true
-                }
-              }
-            }
+            include: {employee: true}
           }
         },
         orderBy: {
@@ -293,13 +286,7 @@ export class PayrollRepository {
     ]);
     return {
       total, data: data.map(salary => {
-        return {
-          employeeId: salary.payroll.employeeId,
-          id: salary.id,
-          payrollId: salary.payrollId,
-          salaries: Array.of(salary),
-          employee: salary.payroll.employee
-        };
+        return Object.assign({}, salary.payroll, {salaries: Array.of(_.omit(salary, ["payroll"]))});
       })
     };
   }
