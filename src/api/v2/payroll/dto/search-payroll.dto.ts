@@ -111,7 +111,7 @@ export class SearchPayrollDto extends SortDto {
   @IsOptional()
   @IsArray()
   @Transform(val => {
-    return Array.of(val.value);
+    return typeof val.value === 'string' ? Array.of(val.value) : val.value;
   })
   readonly titles: string[];
 

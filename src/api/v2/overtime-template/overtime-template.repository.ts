@@ -80,7 +80,7 @@ export class OvertimeTemplateRepository {
             branches: true,
           },
           orderBy: {
-            price: "desc",
+            title: "asc",
           },
         }),
       ]);

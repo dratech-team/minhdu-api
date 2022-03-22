@@ -361,6 +361,8 @@ export class PayrollRepository {
           total: updates?.total,
           manConfirmedAt: updates?.manConfirmedAt,
           actualday: updates?.actualday,
+          branch: updates?.branchId ? (await this.prisma.branch.findUnique({where: {id: updates?.branchId}})).name : {},
+          position: updates?.positionId ? (await this.prisma.position.findUnique({where: {id: updates?.branchId}})).name : {},
           taxed: updates?.taxed,
           createdAt: updates?.createdAt,
           note: updates?.note,
@@ -368,8 +370,6 @@ export class PayrollRepository {
         include: {
           employee: {
             include: {
-              position: true,
-              branch: true,
               contracts: true
             }
           },
