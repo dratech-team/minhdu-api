@@ -110,11 +110,7 @@ export class SearchPayrollDto extends SortDto {
 
   @IsOptional()
   @IsArray()
-  readonly overtimes: string[];
-
-  @IsOptional()
-  @IsString()
-  readonly title: string;
+  readonly titles: string[];
 
   @IsOptional()
   @Type(() => Number)

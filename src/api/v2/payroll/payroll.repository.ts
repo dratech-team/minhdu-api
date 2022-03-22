@@ -123,7 +123,6 @@ export class PayrollRepository {
       : null;
 
     const positions = template?.positions?.map((position) => position.name);
-
     try {
       const [total, data] = await Promise.all([
         this.prisma.payroll.count({
@@ -217,7 +216,7 @@ export class PayrollRepository {
             gte: firstDatetime(search?.createdAt),
             lte: lastDatetime(search?.createdAt),
           },
-          title: {startsWith: search?.title, mode: "insensitive"},
+          title: {in: search?.titles, mode: "insensitive"},
           price: search?.salaryPrice ? {equals: search?.salaryPrice} : {},
           type: search?.filterType
             ? {
@@ -248,7 +247,7 @@ export class PayrollRepository {
             gte: firstDatetime(search?.createdAt),
             lte: lastDatetime(search?.createdAt),
           },
-          title: {startsWith: search?.title, mode: "insensitive"},
+          title: {in: search?.titles, mode: "insensitive"},
           price: search?.salaryPrice ? {equals: search?.salaryPrice} : {},
           type: search?.filterType
             ? {
@@ -407,10 +406,11 @@ export class PayrollRepository {
 
   async findOvertimes(profile: ProfileEntity, search: Partial<SearchPayrollDto>) {
     const acc = await this.prisma.account.findUnique({where: {id: profile.id}, include: {branches: true}});
+console.log(search.titles)
     const [total, data] = await Promise.all([
       this.prisma.salary.count({
         where: {
-          title: {in: search?.overtimes, mode: "insensitive"},
+          title: {in: search?.titles, mode: "insensitive"},
           type: {in: SalaryType.OVERTIME},
           datetime: search?.createdAt ? {
             in: search?.createdAt
@@ -429,10 +429,8 @@ export class PayrollRepository {
         },
       }),
       this.prisma.salary.findMany({
-        take: undefined,
-        skip: undefined,
         where: {
-          title: {in: search?.overtimes, mode: "insensitive"},
+          title: {in: search?.titles, mode: "insensitive"},
           type: {in: SalaryType.OVERTIME},
           datetime: search?.createdAt ? {
             in: search?.createdAt
@@ -517,51 +515,6 @@ export class PayrollRepository {
     });
   }
 
-  async currentPayroll(profile: ProfileEntity, datetime: Date) {
-    try {
-      if (!datetime) {
-        throw new BadRequestException("Vui lòng nhập tháng / năm để in phiếu chấm công. Xin cảm ơn!!!");
-      }
-      const employees = await this.prisma.employee.findMany({
-        where: {
-          branchId: profile?.branches?.length ? {in: profile?.branches.map(branch => branch.id)} : {},
-        }
-      });
-
-      return await Promise.all(employees.map(async employee => {
-        const payroll = await this.prisma.payroll.findFirst({
-          where: {
-            employeeId: employee.id,
-            createdAt: {
-              gte: firstDatetime(datetime),
-              lte: lastDatetime(datetime),
-            }
-          },
-          include: {
-            salaries: true,
-            employee: {
-              include: {
-                position: true,
-                contracts: true,
-              }
-            },
-          },
-        });
-        if (!payroll.accConfirmedAt) {
-          throw `Cần xác nhận phiếu lương ${payroll.id} trước khi xuất`;
-        }
-        if (!payroll.salaries.filter(salary => salary.type === SalaryType.BASIC_INSURANCE).length) {
-          throw `Phiếu lương ${payroll.id} chưa có lương cơ bản trích BH. Vui lòng thêm mục này để hoàn thành xác nhận.`;
-        }
-        return payroll;
-      }));
-    } catch (err) {
-      console.error(err);
-      throw new BadRequestException(err);
-    }
-  }
-
-
   async findCurrentHolidays(datetime: Date, positionId: Position["id"]) {
     try {
       return await this.prisma.holiday.findMany({
@@ -580,8 +533,6 @@ export class PayrollRepository {
       throw new BadRequestException("Lỗi get current holiday", err);
     }
   }
-
-
 }
 
 

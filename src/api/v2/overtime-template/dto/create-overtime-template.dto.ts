@@ -30,7 +30,7 @@ export class CreateOvertimeTemplateDto {
   readonly note?: DatetimeUnit;
 
   @IsOptional()
-  @IsNumber()
+  @IsArray()
   readonly branchIds: number[];
 
   @IsNotEmpty()

@@ -89,7 +89,6 @@ export class PayrollService {
 
   async findAll(profile: ProfileEntity, search?: Partial<SearchPayrollDto>) {
     const {total, data} = await this.repository.findAll(profile, search);
-
     switch (search.filterType) {
       case FilterTypeEnum.TIME_SHEET: {
         return {
@@ -216,28 +215,7 @@ export class PayrollService {
     const employeeIds = [...new Set(data.map(overtime => overtime.payroll.employee.id))];
 
     const payrolls = employeeIds.map(employeeId => {
-      const payroll = data.find(overtime => overtime.payroll.employee.id === employeeId).payroll;
-      const overtimesOfEmployee = data.filter(overtime => overtime.payroll.employee.id === employeeId);
-
-      const totalInOvertime = overtimesOfEmployee.map(employee => {
-        if (employee.unit === DatetimeUnit.DAY && employee.times > 1) {
-          return (employee.times * employee.price) + (employee.allowance?.price * employee.times);
-        } else {
-          return employee.times * employee.price + (employee.allowance?.price || 0);
-        }
-      }).reduce((a, b) => a + b, 0);
-
-      const days = overtimesOfEmployee.filter(employee => employee.unit === DatetimeUnit.DAY).map(employee => employee.times).reduce((a, b) => a + b, 0);
-      const hours = overtimesOfEmployee.filter(employee => employee.unit === DatetimeUnit.HOUR).map(employee => employee.times).reduce((a, b) => a + b, 0);
-
-
-      return Object.assign(payroll, {
-        salaries: overtimesOfEmployee.map(overtime => _.omit(overtime, ["payroll"])),
-        salary: {
-          total: totalInOvertime,
-          unit: {days, hours},
-        },
-      });
+      return this.overtimeOfEmployee(data, employeeId);
     });
 
     return {
@@ -257,6 +235,35 @@ export class PayrollService {
         },
       }
     };
+  }
+
+  private overtimeOfEmployee(data, employeeId) {
+    const payroll = data.find(overtime => overtime.payroll.employee.id === employeeId).payroll;
+    const overtimesOfEmployee = data.filter(overtime => overtime.payroll.employee.id === employeeId);
+
+    const totalInOvertime = overtimesOfEmployee.map(salary => {
+      return this.totalInOvertime(salary);
+    }).reduce((a, b) => a + b, 0);
+
+    const days = overtimesOfEmployee.filter(employee => employee.unit === DatetimeUnit.DAY).map(employee => employee.times).reduce((a, b) => a + b, 0);
+    const hours = overtimesOfEmployee.filter(employee => employee.unit === DatetimeUnit.HOUR).map(employee => employee.times).reduce((a, b) => a + b, 0);
+
+
+    return Object.assign(payroll, {
+      salaries: overtimesOfEmployee.map(overtime => _.omit(overtime, ["payroll"])),
+      salary: {
+        total: totalInOvertime,
+        unit: {days, hours},
+      },
+    });
+  }
+
+  private totalInOvertime(salary) {
+    if (salary.unit === DatetimeUnit.DAY && salary.times > 1) {
+      return (salary.times * salary.price) + (salary.allowance?.price * salary.times);
+    } else {
+      return salary.times * salary.price + (salary.allowance?.price || 0);
+    }
   }
 
   async confirmPayslip(id: number) {
@@ -1397,8 +1404,8 @@ export class PayrollService {
             case FilterTypeEnum.SEASONAL: {
               exportType = {
                 lastName: payroll.employee.lastName,
-                branch: payroll.employee.branch.name,
-                position: payroll.employee.position.name,
+                branch: payroll.branch,
+                position: payroll.position,
                 datetime: convertArrayToString(payroll.salaries.map(salary => salary.datetime ? moment(salary.datetime).format("DD/MM/YYYY") : moment(payroll.createdAt).format("MM/YYYY"))),
                 title: convertArrayToString(payroll.salaries.map(salary => salary.title)),
                 workdays: payroll.payslip.workdays,
@@ -1416,8 +1423,8 @@ export class PayrollService {
             case FilterTypeEnum.ABSENT: {
               exportType = {
                 lastName: payroll.employee.lastName,
-                branch: payroll.employee.branch.name,
-                position: payroll.employee.position.name,
+                branch: payroll.branch,
+                position: payroll.position,
                 datetime: convertArrayToString(payroll.salaries.filter(salary => salary.datetime).map(salary => moment(salary.datetime).format("DD/MM/YYYY"))),
                 title: convertArrayToString(payroll.salaries.map(salary => {
                   if (salary?.allowance?.title) {
