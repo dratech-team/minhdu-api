@@ -406,7 +406,6 @@ export class PayrollRepository {
 
   async findOvertimes(profile: ProfileEntity, search: Partial<SearchPayrollDto>) {
     const acc = await this.prisma.account.findUnique({where: {id: profile.id}, include: {branches: true}});
-console.log(search.titles)
     const [total, data] = await Promise.all([
       this.prisma.salary.count({
         where: {
