@@ -1,7 +1,8 @@
-import {IsBoolean, IsDate, IsNumber, IsOptional, IsString} from "class-validator";
+import {IsBoolean, IsDate, IsEnum, IsNumber, IsOptional, IsString} from "class-validator";
 import {Type} from "class-transformer";
 import {CreatePayrollDto} from "./create-payroll.dto";
 import {PartialType} from "@nestjs/mapped-types";
+import { RecipeType } from "@prisma/client";
 
 export class UpdatePayrollDto extends PartialType(CreatePayrollDto) {
   @IsOptional()
@@ -27,6 +28,14 @@ export class UpdatePayrollDto extends PartialType(CreatePayrollDto) {
   @IsOptional()
   @Type(() => Number)
   readonly positionId?: number;
+
+  @IsOptional()
+  @Type(() => Number)
+  readonly workday?: number;
+
+  @IsOptional()
+  @IsEnum(RecipeType)
+  readonly recipeType?: RecipeType;
 
   @IsOptional()
   @Type(() => Date)

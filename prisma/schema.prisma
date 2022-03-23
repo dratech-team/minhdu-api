@@ -495,7 +495,7 @@ model Payroll {
   position       String?
   total          Float?
   isFlatSalary   Boolean?
-  recipe         RecipeType?
+  recipeType         RecipeType?
   salaries       Salary[]
   note           String?
   taxed          Boolean?    @default(true)

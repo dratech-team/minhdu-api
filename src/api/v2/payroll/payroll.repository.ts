@@ -1,5 +1,5 @@
 import {BadRequestException, Injectable, NotFoundException} from "@nestjs/common";
-import {Branch, EmployeeType, Payroll, Position, SalaryType} from "@prisma/client";
+import {Branch, EmployeeType, Payroll, Position, RecipeType, SalaryType} from "@prisma/client";
 import {ProfileEntity} from "../../../common/entities/profile.entity";
 import {PrismaService} from "../../../prisma.service";
 import {firstDatetime, lastDatetime} from "../../../utils/datetime.util";
@@ -19,7 +19,7 @@ export class PayrollRepository {
   constructor(private readonly prisma: PrismaService) {
   }
 
-  async create(body: CreatePayrollDto & { branch: Branch, position: Position }, isInit?: boolean) {
+  async create(body: CreatePayrollDto & { branch: Branch, position: Position, recipeType: RecipeType }, isInit?: boolean) {
     try {
       const payrolls = await this.prisma.payroll.findMany({
         where: {
@@ -46,6 +46,7 @@ export class PayrollRepository {
           createdAt: body.createdAt,
           branch: body.branch.name,
           position: body.position.name,
+          recipeType: body.recipeType,
           salaries: !isInit && salaries?.length
             ? {
               createMany: {
@@ -115,6 +116,18 @@ export class PayrollRepository {
       include: {branches: true, role: true}
     });
 
+    // const payrolls = await this.prisma.payroll.findMany();
+    // for (let i = 0; i < payrolls.length; i++) {
+    //   const employee = await this.prisma.employee.findUnique({where: {id: payrolls[i].employeeId}})
+    //   await this.prisma.payroll.update({
+    //     where: {id: payrolls[i].id},
+    //     data: {
+    //       recipeType: employee.recipeType,
+    //       isFlatSalary: employee.isFlatSalary,
+    //       workday: employee.workday
+    //     }
+    //   })
+    // }
     const template = search?.templateId
       ? await this.prisma.overtimeTemplate.findUnique({
         where: {id: search?.templateId},
@@ -351,7 +364,7 @@ export class PayrollRepository {
       if (moment(updates?.accConfirmedAt || updates?.manConfirmedAt).isBefore(payroll.createdAt)) {
         throw new BadRequestException(`Không thể xác nhận phiếu lương trước ngày vào làm. Vui lòng kiểm tra lại.`);
       }
-
+      
       return await this.prisma.payroll.update({
         where: {id: id},
         data: {
@@ -361,10 +374,12 @@ export class PayrollRepository {
           total: updates?.total,
           manConfirmedAt: updates?.manConfirmedAt,
           actualday: updates?.actualday,
-          branch: updates?.branchId ? (await this.prisma.branch.findUnique({where: {id: updates?.branchId}})).name : {},
-          position: updates?.positionId ? (await this.prisma.position.findUnique({where: {id: updates?.branchId}})).name : {},
+          workday: updates?.workday,
+          branch: updates?.branchId ? (await this.prisma.branch.findUnique({where: {id: updates?.branchId}})).name : undefined,
+          position: updates?.positionId ? (await this.prisma.position.findUnique({where: {id: updates?.branchId}})).name : undefined,
           taxed: updates?.taxed,
           createdAt: updates?.createdAt,
+          recipeType: updates?.recipeType,
           note: updates?.note,
         },
         include: {

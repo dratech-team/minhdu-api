@@ -60,7 +60,8 @@ export class PayrollService {
               createdAt: isEqualDatetime(body.createdAt, employee.createdAt, "month") ? employee.createdAt : body.createdAt,
               employeeId: employee.id,
               branch: employee.branch,
-              position: employee.position
+              position: employee.position,
+              recipeType: employee.recipeType,
             }));
           }
         }));
@@ -77,7 +78,8 @@ export class PayrollService {
         return await this.repository.create(Object.assign(body, {
           employeeId: employee.id,
           branch: employee.branch,
-          position: employee.position
+          position: employee.position,
+          recipeType: employee.recipeType,
         }), true);
       }
 
