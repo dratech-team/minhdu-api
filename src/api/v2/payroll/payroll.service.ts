@@ -62,6 +62,7 @@ export class PayrollService {
               branch: employee.branch,
               position: employee.position,
               recipeType: employee.recipeType,
+              workday: employee.workday,
             }));
           }
         }));
@@ -80,6 +81,7 @@ export class PayrollService {
           branch: employee.branch,
           position: employee.position,
           recipeType: employee.recipeType,
+          workday: employee.workday,
         }), true);
       }
 
@@ -565,7 +567,7 @@ export class PayrollService {
   async totalSalaryCT1(payroll: OnePayroll) {
     // datetime
     const currentHoliday = await this.repository.findCurrentHolidays(payroll.createdAt, payroll.employee.positionId);
-    const workday = payroll.employee.workday;
+    const workday = payroll.workday;
 
     // day
     const actualDay = this.totalActualDay(payroll);
@@ -582,7 +584,7 @@ export class PayrollService {
       (salary: Salary) => salary.type === SalaryType.BASIC_INSURANCE
     )?.price;
     const absent = this.totalAbsent(payroll);
-    const basicDaySalary = basicSalary / payroll.employee.workday;
+    const basicDaySalary = basicSalary / payroll.workday;
     const staySalary =
       actualDay >= workday
         ? this.totalStaySalary(payroll.salaries)
@@ -747,7 +749,7 @@ export class PayrollService {
     let payslipNotInHoliday = 0;
     //datetime
     const currentHoliday = await this.repository.findCurrentHolidays(payroll.createdAt, payroll.employee.positionId);
-    const workday = payroll.employee.workday;
+    const workday = payroll.workday;
 
     let actualDay = this.totalActualDay(payroll);
     if (payroll.employee.isFlatSalary) {
@@ -930,7 +932,7 @@ export class PayrollService {
     let payslipNotInHoliday = 0;
     //datetime
     const currentHoliday = await this.repository.findCurrentHolidays(payroll.createdAt, payroll.employee.positionId);
-    const workday = payroll.employee.workday;
+    const workday = payroll.workday;
 
     let actualDay = this.totalActualDay(payroll);
     if (payroll.employee.isFlatSalary) {
@@ -1102,7 +1104,7 @@ export class PayrollService {
     let payslipNotInHoliday = 0;
     //datetime
     const currentHoliday = await this.repository.findCurrentHolidays(payroll.createdAt, payroll.employee.positionId);
-    const workday = payroll.employee.workday;
+    const workday = payroll.workday;
 
     let actualDay = this.totalActualDay(payroll);
 
