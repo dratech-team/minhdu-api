@@ -116,18 +116,18 @@ export class PayrollRepository {
       include: {branches: true, role: true}
     });
 
-    // const payrolls = await this.prisma.payroll.findMany();
-    // for (let i = 0; i < payrolls.length; i++) {
-    //   const employee = await this.prisma.employee.findUnique({where: {id: payrolls[i].employeeId}})
-    //   await this.prisma.payroll.update({
-    //     where: {id: payrolls[i].id},
-    //     data: {
-    //       recipeType: employee.recipeType,
-    //       isFlatSalary: employee.isFlatSalary,
-    //       workday: employee.workday
-    //     }
-    //   })
-    // }
+    const payrolls = await this.prisma.payroll.findMany();
+    for (let i = 0; i < payrolls.length; i++) {
+      const employee = await this.prisma.employee.findUnique({where: {id: payrolls[i].employeeId}})
+      await this.prisma.payroll.update({
+        where: {id: payrolls[i].id},
+        data: {
+          recipeType: employee.recipeType,
+          isFlatSalary: employee.isFlatSalary,
+          workday: employee.workday
+        }
+      })
+    }
     const template = search?.templateId
       ? await this.prisma.overtimeTemplate.findUnique({
         where: {id: search?.templateId},
