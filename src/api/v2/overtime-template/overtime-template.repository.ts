@@ -45,13 +45,13 @@ export class OvertimeTemplateRepository {
             title: {startsWith: search?.title, mode: "insensitive"},
             price: search?.price ? {in: search?.price} : {},
             unit: {in: search?.unit || undefined},
-            branches: {
-              every: {
-                id: acc.branches?.length
-                  ? {in: acc.branches.map(branch => branch.id)}
-                  : search?.branchId ? {in: search?.branchId} : {}
+            branches: acc.branches?.length ? {
+              some: {
+                id: {in: acc.branches.map(branch => branch.id)}
               }
-            },
+            } : search?.branchIds?.length ? {
+              some: {id: {in: search?.branchIds}},
+            } : {},
             positions: search?.positionIds?.length
               ? {some: {id: {in: search?.positionIds}}}
               : {},
@@ -64,13 +64,13 @@ export class OvertimeTemplateRepository {
             title: {startsWith: search?.title, mode: "insensitive"},
             price: search?.price ? {in: search?.price} : {},
             unit: {in: search?.unit || undefined},
-            branches: {
+            branches: acc.branches?.length ? {
               some: {
-                id: acc.branches?.length
-                  ? {in: acc.branches.map(branch => branch.id)}
-                  : search?.branchId ? {in: search?.branchId} : {}
+                id: {in: acc.branches.map(branch => branch.id)}
               }
-            },
+            } : search?.branchIds?.length ? {
+              some: {id: {in: search?.branchIds}},
+            } : {},
             positions: search?.positionIds?.length
               ? {some: {id: {in: search?.positionIds}}}
               : {},
