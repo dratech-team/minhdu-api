@@ -275,7 +275,7 @@ export class PayrollService {
 
   async mapPayslip(payroll) {
     try {
-      switch (payroll.employee.recipeType) {
+      switch (payroll.recipeType) {
         case RecipeType.CT1: {
           return Object.assign(payroll, {
             payslip: payroll.accConfirmedAt
