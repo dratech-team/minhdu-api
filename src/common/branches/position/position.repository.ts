@@ -46,6 +46,22 @@ export class PositionRepository {
 
   async findAll(profile: ProfileEntity, search: Partial<SearchPositionDto>): Promise<Position[]> {
     try {
+      const acc = await this.prisma.account.findUnique({where: {id: profile.id}, include: {branches: true}});
+      if (acc.branches?.length) {
+        if (search?.branchId) {
+          const branch = await this.prisma.branch.findUnique({
+            where: {id: search.branchId},
+            include: {positions: true}
+          });
+          return branch.positions;
+        } else {
+          const branchIds = acc.branches.map(branch => branch.id);
+          const branches = await Promise.all(branchIds.map(async branchId => {
+            return await this.prisma.branch.findUnique({where: {id: branchId}, include: {positions: true}});
+          }));
+          return _.flattenDeep(branches.map(branch => branch.positions));
+        }
+      }
       return await this.prisma.position.findMany({
         where: {
           name: {startsWith: search?.position, mode: "insensitive"},
