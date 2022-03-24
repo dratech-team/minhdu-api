@@ -65,7 +65,7 @@ export class OvertimeTemplateRepository {
             price: search?.price ? {in: search?.price} : {},
             unit: {in: search?.unit || undefined},
             branches: {
-              every: {
+              some: {
                 id: acc.branches?.length
                   ? {in: acc.branches.map(branch => branch.id)}
                   : search?.branchId ? {in: search?.branchId} : {}
