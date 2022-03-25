@@ -38,7 +38,6 @@ import { ProviderModule } from "./api/v2/provider/provider.module";
 import { WarehouseModule } from "./api/v2/warehouse/warehouse.module";
 import { ProductModule } from "./api/v2/product/product.module";
 import { CommodityTemplateModule } from "./api/v2/commodity-template/commodity-template.module";
-import { WarehouseHistoryModule } from "./api/v2/warehouse-history/warehouse-history.module";
 import { EggModule } from './api/v2/egg/egg.module';
 import { EggTypeModule } from './api/v2/egg-type/egg-type.module';
 import { IncubatorModule } from './api/v2/incubator/incubator.module';
@@ -84,7 +83,6 @@ import { CategoryModule } from './api/v2/category/category.module';
     WarehouseModule,
     ProductModule,
     CommodityTemplateModule,
-    WarehouseHistoryModule,
     EggModule,
     EggTypeModule,
     IncubatorModule,

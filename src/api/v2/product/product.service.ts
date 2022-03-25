@@ -14,14 +14,12 @@ export class ProductService {
   }
 
   async findAll(search: SearchProductDto) {
-    const data = await this.repository.findAll(search);
-    return {total: data.total, data: data.data.map(e => Object.assign(e, {branch: e.branch || {name: 'Kho tổng'}}))};
+    return await this.repository.findAll(search);
   }
 
 
   async findOne(id: number) {
-    const found = await this.repository.findOne(id);
-    return Object.assign(found, {branch: found.branch || {name: 'Kho tổng'}});
+    return await this.repository.findOne(id);
   }
 
   async update(id: number, updates: UpdateProductDto) {

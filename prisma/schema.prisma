@@ -118,7 +118,6 @@ model Branch {
   Account           Account[]
   allowances        Salary[]
   positions         Position[]
-  products          Product[]
   icubators         Incubator[]
   basicTemplates    BasicTemplate[]
   Category          Category[]
@@ -351,7 +350,7 @@ model PaymentHistory {
   orderId     Int?
   product     Product?      @relation(fields: [productId], references: [id])
   productId   Int?
-  Migration   Migration?    @relation(fields: [migrationId], references: [id])
+  migration   Migration?    @relation(fields: [migrationId], references: [id])
   migrationId Int?
 }
 
@@ -523,20 +522,18 @@ model Provider {
 }
 
 model Product {
-  id             Int              @id @default(autoincrement())
-  name           String
-  code           String?
-  warehouse      Warehouse        @relation(fields: [warehouseId], references: [id])
-  warehouseId    Int
-  provider       Provider         @relation(fields: [providerId], references: [id])
-  providerId     Int
-  note           String?
-  unit           ProductUnit
-  timestamp      DateTime?        @default(now())
-  migrations     Migration[]
-  Branch         Branch?          @relation(fields: [branchId], references: [id])
-  branchId       Int?
-  PaymentHistory PaymentHistory[]
+  id          Int              @id @default(autoincrement())
+  name        String
+  code        String?
+  warehouse   Warehouse        @relation(fields: [warehouseId], references: [id])
+  warehouseId Int
+  provider    Provider         @relation(fields: [providerId], references: [id])
+  providerId  Int
+  note        String?
+  unit        ProductUnit
+  timestamp   DateTime?        @default(now())
+  migrations  Migration[]
+  payments    PaymentHistory[]
 }
 
 model Migration {
