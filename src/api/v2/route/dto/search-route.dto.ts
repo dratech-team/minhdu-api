@@ -1,7 +1,7 @@
 import {IsDate, IsEnum, IsNumber, IsOptional, IsString} from "class-validator";
 import {Transform, Type} from "class-transformer";
-import * as moment from "moment";
 import {SortRouteEnum} from "../enums/sort-route.enum";
+import * as moment from "moment";
 
 export class SearchRouteDto {
   @IsOptional()
@@ -22,13 +22,25 @@ export class SearchRouteDto {
   @IsDate()
   @Type(() => Date)
   @Transform((val) => new Date(moment(val.value).format('YYYY-MM-DD')))
-  readonly startedAt: Date;
+  readonly startedAt_start: Date;
 
   @IsOptional()
   @IsDate()
   @Type(() => Date)
   @Transform((val) => new Date(moment(val.value).format('YYYY-MM-DD')))
-  readonly endedAt: Date;
+  readonly startedAt_end: Date;
+
+  @IsOptional()
+  @IsDate()
+  @Type(() => Date)
+  @Transform((val) => new Date(moment(val.value).format('YYYY-MM-DD')))
+  readonly endedAt_start: Date;
+
+  @IsOptional()
+  @IsDate()
+  @Type(() => Date)
+  @Transform((val) => new Date(moment(val.value).format('YYYY-MM-DD')))
+  readonly endedAt_end: Date;
 
   @IsOptional()
   @IsString()

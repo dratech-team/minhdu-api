@@ -34,6 +34,10 @@ export class CategoryService {
         where: {id: profile.id},
         include: {branches: true}
       });
+
+      if (!acc.appName) {
+        throw new BadRequestException("Liên hệ admin để thêm role");
+      }
       return await this.prisma.category.findMany({
         where: {
           app: acc.appName,

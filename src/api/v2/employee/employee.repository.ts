@@ -94,15 +94,14 @@ export class EmployeeRepository {
   ) {
     try {
       const acc = await this.prisma.account.findUnique({where: {id: profile.id}, include: {branches: true}});
-
       const [total, data] = await Promise.all([
         this.prisma.employee.count({
           where: {
             leftAt: search?.isLeft === 'true' ? {notIn: null} : {in: null},
-            position: {name: {startsWith: search?.position, mode: "insensitive"}},
+            position: {name: {contains: search?.position, mode: "insensitive"}},
             branch: {
               id: acc.branches?.length ? {in: acc.branches.map(branch => branch.id)} : {},
-              name: !acc.branches?.length ? {startsWith: search?.branch, mode: "insensitive"} : {},
+              name: !acc.branches?.length ? {contains: search?.branch, mode: "insensitive"} : {},
             },
             lastName: {contains: search?.name, mode: "insensitive"},
             gender: search?.gender ? {equals: search?.gender} : {},
@@ -148,10 +147,10 @@ export class EmployeeRepository {
           take: search?.take,
           where: {
             leftAt: search?.isLeft === 'true' ? {notIn: null} : {in: null},
-            position: {name: {startsWith: search?.position, mode: "insensitive"}},
+            position: {name: {contains: search?.position, mode: "insensitive"}},
             branch: {
               id: acc.branches?.length ? {in: acc.branches.map(branch => branch.id)} : {},
-              name: !acc.branches?.length ? {startsWith: search?.branch, mode: "insensitive"} : {},
+              name: !acc.branches?.length ? {contains: search?.branch, mode: "insensitive"} : {},
             },
             lastName: {contains: search?.name, mode: "insensitive"},
             gender: search?.gender ? {equals: search?.gender} : {},

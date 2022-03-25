@@ -36,20 +36,19 @@ export class PayrollService {
     try {
       // Tạo hàng loạt
       if (!body?.employeeId) {
-        // throw new BadRequestException("Tính năng đang được phát triển. Xin cảm ơn");
-        /// FIXME: I need deep testing befrore release
-        const employees = await this.employeeService.findAll(
+        const {data} = await this.employeeService.findAll(
           profile,
           {
             take: undefined,
             skip: undefined,
             createdAt: {
               datetime: body.createdAt,
-              compare: "inMonth"
+              compare: "lte"
             }
           }
         );
-        const created = await Promise.all(employees.data.map(async employee => {
+
+        const created = await Promise.all(data.map(async employee => {
           const payrolls = await this.repository.findAll(profile, {
             createdAt: body.createdAt,
             employeeId: employee.id,
