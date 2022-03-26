@@ -64,20 +64,19 @@ export class RouteRepository {
         this.prisma.route.count({
           where: {
             name: {contains: search?.name},
-            startedAt: {
-              gte: search?.startedAt_start,
-              lte: search?.startedAt_end
-            },
-            endedAt: !search?.endedAt_start
-              ? (search?.status === 1
-                  ? {notIn: null}
-                  : search?.status === 0
-                    ? {in: null}
-                    : {
-                      gte: search.endedAt_start,
-                      lte: search.endedAt_end
-                    }
-              )
+            startedAt: search?.startedAt_start && search?.startedAt_end ? {
+              gte: search.startedAt_start,
+              lte: search.startedAt_end
+            } : {},
+            endedAt: search?.status !== -1
+              ? search?.status === 1
+                ? {notIn: null}
+                : search?.status === 0
+                  ? {in: null}
+                  : {
+                    gte: search.endedAt_start,
+                    lte: search.endedAt_end
+                  }
               : {},
             driver: {contains: search?.driver},
             bsx: {contains: search?.bsx},
@@ -88,21 +87,20 @@ export class RouteRepository {
           skip: search?.skip,
           take: search?.take,
           where: {
-            name: {startsWith: search?.name, mode: "insensitive"},
-            startedAt: {
-              gte: search?.startedAt_start,
-              lte: search?.startedAt_end
-            },
-            endedAt: !search?.endedAt_start
-              ? (search?.status === 1
-                  ? {notIn: null}
-                  : search?.status === 0
-                    ? {in: null}
-                    : {
-                      gte: search.endedAt_start,
-                      lte: search.endedAt_end
-                    }
-              )
+            name: {contains: search?.name},
+            startedAt: search?.startedAt_start && search?.startedAt_end ? {
+              gte: search.startedAt_start,
+              lte: search.startedAt_end
+            } : {},
+            endedAt: search?.status !== -1
+              ? search?.status === 1
+                ? {notIn: null}
+                : search?.status === 0
+                  ? {in: null}
+                  : {
+                    gte: search.endedAt_start,
+                    lte: search.endedAt_end
+                  }
               : {},
             driver: {contains: search?.driver},
             bsx: {contains: search?.bsx},

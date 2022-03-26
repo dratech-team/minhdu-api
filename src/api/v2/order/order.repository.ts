@@ -28,6 +28,7 @@ export class OrderRepository {
         },
         include: {
           commodities: true,
+          customer: true,
           province: true,
           district: true,
           ward: true
@@ -64,32 +65,31 @@ export class OrderRepository {
       const [total, data] = await Promise.all([
         this.prisma.order.count({
           where: {
-            deliveredAt: (search?.status !== undefined && search?.status !== null && !search?.deliveryStartedAt)
+            deliveredAt: (search?.status !== undefined && search?.status !== null && !search?.deliveredAt_start)
               ? search.status === 1
                 ? {notIn: null}
                 : search.status === 0
                   ? {in: null}
                   : {}
-              : search?.deliveryStartedAt && search?.deliveryEndedAt
+              : search?.deliveredAt_start && search?.deliveredAt_end
                 ? {
-                  gte: search?.deliveryStartedAt,
-                  lte: search?.deliveryEndedAt,
+                  gte: search?.deliveredAt_start,
+                  lte: search?.deliveredAt_end,
                 }
                 : {},
-            endedAt: (search?.startedAt && search?.endedAt)
+            endedAt: (search?.endedAt_start && search?.endedAt_end)
               ? {
-                gte: search.startedAt,
-                lte: search.endedAt,
+                gte: search.endedAt_start,
+                lte: search.endedAt_end,
               } : {},
             hide: search?.hide === 'true',
             customer: search?.customerId ? {
               id: {in: search?.customerId},
             } : {lastName: {startsWith: search?.customer, mode: "insensitive"}},
-            createdAt:
-              search?.createStartedAt && search?.createEndedAt
+            createdAt: search?.startedAt_start && search?.startedAt_end
                 ? {
-                  gte: search.createStartedAt,
-                  lte: search.createEndedAt,
+                  gte: search.startedAt_start,
+                  lte: search.startedAt_end,
                 }
                 : {},
             paymentHistories:
@@ -125,26 +125,34 @@ export class OrderRepository {
           skip: search?.skip,
           take: search?.take,
           where: {
-            deliveredAt:
-              search?.status !== undefined &&
-              search?.status !== null &&
-              !search?.deliveryStartedAt
-                ? search.status === 1
+            deliveredAt: (search?.status !== undefined && search?.status !== null && !search?.deliveredAt_start)
+              ? search.status === 1
                 ? {notIn: null}
                 : search.status === 0
                   ? {in: null}
                   : {}
-                : search?.deliveryStartedAt && search?.deliveryEndedAt
+              : search?.deliveredAt_start && search?.deliveredAt_end
                 ? {
-                  gte: search?.deliveryStartedAt,
-                  lte: search?.deliveryEndedAt,
+                  gte: search?.deliveredAt_start,
+                  lte: search?.deliveredAt_end,
                 }
                 : {},
-            endedAt: search?.startedAt && search?.endedAt ? {
-              gte: search.startedAt,
-              lte: search.endedAt,
-            } : {},
+            endedAt: (search?.endedAt_start && search?.endedAt_end)
+              ? {
+                gte: search.endedAt_start,
+                lte: search.endedAt_end,
+              } : {},
             hide: search?.hide === 'true',
+            customer: search?.customerId ? {
+              id: {in: search?.customerId},
+            } : {lastName: {startsWith: search?.customer, mode: "insensitive"}},
+            createdAt:
+              search?.startedAt_start && search?.startedAt_end
+                ? {
+                  gte: search.startedAt_start,
+                  lte: search.startedAt_end,
+                }
+                : {},
             paymentHistories:
               search?.paidType === PaidEnum.PAID
                 ? {
@@ -153,16 +161,6 @@ export class OrderRepository {
                 : search?.paidType === PaidEnum.UNPAID
                 ? {
                   every: {total: {}},
-                }
-                : {},
-            customer: search?.customerId ? {
-              id: {in: search?.customerId},
-            } : {lastName: {startsWith: search?.customer, mode: "insensitive"}},
-            createdAt:
-              search?.createStartedAt && search?.createEndedAt
-                ? {
-                  gte: search.createStartedAt,
-                  lte: search.createEndedAt,
                 }
                 : {},
             province: search?.province
