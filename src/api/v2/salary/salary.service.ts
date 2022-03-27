@@ -33,15 +33,20 @@ export class SalaryService {
         //  Nếu body.allowEmpIds thì Thêm phụ cấp tiền ăn / phụ cấp trong giờ làm  tăng ca hàng loạt.  vì allowance đi chung với body nên cần dặt lại giá trị là null để nó khỏi gán cho nhân viên khác
         // copy obj body nếu k {} thì nó sẽ khi đè lên bên trong thuộc tính body và làm thay đổi giá trị body
         const payroll = await this.payrollService.findOne(body.payrollIds[i]);
-        const salary = Object.assign(body, {
+
+        // Thêm allowance nhưng lỗi từ frontend gửi lên id allowance của payroll có vấn đề về id không khớp với id của payroll
+        if (body?.allowPayrollIds?.length && body.type === SalaryType.OVERTIME && !body?.allowPayrollIds?.includes(payroll.id)) {
+          throw new BadRequestException(`${body?.allowPayrollIds.join(", ")} không thuộc id payroll ${payroll.id}`);
+        }
+        const salary = Object.assign({}, body, {
             payrollId: body?.payrollIds[i],
-            allowance: body?.allowPayrollIds?.includes(payroll.employeeId) && body.type === SalaryType.OVERTIME ? body?.allowance : null,
+            allowance: body?.allowPayrollIds?.includes(payroll.id) && body.type === SalaryType.OVERTIME ? body?.allowance : null,
           }
         );
 
         const created = await this.repository.create(salary);
         if (created) {
-          employees.push(created.payroll.employee.firstName + " " + created.payroll.employee.lastName);
+          employees.push(created.payroll.employee.lastName);
         }
         if (created.allowance) {
           allowances.push(created.allowance?.title);
