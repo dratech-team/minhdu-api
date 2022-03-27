@@ -499,7 +499,9 @@ model Payroll {
   recipeType     RecipeType?
   salaries       Salary[]
   note           String?
+  tax            Float?
   taxed          Boolean?    @default(true)
+  deletedAt      DateTime?
   createdAt      DateTime?   @default(now()) // ngay tao phieu luong, phieu luong cua thang
   timestamp      DateTime?   @default(now()) // ngay them vao ghi lai lich su
 }

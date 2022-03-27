@@ -13,6 +13,7 @@ import {FilterTypeEnum} from "./entities/filter-type.enum";
 import {SearchSalaryDto} from "./dto/search-salary.dto";
 import {OrderbyEmployeeEnum} from "../employee/enums/orderby-employee.enum";
 import *as _ from "lodash";
+import {TAX} from "../../../common/constant/salary.constant";
 
 @Injectable()
 export class PayrollRepository {
@@ -24,6 +25,7 @@ export class PayrollRepository {
       const payrolls = await this.prisma.payroll.findMany({
         where: {
           employee: {id: {in: body.employeeId}},
+          deletedAt: {in: null},
           salaries: {
             some: {
               type: {in: [SalaryType.BASIC, SalaryType.BASIC_INSURANCE, SalaryType.STAY]}
@@ -47,6 +49,7 @@ export class PayrollRepository {
           branch: body.branch.name,
           position: body.position.name,
           recipeType: body.recipeType,
+          tax: salaries.find(salary => salary.type === SalaryType.BASIC_INSURANCE).price * TAX,
           salaries: !isInit && salaries?.length
             ? {
               createMany: {
@@ -115,7 +118,7 @@ export class PayrollRepository {
       where: {id: profile.id},
       include: {branches: true, role: true}
     });
-    
+
     const template = search?.templateId
       ? await this.prisma.overtimeTemplate.findUnique({
         where: {id: search?.templateId},
@@ -146,7 +149,7 @@ export class PayrollRepository {
               gte: firstDatetime(search?.createdAt),
               lte: lastDatetime(search?.createdAt),
             },
-            paidAt: null,
+            deletedAt: {in: null},
           },
         }),
         this.prisma.payroll.findMany({
@@ -171,7 +174,7 @@ export class PayrollRepository {
               gte: firstDatetime(search?.createdAt),
               lte: lastDatetime(search?.createdAt),
             },
-            paidAt: null,
+            deletedAt: {in: null},
           },
           include: {
             salaries: true,
@@ -231,7 +234,8 @@ export class PayrollRepository {
           payroll: {
             branch: profile.branches?.length
               ? {in: profile.branches.map(branch => branch.name)}
-              : {startsWith: search?.branch, mode: "insensitive"}
+              : {startsWith: search?.branch, mode: "insensitive"},
+            deletedAt: {in: null}
           }
         },
       }),
@@ -262,7 +266,8 @@ export class PayrollRepository {
           payroll: {
             branch: profile.branches?.length
               ? {in: profile.branches.map(branch => branch.name)}
-              : {startsWith: search?.branch, mode: "insensitive"}
+              : {startsWith: search?.branch, mode: "insensitive"},
+            deletedAt: {in: null}
           }
         },
         include: {
@@ -324,7 +329,7 @@ export class PayrollRepository {
         },
       });
 
-      if (!payroll) {
+      if (!payroll || payroll.deletedAt) {
         throw new NotFoundException("Phiếu lương không tồn tại");
       }
 
@@ -367,6 +372,7 @@ export class PayrollRepository {
           position: updates?.positionId ? (await this.prisma.position.findUnique({where: {id: updates?.positionId}})).name : undefined,
           taxed: updates?.taxed,
           createdAt: updates?.createdAt,
+          tax: updates?.tax,
           recipeType: updates?.recipeType,
           note: updates?.note,
         },
@@ -387,7 +393,11 @@ export class PayrollRepository {
 
   async remove(id: number) {
     try {
-      return await this.prisma.payroll.delete({where: {id: id}});
+      const found = await this.prisma.payroll.findUnique({where: {id}});
+      if (found.accConfirmedAt) {
+        throw new BadRequestException("Phiếu lương đã xác nhận, bạn không được phép xóa");
+      }
+      return await this.prisma.payroll.update({where: {id: id}, data: {deletedAt: new Date()}});
     } catch (err) {
       console.error(err);
       throw new BadRequestException(err);
@@ -411,6 +421,7 @@ export class PayrollRepository {
             branch: acc.branches?.length
               ? {in: acc.branches.map(branch => branch.name)}
               : {startsWith: search?.branch, mode: "insensitive"},
+            deletedAt: {in: null},
             employee: {
               lastName: {contains: search?.name, mode: "insensitive"}
             }
@@ -431,6 +442,7 @@ export class PayrollRepository {
             branch: acc.branches?.length
               ? {in: acc.branches.map(branch => branch.name)}
               : {startsWith: search?.branch, mode: "insensitive"},
+            deletedAt: {in: null},
             employee: {
               lastName: {contains: search?.name, mode: "insensitive"}
             }
