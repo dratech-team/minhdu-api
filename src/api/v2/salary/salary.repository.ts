@@ -334,23 +334,23 @@ export class SalaryRepository {
       const updated = await this.prisma.salary.update({
         where: {id: id},
         data: {
-          title: updates.title,
-          type: updates.type,
-          unit: updates.unit,
-          partial: updates.partial,
-          datetime: updates.datetime as Date,
-          times: updates.times,
-          forgot: updates.forgot,
-          rate: updates.rate,
-          price: updates.price,
-          note: updates.note,
+          title: updates?.title,
+          type: updates?.type,
+          unit: updates?.unit,
+          partial: updates?.partial,
+          datetime: updates?.datetime as Date,
+          times: updates?.times,
+          forgot: updates?.forgot,
+          rate: updates?.rate,
+          price: updates?.price,
+          note: updates?.note,
           payroll: payroll?.id && updates?.employeeId ? {connect: {id: payroll.id}} : {},
-          allowance: updates.allowance
+          allowance: updates?.allowance
             ? {
               upsert: {
                 create: {
-                  title: updates.allowance?.title,
-                  price: updates.allowance?.price,
+                  title: updates.allowance.title,
+                  price: updates.allowance.price,
                   type: SalaryType.OVERTIME,
                 },
                 update: {

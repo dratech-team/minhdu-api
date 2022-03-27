@@ -15,7 +15,7 @@ export class SearchCustomerDto {
 
   @IsOptional()
   @IsString()
-  readonly name: string;
+  readonly lastName: string;
 
   @IsOptional()
   @IsString()
@@ -27,7 +27,7 @@ export class SearchCustomerDto {
   readonly nationId: number;
 
   @IsOptional()
-  readonly customerType: CustomerType;
+  readonly type: CustomerType;
 
   @IsOptional()
   readonly resource: CustomerResource;
