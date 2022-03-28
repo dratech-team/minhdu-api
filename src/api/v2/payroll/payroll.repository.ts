@@ -517,6 +517,7 @@ export class PayrollRepository {
         payroll: {
           branch: search?.branch ? {startsWith: search.branch, mode: "insensitive"} : {},
           position: search?.position ? {startsWith: search.position, mode: "insensitive"} : {},
+          deletedAt: {in: null}
         }
       },
     });
