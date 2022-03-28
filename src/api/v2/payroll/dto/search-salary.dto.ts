@@ -1,6 +1,7 @@
-import {IsDate, IsNotEmpty, IsOptional, IsString} from "class-validator";
+import {IsDate, IsEnum, IsNotEmpty, IsOptional, IsString} from "class-validator";
 import {Transform} from "class-transformer";
 import * as moment from "moment";
+import {SalaryType} from "@prisma/client";
 
 export class SearchSalaryDto {
   @IsNotEmpty()
@@ -20,4 +21,8 @@ export class SearchSalaryDto {
   @IsOptional()
   @IsString()
   readonly position: string;
+
+  @IsOptional()
+  @IsEnum(SalaryType)
+  readonly salaryType: SalaryType;
 }

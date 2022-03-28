@@ -509,7 +509,7 @@ export class PayrollRepository {
     return await this.prisma.salary.groupBy({
       by: ['title'],
       where: {
-        type: {in: [SalaryType.OVERTIME]},
+        type: {in: search.salaryType === SalaryType.BASIC ? [SalaryType.BASIC, SalaryType.BASIC_INSURANCE] : search.salaryType},
         datetime: {
           gte: search.startedAt,
           lte: search.endedAt,
