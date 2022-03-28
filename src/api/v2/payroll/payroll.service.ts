@@ -1304,6 +1304,7 @@ export class PayrollService {
             case FilterTypeEnum.BASIC:
             case FilterTypeEnum.STAY:
             case FilterTypeEnum.ALLOWANCE:
+            case FilterTypeEnum.TIME_SHEET:
             case FilterTypeEnum.ABSENT: {
               exportType = {
                 lastName: payroll.employee.lastName,
@@ -1385,8 +1386,8 @@ export class PayrollService {
     const datetimes = rageDateTime(firstDatetime(datetime), lastDatetime(datetime)).map(date => date.format("DD-MM"));
     const customHeaders = [...headers, ...datetimes];
     const customKeys = [...keys, ...datetimes];
-    const data = payrolls
-      .map(payroll => {
+
+    const data = payrolls.map(payroll => {
         payroll.employee = Object.assign(payroll.employee, {
           lastName: payroll.employee.lastName,
           branch: payroll.employee.branch.name,
@@ -1405,7 +1406,7 @@ export class PayrollService {
       {
         name: filename,
         customKeys: customKeys,
-        title: `Phiếu Chấm công tháng ${moment(datetime).format("MM")}`,
+        title: `Phiếu Chấm công tháng `,
         customHeaders: customHeaders,
         data: data,
       },

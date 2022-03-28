@@ -20,8 +20,8 @@ export const timesheet = (payroll: any, isExport?: boolean) => {
   const range = [];
   let total = 0;
 
-  const allDay = payroll.salaries.filter(salary => (salary.type === SalaryType.ABSENT || salary.type === SalaryType.DAY_OFF) && salary.times === ALL_DAY && salary.unit === DatetimeUnit.DAY).map(salary => salary.datetime);
-  const partialDay = payroll.salaries.filter(salary => (salary.type === SalaryType.ABSENT || salary.type === SalaryType.DAY_OFF) && salary.times === PARTIAL_DAY && salary.unit === DatetimeUnit.DAY).map(salary => salary.datetime);
+  const allDay = payroll.salaries?.filter(salary => (salary.type === SalaryType.ABSENT || salary.type === SalaryType.DAY_OFF) && salary.times === ALL_DAY && salary.unit === DatetimeUnit.DAY)?.map(salary => salary.datetime);
+  const partialDay = payroll.salaries?.filter(salary => (salary.type === SalaryType.ABSENT || salary.type === SalaryType.DAY_OFF) && salary.times === PARTIAL_DAY && salary.unit === DatetimeUnit.DAY)?.map(salary => salary.datetime);
 
   for (let i = 0; i < diff.length; i++) {
     const datetime = diff[i];
@@ -32,10 +32,10 @@ export const timesheet = (payroll: any, isExport?: boolean) => {
       tick = "N/A";
       color = "#717171";
     } else {
-      if (includesDatetime(partialDay, datetime.toDate())) {
+      if (partialDay && includesDatetime(partialDay, datetime.toDate())) {
         tick = "1/2";
         total += 1 / 2;
-      } else if (includesDatetime(allDay, datetime.toDate())) {
+      } else if (allDay && includesDatetime(allDay, datetime.toDate())) {
         tick = "o";
       } else if (!payroll?.accConfirmedAt && moment(new Date()).isBefore(datetime)) {
         tick = "-";
