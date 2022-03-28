@@ -97,7 +97,7 @@ export class EmployeeController {
   }
 
   @Roles(RoleEnum.ADMIN, RoleEnum.HUMAN_RESOURCE, RoleEnum.CAMP_ACCOUNTING)
-  @Post("/export/payroll")
+  @Post("/export/employee")
   async export(
     @Res() res,
     @ReqProfile() profile: ProfileEntity,

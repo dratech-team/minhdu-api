@@ -1,13 +1,13 @@
-import {Controller, Get, Post, Body, Patch, Param, Delete, Query} from '@nestjs/common';
-import { ExportService } from './export.service';
-import { CreateExportDto } from './dto/create-export.dto';
-import { UpdateExportDto } from './dto/update-export.dto';
-import {FilterTypeEnum} from "../payroll/entities/filter-type.enum";
+import {Body, Controller, Delete, Get, Param, Patch, Post, Query} from '@nestjs/common';
+import {ExportService} from './export.service';
+import {CreateExportDto} from './dto/create-export.dto';
+import {UpdateExportDto} from './dto/update-export.dto';
 import {ExportTypeEnum} from "./enums/export.emum";
 
-@Controller('export')
+@Controller('v2/export')
 export class ExportController {
-  constructor(private readonly exportService: ExportService) {}
+  constructor(private readonly exportService: ExportService) {
+  }
 
   @Post()
   create(@Body() createExportDto: CreateExportDto) {

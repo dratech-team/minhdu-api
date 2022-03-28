@@ -1,10 +1,10 @@
 import {EmployeeType, GenderType, RecipeType} from "@prisma/client";
-import {IsEnum, IsNotEmpty, IsNumber, IsOptional, IsString} from "class-validator";
+import {IsNotEmpty, IsNumber, IsOptional, IsString} from "class-validator";
 import {Type} from "class-transformer";
-import {OrderbyEmployeeEnum} from "../enums/orderby-employee.enum";
 import {SortDto} from "../../../../common/dtos/sort.dto";
+import {PartialType} from "@nestjs/mapped-types";
 
-export class SearchEmployeeDto  extends SortDto{
+export class SearchEmployeeDto extends PartialType(SortDto) {
   @IsNotEmpty()
   @IsNumber()
   @Type(() => Number)
