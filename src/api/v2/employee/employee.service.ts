@@ -9,6 +9,7 @@ import {Response} from "express";
 import {ItemExportDto} from "../../../common/interfaces/items-export.dto";
 import {SearchExportEmployeeDto} from "./dto/search-export.employee.dto";
 import {exportExcel} from "../../../core/services/export.service";
+import {EmployeeType} from "@prisma/client";
 
 @Injectable()
 export class EmployeeService {
@@ -89,14 +90,18 @@ export class EmployeeService {
   ) {
     try {
       const customs = items.reduce((a, v, index) => ({...a, [v['key']]: v['value']}), {});
-      const {data} = await this.findAll(profile, search);
+      const {data} = await this.findAll(profile, Object.assign(search, {take: undefined, skip: undefined}));
 
       const employees = await Promise.all(
         data.map(async (employee) => {
           const branch = employee.branch.name;
           const position = employee.position.name;
+          const type = employee.type === EmployeeType.FULL_TIME ? "Nhân viên" : "Bán thời gian";
           const isFlatSalary = employee.isFlatSalary ? 'Cố định' : "Không cố định";
-          return Object.assign(employee, {branch, position, isFlatSalary});
+          const province = employee.ward.district.province.name;
+          const district = employee.ward.district.name;
+          const ward = employee.ward.name;
+          return Object.assign(employee, {branch, position, isFlatSalary, type, province, district, ward});
         })
       );
 
