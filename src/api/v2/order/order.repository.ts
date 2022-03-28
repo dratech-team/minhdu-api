@@ -65,6 +65,12 @@ export class OrderRepository {
       const [total, data] = await Promise.all([
         this.prisma.order.count({
           where: {
+            createdAt: search?.startedAt_start && search?.startedAt_end
+              ? {
+                gte: search.startedAt_start,
+                lte: search.startedAt_end,
+              }
+              : {},
             deliveredAt: (search?.status !== undefined && search?.status !== null && !search?.deliveredAt_start)
               ? search.status === 1
                 ? {notIn: null}
@@ -86,12 +92,6 @@ export class OrderRepository {
             customer: search?.customerId ? {
               id: {in: search?.customerId},
             } : {lastName: {startsWith: search?.customer, mode: "insensitive"}},
-            createdAt: search?.startedAt_start && search?.startedAt_end
-                ? {
-                  gte: search.startedAt_start,
-                  lte: search.startedAt_end,
-                }
-                : {},
             paymentHistories:
               search?.paidType === PaidEnum.PAID
                 ? {

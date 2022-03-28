@@ -213,6 +213,16 @@ export class PayrollService {
     return await this.repository.findFirst(query);
   }
 
+  /// FIME: doing the same overtime
+  async filterSalaries(profile: ProfileEntity, search?: Partial<SearchPayrollDto>) {
+    const {total, data} = await this.repository.findSalaries(profile, search);
+    const employeeIds = [...new Set(data.map(salary => salary.employee.id))];
+
+    const payrolls = employeeIds.map(employeeId => {
+      return this.overtimeOfEmployee(data, employeeId);
+    });
+  }
+
   async filterOvertime(profile: ProfileEntity, search: Partial<SearchPayrollDto>) {
     const {total, data} = await this.repository.findOvertimes(profile, search);
     const employeeIds = [...new Set(data.map(overtime => overtime.payroll.employee.id))];
