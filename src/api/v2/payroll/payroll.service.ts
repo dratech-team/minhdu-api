@@ -879,7 +879,6 @@ export class PayrollService {
       total = basicDaySalary * actualDay + Math.ceil(allowanceTotal) + payslipInHoliday + payslipNotInHoliday + overtimeSalary - deductionSalary - bscSalary - tax;
     }
 
-    console.log(tax * basic.price)
     return {
       basic: Math.ceil(basicSalary),
       stay: Math.ceil(staySalary),
