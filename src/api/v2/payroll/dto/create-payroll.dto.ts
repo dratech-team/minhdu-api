@@ -12,8 +12,4 @@ export class CreatePayrollDto {
   @Transform(val => new Date(val.value))
   @IsDate()
   readonly createdAt: Date;
-
-  @Type(() => Number)
-  @IsNumber()
-  readonly tax?: number;
 }

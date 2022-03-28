@@ -960,7 +960,7 @@ export class PayrollService {
 
     // Thuế dựa theo lương cơ bản BASIC_INSURANCE
     if (basic) {
-      tax = payroll.employee.contracts.length !== 0 && payroll.taxed ? basic.price * TAX : 0;
+      tax = payroll.taxed ? payroll.tax : 0;
     }
 
     const allowanceTotal = allowanceMonthSalary + allowanceDayByActual;

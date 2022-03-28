@@ -5,7 +5,7 @@ import {PrismaService} from "../../../prisma.service";
 import {CreateSalaryDto} from "./dto/create-salary.dto";
 import {UpdateSalaryDto} from "./dto/update-salary.dto";
 import {OneSalary} from "./entities/salary.entity";
-import {includesDatetime, isEqualDatetime} from "../../../common/utils/isEqual-datetime.util";
+import {includesDatetime} from "../../../common/utils/isEqual-datetime.util";
 import {ALL_DAY, PARTIAL_DAY} from "../../../common/constant/datetime.constant";
 import {FullPayroll} from "../payroll/entities/payroll.entity";
 import {SearchSalaryDto} from "./dto/search-salary.dto";
@@ -13,6 +13,7 @@ import {ProfileEntity} from "../../../common/entities/profile.entity";
 import {CreateForEmployeesDto} from "./dto/create-for-employees.dto";
 import {UpdateManySalaryDto} from "./dto/update-many-salary.dto";
 import {firstDatetime, lastDatetime} from "../../../utils/datetime.util";
+import {TAX} from "../../../common/constant/salary.constant";
 
 const RATE_TIMES = 1;
 
@@ -315,21 +316,11 @@ export class SalaryRepository {
   async update(id: number, updates: Partial<UpdateSalaryDto & Pick<UpdateManySalaryDto, "allowanceDeleted">>) {
     try {
       const salary = await this.findOne(id);
-      if (salary?.payroll?.paidAt) {
+      if (salary?.payroll?.accConfirmedAt) {
         throw new BadRequestException(
-          "Bảng lương đã thanh toán không được phép sửa"
+          "Bảng lương đã xác nhận. Không được phép sửa"
         );
       }
-
-      const payroll = await this.prisma.payroll.findFirst({
-        where: {
-          employeeId: updates?.employeeId,
-          createdAt: {
-            gte: firstDatetime(salary.payroll.createdAt, "months"),
-            lte: lastDatetime(salary.payroll.createdAt, "months"),
-          },
-        }
-      });
 
       const updated = await this.prisma.salary.update({
         where: {id: id},
@@ -344,7 +335,6 @@ export class SalaryRepository {
           rate: updates?.rate,
           price: updates?.price,
           note: updates?.note,
-          payroll: payroll?.id && updates?.employeeId ? {connect: {id: payroll.id}} : {},
           allowance: updates?.allowance
             ? {
               upsert: {
@@ -388,18 +378,24 @@ export class SalaryRepository {
 
   async remove(id: number) {
     try {
-      const payroll = await this.prisma.payroll.findUnique({where: {id}});
-      if (payroll?.paidAt) {
-        throw new BadRequestException(
-          "Bảng lương đã thanh toán không được phép xoá"
-        );
+      const isValid = await this.validatePayroll(id);
+      if (isValid) {
+        return await this.prisma.salary.delete({where: {id: id}});
       }
-
-      return await this.prisma.salary.delete({where: {id: id}});
     } catch (err) {
       console.error(err);
       throw new BadRequestException(err);
     }
+  }
+
+  private async validatePayroll(salaryId: number) {
+    const payroll = await this.prisma.payroll.findUnique({where: {id: salaryId}});
+    if (payroll?.accConfirmedAt) {
+      throw new BadRequestException(
+        "Bảng lương đã thanh toán không được phép sửa"
+      );
+    }
+    return true;
   }
 
   // chuyển datetime trong salary này từ payroll này sang payroll khác.

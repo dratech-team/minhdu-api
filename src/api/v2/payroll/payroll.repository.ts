@@ -20,7 +20,7 @@ export class PayrollRepository {
   constructor(private readonly prisma: PrismaService) {
   }
 
-  async create(body: CreatePayrollDto & { branch: Branch, position: Position, recipeType: RecipeType }, isInit?: boolean) {
+  async create(body: CreatePayrollDto & { branch: Branch, position: Position, recipeType: RecipeType, workday: number }, isInit?: boolean) {
     try {
       const payrolls = await this.prisma.payroll.findMany({
         where: {
@@ -49,7 +49,8 @@ export class PayrollRepository {
           branch: body.branch.name,
           position: body.position.name,
           recipeType: body.recipeType,
-          tax: salaries.find(salary => salary.type === SalaryType.BASIC_INSURANCE).price * TAX,
+          workday: body.workday,
+          tax: TAX,
           salaries: !isInit && salaries?.length
             ? {
               createMany: {
@@ -393,11 +394,15 @@ export class PayrollRepository {
 
   async remove(id: number) {
     try {
-      const found = await this.prisma.payroll.findUnique({where: {id}});
+      const found = await this.prisma.payroll.findUnique({where: {id}, include: {salaries: true}});
       if (found.accConfirmedAt) {
         throw new BadRequestException("Phiếu lương đã xác nhận, bạn không được phép xóa");
       }
-      return await this.prisma.payroll.update({where: {id: id}, data: {deletedAt: new Date()}});
+      if (found.salaries?.length) {
+        return await this.prisma.payroll.update({where: {id: id}, data: {deletedAt: new Date()}});
+      } else {
+        return await this.prisma.payroll.delete({where: {id}});
+      }
     } catch (err) {
       console.error(err);
       throw new BadRequestException(err);
@@ -484,7 +489,8 @@ export class PayrollRepository {
           createdAt: {
             gte: firstDatetime(createdAt),
             lte: lastDatetime(createdAt),
-          }
+          },
+          deletedAt: {in: null}
         },
         select: {id: true},
         orderBy: {
