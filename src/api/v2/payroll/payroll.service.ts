@@ -699,7 +699,7 @@ export class PayrollService {
       : basicDaySalary * (actualDay > workday ? workday : actualDay);
 
     const totalStandard = basicSalary + staySalary;
-    const tax = payroll.employee?.contracts?.length && payroll.taxed ? basic * TAX : 0;
+    const tax = payroll.tax;
 
     const bsc = this.totalForgotBSC(payroll.salaries);
     const bscSalary = basicDaySalary * (bsc / 2);
@@ -747,7 +747,7 @@ export class PayrollService {
       totalStandard,
       payslipOutOfWorkday,
       allowance: allowanceTotal,
-      tax,
+      tax: tax * basic,
       total
     };
   }
@@ -790,9 +790,7 @@ export class PayrollService {
     );
 
     // Thuế dựa theo lương cơ bản BASIC_INSURANCE
-    if (basic) {
-      tax = payroll.employee.contracts.length !== 0 && payroll.taxed ? basic.price * TAX : 0;
-    }
+    tax = payroll.tax;
 
     const allowanceTotal = allowanceMonthSalary + allowanceDayByActual;
 
@@ -881,6 +879,7 @@ export class PayrollService {
       total = basicDaySalary * actualDay + Math.ceil(allowanceTotal) + payslipInHoliday + payslipNotInHoliday + overtimeSalary - deductionSalary - bscSalary - tax;
     }
 
+    console.log(tax * basic.price)
     return {
       basic: Math.ceil(basicSalary),
       stay: Math.ceil(staySalary),
@@ -899,7 +898,7 @@ export class PayrollService {
       bsc,
       bscSalary: bscSalary,
       payslipNormalDay: Math.ceil(basicDaySalary * actualDay),
-      tax: tax,
+      tax: tax * basic.price,
       total: Math.round(total / 1000) * 1000,
     };
   }
@@ -1083,7 +1082,7 @@ export class PayrollService {
       bsc,
       bscSalary: bscSalary,
       payslipNormalDay: Math.ceil(basicDaySalary * actualDay),
-      tax: tax,
+      tax: tax * basic.price,
       total: Math.round(total / 1000) * 1000,
     };
   }
@@ -1248,7 +1247,7 @@ export class PayrollService {
       bsc,
       bscSalary: bscSalary,
       payslipNormalDay: Math.ceil(basicDaySalary * actualDay),
-      tax: tax,
+      tax: tax * basic.price,
       total: Math.round(total / 1000) * 1000,
     };
   }
