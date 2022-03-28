@@ -120,12 +120,6 @@ export class PayrollController {
   }
 
   @Roles(RoleEnum.ADMIN, RoleEnum.HUMAN_RESOURCE, RoleEnum.CAMP_ACCOUNTING)
-  @Get("/export/items")
-  async itemsExport(@Query("exportType") exportType: FilterTypeEnum) {
-    return this.payrollService.itemsExport(exportType);
-  }
-
-  @Roles(RoleEnum.ADMIN, RoleEnum.HUMAN_RESOURCE, RoleEnum.CAMP_ACCOUNTING)
   @Get('/salary/template')
   async overtimeTemplate(@Query() search: SearchSalaryDto) {
     return this.payrollService.overtimeTemplate(search);

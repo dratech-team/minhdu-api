@@ -1,10 +1,14 @@
-import {Injectable, NotFoundException} from "@nestjs/common";
+import {BadRequestException, Injectable, NotFoundException} from "@nestjs/common";
 import {CreateEmployeeDto} from "./dto/create-employee.dto";
 import {EmployeeRepository} from "./employee.repository";
 import {Sort, UpdateEmployeeDto} from "./dto/update-employee.dto";
 import {SearchEmployeeDto} from "./dto/search-employee.dto";
 import {ProfileEntity} from "../../../common/entities/profile.entity";
 import {SearchEmployeeByOvertimeDto} from "./dto/search-employee-by-overtime.dto";
+import {Response} from "express";
+import {ItemExportDto} from "../../../common/interfaces/items-export.dto";
+import {SearchExportEmployeeDto} from "./dto/search-export.employee.dto";
+import {exportExcel} from "../../../core/services/export.service";
 
 @Injectable()
 export class EmployeeService {
@@ -75,5 +79,41 @@ export class EmployeeService {
 
   async sortable(sort: Sort[]) {
     return this.repository.sortable(sort);
+  }
+
+  async export(
+    response: Response,
+    profile: ProfileEntity,
+    search: SearchExportEmployeeDto,
+    items: ItemExportDto[],
+  ) {
+    try {
+      const customs = items.reduce((a, v, index) => ({...a, [v['key']]: v['value']}), {});
+      const {data} = await this.findAll(profile, search);
+
+      const employees = await Promise.all(
+        data.map(async (employee) => {
+          const branch = employee.branch.name;
+          const position = employee.position.name;
+          const isFlatSalary = employee.isFlatSalary ? 'Cố định' : "Không cố định";
+          return Object.assign(employee, {branch, position, isFlatSalary});
+        })
+      );
+
+      return exportExcel(
+        response,
+        {
+          name: search.filename,
+          title: `Danh sách nhân viên`,
+          customHeaders: Object.values(customs),
+          customKeys: Object.keys(customs),
+          data: employees,
+        },
+        200
+      );
+    } catch (err) {
+      console.error(err);
+      throw new BadRequestException(err);
+    }
   }
 }

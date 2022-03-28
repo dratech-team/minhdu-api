@@ -490,7 +490,7 @@ export class PayrollService {
   totalActualDay(payroll: OnePayroll) {
     // total: Ngày cuối cùng của tháng do mình quy định. Áp dụng đối với lương cố dịnh
     const confirmedAt = payroll.accConfirmedAt;
-    const total = payroll.employee.isFlatSalary
+    const total = payroll.isFlatSalary && confirmedAt
       ? 30
       : isEqualDatetime(new Date(), payroll.createdAt, "month") && !confirmedAt
         ? new Date().getDate() - (payroll.createdAt.getDate() - 1)
@@ -768,9 +768,6 @@ export class PayrollService {
     const workday = payroll.workday;
 
     let actualDay = this.totalActualDay(payroll);
-    if (payroll.employee.isFlatSalary) {
-      actualDay = this.totalActualDay(payroll);
-    }
 
     // basic
     const basicSalary = this.totalBasicSalary(payroll.salaries);
@@ -877,24 +874,6 @@ export class PayrollService {
     // Không quan tâm đến ngày công thực tế hay ngày công chuẩn. Nếu không đi làm trong ngày lễ thì vẫn được hưởng lương như thường
     payslipNotInHoliday = worksNotInHoliday.map(w => w.day).reduce((a, b) => a + b, 0) * (basic.price / PAYSLIP_WORKDAY_HOLIDAY);
 
-    /// FIXME: TESTING. DON'T DELETE IT
-    // console.warn("Lương cơ bản", basicSalary);
-    // console.warn("Ngày công chuẩn", workday);
-    // console.warn("Ngày công thực tế trừ ngày lễ", workdayNotInHoliday);
-    // console.warn("Tổng ngày công thực nhận lương", totalWorkday);
-    // console.warn("Tổng lương đi làm ngày lễ", payslipInHoliday);
-    // console.warn("Lương không đi làm ngày lễ", payslipNotInHoliday);
-    // console.warn("Tổng phụ cấp", staySalary);
-    // console.warn("Tổng tiền khấu trừ", absentDaySalary);
-    //
-    // console.warn("=====================================================");
-    //
-    // console.warn("Tổng lương đi làm ngày lễ", payslipInHoliday);
-    // console.warn("Tổng phụ cấp", staySalary);
-    // console.warn("Thuees", tax);
-    // console.warn("Tổng tiền tăng ca", overtimeSalary);
-    // console.warn("total", total);
-
     let total: number;
     if (actualDay >= workday) {
       total = basicDaySalary * actualDay + Math.ceil(allowanceTotal) + staySalary + payslipInHoliday + payslipNotInHoliday + overtimeSalary - deductionSalary - bscSalary - tax;
@@ -951,9 +930,6 @@ export class PayrollService {
     const workday = payroll.workday;
 
     let actualDay = this.totalActualDay(payroll);
-    if (payroll.employee.isFlatSalary) {
-      actualDay = this.totalActualDay(payroll);
-    }
 
     // basic
     const basicSalary = this.totalBasicSalary(payroll.salaries);
@@ -1280,118 +1256,6 @@ export class PayrollService {
   async overtimeTemplate(search: SearchSalaryDto) {
     const data = await this.repository.overtimeTemplate(search);
     return data.map(e => e.title);
-  }
-
-  itemsExport(exportType: FilterTypeEnum) {
-    let customs: any;
-    switch (exportType) {
-      case FilterTypeEnum.PAYROLL: {
-        customs = {
-          name: "Họ và tên",
-          position: "Chức vụ",
-          basic: "Tổng Lương cơ bản",
-          stay: "Tổng phụ cấp ở lại",
-          overtime: "Tổng tiền tăng ca",
-          deduction: "Tổng tiền khấu trừ",
-          allowance: "Tổng tiền phụ cấp",
-          workday: "Ngày công chuẩn",
-          absent: "Vắng",
-          bsc: "Quên giấy phép/BSC",
-          bscSalary: "Tổng tiền quên giấy phép/BSC",
-          workdayNotInHoliday: "Tổng công trừ ngày lễ",
-          payslipNormalDay: "Tổng lương trừ ngày lễ",
-          worksInHoliday: "Ngày Lễ đi làm",
-          payslipInHoliday: "Lương lễ đi làm",
-          worksNotInHoliday: "Ngày lễ không đi làm",
-          payslipNotInHoliday: "Lương lễ không đi làm",
-          totalWorkday: "Tổng ngày thực tế",
-          payslipOutOfWorkday: "Lương ngoài giờ x2",
-          tax: "Thuế",
-          total: "Tổng lương",
-        };
-        break;
-      }
-      case FilterTypeEnum.TIME_SHEET: {
-        customs = {
-          lastName: "Họ và tên",
-          branch: "Đơn vị",
-          position: "Chức vụ",
-        };
-        break;
-      }
-      case FilterTypeEnum.SEASONAL: {
-        customs = {
-          lastName: "Họ và tên",
-          branch: "Đơn vị",
-          position: "Chức vụ",
-          datetime: "Ngày",
-          title: "Loại tăng ca",
-          workdays: 'Tổng ngày làm',
-          totalSalaryWorkday: "Tổng tiền",
-          times: "Tổng giờ làm",
-          totalSalaryTimes: "Tổng tiền",
-          total: "Tổng cộng"
-        };
-        break;
-      }
-      case FilterTypeEnum.OVERTIME: {
-        customs = {
-          lastName: "Họ và tên",
-          branch: "Đơn vị",
-          position: "Chức vụ",
-          datetime: "Ngày",
-          title: "Loại tăng ca",
-          unit: "Đơn vị tính",
-          price: "Đơn giá",
-          total: "Tổng tiền"
-        };
-        break;
-      }
-      case FilterTypeEnum.BASIC: {
-        customs = {
-          lastName: "Họ và tên",
-          branch: "Đơn vị",
-          position: "Chức vụ",
-          datetime: "Ngày",
-          title: `Loại lương cơ bản`,
-          price: `Số tiền`
-        };
-        break;
-      }
-      case FilterTypeEnum.STAY: {
-        customs = {
-          lastName: "Họ và tên",
-          branch: "Đơn vị",
-          position: "Chức vụ",
-          datetime: "Ngày",
-          title: `Loại phụ cấp lương`,
-          price: `Giá`
-        };
-        break;
-      }
-      case FilterTypeEnum.ALLOWANCE: {
-        customs = {
-          lastName: "Họ và tên",
-          branch: "Đơn vị",
-          position: "Chức vụ",
-          datetime: "Ngày",
-          title: `Loại phụ cấp thêm`,
-          price: `Giá`
-        };
-        break;
-      }
-      case FilterTypeEnum.ABSENT: {
-        customs = {
-          lastName: "Họ và tên",
-          branch: "Đơn vị",
-          position: "Chức vụ",
-          datetime: "Ngày",
-          title: `Loại vắng`,
-        };
-        break;
-      }
-    }
-    return Object.keys(customs).map((key) => ({key: key, value: customs[key]}));
   }
 
 

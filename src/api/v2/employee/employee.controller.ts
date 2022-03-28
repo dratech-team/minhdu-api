@@ -1,19 +1,20 @@
-import {Body, Controller, Delete, Get, Param, Patch, Post, Put, Query, UseGuards,} from "@nestjs/common";
+import {Body, Controller, Delete, Get, Param, Patch, Post, Query, Res, UseGuards,} from "@nestjs/common";
 import {EmployeeService} from "./employee.service";
 import {CreateEmployeeDto} from "./dto/create-employee.dto";
 import {Roles} from "../../../core/decorators/roles.decorator";
 import {ReqProfile} from "../../../core/decorators/req-profile.decorator";
 import {Sort, UpdateEmployeeDto} from "./dto/update-employee.dto";
 import {ApiV2Constant} from "../../../common/constant/api.constant";
-import {DatetimeUnit, EmployeeType, GenderType, RecipeType, RoleEnum} from "@prisma/client";
+import {DatetimeUnit, RoleEnum} from "@prisma/client";
 import {ParseDatetimePipe} from "../../../core/pipe/datetime.pipe";
 import {JwtAuthGuard} from "../../../core/guard/jwt-auth.guard";
 import {ApiKeyGuard} from "../../../core/guard/api-key-auth.guard";
 import {RolesGuard} from "../../../core/guard/role.guard";
 import {LoggerGuard} from "../../../core/guard/logger.guard";
 import {ProfileEntity} from "../../../common/entities/profile.entity";
-import {CustomParseBooleanPipe} from "../../../core/pipe/custom-boolean.pipe";
 import {SearchEmployeeDto} from "./dto/search-employee.dto";
+import {ItemExportDto} from "../../../common/interfaces/items-export.dto";
+import {SearchExportEmployeeDto} from "./dto/search-export.employee.dto";
 
 @UseGuards(JwtAuthGuard, ApiKeyGuard, RolesGuard)
 @Controller(ApiV2Constant.EMPLOYEE)
@@ -93,5 +94,16 @@ export class EmployeeController {
   @Patch("sort/stt")
   sortable(@Body("sort") sort: Sort[]) {
     return this.employeeService.sortable(sort);
+  }
+
+  @Roles(RoleEnum.ADMIN, RoleEnum.HUMAN_RESOURCE, RoleEnum.CAMP_ACCOUNTING)
+  @Post("/export/payroll")
+  async export(
+    @Res() res,
+    @ReqProfile() profile: ProfileEntity,
+    @Query() search: SearchExportEmployeeDto,
+    @Body('items') items: ItemExportDto[],
+  ) {
+    return this.employeeService.export(res, profile, search, items);
   }
 }

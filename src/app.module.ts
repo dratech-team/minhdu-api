@@ -43,6 +43,7 @@ import { EggTypeModule } from './api/v2/egg-type/egg-type.module';
 import { IncubatorModule } from './api/v2/incubator/incubator.module';
 import { OrderHistoryModule } from './api/v2/order-history/order-history.module';
 import { CategoryModule } from './api/v2/category/category.module';
+import { ExportModule } from './api/v2/export/export.module';
 
 @Module({
   imports: [
@@ -88,6 +89,7 @@ import { CategoryModule } from './api/v2/category/category.module';
     IncubatorModule,
     OrderHistoryModule,
     CategoryModule,
+    ExportModule,
   ],
   controllers: [AppController],
   providers: [PrismaService],
