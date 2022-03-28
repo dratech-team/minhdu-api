@@ -71,36 +71,30 @@ export class OrderRepository {
                 lte: search.startedAt_end,
               }
               : {},
-            deliveredAt: (search?.status !== undefined && search?.status !== null && !search?.deliveredAt_start)
+            endedAt: (search?.endedAt_start && search?.endedAt_end)
+              ? {
+                gte: search.endedAt_start,
+                lte: search.endedAt_end,
+              } : {},
+            deliveredAt: search?.status !== -1
               ? search.status === 1
                 ? {notIn: null}
-                : search.status === 0
-                  ? {in: null}
-                  : {}
+                : {in: null}
               : search?.deliveredAt_start && search?.deliveredAt_end
                 ? {
                   gte: search?.deliveredAt_start,
                   lte: search?.deliveredAt_end,
                 }
                 : {},
-            endedAt: (search?.endedAt_start && search?.endedAt_end)
-              ? {
-                gte: search.endedAt_start,
-                lte: search.endedAt_end,
-              } : {},
             hide: search?.hide === 'true',
-            customer: search?.customerId ? {
-              id: {in: search?.customerId},
-            } : {lastName: {startsWith: search?.customer, mode: "insensitive"}},
+            customer: search?.customerId
+              ? {id: {in: search?.customerId}}
+              : {lastName: {startsWith: search?.customer, mode: "insensitive"}},
             paymentHistories:
               search?.paidType === PaidEnum.PAID
-                ? {
-                  some: {total: {gte: 0}},
-                }
+                ? {some: {total: {gte: 0}}}
                 : search?.paidType === PaidEnum.UNPAID
-                ? {
-                  every: {total: {}},
-                }
+                ? {every: {total: {}}}
                 : {},
             province: search?.province
               ? {name: {contains: search?.province, mode: "insensitive"}}
@@ -125,43 +119,36 @@ export class OrderRepository {
           skip: search?.skip,
           take: search?.take,
           where: {
-            deliveredAt: (search?.status !== undefined && search?.status !== null && !search?.deliveredAt_start)
+            createdAt: search?.startedAt_start && search?.startedAt_end
+              ? {
+                gte: search.startedAt_start,
+                lte: search.startedAt_end,
+              }
+              : {},
+            endedAt: (search?.endedAt_start && search?.endedAt_end)
+              ? {
+                gte: search.endedAt_start,
+                lte: search.endedAt_end,
+              } : {},
+            deliveredAt: search?.status !== -1
               ? search.status === 1
                 ? {notIn: null}
-                : search.status === 0
-                  ? {in: null}
-                  : {}
+                : {in: null}
               : search?.deliveredAt_start && search?.deliveredAt_end
                 ? {
                   gte: search?.deliveredAt_start,
                   lte: search?.deliveredAt_end,
                 }
                 : {},
-            endedAt: (search?.endedAt_start && search?.endedAt_end)
-              ? {
-                gte: search.endedAt_start,
-                lte: search.endedAt_end,
-              } : {},
             hide: search?.hide === 'true',
-            customer: search?.customerId ? {
-              id: {in: search?.customerId},
-            } : {lastName: {startsWith: search?.customer, mode: "insensitive"}},
-            createdAt:
-              search?.startedAt_start && search?.startedAt_end
-                ? {
-                  gte: search.startedAt_start,
-                  lte: search.startedAt_end,
-                }
-                : {},
+            customer: search?.customerId
+              ? {id: {in: search?.customerId}}
+              : {lastName: {startsWith: search?.customer, mode: "insensitive"}},
             paymentHistories:
               search?.paidType === PaidEnum.PAID
-                ? {
-                  some: {total: {gte: 0}},
-                }
+                ? {some: {total: {gte: 0}}}
                 : search?.paidType === PaidEnum.UNPAID
-                ? {
-                  every: {total: {}},
-                }
+                ? {every: {total: {}}}
                 : {},
             province: search?.province
               ? {name: {contains: search?.province, mode: "insensitive"}}

@@ -13,7 +13,6 @@ import {ProfileEntity} from "../../../common/entities/profile.entity";
 import {CreateForEmployeesDto} from "./dto/create-for-employees.dto";
 import {UpdateManySalaryDto} from "./dto/update-many-salary.dto";
 import {firstDatetime, lastDatetime} from "../../../utils/datetime.util";
-import {TAX} from "../../../common/constant/salary.constant";
 
 const RATE_TIMES = 1;
 
@@ -27,6 +26,7 @@ export class SalaryRepository {
       // validate before create
       if (body?.payrollId) {
         const validate = await this.validate(body);
+        await this.validatePayroll(body.payrollId);
         if (!validate) {
           throw new BadRequestException(`[DEVELOPMENT] Validate ${body.title} for type ${body.type} failure. Pls check it`);
         }
@@ -316,7 +316,7 @@ export class SalaryRepository {
   async update(id: number, updates: Partial<UpdateSalaryDto & Pick<UpdateManySalaryDto, "allowanceDeleted">>) {
     try {
       const salary = await this.findOne(id);
-      if (salary?.payroll?.accConfirmedAt) {
+      if (!salary?.payroll.isEdit) {
         throw new BadRequestException(
           "Bảng lương đã xác nhận. Không được phép sửa"
         );
@@ -378,7 +378,8 @@ export class SalaryRepository {
 
   async remove(id: number) {
     try {
-      const isValid = await this.validatePayroll(id);
+      const found = await this.prisma.salary.findUnique({where: {id}});
+      const isValid = await this.validatePayroll(found.payrollId);
       if (isValid) {
         return await this.prisma.salary.delete({where: {id: id}});
       }
@@ -388,9 +389,9 @@ export class SalaryRepository {
     }
   }
 
-  private async validatePayroll(salaryId: number) {
-    const payroll = await this.prisma.payroll.findUnique({where: {id: salaryId}});
-    if (payroll?.accConfirmedAt) {
+  private async validatePayroll(payrollId: number) {
+    const payroll = await this.prisma.payroll.findUnique({where: {id: payrollId}});
+    if (!payroll?.isEdit) {
       throw new BadRequestException(
         "Bảng lương đã thanh toán không được phép sửa"
       );

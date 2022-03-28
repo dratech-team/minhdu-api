@@ -139,9 +139,9 @@ export class PayrollService {
 
   async update(id: number, updates: UpdatePayrollDto) {
     const payroll = await this.findOne(id);
-    if (payroll.manConfirmedAt) {
+    if (payroll.accConfirmedAt && !payroll.isEdit) {
       throw new BadRequestException(
-        "Phiếu lương đã được xác nhận vì vậy bạn không có quyền sửa. Vui lòng liên hệ admin để được hỗ trợ."
+        "Phiếu lương đã được xác nhận vì vậy bạn không có quyền sửa. Vui lòng liên hệ nhân sự để hoàn tác."
       );
     }
 
@@ -156,18 +156,26 @@ export class PayrollService {
       throw new BadRequestException(`Kế toán cần xác nhận phiếu lương trước!!!`);
     }
     if (!payroll.salaries.filter(salary => salary.type === SalaryType.BASIC_INSURANCE).length && payroll.employee.type !== EmployeeType.SEASONAL) {
-      throw new BadRequestException(`Phiếu lương thiếu lương cơ bản trích BH. Cần thêm mục này để xác nhận`);
+      throw new BadRequestException(`Phiếu lương thiếu lương cơ bản trích BH. Cần thêm mục này để tạm tính lương`);
     }
     if (!payroll.employee.createdAt) {
       throw new BadRequestException(`Vui lòng thêm ngày vào làm / ngày thử việc của nhân viên để đảm bảo phiếu lương hoạt động đúng..`);
     }
-    const payslip = (await this.mapPayslip(payroll)).payslip;
 
+    if (payroll.accConfirmedAt && !payroll.isEdit) {
+      throw new BadRequestException(`Phiếu lương đã được xác nhận. Bạn không được phép sửa!!`);
+    }
+
+    const payslip = (await this.mapPayslip(payroll)).payslip;
     switch (profile.role) {
       case RoleEnum.CAMP_ACCOUNTING:
-      case RoleEnum.HUMAN_RESOURCE:
-        updated = await this.repository.update(id, {accConfirmedAt: body.datetime});
+      case RoleEnum.HUMAN_RESOURCE: {
+        if (!payroll.accConfirmedAt && payroll.isEdit) {
+          await this.update(id, {total: payslip?.total, actualday: payslip?.totalWorkday});
+        }
+        updated = await this.repository.update(id, payroll.accConfirmedAt ? {isEdit: false} : {accConfirmedAt: body.datetime});
         break;
+      }
       case RoleEnum.CAMP_MANAGER:
         updated = await this.repository.update(id, {manConfirmedAt: body.datetime});
         break;
@@ -177,7 +185,6 @@ export class PayrollService {
         );
     }
     if (updated) {
-      await this.update(id, {total: payslip?.total, actualday: payslip?.totalWorkday});
       await this.generateHoliday(id, false);
     }
 

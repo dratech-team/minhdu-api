@@ -46,7 +46,7 @@ export class SearchOrderDto extends SearchRangeDto {
   @IsOptional()
   @IsNumber()
   @Type((v) => Number)
-  readonly status: 0 | 1;
+  readonly status: 0 | 1 | -1;
 
   @IsOptional()
   readonly hide: string;

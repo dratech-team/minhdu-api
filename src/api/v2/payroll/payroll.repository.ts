@@ -350,8 +350,12 @@ export class PayrollRepository {
         if (!payroll.salaries.length) {
           throw new BadRequestException(`Không thể xác nhận phiếu lương rỗng`);
         }
-        if (payroll.salaries.every(salary => (salary.type === SalaryType.BASIC_INSURANCE || salary.type === SalaryType.BASIC))) {
+        if (!payroll.salaries.filter(salary => (salary.type === SalaryType.BASIC_INSURANCE || salary.type === SalaryType.BASIC)).length) {
           throw new BadRequestException(`Không thể xác nhận phiếu lương có lương cơ bản rỗng`);
+        }
+
+        if (updates?.manConfirmedAt && !payroll.isEdit) {
+          throw new BadRequestException(`Phiếu lương đã chốt. Không được phép sửa.`);
         }
       }
 
@@ -362,7 +366,7 @@ export class PayrollRepository {
       return await this.prisma.payroll.update({
         where: {id: id},
         data: {
-          isEdit: !!updates?.accConfirmedAt,
+          isEdit: updates?.isEdit,
           accConfirmedAt: updates?.accConfirmedAt,
           paidAt: updates?.paidAt,
           total: updates?.total,
@@ -395,7 +399,7 @@ export class PayrollRepository {
   async remove(id: number) {
     try {
       const found = await this.prisma.payroll.findUnique({where: {id}, include: {salaries: true}});
-      if (found.accConfirmedAt) {
+      if (found.accConfirmedAt && !found.isEdit) {
         throw new BadRequestException("Phiếu lương đã xác nhận, bạn không được phép xóa");
       }
       if (found.salaries?.length) {

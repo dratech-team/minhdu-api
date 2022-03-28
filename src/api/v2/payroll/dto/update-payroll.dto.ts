@@ -54,6 +54,11 @@ export class UpdatePayrollDto extends PartialType(CreatePayrollDto) {
   readonly taxed?: boolean;
 
   @IsOptional()
+  @Type(() => Boolean)
+  @IsBoolean()
+  readonly isEdit?: boolean;
+
+  @IsOptional()
   @Type(() => Number)
   @IsNumber()
   readonly total?: number;
