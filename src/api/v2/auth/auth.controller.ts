@@ -8,7 +8,7 @@ import {JwtAuthGuard} from "../../../core/guard/jwt-auth.guard";
 import {ApiKeyGuard} from "../../../core/guard/api-key-auth.guard";
 import {RolesGuard} from "../../../core/guard/role.guard";
 import {Roles} from "../../../core/decorators/roles.decorator";
-import {Role, RoleEnum} from "@prisma/client";
+import {RoleEnum} from "@prisma/client";
 import {UpdateAuthDto} from "./dto/update-auth.dto";
 import {LoggerGuard} from "../../../core/guard/logger.guard";
 

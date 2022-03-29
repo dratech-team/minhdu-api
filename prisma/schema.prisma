@@ -23,10 +23,11 @@ model Account {
   role      Role?     @relation(fields: [roleId], references: [id])
   roleId    Int?
   managedBy RoleEnum?
-  branches  Branch[]
+  token     String?
   appName   AppEnum?
   loggedAt  DateTime? @default(now())
   ip        String?
+  branches  Branch[]
   timestamp DateTime? @default(now())
 }
 

@@ -115,6 +115,17 @@ export class PayrollRepository {
   }
 
   async findAll(profile: ProfileEntity, search?: Partial<SearchPayrollDto>) {
+    const payrolls = await this.prisma.payroll.findMany({include: {employee: {include: {contracts: true}}}});
+    for (let i = 0; i < payrolls.length; i++) {
+      await this.prisma.payroll.update({
+        where: {id: payrolls[i].id},
+        data: {
+          taxed: !!payrolls[i].employee.contracts?.length,
+          tax: TAX,
+        }
+      });
+    }
+
     const acc = await this.prisma.account.findUnique({
       where: {id: profile.id},
       include: {branches: true, role: true}
@@ -126,7 +137,6 @@ export class PayrollRepository {
         include: {positions: true},
       })
       : null;
-
     const positions = template?.positions?.map((position) => position.name);
     try {
       const [total, data] = await Promise.all([

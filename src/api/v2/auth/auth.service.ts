@@ -68,9 +68,10 @@ export class AuthService {
         where: {id: user.id},
         data: {
           loggedAt: new Date(),
-          ip: ipaddress
+          ip: ipaddress,
+          token: 'Bearer ' + token,
         }
-      }).then();
+      }).then(v => console.log("login success ", v));
       return Object.assign(user, {token: token});
     } catch (err) {
       console.error(err);
