@@ -11,12 +11,12 @@ export class RolesGuard implements CanActivate {
   async canActivate(context: ExecutionContext,): Promise<boolean> {
     const request = context.switchToHttp().getRequest();
     const roles = this.reflector.get('roles', context.getHandler()) || [];
-    return this.validateRolesRequest(request, roles);
-    // const validSession = await this.validateSessionReq(request);
-    // if (!validSession) {
-    //   throw new UnauthorizedException("Có tài khoản khác đã đăng nhập vào máy của bạn.. ");
-    // }
-    // return validRole === validSession;
+    const validRole = this.validateRolesRequest(request, roles);
+    const validSession = await this.validateSessionReq(request);
+    if (!validSession) {
+      throw new UnauthorizedException("Có tài khoản khác đã đăng nhập vào máy của bạn.. ");
+    }
+    return validRole === validSession;
   }
 
   validateRolesRequest(request, roles: Role[]): boolean {
