@@ -56,8 +56,8 @@ export class PayrollController {
   @UseGuards(LoggerGuard)
   @Roles(RoleEnum.ADMIN, RoleEnum.HUMAN_RESOURCE, RoleEnum.CAMP_ACCOUNTING)
   @Patch(":id")
-  update(@Param("id") id: number, @Body() updatePayrollDto: UpdatePayrollDto) {
-    return this.payrollService.update(+id, updatePayrollDto);
+  update(@ReqProfile() profile: ProfileEntity, @Param("id") id: number, @Body() updatePayrollDto: UpdatePayrollDto) {
+    return this.payrollService.update(profile, +id, updatePayrollDto);
   }
 
   @UseGuards(LoggerGuard)

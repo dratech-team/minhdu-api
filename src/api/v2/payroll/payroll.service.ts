@@ -137,15 +137,8 @@ export class PayrollService {
     return Object.assign(payroll, {totalWorkday: this.totalActualDay(payroll)});
   }
 
-  async update(id: number, updates: UpdatePayrollDto) {
-    const payroll = await this.findOne(id);
-    if (payroll.accConfirmedAt && !payroll.isEdit) {
-      throw new BadRequestException(
-        "Phiếu lương đã được xác nhận vì vậy bạn không có quyền sửa. Vui lòng liên hệ nhân sự để hoàn tác."
-      );
-    }
-
-    return await this.repository.update(id, updates);
+  async update(profile: ProfileEntity, id: number, updates: UpdatePayrollDto) {
+    return await this.repository.update(profile, id, updates);
   }
 
   async confirmPayroll(profile: ProfileEntity, id: number, body: ConfirmPayrollDto) {
@@ -171,13 +164,13 @@ export class PayrollService {
       case RoleEnum.CAMP_ACCOUNTING:
       case RoleEnum.HUMAN_RESOURCE: {
         if (!payroll.accConfirmedAt && payroll.isEdit) {
-          await this.update(id, {total: payslip?.total, actualday: payslip?.totalWorkday});
+          await this.update(profile, id, {total: payslip?.total, actualday: payslip?.totalWorkday});
         }
-        updated = await this.repository.update(id, payroll.accConfirmedAt ? {isEdit: false} : {accConfirmedAt: body.datetime});
+        updated = await this.repository.update(profile, id, payroll.accConfirmedAt ? {isEdit: false} : {accConfirmedAt: body.datetime});
         break;
       }
       case RoleEnum.CAMP_MANAGER:
-        updated = await this.repository.update(id, {manConfirmedAt: body.datetime});
+        updated = await this.repository.update(profile, id, {manConfirmedAt: body.datetime});
         break;
       default:
         throw new BadRequestException(
@@ -201,11 +194,20 @@ export class PayrollService {
       throw new BadRequestException("Phiếu lương chưa xác nhận. Không thể khôi phục. Xin cảm ơn...");
     }
 
-    const restored = await this.update(id, {accConfirmedAt: null});
+    if (found.manConfirmedAt) {
+      throw new BadRequestException("Phiếu lương đã được quản lý xác nhận. Không thể khôi phục. Xin cảm ơn...");
+    }
+
+    if (found.paidAt) {
+      throw new BadRequestException("Phiếu lương đã được thanh toán. Không thể khôi phục. Xin cảm ơn...");
+    }
+
+    const restored = await this.update(profile, id, {isEdit: true, actualday: null, absent: null, bsc: null});
 
     if (!restored) {
       throw new BadRequestException(`Có lỗi xảy ra. Mã phiếu lương ${found.id}. Vui lòng liên hệ admin để được hỗ trợ. Xin cảm ơn.`);
     }
+    
     return {
       status: 201,
       message: `Khôi phục thành công cho phiếu lương ${found.id} của nhân viên ${found.employee.lastName}`

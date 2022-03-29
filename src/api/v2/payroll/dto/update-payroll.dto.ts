@@ -69,6 +69,16 @@ export class UpdatePayrollDto extends PartialType(CreatePayrollDto) {
   readonly actualday?: number;
 
   @IsOptional()
+  @Type(() => Number)
+  @IsNumber()
+  readonly absent?: number;
+
+  @IsOptional()
+  @Type(() => Number)
+  @IsNumber()
+  readonly bsc?: number;
+
+  @IsOptional()
   @IsString()
   readonly note?: string;
 }

@@ -1,5 +1,5 @@
 import {BadRequestException, Injectable, NotFoundException} from "@nestjs/common";
-import {Branch, EmployeeType, Payroll, Position, RecipeType, SalaryType} from "@prisma/client";
+import {Branch, EmployeeType, Payroll, Position, RecipeType, RoleEnum, SalaryType} from "@prisma/client";
 import {ProfileEntity} from "../../../common/entities/profile.entity";
 import {PrismaService} from "../../../prisma.service";
 import {firstDatetime, lastDatetime} from "../../../utils/datetime.util";
@@ -342,11 +342,12 @@ export class PayrollRepository {
     }
   }
 
-  async update(id: number, updates: UpdatePayrollDto) {
+  async update(profile: ProfileEntity, id: number, updates: Partial<UpdatePayrollDto>) {
     try {
       // Chỉ xác nhận khi phiếu lương có tồn tại giá trị
+      const acc = await this.prisma.account.findUnique({where: {id: profile.id}, include: {role: true}});
       const payroll = await this.findOne(id);
-      if ((updates?.manConfirmedAt || updates?.accConfirmedAt)) {
+      if (acc.role.role !== RoleEnum.HUMAN_RESOURCE && (updates?.manConfirmedAt || updates?.accConfirmedAt)) {
         if (!payroll.salaries.length) {
           throw new BadRequestException(`Không thể xác nhận phiếu lương rỗng`);
         }
