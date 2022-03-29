@@ -3,6 +3,7 @@ import {CreateLoggerDto} from './dto/create-logger.dto';
 import {UpdateLoggerDto} from './dto/update-logger.dto';
 import {PrismaService} from "../../../prisma.service";
 import {ProfileEntity} from "../../../common/entities/profile.entity";
+import {SearchLoggerDto} from "./dto/search-logger.dto";
 
 @Injectable()
 export class LoggerService {
@@ -13,20 +14,26 @@ export class LoggerService {
     return this.prisma.systemHistory.create({data: createLoggerDto});
   }
 
-  async findAll(profile: ProfileEntity, take: number, skip: number) {
+  async findAll(profile: ProfileEntity, search: SearchLoggerDto) {
     const account = await this.prisma.account.findUnique({where: {id: profile.id}});
     const [total, data] = await Promise.all([
       this.prisma.systemHistory.count({
         where: {
-          appName: {in: account.appName}
-        }
+          appName: {in: account.appName},
+          description: {contains: search?.description, mode: "insensitive"},
+          activity: {contains: search?.activity, mode: "insensitive"},
+          body: {contains: search?.name, mode: "insensitive"},
+        },
       }),
       this.prisma.systemHistory.findMany({
-        take: take || undefined,
-        skip: skip || undefined,
+        take: search?.take,
+        skip: search?.skip,
         orderBy: {createdAt: "desc"},
         where: {
-          appName: {in: account.appName}
+          appName: {in: account.appName},
+          description: {contains: search?.description, mode: "insensitive"},
+          activity: {contains: search?.activity, mode: "insensitive"},
+          body: {contains: search?.name, mode: "insensitive"},
         },
       }),
     ]);

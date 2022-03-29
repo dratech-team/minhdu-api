@@ -9,6 +9,7 @@ import {ApiKeyGuard} from "../../../core/guard/api-key-auth.guard";
 import {RolesGuard} from "../../../core/guard/role.guard";
 import {Roles} from "../../../core/decorators/roles.decorator";
 import {RoleEnum} from "@prisma/client";
+import {SearchLoggerDto} from "./dto/search-logger.dto";
 
 @UseGuards(JwtAuthGuard, ApiKeyGuard, RolesGuard)
 @Controller('v2/logger')
@@ -25,10 +26,9 @@ export class LoggerController {
   @Get()
   findAll(
     @ReqProfile() profile: ProfileEntity,
-    @Query("take") take: number,
-    @Query("skip") skip: number,
+    @Query() search: SearchLoggerDto
   ) {
-    return this.loggerService.findAll(profile, +take, +skip);
+    return this.loggerService.findAll(profile, search);
   }
 
   @Get(':id')

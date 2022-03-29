@@ -207,7 +207,7 @@ export class PayrollService {
     if (!restored) {
       throw new BadRequestException(`Có lỗi xảy ra. Mã phiếu lương ${found.id}. Vui lòng liên hệ admin để được hỗ trợ. Xin cảm ơn.`);
     }
-    
+
     return {
       status: 201,
       message: `Khôi phục thành công cho phiếu lương ${found.id} của nhân viên ${found.employee.lastName}`
