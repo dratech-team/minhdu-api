@@ -12,7 +12,7 @@ import {Role, RoleEnum} from "@prisma/client";
 import {UpdateAuthDto} from "./dto/update-auth.dto";
 import {LoggerGuard} from "../../../core/guard/logger.guard";
 
-@UseGuards(JwtAuthGuard, ApiKeyGuard, RolesGuard)
+@UseGuards(ApiKeyGuard)
 @Controller('v2/auth')
 export class AuthController {
   constructor(private readonly service: AuthService) {
@@ -31,14 +31,14 @@ export class AuthController {
     return this.service.signIn(ip, body);
   }
 
-  @UseGuards(LoggerGuard)
+  @UseGuards(LoggerGuard, JwtAuthGuard, RolesGuard)
   @Roles(RoleEnum.ADMIN, RoleEnum.HUMAN_RESOURCE, RoleEnum.CAMP_ACCOUNTING)
   @Patch('/change-password')
   async changePassword(@ReqProfile() profile: ProfileEntity, @Body("password") password: string) {
     return this.service.changePassword(profile, password);
   }
 
-  @UseGuards(LoggerGuard)
+  @UseGuards(LoggerGuard, JwtAuthGuard, RolesGuard)
   @Roles(RoleEnum.ADMIN, RoleEnum.HUMAN_RESOURCE, RoleEnum.CAMP_ACCOUNTING)
   @Patch('/:id')
   async update(
@@ -48,14 +48,14 @@ export class AuthController {
     return this.service.update(+id, body);
   }
 
-  @UseGuards(LoggerGuard)
+  @UseGuards(LoggerGuard, JwtAuthGuard, RolesGuard)
   @Roles(RoleEnum.ADMIN, RoleEnum.HUMAN_RESOURCE)
   @Get()
   findAll(@ReqProfile() profile: ProfileEntity) {
     return this.service.findAll(profile);
   }
 
-  @UseGuards(LoggerGuard)
+  @UseGuards(LoggerGuard, JwtAuthGuard, RolesGuard)
   @Roles(RoleEnum.ADMIN, RoleEnum.HUMAN_RESOURCE, RoleEnum.CAMP_ACCOUNTING)
   @Delete(":id")
   remove(@ReqProfile() profile: ProfileEntity, @Param("id") id: number) {

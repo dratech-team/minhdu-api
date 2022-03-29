@@ -18,6 +18,7 @@ export class RolesGuard implements CanActivate {
   }
 
   validateRolesRequest(request, roles: Role[]): boolean {
+    console.log(request)
     return roles.includes(request?.user?.role);
   }
 }
