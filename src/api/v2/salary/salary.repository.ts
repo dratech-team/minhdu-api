@@ -79,7 +79,7 @@ export class SalaryRepository {
             ? {
               create: {
                 title: body.allowance.title,
-                type: SalaryType.OVERTIME,
+                type: SalaryType.ALLOWANCE,
                 price: body.allowance.price,
                 times: body.unit === DatetimeUnit.DAY ? body.times : RATE_TIMES, // phụ cấp tăng ca nhân cùng với số ngày của tăng ca. Nếu là giờ thì sẽ là 1
               },
@@ -341,19 +341,16 @@ export class SalaryRepository {
                 create: {
                   title: updates.allowance.title,
                   price: updates.allowance.price,
-                  type: SalaryType.OVERTIME,
+                  type: SalaryType.ALLOWANCE,
                 },
                 update: {
                   title: updates.allowance?.title,
                   price: updates.allowance?.price,
+                  type: SalaryType.ALLOWANCE,
                 },
               },
             }
-            : updates?.allowanceDeleted
-              ? {
-                delete: true
-              }
-              : {},
+            : {delete: true},
         },
         include: {
           payroll: {select: {employeeId: true}}
@@ -381,10 +378,10 @@ export class SalaryRepository {
       const found = await this.prisma.salary.findUnique({where: {id}});
       const isValid = await this.validatePayroll(found.payrollId);
       if (isValid) {
-        return await this.prisma.salary.delete({where: {id: id}});
+        return await this.prisma.salary.delete({where: {id}});
       }
     } catch (err) {
-      console.error(err);
+      console.error("err", err);
       throw new BadRequestException(err);
     }
   }

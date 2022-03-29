@@ -33,7 +33,7 @@ export class CreateContractDto {
 
   @IsOptional()
   @Type(() => Date)
-  @IsDate()
+  // @IsDate()
   @Transform((val) => new Date(moment(val.value).format('YYYY-MM-DD')))
   readonly expiredAt: Date;
 

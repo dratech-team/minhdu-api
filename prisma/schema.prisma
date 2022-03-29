@@ -454,9 +454,9 @@ model Salary {
   payrollId  Int?
   branch     Branch?       @relation(fields: [branchId], references: [id])
   branchId   Int?
-  salaryId   Int?          @unique
-  allowance  Salary?       @relation("AllowanceSalary", fields: [salaryId], references: [id])
-  allowances Salary?       @relation("AllowanceSalary")
+  salaryId   Int?
+  allowance  Salary?       @relation("SalaryToAllowance", fields: [salaryId], references: [id])
+  allowances Salary[]      @relation("SalaryToAllowance")
   timestamp  DateTime?     @default(now())
 }
 
