@@ -16,10 +16,13 @@ export class LoggerService {
 
   async findAll(profile: ProfileEntity, search: SearchLoggerDto) {
     const account = await this.prisma.account.findUnique({where: {id: profile.id}});
+    console.log(search)
+
     const [total, data] = await Promise.all([
       this.prisma.systemHistory.count({
         where: {
           appName: {in: account.appName},
+          name: {contains: search?.name, mode: "insensitive"},
           description: {contains: search?.description, mode: "insensitive"},
           activity: {contains: search?.activity, mode: "insensitive"},
           body: {contains: search?.name, mode: "insensitive"},
@@ -31,6 +34,7 @@ export class LoggerService {
         orderBy: {createdAt: "desc"},
         where: {
           appName: {in: account.appName},
+          name: {contains: search?.name, mode: "insensitive"},
           description: {contains: search?.description, mode: "insensitive"},
           activity: {contains: search?.activity, mode: "insensitive"},
           body: {contains: search?.name, mode: "insensitive"},
