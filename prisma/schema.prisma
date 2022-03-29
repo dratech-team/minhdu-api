@@ -439,25 +439,25 @@ model Location {
 }
 
 model Salary {
-  id         Int           @id @default(autoincrement())
-  title      String
-  type       SalaryType
-  times      Float?
-  price      Float?
-  unit       DatetimeUnit?
-  rate       Float?        @default(1)
-  datetime   DateTime?
-  forgot     Boolean?      @default(false)
-  partial    PartialDay?   @default(ALL_DAY)
-  note       String?
-  payroll    Payroll?      @relation(fields: [payrollId], references: [id], onDelete: Cascade)
-  payrollId  Int?
-  branch     Branch?       @relation(fields: [branchId], references: [id])
-  branchId   Int?
-  salaryId   Int?
-  allowance  Salary?       @relation("SalaryToAllowance", fields: [salaryId], references: [id])
-  allowances Salary[]      @relation("SalaryToAllowance")
-  timestamp  DateTime?     @default(now())
+  id          Int           @id @default(autoincrement())
+  title       String
+  type        SalaryType
+  times       Float?
+  price       Float?
+  unit        DatetimeUnit?
+  rate        Float?        @default(1)
+  datetime    DateTime?
+  forgot      Boolean?      @default(false)
+  partial     PartialDay?   @default(ALL_DAY)
+  note        String?
+  payroll     Payroll?      @relation(fields: [payrollId], references: [id], onDelete: Cascade)
+  payrollId   Int?
+  branch      Branch?       @relation(fields: [branchId], references: [id])
+  branchId    Int?
+  allowanceId Int?          @unique
+  allowance   Salary?       @relation("BlogOwnerHistory", fields: [allowanceId], references: [id])
+  salary      Salary?       @relation("BlogOwnerHistory")
+  timestamp   DateTime?     @default(now())
 }
 
 model SalaryHistory {
