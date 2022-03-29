@@ -16,7 +16,6 @@ export class LoggerService {
 
   async findAll(profile: ProfileEntity, search: SearchLoggerDto) {
     const account = await this.prisma.account.findUnique({where: {id: profile.id}});
-    console.log(search)
 
     const [total, data] = await Promise.all([
       this.prisma.systemHistory.count({

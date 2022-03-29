@@ -363,7 +363,6 @@ export class PayrollRepository {
       if (moment(updates?.accConfirmedAt || updates?.manConfirmedAt).isBefore(payroll.createdAt)) {
         throw new BadRequestException(`Không thể xác nhận phiếu lương trước ngày vào làm. Vui lòng kiểm tra lại.`);
       }
-
       return await this.prisma.payroll.update({
         where: {id: id},
         data: {
