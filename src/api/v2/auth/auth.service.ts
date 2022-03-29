@@ -78,10 +78,12 @@ export class AuthService {
     }
   }
 
-  async changePassword(id: number, password: string) {
+  async changePassword(profile: ProfileEntity, password: string) {
     try {
+      const account = await this.prisma.account.findUnique({where: {id: profile.id}});
+
       await this.prisma.account.update({
-        where: {id},
+        where: {id: account.id},
         data: {
           password: await generateHash(password)
         }
