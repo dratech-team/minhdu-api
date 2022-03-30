@@ -42,32 +42,34 @@ export class PayrollService {
             take: undefined,
             skip: undefined,
             createdAt: {
-              datetime: body.createdAt,
+              datetime: lastDatetime(body.createdAt),
               compare: "lte"
             }
           }
         );
-
-        const created = await Promise.all(data.map(async employee => {
+        const createds = [];
+        for (let i = 0; i < data.length; i++) {
           const payrolls = await this.repository.findAll(profile, {
             createdAt: body.createdAt,
-            employeeId: employee.id,
+            employeeId: data[i].id,
           });
 
           if (!payrolls.data.length) {
-            return await this.repository.create(Object.assign(body, {
-              createdAt: isEqualDatetime(body.createdAt, employee.createdAt, "month") ? employee.createdAt : body.createdAt,
-              employeeId: employee.id,
-              branch: employee.branch,
-              position: employee.position,
-              recipeType: employee.recipeType,
-              workday: employee.workday,
+            const created = await this.repository.create(Object.assign(body, {
+              createdAt: isEqualDatetime(body.createdAt, data[i].createdAt, "month") ? data[i].createdAt : body.createdAt,
+              employeeId: data[i].id,
+              branch: data[i].branch,
+              position: data[i].position,
+              recipeType: data[i].recipeType,
+              workday: data[i].workday,
             }));
+            createds.push(created);
           }
-        }));
+        }
+
         return {
           status: 201,
-          message: `Đã tự động tạo phiếu lương tháng ${moment(body.createdAt).format("MM/YYYY")} cho ${created.filter(e => e).length} nhân viên`,
+          message: `Đã tự động tạo phiếu lương tháng ${moment(body.createdAt).format("MM/YYYY")} cho ${createds.length} nhân viên`,
         };
       } else {
         // Tạo 1
@@ -202,7 +204,13 @@ export class PayrollService {
       throw new BadRequestException("Phiếu lương đã được thanh toán. Không thể khôi phục. Xin cảm ơn...");
     }
 
-    const restored = await this.update(profile, id, {accConfirmedAt: null, isEdit: true, actualday: null, absent: null, bsc: null});
+    const restored = await this.update(profile, id, {
+      accConfirmedAt: null,
+      isEdit: true,
+      actualday: null,
+      absent: null,
+      bsc: null
+    });
 
     if (!restored) {
       throw new BadRequestException(`Có lỗi xảy ra. Mã phiếu lương ${found.id}. Vui lòng liên hệ admin để được hỗ trợ. Xin cảm ơn.`);

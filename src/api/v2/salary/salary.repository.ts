@@ -350,7 +350,9 @@ export class SalaryRepository {
                 },
               },
             }
-            : {delete: true},
+            : updates?.allowanceDeleted
+              ? {delete: true}
+              : {},
         },
         include: {
           payroll: {select: {employeeId: true}}

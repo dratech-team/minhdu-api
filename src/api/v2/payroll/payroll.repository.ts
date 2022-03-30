@@ -131,8 +131,8 @@ export class PayrollRepository {
       const [total, data] = await Promise.all([
         this.prisma.payroll.count({
           where: {
-            employeeId: search?.employeeId ? {in: +search.employeeId} : {},
             employee: {
+              id: search?.employeeId ? {in: +search.employeeId} : {},
               leftAt: search?.isLeave ? {notIn: null} : {in: null},
               lastName: {contains: search?.name, mode: "insensitive"},
               type: search?.employeeType ? {in: search?.employeeType} : {},
