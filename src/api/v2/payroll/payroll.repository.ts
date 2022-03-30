@@ -332,8 +332,26 @@ export class PayrollRepository {
       if (!payroll || payroll.deletedAt) {
         throw new NotFoundException("Phiếu lương không tồn tại");
       }
-
-      const payrolls = await this.findIds(payroll.createdAt, payroll.employee.type, payroll.employee.branchId);
+      const payrolls = await this.prisma.payroll.findMany({
+        where: {
+          employee: {
+            branch: {name: {in: payroll.branch}},
+            type: {equals: payroll.employee.type || EmployeeType.FULL_TIME},
+            leftAt: {in: null},
+          },
+          createdAt: {
+            gte: firstDatetime(payroll.createdAt),
+            lte: lastDatetime(payroll.createdAt),
+          },
+          deletedAt: {in: null}
+        },
+        select: {id: true},
+        orderBy: {
+          employee: {
+            stt: "asc"
+          }
+        }
+      });
       return Object.assign(payroll, {payrollIds: payrolls.map(payroll => payroll.id)});
     } catch (e) {
       console.error(e);
@@ -478,34 +496,6 @@ export class PayrollRepository {
       })
     ]);
     return {total, data};
-  }
-
-  async findIds(createdAt: Date, employeeType?: EmployeeType, branchId?: number) {
-    try {
-      return await this.prisma.payroll.findMany({
-        where: {
-          employee: {
-            branch: {id: {in: branchId}},
-            type: {equals: employeeType || EmployeeType.FULL_TIME},
-            leftAt: {in: null},
-          },
-          createdAt: {
-            gte: firstDatetime(createdAt),
-            lte: lastDatetime(createdAt),
-          },
-          deletedAt: {in: null}
-        },
-        select: {id: true},
-        orderBy: {
-          employee: {
-            stt: "asc"
-          }
-        }
-      });
-    } catch (err) {
-      console.error(err);
-      throw new BadRequestException(err);
-    }
   }
 
   async overtimeTemplate(search: SearchSalaryDto) {
