@@ -275,7 +275,7 @@ export class PayrollService {
       return this.totalInOvertime(salary);
     }).reduce((a, b) => a + b, 0);
 
-    const days = overtimesOfEmployee.filter(employee => employee.unit === DatetimeUnit.DAY).map(employee => employee.times).reduce((a, b) => a + b, 0);
+    const days = overtimesOfEmployee.filter(employee => employee.unit === DatetimeUnit.DAY || !employee.unit).map(employee => employee.times).reduce((a, b) => a + b, 0);
     const hours = overtimesOfEmployee.filter(employee => employee.unit === DatetimeUnit.HOUR).map(employee => employee.times).reduce((a, b) => a + b, 0);
 
 
