@@ -51,7 +51,8 @@ export class CreateProfileDto {
 
   @IsOptional()
   @IsString()
-  @MaxLength(9 | 12)
+  @MaxLength(12)
+  @MinLength(9)
   readonly identify: string;
 
   @IsOptional()
