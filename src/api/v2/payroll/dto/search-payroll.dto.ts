@@ -1,4 +1,4 @@
-import {EmployeeType} from "@prisma/client";
+import {EmployeeType, RecipeType} from "@prisma/client";
 import {FilterTypeEnum} from "../entities/filter-type.enum";
 import {Transform, Type} from "class-transformer";
 import {IsArray, IsBoolean, IsDate, IsEnum, IsNumber, IsOptional, IsString} from "class-validator";
@@ -119,4 +119,8 @@ export class SearchPayrollDto extends SortDto {
   @Type(() => Number)
   @IsNumber()
   readonly categoryId: number;
+
+  @IsOptional()
+  @IsEnum(RecipeType)
+  readonly recipeType: RecipeType;
 }

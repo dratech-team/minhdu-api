@@ -149,6 +149,7 @@ export class PayrollRepository {
               gte: firstDatetime(search?.createdAt),
               lte: lastDatetime(search?.createdAt),
             },
+            recipeType: {in: search?.recipeType},
             deletedAt: {in: null},
           },
         }),
@@ -174,6 +175,7 @@ export class PayrollRepository {
               gte: firstDatetime(search?.createdAt),
               lte: lastDatetime(search?.createdAt),
             },
+            recipeType: {in: search?.recipeType},
             deletedAt: {in: null},
           },
           include: {
