@@ -21,25 +21,25 @@ export class SearchRouteDto {
   @IsOptional()
   @IsDate()
   @Type(() => Date)
-  @Transform((val) => new Date(moment(val.value).format('YYYY-MM-DD')))
+  @Transform((val) => new Date(moment(val.value).utc().format('YYYY-MM-DD')))
   readonly startedAt_start: Date;
 
   @IsOptional()
   @IsDate()
   @Type(() => Date)
-  @Transform((val) => new Date(moment(val.value).format('YYYY-MM-DD')))
+  @Transform((val) => new Date(moment(val.value).utc().format('YYYY-MM-DD')))
   readonly startedAt_end: Date;
 
   @IsOptional()
   @IsDate()
   @Type(() => Date)
-  @Transform((val) => new Date(moment(val.value).format('YYYY-MM-DD')))
+  @Transform((val) => new Date(moment(val.value).utc().format('YYYY-MM-DD')))
   readonly endedAt_start: Date;
 
   @IsOptional()
   @IsDate()
   @Type(() => Date)
-  @Transform((val) => new Date(moment(val.value).format('YYYY-MM-DD')))
+  @Transform((val) => new Date(moment(val.value).utc().format('YYYY-MM-DD')))
   readonly endedAt_end: Date;
 
   @IsOptional()

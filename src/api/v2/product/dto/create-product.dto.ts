@@ -15,7 +15,7 @@ export class CreateProductDto {
   @IsOptional()
   @Transform((val) => {
     if (val.value) {
-      return new Date(moment(val.value).format('YYYY-MM-DD'));
+      return new Date(moment(val.value).utc().format('YYYY-MM-DD'));
     }
   })
   readonly mfg?: Date;
@@ -23,7 +23,7 @@ export class CreateProductDto {
   @IsOptional()
   @Transform((val) => {
     if (val.value) {
-      return new Date(moment(val.value).format('YYYY-MM-DD'));
+      return new Date(moment(val.value).utc().format('YYYY-MM-DD'));
     }
   })
   readonly exp?: Date;
@@ -32,7 +32,7 @@ export class CreateProductDto {
   @IsDate()
   @Transform((val) => {
     if (val.value) {
-      return new Date(moment(val.value).format('YYYY-MM-DD'));
+      return new Date(moment(val.value).utc().format('YYYY-MM-DD'));
     }
   })
   readonly accountedAt?: Date;
@@ -41,7 +41,7 @@ export class CreateProductDto {
   @IsDate()
   @Transform((val) => {
     if (val.value) {
-      return new Date(moment(val.value).format('YYYY-MM-DD'));
+      return new Date(moment(val.value).utc().format('YYYY-MM-DD'));
     }
   })
   readonly billedAt?: Date;

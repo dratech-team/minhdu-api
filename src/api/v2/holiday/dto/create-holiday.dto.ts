@@ -9,7 +9,7 @@ export class CreateHolidayDto {
 
   @IsNotEmpty()
   @Type(() => Date)
-  @Transform((val) => new Date(moment(val.value).format('YYYY-MM-DD')))
+  @Transform((val) => new Date(moment(val.value).utc().format('YYYY-MM-DD')))
   @IsDate()
   readonly datetime: Date;
 

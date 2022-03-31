@@ -28,13 +28,13 @@ export class CreateContractDto {
 
   @Type(() => Date)
   @IsDate()
-  @Transform((val) => new Date(moment(val.value).format('YYYY-MM-DD')))
+  @Transform((val) => new Date(moment(val.value).utc().format('YYYY-MM-DD')))
   readonly createdAt: Date;
 
   @IsOptional()
   @Type(() => Date)
   // @IsDate()
-  @Transform((val) => new Date(moment(val.value).format('YYYY-MM-DD')))
+  @Transform((val) => new Date(moment(val.value).utc().format('YYYY-MM-DD')))
   readonly expiredAt: Date;
 
   @IsNotEmpty()

@@ -48,7 +48,7 @@ export class SearchPayrollDto extends SortDto {
   @Type(() => Date)
   @Transform(({value}) => {
     if (value) {
-      return new Date(moment(value).format('YYYY-MM-DD'));
+      return new Date(moment(value).utc().format('YYYY-MM-DD'));
     }
   })
   @IsDate()
@@ -58,7 +58,7 @@ export class SearchPayrollDto extends SortDto {
   @Type(() => Date)
   @Transform(({value}) => {
     if (value) {
-      return new Date(moment(value).format('YYYY-MM-DD'));
+      return new Date(moment(value).utc().format('YYYY-MM-DD'));
     }
   })
   @IsDate()
@@ -68,7 +68,7 @@ export class SearchPayrollDto extends SortDto {
   @Type(() => Date)
   @Transform(({value}) => {
     if (value) {
-      return new Date(moment(value).format('YYYY-MM-DD'));
+      return new Date(moment(value).utc().format('YYYY-MM-DD'));
     }
   })
   @IsDate()
@@ -78,7 +78,6 @@ export class SearchPayrollDto extends SortDto {
   @IsBoolean()
   @Transform((val) => {
     return val.value === 'true';
-
   })
   readonly isLeave: boolean;
 

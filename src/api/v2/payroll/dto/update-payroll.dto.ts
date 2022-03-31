@@ -1,8 +1,9 @@
 import {IsBoolean, IsDate, IsEnum, IsNumber, IsOptional, IsString} from "class-validator";
-import {Type} from "class-transformer";
+import {Transform, Type} from "class-transformer";
 import {CreatePayrollDto} from "./create-payroll.dto";
 import {PartialType} from "@nestjs/mapped-types";
 import { RecipeType } from "@prisma/client";
+import * as moment from "moment";
 
 export class UpdatePayrollDto extends PartialType(CreatePayrollDto) {
   @IsOptional()
@@ -11,14 +12,16 @@ export class UpdatePayrollDto extends PartialType(CreatePayrollDto) {
 
   /// TODO: Tạo endpoint mới cho việc này
   @IsOptional()
-  @Type(() => Date)
   @IsDate()
+  @Type(() => Date)
+  @Transform(({value}) => new Date(moment(value).utc().format('YYYY-MM-DD')))
   readonly accConfirmedAt?: Date;
 
   /// TODO: Tạo endpoint mới cho việc này
   @IsOptional()
-  @Type(() => Date)
   @IsDate()
+  @Type(() => Date)
+  @Transform(({value}) => new Date(moment(value).utc().format('YYYY-MM-DD')))
   readonly manConfirmedAt?: Date;
 
   @IsOptional()
@@ -38,8 +41,9 @@ export class UpdatePayrollDto extends PartialType(CreatePayrollDto) {
   readonly recipeType?: RecipeType;
 
   @IsOptional()
-  @Type(() => Date)
   @IsDate()
+  @Type(() => Date)
+  @Transform(({value}) => new Date(moment(value).utc().format('YYYY-MM-DD')))
   readonly paidAt?: Date;
 
 

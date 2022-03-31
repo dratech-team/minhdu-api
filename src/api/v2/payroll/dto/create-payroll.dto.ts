@@ -1,5 +1,6 @@
 import {IsDate, IsNotEmpty, IsNumber, IsOptional,} from "class-validator";
 import {Transform, Type} from "class-transformer";
+import * as moment from "moment";
 
 export class CreatePayrollDto {
   @IsOptional()
@@ -9,7 +10,7 @@ export class CreatePayrollDto {
 
   @IsNotEmpty()
   @Type(() => Date)
-  @Transform(val => new Date(val.value))
+  @Transform(({value}) => new Date(moment(value).utc().format('YYYY-MM-DD')))
   @IsDate()
   readonly createdAt: Date;
 }

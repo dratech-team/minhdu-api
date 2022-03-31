@@ -16,13 +16,13 @@ export class CreateDegreeDto {
   @IsNotEmpty()
   @Type(() => Date)
   @IsDate()
-  @Transform((val) => new Date(moment(val.value).format('YYYY-MM-DD')))
+  @Transform((val) => new Date(moment(val.value).utc().format('YYYY-MM-DD')))
   readonly startedAt: Date;
 
   @IsNotEmpty()
   @Type(() => Date)
   @IsDate()
-  @Transform((val) => new Date(moment(val.value).format('YYYY-MM-DD')))
+  @Transform((val) => new Date(moment(val.value).utc().format('YYYY-MM-DD')))
   readonly endedAt: Date;
 
   @IsNotEmpty()
