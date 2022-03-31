@@ -15,7 +15,7 @@ export class ProductRepository {
         data: {
           code: body.code,
           name: body.name,
-          providerId: body.providerId,
+          supplierId: body.supplierId,
           warehouseId: body.warehouseId,
           note: body?.note,
           unit: body?.unit,
@@ -44,7 +44,7 @@ export class ProductRepository {
             warehouse: search?.warehouseId ? {id: search.warehouseId} : {},
           },
           include: {
-            provider: true,
+            supplier: true,
             warehouse: true,
           },
         }),
@@ -61,7 +61,7 @@ export class ProductRepository {
       return await this.prisma.product.findUnique({
         where: {id},
         include: {
-          provider: true,
+          supplier: true,
           warehouse: true,
         }
       });
@@ -81,8 +81,8 @@ export class ProductRepository {
           warehouse: updates?.warehouseId
             ? {connect: {id: updates.warehouseId}}
             : {},
-          provider: updates?.providerId
-            ? {connect: {id: updates.providerId}}
+          supplier: updates?.supplierId
+            ? {connect: {id: updates.supplierId}}
             : {},
           note: updates.note,
           unit: updates.unit,

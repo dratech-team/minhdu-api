@@ -1,22 +1,22 @@
 import {Body, Controller, Delete, Get, Param, Patch, Post, Query} from '@nestjs/common';
-import {ProviderService} from './provider.service';
-import {CreateProviderDto} from './dto/create-provider.dto';
-import {UpdateProviderDto} from './dto/update-provider.dto';
-import {SearchProviderDto} from "./dto/search-provider.dto";
 import {ApiV2Constant} from "../../../common/constant/api.constant";
+import {SupplierService} from "./supplier.service";
+import {CreateSupplierDto} from "./dto/create-supplier.dto";
+import {SearchSupplierDto} from "./dto/search-supplier.dto";
+import {UpdateSupplierDto} from "./dto/update-supplier.dto";
 
 @Controller(ApiV2Constant.PROVIDER)
-export class ProviderController {
-  constructor(private readonly providerService: ProviderService) {
+export class SupplierController {
+  constructor(private readonly providerService: SupplierService) {
   }
 
   @Post()
-  create(@Body() createProviderDto: CreateProviderDto) {
+  create(@Body() createProviderDto: CreateSupplierDto) {
     return this.providerService.create(createProviderDto);
   }
 
   @Get()
-  findAll(@Query() search: SearchProviderDto) {
+  findAll(@Query() search: SearchSupplierDto) {
     return this.providerService.findAll(search);
   }
 
@@ -26,7 +26,7 @@ export class ProviderController {
   }
 
   @Patch(':id')
-  update(@Param('id') id: string, @Body() updateProviderDto: UpdateProviderDto) {
+  update(@Param('id') id: string, @Body() updateProviderDto: UpdateSupplierDto) {
     return this.providerService.update(+id, updateProviderDto);
   }
 

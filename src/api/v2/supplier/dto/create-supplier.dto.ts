@@ -1,6 +1,6 @@
 import {IsNotEmpty, IsString} from "class-validator";
 
-export class CreateProviderDto {
+export class CreateSupplierDto {
   @IsNotEmpty()
   @IsString()
   readonly name: string

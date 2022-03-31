@@ -34,7 +34,6 @@ import { ProvinceModule } from "./common/nations/province/province.module";
 import { WardModule } from "./common/nations/ward/ward.module";
 import { ConfigModule } from "./core/config/config.module";
 import { PrismaService } from "./prisma.service";
-import { ProviderModule } from "./api/v2/provider/provider.module";
 import { WarehouseModule } from "./api/v2/warehouse/warehouse.module";
 import { ProductModule } from "./api/v2/product/product.module";
 import { CommodityTemplateModule } from "./api/v2/commodity-template/commodity-template.module";
@@ -44,6 +43,7 @@ import { IncubatorModule } from './api/v2/incubator/incubator.module';
 import { OrderHistoryModule } from './api/v2/order-history/order-history.module';
 import { CategoryModule } from './api/v2/category/category.module';
 import { ExportModule } from './api/v2/export/export.module';
+import {SupplierModule} from "./api/v2/supplier/supplier.module";
 
 @Module({
   imports: [
@@ -80,7 +80,7 @@ import { ExportModule } from './api/v2/export/export.module';
     FinanceModule,
     AdminModule,
     OverviewModule,
-    ProviderModule,
+    SupplierModule,
     WarehouseModule,
     ProductModule,
     CommodityTemplateModule,

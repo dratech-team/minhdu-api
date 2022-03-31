@@ -1,17 +1,17 @@
 import {BadRequestException, Injectable} from '@nestjs/common';
-import {CreateProviderDto} from './dto/create-provider.dto';
-import {UpdateProviderDto} from './dto/update-provider.dto';
 import {PrismaService} from "../../../prisma.service";
-import {SearchProviderDto} from "./dto/search-provider.dto";
+import {CreateSupplierDto} from "./dto/create-supplier.dto";
+import {SearchSupplierDto} from "./dto/search-supplier.dto";
+import {UpdateSupplierDto} from "./dto/update-supplier.dto";
 
 @Injectable()
-export class ProviderService {
+export class SupplierService {
   constructor(private readonly prisma: PrismaService) {
   }
 
-  async create(body: CreateProviderDto) {
+  async create(body: CreateSupplierDto) {
     try {
-      return await this.prisma.provider.create({
+      return await this.prisma.supplier.create({
         data: {
           name: body.name
         }
@@ -22,11 +22,11 @@ export class ProviderService {
     }
   }
 
-  async findAll(search: SearchProviderDto) {
+  async findAll(search: SearchSupplierDto) {
     try {
       const [total, data] = await Promise.all([
-        this.prisma.provider.count(),
-        this.prisma.provider.findMany({
+        this.prisma.supplier.count(),
+        this.prisma.supplier.findMany({
           take: search?.take,
           skip: search?.skip,
         })
@@ -40,16 +40,16 @@ export class ProviderService {
 
   async findOne(id: number) {
     try {
-      return await this.prisma.provider.findUnique({where: {id}});
+      return await this.prisma.supplier.findUnique({where: {id}});
     } catch (err) {
       console.error(err);
       throw new BadRequestException(err);
     }
   }
 
-  async update(id: number, updates: UpdateProviderDto) {
+  async update(id: number, updates: UpdateSupplierDto) {
     try {
-      return await this.prisma.provider.update({
+      return await this.prisma.supplier.update({
         where: {id},
         data: updates,
       });
@@ -61,7 +61,7 @@ export class ProviderService {
 
   async remove(id: number) {
     try {
-      return await this.prisma.provider.delete({
+      return await this.prisma.supplier.delete({
         where: {id}
       });
     } catch (err) {

@@ -85,11 +85,11 @@ export class CreateProductDto {
 
   @IsOptional()
   @Type(() => Number)
-  readonly providerId: number;
+  readonly supplierId: number;
 
   @IsOptional()
   @IsString()
-  readonly provider?: string;
+  readonly supplier?: string;
 
   @IsNotEmpty()
   @IsEnum(ProductUnit)
