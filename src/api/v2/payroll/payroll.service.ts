@@ -50,7 +50,8 @@ export class PayrollService {
         const createds = [];
         for (let i = 0; i < data.length; i++) {
           const payrolls = await this.repository.findAll(profile, {
-            createdAt: body.createdAt,
+            startedAt: firstDatetime(body.createdAt),
+            endedAt: lastDatetime(body.createdAt),
             employeeId: data[i].id,
           });
 
@@ -1343,22 +1344,22 @@ export class PayrollService {
 
       switch (search?.exportType) {
         case FilterTypeEnum.PAYROLL: {
-          return this.exportPayroll(response, search?.filename, search?.createdAt, res, Object.values(customs), Object.keys(customs));
+          return this.exportPayroll(response, search, res, Object.values(customs), Object.keys(customs));
         }
         case FilterTypeEnum.TIME_SHEET: {
-          return this.exportTimeSheet(response, search?.filename, search?.createdAt, res, Object.values(customs), Object.keys(customs));
+          return this.exportTimeSheet(response, search, res, Object.values(customs), Object.keys(customs));
         }
         case FilterTypeEnum.SEASONAL: {
-          return this.exportSeasonal(response, search?.filename, search?.createdAt, res, Object.values(customs), Object.keys(customs));
+          return this.exportSeasonal(response, search, res, Object.values(customs), Object.keys(customs));
         }
         case FilterTypeEnum.OVERTIME: {
-          return this.exportOvertime(response, search?.filename, search?.startedAt, search?.endedAt, res, (data as any).totalSalary, Object.values(customs), Object.keys(customs));
+          return this.exportOvertime(response, search, res, (data as any).totalSalary, Object.values(customs), Object.keys(customs));
         }
         case FilterTypeEnum.BASIC:
         case FilterTypeEnum.STAY:
         case FilterTypeEnum.ALLOWANCE:
         case FilterTypeEnum.ABSENT: {
-          return this.exportSalaries(response, search?.filename, search?.createdAt, search?.startedAt, search?.endedAt, res, Object.values(customs), Object.keys(customs));
+          return this.exportSalaries(response, search, res, Object.values(customs), Object.keys(customs));
         }
       }
 
@@ -1368,7 +1369,7 @@ export class PayrollService {
     }
   }
 
-  async exportPayroll(response: Response, filename: string, datetime: Date, data, headers: string[], keys: string[]) {
+  async exportPayroll(response: Response, search: SearchExportDto, data, headers: string[], keys: string[]) {
     const payrolls = await Promise.all(
       data.map(async (payroll) => {
         const name = payroll.employee.lastName;
@@ -1380,8 +1381,8 @@ export class PayrollService {
     return exportExcel(
       response,
       {
-        name: filename,
-        title: `Bảng lương tháng ${moment(datetime).format("MM-YYYY")}`,
+        name: search.filename,
+        title: `Bảng lương tháng ${moment(search.startedAt).format("MM-YYYY")}`,
         customHeaders: headers,
         customKeys: keys,
         data: payrolls,
@@ -1390,8 +1391,8 @@ export class PayrollService {
     );
   }
 
-  exportTimeSheet(response: Response, filename: string, datetime: Date, payrolls, headers: string[], keys: string[]) {
-    const datetimes = rageDateTime(firstDatetime(datetime), lastDatetime(datetime)).map(date => date.format("DD-MM"));
+  exportTimeSheet(response: Response, search: SearchExportDto, payrolls, headers: string[], keys: string[]) {
+    const datetimes = rageDateTime(firstDatetime(search.startedAt), lastDatetime(search.endedAt)).map(date => date.format("DD-MM"));
     const customHeaders = [...headers, ...datetimes];
     const customKeys = [...keys, ...datetimes];
 
@@ -1413,7 +1414,7 @@ export class PayrollService {
     return exportExcel(
       response,
       {
-        name: filename,
+        name: search.filename,
         customKeys: customKeys,
         title: `Phiếu Chấm công tháng `,
         customHeaders: customHeaders,
@@ -1423,7 +1424,7 @@ export class PayrollService {
     );
   }
 
-  exportSeasonal(response: Response, filename: string, createdAt: Date, payrolls: any[], headers: string[], keys: string[]) {
+  exportSeasonal(response: Response, search: SearchExportDto, payrolls: any[], headers: string[], keys: string[]) {
     const total = {
       lastName: "Tổng cộng",
       branch: "",
@@ -1440,8 +1441,8 @@ export class PayrollService {
     return exportExcel(
       response,
       {
-        name: filename,
-        title: `Bảng lương công nhật tháng ${moment(createdAt).format("MM-YYYY")}`,
+        name: search.filename,
+        title: `Bảng lương công nhật tháng ${moment(search.startedAt).format("MM-YYYY")}`,
         customHeaders: headers,
         customKeys: keys,
         data: payrolls,
@@ -1450,14 +1451,14 @@ export class PayrollService {
     );
   }
 
-  exportSalaries(response: Response, filename: string, createdAt: Date, startedAt: Date, endedAt: Date, payrolls: any[], headers: string[], keys: string[]) {
+  exportSalaries(response: Response, search: SearchExportDto, payrolls: any[], headers: string[], keys: string[]) {
     const title = [...new Set(payrolls.map(payroll => payroll.title).filter(payroll => payroll !== ""))];
     const titleLength = title.length;
     return exportExcel(
       response,
       {
-        name: filename,
-        title: createdAt ? `${moment(startedAt).format("DD-MM-YYYY")} ` : `Từ ngày ${moment(startedAt).format("DD-MM-YYYY")} đến ngày ${moment(endedAt).format("DD-MM-YYYY")} ${titleLength > 1 ? '' : 'cho loại tăng ca ' + title[0]}`,
+        name: search.filename,
+        title: `Từ ngày ${moment(search.startedAt).format("DD-MM-YYYY")} đến ngày ${moment(search.endedAt).format("DD-MM-YYYY")} ${titleLength > 1 ? '' : 'cho loại tăng ca ' + title[0]}`,
         customHeaders: headers,
         customKeys: keys,
         data: payrolls,
@@ -1466,7 +1467,7 @@ export class PayrollService {
     );
   }
 
-  exportOvertime(response: Response, filename: string, startedAt: Date, endedAt: Date, payrolls: any[], totalSalary: any, headers: string[], keys: string[]) {
+  exportOvertime(response: Response, search: SearchExportDto, payrolls: any[], totalSalary: any, headers: string[], keys: string[]) {
     const title = [...new Set(payrolls.map(payroll => payroll.title).filter(payroll => payroll !== ""))];
     const titleLength = title.length;
     const total = {
@@ -1483,8 +1484,8 @@ export class PayrollService {
     return exportExcel(
       response,
       {
-        name: filename,
-        title: `Bảng tăng ca từ ngày ${moment(startedAt).format("DD-MM-YYYY")} đến ngày ${moment(endedAt).format("DD-MM-YYYY")} ${titleLength > 1 ? '' : 'cho loại tăng ca ' + title[0]}`,
+        name: search.filename,
+        title: `Bảng tăng ca từ ngày ${moment(search.startedAt).format("DD-MM-YYYY")} đến ngày ${moment(search.endedAt).format("DD-MM-YYYY")} ${titleLength > 1 ? '' : 'cho loại tăng ca ' + title[0]}`,
         customHeaders: headers,
         customKeys: keys,
         data: payrolls,

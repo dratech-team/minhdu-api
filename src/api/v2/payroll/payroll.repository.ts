@@ -146,8 +146,8 @@ export class PayrollRepository {
               ? {in: positions.map(position => position)}
               : {startsWith: search?.position, mode: "insensitive"},
             createdAt: {
-              gte: firstDatetime(search?.createdAt),
-              lte: lastDatetime(search?.createdAt),
+              gte: firstDatetime(search?.startedAt),
+              lte: lastDatetime(search?.endedAt),
             },
             recipeType: {in: search?.recipeType},
             deletedAt: {in: null},
@@ -172,8 +172,8 @@ export class PayrollRepository {
               ? {in: positions.map(position => position)}
               : {startsWith: search?.position, mode: "insensitive"},
             createdAt: {
-              gte: firstDatetime(search?.createdAt),
-              lte: lastDatetime(search?.createdAt),
+              gte: firstDatetime(search?.startedAt),
+              lte: lastDatetime(search?.endedAt),
             },
             recipeType: {in: search?.recipeType},
             deletedAt: {in: null},
@@ -213,15 +213,10 @@ export class PayrollRepository {
     const [total, data] = await Promise.all([
       this.prisma.salary.count({
         where: {
-          datetime: search?.createdAt && search?.filterType === SalaryType.ABSENT ? {
-            in: search?.createdAt
-          } : search?.startedAt && search?.endedAt ? {
-            gte: search?.startedAt,
-            lte: search?.endedAt,
-          } : {
-            gte: firstDatetime(search?.createdAt),
-            lte: lastDatetime(search?.createdAt),
-          },
+          datetime: search?.startedAt && search?.endedAt ? {
+            gte: search.startedAt,
+            lte: search.endedAt,
+          } : {},
           title: {in: search?.titles, mode: "insensitive"},
           price: search?.salaryPrice ? {equals: search?.salaryPrice} : {},
           type: search?.filterType
@@ -245,15 +240,10 @@ export class PayrollRepository {
         take: search?.take,
         skip: search?.skip,
         where: {
-          datetime: search?.createdAt && search?.filterType === SalaryType.ABSENT ? {
-            in: search?.createdAt
-          } : search?.startedAt && search?.endedAt ? {
-            gte: search?.startedAt,
-            lte: search?.endedAt,
-          } : {
-            gte: firstDatetime(search?.createdAt),
-            lte: lastDatetime(search?.createdAt),
-          },
+          datetime: search?.startedAt && search?.endedAt ? {
+            gte: search.startedAt,
+            lte: search.endedAt,
+          } : {},
           title: {in: search?.titles, mode: "insensitive"},
           price: search?.salaryPrice ? {equals: search?.salaryPrice} : {},
           type: search?.filterType
@@ -439,12 +429,11 @@ export class PayrollRepository {
         where: {
           title: {in: search?.titles, mode: "insensitive"},
           type: {in: SalaryType.OVERTIME},
-          datetime: search?.createdAt ? {
-            in: search?.createdAt
-          } : {
-            gte: search?.startedAt,
-            lte: search?.endedAt
-          },
+          datetime: search?.startedAt && search?.endedAt
+            ? {
+              gte: search?.startedAt,
+              lte: search?.endedAt
+            } : {},
           payroll: {
             branch: acc.branches?.length
               ? {in: acc.branches.map(branch => branch.name)}
@@ -460,12 +449,11 @@ export class PayrollRepository {
         where: {
           title: {in: search?.titles, mode: "insensitive"},
           type: {in: SalaryType.OVERTIME},
-          datetime: search?.createdAt ? {
-            in: search?.createdAt
-          } : {
-            gte: search?.startedAt,
-            lte: search?.endedAt
-          },
+          datetime: search?.startedAt && search?.endedAt
+            ? {
+              gte: search?.startedAt,
+              lte: search?.endedAt
+            } : {},
           payroll: {
             branch: acc.branches?.length
               ? {in: acc.branches.map(branch => branch.name)}

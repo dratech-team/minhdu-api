@@ -9,11 +9,9 @@ RUN yarn
 
 ADD . /minhdu_api
 
-RUN yarn generate
-
 RUN yarn build
 
 RUN ls -la
 
 CMD ["yarn", "start"]
-EXPOSE 1130
+EXPOSE 3000

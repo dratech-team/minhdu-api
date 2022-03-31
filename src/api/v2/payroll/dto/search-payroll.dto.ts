@@ -52,16 +52,6 @@ export class SearchPayrollDto extends SortDto {
     }
   })
   @IsDate()
-  readonly createdAt: Date;
-
-  @IsOptional()
-  @Type(() => Date)
-  @Transform(({value}) => {
-    if (value) {
-      return new Date(moment(value).utc().format('YYYY-MM-DD'));
-    }
-  })
-  @IsDate()
   readonly startedAt: Date;
 
   @IsOptional()
