@@ -517,7 +517,7 @@ model Warehouse {
   timestamp DateTime? @default(now())
 }
 
-model Provider {
+model Supplier {
   id        Int       @id @default(autoincrement())
   name      String    @unique
   products  Product[]
@@ -530,8 +530,8 @@ model Product {
   code        String?
   warehouse   Warehouse        @relation(fields: [warehouseId], references: [id])
   warehouseId Int
-  provider    Provider         @relation(fields: [providerId], references: [id])
-  providerId  Int
+  supplier    Supplier         @relation(fields: [supplierId], references: [id])
+  supplierId  Int
   note        String?
   unit        ProductUnit
   timestamp   DateTime?        @default(now())
@@ -549,7 +549,7 @@ model Migration {
   exp              DateTime? // hạn sử dụng
   accountedAt      DateTime? // ngày hạch toán
   billedAt         DateTime? // ngày chứng từ
-  billCode         String? // số chứng từ
+  billCode         String? // số chứng từ 
   discount         Float?           @default(0)
   discountType     DiscountType?    @default(PERCENT)
   productId        Int
@@ -602,7 +602,7 @@ enum DiscountType {
 enum MigrateType {
   IMPORT
   EXPORT
-  TRANSFER
+  MOVE
   INVENTORY
 }
 
