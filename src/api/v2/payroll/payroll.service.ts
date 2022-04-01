@@ -502,19 +502,25 @@ export class PayrollService {
     let total = 30;
     // total: Ngày cuối cùng của tháng do mình quy định. Áp dụng đối với lương cố dịnh
     const confirmedAt = payroll.accConfirmedAt;
-    if (payroll.isFlatSalary && confirmedAt) {
-      total = 30;
-    } else if (isEqualDatetime(new Date(), payroll.createdAt, "month")) {
-      if (!confirmedAt) {
-        total = new Date().getDate() + 1 - payroll.createdAt.getDate();
+    if (!confirmedAt) {
+      if (payroll.isFlatSalary) {
+        total = 30;
       } else {
-        total = confirmedAt.getDate() + 1 - payroll.createdAt.getDate();
+        if (isEqualDatetime(new Date(), payroll.createdAt, "month")) {
+          total = new Date().getDate() + 1 - payroll.createdAt.getDate();
+        } else if (moment(new Date()).isAfter(payroll.createdAt, "month")) {
+          total = lastDatetime(payroll.createdAt).getDate() + new Date().getDate();
+        } else {
+          throw new BadRequestException("Phiếu lương chưa xác nhận có ngày nhỏ hơn ngày tạo phiếu lương");
+        }
       }
-    } else if (moment(new Date()).isAfter(payroll.createdAt, "month")) {
-      if (!confirmedAt) {
-        total = lastDatetime(payroll.createdAt).getDate() + new Date().getDate();
-      } else {
+    } else {
+      if (isEqualDatetime(new Date(), payroll.createdAt, "month")) {
+        total = confirmedAt.getDate() + 1 - payroll.createdAt.getDate();
+      } else if (moment(new Date()).isAfter(payroll.createdAt, "month")) {
         total = lastDatetime(payroll.createdAt).getDate() + confirmedAt.getDate() + 1;
+      } else {
+        throw new BadRequestException("Phiếu lương đã xác nhận có ngày nhỏ hơn ngày tạo phiếu lương");
       }
     }
 
