@@ -1,15 +1,15 @@
-generator client {
-  provider = "prisma-client-js"
-}
+// generator client {
+//   provider = "prisma-client-js"
+// }
 
-//generator dbml {
-//  provider            = "prisma-dbml-generator"
-//  output              = "../dbml"
-//  outputName          = "minhdu.dbml"
-//  projectName         = "Minh du"
-//  projectDatabaseType = "PostgreSQL"
-//  projectNote         = "Test project description"
-//}
+generator dbml {
+ provider            = "prisma-dbml-generator"
+ output              = "../dbml"
+ outputName          = "minhdu.dbml"
+ projectName         = "Minh du"
+ projectDatabaseType = "PostgreSQL"
+ projectNote         = "Test project description"
+}
 
 datasource db {
   provider = "postgresql"
@@ -124,7 +124,7 @@ model Branch {
   Category          Category[]
   status            BranchStatus[]
   phone             BranchPhone[]
-  migrations        Migration[]
+  stock             Stock[]
 }
 
 model BranchStatus {
@@ -339,20 +339,20 @@ model Customer {
 }
 
 model PaymentHistory {
-  id          Int           @id @default(autoincrement())
-  total       Float
-  paidAt      DateTime?     @default(now())
-  currency    CurrencyUnit? @default(VND)
-  payType     PaymentType?  @default(CASH)
-  customer    Customer?     @relation(fields: [customerId], references: [id])
-  customerId  Int?
-  note        String?
-  order       Order?        @relation(fields: [orderId], references: [id])
-  orderId     Int?
-  product     Product?      @relation(fields: [productId], references: [id])
-  productId   Int?
-  migration   Migration?    @relation(fields: [migrationId], references: [id])
-  migrationId Int?
+  id         Int           @id @default(autoincrement())
+  total      Float
+  paidAt     DateTime?     @default(now())
+  currency   CurrencyUnit? @default(VND)
+  payType    PaymentType?  @default(CASH)
+  customer   Customer?     @relation(fields: [customerId], references: [id])
+  customerId Int?
+  note       String?
+  order      Order?        @relation(fields: [orderId], references: [id])
+  orderId    Int?
+  product    Product?      @relation(fields: [productId], references: [id])
+  productId  Int?
+  stock      Stock?        @relation(fields: [stockId], references: [id])
+  stockId    Int?
 }
 
 model Commodity {
@@ -510,7 +510,7 @@ model Payroll {
 // warehouse
 
 // loại kho văn phòng phẩm, thuốc, trứng...
-model Warehouse {
+model ProductCategory {
   id        Int       @id @default(autoincrement())
   name      String    @unique
   products  Product[]
@@ -525,38 +525,78 @@ model Supplier {
 }
 
 model Product {
-  id          Int              @id @default(autoincrement())
-  name        String
-  code        String?
-  warehouse   Warehouse        @relation(fields: [warehouseId], references: [id])
-  warehouseId Int
-  supplier    Supplier         @relation(fields: [supplierId], references: [id])
-  supplierId  Int
-  note        String?
-  unit        ProductUnit
-  timestamp   DateTime?        @default(now())
-  migrations  Migration[]
-  payments    PaymentHistory[]
+  id         Int              @id @default(autoincrement())
+  name       String
+  code       String?
+  category   ProductCategory  @relation(fields: [categoryId], references: [id])
+  categoryId Int
+  supplier   Supplier         @relation(fields: [supplierId], references: [id])
+  supplierId Int
+  note       String?
+  unit       ProductUnit
+  timestamp  DateTime?        @default(now())
+  stocks     Stock[]
+  payments   PaymentHistory[]
 }
 
-model Migration {
+model Stock {
   id               Int              @id @default(autoincrement())
-  type             MigrateType
+  type             StockType
   createdAt        DateTime?        @default(now())
   price            Float // Đơn giá
-  amount           Float
-  mfg              DateTime? // ngày sản xuất
-  exp              DateTime? // hạn sử dụng
+  amount           Float // số lượng
   accountedAt      DateTime? // ngày hạch toán
   billedAt         DateTime? // ngày chứng từ
   billCode         String? // số chứng từ 
-  discount         Float?           @default(0)
+  discount         Float?
   discountType     DiscountType?    @default(PERCENT)
+  tax              Float?           @default(0)
   productId        Int
   product          Product          @relation(fields: [productId], references: [id])
-  branch           Branch?          @relation(fields: [branchId], references: [id])
-  branchId         Int?
+  branch           Branch           @relation(fields: [branchId], references: [id])
+  branchId         Int
   paymentHistories PaymentHistory[]
+  orderedStockId   Int?
+  approvedStock    ApprovedStock?   @relation(fields: [approvedStockId], references: [id])
+  approvedStockId  Int?
+  ordered          OrderedStock?    @relation(fields: [orderedStockId], references: [id])
+  orderedId        Int?
+  completedAt      DateTime?        @default(now())
+  consignments     Consignment[]
+  note             String?
+  attechments      Attachment[]
+}
+
+model Attachment {
+  id      Int    @id @default(autoincrement())
+  file    String
+  stock   Stock? @relation(fields: [stockId], references: [id])
+  stockId Int?
+}
+
+// Lô hàng
+model Consignment {
+  id        Int       @id @default(autoincrement())
+  code      String?
+  mfg       DateTime? // ngày sản xuất
+  exp       DateTime? // hạn sử dụng
+  stocks    Stock[]
+  createdAt DateTime? @default(now())
+}
+
+model OrderedStock {
+  id        Int       @id @default(autoincrement())
+  orderer   String
+  stocks    Stock[]
+  createdAt DateTime? @default(now())
+}
+
+model ApprovedStock {
+  id        Int       @id @default(autoincrement())
+  approver  String
+  stocks    Stock[]
+  createdAt DateTime? @default(now())
+
 }
 
 model Incubator {
@@ -599,7 +639,7 @@ enum DiscountType {
   PERCENT
 }
 
-enum MigrateType {
+enum StockType {
   IMPORT
   EXPORT
   MOVE
