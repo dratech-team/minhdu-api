@@ -234,10 +234,15 @@ export class PayrollRepository {
             branch: profile.branches?.length
               ? {in: profile.branches.map(branch => branch.name)}
               : {startsWith: search?.branch, mode: "insensitive"},
-            createdAt: {
-              gte: search.startedAt,
-              lte: search.endedAt,
-            },
+            createdAt: (search.filterType === FilterTypeEnum.BASIC || search.filterType === FilterTypeEnum.STAY)
+              ? {
+                gte: firstDatetime(search.startedAt),
+                lte: lastDatetime(search.endedAt),
+              }
+              : {
+                gte: search.startedAt,
+                lte: search.endedAt,
+              },
             deletedAt: {in: null}
           }
         },
@@ -267,10 +272,15 @@ export class PayrollRepository {
             branch: profile.branches?.length
               ? {in: profile.branches.map(branch => branch.name)}
               : {startsWith: search?.branch, mode: "insensitive"},
-            createdAt: {
-              gte: search.startedAt,
-              lte: search.endedAt,
-            },
+            createdAt: (search.filterType === FilterTypeEnum.BASIC || search.filterType === FilterTypeEnum.STAY)
+              ? {
+                gte: firstDatetime(search.startedAt),
+                lte: lastDatetime(search.endedAt),
+              }
+              : {
+                gte: search.startedAt,
+                lte: search.endedAt,
+              },
             deletedAt: {in: null}
           }
         },
