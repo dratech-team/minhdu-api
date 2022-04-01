@@ -1,15 +1,7 @@
-// generator client {
-//   provider = "prisma-client-js"
-// }
-
-generator dbml {
-  provider            = "prisma-dbml-generator"
-  output              = "../dbml"
-  outputName          = "minhdu.dbml"
-  projectName         = "Minh du"
-  projectDatabaseType = "PostgreSQL"
-  projectNote         = "Test project description"
+ generator client {
+   provider = "prisma-client-js"
 }
+
 
 datasource db {
   provider = "postgresql"
