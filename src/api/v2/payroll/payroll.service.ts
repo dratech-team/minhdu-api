@@ -163,6 +163,7 @@ export class PayrollService {
     }
 
     const payslip = (await this.mapPayslip(payroll)).payslip;
+
     switch (profile.role) {
       case RoleEnum.CAMP_ACCOUNTING:
       case RoleEnum.HUMAN_RESOURCE: {
@@ -515,15 +516,14 @@ export class PayrollService {
         }
       }
     } else {
-      if (isEqualDatetime(new Date(), payroll.createdAt, "month")) {
+      if (isEqualDatetime(confirmedAt, payroll.createdAt, "month")) {
         total = confirmedAt.getDate() + 1 - payroll.createdAt.getDate();
-      } else if (moment(new Date()).isAfter(payroll.createdAt, "month")) {
+      } else if (moment(confirmedAt).isAfter(payroll.createdAt, "month")) {
         total = lastDatetime(payroll.createdAt).getDate() + confirmedAt.getDate() + 1;
       } else {
         throw new BadRequestException("Phiếu lương đã xác nhận có ngày nhỏ hơn ngày tạo phiếu lương");
       }
     }
-
     // absent trừ cho ngày vào làm nếu ngày vào làm là tháng đc tính lương
     const absent = this.totalAbsent(payroll);
     return total - absent.day;
