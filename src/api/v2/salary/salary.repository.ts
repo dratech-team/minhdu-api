@@ -27,7 +27,6 @@ export class SalaryRepository {
       if (body?.payrollId) {
         const validate = await this.validate(body);
         await this.validatePayroll(body.payrollId);
-        console.log("validate salary true");
         if (!validate) {
           throw new BadRequestException(`[DEVELOPMENT] Validate ${body.title} for type ${body.type} failure. Pls check it`);
         }
@@ -35,18 +34,21 @@ export class SalaryRepository {
 
       const salary = await this.prisma.salary.findFirst({
         where: {
+          payroll: {id: {in: body.payrollId}},
+          type: {in: [SalaryType.ABSENT, SalaryType.DAY_OFF]},
           datetime: {in: body.datetime as Date},
-          unit: body.unit,
-          times: body.times,
+          partial: {in: [PartialDay.MORNING, PartialDay.AFTERNOON]},
+          unit: DatetimeUnit.DAY,
+          times: PARTIAL_DAY,
         }
       });
-
       if (
         salary &&
         body.type === SalaryType.ABSENT &&
         (body.partial === PartialDay.MORNING || body.partial === PartialDay.AFTERNOON) &&
         body.times === PARTIAL_DAY
       ) {
+
         return await this.prisma.salary.update({
           where: {id: salary.id},
           data: {
