@@ -213,12 +213,10 @@ export class PayrollRepository {
     const [total, data] = await Promise.all([
       this.prisma.salary.count({
         where: {
-          datetime: !(search.filterType === FilterTypeEnum.BASIC || search.filterType === FilterTypeEnum.STAY)
-            ? {
-              gte: search.startedAt,
-              lte: search.endedAt,
-            }
-            : {},
+          datetime: search?.startedAt && search?.endedAt ? {
+            gte: search.startedAt,
+            lte: search.endedAt,
+          } : {},
           title: {in: search?.titles, mode: "insensitive"},
           price: search?.salaryPrice ? {equals: search?.salaryPrice} : {},
           type: search?.filterType
@@ -234,15 +232,6 @@ export class PayrollRepository {
             branch: profile.branches?.length
               ? {in: profile.branches.map(branch => branch.name)}
               : {startsWith: search?.branch, mode: "insensitive"},
-            createdAt: (search.filterType === FilterTypeEnum.BASIC || search.filterType === FilterTypeEnum.STAY)
-              ? {
-                gte: firstDatetime(search.startedAt),
-                lte: lastDatetime(search.endedAt),
-              }
-              : {
-                gte: search.startedAt,
-                lte: search.endedAt,
-              },
             deletedAt: {in: null}
           }
         },
@@ -251,12 +240,10 @@ export class PayrollRepository {
         take: search?.take,
         skip: search?.skip,
         where: {
-          datetime: !(search.filterType === FilterTypeEnum.BASIC || search.filterType === FilterTypeEnum.STAY)
-            ? {
-              gte: search.startedAt,
-              lte: search.endedAt,
-            }
-            : {},
+          datetime: search?.startedAt && search?.endedAt ? {
+            gte: search.startedAt,
+            lte: search.endedAt,
+          } : {},
           title: {in: search?.titles, mode: "insensitive"},
           price: search?.salaryPrice ? {equals: search?.salaryPrice} : {},
           type: search?.filterType
@@ -272,15 +259,6 @@ export class PayrollRepository {
             branch: profile.branches?.length
               ? {in: profile.branches.map(branch => branch.name)}
               : {startsWith: search?.branch, mode: "insensitive"},
-            createdAt: (search.filterType === FilterTypeEnum.BASIC || search.filterType === FilterTypeEnum.STAY)
-              ? {
-                gte: firstDatetime(search.startedAt),
-                lte: lastDatetime(search.endedAt),
-              }
-              : {
-                gte: search.startedAt,
-                lte: search.endedAt,
-              },
             deletedAt: {in: null}
           }
         },

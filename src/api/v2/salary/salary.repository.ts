@@ -27,6 +27,7 @@ export class SalaryRepository {
       if (body?.payrollId) {
         const validate = await this.validate(body);
         await this.validatePayroll(body.payrollId);
+        console.log("validate salary true");
         if (!validate) {
           throw new BadRequestException(`[DEVELOPMENT] Validate ${body.title} for type ${body.type} failure. Pls check it`);
         }
@@ -378,10 +379,8 @@ export class SalaryRepository {
   async remove(id: number) {
     try {
       const found = await this.prisma.salary.findUnique({where: {id}});
-      const isValid = await this.validatePayroll(found.payrollId);
-      if (isValid) {
-        return await this.prisma.salary.delete({where: {id}});
-      }
+      await this.validatePayroll(found.payrollId);
+      return await this.prisma.salary.delete({where: {id}});
     } catch (err) {
       console.error("err", err);
       throw new BadRequestException(err);
@@ -391,10 +390,25 @@ export class SalaryRepository {
   private async validatePayroll(payrollId: number) {
     const payroll = await this.prisma.payroll.findUnique({where: {id: payrollId}});
     if (!payroll?.isEdit) {
-      throw new BadRequestException(
-        "Bảng lương đã thanh toán không được phép sửa"
-      );
+      if (payroll.accConfirmedAt) {
+        throw new BadRequestException(
+          "Bảng lương đã được kế toán xác nhận. không được phép sửa"
+        );
+      }
+      if (payroll.manConfirmedAt) {
+        throw new BadRequestException(
+          "Bảng lương đã được quản lý xác nhận. không được phép sửa"
+        );
+      }
+
+      if (payroll.paidAt) {
+        throw new BadRequestException(
+          "Bảng lương đã được thanh toán. không được phép sửa"
+        );
+      }
     }
+
+
     return true;
   }
 

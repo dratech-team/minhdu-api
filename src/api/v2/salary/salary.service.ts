@@ -62,8 +62,7 @@ export class SalaryService {
         await this.repository.create(Object.assign(body, {times: 1, datetime: new Date(range[i].toDate())}));
       }
     } else {
-      const created = await this.repository.create(body);
-      return await this.payrollService.findOne(created.payrollId);
+      return await this.repository.create(body);
     }
   }
 
