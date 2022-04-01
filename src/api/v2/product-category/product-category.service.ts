@@ -4,13 +4,13 @@ import {UpdateWarehouseDto} from './dto/update-warehouse.dto';
 import {PrismaService} from "../../../prisma.service";
 
 @Injectable()
-export class WarehouseService {
+export class ProductCategoryService {
   constructor(private readonly prisma: PrismaService) {
   }
 
   async create(body: CreateWarehouseDto) {
     try {
-      return await this.prisma.warehouse.create({data: body});
+      return await this.prisma.productCategory.create({data: body});
     } catch (err) {
       console.error(err);
       throw new BadRequestException(err);
@@ -19,7 +19,7 @@ export class WarehouseService {
 
   async findAll() {
     try {
-      return await this.prisma.warehouse.findMany();
+      return await this.prisma.productCategory.findMany();
     } catch (err) {
       console.error(err);
       throw new BadRequestException(err);
@@ -28,7 +28,7 @@ export class WarehouseService {
 
   async findOne(id: number) {
     try {
-      return await this.prisma.warehouse.findUnique({where: {id}});
+      return await this.prisma.productCategory.findUnique({where: {id}});
     } catch (err) {
       console.error(err);
       throw new BadRequestException(err);
@@ -37,7 +37,7 @@ export class WarehouseService {
 
   async update(id: number, updates: UpdateWarehouseDto) {
     try {
-      return await this.prisma.warehouse.update({
+      return await this.prisma.productCategory.update({
         where: {id},
         data: updates
       });
@@ -49,7 +49,7 @@ export class WarehouseService {
 
   async remove(id: number) {
     try {
-      return await this.prisma.warehouse.delete({where: {id}});
+      return await this.prisma.productCategory.delete({where: {id}});
     } catch (err) {
       console.error(err);
       throw new BadRequestException(err);

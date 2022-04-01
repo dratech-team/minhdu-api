@@ -16,7 +16,7 @@ export class ProductRepository {
           code: body.code,
           name: body.name,
           supplierId: body.supplierId,
-          warehouseId: body.warehouseId,
+          categoryId: body.categoryId,
           note: body?.note,
           unit: body?.unit,
         }
@@ -33,7 +33,7 @@ export class ProductRepository {
         this.prisma.product.count({
           where: {
             name: search?.name ? {contains: search.name} : {},
-            warehouse: search?.warehouseId ? {id: search.warehouseId} : {},
+            category: search?.warehouseId ? {id: search.warehouseId} : {},
           },
         }),
         this.prisma.product.findMany({
@@ -41,11 +41,11 @@ export class ProductRepository {
           skip: search?.skip,
           where: {
             name: search?.name ? {contains: search.name} : {},
-            warehouse: search?.warehouseId ? {id: search.warehouseId} : {},
+            category: search?.warehouseId ? {id: search.warehouseId} : {},
           },
           include: {
             supplier: true,
-            warehouse: true,
+            category: true,
           },
         }),
       ]);
@@ -62,7 +62,7 @@ export class ProductRepository {
         where: {id},
         include: {
           supplier: true,
-          warehouse: true,
+          category: true,
         }
       });
     } catch (err) {
@@ -78,8 +78,8 @@ export class ProductRepository {
         data: {
           name: updates.name,
           code: updates.code,
-          warehouse: updates?.warehouseId
-            ? {connect: {id: updates.warehouseId}}
+          category: updates?.categoryId
+            ? {connect: {id: updates.categoryId}}
             : {},
           supplier: updates?.supplierId
             ? {connect: {id: updates.supplierId}}

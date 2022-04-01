@@ -34,7 +34,6 @@ import { ProvinceModule } from "./common/nations/province/province.module";
 import { WardModule } from "./common/nations/ward/ward.module";
 import { ConfigModule } from "./core/config/config.module";
 import { PrismaService } from "./prisma.service";
-import { WarehouseModule } from "./api/v2/warehouse/warehouse.module";
 import { ProductModule } from "./api/v2/product/product.module";
 import { CommodityTemplateModule } from "./api/v2/commodity-template/commodity-template.module";
 import { EggModule } from './api/v2/egg/egg.module';
@@ -44,6 +43,8 @@ import { OrderHistoryModule } from './api/v2/order-history/order-history.module'
 import { CategoryModule } from './api/v2/category/category.module';
 import { ExportModule } from './api/v2/export/export.module';
 import {SupplierModule} from "./api/v2/supplier/supplier.module";
+import { StockModule } from './api/v2/stock/stock.module';
+import {ProductCategoryModule} from "./api/v2/product-category/product-category.module";
 
 @Module({
   imports: [
@@ -81,7 +82,7 @@ import {SupplierModule} from "./api/v2/supplier/supplier.module";
     AdminModule,
     OverviewModule,
     SupplierModule,
-    WarehouseModule,
+    ProductCategoryModule,
     ProductModule,
     CommodityTemplateModule,
     EggModule,
@@ -90,6 +91,7 @@ import {SupplierModule} from "./api/v2/supplier/supplier.module";
     OrderHistoryModule,
     CategoryModule,
     ExportModule,
+    StockModule,
   ],
   controllers: [AppController],
   providers: [PrismaService],

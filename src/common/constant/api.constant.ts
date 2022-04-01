@@ -28,6 +28,6 @@ export const ApiV2Constant = {
   ROUTE: 'v2/route',
   SALARY: 'v2/salary',
   SYSTEM: 'v2/system',
-  WAREHOUSE: 'v2/warehouse',
+  PRODUCT_CATEGORY: 'v2/warehouse',
   WAREHOUSE_HISTORY: 'v2/warehouse-history',
 };

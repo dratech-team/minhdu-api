@@ -3,12 +3,12 @@
 // }
 
 generator dbml {
- provider            = "prisma-dbml-generator"
- output              = "../dbml"
- outputName          = "minhdu.dbml"
- projectName         = "Minh du"
- projectDatabaseType = "PostgreSQL"
- projectNote         = "Test project description"
+  provider            = "prisma-dbml-generator"
+  output              = "../dbml"
+  outputName          = "minhdu.dbml"
+  projectName         = "Minh du"
+  projectDatabaseType = "PostgreSQL"
+  projectNote         = "Test project description"
 }
 
 datasource db {
@@ -556,10 +556,9 @@ model Stock {
   branch           Branch           @relation(fields: [branchId], references: [id])
   branchId         Int
   paymentHistories PaymentHistory[]
-  orderedStockId   Int?
-  approvedStock    ApprovedStock?   @relation(fields: [approvedStockId], references: [id])
-  approvedStockId  Int?
-  ordered          OrderedStock?    @relation(fields: [orderedStockId], references: [id])
+  approved         ApprovedStock?   @relation(fields: [approvedId], references: [id])
+  approvedId       Int?
+  ordered          OrderedStock?    @relation(fields: [orderedId], references: [id])
   orderedId        Int?
   completedAt      DateTime?        @default(now())
   consignments     Consignment[]
@@ -596,7 +595,6 @@ model ApprovedStock {
   approver  String
   stocks    Stock[]
   createdAt DateTime? @default(now())
-
 }
 
 model Incubator {
