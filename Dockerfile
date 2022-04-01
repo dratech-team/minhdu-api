@@ -2,12 +2,11 @@
 ARG VARIANT=12
 FROM node:${VARIANT}-alpine
 
-WORKDIR /minhdu_api
+WORKDIR /minhdu-api
 
-COPY package*.json ./
+COPY package*.json ./minhdu-api
+
 RUN yarn
-
-ADD . /minhdu_api
 
 RUN yarn build
 
