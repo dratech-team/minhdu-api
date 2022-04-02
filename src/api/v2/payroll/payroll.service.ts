@@ -779,7 +779,7 @@ export class PayrollService {
       totalStandard,
       payslipOutOfWorkday,
       allowance: allowanceTotal,
-      tax: tax * basic,
+      tax: tax,
       total
     };
   }
@@ -931,7 +931,7 @@ export class PayrollService {
       bsc,
       bscSalary: bscSalary,
       payslipNormalDay: Math.ceil(basicDaySalary * actualDay),
-      tax: tax * basic.price,
+      tax: tax,
       total: Math.round(total / 1000) * 1000,
     };
   }
@@ -982,7 +982,6 @@ export class PayrollService {
     const basic = payroll.salaries.find(
       (salary) => salary.type === SalaryType.BASIC_INSURANCE
     );
-
     // Thuế dựa theo lương cơ bản BASIC_INSURANCE
     if (basic) {
       tax = payroll.taxed ? basic.price * payroll.tax : 0;
@@ -1114,7 +1113,7 @@ export class PayrollService {
       bsc,
       bscSalary: bscSalary,
       payslipNormalDay: Math.ceil(basicDaySalary * actualDay),
-      tax: tax * basic.price,
+      tax: tax,
       total: Math.round(total / 1000) * 1000,
     };
   }
@@ -1279,7 +1278,7 @@ export class PayrollService {
       bsc,
       bscSalary: bscSalary,
       payslipNormalDay: Math.ceil(basicDaySalary * actualDay),
-      tax: tax * basic.price,
+      tax: tax,
       total: Math.round(total / 1000) * 1000,
     };
   }
