@@ -170,7 +170,10 @@ export class PayrollService {
         if (!payroll.accConfirmedAt && payroll.isEdit) {
           await this.update(profile, id, {total: payslip?.total, actualday: payslip?.totalWorkday});
         }
-        updated = await this.repository.update(profile, id, payroll.accConfirmedAt ? {isEdit: false} : {accConfirmedAt: body.datetime});
+        updated = await this.repository.update(profile, id, payroll.accConfirmedAt ? {
+          isEdit: false,
+          total: payslip.total,
+        } : {accConfirmedAt: body.datetime});
         break;
       }
       case RoleEnum.CAMP_MANAGER:
@@ -627,6 +630,7 @@ export class PayrollService {
     const basic = payroll.salaries.find(
       (salary: Salary) => salary.type === SalaryType.BASIC_INSURANCE
     )?.price;
+
     const absent = this.totalAbsent(payroll);
     const basicDaySalary = basicSalary / payroll.workday;
     const staySalary =
@@ -727,7 +731,7 @@ export class PayrollService {
       : basicDaySalary * (actualDay > workday ? workday : actualDay);
 
     const totalStandard = basicSalary + staySalary;
-    const tax = payroll.tax;
+    const tax = payroll.taxed ? basic * payroll.tax : 0;
 
     const bsc = this.totalForgotBSC(payroll.salaries);
     const bscSalary = basicDaySalary * (bsc / 2);
@@ -818,7 +822,9 @@ export class PayrollService {
     );
 
     // Thuế dựa theo lương cơ bản BASIC_INSURANCE
-    tax = payroll.tax;
+    if (basic) {
+      tax = payroll.taxed ? basic.price * payroll.tax : 0;
+    }
 
     const allowanceTotal = allowanceMonthSalary + allowanceDayByActual;
 
@@ -979,9 +985,8 @@ export class PayrollService {
 
     // Thuế dựa theo lương cơ bản BASIC_INSURANCE
     if (basic) {
-      tax = payroll.taxed ? payroll.tax : 0;
+      tax = payroll.taxed ? basic.price * payroll.tax : 0;
     }
-
     const allowanceTotal = allowanceMonthSalary + allowanceDayByActual;
 
     if (currentHoliday && currentHoliday.length) {
@@ -1148,7 +1153,7 @@ export class PayrollService {
 
     // Thuế dựa theo lương cơ bản BASIC_INSURANCE
     if (basic) {
-      tax = payroll.employee.contracts.length !== 0 && payroll.taxed ? basic.price * TAX : 0;
+      tax = payroll.taxed ? basic.price * payroll.tax : 0;
     }
 
     const allowanceTotal = allowanceMonthSalary + allowanceDayByActual;
