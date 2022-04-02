@@ -146,8 +146,8 @@ export class PayrollRepository {
               ? {in: positions.map(position => position)}
               : {startsWith: search?.position, mode: "insensitive"},
             createdAt: {
-              gte: firstDatetime(search?.startedAt),
-              lte: lastDatetime(search?.endedAt),
+              gte: search?.startedAt,
+              lte: search?.endedAt,
             },
             recipeType: {in: search?.recipeType},
             deletedAt: {in: null},
@@ -172,8 +172,8 @@ export class PayrollRepository {
               ? {in: positions.map(position => position)}
               : {startsWith: search?.position, mode: "insensitive"},
             createdAt: {
-              gte: firstDatetime(search?.startedAt),
-              lte: lastDatetime(search?.endedAt),
+              gte: search?.startedAt,
+              lte: search?.endedAt,
             },
             recipeType: {in: search?.recipeType},
             deletedAt: {in: null},
