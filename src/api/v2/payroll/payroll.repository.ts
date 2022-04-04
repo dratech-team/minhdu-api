@@ -22,7 +22,7 @@ export class PayrollRepository {
 
   async create(body: CreatePayrollDto & { branch: Branch, position: Position, recipeType: RecipeType, workday: number }, isInit?: boolean) {
     try {
-      const payrolls = await this.prisma.payroll.findMany({
+      const payrolls = await this.prisma.payroll.findFirst({
         where: {
           employee: {id: {in: body.employeeId}},
           deletedAt: {in: null},
@@ -38,7 +38,7 @@ export class PayrollRepository {
         }
       });
 
-      const salaries = payrolls.find(payroll => payroll.salaries.length)?.salaries?.filter(
+      const salaries = payrolls?.salaries?.filter(
         (salary) =>
           salary.type === SalaryType.BASIC ||
           salary.type === SalaryType.BASIC_INSURANCE ||
