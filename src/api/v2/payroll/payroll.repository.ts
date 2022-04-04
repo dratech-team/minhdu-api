@@ -33,6 +33,9 @@ export class PayrollRepository {
           }
         },
         include: {salaries: true},
+        orderBy: {
+          createdAt: "desc"
+        }
       });
 
       const salaries = payrolls.find(payroll => payroll.salaries.length)?.salaries?.filter(
@@ -189,7 +192,8 @@ export class PayrollRepository {
               },
             },
           },
-          orderBy: {
+          // Nếu employeeId nhân viên tồn tại thì đang lấy lịch sử phiếu lương của nhân viên đó. nên sẽ sort theo ngày tạo phiếu lượng
+          orderBy: !search?.employeeId ? {
             employee: search?.orderBy && search?.orderType
               ? search.orderBy === OrderbyEmployeeEnum.CREATE
                 ? {createdAt: search.orderType}
@@ -199,6 +203,8 @@ export class PayrollRepository {
                     ? {lastName: search.orderType}
                     : {}
               : {stt: "asc"}
+          } : {
+            createdAt: "asc"
           }
         }),
       ]);
