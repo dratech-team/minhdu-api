@@ -9,7 +9,7 @@ import {SearchPayrollDto} from "./dto/search-payroll.dto";
 import {UpdatePayrollDto} from "./dto/update-payroll.dto";
 import {OnePayroll} from "./entities/payroll.entity";
 import {PayrollRepository} from "./payroll.repository";
-import {PAYSLIP_WORKDAY_HOLIDAY, RATE_OUT_OF_WORK_DAY, TAX,} from "../../../common/constant/salary.constant";
+import {PAYSLIP_WORKDAY_HOLIDAY, RATE_OUT_OF_WORK_DAY,} from "../../../common/constant/salary.constant";
 import {includesDatetime, isEqualDatetime,} from "../../../common/utils/isEqual-datetime.util";
 import {ALL_DAY, PARTIAL_DAY,} from "../../../common/constant/datetime.constant";
 import {exportExcel} from "../../../core/services/export.service";
@@ -507,7 +507,7 @@ export class PayrollService {
     // total: Ngày cuối cùng của tháng do mình quy định. Áp dụng đối với lương cố dịnh
     const confirmedAt = payroll.accConfirmedAt;
     if (!confirmedAt) {
-      if (payroll.isFlatSalary) {
+      if (payroll.isFlatSalary || payroll.employee.isFlatSalary) {
         total = 30;
       } else {
         if (isEqualDatetime(new Date(), payroll.createdAt, "month")) {
@@ -519,7 +519,9 @@ export class PayrollService {
         }
       }
     } else {
-      if (isEqualDatetime(confirmedAt, payroll.createdAt, "month")) {
+      if (payroll.isFlatSalary || payroll.employee.isFlatSalary) {
+        total = 30;
+      } else if (isEqualDatetime(confirmedAt, payroll.createdAt, "month")) {
         total = confirmedAt.getDate() + 1 - payroll.createdAt.getDate();
       } else if (moment(confirmedAt).isAfter(payroll.createdAt, "month")) {
         total = lastDatetime(payroll.createdAt).getDate() + confirmedAt.getDate() + 1;
