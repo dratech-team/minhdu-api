@@ -1019,10 +1019,11 @@ export class PayrollService {
       }
     }
 
-    const overtimeSalary = payroll.salaries
-      .filter(salary => salary.type === SalaryType.OVERTIME)
-      .map(salary => (basicSalary / workday) * salary.times)
-      .reduce((a, b) => a + b, 0);
+    const overtimeSalary = this.totalOvertime(payroll.salaries);
+    // payroll.salaries
+    // .filter(salary => salary.type === SalaryType.OVERTIME)
+    // .map(salary => (basicSalary / workday) * salary.times)
+    // .reduce((a, b) => a + b, 0);
 
     const absent = this.totalAbsent(payroll);
 
