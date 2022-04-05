@@ -88,7 +88,7 @@ export class PayrollController {
 
   @UseGuards(LoggerGuard)
   @Roles(RoleEnum.CAMP_ACCOUNTING)
-  @Patch("restore/:id")
+  @Patch("cancel-confirm/:id")
   cancelConfirm(@ReqProfile() profile: ProfileEntity, @Param("id") id: number) {
     return this.payrollService.restorePayslip(profile, +id, true);
   }

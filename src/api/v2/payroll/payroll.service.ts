@@ -210,7 +210,6 @@ export class PayrollService {
     if (found.paidAt) {
       throw new BadRequestException("Phiếu lương đã được thanh toán. Không thể khôi phục. Xin cảm ơn...");
     }
-
     const restored = isCancel
       ? await this.update(profile, id, {accConfirmedAt: null})
       : await this.update(profile, id, {
@@ -220,7 +219,6 @@ export class PayrollService {
         absent: null,
         bsc: null
       });
-
     if (!restored) {
       throw new BadRequestException(`Có lỗi xảy ra. Mã phiếu lương ${found.id}. Vui lòng liên hệ admin để được hỗ trợ. Xin cảm ơn.`);
     }
