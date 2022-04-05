@@ -2,7 +2,7 @@ import {IsBoolean, IsDate, IsEnum, IsNumber, IsOptional, IsString} from "class-v
 import {Transform, Type} from "class-transformer";
 import {CreatePayrollDto} from "./create-payroll.dto";
 import {PartialType} from "@nestjs/mapped-types";
-import { RecipeType } from "@prisma/client";
+import {RecipeType} from "@prisma/client";
 import * as moment from "moment";
 
 export class UpdatePayrollDto extends PartialType(CreatePayrollDto) {
@@ -35,6 +35,10 @@ export class UpdatePayrollDto extends PartialType(CreatePayrollDto) {
   @IsOptional()
   @Type(() => Number)
   readonly workday?: number;
+
+  @IsOptional()
+  @Type(() => Boolean)
+  readonly isFlatSalary?: boolean;
 
   @IsOptional()
   @IsEnum(RecipeType)

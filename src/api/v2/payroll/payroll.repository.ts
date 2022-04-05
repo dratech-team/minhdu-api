@@ -410,6 +410,7 @@ export class PayrollRepository {
           manConfirmedAt: updates?.manConfirmedAt,
           actualday: updates?.actualday,
           workday: updates?.workday,
+          isFlatSalary: updates?.isFlatSalary,
           branch: updates?.branchId ? (await this.prisma.branch.findUnique({where: {id: updates?.branchId}})).name : undefined,
           position: updates?.positionId ? (await this.prisma.position.findUnique({where: {id: updates?.positionId}})).name : undefined,
           taxed: updates?.taxed,
