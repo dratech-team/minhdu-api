@@ -12,7 +12,6 @@ import {JwtAuthGuard} from "../../../core/guard/jwt-auth.guard";
 import {RoleEnum} from "@prisma/client";
 import {Roles} from "../../../core/decorators/roles.decorator";
 import {ConfirmPayrollDto} from "./dto/confirm-payroll.dto";
-import {FilterTypeEnum} from "./entities/filter-type.enum";
 import {ItemExportDto} from "../../../common/interfaces/items-export.dto";
 import {SearchPayrollDto} from "./dto/search-payroll.dto";
 import {SearchExportDto} from "./dto/search-export.dto";
@@ -85,6 +84,13 @@ export class PayrollController {
   @Patch("restore/:id")
   restorePayslip(@ReqProfile() profile: ProfileEntity, @Param("id") id: number) {
     return this.payrollService.restorePayslip(profile, +id);
+  }
+
+  @UseGuards(LoggerGuard)
+  @Roles(RoleEnum.CAMP_ACCOUNTING)
+  @Patch("restore/:id")
+  cancelConfirm(@ReqProfile() profile: ProfileEntity, @Param("id") id: number) {
+    return this.payrollService.restorePayslip(profile, +id, true);
   }
 
   @UseGuards(LoggerGuard)

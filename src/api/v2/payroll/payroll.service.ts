@@ -191,7 +191,9 @@ export class PayrollService {
     return Object.assign(updated, {totalWorkday: this.totalActualDay(updated as OnePayroll)});
   }
 
-  async restorePayslip(profile: ProfileEntity, id: number) {
+  // isCancel: Hủy xác nhận tính lương.
+  // !isCancel khôi phục phiếu lương đã xác nhận
+  async restorePayslip(profile: ProfileEntity, id: number, isCancel?: boolean) {
     const found = await this.findOne(id);
     if (!found) {
       throw new NotFoundException(`Không tìm thấy id ${id}`);
@@ -209,13 +211,15 @@ export class PayrollService {
       throw new BadRequestException("Phiếu lương đã được thanh toán. Không thể khôi phục. Xin cảm ơn...");
     }
 
-    const restored = await this.update(profile, id, {
-      accConfirmedAt: null,
-      isEdit: true,
-      actualday: null,
-      absent: null,
-      bsc: null
-    });
+    const restored = isCancel
+      ? await this.update(profile, id, {accConfirmedAt: null})
+      : await this.update(profile, id, {
+        accConfirmedAt: null,
+        isEdit: true,
+        actualday: null,
+        absent: null,
+        bsc: null
+      });
 
     if (!restored) {
       throw new BadRequestException(`Có lỗi xảy ra. Mã phiếu lương ${found.id}. Vui lòng liên hệ admin để được hỗ trợ. Xin cảm ơn.`);
