@@ -22,7 +22,6 @@ export class SalaryHistoryService {
 
   async update(id: number, updates: UpdateSalaryHistoryDto) {
     try {
-      console.log(updates)
       return await this.prisma.salaryHistory.update({
         where: {id},
         data: {
