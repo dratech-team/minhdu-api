@@ -123,6 +123,25 @@ export class PayrollRepository {
   }
 
   async findAll(profile: ProfileEntity, search?: Partial<SearchPayrollDto>) {
+    this.prisma.payroll.findMany().then(payrolls => {
+      for (let i = 0; i < payrolls.length; i++) {
+        this.prisma.employee.findUnique({
+          where: {id: payrolls[i].employeeId},
+          include: {branch: true, position: true}
+        }).then(employee => {
+          this.prisma.payroll.update({
+            where: {id: payrolls[i].id},
+            data: {
+              isFlatSalary: employee.isFlatSalary,
+              branch: employee.branch.name,
+              position: employee.position.name,
+              recipeType: employee.recipeType,
+              workday: employee.workday,
+            }
+          }).then()
+        })
+      }
+    })
     const acc = await this.prisma.account.findUnique({
       where: {id: profile.id},
       include: {branches: true, role: true}
