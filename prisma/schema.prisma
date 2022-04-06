@@ -526,6 +526,7 @@ model Product {
   supplierId Int
   note       String?
   unit       ProductUnit
+  total      Float?           @default(0)
   timestamp  DateTime?        @default(now())
   stocks     Stock[]
   payments   PaymentHistory[]
