@@ -80,10 +80,7 @@ export class EmployeeRepository {
           err
         );
       } else {
-        throw new BadRequestException(
-          "Thêm nhân viên thất bại. Bạn đã tạo mới chức vụ hoặc đơn vị mới chưa. Vui lòng kiểm tra lại. ",
-          err
-        );
+        throw new BadRequestException(err);
       }
     }
   }
