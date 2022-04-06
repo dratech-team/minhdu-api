@@ -509,7 +509,7 @@ export class PayrollService {
     // total: Ngày cuối cùng của tháng do mình quy định. Áp dụng đối với lương cố dịnh
     const confirmedAt = payroll.accConfirmedAt;
     if (!confirmedAt) {
-      if (payroll.isFlatSalary || payroll.employee.isFlatSalary) {
+      if (payroll.isFlatSalary) {
         total = 30;
       } else {
         if (isEqualDatetime(new Date(), payroll.createdAt, "month")) {
@@ -521,7 +521,7 @@ export class PayrollService {
         }
       }
     } else {
-      if (payroll.isFlatSalary || payroll.employee.isFlatSalary) {
+      if (payroll.isFlatSalary) {
         total = 30;
       } else if (isEqualDatetime(confirmedAt, payroll.createdAt, "month")) {
         total = confirmedAt.getDate() + 1 - payroll.createdAt.getDate();
