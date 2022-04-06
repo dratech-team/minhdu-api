@@ -63,6 +63,7 @@ export class PayrollService {
               position: data[i].position,
               recipeType: data[i].recipeType,
               workday: data[i].workday,
+              isFlatSalary: data[i].isFlatSalary
             }));
             createds.push(created);
           }
@@ -84,6 +85,7 @@ export class PayrollService {
           position: employee.position,
           recipeType: employee.recipeType,
           workday: employee.workday,
+          isFlatSalary: employee.isFlatSalary,
         }), true);
       }
 

@@ -15,12 +15,16 @@ import {OrderbyEmployeeEnum} from "../employee/enums/orderby-employee.enum";
 import *as _ from "lodash";
 import {TAX} from "../../../common/constant/salary.constant";
 
+type CreatePayroll =
+  CreatePayrollDto
+  & { branch: Branch, position: Position, recipeType: RecipeType, workday: number, isFlatSalary: boolean };
+
 @Injectable()
 export class PayrollRepository {
   constructor(private readonly prisma: PrismaService) {
   }
 
-  async create(body: CreatePayrollDto & { branch: Branch, position: Position, recipeType: RecipeType, workday: number }, isInit?: boolean) {
+  async create(body: CreatePayroll, isInit?: boolean) {
     try {
       const payrolls = await this.prisma.payroll.findFirst({
         where: {
@@ -53,6 +57,7 @@ export class PayrollRepository {
           position: body.position.name,
           recipeType: body.recipeType,
           workday: body.workday,
+          isFlatSalary: body.isFlatSalary,
           tax: TAX,
           salaries: !isInit && salaries?.length
             ? {
