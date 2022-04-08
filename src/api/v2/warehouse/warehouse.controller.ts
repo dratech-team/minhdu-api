@@ -2,11 +2,11 @@ import { Controller, Get, Post, Body, Patch, Param, Delete } from '@nestjs/commo
 import { CreateWarehouseDto } from './dto/create-warehouse.dto';
 import { UpdateWarehouseDto } from './dto/update-warehouse.dto';
 import {ApiV2Constant} from "../../../common/constant/api.constant";
-import {ProductCategoryService} from "./product-category.service";
+import {WarehouseService} from "./warehouse.service";
 
-@Controller(ApiV2Constant.PRODUCT_CATEGORY)
-export class ProductCategoryController {
-  constructor(private readonly warehouseService: ProductCategoryService) {}
+@Controller(ApiV2Constant.WAREHOUSE)
+export class WarehouseController {
+  constructor(private readonly warehouseService: WarehouseService) {}
 
   @Post()
   create(@Body() createWarehouseDto: CreateWarehouseDto) {

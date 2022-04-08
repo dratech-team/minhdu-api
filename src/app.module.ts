@@ -44,9 +44,9 @@ import {CategoryModule} from './api/v2/category/category.module';
 import {ExportModule} from './api/v2/export/export.module';
 import {SupplierModule} from "./api/v2/supplier/supplier.module";
 import {StockModule} from './api/v2/stock/stock.module';
-import {ProductCategoryModule} from "./api/v2/product-category/product-category.module";
 import {SalaryHistoryModule} from "./api/v2/history/salary/salary-history.module";
 import { ConsignmentModule } from './api/v2/consignment/consignment.module';
+import { WarehouseModule } from "./api/v2/warehouse/warehouse.module";
 
 @Module({
   imports: [
@@ -84,7 +84,7 @@ import { ConsignmentModule } from './api/v2/consignment/consignment.module';
     AdminModule,
     OverviewModule,
     SupplierModule,
-    ProductCategoryModule,
+    WarehouseModule,
     ProductModule,
     CommodityTemplateModule,
     EggModule,
