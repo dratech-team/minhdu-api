@@ -46,6 +46,7 @@ import {SupplierModule} from "./api/v2/supplier/supplier.module";
 import {StockModule} from './api/v2/stock/stock.module';
 import {ProductCategoryModule} from "./api/v2/product-category/product-category.module";
 import {SalaryHistoryModule} from "./api/v2/history/salary/salary-history.module";
+import { ConsignmentModule } from './api/v2/consignment/consignment.module';
 
 @Module({
   imports: [
@@ -94,6 +95,7 @@ import {SalaryHistoryModule} from "./api/v2/history/salary/salary-history.module
     ExportModule,
     StockModule,
     SalaryHistoryModule,
+    ConsignmentModule,
   ],
   controllers: [AppController],
   providers: [PrismaService],

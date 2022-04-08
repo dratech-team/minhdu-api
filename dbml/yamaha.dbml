@@ -1,0 +1,973 @@
+//// ------------------------------------------------------
+//// THIS FILE WAS AUTOMATICALLY GENERATED (DO NOT MODIFY)
+//// ------------------------------------------------------
+
+Project "Minh du" {
+  database_type: 'sqlserver'
+  Note: 'Test project description'
+}
+
+Table Account {
+  id Int [pk, increment]
+  username String [unique, not null]
+  password String [not null]
+  role Role
+  roleId Int
+  managedBy RoleEnum
+  token String
+  appName AppEnum
+  loggedAt DateTime [default: `now()`]
+  ip String
+  branches Branch [not null]
+  timestamp DateTime [default: `now()`]
+}
+
+Table Degree {
+  id Int [pk, increment]
+  school String [not null]
+  type DegreeType [not null]
+  startedAt DateTime [not null]
+  endedAt DateTime [not null]
+  major String [not null]
+  formality FormalityType [not null]
+  level DegreeLevel
+  status DegreeStatus [not null]
+  note String
+  employee Employee [not null]
+  employeeId Int [not null]
+  timestamp DateTime [default: `now()`]
+}
+
+Table Bank {
+  id Int [pk, increment]
+  stk String
+  owner String [not null]
+  name String [not null]
+  employee Employee [not null]
+  employeeId Int [not null]
+  timestamp DateTime [default: `now()`]
+}
+
+Table Nation {
+  id Int [pk, increment]
+  code String [not null]
+  name String [not null]
+  provinces Province [not null]
+}
+
+Table Province {
+  id Int [pk, increment]
+  code Int [unique, not null]
+  codename String [unique, not null]
+  divisionType String [not null]
+  phoneCode Int [not null]
+  name String [not null]
+  nation Nation [not null]
+  nationId Int [not null]
+  districts District [not null]
+  customers Customer [not null]
+  orders Order [not null]
+}
+
+Table District {
+  id Int [pk, increment]
+  code Int [not null]
+  codename String [not null]
+  divisionType String [not null]
+  name String [not null]
+  province Province [not null]
+  provinceId Int [not null]
+  wards Ward [not null]
+  customers Customer [not null]
+  orders Order [not null]
+}
+
+Table Ward {
+  id Int [pk, increment]
+  code Int [not null]
+  codename String [not null]
+  divisionType String [not null]
+  name String [not null]
+  district District [not null]
+  districtId Int [not null]
+  employees Employee [not null]
+  customers Customer [not null]
+  relatives Relative [not null]
+  orders Order [not null]
+}
+
+Table Branch {
+  id Int [pk, increment]
+  code String [unique]
+  name String [unique, not null]
+  recipe RecipeType
+  address String
+  timestamp DateTime [default: `now()`]
+  employees Employee [not null]
+  overtimeTemplates OvertimeTemplate [not null]
+  workHistories WorkHistory [not null]
+  Account Account [not null]
+  allowances Salary [not null]
+  positions Position [not null]
+  icubators Incubator [not null]
+  basicTemplates BasicTemplate [not null]
+  Category Category [not null]
+  status BranchStatus [not null]
+  phone BranchPhone [not null]
+  stock Stock [not null]
+}
+
+Table BranchStatus {
+  id Int [pk, increment]
+  app AppEnum [not null]
+  status Boolean [not null, default: true]
+  branch Branch [not null]
+  branchId Int [not null]
+
+  indexes {
+    (app, branchId) [unique]
+  }
+}
+
+Table BranchPhone {
+  id Int [pk, increment]
+  app AppEnum [not null]
+  phone String [not null]
+  branch Branch
+  branchId Int
+
+  indexes {
+    (app, branchId) [unique]
+  }
+}
+
+Table Position {
+  id Int [pk, increment]
+  name String [unique, not null]
+  workday Int
+  branches Branch [not null]
+  employees Employee [not null]
+  templates OvertimeTemplate [not null]
+  holidays Holiday [not null]
+  basicTemplates BasicTemplate [not null]
+  timestamp DateTime [default: `now()`]
+  workHistories WorkHistory [not null]
+}
+
+Table Contract {
+  id Int [pk, increment]
+  contractId String
+  type ContractType [default: 'LIMITED']
+  name String
+  position String [not null]
+  createdAt DateTime [not null]
+  expiredAt DateTime
+  employee Employee [not null]
+  employeeId Int [not null]
+  timestamp DateTime [default: `now()`]
+}
+
+Table Category {
+  id Int [pk, increment]
+  name String [not null]
+  app String [not null]
+  branch Branch [not null]
+  branchId Int [not null]
+  employees Employee [not null]
+}
+
+Table Employee {
+  id Int [pk, increment]
+  code String [unique]
+  firstName String
+  lastName String [not null]
+  avt String
+  gender GenderType [not null]
+  phone String
+  workPhone String
+  birthday DateTime [not null]
+  birthplace String
+  identify String [unique]
+  idCardAt DateTime
+  issuedBy String
+  workday Int [not null]
+  ward Ward [not null]
+  wardId Int [not null]
+  address String [not null]
+  email String
+  religion String
+  ethnicity String
+  mst String
+  createdAt DateTime
+  workedAt DateTime
+  leftAt DateTime
+  isFlatSalary Boolean [default: false]
+  position Position [not null]
+  positionId Int [not null]
+  branch Branch [not null]
+  branchId Int [not null]
+  note String
+  facebook String
+  zalo String
+  type EmployeeType [default: 'FULL_TIME']
+  recipeType RecipeType [default: 'CT2']
+  banks Bank [not null]
+  routes Route [not null]
+  payrolls Payroll [not null]
+  contracts Contract [not null]
+  degrees Degree [not null]
+  relatives Relative [not null]
+  salaryHistories SalaryHistory [not null]
+  workHistories WorkHistory [not null]
+  timestamp DateTime [default: `now()`]
+  category Category
+  categoryId Int
+  stt Int
+}
+
+Table Holiday {
+  id Int [pk, increment]
+  name String
+  datetime DateTime [not null]
+  rate Float [default: 1]
+  price Float
+  isConstraint Boolean [default: true]
+  positions Position [not null]
+  timestamp DateTime [default: `now()`]
+}
+
+Table OvertimeTemplate {
+  id Int [pk, increment]
+  title String [not null]
+  type SalaryType [default: 'OVERTIME']
+  price Float [not null]
+  rate Float [default: 1]
+  unit DatetimeUnit [default: 'HOUR']
+  note String
+  positions Position [not null]
+  branches Branch [not null]
+  employeeType EmployeeType [default: 'FULL_TIME']
+  timestamp DateTime [default: `now()`]
+
+  indexes {
+    (title, type, price, rate, unit) [unique]
+  }
+}
+
+Table BasicTemplate {
+  id Int [pk, increment]
+  title String [not null]
+  price Float
+  type SalaryType [default: 'BASIC']
+  unit DatetimeUnit
+  partialDay PartialDay
+  position Position
+  positionId Int
+  branches Branch [not null]
+  timestamp DateTime [default: `now()`]
+
+  indexes {
+    (title, price) [unique]
+  }
+}
+
+Table Relative {
+  id Int [pk, increment]
+  firstName String
+  lastName String [not null]
+  gender GenderType [not null]
+  phone String
+  workPhone String
+  birthday DateTime
+  birthplace String
+  identify String [unique]
+  idCardAt DateTime
+  issuedBy String
+  ward Ward [not null]
+  wardId Int [not null]
+  address String
+  religion String
+  ethnicity String
+  mst String
+  career String
+  relationship RelationshipType
+  sos Boolean [default: false]
+  employee Employee [not null]
+  employeeId Int [not null]
+  timestamp DateTime [default: `now()`]
+}
+
+Table Customer {
+  id Int [pk, increment]
+  firstName String
+  lastName String [not null]
+  avt String
+  gender GenderType
+  phone String [not null]
+  workPhone String
+  birthday DateTime
+  birthplace String
+  identify String
+  idCardAt DateTime
+  issuedBy String
+  province Province [not null]
+  provinceId Int [not null]
+  district District
+  districtId Int
+  ward Ward
+  wardId Int
+  address String
+  email String
+  religion String
+  ethnicity String
+  mst String
+  type CustomerType
+  resource CustomerResource
+  isPotential Boolean [default: false]
+  note String
+  debt Float [default: 0]
+  orders Order [not null]
+  paymentHistories PaymentHistory [not null]
+  timestamp DateTime [default: `now()`]
+}
+
+Table PaymentHistory {
+  id Int [pk, increment]
+  total Float [not null]
+  paidAt DateTime [default: `now()`]
+  currency CurrencyUnit [default: 'VND']
+  payType PaymentType [default: 'CASH']
+  customer Customer
+  customerId Int
+  note String
+  order Order
+  orderId Int
+  product Product
+  productId Int
+  stock Stock
+  stockId Int
+}
+
+Table Commodity {
+  id Int [pk, increment]
+  code String [not null]
+  name String [not null]
+  unit CommodityUnit [not null]
+  price Float
+  amount Float [not null]
+  gift Float [default: 0]
+  more Float [default: 0]
+  closed Boolean [default: false]
+  order Order
+  orderId Int
+  route Route
+  routeId Int
+}
+
+Table CommodityTemplate {
+  id Int [pk, increment]
+  code String [unique, not null]
+  name String [not null]
+}
+
+Table Order {
+  id Int [pk, increment]
+  customer Customer [not null]
+  customerId Int [not null]
+  createdAt DateTime [not null]
+  endedAt DateTime
+  createdBy String
+  explain String
+  province Province [not null]
+  provinceId Int [not null]
+  district District
+  districtId Int
+  ward Ward
+  wardId Int
+  deliveredAt DateTime
+  hide Boolean [default: false]
+  total Float
+  canceledAt DateTime
+  deleted Boolean [default: false]
+  timestamp DateTime [default: `now()`]
+  note String
+  orderHistories OrderHistory [not null]
+  routes Route [not null]
+  commodities Commodity [not null]
+  paymentHistories PaymentHistory [not null]
+}
+
+Table OrderHistory {
+  id Int [pk, increment]
+  order Order [not null]
+  orderId Int [not null]
+  type String [not null]
+  note String
+  timestamp DateTime [default: `now()`]
+}
+
+Table Route {
+  id Int [pk, increment]
+  name String [not null]
+  startedAt DateTime [not null]
+  endedAt DateTime
+  employee Employee
+  employeeId Int
+  driver String
+  garage String
+  bsx String [not null]
+  deleted Boolean [default: false]
+  timestamp DateTime [default: `now()`]
+  orders Order [not null]
+  locations Location [not null]
+  commodities Commodity [not null]
+}
+
+Table Location {
+  id Int [pk, increment]
+  latitude String [not null]
+  longitude String [not null]
+  routes Route [not null]
+  routeId Int [not null]
+}
+
+Table Salary {
+  id Int [pk, increment]
+  title String [not null]
+  type SalaryType [not null]
+  times Float
+  price Float
+  unit DatetimeUnit
+  rate Float [default: 1]
+  datetime DateTime
+  forgot Boolean [default: false]
+  partial PartialDay [default: 'ALL_DAY']
+  note String
+  payroll Payroll
+  payrollId Int
+  branch Branch
+  branchId Int
+  salaryId Int
+  allowance Salary
+  allowances Salary [not null]
+  timestamp DateTime [default: `now()`]
+}
+
+Table SalaryHistory {
+  id Int [pk, increment]
+  title String [not null]
+  price Float [not null]
+  employee Employee [not null]
+  employeeId Int [not null]
+  createdAt DateTime [default: `now()`]
+  timestamp DateTime [default: `now()`]
+}
+
+Table WorkHistory {
+  id Int [pk, increment]
+  position Position [not null]
+  positionId Int [not null]
+  branch Branch [not null]
+  branchId Int [not null]
+  employee Employee [not null]
+  employeeId Int [not null]
+  createdAt DateTime [default: `now()`]
+}
+
+Table Payroll {
+  id Int [pk, increment]
+  employee Employee [not null]
+  employeeId Int [not null]
+  accConfirmedAt DateTime
+  isEdit Boolean [default: true]
+  manConfirmedAt DateTime
+  paidAt DateTime
+  workday Float
+  actualday Float
+  absent Float
+  bsc Float
+  branch String
+  position String
+  total Float
+  isFlatSalary Boolean
+  recipeType RecipeType
+  salaries Salary [not null]
+  note String
+  tax Float
+  taxed Boolean [default: true]
+  deletedAt DateTime
+  createdAt DateTime [default: `now()`]
+  timestamp DateTime [default: `now()`]
+}
+
+Table ProductCategory {
+  id Int [pk, increment]
+  name String [unique, not null]
+  products Product [not null]
+  timestamp DateTime [default: `now()`]
+}
+
+Table Supplier {
+  id Int [pk, increment]
+  name String [unique, not null]
+  products Product [not null]
+  timestamp DateTime [default: `now()`]
+}
+
+Table Product {
+  id Int [pk, increment]
+  name String [not null]
+  code String
+  barcode String
+  type ProductType [not null]
+  category ProductCategory [not null]
+  categoryId Int [not null]
+  supplier Supplier [not null]
+  supplierId Int [not null]
+  note String
+  unit ProductUnit [not null]
+  timestamp DateTime [default: `now()`]
+  stocks Stock [not null]
+  payments PaymentHistory [not null]
+}
+
+Table Stock {
+  id Int [pk, increment]
+  type StockType [not null]
+  createdAt DateTime [default: `now()`]
+  price Float [not null]
+  amount Float [not null]
+  accountedAt DateTime
+  billedAt DateTime
+  billCode String
+  discount Float
+  discountType DiscountType [default: 'PERCENT']
+  tax Float [default: 0]
+  productId Int [not null]
+  product Product [not null]
+  branch Branch [not null]
+  branchId Int [not null]
+  paymentHistories PaymentHistory [not null]
+  orderedAt DateTime [default: `now()`]
+  importedAt DateTime [default: `now()`]
+  completedAt DateTime [default: `now()`]
+  consignments Consignment [not null]
+  note String
+  attechments Attachment [not null]
+}
+
+Table Attachment {
+  id Int [pk, increment]
+  file String [not null]
+  stock Stock
+  stockId Int
+}
+
+Table Consignment {
+  id Int [pk, increment]
+  code String
+  mfg DateTime [not null]
+  exp DateTime [not null]
+  amount Float [not null]
+  createdAt DateTime [default: `now()`]
+  stocks Stock [not null]
+  stockId Int [not null]
+}
+
+Table TemplateConsignment {
+  id Int [pk, increment]
+  code String
+  mfg DateTime
+  exp DateTime
+  timestamp DateTime [default: `now()`]
+}
+
+Table Incubator {
+  id Int [pk, increment]
+  branch Branch [not null]
+  branchId Int [not null]
+  eggs Egg [not null]
+  createdAt DateTime [default: `now()`]
+  timestamp DateTime [default: `now()`]
+}
+
+Table Egg {
+  id Int [pk, increment]
+  type EggType [not null]
+  eggTypeId Int [unique, not null]
+  incubator Incubator [not null]
+  incubatorId Int [not null]
+  amount Int [not null]
+  timestamp DateTime [default: `now()`]
+}
+
+Table EggType {
+  id Int [pk, increment]
+  name String [unique, not null]
+  rated Boolean [default: true]
+  stt Int
+  added Boolean [default: true]
+  eggs Egg [not null]
+}
+
+Table System {
+  id Int [pk, increment]
+  title String [not null]
+  type SystemType [not null]
+  datetime DateTime [default: `now()`]
+}
+
+Table Role {
+  id Int [pk, increment]
+  name String [not null]
+  role RoleEnum [not null]
+  appName AppEnum
+  accounts Account [not null]
+}
+
+Table Application {
+  id Int [pk, increment]
+  name String [not null]
+  app AppEnum [not null]
+  link String [not null]
+  icon String [not null]
+}
+
+Table SystemHistory {
+  id Int [pk, increment]
+  appName AppEnum [not null]
+  name String [not null]
+  activity String [not null]
+  description String
+  ip String
+  body String
+  param String
+  createdAt DateTime [default: `now()`]
+}
+
+Table AccountToBranch {
+  branchesId Int [ref: > Branch.id]
+  accountId Int [ref: > Account.id]
+}
+
+Table BranchToOvertimeTemplate {
+  overtimetemplatesId Int [ref: > OvertimeTemplate.id]
+  branchesId Int [ref: > Branch.id]
+}
+
+Table BranchToPosition {
+  positionsId Int [ref: > Position.id]
+  branchesId Int [ref: > Branch.id]
+}
+
+Table BasicTemplateToBranch {
+  basictemplatesId Int [ref: > BasicTemplate.id]
+  branchesId Int [ref: > Branch.id]
+}
+
+Table OvertimeTemplateToPosition {
+  templatesId Int [ref: > OvertimeTemplate.id]
+  positionsId Int [ref: > Position.id]
+}
+
+Table HolidayToPosition {
+  holidaysId Int [ref: > Holiday.id]
+  positionsId Int [ref: > Position.id]
+}
+
+Table OrderToRoute {
+  routesId Int [ref: > Route.id]
+  ordersId Int [ref: > Order.id]
+}
+
+Enum ProductType {
+  HSD
+  NORMAL
+}
+
+Enum DiscountType {
+  CASH
+  PERCENT
+}
+
+Enum StockType {
+  IMPORT
+  EXPORT
+  MOVE
+  INVENTORY
+}
+
+Enum SystemType {
+  EMPLOYEE
+  PAYROLL
+  TEMPLATE
+  HISTORY
+  ORG_CHART
+}
+
+Enum PartialDay {
+  MORNING
+  AFTERNOON
+  NIGHT
+  ALL_DAY
+}
+
+Enum RecipeType {
+  CT1
+  CT2
+  CT3
+  CT4
+  CT5
+}
+
+Enum EmployeeType {
+  FULL_TIME
+  SEASONAL
+}
+
+Enum CurrencyUnit {
+  VND
+  USD
+  EUR
+  GBP
+  MYR
+  MMK
+  CNY
+  JPY
+}
+
+Enum PaymentType {
+  TRANSFER
+  CASH
+}
+
+Enum DegreeStatus {
+  GRADUATED
+  NOT_GRADUATED
+}
+
+Enum ActivityType {
+  UNKNOWN
+  CREATE
+  UPDATE
+  PATCH
+  FIND_ALL
+  FIND_ONE
+  DELETE
+}
+
+Enum AppEnum {
+  UNKNOWN
+  HR
+  SELL
+  WAREHOUSE
+  ADMIN
+}
+
+Enum RelationshipType {
+  HUSBAND
+  WIFE
+  FATHER
+  MOTHER
+  DAUGHTER
+  SON
+}
+
+Enum CustomerType {
+  RETAIL
+  AGENCY
+}
+
+Enum CommodityUnit {
+  KG
+  CON
+}
+
+Enum ProductUnit {
+  LIT
+  KG
+  BAO
+  VIEN
+  ORTHER
+}
+
+Enum CustomerResource {
+  RESEARCH
+  INTRODUCED
+  SELF_FIND
+  OTHER
+}
+
+Enum ContractType {
+  LIMITED
+  UNLIMITED
+}
+
+Enum DegreeLevel {
+  EXCELLENT
+  GOOD
+  AVERAGE
+  BELOW_AVERAGE
+}
+
+Enum DegreeType {
+  UNIVERSITY
+  COLLEGE
+  INTERMEDIATE
+  MASTER
+  PHILOSOPHY
+}
+
+Enum FormalityType {
+  FORMAL
+  INFORMAL
+  TRAINING
+  REMOTE
+}
+
+Enum SalaryType {
+  BASIC
+  BASIC_INSURANCE
+  STAY
+  ALLOWANCE
+  OVERTIME
+  ABSENT
+  HOLIDAY
+  DAY_OFF
+  PART_TIME
+  DEDUCTION
+  WFH
+}
+
+Enum DatetimeUnit {
+  MINUTE
+  HOUR
+  DAY
+  MONTH
+  TIMES
+}
+
+Enum GenderType {
+  MALE
+  FEMALE
+  OTHER
+}
+
+Enum RoleEnum {
+  ADMIN
+  CHIEF_ACCOUNTANT
+  ACCOUNTANT_CASH_FUND
+  ACCOUNTANT_MODERATION
+  SALESMAN
+  SALESMAN_EGG
+  IMPORTER_EXPORTER
+  CONSTRUCTION_DEPARTMENT
+  HUMAN_RESOURCE
+  CAMP_ACCOUNTING
+  CAMP_MANAGER
+  CAMP_DIRECTOR
+  HATCHERY_ACCOUNTING
+  HATCHERY_MANAGEMENT
+  WAREHOUSE
+  NONE
+}
+
+Ref: Account.roleId > Role.id
+
+Ref: Degree.employeeId > Employee.id [delete: Cascade]
+
+Ref: Bank.employeeId > Employee.id [delete: Cascade]
+
+Ref: Province.nationId > Nation.id
+
+Ref: District.provinceId > Province.id
+
+Ref: Ward.districtId > District.id
+
+Ref: BranchStatus.branchId > Branch.id
+
+Ref: BranchPhone.branchId > Branch.id
+
+Ref: Contract.employeeId > Employee.id [delete: Cascade]
+
+Ref: Category.branchId > Branch.id
+
+Ref: Employee.wardId > Ward.id
+
+Ref: Employee.positionId > Position.id
+
+Ref: Employee.branchId > Branch.id
+
+Ref: Employee.categoryId > Category.id
+
+Ref: BasicTemplate.positionId > Position.id
+
+Ref: Relative.wardId > Ward.id
+
+Ref: Relative.employeeId > Employee.id [delete: Cascade]
+
+Ref: Customer.provinceId > Province.id
+
+Ref: Customer.districtId > District.id
+
+Ref: Customer.wardId > Ward.id
+
+Ref: PaymentHistory.customerId > Customer.id
+
+Ref: PaymentHistory.orderId > Order.id
+
+Ref: PaymentHistory.productId > Product.id
+
+Ref: PaymentHistory.stockId > Stock.id
+
+Ref: Commodity.orderId > Order.id
+
+Ref: Commodity.routeId > Route.id
+
+Ref: Order.customerId > Customer.id
+
+Ref: Order.provinceId > Province.id
+
+Ref: Order.districtId > District.id
+
+Ref: Order.wardId > Ward.id
+
+Ref: OrderHistory.orderId > Order.id
+
+Ref: Route.employeeId > Employee.id [delete: Cascade]
+
+Ref: Location.routeId > Route.id
+
+Ref: Salary.payrollId > Payroll.id [delete: Cascade]
+
+Ref: Salary.branchId > Branch.id
+
+Ref: Salary.salaryId - Salary.id
+
+Ref: SalaryHistory.employeeId > Employee.id [delete: Cascade]
+
+Ref: WorkHistory.positionId > Position.id
+
+Ref: WorkHistory.branchId > Branch.id
+
+Ref: WorkHistory.employeeId > Employee.id [delete: Cascade]
+
+Ref: Payroll.employeeId > Employee.id [delete: Cascade]
+
+Ref: Product.categoryId > ProductCategory.id
+
+Ref: Product.supplierId > Supplier.id
+
+Ref: Stock.productId > Product.id
+
+Ref: Stock.branchId > Branch.id
+
+Ref: Attachment.stockId > Stock.id
+
+Ref: Consignment.stockId > Stock.id
+
+Ref: Incubator.branchId > Branch.id
+
+Ref: Egg.eggTypeId > EggType.id
+
+Ref: Egg.incubatorId > Incubator.id

@@ -5,7 +5,7 @@ import {CreateSupplierDto} from "./dto/create-supplier.dto";
 import {SearchSupplierDto} from "./dto/search-supplier.dto";
 import {UpdateSupplierDto} from "./dto/update-supplier.dto";
 
-@Controller(ApiV2Constant.PROVIDER)
+@Controller(ApiV2Constant.SUPPLIER)
 export class SupplierController {
   constructor(private readonly providerService: SupplierService) {
   }

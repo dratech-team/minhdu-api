@@ -393,7 +393,10 @@ export class PayrollRepository {
         if (!payroll.salaries.length) {
           throw new BadRequestException(`Không thể xác nhận phiếu lương rỗng`);
         }
-        if (!payroll.salaries.filter(salary => (salary.type === SalaryType.BASIC_INSURANCE || salary.type === SalaryType.BASIC)).length) {
+        if (
+          !payroll.salaries.filter(salary => (salary.type === SalaryType.BASIC_INSURANCE || salary.type === SalaryType.BASIC)).length
+          && payroll.recipeType !== RecipeType.CT3
+        ) {
           throw new BadRequestException(`Không thể xác nhận phiếu lương có lương cơ bản rỗng`);
         }
 

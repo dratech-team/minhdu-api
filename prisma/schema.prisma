@@ -2,6 +2,14 @@
    provider = "prisma-client-js"
 }
 
+//generator dbml {
+ // provider            = "prisma-dbml-generator"
+ // output              = "../dbml"
+ // outputName          = "yamaha.dbml"
+ // projectName         = "Minh du"
+ // projectDatabaseType = "sqlserver"
+ // projectNote         = "Test project description"
+//}
 
 datasource db {
   provider = "postgresql"
@@ -520,13 +528,14 @@ model Product {
   id         Int              @id @default(autoincrement())
   name       String
   code       String?
+  barcode    String?
+  type       ProductType
   category   ProductCategory  @relation(fields: [categoryId], references: [id])
   categoryId Int
   supplier   Supplier         @relation(fields: [supplierId], references: [id])
   supplierId Int
   note       String?
   unit       ProductUnit
-  total      Float?           @default(0)
   timestamp  DateTime?        @default(now())
   stocks     Stock[]
   payments   PaymentHistory[]
@@ -549,10 +558,9 @@ model Stock {
   branch           Branch           @relation(fields: [branchId], references: [id])
   branchId         Int
   paymentHistories PaymentHistory[]
-  approved         ApprovedStock?   @relation(fields: [approvedId], references: [id])
-  approvedId       Int?
-  ordered          OrderedStock?    @relation(fields: [orderedId], references: [id])
-  orderedId        Int?
+  orderedAt        DateTime?        @default(now())
+  importedAt       DateTime?        @default(now())
+  approvedAt       DateTime?        @default(now())
   completedAt      DateTime?        @default(now())
   consignments     Consignment[]
   note             String?
@@ -570,24 +578,20 @@ model Attachment {
 model Consignment {
   id        Int       @id @default(autoincrement())
   code      String?
+  mfg       DateTime // ngày sản xuất
+  exp       DateTime // hạn sử dụng
+  amount    Float
+  createdAt DateTime? @default(now())
+  stocks    Stock     @relation(fields: [stockId], references: [id])
+  stockId   Int
+}
+
+model TemplateConsignment {
+  id        Int       @id @default(autoincrement())
+  code      String?
   mfg       DateTime? // ngày sản xuất
   exp       DateTime? // hạn sử dụng
-  stocks    Stock[]
-  createdAt DateTime? @default(now())
-}
-
-model OrderedStock {
-  id        Int       @id @default(autoincrement())
-  orderer   String
-  stocks    Stock[]
-  createdAt DateTime? @default(now())
-}
-
-model ApprovedStock {
-  id        Int       @id @default(autoincrement())
-  approver  String
-  stocks    Stock[]
-  createdAt DateTime? @default(now())
+  timestamp DateTime? @default(now())
 }
 
 model Incubator {
@@ -623,6 +627,11 @@ model System {
   title    String
   type     SystemType
   datetime DateTime?  @default(now())
+}
+
+enum ProductType {
+  HSD
+  NORMAL
 }
 
 enum DiscountType {

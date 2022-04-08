@@ -1,6 +1,6 @@
 import {IsDate, IsEnum, IsNotEmpty, IsNumber, IsOptional, IsString,} from "class-validator";
 import {Transform, Type} from "class-transformer";
-import {ProductUnit} from "@prisma/client";
+import {ProductType, ProductUnit} from "@prisma/client";
 import * as moment from "moment";
 
 export class CreateProductDto {
@@ -63,6 +63,10 @@ export class CreateProductDto {
   @IsNumber()
   @Type(() => Number)
   readonly categoryId?: number;
+
+  @IsOptional()
+  @IsEnum(ProductType)
+  readonly productType: ProductType;
 
   @IsOptional()
   @IsString()

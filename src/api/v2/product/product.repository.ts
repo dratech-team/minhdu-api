@@ -17,6 +17,7 @@ export class ProductRepository {
           name: body.name,
           supplierId: body.supplierId,
           categoryId: body.categoryId,
+          type: body.productType,
           note: body?.note,
           unit: body?.unit,
         }
