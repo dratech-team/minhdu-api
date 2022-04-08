@@ -62,7 +62,7 @@ export class CreateProductDto {
   @IsOptional()
   @IsNumber()
   @Type(() => Number)
-  readonly categoryId?: number;
+  readonly warehouseId?: number;
 
   @IsOptional()
   @IsEnum(ProductType)

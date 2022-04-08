@@ -10,7 +10,7 @@ export class ProductCategoryService {
 
   async create(body: CreateWarehouseDto) {
     try {
-      return await this.prisma.productCategory.create({data: body});
+      return await this.prisma.warehouse.create({data: body});
     } catch (err) {
       console.error(err);
       throw new BadRequestException(err);
@@ -19,7 +19,7 @@ export class ProductCategoryService {
 
   async findAll() {
     try {
-      return await this.prisma.productCategory.findMany();
+      return await this.prisma.warehouse.findMany();
     } catch (err) {
       console.error(err);
       throw new BadRequestException(err);
@@ -28,7 +28,7 @@ export class ProductCategoryService {
 
   async findOne(id: number) {
     try {
-      return await this.prisma.productCategory.findUnique({where: {id}});
+      return await this.prisma.warehouse.findUnique({where: {id}});
     } catch (err) {
       console.error(err);
       throw new BadRequestException(err);
@@ -37,7 +37,7 @@ export class ProductCategoryService {
 
   async update(id: number, updates: UpdateWarehouseDto) {
     try {
-      return await this.prisma.productCategory.update({
+      return await this.prisma.warehouse.update({
         where: {id},
         data: updates
       });
@@ -49,7 +49,7 @@ export class ProductCategoryService {
 
   async remove(id: number) {
     try {
-      return await this.prisma.productCategory.delete({where: {id}});
+      return await this.prisma.warehouse.delete({where: {id}});
     } catch (err) {
       console.error(err);
       throw new BadRequestException(err);

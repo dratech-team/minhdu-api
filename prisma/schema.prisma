@@ -1,14 +1,14 @@
- generator client {
-   provider = "prisma-client-js"
+generator client {
+  provider = "prisma-client-js"
 }
 
 //generator dbml {
- // provider            = "prisma-dbml-generator"
- // output              = "../dbml"
- // outputName          = "yamaha.dbml"
- // projectName         = "Minh du"
- // projectDatabaseType = "sqlserver"
- // projectNote         = "Test project description"
+// provider            = "prisma-dbml-generator"
+// output              = "../dbml"
+// outputName          = "yamaha.dbml"
+// projectName         = "Minh du"
+// projectDatabaseType = "sqlserver"
+// projectNote         = "Test project description"
 //}
 
 datasource db {
@@ -124,7 +124,7 @@ model Branch {
   Category          Category[]
   status            BranchStatus[]
   phone             BranchPhone[]
-  stock             Stock[]
+  ioIReceipts       IoIReceipt[]
 }
 
 model BranchStatus {
@@ -339,20 +339,20 @@ model Customer {
 }
 
 model PaymentHistory {
-  id         Int           @id @default(autoincrement())
-  total      Float
-  paidAt     DateTime?     @default(now())
-  currency   CurrencyUnit? @default(VND)
-  payType    PaymentType?  @default(CASH)
-  customer   Customer?     @relation(fields: [customerId], references: [id])
-  customerId Int?
-  note       String?
-  order      Order?        @relation(fields: [orderId], references: [id])
-  orderId    Int?
-  product    Product?      @relation(fields: [productId], references: [id])
-  productId  Int?
-  stock      Stock?        @relation(fields: [stockId], references: [id])
-  stockId    Int?
+  id           Int           @id @default(autoincrement())
+  total        Float
+  paidAt       DateTime?     @default(now())
+  currency     CurrencyUnit? @default(VND)
+  payType      PaymentType?  @default(CASH)
+  customer     Customer?     @relation(fields: [customerId], references: [id])
+  customerId   Int?
+  note         String?
+  order        Order?        @relation(fields: [orderId], references: [id])
+  orderId      Int?
+  product      Product?      @relation(fields: [productId], references: [id])
+  productId    Int?
+  ioIReceipt   IoIReceipt?   @relation(fields: [ioIReceiptId], references: [id])
+  ioIReceiptId Int?
 }
 
 model Commodity {
@@ -510,7 +510,7 @@ model Payroll {
 // warehouse
 
 // loại kho văn phòng phẩm, thuốc, trứng...
-model ProductCategory {
+model Warehouse {
   id        Int       @id @default(autoincrement())
   name      String    @unique
   products  Product[]
@@ -525,23 +525,23 @@ model Supplier {
 }
 
 model Product {
-  id         Int              @id @default(autoincrement())
-  name       String
-  code       String?
-  barcode    String?
-  type       ProductType
-  category   ProductCategory  @relation(fields: [categoryId], references: [id])
-  categoryId Int
-  supplier   Supplier         @relation(fields: [supplierId], references: [id])
-  supplierId Int
-  note       String?
-  unit       ProductUnit
-  timestamp  DateTime?        @default(now())
-  stocks     Stock[]
-  payments   PaymentHistory[]
+  id          Int              @id @default(autoincrement())
+  name        String
+  code        String?
+  barcode     String?
+  type        ProductType
+  warehouse   Warehouse        @relation(fields: [warehouseId], references: [id])
+  warehouseId Int
+  supplier    Supplier         @relation(fields: [supplierId], references: [id])
+  supplierId  Int
+  note        String?
+  unit        ProductUnit
+  timestamp   DateTime?        @default(now())
+  ioIReceipts IoIReceipt[]
+  payments    PaymentHistory[]
 }
 
-model Stock {
+model IoIReceipt {
   id               Int              @id @default(autoincrement())
   type             StockType
   createdAt        DateTime?        @default(now())
@@ -568,29 +568,29 @@ model Stock {
 }
 
 model Attachment {
-  id      Int    @id @default(autoincrement())
-  file    String
-  stock   Stock? @relation(fields: [stockId], references: [id])
-  stockId Int?
+  id           Int         @id @default(autoincrement())
+  file         String
+  ioIReceipt   IoIReceipt? @relation(fields: [ioIReceiptId], references: [id])
+  ioIReceiptId Int?
 }
 
 // Lô hàng
 model Consignment {
-  id        Int       @id @default(autoincrement())
-  code      String?
-  mfg       DateTime // ngày sản xuất
-  exp       DateTime // hạn sử dụng
-  amount    Float
-  createdAt DateTime? @default(now())
-  stocks    Stock     @relation(fields: [stockId], references: [id])
-  stockId   Int
+  id           Int        @id @default(autoincrement())
+  code         String?
+  mfg          DateTime // ngày sản xuất
+  exp          DateTime // hạn sử dụng
+  amount       Float
+  createdAt    DateTime?  @default(now())
+  ioIReceipt   IoIReceipt @relation(fields: [ioIReceiptId], references: [id])
+  ioIReceiptId Int
 }
 
 model TemplateConsignment {
   id        Int       @id @default(autoincrement())
   code      String?
-  mfg       DateTime? // ngày sản xuất
-  exp       DateTime? // hạn sử dụng
+  mfg       DateTime // ngày sản xuất
+  exp       DateTime // hạn sử dụng
   timestamp DateTime? @default(now())
 }
 
