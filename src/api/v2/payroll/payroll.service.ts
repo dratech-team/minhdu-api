@@ -576,7 +576,7 @@ export class PayrollService {
         if (isAbsentInHoliday) {
           const holidays = salaries.filter((salary) => isEqualDatetime(salary.datetime, currentHoliday[i].datetime));
           holidays.forEach(holiday => {
-            worksInHoliday.push(Object.assign(holiday, {rate: currentHoliday[i].rate}));
+            worksInHoliday.push(Object.assign(holiday, {rate: currentHoliday[i].rate, title: currentHoliday[i].name}));
           });
         } else {
           worksInHoliday.push(Object.assign(currentHoliday[i], {
