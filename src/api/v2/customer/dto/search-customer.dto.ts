@@ -15,16 +15,7 @@ export class SearchCustomerDto {
 
   @IsOptional()
   @IsString()
-  readonly lastName: string;
-
-  @IsOptional()
-  @IsString()
-  readonly phone: string;
-
-  @IsOptional()
-  @IsNumber()
-  @Type(() => Number)
-  readonly nationId: number;
+  readonly search: string;
 
   @IsOptional()
   readonly type: CustomerType;

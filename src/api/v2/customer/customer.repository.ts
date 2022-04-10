@@ -63,8 +63,11 @@ export class CustomerRepository {
       const [total, data] = await Promise.all([
         this.prisma.customer.count({
           where: {
-            lastName: {startsWith: search?.lastName, mode: "insensitive"},
-            phone: {startsWith: search?.phone, mode: "insensitive"},
+            OR: [
+              {lastName: {contains: search?.search, mode: "insensitive"}},
+              {phone: {contains: search?.search, mode: "insensitive"}},
+              {province: {name: {contains: search?.search, mode: "insensitive"}}}
+            ],
             gender: search?.gender ? {in: search.gender} : {},
             type: search?.type ? {in: search.type} : {},
             resource: search?.resource ? {in: search?.resource} : {},
@@ -80,8 +83,11 @@ export class CustomerRepository {
           skip: search?.skip,
           take: search?.take,
           where: {
-            lastName: {startsWith: search?.lastName, mode: "insensitive"},
-            phone: {startsWith: search?.phone, mode: "insensitive"},
+            OR: [
+              {lastName: {contains: search?.search, mode: "insensitive"}},
+              {phone: {contains: search?.search, mode: "insensitive"}},
+              {province: {name: {contains: search?.search, mode: "insensitive"}}}
+            ],
             gender: search?.gender ? {in: search.gender} : {},
             type: search?.type ? {in: search.type} : {},
             resource: search?.resource ? {in: search.resource} : {},
