@@ -573,12 +573,18 @@ export class PayrollService {
           salaries.map((salary) => salary.datetime),
           currentHoliday[i].datetime
         );
+        // Ngày lễ Vắng nửa ngày hoặc 1 ngày
         if (isAbsentInHoliday) {
           const holidays = salaries.filter((salary) => isEqualDatetime(salary.datetime, currentHoliday[i].datetime));
           holidays.forEach(holiday => {
-            worksInHoliday.push(Object.assign(currentHoliday[i], {rate: currentHoliday[i].rate, title: currentHoliday[i].name}));
+            worksInHoliday.push(Object.assign(holiday, {
+              rate: currentHoliday[i].rate,
+              price: currentHoliday[i].price,
+              partial: holiday.partial === PartialDay.MORNING ? PartialDay.AFTERNOON : holiday.partial === PartialDay.AFTERNOON ? PartialDay.MORNING : PartialDay.ALL_DAY,
+              title: currentHoliday[i].name
+            }));
           });
-        } else {
+        } else { // Ngày lễ đi làm (Không vắng)
           worksInHoliday.push(Object.assign(currentHoliday[i], {
             times: ALL_DAY,
             title: currentHoliday[i].name,
