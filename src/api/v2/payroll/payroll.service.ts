@@ -309,9 +309,9 @@ export class PayrollService {
 
   private totalInOvertime(salary) {
     if (salary.unit === DatetimeUnit.DAY && salary.times > 1) {
-      return (salary.times * salary.price) + (salary.allowance?.price * salary.times);
+      return (salary.times * salary.price* (salary.rate || 1)) + (salary.allowance?.price * salary.times);
     } else {
-      return salary.times * salary.price + (salary.allowance?.price || 0);
+      return salary.times * salary.price * (salary.rate || 1) + (salary.allowance?.price || 0);
     }
   }
 
