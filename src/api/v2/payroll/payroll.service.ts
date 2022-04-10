@@ -579,7 +579,7 @@ export class PayrollService {
           holidays.forEach(holiday => {
             worksInHoliday.push(Object.assign(holiday, {
               rate: currentHoliday[i].rate,
-              price: currentHoliday[i].price,
+              price: holiday.partial !== PartialDay.ALL_DAY ? currentHoliday[i].price / 2 : currentHoliday[i].price > 0 ? 0 : currentHoliday[i].price,
               partial: holiday.partial === PartialDay.MORNING ? PartialDay.AFTERNOON : holiday.partial === PartialDay.AFTERNOON ? PartialDay.MORNING : PartialDay.ALL_DAY,
               title: currentHoliday[i].name
             }));
