@@ -16,7 +16,7 @@ export class SearchRouteDto {
 
   @IsOptional()
   @IsString()
-  readonly name: string;
+  readonly search: string;
 
   @IsOptional()
   @IsDate()
@@ -41,14 +41,6 @@ export class SearchRouteDto {
   @Type(() => Date)
   @Transform((val) => new Date(moment(val.value).utc().format('YYYY-MM-DD')))
   readonly endedAt_end: Date;
-
-  @IsOptional()
-  @IsString()
-  readonly driver: string;
-
-  @IsOptional()
-  @IsString()
-  readonly bsx: string;
 
   @IsOptional()
   @IsNumber()

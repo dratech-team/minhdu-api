@@ -63,7 +63,12 @@ export class RouteRepository {
       const [total, data] = await Promise.all([
         this.prisma.route.count({
           where: {
-            name: {contains: search?.name},
+            OR: [
+              {name: {contains: search?.search}},
+              {driver: {contains: search?.search}},
+              {bsx: {contains: search?.search}},
+              {orders: {some: {customer: {lastName: {contains: search?.search}}}}}
+            ],
             startedAt: search?.startedAt_start && search?.startedAt_end ? {
               gte: search.startedAt_start,
               lte: search.startedAt_end
@@ -78,8 +83,6 @@ export class RouteRepository {
                     lte: search.endedAt_end
                   }
               : {},
-            driver: {contains: search?.driver},
-            bsx: {contains: search?.bsx},
             deleted: false
           },
         }),
@@ -87,7 +90,12 @@ export class RouteRepository {
           skip: search?.skip,
           take: search?.take,
           where: {
-            name: {contains: search?.name},
+            OR: [
+              {name: {contains: search?.search}},
+              {driver: {contains: search?.search}},
+              {bsx: {contains: search?.search}},
+              {orders: {some: {customer: {lastName: {contains: search?.search}}}}}
+            ],
             startedAt: search?.startedAt_start && search?.startedAt_end ? {
               gte: search.startedAt_start,
               lte: search.startedAt_end
@@ -102,8 +110,6 @@ export class RouteRepository {
                     lte: search.endedAt_end
                   }
               : {},
-            driver: {contains: search?.driver},
-            bsx: {contains: search?.bsx},
             deleted: false
           },
           include: {
