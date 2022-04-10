@@ -251,7 +251,7 @@ model OvertimeTemplate {
   id           Int           @id @default(autoincrement())
   title        String
   type         SalaryType?   @default(OVERTIME)
-  price        Float
+  price        Float? // Nếu giá === null thì áp dụng đơn giá theo lương chuẩn
   rate         Float?        @default(1)
   unit         DatetimeUnit? @default(HOUR)
   note         String?
