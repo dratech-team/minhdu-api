@@ -21,7 +21,7 @@ export class OvertimeTemplateRepository {
           },
           branches: {connect: body.branchIds?.map(id => ({id}))},
           title: body.title,
-          price: body.price,
+          price: body.price || null,
           rate: body.rate,
           unit: body.unit,
           type: body.type,
@@ -113,12 +113,12 @@ export class OvertimeTemplateRepository {
         data: {
           title: updates.title,
           unit: updates.unit,
-          price: updates.price,
+          price: updates.price || null,
           rate: updates.rate,
           positions: {
             set: updates.positionIds?.map((id) => ({id})),
           },
-          branches: {set: updates?.branchIds.map(id => ({id}))},
+          branches: {set: updates?.branchIds?.map(id => ({id}))},
           employeeType: updates.employeeType,
         },
         include: {
