@@ -141,7 +141,6 @@ export class PayrollRepository {
           where: {
             employee: {
               id: search?.employeeId ? {in: +search.employeeId} : {},
-              leftAt: search?.isLeave ? {notIn: null} : {in: null},
               lastName: {contains: search?.name, mode: "insensitive"},
               type: search?.employeeType ? {in: search?.employeeType} : {},
               category: search?.categoryId ? {id: {in: search?.categoryId}} : {}
@@ -167,7 +166,6 @@ export class PayrollRepository {
           where: {
             employeeId: search?.employeeId ? {in: +search.employeeId} : {},
             employee: {
-              leftAt: search?.isLeave ? {notIn: null} : {in: null},
               lastName: {contains: search?.name, mode: "insensitive"},
               type: search?.employeeType ? {in: search?.employeeType} : {},
               category: search?.categoryId ? {id: {in: search?.categoryId}} : {}

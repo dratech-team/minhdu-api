@@ -53,7 +53,8 @@ export class PayrollService {
             createdAt: {
               datetime: lastDatetime(body.createdAt),
               compare: "lte"
-            }
+            },
+            isLeft: false
           }
         );
         const createds = [];
