@@ -508,10 +508,10 @@ export class PayrollService {
       ?.filter((salary) => salary.type === SalaryType.OVERTIME)
       ?.map((salary) => {
         if (salary?.price) {
-          return salary.price * salary.times + (salary.allowance?.price * (salary.allowance?.times || 1) || 0);
+          return salary.price * salary.times * (salary.rate || 1) + (salary.allowance?.price * (salary.allowance?.times || 1) || 0);
         }
-        // Tăng ca đêm cho nhân viên văn phòng chính
-        return this.totalBasicSalary(salaries) / 26 * salary.times;
+        // Tăng ca đêm cho nhân viên văn phòng chính hoặc tăng ca theo lô
+        return this.totalBasicSalary(salaries) / 26 * salary.times * (salary.rate || 1);
       })
       ?.reduce((a, b) => a + b, 0);
   }
