@@ -1,5 +1,14 @@
 import {BadRequestException, ConflictException, Injectable, NotFoundException} from "@nestjs/common";
-import {DatetimeUnit, EmployeeType, Payroll, RecipeType, RoleEnum, Salary, SalaryType,} from "@prisma/client";
+import {
+  DatetimeUnit,
+  EmployeeType,
+  PartialDay,
+  Payroll,
+  RecipeType,
+  RoleEnum,
+  Salary,
+  SalaryType,
+} from "@prisma/client";
 import {Response} from "express";
 import {ProfileEntity} from "../../../common/entities/profile.entity";
 import {firstDatetime, lastDatetime, lastDayOfMonth} from "../../../utils/datetime.util";
@@ -557,20 +566,18 @@ export class PayrollService {
     }
     if (currentHoliday && currentHoliday.length) {
       for (let i = 0; i < currentHoliday.length; i++) {
-        const salaries = payroll.salaries.filter(
-          (salary) => salary.type === SalaryType.ABSENT || salary.type === SalaryType.DAY_OFF
-        );
+        const salaries = payroll.salaries.filter((salary) => {
+          return (salary.type === SalaryType.ABSENT || salary.type === SalaryType.DAY_OFF);
+        });
         const isAbsentInHoliday = includesDatetime(
           salaries.map((salary) => salary.datetime),
           currentHoliday[i].datetime
         );
         if (isAbsentInHoliday) {
-          const salary = salaries.filter((salary) => isEqualDatetime(salary.datetime, currentHoliday[i].datetime));
-          if (salary.length === 1 && salary[0].times === PARTIAL_DAY && salary[0].unit === DatetimeUnit.DAY) {
-            /// Warning: update lại rate để tránh trùng với rate ngày nghỉ
-
-            worksInHoliday.push(Object.assign(salary, {times: PARTIAL_DAY, rate: currentHoliday[i].rate}));
-          }
+          const holidays = salaries.filter((salary) => isEqualDatetime(salary.datetime, currentHoliday[i].datetime));
+          holidays.forEach(holiday => {
+            worksInHoliday.push(Object.assign(holiday, {rate: currentHoliday[i].rate}));
+          });
         } else {
           worksInHoliday.push(Object.assign(currentHoliday[i], {
             times: ALL_DAY,
