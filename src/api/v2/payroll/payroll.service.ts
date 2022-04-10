@@ -579,9 +579,10 @@ export class PayrollService {
           holidays.forEach(holiday => {
             worksInHoliday.push(Object.assign(holiday, {
               rate: currentHoliday[i].rate,
-              price: holiday.partial === PartialDay.ALL_DAY && currentHoliday[i].price > 0 ? 0 : currentHoliday[i].price, // Đơn giá đi làm ngày lễ áp dụng dối với nhân viên không phải trại chăn nuôi => nếu ngày đó vắng thì 0đ
+              price: currentHoliday[i].price, // Đơn giá đi làm ngày lễ áp dụng dối với nhân viên không phải trại chăn nuôi => nếu ngày đó vắng thì 0đ
               partial: holiday.partial === PartialDay.MORNING ? PartialDay.AFTERNOON : holiday.partial === PartialDay.AFTERNOON ? PartialDay.MORNING : PartialDay.ALL_DAY,
-              title: currentHoliday[i].name
+              title: currentHoliday[i].name,
+              times: holiday.partial === PartialDay.ALL_DAY ? 0 : holiday.times,
             }));
           });
         } else { // Ngày lễ đi làm (Không vắng)
