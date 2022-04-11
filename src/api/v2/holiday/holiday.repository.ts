@@ -92,10 +92,10 @@ export class HolidayRepository extends BaseRepository<Holiday, any> {
       ]);
       return {
         total,
-        data: data.map(holiday => ({
+        data: positionIds.length ? data.map(holiday => ({
           ...holiday,
           positions: holiday.positions.filter(position => positionIds.includes(position.id))
-        }))
+        })) : data
       };
     } catch (err) {
       console.error(err);
