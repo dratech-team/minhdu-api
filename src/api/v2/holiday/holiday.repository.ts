@@ -3,9 +3,9 @@ import {PrismaService} from "../../../prisma.service";
 import {CreateHolidayDto} from "./dto/create-holiday.dto";
 import {UpdateHolidayDto} from "./dto/update-holiday.dto";
 import {SearchHolidayDto} from "./dto/search-holiday.dto";
-import {firstDatetime, lastDatetime} from "../../../utils/datetime.util";
-import {Position, SalaryType} from "@prisma/client";
+import {SalaryType} from "@prisma/client";
 import {ProfileEntity} from "../../../common/entities/profile.entity";
+import * as _ from 'lodash';
 
 @Injectable()
 export class HolidayRepository {
@@ -51,12 +51,20 @@ export class HolidayRepository {
 
   async findAll(take: number, skip: number, profile: ProfileEntity, search: Partial<SearchHolidayDto>) {
     try {
+      const acc = await this.prisma.account.findUnique({
+        where: {id: profile.id},
+        include: {branches: {include: {positions: true}}}
+      });
+      const positionIds = _.flattenDeep(acc.branches.map(branch => branch.positions.map(position => position.id)));
       const [total, data] = await Promise.all([
         this.prisma.holiday.count({
           where: {
             name: {startsWith: search?.name},
             datetime: search?.datetime || undefined,
             rate: search?.rate || undefined,
+            positions: {
+              some: {id: {in: positionIds}}
+            }
           },
         }),
         this.prisma.holiday.findMany({
@@ -66,6 +74,9 @@ export class HolidayRepository {
             name: {startsWith: search?.name},
             datetime: search?.datetime || undefined,
             rate: search?.rate || undefined,
+            positions: {
+              some: {id: {in: positionIds}}
+            }
           },
           include: {
             positions: true,
@@ -75,7 +86,13 @@ export class HolidayRepository {
           }
         }),
       ]);
-      return {total, data};
+      return {
+        total,
+        data: data.map(holiday => ({
+          ...holiday,
+          positions: holiday.positions.filter(position => positionIds.includes(position.id))
+        }))
+      };
     } catch (err) {
       console.error(err);
       throw new BadRequestException(err);
