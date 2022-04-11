@@ -1,5 +1,5 @@
-import {IsNotEmpty, IsNumber, IsOptional, IsString} from "class-validator";
-import {Type} from "class-transformer";
+import {IsDate, IsNotEmpty, IsNumber, IsOptional, IsString} from "class-validator";
+import {Transform, Type} from "class-transformer";
 
 export class SearchHolidayDto {
   @IsNotEmpty()
@@ -16,6 +16,13 @@ export class SearchHolidayDto {
   @IsString()
   readonly name: string;
 
+  @IsOptional()
+  @IsDate()
+  @Transform(({value}) => {
+    if (value) {
+      return new Date(value);
+    }
+  })
   readonly datetime: Date;
 
   @IsOptional()

@@ -67,6 +67,7 @@ export class HolidayRepository extends BaseRepository<Holiday, any> {
         this.prisma.holiday.count({
           where: {
             name: {contains: search?.name, mode: "insensitive"},
+            datetime: search?.datetime ? {in: search?.datetime} : {},
             positions: positions.length ? {
               some: {name: {in: positions.concat(search?.position)}}
             } : {}
@@ -77,6 +78,7 @@ export class HolidayRepository extends BaseRepository<Holiday, any> {
           skip: search?.skip,
           where: {
             name: {contains: search?.name, mode: "insensitive"},
+            datetime: search?.datetime ? {in: search?.datetime} : {},
             positions: positions.length ? {
               some: {name: {in: positions.concat(search?.position)}}
             } : {}
