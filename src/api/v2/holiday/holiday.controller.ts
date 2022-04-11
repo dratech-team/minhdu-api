@@ -63,7 +63,7 @@ export class HolidayController {
   }
 
   @UseGuards(LoggerGuard)
-  @Roles(RoleEnum.ADMIN, RoleEnum.HUMAN_RESOURCE, RoleEnum.CAMP_ACCOUNTING)
+  @Roles(RoleEnum.ADMIN, RoleEnum.HUMAN_RESOURCE)
   @Delete(':id')
   remove(@Param('id') id: string) {
     return this.holidayService.remove(+id);
