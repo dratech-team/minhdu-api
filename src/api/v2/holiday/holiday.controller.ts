@@ -13,6 +13,7 @@ import {ReqProfile} from "../../../core/decorators/req-profile.decorator";
 import {ProfileEntity} from "../../../common/entities/profile.entity";
 import {SearchExportDto} from "../payroll/dto/search-export.dto";
 import {ItemExportDto} from "../../../common/interfaces/items-export.dto";
+import {SearchHolidayDto} from "./dto/search-holiday.dto";
 
 @UseGuards(JwtAuthGuard, ApiKeyGuard, RolesGuard)
 @Controller('v2/holiday')
@@ -31,19 +32,9 @@ export class HolidayController {
   @Get()
   findAll(
     @ReqProfile() profile: ProfileEntity,
-    @Query("take") take: number,
-    @Query("skip") skip: number,
-    @Query("name") name: string,
-    @Query("datetime", ParseDatetimePipe) datetime: any,
-    @Query("rate", ParseDatetimePipe) rate: number,
-    @Query("department") department: string,
+    @Query() search: SearchHolidayDto,
   ) {
-    return this.holidayService.findAll(+take, +skip, profile, {
-      name,
-      datetime,
-      rate: +rate,
-      department,
-    });
+    return this.holidayService.findAll(profile, search);
   }
 
   @Roles(RoleEnum.ADMIN, RoleEnum.HUMAN_RESOURCE, RoleEnum.CAMP_ACCOUNTING)

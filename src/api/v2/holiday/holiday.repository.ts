@@ -52,34 +52,33 @@ export class HolidayRepository extends BaseRepository<Holiday, any> {
     }
   }
 
-  async findAll(take: number, skip: number, profile: ProfileEntity, search: Partial<SearchHolidayDto>) {
+  async findAll(profile: ProfileEntity, search: Partial<SearchHolidayDto>) {
     try {
       const acc = await this.prisma.account.findUnique({
         where: {id: profile.id},
         include: {branches: {include: {positions: true}}}
       });
-      const positionIds = _.flattenDeep(acc.branches.map(branch => branch.positions.map(position => position.id)));
 
+      const positions = _.flattenDeep(acc.branches.map(branch => branch.positions.map(position => position.name)));
+      if (search?.position) {
+        positions.push(search.position);
+      }
       const [total, data] = await Promise.all([
         this.prisma.holiday.count({
           where: {
-            name: {startsWith: search?.name},
-            datetime: search?.datetime || undefined,
-            rate: search?.rate || undefined,
-            positions: positionIds.length ? {
-              some: {id: {in: positionIds}}
+            name: {contains: search?.name, mode: "insensitive"},
+            positions: positions.length ? {
+              some: {name: {in: positions.concat(search?.position)}}
             } : {}
           },
         }),
         this.prisma.holiday.findMany({
-          take: take || undefined,
-          skip: skip || undefined,
+          take: search?.take,
+          skip: search?.skip,
           where: {
-            name: {startsWith: search?.name},
-            datetime: search?.datetime || undefined,
-            rate: search?.rate || undefined,
-            positions: positionIds.length ? {
-              some: {id: {in: positionIds}}
+            name: {contains: search?.name, mode: "insensitive"},
+            positions: positions.length ? {
+              some: {name: {in: positions.concat(search?.position)}}
             } : {}
           },
           include: {
@@ -92,9 +91,9 @@ export class HolidayRepository extends BaseRepository<Holiday, any> {
       ]);
       return {
         total,
-        data: positionIds.length ? data.map(holiday => ({
+        data: positions.length ? data.map(holiday => ({
           ...holiday,
-          positions: holiday.positions.filter(position => positionIds.includes(position.id))
+          positions: holiday.positions.filter(position => positions.includes(position.name))
         })) : data
       };
     } catch (err) {
