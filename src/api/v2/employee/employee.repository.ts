@@ -7,10 +7,14 @@ import {Sort, UpdateEmployeeDto} from "./dto/update-employee.dto";
 import {firstDatetime, lastDatetime} from "../../../utils/datetime.util";
 import {SearchEmployeeByOvertimeDto} from "./dto/search-employee-by-overtime.dto";
 import {OrderbyEmployeeEnum} from "./enums/orderby-employee.enum";
+import {BaseRepository} from "../../../common/repository/base.repository";
+import {Employee} from "@prisma/client";
+import {Response} from "express";
 
 @Injectable()
-export class EmployeeRepository {
+export class EmployeeRepository extends BaseRepository<Employee, any> {
   constructor(private readonly prisma: PrismaService) {
+    super();
   }
 
   async create(body: CreateEmployeeDto) {
@@ -468,5 +472,9 @@ export class EmployeeRepository {
       console.error(err);
       throw new BadRequestException(err);
     }
+  }
+
+  export(response: Response, profile: ProfileEntity, header: { title: string, filename: string }, items: any[], data: any): Promise<Response<any, Record<string, any>>> {
+    return super.export(response, profile, {filename: header.filename, title: header.title}, items, data);
   }
 }

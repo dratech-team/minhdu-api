@@ -106,4 +106,25 @@ const employee = {
   address: `Địa chỉ`,
 };
 
-export const ExportConstant = {payroll, timesheet, seasonal, overtime, basic, stay, allowance, absent, employee};
+const holiday = {
+  employeeId: "Mã nhân viên",
+  lastName: "Họ và tên",
+  branch: `Đơn vị`,
+  position: `Chức vụ`,
+  rate: `Hệ số`,
+  price: `Giá`,
+  total: "Tổng tiền",
+};
+
+export const ExportConstant = {
+  payroll,
+  timesheet,
+  seasonal,
+  overtime,
+  basic,
+  stay,
+  allowance,
+  absent,
+  employee,
+  holiday
+};

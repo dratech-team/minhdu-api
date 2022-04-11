@@ -47,6 +47,11 @@ export class ExportService {
       }
       case ExportTypeEnum.EMPLOYEES: {
         customs = ExportConstant.employee;
+        break;
+      }
+      case ExportTypeEnum.HOLIDAY: {
+        customs = ExportConstant.holiday;
+        break;
       }
     }
     return Object.keys(customs).map((key) => ({key: key, value: customs[key]}));
