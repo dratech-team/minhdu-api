@@ -3,13 +3,16 @@ import {PrismaService} from "../../../prisma.service";
 import {CreateHolidayDto} from "./dto/create-holiday.dto";
 import {UpdateHolidayDto} from "./dto/update-holiday.dto";
 import {SearchHolidayDto} from "./dto/search-holiday.dto";
-import {SalaryType} from "@prisma/client";
+import {Holiday, SalaryType} from "@prisma/client";
 import {ProfileEntity} from "../../../common/entities/profile.entity";
 import * as _ from 'lodash';
+import {BaseRepository} from "../../../common/repository/base.repository";
+import {Response} from 'express';
 
 @Injectable()
-export class HolidayRepository {
+export class HolidayRepository extends BaseRepository<Holiday, any> {
   constructor(private readonly prisma: PrismaService) {
+    super();
   }
 
   async create(body: CreateHolidayDto) {
@@ -56,15 +59,16 @@ export class HolidayRepository {
         include: {branches: {include: {positions: true}}}
       });
       const positionIds = _.flattenDeep(acc.branches.map(branch => branch.positions.map(position => position.id)));
+
       const [total, data] = await Promise.all([
         this.prisma.holiday.count({
           where: {
             name: {startsWith: search?.name},
             datetime: search?.datetime || undefined,
             rate: search?.rate || undefined,
-            positions: {
+            positions: positionIds.length ? {
               some: {id: {in: positionIds}}
-            }
+            } : {}
           },
         }),
         this.prisma.holiday.findMany({
@@ -74,9 +78,9 @@ export class HolidayRepository {
             name: {startsWith: search?.name},
             datetime: search?.datetime || undefined,
             rate: search?.rate || undefined,
-            positions: {
+            positions: positionIds.length ? {
               some: {id: {in: positionIds}}
-            }
+            } : {}
           },
           include: {
             positions: true,
@@ -172,6 +176,10 @@ export class HolidayRepository {
       console.error(err);
       throw new BadRequestException(err);
     }
+  }
+
+  export(response: Response, profile: ProfileEntity, header: { title: string; filename: string }, items: any[], data: any): Promise<Response<any, Record<string, any>>> {
+    return super.export(response, profile, header, items, data);
   }
 
 }
