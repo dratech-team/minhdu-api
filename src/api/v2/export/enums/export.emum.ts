@@ -1,6 +1,7 @@
 export enum ExportTypeEnum {
   TIME_SHEET = "TIME_SHEET",
   PAYROLL = "PAYROLL",
+  HOLIDAY = "HOLIDAY",
   SEASONAL = "SEASONAL",
   BASIC = "BASIC",
   STAY = "STAY",

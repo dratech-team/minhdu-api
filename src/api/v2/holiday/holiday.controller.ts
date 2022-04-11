@@ -1,4 +1,4 @@
-import {Controller, Get, Post, Body, Patch, Param, Delete, Query, UseGuards} from '@nestjs/common';
+import {Controller, Get, Post, Body, Patch, Param, Delete, Query, UseGuards, Res} from '@nestjs/common';
 import {HolidayService} from './holiday.service';
 import {CreateHolidayDto} from './dto/create-holiday.dto';
 import {UpdateHolidayDto} from './dto/update-holiday.dto';
@@ -11,6 +11,8 @@ import {Roles} from "../../../core/decorators/roles.decorator";
 import {RoleEnum} from "@prisma/client";
 import {ReqProfile} from "../../../core/decorators/req-profile.decorator";
 import {ProfileEntity} from "../../../common/entities/profile.entity";
+import {SearchExportDto} from "../payroll/dto/search-export.dto";
+import {ItemExportDto} from "../../../common/interfaces/items-export.dto";
 
 @UseGuards(JwtAuthGuard, ApiKeyGuard, RolesGuard)
 @Controller('v2/holiday')
