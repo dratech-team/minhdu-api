@@ -2,14 +2,14 @@ generator client {
   provider = "prisma-client-js"
 }
 
-//generator dbml {
-// provider            = "prisma-dbml-generator"
-// output              = "../dbml"
-// outputName          = "yamaha.dbml"
-// projectName         = "Minh du"
-// projectDatabaseType = "sqlserver"
-// projectNote         = "Test project description"
-//}
+// generator dbml {
+//   provider            = "prisma-dbml-generator"
+//   output              = "../dbml"
+//   outputName          = "minhdu.dbml"
+//   projectName         = "Minh du"
+//   projectDatabaseType = "postgres"
+//   projectNote         = "Test project description"
+// }
 
 datasource db {
   provider = "postgresql"
@@ -278,6 +278,16 @@ model BasicTemplate {
   @@unique([title, price])
 }
 
+model SalarySetting {
+  id          Int                @id @default(autoincrement())
+  title       String
+  type        SalaryType
+  rate        Float
+  price       Float?
+  reference   SalaryReference?
+  constraints SalaryType[]
+}
+
 model Relative {
   id           Int               @id @default(autoincrement())
   firstName    String?
@@ -460,6 +470,11 @@ model Salary {
   timestamp  DateTime?     @default(now())
 }
 
+model SalaryRecipe {
+  id Int @id @default(autoincrement())
+
+}
+
 model SalaryHistory {
   id         Int       @id @default(autoincrement())
   title      String
@@ -627,6 +642,13 @@ model System {
   title    String
   type     SystemType
   datetime DateTime?  @default(now())
+}
+
+enum SalaryReference {
+  PRICE // Đơn giá. Nhập vào giá
+  STANDARD // Lương chuẩn. Tổng lương cơ bản
+  BASIC // Lương cơ bản. Tổng lương cơ bản - Bảo hiểm
+  INSURANCE // Lương bảo hiểm
 }
 
 enum ProductType {

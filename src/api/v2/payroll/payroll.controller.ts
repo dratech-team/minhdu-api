@@ -42,7 +42,8 @@ export class PayrollController {
   )
   findAll(
     @ReqProfile() profile: ProfileEntity,
-    @Query() search: SearchPayrollDto) {
+    @Query() search: SearchPayrollDto
+  ) {
     return this.payrollService.findAll(profile, search);
   }
 
