@@ -309,7 +309,7 @@ export class PayrollService {
 
   private totalInOvertime(salary) {
     if (salary.unit === DatetimeUnit.DAY && salary.times > 1) {
-      return (salary.times * salary.price* (salary.rate || 1)) + (salary.allowance?.price * salary.times);
+      return (salary.times * salary.price * (salary.rate || 1)) + (salary.allowance?.price * salary.times);
     } else {
       return salary.times * salary.price * (salary.rate || 1) + (salary.allowance?.price || 0);
     }
@@ -503,15 +503,15 @@ export class PayrollService {
       ?.reduce((a, b) => a + b, 0);
   }
 
-  totalOvertime(salaries: FullSalary[]) {
-    return salaries
+  totalOvertime(payroll: any) {
+    return payroll.salaries
       ?.filter((salary) => salary.type === SalaryType.OVERTIME)
       ?.map((salary) => {
         if (salary?.price) {
-          return salary.price * salary.times * (salary.rate || 1) + (salary.allowance?.price * (salary.allowance?.times || 1) || 0);
+          return (salary.price * salary.times * (salary.rate || 1)) + ((salary.allowance?.price || 0) * (salary.allowance?.times || 1));
         }
         // Tăng ca đêm cho nhân viên văn phòng chính hoặc tăng ca theo lô
-        return this.totalBasicSalary(salaries) / 26 * salary.times * (salary.rate || 1);
+        return this.totalBasicSalary(payroll.salaries) / payroll.workday * salary.times * (salary.rate || 1);
       })
       ?.reduce((a, b) => a + b, 0);
   }
@@ -561,6 +561,7 @@ export class PayrollService {
     let worksNotInHoliday = [];
 
     const payroll = await this.findOne(payrollId);
+    const basic = payroll.salaries.find(salary => salary.type === SalaryType.BASIC_INSURANCE);
     const currentHoliday = await this.repository.findCurrentHolidays(payroll.createdAt, payroll.employee.positionId);
     if (!currentHoliday.length && isValidate) {
       throw new NotFoundException(`Không tồn tại ngày lễ hợp lệ trong tháng ${moment(payroll.createdAt).format("MM/YYYY")}`);
@@ -732,7 +733,7 @@ export class PayrollService {
     const allowanceTotal = allowanceMonthSalary + allowanceDayByActual;
 
     // overtime
-    const overtime = this.totalOvertime(payroll.salaries);
+    const overtime = this.totalOvertime(payroll);
 
     // logic hiện tại. Nếu tháng đó có 1 ngày k ràng buộc bởi ngày công chuẩn. thì nguyên tháng sẽ đc k ràng buộc
     const isConstraint = currentHoliday.every(holiday => {
@@ -760,26 +761,6 @@ export class PayrollService {
     const deduction = absent.minute * ((basicSalary + this.totalStaySalary(payroll.salaries)) / workday / 8 / 60) + this.totalDeduction(payroll);
 
     const total = Math.round((payslipNormalDay + payslipInHoliday + payslipNotInHoliday + payslipOutOfWorkday + staySalary + allowanceTotal + overtime - tax - bscSalary - deduction) / 1000) * 1000;
-
-    /// FIXME: TESTING. DON'T DELETE IT
-    // console.warn("Lương cơ bản", basicSalary);
-    // console.warn("Ngày công chuẩn", workday);
-    // console.warn("Ngày công trừ ngày lễ / tết", workdayNotInHoliday);
-    // console.warn("Tổng Lương thực nhận", actualDay);
-    // console.warn("Tổng lương đi làm ngày lễ", payslipInHoliday);
-    // console.warn("Tổng lương không đi làm ngày lễ ", payslipNotInHoliday);
-    // console.warn("Tổng lương đi làm ngoài ngày lễ( x2 )", payslipOutOfWorkday);
-    // console.warn("Tổng lương ngày đi làm thực tế trừ lễ: ", payslipNormalDay);
-    // console.warn("Tổng phụ cấp", staySalary);
-    //
-    // console.warn("=====================================================");
-    //
-    // console.warn("Tổng lương ngày đi làm thực tế trừ lễ", payslipNormalDay);
-    // console.warn("Tổng lương đi làm ngày lễ", payslipInHoliday);
-    // console.warn("Lương 1 ngày công", basicDaySalary);
-    // console.warn("Tổng phụ cấp", staySalary);
-    // console.warn("Thuees", tax);
-    // console.warn("Tổng tiền tăng ca", overtime);
 
     return {
       basic: basicSalary,
@@ -880,7 +861,7 @@ export class PayrollService {
       }
     }
 
-    const overtimeSalary = this.totalOvertime(payroll.salaries);
+    const overtimeSalary = this.totalOvertime(payroll);
     const absent = this.totalAbsent(payroll);
 
     //  số lần quên bsc. 1 lần thì bị trừ 0.5 ngày
@@ -1040,7 +1021,7 @@ export class PayrollService {
       }
     }
 
-    const overtimeSalary = this.totalOvertime(payroll.salaries);
+    const overtimeSalary = this.totalOvertime(payroll);
     // payroll.salaries
     // .filter(salary => salary.type === SalaryType.OVERTIME)
     // .map(salary => (basicSalary / workday) * salary.times)
@@ -1210,7 +1191,7 @@ export class PayrollService {
       }
     }
 
-    const overtimeSalary = this.totalOvertime(payroll.salaries);
+    const overtimeSalary = this.totalOvertime(payroll);
     const absent = this.totalAbsent(payroll);
 
     //  số lần quên bsc. 1 lần thì bị trừ 0.5 ngày
