@@ -51,7 +51,7 @@ export class SalarySettingsRepository extends BaseRepository<SalarySetting, any>
 
   async findOne(id: number) {
     try {
-      return 'This action adds a new salary';
+      return await this.prisma.salarySetting.findUnique({where: {id}});
     } catch (err) {
       console.error(err);
       throw new BadRequestException(err);
@@ -60,7 +60,17 @@ export class SalarySettingsRepository extends BaseRepository<SalarySetting, any>
 
   async update(id: number, updates: UpdateSalarySettingsDto) {
     try {
-      return 'This action adds a new salary';
+      return await this.prisma.salarySetting.update({
+        where: {id},
+        data: {
+          title: updates.title,
+          type: updates.salaryType,
+          price: updates.price,
+          rate: updates.rate,
+          reference: updates.reference,
+          constraints: {set: updates.constraints}
+        }
+      });
     } catch (err) {
       console.error(err);
       throw new BadRequestException(err);
@@ -69,7 +79,26 @@ export class SalarySettingsRepository extends BaseRepository<SalarySetting, any>
 
   async remove(id: number) {
     try {
-      return 'This action adds a new salary';
+      return await this.prisma.salarySetting.delete({where: {id}});
+    } catch (err) {
+      console.error(err);
+      throw new BadRequestException(err);
+    }
+  }
+
+  async migrate() {
+    try {
+      const templates = await this.prisma.basicTemplate.findMany();
+      await Promise.all(templates.map(async (template) => {
+        return await this.prisma.salarySetting.create({
+          data: {
+            title: template.title,
+            type: template.type,
+            price: template.price,
+            rate: 1,
+          }
+        });
+      }));
     } catch (err) {
       console.error(err);
       throw new BadRequestException(err);

@@ -3,7 +3,7 @@
 //// ------------------------------------------------------
 
 Project "Minh du" {
-  database_type: 'PostgreSQL'
+  database_type: 'postgres'
   Note: 'Test project description'
 }
 
@@ -114,7 +114,7 @@ Table Branch {
   Category Category [not null]
   status BranchStatus [not null]
   phone BranchPhone [not null]
-  stock Stock [not null]
+  ioIReceipts IoIReceipt [not null]
 }
 
 Table BranchStatus {
@@ -240,7 +240,7 @@ Table OvertimeTemplate {
   id Int [pk, increment]
   title String [not null]
   type SalaryType [default: 'OVERTIME']
-  price Float [not null]
+  price Float
   rate Float [default: 1]
   unit DatetimeUnit [default: 'HOUR']
   note String
@@ -269,6 +269,23 @@ Table BasicTemplate {
   indexes {
     (title, price) [unique]
   }
+}
+
+Table SalarySetting {
+  id Int [pk, increment]
+  title String [not null]
+  type SalaryType [not null]
+  rate Float [not null]
+  price Float
+  reference SalaryReference [not null]
+  constraints SalaryConstraint [not null]
+}
+
+Table SalaryConstraint {
+  id Int [pk, increment]
+  type SalaryType [not null]
+  salarySettings SalarySetting
+  salarySettingId Int
 }
 
 Table Relative {
@@ -344,8 +361,8 @@ Table PaymentHistory {
   orderId Int
   product Product
   productId Int
-  stock Stock
-  stockId Int
+  ioIReceipt IoIReceipt
+  ioIReceiptId Int
 }
 
 Table Commodity {
@@ -453,6 +470,10 @@ Table Salary {
   timestamp DateTime [default: `now()`]
 }
 
+Table SalaryRecipe {
+  id Int [pk, increment]
+}
+
 Table SalaryHistory {
   id Int [pk, increment]
   title String [not null]
@@ -500,7 +521,7 @@ Table Payroll {
   timestamp DateTime [default: `now()`]
 }
 
-Table ProductCategory {
+Table Warehouse {
   id Int [pk, increment]
   name String [unique, not null]
   products Product [not null]
@@ -518,18 +539,20 @@ Table Product {
   id Int [pk, increment]
   name String [not null]
   code String
-  category ProductCategory [not null]
-  categoryId Int [not null]
+  barcode String
+  type ProductType [not null]
+  warehouse Warehouse [not null]
+  warehouseId Int [not null]
   supplier Supplier [not null]
   supplierId Int [not null]
   note String
   unit ProductUnit [not null]
   timestamp DateTime [default: `now()`]
-  stocks Stock [not null]
+  ioIReceipts IoIReceipt [not null]
   payments PaymentHistory [not null]
 }
 
-Table Stock {
+Table IoIReceipt {
   id Int [pk, increment]
   type StockType [not null]
   createdAt DateTime [default: `now()`]
@@ -546,10 +569,9 @@ Table Stock {
   branch Branch [not null]
   branchId Int [not null]
   paymentHistories PaymentHistory [not null]
-  approved ApprovedStock
-  approvedId Int
-  ordered OrderedStock
-  orderedId Int
+  orderedAt DateTime [default: `now()`]
+  importedAt DateTime [default: `now()`]
+  approvedAt DateTime [default: `now()`]
   completedAt DateTime [default: `now()`]
   consignments Consignment [not null]
   note String
@@ -559,31 +581,27 @@ Table Stock {
 Table Attachment {
   id Int [pk, increment]
   file String [not null]
-  stock Stock
-  stockId Int
+  ioIReceipt IoIReceipt
+  ioIReceiptId Int
 }
 
 Table Consignment {
   id Int [pk, increment]
   code String
-  mfg DateTime
-  exp DateTime
-  stocks Stock [not null]
+  mfg DateTime [not null]
+  exp DateTime [not null]
+  amount Float [not null]
   createdAt DateTime [default: `now()`]
+  ioIReceipt IoIReceipt [not null]
+  ioIReceiptId Int [not null]
 }
 
-Table OrderedStock {
+Table TemplateConsignment {
   id Int [pk, increment]
-  orderer String [not null]
-  stocks Stock [not null]
-  createdAt DateTime [default: `now()`]
-}
-
-Table ApprovedStock {
-  id Int [pk, increment]
-  approver String [not null]
-  stocks Stock [not null]
-  createdAt DateTime [default: `now()`]
+  code String
+  mfg DateTime [not null]
+  exp DateTime [not null]
+  timestamp DateTime [default: `now()`]
 }
 
 Table Incubator {
@@ -684,9 +702,16 @@ Table OrderToRoute {
   ordersId Int [ref: > Order.id]
 }
 
-Table ConsignmentToStock {
-  consignmentsId Int [ref: > Consignment.id]
-  stocksId Int [ref: > Stock.id]
+Enum SalaryReference {
+  PRICE
+  STANDARD
+  BASIC
+  INSURANCE
+}
+
+Enum ProductType {
+  HSD
+  NORMAL
 }
 
 Enum DiscountType {
@@ -906,6 +931,8 @@ Ref: Employee.categoryId > Category.id
 
 Ref: BasicTemplate.positionId > Position.id
 
+Ref: SalaryConstraint.salarySettingId > SalarySetting.id
+
 Ref: Relative.wardId > Ward.id
 
 Ref: Relative.employeeId > Employee.id [delete: Cascade]
@@ -922,7 +949,7 @@ Ref: PaymentHistory.orderId > Order.id
 
 Ref: PaymentHistory.productId > Product.id
 
-Ref: PaymentHistory.stockId > Stock.id
+Ref: PaymentHistory.ioIReceiptId > IoIReceipt.id
 
 Ref: Commodity.orderId > Order.id
 
@@ -958,19 +985,17 @@ Ref: WorkHistory.employeeId > Employee.id [delete: Cascade]
 
 Ref: Payroll.employeeId > Employee.id [delete: Cascade]
 
-Ref: Product.categoryId > ProductCategory.id
+Ref: Product.warehouseId > Warehouse.id
 
 Ref: Product.supplierId > Supplier.id
 
-Ref: Stock.productId > Product.id
+Ref: IoIReceipt.productId > Product.id
 
-Ref: Stock.branchId > Branch.id
+Ref: IoIReceipt.branchId > Branch.id
 
-Ref: Stock.approvedId > ApprovedStock.id
+Ref: Attachment.ioIReceiptId > IoIReceipt.id
 
-Ref: Stock.orderedId > OrderedStock.id
-
-Ref: Attachment.stockId > Stock.id
+Ref: Consignment.ioIReceiptId > IoIReceipt.id
 
 Ref: Incubator.branchId > Branch.id
 

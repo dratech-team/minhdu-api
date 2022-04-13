@@ -49,4 +49,10 @@ export class SalarySettingsController {
   remove(@Param('id') id: string) {
     return this.salaryService.remove(+id);
   }
+
+  @Roles(RoleEnum.HUMAN_RESOURCE)
+  @Post('/migrate')
+  migrate() {
+    return this.salaryService.migrate();
+  }
 }
