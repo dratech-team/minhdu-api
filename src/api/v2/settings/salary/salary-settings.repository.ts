@@ -20,10 +20,10 @@ export class SalarySettingsRepository extends BaseRepository<SalarySetting, any>
           title: body.title,
           type: body.settingType,
           rate: body.rate,
-          workday: body.workday,
-          price: body.price,
-          types: body.types,
-          constraints: {set: body.constraints}
+          workday: body?.workday,
+          price: body?.price,
+          types: body?.types || undefined,
+          constraints: body?.constraints || undefined
         }
       });
     } catch (err) {

@@ -69,10 +69,9 @@ export class SalaryController {
     return this.salaryService.remove(+id);
   }
 
-  ///FIXME: Dùng 1 lần xong xoá
   @Roles(RoleEnum.CAMP_ACCOUNTING, RoleEnum.HUMAN_RESOURCE)
-  @Post("/employees")
-  createForEmployees(@ReqProfile() profile: ProfileEntity, @Body() body: CreateForEmployeesDto) {
-    return this.salaryService.createForEmployees(profile, body);
+  @Post("/migrate")
+  migrate() {
+    return this.salaryService.migrate();
   }
 }

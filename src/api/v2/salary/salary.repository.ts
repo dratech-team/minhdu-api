@@ -32,40 +32,6 @@ export class SalaryRepository {
         }
       }
 
-      const salary = await this.prisma.salary.findFirst({
-        where: {
-          payroll: {id: {in: body.payrollId}},
-          type: {in: [SalaryType.ABSENT, SalaryType.DAY_OFF]},
-          datetime: {in: body.datetime as Date},
-          partial: {in: [PartialDay.MORNING, PartialDay.AFTERNOON]},
-          unit: DatetimeUnit.DAY,
-          times: PARTIAL_DAY,
-        }
-      });
-      if (
-        salary &&
-        body.type === SalaryType.ABSENT &&
-        (body.partial === PartialDay.MORNING || body.partial === PartialDay.AFTERNOON) &&
-        body.times === PARTIAL_DAY
-      ) {
-
-        return await this.prisma.salary.update({
-          where: {id: salary.id},
-          data: {
-            times: ALL_DAY,
-            title: "Vắng nguyên ngày",
-            partial: PartialDay.ALL_DAY,
-          },
-          include: {
-            payroll: {
-              include: {
-                employee: true
-              }
-            },
-            allowance: true,
-          }
-        });
-      }
       return await this.prisma.salary.create({
         data: {
           title: body.title,
@@ -458,15 +424,7 @@ export class SalaryRepository {
     });
   }
 
-  ///FIXME: Dùng 1 lần xong xoá
-  async createEmp(body: CreateSalaryDto) {
-    return await this.prisma.salary.create({
-      data: {
-        title: body.title,
-        price: body.price,
-        type: body.type,
-        payroll: {connect: {id: body.payrollId}},
-      }
-    });
+  async migrate() {
+    const salaries = await Promise.all([]);
   }
 }

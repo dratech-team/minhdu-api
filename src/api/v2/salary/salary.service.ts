@@ -8,7 +8,6 @@ import {UpdateSalaryDto} from "./dto/update-salary.dto";
 import {OneSalary} from "./entities/salary.entity";
 import {SalaryRepository} from "./salary.repository";
 import {SearchSalaryDto} from "./dto/search-salary.dto";
-import {CreateForEmployeesDto} from "./dto/create-for-employees.dto";
 import {ProfileEntity} from "../../../common/entities/profile.entity";
 import {UpdateManySalaryDto} from "./dto/update-many-salary.dto";
 import {isEqualDatetime} from "../../../common/utils/isEqual-datetime.util";
@@ -125,23 +124,7 @@ export class SalaryService {
     return await this.payrollService.findOne(removed.payrollId);
   }
 
-  // Dùng 1 lần xong xoá
-  async createForEmployees(profile: ProfileEntity, body: CreateForEmployeesDto) {
-    const added = [];
-    const employees = await this.repository.findEmployees(profile, body);
-    const data = employees.reduce((previousValue, currentValue) => {
-      if (currentValue.payrolls.length === 1) {
-        return [...previousValue, currentValue];
-      }
-      return previousValue;
-    }, []);
-    for (let i = 0; i < data.length; i++) {
-      const salary = await this.repository.createEmp(Object.assign(body.salary, {payrollId: data[i].payrolls[0].id}));
-      added.push(salary);
-    }
-    return {
-      status: 201,
-      message: `Đã thêm lương ${body.salary.title} với giá là ${body.salary.price} cho ${added.length} phiếu lương`,
-    };
+  async migrate() {
+    return await this.repository.migrate();
   }
 }

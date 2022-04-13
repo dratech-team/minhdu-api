@@ -11,9 +11,9 @@ export class SalarySettingsService {
   }
 
   async create(body: CreateSalarySettingsDto) {
-    if (!(body.types.length && body.price) || (body.types.length && body.price)) {
-      throw new BadRequestException(`Vui lòng chọn/chỉ được chọn 1 trong 2 đơn giá hoặc loại lương`);
-    }
+    // if (!body.types?.length && !body.price || body.types.length && body.price ) {
+    //   throw new BadRequestException(`Vui lòng chọn/chỉ được chọn 1 trong 2 đơn giá hoặc loại lương`);
+    // }
 
     return await this.repository.create(body);
   }
