@@ -1,4 +1,4 @@
-import {Injectable} from '@nestjs/common';
+import {BadRequestException, Injectable} from '@nestjs/common';
 import {CreateSalarySettingsDto} from './dto/create-salary-settings.dto';
 import {UpdateSalarySettingsDto} from './dto/update-salary-settings.dto';
 import {SalarySettingsRepository} from "./salary-settings.repository";
@@ -11,6 +11,10 @@ export class SalarySettingsService {
   }
 
   async create(body: CreateSalarySettingsDto) {
+    if (!(body.types.length && body.price) || (body.types.length && body.price)) {
+      throw new BadRequestException(`Vui lòng chọn/chỉ được chọn 1 trong 2 đơn giá hoặc loại lương`);
+    }
+
     return await this.repository.create(body);
   }
 

@@ -115,6 +115,7 @@ Table Branch {
   status BranchStatus [not null]
   phone BranchPhone [not null]
   ioIReceipts IoIReceipt [not null]
+  allowancesv2 SalaryAllowance [not null]
 }
 
 Table BranchStatus {
@@ -276,16 +277,9 @@ Table SalarySetting {
   title String [not null]
   type SalaryType [not null]
   rate Float [not null]
-  price Float
-  reference SalaryReference [not null]
-  constraints SalaryConstraint [not null]
-}
-
-Table SalaryConstraint {
-  id Int [pk, increment]
-  type SalaryType [not null]
-  salarySettings SalarySetting
-  salarySettingId Int
+  recipe SalaryRecipe
+  recipeId Int
+  constraints SalaryType [not null]
 }
 
 Table Relative {
@@ -470,8 +464,37 @@ Table Salary {
   timestamp DateTime [default: `now()`]
 }
 
+Table Salaryv2 {
+  id Int [pk, increment]
+  title String [not null]
+  type SalaryType [not null]
+  rate Float [not null]
+  price Float [default: 0]
+  reference SalaryReference
+  payroll Payroll
+  payrollId Int
+  allowances SalaryAllowance [not null]
+  timestamp DateTime [default: `now()`]
+}
+
+Table SalaryAllowance {
+  id Int [pk, increment]
+  title String [not null]
+  price Float [not null]
+  rate Float [default: 1]
+  salary Salaryv2
+  salaryId Int
+  branch Branch
+  branchId Int
+  timestamp DateTime [default: `now()`]
+}
+
 Table SalaryRecipe {
   id Int [pk, increment]
+  workday Int
+  price Float
+  type SalaryType [not null]
+  salarySettings SalarySetting [not null]
 }
 
 Table SalaryHistory {
@@ -519,6 +542,7 @@ Table Payroll {
   deletedAt DateTime
   createdAt DateTime [default: `now()`]
   timestamp DateTime [default: `now()`]
+  salariesv2 Salaryv2 [not null]
 }
 
 Table Warehouse {
@@ -704,9 +728,8 @@ Table OrderToRoute {
 
 Enum SalaryReference {
   PRICE
-  STANDARD
   BASIC
-  INSURANCE
+  STAY
 }
 
 Enum ProductType {
@@ -931,7 +954,7 @@ Ref: Employee.categoryId > Category.id
 
 Ref: BasicTemplate.positionId > Position.id
 
-Ref: SalaryConstraint.salarySettingId > SalarySetting.id
+Ref: SalarySetting.recipeId > SalaryRecipe.id
 
 Ref: Relative.wardId > Ward.id
 
@@ -974,6 +997,12 @@ Ref: Salary.payrollId > Payroll.id [delete: Cascade]
 Ref: Salary.branchId > Branch.id
 
 Ref: Salary.salaryId - Salary.id
+
+Ref: Salaryv2.payrollId > Payroll.id [delete: Cascade]
+
+Ref: SalaryAllowance.salaryId > Salaryv2.id
+
+Ref: SalaryAllowance.branchId > Branch.id
 
 Ref: SalaryHistory.employeeId > Employee.id [delete: Cascade]
 

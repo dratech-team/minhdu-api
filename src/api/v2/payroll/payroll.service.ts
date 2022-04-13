@@ -503,7 +503,7 @@ export class PayrollService {
       ?.reduce((a, b) => a + b, 0);
   }
 
-  totalOvertime(payroll: any) {
+  totalOvertime(payroll: OnePayroll) {
     return payroll.salaries
       ?.filter((salary) => salary.type === SalaryType.OVERTIME)
       ?.map((salary) => {

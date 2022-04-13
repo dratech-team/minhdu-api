@@ -125,6 +125,7 @@ model Branch {
   status            BranchStatus[]
   phone             BranchPhone[]
   ioIReceipts       IoIReceipt[]
+  allowancesv2      SalaryAllowance[]
 }
 
 model BranchStatus {
@@ -284,8 +285,9 @@ model SalarySetting {
   type        SalaryType
   rate        Float
   price       Float?
-  reference   SalaryReference?
-  constraints SalaryType[]
+  workday     Int?
+  types       SalaryType[]
+  constraints SalaryConstraint[]
 }
 
 model Relative {
@@ -470,9 +472,29 @@ model Salary {
   timestamp  DateTime?     @default(now())
 }
 
-model SalaryRecipe {
-  id Int @id @default(autoincrement())
+model Salaryv2 {
+  id         Int               @id @default(autoincrement())
+  title      String
+  type       SalaryType
+  rate       Float
+  price      Float?            @default(0)
+  reference  SalaryReference?
+  payroll    Payroll?          @relation(fields: [payrollId], references: [id], onDelete: Cascade)
+  payrollId  Int?
+  allowances SalaryAllowance[]
+  timestamp  DateTime?         @default(now())
+}
 
+model SalaryAllowance {
+  id        Int       @id @default(autoincrement())
+  title     String
+  price     Float
+  rate      Float?    @default(1)
+  salary    Salaryv2? @relation(fields: [salaryId], references: [id])
+  salaryId  Int?
+  branch    Branch?   @relation(fields: [branchId], references: [id])
+  branchId  Int?
+  timestamp DateTime? @default(now())
 }
 
 model SalaryHistory {
@@ -520,6 +542,7 @@ model Payroll {
   deletedAt      DateTime?
   createdAt      DateTime?   @default(now()) // ngay tao phieu luong, phieu luong cua thang
   timestamp      DateTime?   @default(now()) // ngay them vao ghi lai lich su
+  salariesv2     Salaryv2[]
 }
 
 // warehouse
@@ -644,11 +667,15 @@ model System {
   datetime DateTime?  @default(now())
 }
 
+enum SalaryConstraint {
+  HOLIDAY
+  OVERTIME
+}
+
 enum SalaryReference {
-  PRICE // Đơn giá. Nhập vào giá
-  STANDARD // Lương chuẩn. Tổng lương cơ bản
-  BASIC // Lương cơ bản. Tổng lương cơ bản - Bảo hiểm
-  INSURANCE // Lương bảo hiểm
+  PRICE
+  BASIC
+  STAY
 }
 
 enum ProductType {

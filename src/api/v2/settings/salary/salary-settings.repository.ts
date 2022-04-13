@@ -18,10 +18,11 @@ export class SalarySettingsRepository extends BaseRepository<SalarySetting, any>
       return await this.prisma.salarySetting.create({
         data: {
           title: body.title,
-          type: body.salaryType,
-          price: body.price,
+          type: body.settingType,
           rate: body.rate,
-          reference: body.reference,
+          workday: body.workday,
+          price: body.price,
+          types: body.types,
           constraints: {set: body.constraints}
         }
       });
@@ -64,10 +65,8 @@ export class SalarySettingsRepository extends BaseRepository<SalarySetting, any>
         where: {id},
         data: {
           title: updates.title,
-          type: updates.salaryType,
-          price: updates.price,
+          type: updates.settingType,
           rate: updates.rate,
-          reference: updates.reference,
           constraints: {set: updates.constraints}
         }
       });
@@ -94,7 +93,6 @@ export class SalarySettingsRepository extends BaseRepository<SalarySetting, any>
           data: {
             title: template.title,
             type: template.type,
-            price: template.price,
             rate: 1,
           }
         });

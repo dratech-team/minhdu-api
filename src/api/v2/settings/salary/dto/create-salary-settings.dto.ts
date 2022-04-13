@@ -1,4 +1,4 @@
-import {SalaryReference, SalaryType} from "@prisma/client";
+import {SalaryConstraint, SalaryReference, SalaryType} from "@prisma/client";
 import {IsArray, IsEnum, IsNotEmpty, IsNumber, IsOptional, IsString} from "class-validator";
 import {Type} from "class-transformer";
 
@@ -9,7 +9,7 @@ export class CreateSalarySettingsDto {
 
   @IsNotEmpty()
   @IsEnum(SalaryType)
-  readonly salaryType: SalaryType;
+  readonly settingType: SalaryType;
 
   @IsNotEmpty()
   @IsNumber()
@@ -22,10 +22,19 @@ export class CreateSalarySettingsDto {
   readonly price: number;
 
   @IsOptional()
+  @IsArray()
+  readonly types: SalaryType[]
+
+  @IsOptional()
+  @IsNumber()
+  @Type(() => Number)
+  readonly workday: number;
+
+  @IsOptional()
   @IsEnum(SalaryReference)
   readonly reference: SalaryReference;
 
   @IsOptional()
   @IsArray()
-  readonly constraints: SalaryType[];
+  readonly constraints: SalaryConstraint[];
 }
