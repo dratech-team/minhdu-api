@@ -479,7 +479,10 @@ model Salaryv2 {
   rate        Float
   price       Float?             @default(0)
   unit        DatetimeUnit?
+  partialDay  PartialDay?
   datetime    DateTime?
+  startTime   String?
+  endTime     String?
   workday     Int?
   types       SalaryType[]
   constraints SalaryConstraint[]

@@ -50,7 +50,7 @@ export class BranchRepository {
 
       const branches = await this.prisma.branch.findMany({
         where: {
-          name: acc.branches?.length ? {in: acc.branches.map(branch => branch.name)} : {},
+          name: acc?.branches?.length ? {in: acc.branches.map(branch => branch.name)} : {},
           // status: {
           //   every: {
           //     app: acc.appName,

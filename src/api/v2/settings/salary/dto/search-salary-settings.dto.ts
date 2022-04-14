@@ -1,5 +1,8 @@
-import {SearchBaseDto} from "../../../../../common/dtos/search-base.dto";
+import {IsEnum, IsOptional} from "class-validator";
+import {SalaryType} from "@prisma/client";
 
-export class SearchSalarySettingsDto extends SearchBaseDto {
-
+export class SearchSalarySettingsDto {
+  @IsOptional()
+  @IsEnum(SalaryType)
+  readonly salaryType: SalaryType;
 }
