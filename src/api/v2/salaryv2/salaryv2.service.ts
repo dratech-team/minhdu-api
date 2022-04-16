@@ -17,7 +17,6 @@ export class Salaryv2Service {
         startedAt: this.setHHmmSS(body.startedAt, body.startTime),
         endedAt: this.setHHmmSS(body.endedAt, body.endTime)
       } : {});
-
       return this.mapToSalary(Object.assign(body, {payrollId}));
     }) as SalaryEntity[];
 
@@ -49,7 +48,7 @@ export class Salaryv2Service {
 
   private setHHmmSS(datetime, hhmmss: string) {
     const [hhs, mms, sss] = hhmmss?.split(":")?.map(e => +e);
-    return moment(datetime.startedAt).hour(hhs).minute(mms).second(sss).toDate();
+    return moment(datetime).hour(hhs).minute(mms).second(sss).toDate();
   }
 
   private mapToSalary(body): SalaryEntity {
