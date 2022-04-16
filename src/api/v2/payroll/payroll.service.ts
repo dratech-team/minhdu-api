@@ -433,13 +433,12 @@ export class PayrollService {
           ? 1
           : (salary.partial === PartialDay.MORNING || salary.partial === PartialDay.AFTERNOON)
             ? 0.5
-            : salary.partial === PartialDay.CUSTOM ? moment(salary.endedAt).diff(salary.startedAt, "minute") : 0;
+            : salary.partial === PartialDay.CUSTOM ? moment(salary.endedAt).diff(salary.startedAt, "minutes") : 0;
         const unit = salary.setting.unit === DatetimeUnit.HOUR
           ? 1 / 8
           : salary.setting.unit === DatetimeUnit.MINUTE
             ? 1 / 8 / 60
             : 1;
-
         return (salary.price * salary.rate) || (totalOf / diveFor) * days * partial * salary.setting.rate * unit;
       }).reduce((a, b) => a + b, 0);
   }
