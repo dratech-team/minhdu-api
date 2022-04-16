@@ -1,15 +1,15 @@
-generator client {
-  provider = "prisma-client-js"
-}
+ generator client {
+   provider = "prisma-client-js"
+ }
 
-// generator dbml {
-//   provider            = "prisma-dbml-generator"
-//   output              = "../dbml"
-//   outputName          = "minhdu.dbml"
-//   projectName         = "Minh du"
-//   projectDatabaseType = "postgres"
-//   projectNote         = "Test project description"
-// }
+//generator dbml {
+//  provider            = "prisma-dbml-generator"
+//  output              = "../dbml"
+//  outputName          = "minhdu.dbml"
+//  projectName         = "Minh du"
+//  projectDatabaseType = "postgres"
+//  projectNote         = "Test project description"
+//}
 
 datasource db {
   provider = "postgresql"
@@ -284,10 +284,12 @@ model SalarySetting {
   title       String
   type        SalaryType
   rate        Float
+  unit        DatetimeUnit
   price       Float?
   workday     Int?
   types       SalaryType[]
   constraints SalaryConstraint[]
+  salaries    Salaryv2[]
 }
 
 model Relative {
@@ -473,23 +475,23 @@ model Salary {
 }
 
 model Salaryv2 {
-  id          Int                @id @default(autoincrement())
-  title       String
-  type        SalaryType
-  rate        Float
-  price       Float?             @default(0)
-  unit        DatetimeUnit?
-  partialDay  PartialDay?
-  datetime    DateTime?
-  startTime   String?
-  endTime     String?
-  workday     Int?
-  types       SalaryType[]
-  constraints SalaryConstraint[]
-  payroll     Payroll?           @relation(fields: [payrollId], references: [id], onDelete: Cascade)
-  payrollId   Int?
-  allowances  SalaryAllowance[]
-  timestamp   DateTime?          @default(now())
+  id         Int               @id @default(autoincrement())
+  title      String
+  type       SalaryType
+  price      Float?            @default(0)
+  unit       DatetimeUnit
+  partial    PartialDay?
+  startedAt  DateTime?
+  endedAt    DateTime?
+  rate       Float?  @default(1)
+  setting    SalarySetting?    @relation(fields: [settingId], references: [id])
+  settingId  Int?
+  payroll    Payroll           @relation(fields: [payrollId], references: [id], onDelete: Cascade)
+  payrollId  Int
+  allowances SalaryAllowance[]
+  timestamp  DateTime?         @default(now())
+
+  @@unique([partial, startedAt, endedAt, payrollId])
 }
 
 model SalaryAllowance {
@@ -723,6 +725,7 @@ enum PartialDay {
   AFTERNOON
   NIGHT
   ALL_DAY
+  CUSTOM
 }
 
 //  CT1: apply cho công nhân trại chăn nuôi

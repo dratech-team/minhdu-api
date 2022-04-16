@@ -277,9 +277,11 @@ Table SalarySetting {
   title String [not null]
   type SalaryType [not null]
   rate Float [not null]
-  recipe SalaryRecipe
-  recipeId Int
-  constraints SalaryType [not null]
+  price Float
+  workday Int
+  types SalaryType [not null]
+  constraints SalaryConstraint [not null]
+  salaries Salaryv2 [not null]
 }
 
 Table Relative {
@@ -468,13 +470,21 @@ Table Salaryv2 {
   id Int [pk, increment]
   title String [not null]
   type SalaryType [not null]
-  rate Float [not null]
   price Float [default: 0]
-  reference SalaryReference
-  payroll Payroll
-  payrollId Int
+  unit DatetimeUnit [not null]
+  partial PartialDay [not null]
+  datetime DateTime [not null]
+  rate Float [default: 1]
+  setting SalarySetting
+  settingId Int
+  payroll Payroll [not null]
+  payrollId Int [not null]
   allowances SalaryAllowance [not null]
   timestamp DateTime [default: `now()`]
+
+  indexes {
+    (partial, datetime, payrollId) [unique]
+  }
 }
 
 Table SalaryAllowance {
@@ -487,14 +497,6 @@ Table SalaryAllowance {
   branch Branch
   branchId Int
   timestamp DateTime [default: `now()`]
-}
-
-Table SalaryRecipe {
-  id Int [pk, increment]
-  workday Int
-  price Float
-  type SalaryType [not null]
-  salarySettings SalarySetting [not null]
 }
 
 Table SalaryHistory {
@@ -726,6 +728,11 @@ Table OrderToRoute {
   ordersId Int [ref: > Order.id]
 }
 
+Enum SalaryConstraint {
+  HOLIDAY
+  OVERTIME
+}
+
 Enum SalaryReference {
   PRICE
   BASIC
@@ -762,6 +769,7 @@ Enum PartialDay {
   AFTERNOON
   NIGHT
   ALL_DAY
+  CUSTOM
 }
 
 Enum RecipeType {
@@ -954,8 +962,6 @@ Ref: Employee.categoryId > Category.id
 
 Ref: BasicTemplate.positionId > Position.id
 
-Ref: SalarySetting.recipeId > SalaryRecipe.id
-
 Ref: Relative.wardId > Ward.id
 
 Ref: Relative.employeeId > Employee.id [delete: Cascade]
@@ -997,6 +1003,8 @@ Ref: Salary.payrollId > Payroll.id [delete: Cascade]
 Ref: Salary.branchId > Branch.id
 
 Ref: Salary.salaryId - Salary.id
+
+Ref: Salaryv2.settingId > SalarySetting.id
 
 Ref: Salaryv2.payrollId > Payroll.id [delete: Cascade]
 

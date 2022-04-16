@@ -22,7 +22,6 @@ import {PAYSLIP_WORKDAY_HOLIDAY, RATE_OUT_OF_WORK_DAY,} from "../../../common/co
 import {includesDatetime, isEqualDatetime,} from "../../../common/utils/isEqual-datetime.util";
 import {ALL_DAY, PARTIAL_DAY,} from "../../../common/constant/datetime.constant";
 import {exportExcel} from "../../../core/services/export.service";
-import {FullSalary} from "../salary/entities/salary.entity";
 import * as moment from "moment";
 import {ConfirmPayrollDto} from "./dto/confirm-payroll.dto";
 import {rageDateTime, timesheet} from "./functions/timesheet";
@@ -149,7 +148,7 @@ export class PayrollService {
 
   async findOne(id: number): Promise<OnePayroll & { totalWorkday: number }> {
     const payroll = await this.repository.findOne(id);
-    return Object.assign(payroll, {totalWorkday: this.totalActualDay(payroll)});
+    return Object.assign(payroll, {totalWorkday: this.totalActualDay(payroll), salaries: payroll.salariesv2});
   }
 
   async update(profile: ProfileEntity, id: number, updates: UpdatePayrollDto) {
@@ -418,10 +417,21 @@ export class PayrollService {
   }
 
   totalDeduction(payroll: OnePayroll) {
-    return payroll.salaries
-      .filter(salary => salary.type === SalaryType.DEDUCTION)
-      .map(salary => salary.price)
-      .reduce((a, b) => a + b, 0);
+    return payroll.salariesv2.filter(salary => salary.type === SalaryType.DEDUCTION)
+      .map(salary => {
+        // chưa đúng./
+        const totalOf = salary.setting.price || payroll.salariesv2.filter(salary => salary.setting.types.includes(salary.type)).map(salary => salary.price * salary.rate).reduce((a, b) => a + b, 0);
+        const diveFor = salary.setting.workday || payroll.workday;
+        const times = moment(salary.endedAt).diff(salary.startedAt, "days");
+
+        const day = salary.partial === PartialDay.ALL_DAY
+          ? 1
+          : (salary.partial === PartialDay.MORNING || salary.partial === PartialDay.AFTERNOON)
+            ? 0.5
+            : salary.partial === PartialDay.CUSTOM ? moment(salary.endedAt).diff(salary.startedAt, "minute") : 0;
+
+        return (salary.price * salary.rate) || (totalOf / diveFor) * times * day;
+      }).reduce((a, b) => a + b, 0);
   }
 
   totalAllowanceByActual(payroll: OnePayroll, actualDay: number, workday?: number) {
@@ -758,7 +768,7 @@ export class PayrollService {
     const bsc = this.totalForgotBSC(payroll.salaries);
     const bscSalary = basicDaySalary * (bsc / 2);
 
-    const deduction = absent.minute * ((basicSalary + this.totalStaySalary(payroll.salaries)) / workday / 8 / 60) + this.totalDeduction(payroll);
+    const deduction = this.totalDeduction(payroll);
 
     const total = Math.round((payslipNormalDay + payslipInHoliday + payslipNotInHoliday + payslipOutOfWorkday + staySalary + allowanceTotal + overtime - tax - bscSalary - deduction) / 1000) * 1000;
 
@@ -903,7 +913,7 @@ export class PayrollService {
     });
 
     // Tổng tiền đi trễ. Ngày nghỉ là ngày đã đc trừ trên ngày đi làm thực tế, nên sẽ không tính vào tiền khấu trừ
-    const deductionSalary = absent.minute * ((basicSalary + staySalary) / workday / 8 / 60) + this.totalDeduction(payroll);
+    const deductionSalary = this.totalDeduction(payroll);
 
     // Không quan tâm đến ngày công thực tế hay ngày công chuẩn. Nếu không đi làm trong ngày lễ thì vẫn được hưởng lương như thường
     payslipNotInHoliday = worksNotInHoliday.map(w => w.day).reduce((a, b) => a + b, 0) * (basic.price / PAYSLIP_WORKDAY_HOLIDAY);
@@ -1251,7 +1261,7 @@ export class PayrollService {
     const bscSalary = (bsc / 2) * basicSalary / PAYSLIP_WORKDAY_HOLIDAY;
 
     // Tổng tiền đi trễ. Ngày nghỉ là ngày đã đc trừ trên ngày đi làm thực tế, nên sẽ không tính vào tiền khấu trừ
-    const deductionSalary = absent.minute * ((basicSalary + staySalary) / workday / 8 / 60) + this.totalDeduction(payroll);
+    const deductionSalary = this.totalDeduction(payroll);
 
     // Không quan tâm đến ngày công thực tế hay ngày công chuẩn. Nếu không đi làm trong ngày lễ thì vẫn được hưởng lương như thường
     payslipNotInHoliday = worksNotInHoliday.map(w => w.day).reduce((a, b) => a + b, 0) * (basic.price / PAYSLIP_WORKDAY_HOLIDAY);

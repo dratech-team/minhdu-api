@@ -22,6 +22,7 @@ export class SalarySettingsRepository extends BaseRepository<SalarySetting, any>
           rate: body.rate,
           workday: body?.workday,
           price: body?.price,
+          unit: body.unit,
           types: body?.types || undefined,
           constraints: body?.constraints || undefined
         }
@@ -92,13 +93,14 @@ export class SalarySettingsRepository extends BaseRepository<SalarySetting, any>
     try {
       const templates = await this.prisma.basicTemplate.findMany();
       await Promise.all(templates.map(async (template) => {
-        return await this.prisma.salarySetting.create({
-          data: {
-            title: template.title,
-            type: template.type,
-            rate: 1,
-          }
-        });
+        // return await this.prisma.salarySetting.create({
+        //   data: {
+        //     title: template.title,
+        //     type: template.type,
+        //     unit
+        //     rate: 1,
+        //   }
+        // });
       }));
     } catch (err) {
       console.error(err);

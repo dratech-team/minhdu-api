@@ -186,6 +186,9 @@ export class PayrollRepository {
           },
           include: {
             salaries: true,
+            salariesv2: {
+              include: {setting: true}
+            },
             employee: {
               include: {
                 contracts: true,
@@ -341,6 +344,9 @@ export class PayrollRepository {
               allowance: true
             }
           },
+          salariesv2: {
+            include: {setting: true}
+          },
           employee: {
             include: {
               contracts: true,
@@ -388,11 +394,12 @@ export class PayrollRepository {
       const acc = await this.prisma.account.findUnique({where: {id: profile.id}, include: {role: true}});
       const payroll = await this.findOne(id);
       if (acc.role.role !== RoleEnum.HUMAN_RESOURCE && (updates?.manConfirmedAt || updates?.accConfirmedAt)) {
-        if (!payroll.salaries.length) {
+        if (!payroll.salaries.length && !payroll.salariesv2.length) {
           throw new BadRequestException(`Không thể xác nhận phiếu lương rỗng`);
         }
         if (
           !payroll.salaries.filter(salary => (salary.type === SalaryType.BASIC_INSURANCE || salary.type === SalaryType.BASIC)).length
+          && !payroll.salariesv2.filter(salary => (salary.type === SalaryType.BASIC_INSURANCE || salary.type === SalaryType.BASIC)).length
           && payroll.recipeType !== RecipeType.CT3
         ) {
           throw new BadRequestException(`Không thể xác nhận phiếu lương có lương cơ bản rỗng`);
