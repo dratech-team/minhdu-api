@@ -148,7 +148,13 @@ export class PayrollService {
 
   async findOne(id: number): Promise<OnePayroll & { totalWorkday: number }> {
     const payroll = await this.repository.findOne(id);
-    return Object.assign(payroll, {totalWorkday: this.totalActualDay(payroll), salaries: payroll.salariesv2});
+    const salaries = payroll.salariesv2.map(salary => {
+      if (salary.type === SalaryType.ABSENT || salary.type === SalaryType.DEDUCTION) {
+        return Object.assign(salary, {price: this.totalDeduction(payroll)});
+      }
+      return salary;
+    });
+    return Object.assign(payroll, {totalWorkday: this.totalActualDay(payroll), salaries});
   }
 
   async update(profile: ProfileEntity, id: number, updates: UpdatePayrollDto) {
@@ -417,20 +423,24 @@ export class PayrollService {
   }
 
   totalDeduction(payroll: OnePayroll) {
-    return payroll.salariesv2.filter(salary => salary.type === SalaryType.DEDUCTION)
+    return payroll.salariesv2.filter(salary => salary.type === SalaryType.DEDUCTION || salary.type === SalaryType.ABSENT)
       .map(salary => {
-        // chưa đúng./
-        const totalOf = salary.setting.price || payroll.salariesv2.filter(salary => salary.setting.types.includes(salary.type)).map(salary => salary.price * salary.rate).reduce((a, b) => a + b, 0);
+        const types = salary.setting?.types;
+        const totalOf = salary.setting.price || payroll.salariesv2.filter(salary => types.includes(salary.type)).map(salary => salary.price * salary.rate).reduce((a, b) => a + b, 0);
         const diveFor = salary.setting.workday || payroll.workday;
-        const times = moment(salary.endedAt).diff(salary.startedAt, "days");
-
-        const day = salary.partial === PartialDay.ALL_DAY
+        const days = moment(salary.endedAt).diff(salary.startedAt, "days") + 1;
+        const partial = salary.partial === PartialDay.ALL_DAY
           ? 1
           : (salary.partial === PartialDay.MORNING || salary.partial === PartialDay.AFTERNOON)
             ? 0.5
             : salary.partial === PartialDay.CUSTOM ? moment(salary.endedAt).diff(salary.startedAt, "minute") : 0;
+        const unit = salary.setting.unit === DatetimeUnit.HOUR
+          ? 1 / 8
+          : salary.setting.unit === DatetimeUnit.MINUTE
+            ? 1 / 8 / 60
+            : 1;
 
-        return (salary.price * salary.rate) || (totalOf / diveFor) * times * day;
+        return (salary.price * salary.rate) || (totalOf / diveFor) * days * partial * salary.setting.rate * unit;
       }).reduce((a, b) => a + b, 0);
   }
 
@@ -664,6 +674,7 @@ export class PayrollService {
     )?.price;
 
     const absent = this.totalAbsent(payroll);
+
     const basicDaySalary = basicSalary / payroll.workday;
     const staySalary =
       actualDay >= workday

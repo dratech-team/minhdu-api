@@ -10,7 +10,7 @@ export class Salaryv2Controller {
 
   @Post()
   create(@Body() body: CreateSalaryv2Dto) {
-    return this.salaryv2Service.create(body);
+    return this.salaryv2Service.createMany(body);
   }
 
   @Get()
@@ -23,9 +23,9 @@ export class Salaryv2Controller {
     return this.salaryv2Service.findOne(+id);
   }
 
-  @Patch(':id')
-  update(@Param('id') id: string, @Body() updateSalaryv2Dto: UpdateSalaryv2Dto) {
-    return this.salaryv2Service.update(+id, updateSalaryv2Dto);
+  @Post('multiple')
+  update(@Body() updateSalaryv2Dto: UpdateSalaryv2Dto) {
+    return this.salaryv2Service.update(updateSalaryv2Dto);
   }
 
   @Delete(':id')

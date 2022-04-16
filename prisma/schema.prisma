@@ -488,6 +488,7 @@ model Salaryv2 {
   settingId  Int?
   payroll    Payroll           @relation(fields: [payrollId], references: [id], onDelete: Cascade)
   payrollId  Int
+  note String?
   allowances SalaryAllowance[]
   timestamp  DateTime?         @default(now())
 

@@ -1,9 +1,10 @@
-import {BadRequestException, Injectable} from '@nestjs/common';
+import {Injectable} from '@nestjs/common';
 import {CreateSalarySettingsDto} from './dto/create-salary-settings.dto';
 import {UpdateSalarySettingsDto} from './dto/update-salary-settings.dto';
 import {SalarySettingsRepository} from "./salary-settings.repository";
 import {ProfileEntity} from "../../../../common/entities/profile.entity";
 import {SearchSalarySettingsDto} from "./dto/search-salary-settings.dto";
+import {SalaryType} from "@prisma/client";
 
 @Injectable()
 export class SalarySettingsService {
@@ -11,11 +12,8 @@ export class SalarySettingsService {
   }
 
   async create(body: CreateSalarySettingsDto) {
-    // if (!body.types?.length && !body.price || body.types.length && body.price ) {
-    //   throw new BadRequestException(`Vui lòng chọn/chỉ được chọn 1 trong 2 đơn giá hoặc loại lương`);
-    // }
-
-    return await this.repository.create(body);
+    const types = body.types.includes(SalaryType.BASIC) ? [SalaryType.BASIC, SalaryType.BASIC_INSURANCE] : body.types;
+    return await this.repository.create(Object.assign(body, {types}));
   }
 
   async findAll(profile: ProfileEntity, search: SearchSalarySettingsDto) {
@@ -27,7 +25,8 @@ export class SalarySettingsService {
   }
 
   async update(id: number, updates: UpdateSalarySettingsDto) {
-    return await this.repository.update(id, updates);
+    const types = updates.types.includes(SalaryType.BASIC) ? [SalaryType.BASIC, SalaryType.BASIC_INSURANCE] : updates.types;
+    return await this.repository.update(id, Object.assign(updates, {types}));
   }
 
   async remove(id: number) {

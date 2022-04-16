@@ -71,6 +71,7 @@ export class SalarySettingsRepository extends BaseRepository<SalarySetting, any>
           title: updates.title,
           type: updates.settingType,
           rate: updates.rate,
+          unit: updates.unit,
           constraints: {set: updates.constraints}
         }
       });
