@@ -143,7 +143,8 @@ export class PayrollRepository {
               id: search?.employeeId ? {in: +search.employeeId} : {},
               lastName: {contains: search?.name, mode: "insensitive"},
               type: search?.employeeType ? {in: search?.employeeType} : {},
-              category: search?.categoryId ? {id: {in: search?.categoryId}} : {}
+              category: search?.categoryId ? {id: {in: search?.categoryId}} : {},
+              leftAt: search?.empStatus && search?.empStatus !== -1 ? (search?.empStatus === 0 ? {in: null} : {notIn: null}) : {},
             },
             branch: acc.branches?.length ? {
               in: acc.branches.map(branch => branch.name),
@@ -168,7 +169,8 @@ export class PayrollRepository {
             employee: {
               lastName: {contains: search?.name, mode: "insensitive"},
               type: search?.employeeType ? {in: search?.employeeType} : {},
-              category: search?.categoryId ? {id: {in: search?.categoryId}} : {}
+              category: search?.categoryId ? {id: {in: search?.categoryId}} : {},
+              leftAt: search?.empStatus && search?.empStatus !== -1 ? (search?.empStatus === 0 ? {in: null} : {notIn: null}) : {},
             },
             branch: acc.branches?.length ? {
               in: acc.branches.map(branch => branch.name),

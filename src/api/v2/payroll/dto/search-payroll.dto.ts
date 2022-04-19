@@ -1,7 +1,7 @@
 import {EmployeeType, RecipeType} from "@prisma/client";
 import {FilterTypeEnum} from "../entities/filter-type.enum";
 import {Transform, Type} from "class-transformer";
-import {IsArray, IsBoolean, IsDate, IsEnum, IsNumber, IsOptional, IsString} from "class-validator";
+import {IsArray, IsDate, IsEnum, IsNumber, IsOptional, IsString} from "class-validator";
 import * as moment from "moment";
 import {SortDto} from "../../../../common/dtos/sort.dto";
 
@@ -65,11 +65,9 @@ export class SearchPayrollDto extends SortDto {
   readonly endedAt: Date;
 
   @IsOptional()
-  @IsBoolean()
-  @Transform((val) => {
-    return val.value === 'true';
-  })
-  readonly isLeave: boolean;
+  @IsNumber()
+  @Type(() => Number)
+  readonly empStatus: number;
 
   @IsOptional()
   @Type(() => Number)
