@@ -1,6 +1,7 @@
 import {IsDate, IsEnum, IsNotEmpty, IsNumber, IsOptional, IsString} from "class-validator";
 import {Transform, Type} from "class-transformer";
 import {DatetimeUnit, PartialDay, SalaryType} from "@prisma/client";
+import * as moment from "moment";
 
 export class CreateSalaryv2Dto {
   @IsOptional({message: "Bạn phải chọn loại vắng", groups: ["absent", "overtime"]})
@@ -38,7 +39,7 @@ export class CreateSalaryv2Dto {
   @IsDate()
   @Transform(({value}) => {
     if (value) {
-      return new Date(value);
+      return  new Date(moment(value).utc().format('YYYY-MM-DD'))
     }
   })
   readonly startedAt: Date;
@@ -47,18 +48,28 @@ export class CreateSalaryv2Dto {
   @IsDate()
   @Transform(({value}) => {
     if (value) {
-      return new Date(value);
+      return  new Date(moment(value).utc().format('YYYY-MM-DD'))
     }
   })
   readonly endedAt: Date;
 
   @IsOptional({message: "Bạn phải chọn đầy đủ từ ngày đến ngày", groups: ["absent", "overtime"]})
-  @IsString()
-  readonly startTime: string;
+  @IsDate()
+  @Transform(({value}) => {
+    if (value) {
+      return new Date(value);
+    }
+  })
+  readonly startTime: Date;
 
   @IsOptional({message: "Bạn phải chọn đầy đủ từ ngày đến ngày", groups: ["absent", "overtime"]})
-  @IsString()
-  readonly endTime: string;
+  @IsDate()
+  @Transform(({value}) => {
+    if (value) {
+      return new Date(value);
+    }
+  })
+  readonly endTime: Date;
 
   @IsOptional()
   @IsString()
