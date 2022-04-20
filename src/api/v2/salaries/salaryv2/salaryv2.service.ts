@@ -26,13 +26,13 @@ export class Salaryv2Service {
     return this.repository.findOne(id);
   }
 
-  async update(updates: UpdateSalaryv2Dto) {
+  async updateMany(updates: UpdateSalaryv2Dto) {
     const {count} = await this.repository.updateMany(updates.salaryIds, this.mapToSalary(updates));
     return {status: 201, message: `Cập nhật thành công ${count} record`};
   }
 
-  async remove(id: number) {
-    return this.repository.remove(id);
+  async removeMany(salaryIds: number[]) {
+    return this.repository.removeMany(salaryIds);
   }
 
   private mapToSalary(body): SalaryEntity {

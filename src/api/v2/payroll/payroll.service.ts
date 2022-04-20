@@ -149,11 +149,10 @@ export class PayrollService {
 
   async findOne(id: number): Promise<OnePayroll & { totalWorkday: number }> {
     const payroll = await this.repository.findOne(id);
-    const salaries = payroll.absents.map(salary => {
-      console.log(this.totalDeduction(payroll))
+    const absents = payroll.absents.map(salary => {
       return Object.assign(salary, {price: this.totalDeduction(payroll)});
     });
-    return Object.assign(payroll, {totalWorkday: this.totalActualDay(payroll), salaries});
+    return Object.assign(payroll, {totalWorkday: this.totalActualDay(payroll), absents});
   }
 
   async update(profile: ProfileEntity, id: number, updates: UpdatePayrollDto) {

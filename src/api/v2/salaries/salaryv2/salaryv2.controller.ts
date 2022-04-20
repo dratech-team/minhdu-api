@@ -9,7 +9,7 @@ export class Salaryv2Controller {
   }
 
   @Post()
-  create(@Body() body: CreateSalaryv2Dto) {
+  createMany(@Body() body: CreateSalaryv2Dto) {
     return this.salaryv2Service.createMany(body);
   }
 
@@ -24,12 +24,12 @@ export class Salaryv2Controller {
   }
 
   @Post('multiple')
-  update(@Body() updateSalaryv2Dto: UpdateSalaryv2Dto) {
-    return this.salaryv2Service.update(updateSalaryv2Dto);
+  updateMany(@Body() updateSalaryv2Dto: UpdateSalaryv2Dto) {
+    return this.salaryv2Service.updateMany(updateSalaryv2Dto);
   }
 
-  @Delete(':id')
-  remove(@Param('id') id: string) {
-    return this.salaryv2Service.remove(+id);
+  @Delete('multiple')
+  removeMany(@Body('salaryIds') salaryIds: number[]) {
+    return this.salaryv2Service.removeMany(salaryIds);
   }
 }

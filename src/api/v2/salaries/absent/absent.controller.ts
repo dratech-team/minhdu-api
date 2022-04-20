@@ -3,13 +3,13 @@ import { AbsentService } from './absent.service';
 import { CreateAbsentDto } from './dto/create-absent.dto';
 import { UpdateAbsentDto } from './dto/update-absent.dto';
 
-@Controller('salary/absent')
+@Controller('v2/salary/absent')
 export class AbsentController {
   constructor(private readonly absentService: AbsentService) {}
 
   @Post()
-  create(@Body() createAbsentDto: CreateAbsentDto) {
-    return this.absentService.create(createAbsentDto);
+  createMany(@Body() createAbsentDto: CreateAbsentDto) {
+    return this.absentService.createMany(createAbsentDto);
   }
 
   @Get()
@@ -23,12 +23,12 @@ export class AbsentController {
   }
 
   @Post('multiple')
-  update(@Body() updateAbsentDto: UpdateAbsentDto) {
-    return this.absentService.update(updateAbsentDto);
+  updateMany(@Body() updateAbsentDto: UpdateAbsentDto) {
+    return this.absentService.updateMany(updateAbsentDto);
   }
 
-  @Delete(':id')
-  remove(@Param('id') id: string) {
-    return this.absentService.remove(+id);
+  @Delete('multiple')
+  removeMany(@Body('salaryIds') salaryIds: number[]) {
+    return this.absentService.removeMany(salaryIds);
   }
 }

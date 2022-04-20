@@ -39,10 +39,10 @@ export class AbsentRepository extends BaseRepository<AbsentSalary, any> {
     }
   }
 
-  async remove(id: number) {
+  async removeMany(ids: number[]) {
     try {
-      return await this.prisma.absentSalary.delete({
-        where: {id},
+      return await this.prisma.absentSalary.deleteMany({
+        where: {id: {in: ids}},
       });
     } catch (err) {
       console.error(err);

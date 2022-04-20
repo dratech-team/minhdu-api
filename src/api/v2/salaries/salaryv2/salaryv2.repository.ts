@@ -49,9 +49,9 @@ export class Salaryv2Repository {
     }
   }
 
-  async remove(id: number) {
+  async removeMany(salaryIds: number[]) {
     try {
-      return await this.prisma.salaryv2.delete({where: {id}});
+      return await this.prisma.salaryv2.deleteMany({where: {id: {in: salaryIds}}});
     } catch (err) {
       console.error(err);
       throw new BadRequestException(err);

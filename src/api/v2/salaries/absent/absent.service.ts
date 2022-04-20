@@ -9,7 +9,7 @@ export class AbsentService {
   constructor(private readonly repository: AbsentRepository) {
   }
 
-  async create(body: CreateAbsentDto) {
+  async createMany(body: CreateAbsentDto) {
     const salaries = body.payrollIds.map(payrollId => {
       return this.mapToAbsent(Object.assign(body, {payrollId}));
     }) as AbsentSalary[];
@@ -25,13 +25,14 @@ export class AbsentService {
     return `This action returns a #${id} absent`;
   }
 
-  async update(body: UpdateAbsentDto) {
-    const {count} = await this.repository.update(body.salaryIds, this.mapToAbsent(body));
+  async updateMany(body: UpdateAbsentDto) {
+    const {count} = await this.repository.update(body.payrollIds, this.mapToAbsent(body));
     return {status: 201, message: `Cập nhật thành công ${count} record`};
   }
 
-  remove(id: number) {
-    return `This action removes a #${id} absent`;
+  async removeMany(salaryIds: number[]) {
+    const {count} = await this.repository.removeMany(salaryIds);
+    return {status: 201, message: `Đã xóa thành công ${count} record`};
   }
 
   private mapToAbsent(body): Omit<AbsentSalary, "id"> {
