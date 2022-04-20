@@ -1,7 +1,7 @@
 import {BadRequestException, Injectable} from "@nestjs/common";
 import {Customer} from "@prisma/client";
 import {PrismaService} from "../../../prisma.service";
-import {CreatePaymentHistoryDto} from "../payment-history/dto/create-payment-history.dto";
+import {CreatePaymentHistoryDto} from "../histories/payment-history/dto/create-payment-history.dto";
 import {CreateCustomerDto} from "./dto/create-customer.dto";
 import {SearchCustomerDto} from "./dto/search-customer.dto";
 import {UpdateCustomerDto} from "./dto/update-customer.dto";

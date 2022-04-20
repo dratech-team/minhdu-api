@@ -1,5 +1,5 @@
 import {BadRequestException, Injectable} from "@nestjs/common";
-import {PrismaService} from "../../../prisma.service";
+import {PrismaService} from "../../../../prisma.service";
 import {CreatePaymentHistoryDto} from "./dto/create-payment-history.dto";
 import {UpdatePaymentHistoryDto} from "./dto/update-payment-history.dto";
 

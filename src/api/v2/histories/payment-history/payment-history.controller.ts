@@ -1,14 +1,14 @@
 import {Body, Controller, Delete, Get, Param, Patch, Post, Query, UseGuards} from "@nestjs/common";
 import {UpdatePaymentHistoryDto} from "./dto/update-payment-history.dto";
 import {PaymentHistoryService} from "./payment-history.service";
-import {ApiKeyGuard} from "../../../core/guard/api-key-auth.guard";
-import {JwtAuthGuard} from "../../../core/guard/jwt-auth.guard";
-import {RolesGuard} from "../../../core/guard/role.guard";
-import {Roles} from "../../../core/decorators/roles.decorator";
+import {ApiKeyGuard} from "../../../../core/guard/api-key-auth.guard";
+import {JwtAuthGuard} from "../../../../core/guard/jwt-auth.guard";
+import {RolesGuard} from "../../../../core/guard/role.guard";
+import {Roles} from "../../../../core/decorators/roles.decorator";
 import {RoleEnum} from "@prisma/client";
 import {CreatePaymentHistoryDto} from "./dto/create-payment-history.dto";
-import {LoggerGuard} from "../../../core/guard/logger.guard";
-import {ApiV2Constant} from "../../../common/constant/api.constant";
+import {LoggerGuard} from "../../../../core/guard/logger.guard";
+import {ApiV2Constant} from "../../../../common/constant/api.constant";
 
 @UseGuards(JwtAuthGuard, ApiKeyGuard, RolesGuard)
 @Controller(ApiV2Constant.PAYMENT_HISTORY)

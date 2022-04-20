@@ -3,7 +3,7 @@ import {CreateCustomerDto} from "./dto/create-customer.dto";
 import {UpdateCustomerDto} from "./dto/update-customer.dto";
 import {CustomerRepository} from "./customer.repository";
 import {Customer, GenderType} from "@prisma/client";
-import {CreatePaymentHistoryDto} from "../payment-history/dto/create-payment-history.dto";
+import {CreatePaymentHistoryDto} from "../histories/payment-history/dto/create-payment-history.dto";
 import {Response} from "express";
 import {exportExcel} from "../../../core/services/export.service";
 import {SearchCustomerDto} from "./dto/search-customer.dto";

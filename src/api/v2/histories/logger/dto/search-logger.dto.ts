@@ -1,4 +1,4 @@
-import {SearchBaseDto} from "../../../../common/dtos/search-base.dto";
+import {SearchBaseDto} from "../../../../../common/dtos/search-base.dto";
 import {IsOptional, IsString} from "class-validator";
 
 export class SearchLoggerDto extends SearchBaseDto {

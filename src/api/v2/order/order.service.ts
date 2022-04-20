@@ -3,7 +3,7 @@ import {CreateOrderDto} from "./dto/create-order.dto";
 import {UpdateOrderDto} from "./dto/update-order.dto";
 import {OrderRepository} from "./order.repository";
 import {CommodityService} from "../commodity/commodity.service";
-import {PaymentHistoryService} from "../payment-history/payment-history.service";
+import {PaymentHistoryService} from "../histories/payment-history/payment-history.service";
 import {Response} from "express";
 import {exportExcel} from "../../../core/services/export.service";
 import {SearchOrderDto} from "./dto/search-order.dto";

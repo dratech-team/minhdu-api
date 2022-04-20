@@ -1,7 +1,7 @@
 import {BadRequestException, Injectable} from '@nestjs/common';
 import {CreateOrderHistoryDto} from './dto/create-order-history.dto';
 import {UpdateOrderHistoryDto} from './dto/update-order-history.dto';
-import {PrismaService} from "../../../prisma.service";
+import {PrismaService} from "../../../../prisma.service";
 import {SearchOrderHistoryDto} from "./dto/search-order-history.dto";
 
 @Injectable()

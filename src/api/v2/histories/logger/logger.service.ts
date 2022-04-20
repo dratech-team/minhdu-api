@@ -1,8 +1,8 @@
 import {Injectable} from '@nestjs/common';
 import {CreateLoggerDto} from './dto/create-logger.dto';
 import {UpdateLoggerDto} from './dto/update-logger.dto';
-import {PrismaService} from "../../../prisma.service";
-import {ProfileEntity} from "../../../common/entities/profile.entity";
+import {PrismaService} from "../../../../prisma.service";
+import {ProfileEntity} from "../../../../common/entities/profile.entity";
 import {SearchLoggerDto} from "./dto/search-logger.dto";
 
 @Injectable()
