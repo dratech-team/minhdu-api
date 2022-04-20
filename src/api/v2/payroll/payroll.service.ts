@@ -424,7 +424,7 @@ export class PayrollService {
   totalDeduction(payroll: OnePayroll) {
     return payroll.absents.map(salary => {
       if (!salary.setting.price && !salary.setting.totalOf.length) {
-        throw new BadRequestException(`Thiết lập giá trị khấu trừ cho phiếu lương không hợp lệ. price in setting: ${salary.setting.price}, salaries length in setting: ${payroll.salariesv2.length}}`);
+        throw new BadRequestException(`Thiết lập giá trị khấu trừ cho phiếu lương không hợp lệ. price in setting: ${salary.setting.price}, salaries length in setting: ${salary.setting.totalOf.length}}`);
       }
       const types = salary.setting?.totalOf;
       const totalOf = salary.setting.price || payroll.salariesv2?.length ? payroll.salariesv2.filter(salary => types.includes(salary.type)).map(salary => salary.price * salary.rate).reduce((a, b) => a + b, 0) : 0;
