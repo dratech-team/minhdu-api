@@ -1,8 +1,9 @@
 import {EmployeeType, GenderType, RecipeType} from "@prisma/client";
-import {IsNotEmpty, IsNumber, IsOptional, IsString} from "class-validator";
+import {IsEnum, IsNotEmpty, IsNumber, IsOptional, IsString} from "class-validator";
 import {Type} from "class-transformer";
 import {SortDto} from "../../../../common/dtos/sort.dto";
 import {PartialType} from "@nestjs/mapped-types";
+import {StatusEnum} from "../../../../common/enum/status.enum";
 
 export class SearchEmployeeDto extends PartialType(SortDto) {
   @IsNotEmpty()
@@ -53,8 +54,9 @@ export class SearchEmployeeDto extends PartialType(SortDto) {
   readonly createdPayroll: Date;
 
   @IsNotEmpty()
-  @IsOptional()
-  readonly isLeft: boolean | string;
+  @IsEnum(StatusEnum)
+  @Type(() => Number)
+  readonly status: StatusEnum;
 
   readonly type: EmployeeType;
 

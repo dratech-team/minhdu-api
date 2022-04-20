@@ -11,7 +11,6 @@ export class Salaryv2Service {
 
   async createMany(body: CreateSalaryv2Dto) {
     const salaries = body.payrollIds.map(payrollId => {
-      Object.assign(body, {payrollId});
       return this.mapToSalary(Object.assign(body, {payrollId}));
     }) as SalaryEntity[];
 

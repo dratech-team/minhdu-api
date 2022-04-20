@@ -1,5 +1,5 @@
-import {Contract, Employee, Payroll, Salary, SalaryAllowance, SalarySetting, Salaryv2} from "@prisma/client";
-import {FullSalary} from "../../salary/entities/salary.entity";
+import {AbsentSalary, Contract, Employee, Payroll, Salary, SalarySetting, Salaryv2} from "@prisma/client";
+import {FullSalary} from "../../salaries/salary/entities/salary.entity";
 
 export type RangeDateTime = { start: Date; end: Date };
 
@@ -17,4 +17,4 @@ export type OnePayroll = Payroll & {
     contracts: Contract[];
     position: { name: string; workday: number };
   } & Employee;
-} & { salaries: FullSalary[], salariesv2?: (Salaryv2 & { setting?: SalarySetting })[] };
+} & { salaries: FullSalary[], salariesv2?: Salaryv2[], absents?: (AbsentSalary & { setting?: SalarySetting }) [] };

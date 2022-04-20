@@ -23,7 +23,7 @@ import {PayrollModule} from "./api/v2/payroll/payroll.module";
 import {RelativeModule} from "./api/v2/relative/relative.module";
 import {RoleModule} from "./api/v2/role/role.module";
 import {RouteModule} from "./api/v2/route/route.module";
-import {SalaryModule} from "./api/v2/salary/salary.module";
+import {SalaryModule} from "./api/v2/salaries/salary/salary.module";
 import {SystemModule} from "./api/v2/system/system.module";
 import {AppController} from "./app.controller";
 import {BranchModule} from "./common/branches/branch/branch.module";
@@ -48,7 +48,8 @@ import {SalaryHistoryModule} from "./api/v2/history/salary/salary-history.module
 import { ConsignmentModule } from './api/v2/consignment/consignment.module';
 import { WarehouseModule } from "./api/v2/warehouse/warehouse.module";
 import {SalarySettingsModule} from "./api/v2/settings/salary/salary-settings.module";
-import { Salaryv2Module } from './api/v2/salaryv2/salaryv2.module';
+import { Salaryv2Module } from './api/v2/salaries/salaryv2/salaryv2.module';
+import { AbsentModule } from './api/v2/salaries/absent/absent.module';
 
 @Module({
   imports: [
@@ -99,7 +100,8 @@ import { Salaryv2Module } from './api/v2/salaryv2/salaryv2.module';
     SalaryHistoryModule,
     ConsignmentModule,
     SalarySettingsModule,
-    Salaryv2Module
+    Salaryv2Module,
+    AbsentModule
   ],
   controllers: [AppController],
   providers: [PrismaService],

@@ -1,16 +1,16 @@
 import {BadRequestException, Injectable} from "@nestjs/common";
 import {Salary, SalaryType} from "@prisma/client";
-import {firstDatetime, lastDatetime, rangeDatetime} from "../../../utils/datetime.util";
-import {EmployeeService} from "../employee/employee.service";
-import {PayrollService} from "../payroll/payroll.service";
+import {firstDatetime, lastDatetime, rangeDatetime} from "../../../../utils/datetime.util";
+import {EmployeeService} from "../../employee/employee.service";
+import {PayrollService} from "../../payroll/payroll.service";
 import {CreateSalaryDto} from "./dto/create-salary.dto";
 import {UpdateSalaryDto} from "./dto/update-salary.dto";
 import {OneSalary} from "./entities/salary.entity";
 import {SalaryRepository} from "./salary.repository";
 import {SearchSalaryDto} from "./dto/search-salary.dto";
-import {ProfileEntity} from "../../../common/entities/profile.entity";
+import {ProfileEntity} from "../../../../common/entities/profile.entity";
 import {UpdateManySalaryDto} from "./dto/update-many-salary.dto";
-import {isEqualDatetime} from "../../../common/utils/isEqual-datetime.util";
+import {isEqualDatetime} from "../../../../common/utils/isEqual-datetime.util";
 
 @Injectable()
 export class SalaryService {

@@ -1,4 +1,4 @@
-import {DatetimeUnit, SalaryConstraint, SalaryType} from "@prisma/client";
+import {DatetimeUnit, SalaryType} from "@prisma/client";
 import {IsArray, IsEnum, IsNotEmpty, IsNumber, IsOptional, IsString} from "class-validator";
 import {Type} from "class-transformer";
 
@@ -33,8 +33,4 @@ export class CreateSalarySettingsDto {
   @IsNumber()
   @Type(() => Number)
   readonly workday: number;
-
-  @IsOptional()
-  @IsArray()
-  readonly constraints: SalaryConstraint[];
 }

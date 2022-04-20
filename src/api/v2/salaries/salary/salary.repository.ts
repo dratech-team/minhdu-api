@@ -1,18 +1,18 @@
 import {BadRequestException, Injectable, NotFoundException,} from "@nestjs/common";
 import {DatetimeUnit, PartialDay, SalaryType} from "@prisma/client";
 import * as moment from "moment";
-import {PrismaService} from "../../../prisma.service";
+import {PrismaService} from "../../../../prisma.service";
 import {CreateSalaryDto} from "./dto/create-salary.dto";
 import {UpdateSalaryDto} from "./dto/update-salary.dto";
 import {OneSalary} from "./entities/salary.entity";
-import {includesDatetime} from "../../../common/utils/isEqual-datetime.util";
-import {ALL_DAY, PARTIAL_DAY} from "../../../common/constant/datetime.constant";
-import {FullPayroll} from "../payroll/entities/payroll.entity";
+import {includesDatetime} from "../../../../common/utils/isEqual-datetime.util";
+import {ALL_DAY, PARTIAL_DAY} from "../../../../common/constant/datetime.constant";
+import {FullPayroll} from "../../payroll/entities/payroll.entity";
 import {SearchSalaryDto} from "./dto/search-salary.dto";
-import {ProfileEntity} from "../../../common/entities/profile.entity";
+import {ProfileEntity} from "../../../../common/entities/profile.entity";
 import {CreateForEmployeesDto} from "./dto/create-for-employees.dto";
 import {UpdateManySalaryDto} from "./dto/update-many-salary.dto";
-import {firstDatetime, lastDatetime} from "../../../utils/datetime.util";
+import {firstDatetime, lastDatetime} from "../../../../utils/datetime.util";
 
 const RATE_TIMES = 1;
 

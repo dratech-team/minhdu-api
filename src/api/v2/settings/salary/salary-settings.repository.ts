@@ -23,8 +23,7 @@ export class SalarySettingsRepository extends BaseRepository<SalarySetting, any>
           workday: body?.workday,
           price: body?.price,
           unit: body.unit,
-          types: body?.types || undefined,
-          constraints: body?.constraints || undefined
+          totalOf: body?.types || undefined,
         }
       });
     } catch (err) {
@@ -72,7 +71,6 @@ export class SalarySettingsRepository extends BaseRepository<SalarySetting, any>
           type: updates.settingType,
           rate: updates.rate,
           unit: updates.unit,
-          constraints: {set: updates.constraints}
         }
       });
     } catch (err) {

@@ -53,7 +53,7 @@ export class PayrollService {
               datetime: lastDatetime(body.createdAt),
               compare: "lte"
             },
-            isLeft: false
+            status: 0
           }
         );
         const createds = [];
@@ -148,11 +148,9 @@ export class PayrollService {
 
   async findOne(id: number): Promise<OnePayroll & { totalWorkday: number }> {
     const payroll = await this.repository.findOne(id);
-    const salaries = payroll.salariesv2.map(salary => {
-      if (salary.type === SalaryType.ABSENT || salary.type === SalaryType.DEDUCTION) {
-        return Object.assign(salary, {price: this.totalDeduction(payroll)});
-      }
-      return salary;
+    const salaries = payroll.absents.map(salary => {
+      console.log(this.totalDeduction(payroll))
+      return Object.assign(salary, {price: this.totalDeduction(payroll)});
     });
     return Object.assign(payroll, {totalWorkday: this.totalActualDay(payroll), salaries});
   }
@@ -423,24 +421,26 @@ export class PayrollService {
   }
 
   totalDeduction(payroll: OnePayroll) {
-    return payroll.salariesv2.filter(salary => salary.type === SalaryType.DEDUCTION || salary.type === SalaryType.ABSENT)
-      .map(salary => {
-        const types = salary.setting?.types;
-        const totalOf = salary.setting.price || payroll.salariesv2.filter(salary => types.includes(salary.type)).map(salary => salary.price * salary.rate).reduce((a, b) => a + b, 0);
-        const diveFor = salary.setting.workday || payroll.workday;
-        const days = moment(salary.endedAt).diff(salary.startedAt, "days") + 1;
-        const partial = salary.partial === PartialDay.ALL_DAY
-          ? 1
-          : (salary.partial === PartialDay.MORNING || salary.partial === PartialDay.AFTERNOON)
-            ? 0.5
-            : salary.partial === PartialDay.CUSTOM ? moment(salary.endedAt).diff(salary.startedAt, "minutes") : 0;
-        const unit = salary.setting.unit === DatetimeUnit.HOUR
-          ? 1 / 8
-          : salary.setting.unit === DatetimeUnit.MINUTE
-            ? 1 / 8 / 60
-            : 1;
-        return (salary.price * salary.rate) || (totalOf / diveFor) * days * partial * salary.setting.rate * unit;
-      }).reduce((a, b) => a + b, 0);
+    return payroll.absents.map(salary => {
+      if (!salary.setting.price && !salary.setting.totalOf.length) {
+        throw new BadRequestException(`Thiết lập giá trị khấu trừ cho phiếu lương không hợp lệ. price in setting: ${salary.setting.price}, salaries length in setting: ${payroll.salariesv2.length}}`);
+      }
+      const types = salary.setting?.totalOf;
+      const totalOf = salary.setting.price || payroll.salariesv2?.length ? payroll.salariesv2.filter(salary => types.includes(salary.type)).map(salary => salary.price * salary.rate).reduce((a, b) => a + b, 0) : 0;
+      const diveFor = salary.setting.workday || payroll.workday;
+      const days = moment(salary.endedAt).diff(salary.startedAt, "days") + 1;
+      const partial = salary.partial === PartialDay.ALL_DAY
+        ? 1
+        : (salary.partial === PartialDay.MORNING || salary.partial === PartialDay.AFTERNOON)
+          ? 0.5
+          : (salary.partial === PartialDay.LATE || salary.partial === PartialDay.EARLY) ? moment(salary.endedAt).diff(salary.startedAt, "minutes") : 0;
+      const unit = salary.setting.unit === DatetimeUnit.HOUR
+        ? 1 / 8
+        : salary.setting.unit === DatetimeUnit.MINUTE
+          ? 1 / 8 / 60
+          : 1;
+      return salary.price || (totalOf / diveFor) * days * partial * salary.setting.rate * unit;
+    }).reduce((a, b) => a + b, 0);
   }
 
   totalAllowanceByActual(payroll: OnePayroll, actualDay: number, workday?: number) {

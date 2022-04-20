@@ -1,6 +1,6 @@
- generator client {
-   provider = "prisma-client-js"
- }
+generator client {
+  provider = "prisma-client-js"
+}
 
 //generator dbml {
 //  provider            = "prisma-dbml-generator"
@@ -125,7 +125,7 @@ model Branch {
   status            BranchStatus[]
   phone             BranchPhone[]
   ioIReceipts       IoIReceipt[]
-  allowancesv2      SalaryAllowance[]
+  allowancesv2      AllowanceSalary[]
 }
 
 model BranchStatus {
@@ -280,16 +280,15 @@ model BasicTemplate {
 }
 
 model SalarySetting {
-  id          Int                @id @default(autoincrement())
-  title       String
-  type        SalaryType
-  rate        Float
-  unit        DatetimeUnit
-  price       Float?
-  workday     Int?
-  types       SalaryType[]
-  constraints SalaryConstraint[]
-  salaries    Salaryv2[]
+  id      Int            @id @default(autoincrement())
+  title   String
+  type    SalaryType
+  rate    Float
+  unit    DatetimeUnit
+  price   Float?
+  workday Int?
+  totalOf SalaryType[]
+  absents AbsentSalary[]
 }
 
 model Relative {
@@ -474,34 +473,47 @@ model Salary {
   timestamp  DateTime?     @default(now())
 }
 
+// dùng cho block basic và stay
 model Salaryv2 {
-  id         Int               @id @default(autoincrement())
-  title      String
-  type       SalaryType
-  price      Float?            @default(0)
-  unit       DatetimeUnit
-  partial    PartialDay?
-  startedAt  DateTime?
-  endedAt    DateTime?
-  rate       Float?  @default(1)
-  setting    SalarySetting?    @relation(fields: [settingId], references: [id])
-  settingId  Int?
-  payroll    Payroll           @relation(fields: [payrollId], references: [id], onDelete: Cascade)
-  payrollId  Int
-  note String?
-  allowances SalaryAllowance[]
-  timestamp  DateTime?         @default(now())
+  id        Int        @id @default(autoincrement())
+  title     String
+  type      SalaryType
+  price     Float
+  rate      Float?     @default(1)
+  payroll   Payroll    @relation(fields: [payrollId], references: [id])
+  payrollId Int
+  note      String?
+  timestamp DateTime?  @default(now())
 
-  @@unique([partial, startedAt, endedAt, payrollId])
+  @@unique([title, type, price, payrollId])
 }
 
-model SalaryAllowance {
+model AbsentSalary {
+  id        Int            @id @default(autoincrement())
+  title     String
+  price     Float?         @default(0)
+  unit      DatetimeUnit
+  partial   PartialDay
+  startedAt DateTime
+  endedAt   DateTime
+  startTime DateTime
+  endTime   DateTime
+  setting   SalarySetting? @relation(fields: [settingId], references: [id])
+  settingId Int?
+  payroll   Payroll        @relation(fields: [payrollId], references: [id], onDelete: Cascade)
+  payrollId Int
+  note      String?
+}
+
+model OvertimeSalary {
+  id Int @id @default(autoincrement())
+}
+
+model AllowanceSalary {
   id        Int       @id @default(autoincrement())
   title     String
   price     Float
   rate      Float?    @default(1)
-  salary    Salaryv2? @relation(fields: [salaryId], references: [id])
-  salaryId  Int?
   branch    Branch?   @relation(fields: [branchId], references: [id])
   branchId  Int?
   timestamp DateTime? @default(now())
@@ -529,11 +541,11 @@ model WorkHistory {
 }
 
 model Payroll {
-  id             Int         @id @default(autoincrement())
-  employee       Employee    @relation(fields: [employeeId], references: [id], onDelete: Cascade)
+  id             Int            @id @default(autoincrement())
+  employee       Employee       @relation(fields: [employeeId], references: [id], onDelete: Cascade)
   employeeId     Int
   accConfirmedAt DateTime?
-  isEdit         Boolean?    @default(true)
+  isEdit         Boolean?       @default(true)
   manConfirmedAt DateTime?
   paidAt         DateTime?
   workday        Float? // ngày công chuẩn
@@ -548,11 +560,12 @@ model Payroll {
   salaries       Salary[]
   note           String?
   tax            Float?
-  taxed          Boolean?    @default(true)
+  taxed          Boolean?       @default(true)
   deletedAt      DateTime?
-  createdAt      DateTime?   @default(now()) // ngay tao phieu luong, phieu luong cua thang
-  timestamp      DateTime?   @default(now()) // ngay them vao ghi lai lich su
+  createdAt      DateTime?      @default(now()) // ngay tao phieu luong, phieu luong cua thang
+  timestamp      DateTime?      @default(now()) // ngay them vao ghi lai lich su
   salariesv2     Salaryv2[]
+  absents        AbsentSalary[]
 }
 
 // warehouse
@@ -726,7 +739,8 @@ enum PartialDay {
   AFTERNOON
   NIGHT
   ALL_DAY
-  CUSTOM
+  LATE
+  EARLY
 }
 
 //  CT1: apply cho công nhân trại chăn nuôi

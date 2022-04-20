@@ -1,5 +1,5 @@
 import {BadRequestException, Injectable} from "@nestjs/common";
-import {PrismaService} from "../../../prisma.service";
+import {PrismaService} from "../../../../prisma.service";
 import {SalaryEntity} from "./entities/salary.entity";
 
 @Injectable()

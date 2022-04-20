@@ -1,6 +1,6 @@
 import {Transform, Type} from "class-transformer";
 import {IsArray, IsDate, IsNumber, IsOptional, ValidateNested} from "class-validator";
-import {ICreateSalaryDto} from "../../../../common/dtos/create-salary.dto";
+import {ICreateSalaryDto} from "../../../../../common/dtos/create-salary.dto";
 import {CreateAllowanceDto} from "./create-allowance.dto";
 import * as moment from "moment";
 

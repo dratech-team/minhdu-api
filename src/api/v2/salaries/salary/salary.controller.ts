@@ -2,18 +2,18 @@ import {Body, Controller, Delete, Get, Param, ParseIntPipe, Patch, Post, Query, 
 import {CreateSalaryDto} from "./dto/create-salary.dto";
 import {UpdateSalaryDto} from "./dto/update-salary.dto";
 import {SalaryService} from "./salary.service";
-import {ParseDatetimePipe} from "../../../core/pipe/datetime.pipe";
+import {ParseDatetimePipe} from "../../../../core/pipe/datetime.pipe";
 import {DatetimeUnit, RoleEnum} from "@prisma/client";
 import {CreateForEmployeesDto} from "./dto/create-for-employees.dto";
-import {ReqProfile} from "../../../core/decorators/req-profile.decorator";
-import {ProfileEntity} from "../../../common/entities/profile.entity";
-import {JwtAuthGuard} from "../../../core/guard/jwt-auth.guard";
-import {ApiKeyGuard} from "../../../core/guard/api-key-auth.guard";
-import {RolesGuard} from "../../../core/guard/role.guard";
-import {Roles} from "../../../core/decorators/roles.decorator";
+import {ReqProfile} from "../../../../core/decorators/req-profile.decorator";
+import {ProfileEntity} from "../../../../common/entities/profile.entity";
+import {JwtAuthGuard} from "../../../../core/guard/jwt-auth.guard";
+import {ApiKeyGuard} from "../../../../core/guard/api-key-auth.guard";
+import {RolesGuard} from "../../../../core/guard/role.guard";
+import {Roles} from "../../../../core/decorators/roles.decorator";
 import {UpdateManySalaryDto} from "./dto/update-many-salary.dto";
-import {LoggerGuard} from "../../../core/guard/logger.guard";
-import {ApiV2Constant} from "../../../common/constant/api.constant";
+import {LoggerGuard} from "../../../../core/guard/logger.guard";
+import {ApiV2Constant} from "../../../../common/constant/api.constant";
 
 @UseGuards(JwtAuthGuard, ApiKeyGuard, RolesGuard)
 @Controller(ApiV2Constant.SALARY)

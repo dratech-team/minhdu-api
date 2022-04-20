@@ -6,7 +6,7 @@ import {firstDatetime, lastDatetime} from "../../../utils/datetime.util";
 import {CreatePayrollDto} from "./dto/create-payroll.dto";
 import {SearchPayrollDto} from "./dto/search-payroll.dto";
 import {UpdatePayrollDto} from "./dto/update-payroll.dto";
-import {CreateSalaryDto} from "../salary/dto/create-salary.dto";
+import {CreateSalaryDto} from "../salaries/salary/dto/create-salary.dto";
 import * as moment from "moment";
 import {Promise} from "es6-promise";
 import {FilterTypeEnum} from "./entities/filter-type.enum";
@@ -14,6 +14,7 @@ import {SearchSalaryDto} from "./dto/search-salary.dto";
 import {OrderbyEmployeeEnum} from "../employee/enums/orderby-employee.enum";
 import *as _ from "lodash";
 import {TAX} from "../../../common/constant/salary.constant";
+import {StatusEnum} from "../../../common/enum/status.enum";
 
 type CreatePayroll =
   CreatePayrollDto
@@ -144,7 +145,7 @@ export class PayrollRepository {
               lastName: {contains: search?.name, mode: "insensitive"},
               type: search?.employeeType ? {in: search?.employeeType} : {},
               category: search?.categoryId ? {id: {in: search?.categoryId}} : {},
-              leftAt: search?.empStatus && search?.empStatus !== -1 ? (search?.empStatus === 0 ? {in: null} : {notIn: null}) : {},
+              leftAt: search?.empStatus > -1 && search?.empStatus !== StatusEnum.ALL ? (search?.empStatus === StatusEnum.NOT_ACTIVE ? {notIn: null} : {in: null}) : {},
             },
             branch: acc.branches?.length ? {
               in: acc.branches.map(branch => branch.name),
@@ -170,7 +171,7 @@ export class PayrollRepository {
               lastName: {contains: search?.name, mode: "insensitive"},
               type: search?.employeeType ? {in: search?.employeeType} : {},
               category: search?.categoryId ? {id: {in: search?.categoryId}} : {},
-              leftAt: search?.empStatus && search?.empStatus !== -1 ? (search?.empStatus === 0 ? {in: null} : {notIn: null}) : {},
+              leftAt: search?.empStatus > -1 && search?.empStatus !== StatusEnum.ALL ? (search?.empStatus === StatusEnum.NOT_ACTIVE ? {notIn: null} : {in: null}) : {},
             },
             branch: acc.branches?.length ? {
               in: acc.branches.map(branch => branch.name),
@@ -188,9 +189,7 @@ export class PayrollRepository {
           },
           include: {
             salaries: true,
-            salariesv2: {
-              include: {setting: true}
-            },
+            salariesv2: true,
             employee: {
               include: {
                 contracts: true,
@@ -346,9 +345,8 @@ export class PayrollRepository {
               allowance: true
             }
           },
-          salariesv2: {
-            include: {setting: true}
-          },
+          salariesv2: true,
+          absents: {include: {setting: true}},
           employee: {
             include: {
               contracts: true,
