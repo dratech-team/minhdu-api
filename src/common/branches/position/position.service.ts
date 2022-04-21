@@ -16,7 +16,7 @@ export class PositionService {
     return await this.repository.create(body);
   }
 
-  async findAll(profile: ProfileEntity, search: Partial<SearchPositionDto>): Promise<Position[]> {
+  async findAll(profile: ProfileEntity, search: Partial<SearchPositionDto>) {
     return this.repository.findAll(profile, search);
   }
 

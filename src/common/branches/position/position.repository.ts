@@ -7,6 +7,7 @@ import {OnePosition} from "./entities/position.entity";
 import {SearchPositionDto} from "./dto/search-position.dto";
 import {ProfileEntity} from "../../entities/profile.entity";
 import * as _ from 'lodash';
+import {ResponsePagination} from "../../entities/response.pagination";
 
 @Injectable()
 export class PositionRepository {
@@ -44,7 +45,7 @@ export class PositionRepository {
     }
   }
 
-  async findAll(profile: ProfileEntity, search: Partial<SearchPositionDto>): Promise<Position[]> {
+  async findAll(profile: ProfileEntity, search: Partial<SearchPositionDto>) {
     try {
       const acc = await this.prisma.account.findUnique({where: {id: profile.id}, include: {branches: true}});
       if (acc.branches?.length) {
@@ -62,15 +63,24 @@ export class PositionRepository {
           return _.flattenDeep(branches.map(branch => branch.positions));
         }
       }
-      return await this.prisma.position.findMany({
-        where: {
-          name: {startsWith: search?.position, mode: "insensitive"},
-          workday: search?.workday,
-        },
-        include: {
-          _count: true
-        }
-      });
+      const [total, data] = await Promise.all([
+        this.prisma.position.count({
+          where: {
+            name: {startsWith: search?.position, mode: "insensitive"},
+            workday: search?.workday,
+          },
+        }),
+        this.prisma.position.findMany({
+          where: {
+            name: {startsWith: search?.position, mode: "insensitive"},
+            workday: search?.workday,
+          },
+          include: {
+            _count: true
+          }
+        }),
+      ]);
+      return {total, data};
     } catch (e) {
       console.error(e);
       throw new BadRequestException(e);
