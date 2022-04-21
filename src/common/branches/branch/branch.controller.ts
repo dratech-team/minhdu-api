@@ -10,6 +10,7 @@ import {RoleEnum} from "@prisma/client";
 import {LoggerGuard} from "../../../core/guard/logger.guard";
 import {ReqProfile} from "../../../core/decorators/req-profile.decorator";
 import {ProfileEntity} from "../../entities/profile.entity";
+import {SearchBranchDto} from "./dto/search-branch.dto";
 
 @UseGuards(JwtAuthGuard, ApiKeyGuard, RolesGuard)
 @Controller('v2/branch')
@@ -26,8 +27,8 @@ export class BranchController {
 
   @Roles(RoleEnum.ADMIN, RoleEnum.HUMAN_RESOURCE, RoleEnum.WAREHOUSE, RoleEnum.CAMP_ACCOUNTING, RoleEnum.SALESMAN)
   @Get()
-  findAll(@ReqProfile() profile: ProfileEntity) {
-    return this.branchService.findAll(profile);
+  findAll(@ReqProfile() profile: ProfileEntity, @Param() search: SearchBranchDto) {
+    return this.branchService.findAll(profile, search);
   }
 
 

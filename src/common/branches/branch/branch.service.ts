@@ -4,6 +4,7 @@ import {Branch} from "@prisma/client";
 import {BranchRepository} from "./branch.repository";
 import {UpdateBranchDto} from "./dto/update-branch.dto";
 import {ProfileEntity} from "../../entities/profile.entity";
+import {SearchBranchDto} from "./dto/search-branch.dto";
 
 @Injectable()
 export class BranchService {
@@ -14,8 +15,8 @@ export class BranchService {
     return await this.repository.create(profile, body);
   }
 
-  async findAll(profile: ProfileEntity) {
-    return await this.repository.findAll(profile);
+  async findAll(profile: ProfileEntity, search: SearchBranchDto) {
+    return await this.repository.findAll(profile, search);
   }
 
   async findOne(profile: ProfileEntity, id: number) {

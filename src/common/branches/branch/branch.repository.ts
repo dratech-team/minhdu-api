@@ -1,9 +1,10 @@
 import {BadRequestException, ForbiddenException, Injectable,} from "@nestjs/common";
 import {PrismaService} from "../../../prisma.service";
 import {CreateBranchDto} from "./dto/create-branch.dto";
-import {AppEnum, Branch, RoleEnum} from "@prisma/client";
+import {AppEnum, Branch} from "@prisma/client";
 import {UpdateBranchDto} from "./dto/update-branch.dto";
 import {ProfileEntity} from "../../entities/profile.entity";
+import {SearchBranchDto} from "./dto/search-branch.dto";
 
 @Injectable()
 export class BranchRepository {
@@ -44,33 +45,32 @@ export class BranchRepository {
     }
   }
 
-  async findAll(profile: ProfileEntity) {
+  async findAll(profile: ProfileEntity, search: SearchBranchDto) {
     try {
       const acc = await this.prisma.account.findUnique({where: {id: profile.id}, include: {branches: true}});
 
-      const branches = await this.prisma.branch.findMany({
-        where: {
-          name: acc?.branches?.length ? {in: acc.branches.map(branch => branch.name)} : {},
-          // status: {
-          //   every: {
-          //     app: acc.appName,
-          //   }
-          // },
-          // phone: {
-          //   every: {
-          //     app: acc.appName,
-          //   }
-          // }
-        },
-        include: {
-          positions: acc.appName === AppEnum.HR,
-          _count: acc.appName === AppEnum.HR,
-          allowances: acc.appName === AppEnum.HR,
-          status: true,
-          phone: true
-        }
-      });
-      return await Promise.all(branches.map(async branch => await this.mapToBranch(branch, acc.appName)));
+      const [total, data] = await Promise.all([
+        this.prisma.branch.count({
+          where: {
+            name: acc?.branches?.length ? {in: acc.branches.map(branch => branch.name)} : {},
+          },
+        }),
+        this.prisma.branch.findMany({
+          take: search?.take,
+          skip: search?.skip,
+          where: {
+            name: acc?.branches?.length ? {in: acc.branches.map(branch => branch.name)} : {},
+          },
+          include: {
+            positions: acc.appName === AppEnum.HR,
+            _count: acc.appName === AppEnum.HR,
+            allowances: acc.appName === AppEnum.HR,
+            status: true,
+            phone: true
+          }
+        }),
+      ]);
+      return {total, data: await Promise.all(data.map(async branch => await this.mapToBranch(branch, acc.appName)))};
     } catch (err) {
       console.error(err);
       throw new BadRequestException(err);
