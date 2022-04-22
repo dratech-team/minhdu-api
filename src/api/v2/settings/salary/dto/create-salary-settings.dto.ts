@@ -17,13 +17,14 @@ export class CreateSalarySettingsDto {
   readonly rate: number;
 
   @IsOptional()
-  @IsNumber()
+  @IsNumber({}, {each: true})
+  @IsArray()
   @Type(() => Number)
-  readonly price: number;
+  readonly prices: number[];
 
   @IsOptional()
   @IsArray()
-  readonly types: SalaryType[]
+  readonly totalOf: SalaryType[]
 
   @IsNotEmpty({message: "Bạn phải chọn buổi", groups: ["absent", "overtime"]})
   @IsEnum(DatetimeUnit, {groups: ["absent", "overtime"]})

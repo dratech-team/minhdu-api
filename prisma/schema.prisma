@@ -285,10 +285,12 @@ model SalarySetting {
   type    SalaryType
   rate    Float
   unit    DatetimeUnit
-  price   Float?
+  prices  Float[]
   workday Int?
   totalOf SalaryType[]
   absents AbsentSalary[]
+
+  @@unique([title, type])
 }
 
 model Relative {

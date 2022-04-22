@@ -422,11 +422,11 @@ export class PayrollService {
 
   totalDeduction(payroll: OnePayroll) {
     return payroll.absents.map(salary => {
-      if (!salary.setting.price && !salary.setting.totalOf.length) {
-        throw new BadRequestException(`Thiết lập giá trị khấu trừ cho phiếu lương không hợp lệ. price in setting: ${salary.setting.price}, salaries length in setting: ${salary.setting.totalOf.length}}`);
+      if (!salary.setting.prices.length && !salary.setting.totalOf.length) {
+        throw new BadRequestException(`Thiết lập giá trị khấu trừ cho phiếu lương không hợp lệ. price in setting: ${salary.setting.prices.join(", ")}, salaries length in setting: ${salary.setting.totalOf.length}}`);
       }
       const types = salary.setting?.totalOf;
-      const totalOf = salary.setting.price || payroll.salariesv2?.length ? payroll.salariesv2.filter(salary => types.includes(salary.type)).map(salary => salary.price * salary.rate).reduce((a, b) => a + b, 0) : 0;
+      const totalOf = salary.setting.prices.reduce((a, b) => a + b, 0) || payroll.salariesv2?.length ? payroll.salariesv2.filter(salary => types.includes(salary.type)).map(salary => salary.price * salary.rate).reduce((a, b) => a + b, 0) : 0;
       const diveFor = salary.setting.workday || payroll.workday;
       const days = moment(salary.endedAt).diff(salary.startedAt, "days") + 1;
       const partial = salary.partial === PartialDay.ALL_DAY

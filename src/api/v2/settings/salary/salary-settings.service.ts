@@ -12,7 +12,7 @@ export class SalarySettingsService {
   }
 
   async create(body: CreateSalarySettingsDto) {
-    const types = body.types.includes(SalaryType.BASIC) ? [SalaryType.BASIC, SalaryType.BASIC_INSURANCE] : body.types;
+    const types = body.totalOf.includes(SalaryType.BASIC) ? [SalaryType.BASIC, SalaryType.BASIC_INSURANCE] : body.totalOf;
     return await this.repository.create(Object.assign(body, {types}));
   }
 
@@ -25,7 +25,7 @@ export class SalarySettingsService {
   }
 
   async update(id: number, updates: UpdateSalarySettingsDto) {
-    const types = updates.types.includes(SalaryType.BASIC) ? [SalaryType.BASIC, SalaryType.BASIC_INSURANCE] : updates.types;
+    const types = updates.totalOf.includes(SalaryType.BASIC) ? [SalaryType.BASIC, SalaryType.BASIC_INSURANCE] : updates.totalOf;
     return await this.repository.update(id, Object.assign(updates, {types}));
   }
 

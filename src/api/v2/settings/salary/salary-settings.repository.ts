@@ -21,9 +21,9 @@ export class SalarySettingsRepository extends BaseRepository<SalarySetting, any>
           type: body.settingType,
           rate: body.rate,
           workday: body?.workday,
-          price: body?.price,
+          prices: body?.prices || undefined,
           unit: body.unit,
-          totalOf: body?.types || undefined,
+          totalOf: body?.totalOf || undefined,
         }
       });
     } catch (err) {
