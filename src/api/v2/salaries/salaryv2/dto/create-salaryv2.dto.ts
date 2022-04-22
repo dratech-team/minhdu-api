@@ -23,7 +23,7 @@ export class CreateSalaryv2Dto {
   @Type(() => Number)
   readonly payrollIds: number[];
 
-  @IsNotEmpty({message: "Bạn phải chọn buổi", groups: ["absent", "overtime"]})
+  @IsOptional({message: "Bạn phải chọn buổi", groups: ["absent", "overtime"]})
   @IsEnum(PartialDay, {groups: ["absent", "overtime"]})
   readonly partial: PartialDay;
 

@@ -8,7 +8,7 @@ export class Salaryv2Controller {
   constructor(private readonly salaryv2Service: Salaryv2Service) {
   }
 
-  @Post()
+  @Post("/multiple/create")
   createMany(@Body() body: CreateSalaryv2Dto) {
     return this.salaryv2Service.createMany(body);
   }
@@ -23,7 +23,7 @@ export class Salaryv2Controller {
     return this.salaryv2Service.findOne(+id);
   }
 
-  @Post('multiple')
+  @Post('/multiple/update')
   updateMany(@Body() updateSalaryv2Dto: UpdateSalaryv2Dto) {
     return this.salaryv2Service.updateMany(updateSalaryv2Dto);
   }

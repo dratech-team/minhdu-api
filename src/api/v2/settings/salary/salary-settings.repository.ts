@@ -43,12 +43,16 @@ export class SalarySettingsRepository extends BaseRepository<SalarySetting, any>
       const acc = await this.prisma.account.findUnique({where: {id: profile.id}});
 
       const [total, data] = await Promise.all([
-        this.prisma.salarySetting.count(),
-        this.prisma.salarySetting.findMany({
-          // take: search?.take,
-          // skip: search?.skip,
+        this.prisma.salarySetting.count({
           where: {
-            type: {in: search?.salaryType}
+            type: {in: search?.types}
+          }
+        }),
+        this.prisma.salarySetting.findMany({
+          take: search?.take,
+          skip: search?.skip,
+          where: {
+            type: {in: search?.types}
           }
         }),
       ]);
