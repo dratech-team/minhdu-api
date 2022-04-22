@@ -15,6 +15,12 @@ export class SalarySettingsRepository extends BaseRepository<SalarySetting, any>
 
   async create(body: CreateSalarySettingsDto) {
     try {
+      const found = await this.prisma.salarySetting.findUnique({
+        where: {title_type: {title: body?.title, type: body?.settingType}}
+      });
+      if (found && body?.prices?.length) {
+        return await this.update(found.id, {prices: [...new Set(body.prices.concat(found.prices))]});
+      }
       return await this.prisma.salarySetting.create({
         data: {
           title: body.title,
@@ -55,7 +61,9 @@ export class SalarySettingsRepository extends BaseRepository<SalarySetting, any>
 
   async findOne(id: number) {
     try {
-      return await this.prisma.salarySetting.findUnique({where: {id}});
+      return await this.prisma.salarySetting.findUnique({
+        where: {id}
+      });
     } catch (err) {
       console.error(err);
       throw new BadRequestException(err);
@@ -70,6 +78,7 @@ export class SalarySettingsRepository extends BaseRepository<SalarySetting, any>
           title: updates.title,
           type: updates.settingType,
           rate: updates.rate,
+          prices: updates?.prices || undefined,
           unit: updates.unit,
         }
       });
