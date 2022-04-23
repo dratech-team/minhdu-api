@@ -1,13 +1,15 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete } from '@nestjs/common';
-import { DeductionService } from './deduction.service';
-import { CreateDeductionDto } from './dto/create-deduction.dto';
-import { UpdateDeductionDto } from './dto/update-deduction.dto';
+import {Body, Controller, Delete, Get, Param, Post} from '@nestjs/common';
+import {DeductionService} from './deduction.service';
+import {CreateDeductionDto} from './dto/create-deduction.dto';
+import {UpdateDeductionDto} from './dto/update-deduction.dto';
+import {DeleteMultipleDeductionDto} from "./dto/delete-multiple-deduction.dto";
 
 @Controller('v2/salary/deduction')
 export class DeductionController {
-  constructor(private readonly deductionService: DeductionService) {}
+  constructor(private readonly deductionService: DeductionService) {
+  }
 
-  @Post()
+  @Post('/multiple/creation')
   create(@Body() createDeductionDto: CreateDeductionDto) {
     return this.deductionService.create(createDeductionDto);
   }
@@ -22,13 +24,13 @@ export class DeductionController {
     return this.deductionService.findOne(+id);
   }
 
-  @Patch(':id')
-  update(@Param('id') id: string, @Body() updateDeductionDto: UpdateDeductionDto) {
-    return this.deductionService.update(+id, updateDeductionDto);
+  @Post('/multiple/updation')
+  update(@Body() body: UpdateDeductionDto) {
+    return this.deductionService.updateMany(body);
   }
 
-  @Delete(':id')
-  remove(@Param('id') id: string) {
-    return this.deductionService.remove(+id);
+  @Post('/multiple/deletion')
+  remove(@Body() body: DeleteMultipleDeductionDto) {
+    return this.deductionService.removeMany(body);
   }
 }

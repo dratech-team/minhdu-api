@@ -538,6 +538,8 @@ model AllowanceSalary {
   rate      Float?    @default(1)
   branch    Branch?   @relation(fields: [branchId], references: [id])
   branchId  Int?
+  payroll   Payroll?  @relation(fields: [payrollId], references: [id])
+  payrollId Int?
   timestamp DateTime? @default(now())
 }
 
@@ -579,17 +581,18 @@ model Payroll {
   total          Float?
   isFlatSalary   Boolean?
   recipeType     RecipeType?
-  salaries       Salary[]
   note           String?
   tax            Float?
   taxed          Boolean?          @default(true)
   deletedAt      DateTime?
   createdAt      DateTime?         @default(now()) // ngay tao phieu luong, phieu luong cua thang
   timestamp      DateTime?         @default(now()) // ngay them vao ghi lai lich su
+  salaries       Salary[]
   salariesv2     Salaryv2[]
   absents        AbsentSalary[]
   deductions     DeductionSalary[]
   remotes        RemoteSalary[]
+  allownaces     AllowanceSalary[]
 }
 
 // warehouse

@@ -1,5 +1,5 @@
 import {RemoteType} from "@prisma/client";
-import {IsDate, IsEnum, IsNotEmpty, IsNumber, IsOptional, IsString} from "class-validator";
+import {IsArray, IsDate, IsEnum, IsNotEmpty, IsNumber, IsOptional, IsString} from "class-validator";
 import {Transform, Type} from "class-transformer";
 import * as moment from "moment";
 
@@ -20,9 +20,10 @@ export class CreateRemoteDto {
   readonly endedAt: Date;
 
   @IsNotEmpty()
-  @IsNumber()
+  @IsNumber({}, {each: true})
+  @IsArray()
   @Type(() => Number)
-  readonly payrollId: number;
+  readonly payrollIds: number[];
 
   @IsOptional()
   @IsString()

@@ -2,15 +2,21 @@ import {Injectable} from '@nestjs/common';
 import {CreateDeductionDto} from './dto/create-deduction.dto';
 import {UpdateDeductionDto} from './dto/update-deduction.dto';
 import {DeductionRepository} from "./deduction.repository";
-import {DeductionSalary} from '@prisma/client';
+import {DeductionEntity} from "./entities/deduction.entity";
+import {DeleteMultipleDeductionDto} from "./dto/delete-multiple-deduction.dto";
 
 @Injectable()
 export class DeductionService {
   constructor(private readonly repository: DeductionRepository) {
   }
 
-  create(body: CreateDeductionDto) {
-    return this.repository.create(this.mapToDeduction(body));
+  async create(body: CreateDeductionDto) {
+    const salaries = body.payrollIds.map(payrollId => {
+      return this.mapToDeduction(Object.assign(body, {payrollId}));
+    }) as DeductionEntity[];
+
+    const {count} = await this.repository.createMany(salaries);
+    return {status: 201, message: `Đã tạo ${count} record`};
   }
 
   findAll() {
@@ -21,15 +27,16 @@ export class DeductionService {
     return this.repository.findOne(id);
   }
 
-  update(id: number, body: UpdateDeductionDto) {
-    return this.repository.update(id, body);
+  async updateMany(body: UpdateDeductionDto) {
+    const {count} = await this.repository.updateMany(body.salaryIds, this.mapToDeduction(body));
+    return {status: 201, message: `Cập nhật thành công ${count} record`};
   }
 
-  remove(id: number) {
-    return this.repository.remove(id);
+  removeMany(body: DeleteMultipleDeductionDto) {
+    return this.repository.removeMany(body);
   }
 
-  private mapToDeduction(body: CreateDeductionDto): Omit<DeductionSalary, "id"> {
+  private mapToDeduction(body): DeductionEntity {
     return {
       title: body.title,
       unit: body.unit,

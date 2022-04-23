@@ -52,6 +52,8 @@ import { Salaryv2Module } from './api/v2/salaries/salaryv2/salaryv2.module';
 import { AbsentModule } from './api/v2/salaries/absent/absent.module';
 import { DeductionModule } from './api/v2/salaries/deduction/deduction.module';
 import { RemoteModule } from './api/v2/salaries/remote/remote.module';
+import { OvertimeModule } from './api/v2/salaries/overtime/overtime.module';
+import { AllowanceModule } from './api/v2/salaries/allowance/allowance.module';
 
 @Module({
   imports: [
@@ -105,7 +107,9 @@ import { RemoteModule } from './api/v2/salaries/remote/remote.module';
     Salaryv2Module,
     AbsentModule,
     DeductionModule,
-    RemoteModule
+    RemoteModule,
+    OvertimeModule,
+    AllowanceModule
   ],
   controllers: [AppController],
   providers: [PrismaService],

@@ -1,16 +1,21 @@
 import {Injectable} from '@nestjs/common';
-import {RemoteSalary} from '@prisma/client';
-import {CreateRemoteDto} from './dto/create-remote.dto';
 import {UpdateRemoteDto} from './dto/update-remote.dto';
 import {RemoteRepository} from "./remote.repository";
+import {CreateRemoteDto} from "./dto/create-remote.dto";
+import {RemoteEntity} from "./entities/remote.entity";
 
 @Injectable()
 export class RemoteService {
   constructor(private readonly repository: RemoteRepository) {
   }
 
-  create(body: CreateRemoteDto) {
-    return this.repository.create(this.mapToRemote(body));
+  async createMany(body: CreateRemoteDto) {
+    const salaries = body.payrollIds.map(payrollId => {
+      return this.mapToRemote(Object.assign(body, {payrollId}));
+    }) as RemoteEntity[];
+
+    const {count} = await this.repository.createMany(salaries);
+    return {status: 201, message: `Đã tạo ${count} record`};
   }
 
   findAll() {
@@ -21,15 +26,16 @@ export class RemoteService {
     return this.repository.findOne(id);
   }
 
-  update(id: number, body: UpdateRemoteDto) {
-    return this.repository.update(id, this.mapToRemote(body));
+  async update(id: number, body: UpdateRemoteDto) {
+    const {count} = await this.repository.updateMany(body.salaryIds, this.mapToRemote(body));
+    return {status: 201, message: `Cập nhật thành công ${count} record`};
   }
 
   remove(id: number) {
     return this.repository.remove(id);
   }
 
-  private mapToRemote(body: CreateRemoteDto | UpdateRemoteDto): Omit<RemoteSalary, "id"> {
+  private mapToRemote(body): RemoteEntity {
     return {
       type: body.type,
       startedAt: body.startedAt,

@@ -3,6 +3,7 @@ import {CreateAbsentDto} from './dto/create-absent.dto';
 import {UpdateAbsentDto} from './dto/update-absent.dto';
 import {AbsentRepository} from "./absent.repository";
 import {AbsentSalary} from '@prisma/client';
+import {DeleteMultipleAbsentDto} from "./dto/delete-multiple-absent.dto";
 
 @Injectable()
 export class AbsentService {
@@ -30,8 +31,8 @@ export class AbsentService {
     return {status: 201, message: `Cập nhật thành công ${count} record`};
   }
 
-  async removeMany(salaryIds: number[]) {
-    const {count} = await this.repository.removeMany(salaryIds);
+  async removeMany(body: DeleteMultipleAbsentDto) {
+    const {count} = await this.repository.removeMany(body);
     return {status: 201, message: `Đã xóa thành công ${count} record`};
   }
 

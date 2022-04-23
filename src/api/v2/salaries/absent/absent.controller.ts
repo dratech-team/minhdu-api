@@ -1,15 +1,17 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete } from '@nestjs/common';
-import { AbsentService } from './absent.service';
-import { CreateAbsentDto } from './dto/create-absent.dto';
-import { UpdateAbsentDto } from './dto/update-absent.dto';
+import {Body, Controller, Delete, Get, Param, Post} from '@nestjs/common';
+import {AbsentService} from './absent.service';
+import {CreateAbsentDto} from './dto/create-absent.dto';
+import {UpdateAbsentDto} from './dto/update-absent.dto';
+import {DeleteMultipleAbsentDto} from "./dto/delete-multiple-absent.dto";
 
-@Controller('v2/salary/absent')
+@Controller('v2/salary/deduction')
 export class AbsentController {
-  constructor(private readonly absentService: AbsentService) {}
+  constructor(private readonly absentService: AbsentService) {
+  }
 
-  @Post()
-  createMany(@Body() createAbsentDto: CreateAbsentDto) {
-    return this.absentService.createMany(createAbsentDto);
+  @Post("/multiple/create")
+  createMany(@Body() body: CreateAbsentDto) {
+    return this.absentService.createMany(body);
   }
 
   @Get()
@@ -22,13 +24,13 @@ export class AbsentController {
     return this.absentService.findOne(+id);
   }
 
-  @Post('multiple')
+  @Post("/multiple/updation")
   updateMany(@Body() updateAbsentDto: UpdateAbsentDto) {
     return this.absentService.updateMany(updateAbsentDto);
   }
 
-  @Delete('multiple')
-  removeMany(@Body('salaryIds') salaryIds: number[]) {
-    return this.absentService.removeMany(salaryIds);
+  @Post('multiple/deletion')
+  removeMany(@Body() body: DeleteMultipleAbsentDto) {
+    return this.absentService.removeMany(body);
   }
 }

@@ -6,7 +6,11 @@ import {PrismaService} from "../../../../prisma.service";
 
 @Module({
   controllers: [Salaryv2Controller],
-  providers: [Salaryv2Service, Salaryv2Repository, PrismaService]
+  providers: [
+    Salaryv2Service,
+    Salaryv2Repository,
+    PrismaService,
+  ]
 })
 export class Salaryv2Module {
 }

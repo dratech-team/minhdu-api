@@ -3,13 +3,13 @@ import { RemoteService } from './remote.service';
 import { CreateRemoteDto } from './dto/create-remote.dto';
 import { UpdateRemoteDto } from './dto/update-remote.dto';
 
-@Controller('remote')
+@Controller('v2/salary/remote')
 export class RemoteController {
   constructor(private readonly remoteService: RemoteService) {}
 
-  @Post()
+  @Post('/multiple/creation')
   create(@Body() createRemoteDto: CreateRemoteDto) {
-    return this.remoteService.create(createRemoteDto);
+    return this.remoteService.createMany(createRemoteDto);
   }
 
   @Get()
@@ -22,12 +22,12 @@ export class RemoteController {
     return this.remoteService.findOne(+id);
   }
 
-  @Patch(':id')
+  @Post('/multiple/updation')
   update(@Param('id') id: string, @Body() updateRemoteDto: UpdateRemoteDto) {
     return this.remoteService.update(+id, updateRemoteDto);
   }
 
-  @Delete(':id')
+  @Post('/multiple/deletion')
   remove(@Param('id') id: string) {
     return this.remoteService.remove(+id);
   }

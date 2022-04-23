@@ -1,16 +1,15 @@
 import {BadRequestException, Injectable} from "@nestjs/common";
-import {RemoteSalary} from "@prisma/client";
 import {PrismaService} from "../../../../prisma.service";
-import {UpdateRemoteDto} from "./dto/update-remote.dto";
+import {RemoteEntity} from "./entities/remote.entity";
 
 @Injectable()
 export class RemoteRepository {
   constructor(private readonly prisma: PrismaService) {
   }
 
-  async create(body: Omit<RemoteSalary, "id">) {
+  async createMany(body: RemoteEntity[]) {
     try {
-      return await this.prisma.remoteSalary.create({data: body});
+      return await this.prisma.remoteSalary.createMany({data: body});
     } catch (err) {
       console.error(err);
       throw new BadRequestException(err);
@@ -35,9 +34,9 @@ export class RemoteRepository {
     }
   }
 
-  async update(id: number, body: UpdateRemoteDto) {
+  async updateMany(ids: number[], body: RemoteEntity) {
     try {
-      return await this.prisma.remoteSalary.update({where: {id}, data: body});
+      return await this.prisma.remoteSalary.updateMany({where: {id: {in: ids}}, data: body});
     } catch (err) {
       console.error(err);
       throw new BadRequestException(err);

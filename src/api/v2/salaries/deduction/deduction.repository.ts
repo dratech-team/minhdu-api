@@ -1,16 +1,16 @@
 import {PrismaService} from "../../../../prisma.service";
-import {UpdateDeductionDto} from "./dto/update-deduction.dto";
 import {BadRequestException, Injectable} from "@nestjs/common";
-import {DeductionSalary} from "@prisma/client";
+import {DeductionEntity} from "./entities/deduction.entity";
+import {DeleteMultipleDeductionDto} from "./dto/delete-multiple-deduction.dto";
 
 @Injectable()
 export class DeductionRepository {
   constructor(private readonly prisma: PrismaService) {
   }
 
-  async create(body: Omit<DeductionSalary, "id">) {
+  async createMany(body: DeductionEntity[]) {
     try {
-      return await this.prisma.deductionSalary.create({data: body});
+      return await this.prisma.deductionSalary.createMany({data: body});
     } catch (err) {
       console.error(err);
       throw new BadRequestException(err);
@@ -35,18 +35,18 @@ export class DeductionRepository {
     }
   }
 
-  async update(id: number, body: UpdateDeductionDto) {
+  async updateMany(ids: number[], body: DeductionEntity) {
     try {
-      return await this.prisma.deductionSalary.update({where: {id}, data: body});
+      return await this.prisma.deductionSalary.updateMany({where: {id: {in: ids}}, data: body});
     } catch (err) {
       console.error(err);
       throw new BadRequestException(err);
     }
   }
 
-  async remove(id: number) {
+  async removeMany(body: DeleteMultipleDeductionDto) {
     try {
-      return await this.prisma.deductionSalary.delete({where: {id}});
+      return await this.prisma.deductionSalary.deleteMany({where: {id: {in: body.salaryIds}}});
     } catch (err) {
       console.error(err);
       throw new BadRequestException(err);

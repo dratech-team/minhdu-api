@@ -1,4 +1,4 @@
-import {IsEnum, IsNotEmpty, IsNumber, IsOptional, IsString} from "class-validator";
+import {IsArray, IsEnum, IsNotEmpty, IsNumber, IsOptional, IsString} from "class-validator";
 import {Type} from "class-transformer";
 import {DatetimeUnit} from "@prisma/client";
 
@@ -13,9 +13,10 @@ export class CreateDeductionDto {
   readonly price: number;
 
   @IsNotEmpty()
-  @IsNumber()
+  @IsNumber({}, {each: true})
+  @IsArray()
   @Type(() => Number)
-  readonly payrollId: number;
+  readonly payrollIds: number[];
 
   @IsOptional()
   @IsEnum(DatetimeUnit)
