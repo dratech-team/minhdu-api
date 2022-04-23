@@ -1,6 +1,7 @@
 import {BadRequestException, Injectable} from "@nestjs/common";
 import {PrismaService} from "../../../../prisma.service";
 import {RemoteEntity} from "./entities/remote.entity";
+import {DeleteMultipleRemoteDto} from "./dto";
 
 @Injectable()
 export class RemoteRepository {
@@ -43,9 +44,9 @@ export class RemoteRepository {
     }
   }
 
-  async remove(id: number) {
+  async removeMany(body: DeleteMultipleRemoteDto) {
     try {
-      return await this.prisma.remoteSalary.delete({where: {id}});
+      return await this.prisma.remoteSalary.deleteMany({where: {id: {in: body.salaryIds}}});
     } catch (err) {
       console.error(err);
       throw new BadRequestException(err);

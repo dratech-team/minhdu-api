@@ -1,11 +1,11 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete } from '@nestjs/common';
-import { RemoteService } from './remote.service';
-import { CreateRemoteDto } from './dto/create-remote.dto';
-import { UpdateRemoteDto } from './dto/update-remote.dto';
+import {Body, Controller, Get, Param, Post} from '@nestjs/common';
+import {RemoteService} from './remote.service';
+import {CreateRemoteDto, DeleteMultipleRemoteDto, UpdateRemoteDto} from './dto';
 
 @Controller('v2/salary/remote')
 export class RemoteController {
-  constructor(private readonly remoteService: RemoteService) {}
+  constructor(private readonly remoteService: RemoteService) {
+  }
 
   @Post('/multiple/creation')
   create(@Body() createRemoteDto: CreateRemoteDto) {
@@ -28,7 +28,7 @@ export class RemoteController {
   }
 
   @Post('/multiple/deletion')
-  remove(@Param('id') id: string) {
-    return this.remoteService.remove(+id);
+  remove(@Body() body: DeleteMultipleRemoteDto) {
+    return this.remoteService.removeMany(body);
   }
 }

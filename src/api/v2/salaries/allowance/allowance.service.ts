@@ -1,26 +1,31 @@
 import { Injectable } from '@nestjs/common';
 import { CreateAllowanceDto } from './dto/create-allowance.dto';
 import { UpdateAllowanceDto } from './dto/update-allowance.dto';
+import {AllowanceRepository} from "./allowance.repository";
+import {DeleteMultipleAllowanceDto} from "./dto/delete-multiple-allowance.dto";
 
 @Injectable()
 export class AllowanceService {
-  create(createAllowanceDto: CreateAllowanceDto) {
-    return 'This action adds a new allowance';
+  constructor(private readonly repository: AllowanceRepository) {
+  }
+
+  createMany(body: CreateAllowanceDto) {
+    return this.repository.create(body);
   }
 
   findAll() {
-    return `This action returns all allowance`;
+    return this.repository.findAll();
   }
 
   findOne(id: number) {
-    return `This action returns a #${id} allowance`;
+    return this.repository.findOne(id);
   }
 
-  update(id: number, updateAllowanceDto: UpdateAllowanceDto) {
-    return `This action updates a #${id} allowance`;
+  updateMany(body: UpdateAllowanceDto) {
+    // return this.repository.update(body)
   }
 
-  remove(id: number) {
-    return `This action removes a #${id} allowance`;
+  removeMany(body: DeleteMultipleAllowanceDto) {
+    return this.repository.remove(body);
   }
 }

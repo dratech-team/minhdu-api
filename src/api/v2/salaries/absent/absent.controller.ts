@@ -1,4 +1,4 @@
-import {Body, Controller, Delete, Get, Param, Post} from '@nestjs/common';
+import {Body, Controller, Get, Param, Post} from '@nestjs/common';
 import {AbsentService} from './absent.service';
 import {CreateAbsentDto} from './dto/create-absent.dto';
 import {UpdateAbsentDto} from './dto/update-absent.dto';

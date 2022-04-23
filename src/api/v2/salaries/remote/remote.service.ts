@@ -1,7 +1,6 @@
 import {Injectable} from '@nestjs/common';
-import {UpdateRemoteDto} from './dto/update-remote.dto';
+import {CreateRemoteDto, DeleteMultipleRemoteDto, UpdateRemoteDto} from './dto';
 import {RemoteRepository} from "./remote.repository";
-import {CreateRemoteDto} from "./dto/create-remote.dto";
 import {RemoteEntity} from "./entities/remote.entity";
 
 @Injectable()
@@ -31,8 +30,8 @@ export class RemoteService {
     return {status: 201, message: `Cập nhật thành công ${count} record`};
   }
 
-  remove(id: number) {
-    return this.repository.remove(id);
+  removeMany(body: DeleteMultipleRemoteDto) {
+    return this.repository.removeMany(body);
   }
 
   private mapToRemote(body): RemoteEntity {
