@@ -3,12 +3,12 @@ import {SalaryType} from "@prisma/client";
 import {Type} from "class-transformer";
 
 export class SearchSalarySettingsDto {
-  @IsNotEmpty()
+  @IsOptional()
   @IsNumber()
   @Type(() => Number)
   readonly take: number;
 
-  @IsNotEmpty()
+  @IsOptional()
   @IsNumber()
   @Type(() => Number)
   readonly skip: number;

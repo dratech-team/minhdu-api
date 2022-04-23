@@ -490,6 +490,26 @@ model Salaryv2 {
   @@unique([title, type, price, payrollId])
 }
 
+model RemoteSalary {
+  id        Int        @id @default(autoincrement())
+  type      RemoteType
+  startedAt DateTime
+  endedAt   DateTime
+  payroll   Payroll    @relation(fields: [payrollId], references: [id])
+  payrollId Int
+  note      String?
+}
+
+model DeductionSalary {
+  id        Int           @id @default(autoincrement())
+  title     String
+  price     Float
+  payroll   Payroll       @relation(fields: [payrollId], references: [id])
+  payrollId Int
+  unit      DatetimeUnit? @default(MONTH)
+  note      String?
+}
+
 model AbsentSalary {
   id        Int            @id @default(autoincrement())
   title     String
@@ -543,11 +563,11 @@ model WorkHistory {
 }
 
 model Payroll {
-  id             Int            @id @default(autoincrement())
-  employee       Employee       @relation(fields: [employeeId], references: [id], onDelete: Cascade)
+  id             Int               @id @default(autoincrement())
+  employee       Employee          @relation(fields: [employeeId], references: [id], onDelete: Cascade)
   employeeId     Int
   accConfirmedAt DateTime?
-  isEdit         Boolean?       @default(true)
+  isEdit         Boolean?          @default(true)
   manConfirmedAt DateTime?
   paidAt         DateTime?
   workday        Float? // ngày công chuẩn
@@ -562,12 +582,14 @@ model Payroll {
   salaries       Salary[]
   note           String?
   tax            Float?
-  taxed          Boolean?       @default(true)
+  taxed          Boolean?          @default(true)
   deletedAt      DateTime?
-  createdAt      DateTime?      @default(now()) // ngay tao phieu luong, phieu luong cua thang
-  timestamp      DateTime?      @default(now()) // ngay them vao ghi lai lich su
+  createdAt      DateTime?         @default(now()) // ngay tao phieu luong, phieu luong cua thang
+  timestamp      DateTime?         @default(now()) // ngay them vao ghi lai lich su
   salariesv2     Salaryv2[]
   absents        AbsentSalary[]
+  deductions     DeductionSalary[]
+  remotes        RemoteSalary[]
 }
 
 // warehouse
@@ -887,6 +909,12 @@ enum FormalityType {
   FORMAL
   INFORMAL
   TRAINING
+  REMOTE
+}
+
+enum RemoteType {
+  WFH
+  ONSITE
   REMOTE
 }
 

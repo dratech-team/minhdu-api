@@ -3,6 +3,7 @@ import {CreateSalaryv2Dto} from './dto/create-salaryv2.dto';
 import {UpdateSalaryv2Dto} from './dto/update-salaryv2.dto';
 import {Salaryv2Repository} from "./salaryv2.repository";
 import {SalaryEntity} from "./entities/salary.entity";
+import {DeductionSalary, SalaryType, Salaryv2} from '@prisma/client';
 
 @Injectable()
 export class Salaryv2Service {
@@ -13,7 +14,6 @@ export class Salaryv2Service {
     const salaries = body.payrollIds.map(payrollId => {
       return this.mapToSalary(Object.assign(body, {payrollId}));
     }) as SalaryEntity[];
-
     const {count} = await this.repository.createMany(salaries);
     return {status: 201, message: `Đã tạo ${count} record`};
   }
@@ -35,20 +35,42 @@ export class Salaryv2Service {
     return this.repository.removeMany(salaryIds);
   }
 
-  private mapToSalary(body): SalaryEntity {
-    return {
-      payrollId: body.payrollId,
-      title: body.title,
-      type: body.type,
-      partial: body.partial,
-      price: body.price,
-      startedAt: body.startedAt,
-      endedAt: body.endedAt,
-      startTime: body.startTime,
-      endTime: body.endTime,
-      note: body.note,
-      unit: body.unit,
-      settingId: body.settingId,
-    };
+  private mapToSalary(body): SalaryEntity | Salaryv2 | DeductionSalary {
+    switch (body.type) {
+      case SalaryType.BASIC:
+      case SalaryType.BASIC_INSURANCE: {
+        return {
+          payrollId: body.payrollId,
+          title: body.title,
+          type: body.type,
+          price: body.price,
+          note: body.note,
+        } as Salaryv2;
+      }
+      case SalaryType.DEDUCTION: {
+        return {
+          payrollId: body.payrollId,
+          title: body.title,
+          price: body.price,
+          note: body.note,
+        } as DeductionSalary;
+      }
+      case SalaryType.ABSENT: {
+        return {
+          payrollId: body.payrollId,
+          title: body.title,
+          type: body.type,
+          partial: body.partial,
+          price: body.price,
+          startedAt: body.startedAt,
+          endedAt: body.endedAt,
+          startTime: body.startTime,
+          endTime: body.endTime,
+          note: body.note,
+          unit: body.unit,
+          settingId: body.settingId,
+        } as SalaryEntity;
+      }
+    }
   }
 }

@@ -50,6 +50,8 @@ import { WarehouseModule } from "./api/v2/warehouse/warehouse.module";
 import {SalarySettingsModule} from "./api/v2/settings/salary/salary-settings.module";
 import { Salaryv2Module } from './api/v2/salaries/salaryv2/salaryv2.module';
 import { AbsentModule } from './api/v2/salaries/absent/absent.module';
+import { DeductionModule } from './api/v2/salaries/deduction/deduction.module';
+import { RemoteModule } from './api/v2/salaries/remote/remote.module';
 
 @Module({
   imports: [
@@ -101,7 +103,9 @@ import { AbsentModule } from './api/v2/salaries/absent/absent.module';
     ConsignmentModule,
     SalarySettingsModule,
     Salaryv2Module,
-    AbsentModule
+    AbsentModule,
+    DeductionModule,
+    RemoteModule
   ],
   controllers: [AppController],
   providers: [PrismaService],

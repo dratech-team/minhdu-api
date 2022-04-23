@@ -39,7 +39,7 @@ export class CreateSalaryv2Dto {
   @IsDate()
   @Transform(({value}) => {
     if (value) {
-      return  new Date(moment(value).utc().format('YYYY-MM-DD'))
+      return new Date(moment(value).utc().format('YYYY-MM-DD'));
     }
   })
   readonly startedAt: Date;
@@ -48,7 +48,7 @@ export class CreateSalaryv2Dto {
   @IsDate()
   @Transform(({value}) => {
     if (value) {
-      return  new Date(moment(value).utc().format('YYYY-MM-DD'))
+      return new Date(moment(value).utc().format('YYYY-MM-DD'));
     }
   })
   readonly endedAt: Date;
