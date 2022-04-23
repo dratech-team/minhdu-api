@@ -1,7 +1,7 @@
 import {IsArray, IsNotEmpty, IsNumber} from "class-validator";
 import {Type} from "class-transformer";
 
-export class DeleteMultipleDto {
+export class DeleteMultipleSalaryDto {
   @IsNotEmpty()
   @IsNumber({}, {each: true})
   @Type(() => Number)

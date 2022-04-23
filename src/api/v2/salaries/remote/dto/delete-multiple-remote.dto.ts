@@ -1,5 +1,5 @@
-import {DeleteMultipleDto} from "../../base/dto/delete-multiple.dto";
+import {DeleteMultipleSalaryDto} from "../../base/dto/delete-multiple-salary.dto";
 
-export class DeleteMultipleRemoteDto extends DeleteMultipleDto {
+export class DeleteMultipleRemoteDto extends DeleteMultipleSalaryDto {
 
 }
