@@ -475,7 +475,7 @@ model Salary {
   timestamp  DateTime?     @default(now())
 }
 
-// dùng cho block basic và stay
+// dùng cho block basic, stay, holiday
 model Salaryv2 {
   id        Int        @id @default(autoincrement())
   title     String
@@ -593,6 +593,53 @@ model Payroll {
   deductions     DeductionSalary[]
   remotes        RemoteSalary[]
   allownaces     AllowanceSalary[]
+}
+
+model SalaryRecipe {
+  id     Int           @id @default(autoincrement())
+  title  String
+  blocks SalaryBlock[]
+}
+
+model SalaryBlock {
+  id            Int           @id @default(autoincrement())
+  stt           Int
+  title         String
+  recipe        SalaryRecipe? @relation(fields: [recipeId], references: [id])
+  recipeId      Int?
+  calculate     Calculation   @relation(fields: [calculationId], references: [id])
+  calculationId Int
+  timestamp     DateTime?     @default(now())
+}
+
+// Cách tính tiền của 1 block
+model Calculation {
+  id        Int             @id @default(autoincrement())
+  condition ConditionType // so sánh
+  with      Float? // với. Nếu có số thì so sánh với số, nếu null thì so sánh với ngày công chuẩn
+  unit      DatetimeUnit // Được tính dựa vào. ví dụ DAY => (tổng / ngày công chuẩn) * ngày thực tế, MONTH (tổng / ngày công chuẩn) * ngày công chuẩn
+  calculate CalculationType
+  blocks    SalaryBlock[]
+  timestamp DateTime?       @default(now())
+
+  @@unique([condition, with, unit, calculate])
+}
+
+enum CalculationType {
+  ADD
+  SUB
+  MUL
+  DIV
+}
+
+enum ConditionType {
+  LESS
+  LESS_EQUAL
+  GREATER
+  GREATER_EQUAL
+  EQUAL
+  NOT_EQUAL
+  NO_CONDITION
 }
 
 // warehouse

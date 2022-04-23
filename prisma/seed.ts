@@ -1,8 +1,10 @@
-import {PrismaClient, RoleEnum} from "@prisma/client";
+import {CalculationType, ConditionType, DatetimeUnit, PrismaClient, RoleEnum} from "@prisma/client";
+import DateTimeFormat = Intl.DateTimeFormat;
 
 const prisma = new PrismaClient();
 
 async function main() {
+  // nhân sự
   await prisma.role.createMany({
     data: [
       {
@@ -17,37 +19,128 @@ async function main() {
     skipDuplicates: true,
   });
 
+  await prisma.salaryRecipe.createMany({
+    data: [
+      {
+        id: 1,
+        title: "Công thức 1",
+      },
+      {
+        id: 2,
+        title: "Công thức 2",
+      },
+      {
+        id: 3,
+        title: "Công thức 3",
+      },
+      {
+        id: 4,
+        title: "Công thức 4",
+      },
+      {
+        id: 5,
+        title: "Công thức 5",
+      }
+    ],
+    skipDuplicates: true
+  });
+
+  await prisma.calculation.createMany({
+    data: [
+      {
+        id: 1,
+        condition: ConditionType.NO_CONDITION,
+        with: null,
+        calculate: CalculationType.ADD,
+        unit: DatetimeUnit.MONTH,
+      },
+      {
+        id: 2,
+        condition: ConditionType.GREATER,
+        with: null,
+        calculate: CalculationType.ADD,
+        unit: DatetimeUnit.MONTH,
+      },
+      {
+        id: 3,
+        condition: ConditionType.GREATER_EQUAL,
+        with: null,
+        calculate: CalculationType.ADD,
+        unit: DatetimeUnit.MONTH,
+      },
+      {
+        id: 4,
+        condition: ConditionType.LESS,
+        with: null,
+        calculate: CalculationType.ADD,
+        unit: DatetimeUnit.MONTH,
+      },
+      {
+        id: 5,
+        condition: ConditionType.LESS_EQUAL,
+        with: null,
+        calculate: CalculationType.ADD,
+        unit: DatetimeUnit.MONTH,
+      }
+    ],
+    skipDuplicates: true
+  });
+
+  await prisma.salaryBlock.createMany({
+    data: [
+      {
+        title: "Lương cơ bản",
+        stt: 1,
+        calculationId: 1,
+      },
+      {
+        title: "Phụ cấp lương",
+        stt: 1,
+        calculationId: 1,
+      }
+    ]
+  });
+  // bán hàng
   await prisma.commodityTemplate.createMany({
     data: [
       {
+        id: 1,
         code: "MD1.BD",
-        name: "Gà loại 1"
+        name: "Gà loại 1",
       },
       {
+        id: 2,
         code: "MD2.BD",
-        name: "Gà loại 2"
+        name: "Gà loại 2",
       },
       {
+        id: 3,
         code: "MD3.BD",
-        name: "Gà loại 3"
+        name: "Gà loại 3",
       },
       {
+        id: 4,
         code: "MD3S.BD",
-        name: "MD3S.BD"
+        name: "MD3S.BD",
       },
       {
+        id: 5,
         code: "GM",
-        name: "Gà mía"
+        name: "Gà mía",
       },
       {
+        id: 6,
         code: "GNBT",
-        name: "Gà nồi bến tre"
+        name: "Gà nồi bến tre",
       },
     ],
     skipDuplicates: true,
   });
 
-  await prisma.supplier.createMany({data: {name: "Khác"}, skipDuplicates: true});
+  await prisma.supplier.createMany({
+    data: {name: "Khác"},
+    skipDuplicates: true,
+  });
   // await prisma.position.createMany({
   //   data: [
   //     {
@@ -107,4 +200,4 @@ async function main() {
   // }
 }
 
-main().catch(err => console.error(err));
+main().catch((err) => console.error(err));

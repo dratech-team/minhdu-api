@@ -96,7 +96,7 @@ export class PayrollServicev2 {
     };
   }
 
-  totalSalaryCT1(payroll: OnePayroll) {
-
+  private totalSalaryCTL(payroll: OnePayroll) {
+    // const holidays = this.
   }
 }
