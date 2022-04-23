@@ -190,6 +190,8 @@ export class PayrollRepository {
           include: {
             salaries: true,
             salariesv2: true,
+            deductions: true,
+            absents: true,
             employee: {
               include: {
                 contracts: true,
@@ -347,6 +349,7 @@ export class PayrollRepository {
           },
           salariesv2: true,
           absents: {include: {setting: true}},
+          deductions: true,
           employee: {
             include: {
               contracts: true,
