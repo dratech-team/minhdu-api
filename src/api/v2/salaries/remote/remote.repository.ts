@@ -1,16 +1,16 @@
-import {PrismaService} from "../../../../prisma.service";
-import {UpdateDeductionDto} from "./dto/update-deduction.dto";
 import {BadRequestException, Injectable} from "@nestjs/common";
-import {DeductionSalary} from "@prisma/client";
+import {RemoteSalary} from "@prisma/client";
+import {PrismaService} from "../../../../prisma.service";
+import {UpdateRemoteDto} from "./dto/update-remote.dto";
 
 @Injectable()
-export class DeductionRepository {
+export class RemoteRepository {
   constructor(private readonly prisma: PrismaService) {
   }
 
-  async create(body: Omit<DeductionSalary, "id">) {
+  async create(body: Omit<RemoteSalary, "id">) {
     try {
-      return await this.prisma.deductionSalary.create({data: body});
+      return await this.prisma.remoteSalary.create({data: body});
     } catch (err) {
       console.error(err);
       throw new BadRequestException(err);
@@ -19,7 +19,7 @@ export class DeductionRepository {
 
   async findAll() {
     try {
-      return await this.prisma.deductionSalary.findMany();
+      return await this.prisma.remoteSalary.findMany();
     } catch (err) {
       console.error(err);
       throw new BadRequestException(err);
@@ -28,16 +28,16 @@ export class DeductionRepository {
 
   async findOne(id: number) {
     try {
-      return await this.prisma.deductionSalary.findUnique({where: {id}});
+      return await this.prisma.remoteSalary.findUnique({where: {id}});
     } catch (err) {
       console.error(err);
       throw new BadRequestException(err);
     }
   }
 
-  async update(id: number, body: UpdateDeductionDto) {
+  async update(id: number, body: UpdateRemoteDto) {
     try {
-      return await this.prisma.deductionSalary.update({where: {id}, data: body});
+      return await this.prisma.remoteSalary.update({where: {id}, data: body});
     } catch (err) {
       console.error(err);
       throw new BadRequestException(err);
@@ -46,7 +46,7 @@ export class DeductionRepository {
 
   async remove(id: number) {
     try {
-      return await this.prisma.deductionSalary.delete({where: {id}});
+      return await this.prisma.remoteSalary.delete({where: {id}});
     } catch (err) {
       console.error(err);
       throw new BadRequestException(err);
