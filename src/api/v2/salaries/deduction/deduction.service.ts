@@ -51,6 +51,7 @@ export class DeductionService {
       unit: body.unit,
       price: body.price,
       payrollId: body.payrollId,
+      blockId: body.blockId,
       note: body.note,
     };
   }

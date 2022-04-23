@@ -10,7 +10,6 @@ export class DeductionRepository {
 
   async createMany(body: DeductionEntity[]) {
     try {
-      console.log(body)
       return await this.prisma.deductionSalary.createMany({data: body});
     } catch (err) {
       console.error(err);

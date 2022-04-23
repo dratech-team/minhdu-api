@@ -50,6 +50,12 @@ export class CreateAbsentDto {
   @IsArray()
   readonly payrollIds: number[];
 
+  @IsNotEmpty()
+  @IsNumber({}, {each: true})
+  @Type(() => Number)
+  readonly blockId: number;
+
+
   @IsOptional()
   @IsString()
   readonly note: string;

@@ -13,7 +13,6 @@ export class CreateRemoteDto {
   @Transform(({value}) => new Date(moment(value).utc().format('YYYY-MM-DD')))
   readonly startedAt: Date;
 
-
   @IsNotEmpty()
   @IsDate()
   @Transform(({value}) => new Date(moment(value).utc().format('YYYY-MM-DD')))
@@ -24,6 +23,11 @@ export class CreateRemoteDto {
   @IsArray()
   @Type(() => Number)
   readonly payrollIds: number[];
+
+  @IsNotEmpty()
+  @IsNumber({}, {each: true})
+  @Type(() => Number)
+  readonly blockId: number;
 
   @IsOptional()
   @IsString()

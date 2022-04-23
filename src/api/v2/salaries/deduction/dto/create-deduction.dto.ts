@@ -24,6 +24,11 @@ export class CreateDeductionDto {
   @Type(() => Number)
   readonly payrollIds: number[];
 
+  @IsNotEmpty()
+  @IsNumber({}, {each: true})
+  @Type(() => Number)
+  readonly blockId: number;
+
   @IsOptional()
   @IsEnum(DatetimeUnit)
   readonly unit: DatetimeUnit;

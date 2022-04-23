@@ -1,3 +1,3 @@
-import {CreateRemoteDto} from "../dto/create-remote.dto";
+import {CreateRemoteDto} from "../dto";
 
 export type RemoteEntity = Omit<CreateRemoteDto, "payrollIds"> & { payrollId: number }

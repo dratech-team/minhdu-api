@@ -477,26 +477,30 @@ model Salary {
 
 // dùng cho block basic, stay, holiday
 model Salaryv2 {
-  id        Int        @id @default(autoincrement())
+  id        Int         @id @default(autoincrement())
   title     String
   type      SalaryType
   price     Float
-  rate      Float?     @default(1)
-  payroll   Payroll    @relation(fields: [payrollId], references: [id])
+  rate      Float?      @default(1)
+  payroll   Payroll     @relation(fields: [payrollId], references: [id])
   payrollId Int
+  block     SalaryBlock @relation(fields: [blockId], references: [id])
+  blockId   Int
   note      String?
-  timestamp DateTime?  @default(now())
+  timestamp DateTime?   @default(now())
 
   @@unique([title, type, price, payrollId])
 }
 
 model RemoteSalary {
-  id        Int        @id @default(autoincrement())
+  id        Int         @id @default(autoincrement())
   type      RemoteType
   startedAt DateTime
   endedAt   DateTime
-  payroll   Payroll    @relation(fields: [payrollId], references: [id])
+  payroll   Payroll     @relation(fields: [payrollId], references: [id])
   payrollId Int
+  block     SalaryBlock @relation(fields: [blockId], references: [id])
+  blockId   Int
   note      String?
 }
 
@@ -506,6 +510,8 @@ model DeductionSalary {
   price     Float
   payroll   Payroll       @relation(fields: [payrollId], references: [id])
   payrollId Int
+  block     SalaryBlock   @relation(fields: [blockId], references: [id])
+  blockId   Int
   unit      DatetimeUnit? @default(MONTH)
   note      String?
 }
@@ -524,23 +530,29 @@ model AbsentSalary {
   settingId Int?
   payroll   Payroll        @relation(fields: [payrollId], references: [id], onDelete: Cascade)
   payrollId Int
+  block     SalaryBlock    @relation(fields: [blockId], references: [id])
+  blockId   Int
   note      String?
 }
 
 model OvertimeSalary {
-  id Int @id @default(autoincrement())
+  id      Int         @id @default(autoincrement())
+  block   SalaryBlock @relation(fields: [blockId], references: [id])
+  blockId Int
 }
 
 model AllowanceSalary {
-  id        Int       @id @default(autoincrement())
+  id        Int          @id @default(autoincrement())
   title     String
   price     Float
-  rate      Float?    @default(1)
-  branch    Branch?   @relation(fields: [branchId], references: [id])
+  rate      Float?       @default(1)
+  branch    Branch?      @relation(fields: [branchId], references: [id])
   branchId  Int?
-  payroll   Payroll?  @relation(fields: [payrollId], references: [id])
+  payroll   Payroll?     @relation(fields: [payrollId], references: [id])
   payrollId Int?
-  timestamp DateTime? @default(now())
+  block     SalaryBlock? @relation(fields: [blockId], references: [id])
+  blockId   Int?
+  timestamp DateTime?    @default(now())
 }
 
 model SalaryHistory {
@@ -596,26 +608,35 @@ model Payroll {
 }
 
 model SalaryRecipe {
-  id     Int           @id @default(autoincrement())
-  title  String
-  blocks SalaryBlock[]
+  id        Int           @id @default(autoincrement())
+  title     String
+  blocks    SalaryBlock[]
+  timestamp DateTime?     @default(now())
 }
 
 model SalaryBlock {
-  id            Int           @id @default(autoincrement())
+  id            Int               @id @default(autoincrement())
   stt           Int
   title         String
-  recipe        SalaryRecipe? @relation(fields: [recipeId], references: [id])
+  recipe        SalaryRecipe?     @relation(fields: [recipeId], references: [id])
   recipeId      Int?
-  calculate     Calculation   @relation(fields: [calculationId], references: [id])
+  calculate     Calculation       @relation(fields: [calculationId], references: [id])
   calculationId Int
-  timestamp     DateTime?     @default(now())
+  timestamp     DateTime?         @default(now())
+  salaries      Salaryv2[]
+  remotes       RemoteSalary[]
+  deductions    DeductionSalary[]
+  absents       AbsentSalary[]
+  overtimes     OvertimeSalary[]
+  allowances    AllowanceSalary[]
+
+  @@unique([title, recipeId, calculationId])
 }
 
 // Cách tính tiền của 1 block
 model Calculation {
   id        Int             @id @default(autoincrement())
-  condition ConditionType // so sánh
+  condition ConditionType // so sánh. Nếu = NO_CONDITION thì k cần so sánh với with
   with      Float? // với. Nếu có số thì so sánh với số, nếu null thì so sánh với ngày công chuẩn
   unit      DatetimeUnit // Được tính dựa vào. ví dụ DAY => (tổng / ngày công chuẩn) * ngày thực tế, MONTH (tổng / ngày công chuẩn) * ngày công chuẩn
   calculate CalculationType

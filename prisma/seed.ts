@@ -1,5 +1,5 @@
 import {CalculationType, ConditionType, DatetimeUnit, PrismaClient, RoleEnum} from "@prisma/client";
-import DateTimeFormat = Intl.DateTimeFormat;
+
 
 const prisma = new PrismaClient();
 
@@ -8,12 +8,29 @@ async function main() {
   await prisma.role.createMany({
     data: [
       {
+        id: 1,
+        name: "Supper Admin",
+        role: RoleEnum.SUPPER_ADMIN,
+      },
+      {
+        id: 2,
+        name: "Admin",
+        role: RoleEnum.ADMIN,
+      },
+      {
+        id: 3,
         name: "Nhân sự",
         role: RoleEnum.HUMAN_RESOURCE,
       },
       {
+        id: 4,
         name: "Bán hàng",
         role: RoleEnum.SALESMAN,
+      },
+      {
+        id: 5,
+        name: "Kho",
+        role: RoleEnum.WAREHOUSE,
       },
     ],
     skipDuplicates: true,
@@ -56,7 +73,7 @@ async function main() {
       },
       {
         id: 2,
-        condition: ConditionType.GREATER,
+        condition: ConditionType.GREATER_EQUAL,
         with: null,
         calculate: CalculationType.ADD,
         unit: DatetimeUnit.MONTH,
@@ -66,7 +83,7 @@ async function main() {
         condition: ConditionType.GREATER_EQUAL,
         with: null,
         calculate: CalculationType.ADD,
-        unit: DatetimeUnit.MONTH,
+        unit: DatetimeUnit.DAY,
       },
       {
         id: 4,
@@ -81,7 +98,14 @@ async function main() {
         with: null,
         calculate: CalculationType.ADD,
         unit: DatetimeUnit.MONTH,
-      }
+      },
+      {
+        id: 6,
+        condition: ConditionType.NO_CONDITION,
+        with: null,
+        calculate: CalculationType.SUB,
+        unit: DatetimeUnit.MONTH,
+      },
     ],
     skipDuplicates: true
   });
