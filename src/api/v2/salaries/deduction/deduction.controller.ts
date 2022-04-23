@@ -3,6 +3,7 @@ import {DeductionService} from './deduction.service';
 import {CreateDeductionDto} from './dto/create-deduction.dto';
 import {UpdateDeductionDto} from './dto/update-deduction.dto';
 import {DeleteMultipleDeductionDto} from "./dto/delete-multiple-deduction.dto";
+import {CreateAbsentDto} from "../absent/dto/create-absent.dto";
 
 @Controller('v2/salary/deduction')
 export class DeductionController {
@@ -10,7 +11,7 @@ export class DeductionController {
   }
 
   @Post('/multiple/creation')
-  create(@Body() createDeductionDto: CreateDeductionDto) {
+  create(@Body() createDeductionDto: CreateDeductionDto | CreateAbsentDto) {
     return this.deductionService.create(createDeductionDto);
   }
 

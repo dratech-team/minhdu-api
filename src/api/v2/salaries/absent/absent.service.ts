@@ -4,6 +4,7 @@ import {UpdateAbsentDto} from './dto/update-absent.dto';
 import {AbsentRepository} from "./absent.repository";
 import {AbsentSalary} from '@prisma/client';
 import {DeleteMultipleAbsentDto} from "./dto/delete-multiple-absent.dto";
+import {AbsentEntity} from "./entities/absent.entity";
 
 @Injectable()
 export class AbsentService {
@@ -49,6 +50,6 @@ export class AbsentService {
       note: body.note,
       unit: body.unit,
       settingId: body.settingId,
-    } as Omit<AbsentSalary, "id">;
+    } as AbsentEntity;
   }
 }

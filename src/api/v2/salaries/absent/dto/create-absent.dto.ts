@@ -12,6 +12,10 @@ export class CreateAbsentDto {
   @IsEnum(DatetimeUnit)
   readonly unit: DatetimeUnit;
 
+  @IsOptional()
+  @IsNumber()
+  readonly price: number;
+
   @IsNotEmpty()
   @IsEnum(DatetimeUnit)
   readonly partial: PartialDay;
