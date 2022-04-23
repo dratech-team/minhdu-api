@@ -20,7 +20,7 @@ export class AbsentService {
   }
 
   findAll() {
-    return `This action returns all absent`;
+    return this.repository.findAll();
   }
 
   findOne(id: number) {

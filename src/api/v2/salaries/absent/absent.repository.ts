@@ -11,6 +11,7 @@ export class AbsentRepository extends BaseRepository<AbsentSalary, any> {
 
   async createMany(body: AbsentSalary[]) {
     try {
+      console.log(body)
       return await this.prisma.absentSalary.createMany({data: body});
     } catch (err) {
       console.error(err);
@@ -19,7 +20,12 @@ export class AbsentRepository extends BaseRepository<AbsentSalary, any> {
   }
 
   async findAll() {
-    return `This action returns all absent`;
+    try {
+      return await this.prisma.absentSalary.findMany();
+    } catch (err) {
+      console.error(err);
+      throw new BadRequestException(err);
+    }
   }
 
   async findOne(id: number) {

@@ -950,6 +950,7 @@ enum GenderType {
 }
 
 enum RoleEnum {
+  SUPPER_ADMIN
   ADMIN
   CHIEF_ACCOUNTANT
   ACCOUNTANT_CASH_FUND // Quy tien mat

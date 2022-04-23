@@ -17,7 +17,7 @@ export class CreateAbsentDto {
   readonly price: number;
 
   @IsNotEmpty()
-  @IsEnum(DatetimeUnit)
+  @IsEnum(PartialDay)
   readonly partial: PartialDay;
 
   @IsNotEmpty()
@@ -50,7 +50,7 @@ export class CreateAbsentDto {
   @IsArray()
   readonly payrollIds: number[];
 
-  @IsNotEmpty()
+  @IsOptional()
   @IsString()
   readonly note: string;
 }
