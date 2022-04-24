@@ -8,7 +8,7 @@ import {ConfigModule} from "../../../../core/config/config.module";
 @Module({
   imports: [ConfigModule],
   controllers: [AbsentController],
-  providers: [AbsentService, PrismaService, AbsentRepository]
+  providers: [AbsentService, AbsentRepository, PrismaService]
 })
 export class AbsentModule {
 }

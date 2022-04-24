@@ -1,10 +1,11 @@
 import {AbsentSalary} from "@prisma/client";
 import {BaseRepository} from "../../../../common/repository/base.repository";
 import {PrismaService} from "../../../../prisma.service";
-import {BadRequestException} from "@nestjs/common";
+import {BadRequestException, Injectable} from "@nestjs/common";
 import {DeleteMultipleAbsentDto} from "./dto/delete-multiple-absent.dto";
 import {CreateAbsentDto} from "./dto/create-absent.dto";
 
+@Injectable()
 export class AbsentRepository extends BaseRepository<AbsentSalary, any> {
   constructor(private readonly prisma: PrismaService) {
     super();
