@@ -17,7 +17,7 @@ export class OvertimeService {
   ) {
   }
 
-  create(body: CreateMultipleOvertimeDto) {
+  async create(body: CreateMultipleOvertimeDto) {
     return this.repository.create(body);
   }
 
@@ -29,15 +29,15 @@ export class OvertimeService {
     return crudManyResponse(count, "creation");
   }
 
-  findAll() {
+  async findAll() {
     return this.repository.findAll();
   }
 
-  findOne(id: number) {
+  async findOne(id: number) {
     return this.repository.findOne(id);
   }
 
-  update(id: number, body: UpdateOvertimeDto) {
+  async update(id: number, body: UpdateOvertimeDto) {
     return this.repository.update(id, body);
   }
 
@@ -46,7 +46,7 @@ export class OvertimeService {
     return crudManyResponse(count, "updation");
   }
 
-  remove(id: number) {
+  async remove(id: number) {
     return this.repository.remove(id);
   }
 
