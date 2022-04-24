@@ -7,6 +7,7 @@ import {CreateAbsentDto} from "../absent/dto/create-absent.dto";
 import {ApiKeyGuard, JwtAuthGuard, LoggerGuard, RolesGuard} from "../../../../core/guard";
 import {Roles} from "../../../../core/decorators/roles.decorator";
 import {RoleEnum} from "@prisma/client";
+import {CreateMultipleAbsentDto} from "../absent/dto/create-multiple-absent.dto";
 
 @UseGuards(JwtAuthGuard, ApiKeyGuard, RolesGuard)
 @Controller('v2/salary/deduction')
@@ -17,7 +18,7 @@ export class DeductionController {
   @UseGuards(LoggerGuard)
   @Roles(RoleEnum.SUPPER_ADMIN, RoleEnum.CAMP_ACCOUNTING)
   @Post('/multiple/creation')
-  create(@Body() createDeductionDto: CreateDeductionDto | CreateAbsentDto) {
+  create(@Body() createDeductionDto: CreateDeductionDto | CreateMultipleAbsentDto) {
     return this.deductionService.create(createDeductionDto);
   }
 

@@ -1,11 +1,11 @@
 import {Body, Controller, Get, Param, Post, UseGuards} from '@nestjs/common';
 import {AbsentService} from './absent.service';
-import {CreateAbsentDto} from './dto/create-absent.dto';
 import {UpdateAbsentDto} from './dto/update-absent.dto';
 import {DeleteMultipleAbsentDto} from "./dto/delete-multiple-absent.dto";
 import {ApiKeyGuard, JwtAuthGuard, LoggerGuard, RolesGuard} from "../../../../core/guard";
 import {Roles} from "../../../../core/decorators/roles.decorator";
 import {RoleEnum} from "@prisma/client";
+import {CreateMultipleAbsentDto} from "./dto/create-multiple-absent.dto";
 
 @UseGuards(JwtAuthGuard, ApiKeyGuard, RolesGuard)
 @Controller('v2/salary/absent')
@@ -15,8 +15,15 @@ export class AbsentController {
 
   @UseGuards(LoggerGuard)
   @Roles(RoleEnum.SUPPER_ADMIN, RoleEnum.CAMP_ACCOUNTING)
-  @Post("/multiple/creation")
-  createMany(@Body() body: CreateAbsentDto) {
+  @Post()
+  create(@Body() body: CreateMultipleAbsentDto) {
+    return this.absentService.createMany(body);
+  }
+
+  @UseGuards(LoggerGuard)
+  @Roles(RoleEnum.SUPPER_ADMIN, RoleEnum.CAMP_ACCOUNTING)
+  @Post("multiple/creation")
+  createMany(@Body() body: CreateMultipleAbsentDto) {
     return this.absentService.createMany(body);
   }
 
@@ -34,7 +41,7 @@ export class AbsentController {
 
   @UseGuards(LoggerGuard)
   @Roles(RoleEnum.SUPPER_ADMIN, RoleEnum.CAMP_ACCOUNTING)
-  @Post("/multiple/updation")
+  @Post("multiple/updation")
   updateMany(@Body() updateAbsentDto: UpdateAbsentDto) {
     return this.absentService.updateMany(updateAbsentDto);
   }

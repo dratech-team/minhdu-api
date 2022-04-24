@@ -1,20 +1,21 @@
 import {Injectable} from '@nestjs/common';
-import {CreateAbsentDto} from './dto/create-absent.dto';
-import {UpdateAbsentDto} from './dto/update-absent.dto';
 import {AbsentRepository} from "./absent.repository";
 import {AbsentSalary} from '@prisma/client';
 import {DeleteMultipleAbsentDto} from "./dto/delete-multiple-absent.dto";
 import {CreateAbsentEntity} from "./entities/create-absent.entity";
 import {crudManyResponse} from "../base/functions/response.function";
+import * as _ from 'lodash';
+import {CreateMultipleAbsentDto} from "./dto/create-multiple-absent.dto";
+import {UpdateMultipleAbsentDto} from "./dto/update-multiple-absent.dto";
 
 @Injectable()
 export class AbsentService {
   constructor(private readonly repository: AbsentRepository) {
   }
 
-  async createMany(body: CreateAbsentDto) {
+  async createMany(body: CreateMultipleAbsentDto) {
     const salaries = body.payrollIds.map(payrollId => {
-      return this.mapToAbsent(Object.assign(body, {payrollId}));
+      return this.mapToAbsent(Object.assign(_.omit(body, "payrollIds"), {payrollId}));
     }) as AbsentSalary[];
     const {count} = await this.repository.createMany(salaries);
     return crudManyResponse(count, "creation");
@@ -28,8 +29,8 @@ export class AbsentService {
     return `This action returns a #${id} absent`;
   }
 
-  async updateMany(body: UpdateAbsentDto) {
-    const {count} = await this.repository.update(body.payrollIds, this.mapToAbsent(body));
+  async updateMany(body: UpdateMultipleAbsentDto) {
+    const {count} = await this.repository.update(body.salaryIds, this.mapToAbsent(body));
     return crudManyResponse(count, "updation");
   }
 

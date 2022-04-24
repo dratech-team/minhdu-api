@@ -3,15 +3,17 @@ import {BaseRepository} from "../../../../common/repository/base.repository";
 import {PrismaService} from "../../../../prisma.service";
 import {BadRequestException} from "@nestjs/common";
 import {DeleteMultipleAbsentDto} from "./dto/delete-multiple-absent.dto";
+import {CreateAbsentDto} from "./dto/create-absent.dto";
 
 export class AbsentRepository extends BaseRepository<AbsentSalary, any> {
   constructor(private readonly prisma: PrismaService) {
     super();
   }
 
-  async createMany(body: AbsentSalary[]) {
+  async createMany(bodys: CreateAbsentDto[]) {
     try {
-      return await this.prisma.absentSalary.createMany({data: body});
+      console.log(bodys)
+      return await this.prisma.absentSalary.createMany({data: bodys});
     } catch (err) {
       console.error(err);
       throw new BadRequestException(err);
@@ -31,7 +33,7 @@ export class AbsentRepository extends BaseRepository<AbsentSalary, any> {
     return `This action returns a #${id} absent`;
   }
 
-  async update(ids: number[], body: Partial<AbsentSalary>) {
+  async update(ids: number[], body: Partial<CreateAbsentDto>) {
     try {
       return await this.prisma.absentSalary.updateMany({
         where: {id: {in: ids}},
