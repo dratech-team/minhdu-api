@@ -40,7 +40,7 @@ export class RemoteService {
       startedAt: body.startedAt,
       endedAt: body.endedAt,
       payrollId: body.payrollId,
-      blockId: body.blockId,
+      blockId: body?.blockId || 7,
       note: body.note
     };
   }

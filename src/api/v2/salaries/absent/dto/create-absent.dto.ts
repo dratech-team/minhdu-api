@@ -50,8 +50,9 @@ export class CreateAbsentDto {
   @IsArray()
   readonly payrollIds: number[];
 
-  @IsNotEmpty()
-  @IsNumber({}, {each: true})
+  /// FIXME: block id chưa hoàn thành nên sẽ để optional. Sau khi hoàn thành thì sẽ là IsNotEmpty
+  @IsOptional()
+  @IsNumber()
   @Type(() => Number)
   readonly blockId: number;
 

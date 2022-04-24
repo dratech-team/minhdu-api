@@ -54,6 +54,7 @@ import { DeductionModule } from './api/v2/salaries/deduction/deduction.module';
 import { RemoteModule } from './api/v2/salaries/remote/remote.module';
 import { OvertimeModule } from './api/v2/salaries/overtime/overtime.module';
 import { AllowanceModule } from './api/v2/salaries/allowance/allowance.module';
+import { SalaryBlockModule } from './api/v2/settings/salary-block/salary-block.module';
 
 @Module({
   imports: [
@@ -109,7 +110,8 @@ import { AllowanceModule } from './api/v2/salaries/allowance/allowance.module';
     DeductionModule,
     RemoteModule,
     OvertimeModule,
-    AllowanceModule
+    AllowanceModule,
+    SalaryBlockModule
   ],
   controllers: [AppController],
   providers: [PrismaService],

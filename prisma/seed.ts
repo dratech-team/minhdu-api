@@ -119,7 +119,32 @@ async function main() {
       },
       {
         title: "Phụ cấp lương",
-        stt: 1,
+        stt: 2,
+        calculationId: 1,
+      },
+      {
+        stt: 3,
+        title: "Phụ cấp khác",
+        calculationId: 1,
+      },
+      {
+        stt: 4,
+        title: "Tăng ca",
+        calculationId: 1,
+      },
+      {
+        stt: 3,
+        title: "Khấu trừ",
+        calculationId: 1,
+      },
+      {
+        stt: 4,
+        title: "Ngày lễ",
+        calculationId: 1,
+      },
+      {
+        stt: 5,
+        title: "Remote",
         calculationId: 1,
       }
     ]
