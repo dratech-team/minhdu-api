@@ -12,7 +12,6 @@ export class AbsentRepository extends BaseRepository<AbsentSalary, any> {
 
   async createMany(bodys: CreateAbsentDto[]) {
     try {
-      console.log(bodys)
       return await this.prisma.absentSalary.createMany({data: bodys});
     } catch (err) {
       console.error(err);
