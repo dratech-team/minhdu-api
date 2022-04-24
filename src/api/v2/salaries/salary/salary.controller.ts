@@ -22,12 +22,13 @@ export class SalaryController {
   }
 
   @UseGuards(LoggerGuard)
-  @Roles(RoleEnum.CAMP_ACCOUNTING, RoleEnum.HUMAN_RESOURCE, RoleEnum.ADMIN)
+  @Roles(RoleEnum.SUPPER_ADMIN, RoleEnum.CAMP_ACCOUNTING)
   @Post()
   async create(@Body() createSalaryDto: CreateSalaryDto) {
     return await this.salaryService.create(createSalaryDto);
   }
 
+  @Roles(RoleEnum.SUPPER_ADMIN, RoleEnum.CAMP_ACCOUNTING, RoleEnum.HUMAN_RESOURCE, RoleEnum.ADMIN)
   @Get()
   findAll(
     @Query("skip", ParseIntPipe) skip: number,
@@ -43,11 +44,13 @@ export class SalaryController {
     });
   }
 
+  @Roles(RoleEnum.SUPPER_ADMIN, RoleEnum.CAMP_ACCOUNTING, RoleEnum.HUMAN_RESOURCE, RoleEnum.ADMIN)
   @Get(":id")
   findOne(@Param("id") id: string) {
     return this.salaryService.findOne(+id);
   }
 
+  @Roles(RoleEnum.SUPPER_ADMIN, RoleEnum.CAMP_ACCOUNTING)
   @UseGuards(LoggerGuard)
   @Roles(RoleEnum.CAMP_ACCOUNTING, RoleEnum.HUMAN_RESOURCE)
   @Patch(":id")
@@ -56,20 +59,20 @@ export class SalaryController {
   }
 
   @UseGuards(LoggerGuard)
-  @Roles(RoleEnum.CAMP_ACCOUNTING, RoleEnum.HUMAN_RESOURCE)
+  @Roles(RoleEnum.SUPPER_ADMIN, RoleEnum.CAMP_ACCOUNTING)
   @Patch("salaries/ids")
   async updateMany(@ReqProfile() profile: ProfileEntity, @Param("id") id: number, @Body() updateSalaryDto: UpdateManySalaryDto) {
     return await this.salaryService.updateMany(profile, +id, updateSalaryDto);
   }
 
   @UseGuards(LoggerGuard)
-  @Roles(RoleEnum.HUMAN_RESOURCE, RoleEnum.CAMP_ACCOUNTING)
+  @Roles(RoleEnum.SUPPER_ADMIN, RoleEnum.CAMP_ACCOUNTING)
   @Delete(":id")
   remove(@Param("id") id: string) {
     return this.salaryService.remove(+id);
   }
 
-  @Roles(RoleEnum.CAMP_ACCOUNTING, RoleEnum.HUMAN_RESOURCE)
+  @Roles(RoleEnum.SUPPER_ADMIN, RoleEnum.CAMP_ACCOUNTING)
   @Post("/migrate")
   migrate() {
     return this.salaryService.migrate();

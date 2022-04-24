@@ -17,13 +17,13 @@ export class SalarySettingsController {
   constructor(private readonly salaryService: SalarySettingsService) {
   }
 
-  @Roles(RoleEnum.HUMAN_RESOURCE)
+  @Roles(RoleEnum.SUPPER_ADMIN, RoleEnum.HUMAN_RESOURCE)
   @Post()
   create(@Body() body: CreateSalarySettingsDto) {
     return this.salaryService.create(body);
   }
 
-  @Roles(RoleEnum.CAMP_ACCOUNTING, RoleEnum.HUMAN_RESOURCE)
+  @Roles(RoleEnum.SUPPER_ADMIN, RoleEnum.CAMP_ACCOUNTING, RoleEnum.HUMAN_RESOURCE)
   @Get()
   findAll(
     @ReqProfile() profile: ProfileEntity,
@@ -32,25 +32,25 @@ export class SalarySettingsController {
     return this.salaryService.findAll(profile, search);
   }
 
-  @Roles(RoleEnum.CAMP_ACCOUNTING, RoleEnum.HUMAN_RESOURCE)
+  @Roles(RoleEnum.SUPPER_ADMIN, RoleEnum.CAMP_ACCOUNTING, RoleEnum.HUMAN_RESOURCE)
   @Get(':id')
   findOne(@Param('id') id: string) {
     return this.salaryService.findOne(+id);
   }
 
-  @Roles(RoleEnum.HUMAN_RESOURCE)
+  @Roles(RoleEnum.SUPPER_ADMIN, RoleEnum.HUMAN_RESOURCE)
   @Patch(':id')
   update(@Param('id') id: string, @Body() updates: UpdateSalarySettingsDto) {
     return this.salaryService.update(+id, updates);
   }
 
-  @Roles(RoleEnum.HUMAN_RESOURCE)
+  @Roles(RoleEnum.SUPPER_ADMIN, RoleEnum.HUMAN_RESOURCE)
   @Delete(':id')
   remove(@Param('id') id: string) {
     return this.salaryService.remove(+id);
   }
 
-  @Roles(RoleEnum.HUMAN_RESOURCE)
+  @Roles(RoleEnum.SUPPER_ADMIN, RoleEnum.HUMAN_RESOURCE)
   @Post('/migrate')
   migrate() {
     return this.salaryService.migrate();

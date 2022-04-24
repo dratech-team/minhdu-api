@@ -18,33 +18,33 @@ export class BankController {
 
 
   @UseGuards(LoggerGuard)
-  @Roles(RoleEnum.ADMIN, RoleEnum.SALESMAN)
+  @Roles(RoleEnum.SUPPER_ADMIN, RoleEnum.ADMIN, RoleEnum.SALESMAN)
   @Post()
   create(@Body() createBankDto: CreateBankDto) {
     return this.bankService.create(createBankDto);
   }
 
-  @Roles(RoleEnum.ADMIN, RoleEnum.SALESMAN)
+  @Roles(RoleEnum.SUPPER_ADMIN, RoleEnum.ADMIN, RoleEnum.SALESMAN)
   @Get()
   findAll() {
     return this.bankService.findAll();
   }
 
-  @Roles(RoleEnum.ADMIN, RoleEnum.SALESMAN)
+  @Roles(RoleEnum.SUPPER_ADMIN, RoleEnum.ADMIN, RoleEnum.SALESMAN)
   @Get(':id')
   findOne(@Param('id') id: string) {
     return this.bankService.findOne(+id);
   }
 
   @UseGuards(LoggerGuard)
-  @Roles(RoleEnum.ADMIN, RoleEnum.SALESMAN)
+  @Roles(RoleEnum.SUPPER_ADMIN, RoleEnum.ADMIN, RoleEnum.SALESMAN)
   @Patch(':id')
   update(@Param('id') id: string, @Body() updateBankDto: UpdateBankDto) {
     return this.bankService.update(+id, updateBankDto);
   }
 
   @UseGuards(LoggerGuard)
-  @Roles(RoleEnum.ADMIN, RoleEnum.SALESMAN)
+  @Roles(RoleEnum.SUPPER_ADMIN, RoleEnum.ADMIN, RoleEnum.SALESMAN)
   @Delete(':id')
   remove(@Param('id') id: string) {
     return this.bankService.remove(+id);

@@ -17,7 +17,7 @@ export class AbsentController {
   }
 
   @UseGuards(LoggerGuard)
-  @Roles(RoleEnum.SUPPER_ADMIN, RoleEnum.ADMIN, RoleEnum.CAMP_ACCOUNTING)
+  @Roles(RoleEnum.SUPPER_ADMIN, RoleEnum.CAMP_ACCOUNTING)
   @Post("/multiple/creation")
   createMany(@Body() body: CreateAbsentDto) {
     return this.absentService.createMany(body);
@@ -36,14 +36,14 @@ export class AbsentController {
   }
 
   @UseGuards(LoggerGuard)
-  @Roles(RoleEnum.SUPPER_ADMIN, RoleEnum.ADMIN, RoleEnum.CAMP_ACCOUNTING)
+  @Roles(RoleEnum.SUPPER_ADMIN, RoleEnum.CAMP_ACCOUNTING)
   @Post("/multiple/updation")
   updateMany(@Body() updateAbsentDto: UpdateAbsentDto) {
     return this.absentService.updateMany(updateAbsentDto);
   }
 
   @UseGuards(LoggerGuard)
-  @Roles(RoleEnum.SUPPER_ADMIN, RoleEnum.ADMIN, RoleEnum.CAMP_ACCOUNTING)
+  @Roles(RoleEnum.SUPPER_ADMIN, RoleEnum.CAMP_ACCOUNTING)
   @Post('multiple/deletion')
   removeMany(@Body() body: DeleteMultipleAbsentDto) {
     return this.absentService.removeMany(body);
