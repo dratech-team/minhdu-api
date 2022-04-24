@@ -23,7 +23,7 @@ export class EmployeeController {
   }
 
   @UseGuards(LoggerGuard)
-  @Roles(RoleEnum.ADMIN, RoleEnum.HUMAN_RESOURCE, RoleEnum.CAMP_ACCOUNTING)
+  @Roles(RoleEnum.SUPPER_ADMIN, RoleEnum.ADMIN, RoleEnum.HUMAN_RESOURCE, RoleEnum.CAMP_ACCOUNTING)
   @Post()
   create(
     @ReqProfile() profile: ProfileEntity,
@@ -32,7 +32,7 @@ export class EmployeeController {
     return this.employeeService.create(createEmployeeDto);
   }
 
-  @Roles(RoleEnum.ADMIN, RoleEnum.HUMAN_RESOURCE, RoleEnum.CAMP_ACCOUNTING)
+  @Roles(RoleEnum.SUPPER_ADMIN, RoleEnum.ADMIN, RoleEnum.HUMAN_RESOURCE, RoleEnum.CAMP_ACCOUNTING)
   @Get()
   findAll(
     @ReqProfile() profile: ProfileEntity,
@@ -41,7 +41,7 @@ export class EmployeeController {
     return this.employeeService.findAll(profile, search);
   }
 
-  @Roles(RoleEnum.ADMIN, RoleEnum.HUMAN_RESOURCE, RoleEnum.CAMP_ACCOUNTING)
+  @Roles(RoleEnum.SUPPER_ADMIN, RoleEnum.ADMIN, RoleEnum.HUMAN_RESOURCE, RoleEnum.CAMP_ACCOUNTING)
   @Get('/salary/overtime')
   async findEmployeeByOvertime(
     @ReqProfile() profile: ProfileEntity,
@@ -53,14 +53,14 @@ export class EmployeeController {
     return await this.employeeService.findEmployeesByOvertime(profile, {title, datetime, unit, times: +times});
   }
 
-  @Roles(RoleEnum.ADMIN, RoleEnum.HUMAN_RESOURCE, RoleEnum.CAMP_ACCOUNTING)
+  @Roles(RoleEnum.SUPPER_ADMIN, RoleEnum.ADMIN, RoleEnum.HUMAN_RESOURCE, RoleEnum.CAMP_ACCOUNTING)
   @Get(":id")
   findOne(@Param("id") id: number) {
     return this.employeeService.findOne(+id);
   }
 
   @UseGuards(LoggerGuard)
-  @Roles(RoleEnum.ADMIN, RoleEnum.HUMAN_RESOURCE, RoleEnum.CAMP_ACCOUNTING)
+  @Roles(RoleEnum.SUPPER_ADMIN, RoleEnum.ADMIN, RoleEnum.HUMAN_RESOURCE, RoleEnum.CAMP_ACCOUNTING)
   @Patch(":id")
   update(
     @Param("id") id: number,
@@ -70,33 +70,33 @@ export class EmployeeController {
   }
 
   @UseGuards(LoggerGuard)
-  @Roles(RoleEnum.ADMIN, RoleEnum.HUMAN_RESOURCE, RoleEnum.CAMP_ACCOUNTING)
+  @Roles(RoleEnum.SUPPER_ADMIN, RoleEnum.ADMIN, RoleEnum.HUMAN_RESOURCE, RoleEnum.CAMP_ACCOUNTING)
   @Patch(":id/leave")
   leave(@Param("id") id: number, @Body("leftAt", ParseDatetimePipe) leftAt: any) {
     return this.employeeService.leave(+id, leftAt);
   }
 
   @UseGuards(LoggerGuard)
-  @Roles(RoleEnum.ADMIN, RoleEnum.HUMAN_RESOURCE, RoleEnum.CAMP_ACCOUNTING)
+  @Roles(RoleEnum.SUPPER_ADMIN, RoleEnum.ADMIN, RoleEnum.HUMAN_RESOURCE, RoleEnum.CAMP_ACCOUNTING)
   @Delete(":id")
   remove(@Param("id") id: number) {
     return this.employeeService.remove(+id);
   }
 
   @UseGuards(LoggerGuard)
-  @Roles(RoleEnum.ADMIN, RoleEnum.HUMAN_RESOURCE, RoleEnum.CAMP_ACCOUNTING)
+  @Roles(RoleEnum.SUPPER_ADMIN, RoleEnum.ADMIN, RoleEnum.HUMAN_RESOURCE, RoleEnum.CAMP_ACCOUNTING)
   @Delete(":id/work-history")
   removeWorkHistory(@Param("id") id: number) {
     return this.employeeService.remove(+id, true);
   }
 
-  @Roles(RoleEnum.ADMIN, RoleEnum.HUMAN_RESOURCE, RoleEnum.CAMP_ACCOUNTING)
+  @Roles(RoleEnum.SUPPER_ADMIN, RoleEnum.ADMIN, RoleEnum.HUMAN_RESOURCE, RoleEnum.CAMP_ACCOUNTING)
   @Patch("sort/stt")
   sortable(@Body("sort") sort: Sort[]) {
     return this.employeeService.sortable(sort);
   }
 
-  @Roles(RoleEnum.ADMIN, RoleEnum.HUMAN_RESOURCE, RoleEnum.CAMP_ACCOUNTING)
+  @Roles(RoleEnum.SUPPER_ADMIN, RoleEnum.ADMIN, RoleEnum.HUMAN_RESOURCE, RoleEnum.CAMP_ACCOUNTING)
   @Post("/export/employee")
   async export(
     @Res() res,

@@ -7,7 +7,6 @@ import {OnePosition} from "./entities/position.entity";
 import {SearchPositionDto} from "./dto/search-position.dto";
 import {ProfileEntity} from "../../entities/profile.entity";
 import * as _ from 'lodash';
-import {ResponsePagination} from "../../entities/response.pagination";
 
 @Injectable()
 export class PositionRepository {
@@ -20,7 +19,7 @@ export class PositionRepository {
         data: {
           name: body.name,
           workday: body.workday,
-          branches: {connect: body.branchIds.map(id => ({id: +id}))},
+          branches: body?.branchIds?.length ? {connect: body.branchIds.map(id => ({id: +id}))} : {},
         },
       });
 

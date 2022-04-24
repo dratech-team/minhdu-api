@@ -24,7 +24,7 @@ export class PayrollController {
   }
 
   @UseGuards(LoggerGuard)
-  @Roles(RoleEnum.ADMIN, RoleEnum.HUMAN_RESOURCE, RoleEnum.CAMP_ACCOUNTING)
+  @Roles(RoleEnum.SUPPER_ADMIN, RoleEnum.ADMIN, RoleEnum.HUMAN_RESOURCE, RoleEnum.CAMP_ACCOUNTING)
   @Post()
   create(
     @ReqProfile() user: ProfileEntity,
@@ -35,6 +35,7 @@ export class PayrollController {
 
   @Get()
   @Roles(
+    RoleEnum.SUPPER_ADMIN,
     RoleEnum.ADMIN,
     RoleEnum.HUMAN_RESOURCE,
     RoleEnum.CAMP_ACCOUNTING,
@@ -47,21 +48,21 @@ export class PayrollController {
     return this.payrollService.findAll(profile, search);
   }
 
-  @Roles(RoleEnum.ADMIN, RoleEnum.HUMAN_RESOURCE, RoleEnum.CAMP_ACCOUNTING)
+  @Roles(RoleEnum.SUPPER_ADMIN, RoleEnum.ADMIN, RoleEnum.HUMAN_RESOURCE, RoleEnum.CAMP_ACCOUNTING)
   @Get(":id")
   findOne(@Param("id") id: string) {
     return this.payrollService.findOne(+id);
   }
 
   @UseGuards(LoggerGuard)
-  @Roles(RoleEnum.ADMIN, RoleEnum.HUMAN_RESOURCE, RoleEnum.CAMP_ACCOUNTING)
+  @Roles(RoleEnum.SUPPER_ADMIN, RoleEnum.ADMIN, RoleEnum.HUMAN_RESOURCE, RoleEnum.CAMP_ACCOUNTING)
   @Patch(":id")
   update(@ReqProfile() profile: ProfileEntity, @Param("id") id: number, @Body() updatePayrollDto: UpdatePayrollDto) {
     return this.payrollService.update(profile, +id, updatePayrollDto);
   }
 
   @UseGuards(LoggerGuard)
-  @Roles(RoleEnum.ADMIN, RoleEnum.HUMAN_RESOURCE, RoleEnum.CAMP_ACCOUNTING)
+  @Roles(RoleEnum.SUPPER_ADMIN, RoleEnum.ADMIN, RoleEnum.HUMAN_RESOURCE, RoleEnum.CAMP_ACCOUNTING)
   @Get(":id/generate-holiday")
   generateHoliday(@Param("id") id: number) {
     return this.payrollService.generateHoliday(+id);
@@ -69,6 +70,7 @@ export class PayrollController {
 
   @UseGuards(LoggerGuard)
   @Roles(
+    RoleEnum.SUPPER_ADMIN,
     RoleEnum.ADMIN,
     RoleEnum.HUMAN_RESOURCE,
     RoleEnum.CAMP_MANAGER,
@@ -81,14 +83,14 @@ export class PayrollController {
   }
 
   @UseGuards(LoggerGuard)
-  @Roles(RoleEnum.HUMAN_RESOURCE, RoleEnum.CAMP_ACCOUNTING)
+  @Roles(RoleEnum.SUPPER_ADMIN, RoleEnum.HUMAN_RESOURCE, RoleEnum.CAMP_ACCOUNTING)
   @Patch("restore/:id")
   restorePayslip(@ReqProfile() profile: ProfileEntity, @Param("id") id: number) {
     return this.payrollService.restorePayslip(profile, +id);
   }
 
   @UseGuards(LoggerGuard)
-  @Roles(RoleEnum.CAMP_ACCOUNTING)
+  @Roles(RoleEnum.SUPPER_ADMIN, RoleEnum.CAMP_ACCOUNTING)
   @Patch("cancel-confirm/:id")
   cancelConfirm(@ReqProfile() profile: ProfileEntity, @Param("id") id: number) {
     return this.payrollService.restorePayslip(profile, +id, true);
@@ -96,6 +98,7 @@ export class PayrollController {
 
   @UseGuards(LoggerGuard)
   @Roles(
+    RoleEnum.SUPPER_ADMIN,
     RoleEnum.ADMIN,
     RoleEnum.HUMAN_RESOURCE,
     RoleEnum.CAMP_ACCOUNTING,
@@ -109,13 +112,13 @@ export class PayrollController {
   }
 
   @UseGuards(LoggerGuard)
-  @Roles(RoleEnum.ADMIN, RoleEnum.HUMAN_RESOURCE, RoleEnum.CAMP_ACCOUNTING)
+  @Roles(RoleEnum.SUPPER_ADMIN, RoleEnum.ADMIN, RoleEnum.HUMAN_RESOURCE, RoleEnum.CAMP_ACCOUNTING)
   @Get("/:id/payslip")
   async confirmPayslip(@Param("id") id: number) {
     return await this.payrollService.confirmPayslip(+id);
   }
 
-  @Roles(RoleEnum.ADMIN, RoleEnum.HUMAN_RESOURCE, RoleEnum.CAMP_ACCOUNTING)
+  @Roles(RoleEnum.SUPPER_ADMIN, RoleEnum.ADMIN, RoleEnum.HUMAN_RESOURCE, RoleEnum.CAMP_ACCOUNTING)
   @Post("/export/payroll")
   async export(
     @Res() res,
@@ -126,7 +129,7 @@ export class PayrollController {
     return this.payrollService.export(res, profile, search, items);
   }
 
-  @Roles(RoleEnum.ADMIN, RoleEnum.HUMAN_RESOURCE, RoleEnum.CAMP_ACCOUNTING)
+  @Roles(RoleEnum.SUPPER_ADMIN, RoleEnum.ADMIN, RoleEnum.HUMAN_RESOURCE, RoleEnum.CAMP_ACCOUNTING)
   @Get('/salary/template')
   async overtimeTemplate(@Query() search: SearchSalaryDto) {
     return this.payrollService.overtimeTemplate(search);

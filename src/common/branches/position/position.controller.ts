@@ -19,33 +19,33 @@ export class PositionController {
   }
 
   @UseGuards(LoggerGuard)
-  @Roles(RoleEnum.ADMIN, RoleEnum.HUMAN_RESOURCE, RoleEnum.WAREHOUSE)
+  @Roles(RoleEnum.SUPPER_ADMIN, RoleEnum.ADMIN, RoleEnum.HUMAN_RESOURCE, RoleEnum.WAREHOUSE)
   @Post()
   create(@Body() createPositionDto: CreatePositionDto) {
     return this.positionService.create(createPositionDto);
   }
 
-  @Roles(RoleEnum.ADMIN, RoleEnum.HUMAN_RESOURCE, RoleEnum.WAREHOUSE, RoleEnum.CAMP_ACCOUNTING)
+  @Roles(RoleEnum.SUPPER_ADMIN, RoleEnum.ADMIN, RoleEnum.HUMAN_RESOURCE, RoleEnum.WAREHOUSE, RoleEnum.CAMP_ACCOUNTING)
   @Get()
   findAll(@ReqProfile() profile: ProfileEntity, @Query() search: SearchPositionDto) {
     return this.positionService.findAll(profile, search);
   }
 
-  @Roles(RoleEnum.ADMIN, RoleEnum.HUMAN_RESOURCE, RoleEnum.WAREHOUSE, RoleEnum.CAMP_ACCOUNTING)
+  @Roles(RoleEnum.SUPPER_ADMIN, RoleEnum.ADMIN, RoleEnum.HUMAN_RESOURCE, RoleEnum.WAREHOUSE, RoleEnum.CAMP_ACCOUNTING)
   @Get(':id')
   findOne(@Param('id') id: string) {
     return this.positionService.findOne(+id);
   }
 
   @UseGuards(LoggerGuard)
-  @Roles(RoleEnum.ADMIN, RoleEnum.HUMAN_RESOURCE, RoleEnum.WAREHOUSE)
+  @Roles(RoleEnum.SUPPER_ADMIN, RoleEnum.ADMIN, RoleEnum.HUMAN_RESOURCE, RoleEnum.WAREHOUSE)
   @Patch(':id')
   update(@Param('id') id: string, @Body() updatePositionDto: UpdatePositionDto) {
     return this.positionService.update(+id, updatePositionDto);
   }
 
   @UseGuards(LoggerGuard)
-  @Roles(RoleEnum.ADMIN, RoleEnum.HUMAN_RESOURCE, RoleEnum.WAREHOUSE)
+  @Roles(RoleEnum.SUPPER_ADMIN, RoleEnum.ADMIN, RoleEnum.HUMAN_RESOURCE, RoleEnum.WAREHOUSE)
   @Delete(':id')
   remove(@Param('id') id: string) {
     return this.positionService.remove(+id);
