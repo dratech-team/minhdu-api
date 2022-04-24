@@ -1,9 +1,7 @@
 import {Body, Controller, Get, Param, Post, UseGuards} from '@nestjs/common';
 import {RemoteService} from './remote.service';
 import {CreateRemoteDto, DeleteMultipleRemoteDto, UpdateRemoteDto} from './dto';
-import {JwtAuthGuard} from "../../../../core/guard/jwt-auth.guard";
-import {ApiKeyGuard} from "../../../../core/guard/api-key-auth.guard";
-import {RolesGuard} from "../../../../core/guard/role.guard";
+import {ApiKeyGuard, JwtAuthGuard, RolesGuard} from "../../../../core/guard";
 import {Roles} from "../../../../core/decorators/roles.decorator";
 import {RoleEnum} from "@prisma/client";
 

@@ -1,10 +1,8 @@
-import {Controller, Get, Post, Body, Patch, Param, Delete, UseGuards} from '@nestjs/common';
-import { OvertimeService } from './overtime.service';
-import { CreateMultipleOvertimeDto } from './dto/create-multiple-overtime.dto';
-import { UpdateOvertimeDto } from './dto/update-overtime.dto';
-import {JwtAuthGuard} from "../../../../core/guard/jwt-auth.guard";
-import {ApiKeyGuard} from "../../../../core/guard/api-key-auth.guard";
-import {RolesGuard} from "../../../../core/guard/role.guard";
+import {Body, Controller, Delete, Get, Param, Patch, Post, UseGuards} from '@nestjs/common';
+import {OvertimeService} from './overtime.service';
+import {CreateMultipleOvertimeDto} from './dto/create-multiple-overtime.dto';
+import {UpdateOvertimeDto} from './dto/update-overtime.dto';
+import {ApiKeyGuard, JwtAuthGuard, RolesGuard} from "../../../../core/guard";
 import {Roles} from "../../../../core/decorators/roles.decorator";
 import {RoleEnum} from "@prisma/client";
 import {DeleteMultipleOvertimeDto} from "./dto/delete-multiple-overtime.dto";
@@ -13,7 +11,8 @@ import {UpdateMultipleOvertimeDto} from "./dto/update-multiple-overtime.dto";
 @UseGuards(JwtAuthGuard, ApiKeyGuard, RolesGuard)
 @Controller('v2/salary/overtime')
 export class OvertimeController {
-  constructor(private readonly overtimeService: OvertimeService) {}
+  constructor(private readonly overtimeService: OvertimeService) {
+  }
 
   @Roles(RoleEnum.SUPPER_ADMIN, RoleEnum.CAMP_ACCOUNTING)
   @Post()
@@ -27,13 +26,13 @@ export class OvertimeController {
     return this.overtimeService.createMany(createOvertimeDto);
   }
 
-  @Roles(RoleEnum.SUPPER_ADMIN,RoleEnum.ADMIN, RoleEnum.HUMAN_RESOURCE, RoleEnum.CAMP_ACCOUNTING)
+  @Roles(RoleEnum.SUPPER_ADMIN, RoleEnum.ADMIN, RoleEnum.HUMAN_RESOURCE, RoleEnum.CAMP_ACCOUNTING)
   @Get('multiple')
   findAll() {
     return this.overtimeService.findAll();
   }
 
-  @Roles(RoleEnum.SUPPER_ADMIN,RoleEnum.ADMIN, RoleEnum.HUMAN_RESOURCE, RoleEnum.CAMP_ACCOUNTING)
+  @Roles(RoleEnum.SUPPER_ADMIN, RoleEnum.ADMIN, RoleEnum.HUMAN_RESOURCE, RoleEnum.CAMP_ACCOUNTING)
   @Get(':id')
   findOne(@Param('id') id: string) {
     return this.overtimeService.findOne(+id);

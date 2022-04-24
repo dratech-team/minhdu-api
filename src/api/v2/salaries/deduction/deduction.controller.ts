@@ -1,13 +1,10 @@
-import {Body, Controller, Delete, Get, Param, Post, UseGuards} from '@nestjs/common';
+import {Body, Controller, Get, Param, Post, UseGuards} from '@nestjs/common';
 import {DeductionService} from './deduction.service';
 import {CreateDeductionDto} from './dto/create-deduction.dto';
 import {UpdateDeductionDto} from './dto/update-deduction.dto';
 import {DeleteMultipleDeductionDto} from "./dto/delete-multiple-deduction.dto";
 import {CreateAbsentDto} from "../absent/dto/create-absent.dto";
-import {JwtAuthGuard} from "../../../../core/guard/jwt-auth.guard";
-import {ApiKeyGuard} from "../../../../core/guard/api-key-auth.guard";
-import {RolesGuard} from "../../../../core/guard/role.guard";
-import {LoggerGuard} from "../../../../core/guard/logger.guard";
+import {ApiKeyGuard, JwtAuthGuard, LoggerGuard, RolesGuard} from "../../../../core/guard";
 import {Roles} from "../../../../core/decorators/roles.decorator";
 import {RoleEnum} from "@prisma/client";
 
@@ -36,7 +33,7 @@ export class DeductionController {
     return this.deductionService.findOne(+id);
   }
 
-  @Roles(RoleEnum.SUPPER_ADMIN,  RoleEnum.CAMP_ACCOUNTING)
+  @Roles(RoleEnum.SUPPER_ADMIN, RoleEnum.CAMP_ACCOUNTING)
   @Post('/multiple/updation')
   update(@Body() body: UpdateDeductionDto) {
     return this.deductionService.updateMany(body);

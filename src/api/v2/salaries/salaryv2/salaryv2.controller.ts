@@ -4,9 +4,7 @@ import {CreateSalaryv2Dto} from './dto/create-salaryv2.dto';
 import {UpdateSalaryv2Dto} from './dto/update-salaryv2.dto';
 import {Roles} from "../../../../core/decorators/roles.decorator";
 import {RoleEnum} from "@prisma/client";
-import {JwtAuthGuard} from "../../../../core/guard/jwt-auth.guard";
-import {ApiKeyGuard} from "../../../../core/guard/api-key-auth.guard";
-import {RolesGuard} from "../../../../core/guard/role.guard";
+import {ApiKeyGuard, JwtAuthGuard, RolesGuard} from "../../../../core/guard";
 
 @UseGuards(JwtAuthGuard, ApiKeyGuard, RolesGuard)
 @Controller('v2/salaryv2')

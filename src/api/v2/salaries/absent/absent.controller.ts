@@ -3,10 +3,7 @@ import {AbsentService} from './absent.service';
 import {CreateAbsentDto} from './dto/create-absent.dto';
 import {UpdateAbsentDto} from './dto/update-absent.dto';
 import {DeleteMultipleAbsentDto} from "./dto/delete-multiple-absent.dto";
-import {JwtAuthGuard} from "../../../../core/guard/jwt-auth.guard";
-import {ApiKeyGuard} from "../../../../core/guard/api-key-auth.guard";
-import {RolesGuard} from "../../../../core/guard/role.guard";
-import {LoggerGuard} from "../../../../core/guard/logger.guard";
+import {ApiKeyGuard, JwtAuthGuard, LoggerGuard, RolesGuard} from "../../../../core/guard";
 import {Roles} from "../../../../core/decorators/roles.decorator";
 import {RoleEnum} from "@prisma/client";
 
