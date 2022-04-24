@@ -391,7 +391,10 @@ export class PayrollService {
       : salary.setting.unit === DatetimeUnit.MINUTE
         ? 1 / 8 / 60
         : 1;
-    return Object.assign(salary, {price: salary.price || (totalOf / diveFor) * days * partial * salary.setting.rate * unit});
+    const price = salary.setting.prices?.reduce((a, b) => a + b, 0);
+    return Object.assign(salary, {
+      price: price || (totalOf / diveFor) * days * partial * salary.setting.rate * unit
+    });
   }
 
   totalAbsent(payroll: OnePayroll) {

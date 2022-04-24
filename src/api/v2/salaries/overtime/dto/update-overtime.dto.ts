@@ -1,4 +1,4 @@
-import { PartialType } from '@nestjs/swagger';
-import { CreateOvertimeDto } from './create-overtime.dto';
+import { PartialType } from '@nestjs/mapped-types';
+import { CreateMultipleOvertimeDto } from './create-multiple-overtime.dto';
 
-export class UpdateOvertimeDto extends PartialType(CreateOvertimeDto) {}
+export class UpdateOvertimeDto extends PartialType(CreateMultipleOvertimeDto) {}

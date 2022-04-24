@@ -5,6 +5,7 @@ import {AbsentRepository} from "./absent.repository";
 import {AbsentSalary} from '@prisma/client';
 import {DeleteMultipleAbsentDto} from "./dto/delete-multiple-absent.dto";
 import {CreateAbsentEntity} from "./entities/create-absent.entity";
+import {crudManyResponse} from "../base/functions/response.function";
 
 @Injectable()
 export class AbsentService {
@@ -16,7 +17,7 @@ export class AbsentService {
       return this.mapToAbsent(Object.assign(body, {payrollId}));
     }) as AbsentSalary[];
     const {count} = await this.repository.createMany(salaries);
-    return {status: 201, message: `Đã tạo ${count} record`};
+    return crudManyResponse(count, "creation");
   }
 
   findAll() {
@@ -29,12 +30,12 @@ export class AbsentService {
 
   async updateMany(body: UpdateAbsentDto) {
     const {count} = await this.repository.update(body.payrollIds, this.mapToAbsent(body));
-    return {status: 201, message: `Cập nhật thành công ${count} record`};
+    return crudManyResponse(count, "updation");
   }
 
   async removeMany(body: DeleteMultipleAbsentDto) {
     const {count} = await this.repository.removeMany(body);
-    return {status: 201, message: `Đã xóa thành công ${count} record`};
+    return crudManyResponse(count, "deletion");
   }
 
   private mapToAbsent(body): Omit<AbsentSalary, "id"> {

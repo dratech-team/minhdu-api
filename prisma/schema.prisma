@@ -290,6 +290,7 @@ model SalarySetting {
   totalOf SalaryType[]
   absents AbsentSalary[]
 
+  OvertimeSalary OvertimeSalary[]
   @@unique([title, type])
 }
 
@@ -518,8 +519,7 @@ model DeductionSalary {
 
 model AbsentSalary {
   id        Int            @id @default(autoincrement())
-  title     String
-  price     Float?         @default(0)
+  title     String?
   unit      DatetimeUnit
   partial   PartialDay
   startedAt DateTime
@@ -536,23 +536,33 @@ model AbsentSalary {
 }
 
 model OvertimeSalary {
-  id      Int         @id @default(autoincrement())
-  block   SalaryBlock @relation(fields: [blockId], references: [id])
-  blockId Int
+  id         Int               @id @default(autoincrement())
+  startedAt  DateTime
+  endedAt    DateTime
+  startTime  DateTime?
+  endTime    DateTime?
+  allowances AllowanceSalary[]
+  setting    SalarySetting     @relation(fields: [settingId], references: [id])
+  settingId  Int
+  block      SalaryBlock       @relation(fields: [blockId], references: [id])
+  blockId    Int
+  note       String?
 }
 
 model AllowanceSalary {
-  id        Int          @id @default(autoincrement())
-  title     String
-  price     Float
-  rate      Float?       @default(1)
-  branch    Branch?      @relation(fields: [branchId], references: [id])
-  branchId  Int?
-  payroll   Payroll?     @relation(fields: [payrollId], references: [id])
-  payrollId Int?
-  block     SalaryBlock? @relation(fields: [blockId], references: [id])
-  blockId   Int?
-  timestamp DateTime?    @default(now())
+  id         Int             @id @default(autoincrement())
+  title      String
+  price      Float
+  rate       Float?          @default(1)
+  branch     Branch?         @relation(fields: [branchId], references: [id])
+  branchId   Int?
+  payroll    Payroll?        @relation(fields: [payrollId], references: [id])
+  payrollId  Int?
+  block      SalaryBlock?    @relation(fields: [blockId], references: [id])
+  blockId    Int?
+  timestamp  DateTime?       @default(now())
+  overtime   OvertimeSalary? @relation(fields: [overtimeId], references: [id])
+  overtimeId Int?
 }
 
 model SalaryHistory {

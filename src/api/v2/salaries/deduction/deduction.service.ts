@@ -6,6 +6,7 @@ import {DeductionEntity} from "./entities/deduction.entity";
 import {DeleteMultipleDeductionDto} from "./dto/delete-multiple-deduction.dto";
 import {AbsentService} from "../absent/absent.service";
 import {CreateAbsentDto} from "../absent/dto/create-absent.dto";
+import {crudManyResponse} from "../base/functions/response.function";
 
 @Injectable()
 export class DeductionService {
@@ -22,7 +23,7 @@ export class DeductionService {
       }) as DeductionEntity[];
 
       const {count} = await this.repository.createMany(salaries);
-      return {status: 201, message: `Đã tạo ${count} record`};
+      return crudManyResponse(count, "creation");
     } else {
       return this.absentService.createMany(body as CreateAbsentDto);
     }
@@ -38,11 +39,12 @@ export class DeductionService {
 
   async updateMany(body: UpdateDeductionDto) {
     const {count} = await this.repository.updateMany(body.salaryIds, this.mapToDeduction(body));
-    return {status: 201, message: `Cập nhật thành công ${count} record`};
+    return crudManyResponse(count, "updation");
   }
 
-  removeMany(body: DeleteMultipleDeductionDto) {
-    return this.repository.removeMany(body);
+  async removeMany(body: DeleteMultipleDeductionDto) {
+    const {count} = await this.repository.removeMany(body);
+    return crudManyResponse(count, "deletion");
   }
 
   private mapToDeduction(body): DeductionEntity {

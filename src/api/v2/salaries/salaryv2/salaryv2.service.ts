@@ -3,6 +3,7 @@ import {CreateSalaryv2Dto} from './dto/create-salaryv2.dto';
 import {UpdateSalaryv2Dto} from './dto/update-salaryv2.dto';
 import {Salaryv2Repository} from "./salaryv2.repository";
 import {SalaryEntity} from "./entities/salary.entity";
+import {crudManyResponse} from "../base/functions/response.function";
 
 @Injectable()
 export class Salaryv2Service {
@@ -14,7 +15,7 @@ export class Salaryv2Service {
       return this.mapToSalary(Object.assign(body, {payrollId}));
     }) as SalaryEntity[];
     const {count} = await this.repository.createMany(salaries);
-    return {status: 201, message: `Đã tạo ${count} record`};
+    return crudManyResponse(count, "creation");
   }
 
   async findAll() {
@@ -27,11 +28,12 @@ export class Salaryv2Service {
 
   async updateMany(updates: UpdateSalaryv2Dto) {
     const {count} = await this.repository.updateMany(updates.salaryIds, this.mapToSalary(updates));
-    return {status: 201, message: `Cập nhật thành công ${count} record`};
+    return crudManyResponse(count, "updation");
   }
 
   async removeMany(salaryIds: number[]) {
-    return this.repository.removeMany(salaryIds);
+    const {count} = await this.repository.removeMany(salaryIds);
+    return crudManyResponse(count, "deletion");
   }
 
   private mapToSalary(body): SalaryEntity {

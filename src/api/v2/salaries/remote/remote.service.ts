@@ -2,6 +2,7 @@ import {Injectable} from '@nestjs/common';
 import {CreateRemoteDto, DeleteMultipleRemoteDto, UpdateRemoteDto} from './dto';
 import {RemoteRepository} from "./remote.repository";
 import {RemoteEntity} from "./entities/remote.entity";
+import {crudManyResponse} from "../base/functions/response.function";
 
 @Injectable()
 export class RemoteService {
@@ -14,7 +15,7 @@ export class RemoteService {
     }) as RemoteEntity[];
 
     const {count} = await this.repository.createMany(salaries);
-    return {status: 201, message: `Đã tạo ${count} record`};
+    return crudManyResponse(count, "creation");
   }
 
   findAll() {
@@ -27,11 +28,12 @@ export class RemoteService {
 
   async update(id: number, body: UpdateRemoteDto) {
     const {count} = await this.repository.updateMany(body.salaryIds, this.mapToRemote(body));
-    return {status: 201, message: `Cập nhật thành công ${count} record`};
+    return crudManyResponse(count, "updation");
   }
 
-  removeMany(body: DeleteMultipleRemoteDto) {
-    return this.repository.removeMany(body);
+  async removeMany(body: DeleteMultipleRemoteDto) {
+    const {count} = await this.repository.removeMany(body);
+    return crudManyResponse(count, "deletion");
   }
 
   private mapToRemote(body): RemoteEntity {

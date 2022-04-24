@@ -1,26 +1,71 @@
-import { Injectable } from '@nestjs/common';
-import { CreateOvertimeDto } from './dto/create-overtime.dto';
-import { UpdateOvertimeDto } from './dto/update-overtime.dto';
+import {Injectable} from '@nestjs/common';
+import {CreateMultipleOvertimeDto} from './dto/create-multiple-overtime.dto';
+import {UpdateOvertimeDto} from './dto/update-overtime.dto';
+import {OvertimeRepository} from "./overtime.repository";
+import {CreateOvertimeDto} from "./dto/create-overtime.dto";
+import {DeleteMultipleOvertimeDto} from "./dto/delete-multiple-overtime.dto";
+import {UpdateMultipleOvertimeDto} from "./dto/update-multiple-overtime.dto";
+import {SalarySettingsService} from "../../settings/salary/salary-settings.service";
+import {DatetimeUnit} from '@prisma/client';
+import {crudManyResponse} from "../base/functions/response.function";
 
 @Injectable()
 export class OvertimeService {
-  create(createOvertimeDto: CreateOvertimeDto) {
-    return 'This action adds a new overtime';
+  constructor(
+    private readonly repository: OvertimeRepository,
+    private readonly salarySettingsService: SalarySettingsService,
+  ) {
+  }
+
+  create(body: CreateMultipleOvertimeDto) {
+    return this.repository.create(body);
+  }
+
+  async createMany(body: CreateMultipleOvertimeDto) {
+    const overtimes = await Promise.all(body.payrollIds.map(async payrollId => {
+      return await this.mapToOvertime(Object.assign(body, {payrollId}));
+    }));
+    const {count} = await this.repository.createMany(overtimes);
+    return crudManyResponse(count, "creation");
   }
 
   findAll() {
-    return `This action returns all overtime`;
+    return this.repository.findAll();
   }
 
   findOne(id: number) {
-    return `This action returns a #${id} overtime`;
+    return this.repository.findOne(id);
   }
 
-  update(id: number, updateOvertimeDto: UpdateOvertimeDto) {
-    return `This action updates a #${id} overtime`;
+  update(id: number, body: UpdateOvertimeDto) {
+    return this.repository.update(id, body);
+  }
+
+  async updateMany(body: UpdateMultipleOvertimeDto) {
+    const {count} = await this.repository.updateMany(body.salaryIds, await this.mapToOvertime(body));
+    return crudManyResponse(count, "updation");
   }
 
   remove(id: number) {
-    return `This action removes a #${id} overtime`;
+    return this.repository.remove(id);
+  }
+
+  async removeMany(body: DeleteMultipleOvertimeDto) {
+    const {count} = await this.repository.removeMany(body);
+    return crudManyResponse(count, "deletion");
+  }
+
+  private async mapToOvertime(body): Promise<CreateOvertimeDto> {
+    const setting = await this.salarySettingsService.findOne(body.settingId);
+    return {
+      payrollId: body.payrollId,
+      startedAt: body.startedAt,
+      endedAt: body.endedAt,
+      startTime: setting.unit === DatetimeUnit.HOUR ? body.startTime : null,
+      endTime: setting.unit === DatetimeUnit.HOUR ? body.endTime : null,
+      settingId: body.settingId,
+      blockId: body.blockId,
+      allowances: body.allowances,
+    };
   }
 }
