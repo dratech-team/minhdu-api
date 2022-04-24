@@ -28,7 +28,7 @@ export class OvertimeController {
   }
 
   @Roles(RoleEnum.SUPPER_ADMIN,RoleEnum.ADMIN, RoleEnum.HUMAN_RESOURCE, RoleEnum.CAMP_ACCOUNTING)
-  @Get()
+  @Get('multiple')
   findAll() {
     return this.overtimeService.findAll();
   }

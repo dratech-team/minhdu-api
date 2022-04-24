@@ -37,7 +37,7 @@ export class CreateMultipleOvertimeDto {
   @Type(() => Number)
   readonly settingId: number;
 
-  @IsNotEmpty()
+  @IsOptional()
   @IsNumber()
   @Type(() => Number)
   readonly blockId: number;

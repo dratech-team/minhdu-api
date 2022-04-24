@@ -33,7 +33,7 @@ export class OvertimeRepository extends BaseRepository<OvertimeSalary, any> {
 
   async findAll() {
     try {
-      return `This action returns all overtime`;
+      return await this.prisma.overtimeSalary.findMany();
     } catch (err) {
       console.error(err);
       throw new BadRequestException(err);

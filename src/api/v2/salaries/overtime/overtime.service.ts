@@ -8,6 +8,7 @@ import {UpdateMultipleOvertimeDto} from "./dto/update-multiple-overtime.dto";
 import {SalarySettingsService} from "../../settings/salary/salary-settings.service";
 import {DatetimeUnit} from '@prisma/client';
 import {crudManyResponse} from "../base/functions/response.function";
+import * as _ from 'lodash';
 
 @Injectable()
 export class OvertimeService {
@@ -23,8 +24,8 @@ export class OvertimeService {
 
   async createMany(body: CreateMultipleOvertimeDto) {
     const overtimes = await Promise.all(body.payrollIds.map(async payrollId => {
-      return await this.mapToOvertime(Object.assign(body, {payrollId}));
-    }));
+      return await this.mapToOvertime(Object.assign(_.omit(body, "payrollIds"), {payrollId}));
+    })) as CreateOvertimeDto[];
     const {count} = await this.repository.createMany(overtimes);
     return crudManyResponse(count, "creation");
   }
@@ -64,7 +65,7 @@ export class OvertimeService {
       startTime: setting.unit === DatetimeUnit.HOUR ? body.startTime : null,
       endTime: setting.unit === DatetimeUnit.HOUR ? body.endTime : null,
       settingId: body.settingId,
-      blockId: body.blockId,
+      blockId: body?.blockId || 4,
       allowances: body.allowances,
     };
   }

@@ -546,6 +546,8 @@ model OvertimeSalary {
   settingId  Int
   block      SalaryBlock       @relation(fields: [blockId], references: [id])
   blockId    Int
+  payroll    Payroll           @relation(fields: [payrollId], references: [id])
+  payrollId  Int
   note       String?
 }
 
@@ -615,6 +617,7 @@ model Payroll {
   deductions     DeductionSalary[]
   remotes        RemoteSalary[]
   allownaces     AllowanceSalary[]
+  overtimes      OvertimeSalary[]
 }
 
 model SalaryRecipe {
