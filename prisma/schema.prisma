@@ -2,14 +2,14 @@ generator client {
   provider = "prisma-client-js"
 }
 
-//generator dbml {
+// generator dbml {
 //  provider            = "prisma-dbml-generator"
 //  output              = "../dbml"
 //  outputName          = "minhdu.dbml"
 //  projectName         = "Minh du"
 //  projectDatabaseType = "postgres"
 //  projectNote         = "Test project description"
-//}
+// }
 
 datasource db {
   provider = "postgresql"
@@ -600,8 +600,8 @@ model Payroll {
   actualday      Float? // Tổng số ngày làm thực tế
   absent         Float? // tổng số ngày vắng
   bsc            Float? // tổng số lần quên giấy phép / bsc
-  branch         String?
-  position       String?
+  branch         String
+  position       String
   total          Float?
   isFlatSalary   Boolean?
   recipeType     RecipeType?

@@ -115,7 +115,7 @@ Table Branch {
   status BranchStatus [not null]
   phone BranchPhone [not null]
   ioIReceipts IoIReceipt [not null]
-  allowancesv2 SalaryAllowance [not null]
+  allowancesv2 AllowanceSalary [not null]
 }
 
 Table BranchStatus {
@@ -277,11 +277,16 @@ Table SalarySetting {
   title String [not null]
   type SalaryType [not null]
   rate Float [not null]
-  price Float
+  unit DatetimeUnit [not null]
+  prices Float [not null]
   workday Int
-  types SalaryType [not null]
-  constraints SalaryConstraint [not null]
-  salaries Salaryv2 [not null]
+  totalOf SalaryType [not null]
+  absents AbsentSalary [not null]
+  OvertimeSalary OvertimeSalary [not null]
+
+  indexes {
+    (title, type) [unique]
+  }
 }
 
 Table Relative {
@@ -470,33 +475,92 @@ Table Salaryv2 {
   id Int [pk, increment]
   title String [not null]
   type SalaryType [not null]
-  price Float [default: 0]
+  price Float [not null]
+  rate Float [default: 1]
+  payroll Payroll [not null]
+  payrollId Int [not null]
+  block SalaryBlock [not null]
+  blockId Int [not null]
+  note String
+  timestamp DateTime [default: `now()`]
+
+  indexes {
+    (title, type, price, payrollId) [unique]
+  }
+}
+
+Table RemoteSalary {
+  id Int [pk, increment]
+  type RemoteType [not null]
+  startedAt DateTime [not null]
+  endedAt DateTime [not null]
+  payroll Payroll [not null]
+  payrollId Int [not null]
+  block SalaryBlock [not null]
+  blockId Int [not null]
+  note String
+}
+
+Table DeductionSalary {
+  id Int [pk, increment]
+  title String [not null]
+  price Float [not null]
+  payroll Payroll [not null]
+  payrollId Int [not null]
+  block SalaryBlock [not null]
+  blockId Int [not null]
+  unit DatetimeUnit [default: 'MONTH']
+  note String
+}
+
+Table AbsentSalary {
+  id Int [pk, increment]
+  title String
   unit DatetimeUnit [not null]
   partial PartialDay [not null]
-  datetime DateTime [not null]
-  rate Float [default: 1]
+  startedAt DateTime [not null]
+  endedAt DateTime [not null]
+  startTime DateTime [not null]
+  endTime DateTime [not null]
   setting SalarySetting
   settingId Int
   payroll Payroll [not null]
   payrollId Int [not null]
-  allowances SalaryAllowance [not null]
-  timestamp DateTime [default: `now()`]
-
-  indexes {
-    (partial, datetime, payrollId) [unique]
-  }
+  block SalaryBlock [not null]
+  blockId Int [not null]
+  note String
 }
 
-Table SalaryAllowance {
+Table OvertimeSalary {
+  id Int [pk, increment]
+  startedAt DateTime [not null]
+  endedAt DateTime [not null]
+  startTime DateTime
+  endTime DateTime
+  allowances AllowanceSalary [not null]
+  setting SalarySetting [not null]
+  settingId Int [not null]
+  block SalaryBlock [not null]
+  blockId Int [not null]
+  payroll Payroll [not null]
+  payrollId Int [not null]
+  note String
+}
+
+Table AllowanceSalary {
   id Int [pk, increment]
   title String [not null]
   price Float [not null]
   rate Float [default: 1]
-  salary Salaryv2
-  salaryId Int
   branch Branch
   branchId Int
+  payroll Payroll
+  payrollId Int
+  block SalaryBlock
+  blockId Int
   timestamp DateTime [default: `now()`]
+  overtime OvertimeSalary
+  overtimeId Int
 }
 
 Table SalaryHistory {
@@ -537,14 +601,61 @@ Table Payroll {
   total Float
   isFlatSalary Boolean
   recipeType RecipeType
-  salaries Salary [not null]
   note String
   tax Float
   taxed Boolean [default: true]
   deletedAt DateTime
   createdAt DateTime [default: `now()`]
   timestamp DateTime [default: `now()`]
+  salaries Salary [not null]
   salariesv2 Salaryv2 [not null]
+  absents AbsentSalary [not null]
+  deductions DeductionSalary [not null]
+  remotes RemoteSalary [not null]
+  allownaces AllowanceSalary [not null]
+  overtimes OvertimeSalary [not null]
+}
+
+Table SalaryRecipe {
+  id Int [pk, increment]
+  title String [not null]
+  blocks SalaryBlock [not null]
+  timestamp DateTime [default: `now()`]
+}
+
+Table SalaryBlock {
+  id Int [pk, increment]
+  stt Int [not null]
+  title String [not null]
+  recipe SalaryRecipe
+  recipeId Int
+  calculate Calculation [not null]
+  calculationId Int [not null]
+  timestamp DateTime [default: `now()`]
+  salaries Salaryv2 [not null]
+  remotes RemoteSalary [not null]
+  deductions DeductionSalary [not null]
+  absents AbsentSalary [not null]
+  overtimes OvertimeSalary [not null]
+  allowances AllowanceSalary [not null]
+
+  indexes {
+    (title, recipeId, calculationId) [unique]
+  }
+}
+
+Table Calculation {
+  id Int [pk, increment]
+  condition ConditionType [not null]
+  with Float
+  unit DatetimeUnit [not null]
+  calculate CalculationType [not null]
+  blocks SalaryBlock [not null]
+  timestamp DateTime [default: `now()`]
+
+  indexes {
+    (condition, with, unit, calculate) [unique]
+  }
 }
 
 Table Warehouse {
@@ -728,6 +839,23 @@ Table OrderToRoute {
   ordersId Int [ref: > Order.id]
 }
 
+Enum CalculationType {
+  ADD
+  SUB
+  MUL
+  DIV
+}
+
+Enum ConditionType {
+  LESS
+  LESS_EQUAL
+  GREATER
+  GREATER_EQUAL
+  EQUAL
+  NOT_EQUAL
+  NO_CONDITION
+}
+
 Enum SalaryConstraint {
   HOLIDAY
   OVERTIME
@@ -769,7 +897,8 @@ Enum PartialDay {
   AFTERNOON
   NIGHT
   ALL_DAY
-  CUSTOM
+  LATE
+  EARLY
 }
 
 Enum RecipeType {
@@ -885,6 +1014,12 @@ Enum FormalityType {
   REMOTE
 }
 
+Enum RemoteType {
+  WFH
+  ONSITE
+  REMOTE
+}
+
 Enum SalaryType {
   BASIC
   BASIC_INSURANCE
@@ -914,6 +1049,7 @@ Enum GenderType {
 }
 
 Enum RoleEnum {
+  SUPPER_ADMIN
   ADMIN
   CHIEF_ACCOUNTANT
   ACCOUNTANT_CASH_FUND
@@ -1004,13 +1140,37 @@ Ref: Salary.branchId > Branch.id
 
 Ref: Salary.salaryId - Salary.id
 
-Ref: Salaryv2.settingId > SalarySetting.id
+Ref: Salaryv2.payrollId > Payroll.id
 
-Ref: Salaryv2.payrollId > Payroll.id [delete: Cascade]
+Ref: Salaryv2.blockId > SalaryBlock.id
 
-Ref: SalaryAllowance.salaryId > Salaryv2.id
+Ref: RemoteSalary.payrollId > Payroll.id
 
-Ref: SalaryAllowance.branchId > Branch.id
+Ref: RemoteSalary.blockId > SalaryBlock.id
+
+Ref: DeductionSalary.payrollId > Payroll.id
+
+Ref: DeductionSalary.blockId > SalaryBlock.id
+
+Ref: AbsentSalary.settingId > SalarySetting.id
+
+Ref: AbsentSalary.payrollId > Payroll.id [delete: Cascade]
+
+Ref: AbsentSalary.blockId > SalaryBlock.id
+
+Ref: OvertimeSalary.settingId > SalarySetting.id
+
+Ref: OvertimeSalary.blockId > SalaryBlock.id
+
+Ref: OvertimeSalary.payrollId > Payroll.id
+
+Ref: AllowanceSalary.branchId > Branch.id
+
+Ref: AllowanceSalary.payrollId > Payroll.id
+
+Ref: AllowanceSalary.blockId > SalaryBlock.id
+
+Ref: AllowanceSalary.overtimeId > OvertimeSalary.id
 
 Ref: SalaryHistory.employeeId > Employee.id [delete: Cascade]
 
@@ -1021,6 +1181,10 @@ Ref: WorkHistory.branchId > Branch.id
 Ref: WorkHistory.employeeId > Employee.id [delete: Cascade]
 
 Ref: Payroll.employeeId > Employee.id [delete: Cascade]
+
+Ref: SalaryBlock.recipeId > SalaryRecipe.id
+
+Ref: SalaryBlock.calculationId > Calculation.id
 
 Ref: Product.warehouseId > Warehouse.id
 

@@ -148,9 +148,9 @@ export class PayrollRepository {
               leftAt: search?.empStatus > -1 && search?.empStatus !== StatusEnum.ALL ? (search?.empStatus === StatusEnum.NOT_ACTIVE ? {notIn: null} : {in: null}) : {},
             },
             branch: acc.branches?.length ? {
-              in: acc.branches.map(branch => branch.name),
-              mode: "insensitive"
-            } : {startsWith: search?.branch, mode: "insensitive"},
+              in: search?.branch ? acc.branches.map(branch => branch.name).concat(search?.branch) : acc.branches.map(branch => branch.name),
+              mode: "insensitive",
+            } : {startsWith: search?.branch, mode: "insensitive", in: null},
             position: positions?.length
               ? {in: positions.map(position => position)}
               : {startsWith: search?.position, mode: "insensitive"},
@@ -174,7 +174,7 @@ export class PayrollRepository {
               leftAt: search?.empStatus > -1 && search?.empStatus !== StatusEnum.ALL ? (search?.empStatus === StatusEnum.NOT_ACTIVE ? {notIn: null} : {in: null}) : {},
             },
             branch: acc.branches?.length ? {
-              in: acc.branches.map(branch => branch.name),
+              in: search?.branch ? acc.branches.map(branch => branch.name).concat(search?.branch) : acc.branches.map(branch => branch.name),
               mode: "insensitive"
             } : {startsWith: search?.branch, mode: "insensitive"},
             position: positions?.length
