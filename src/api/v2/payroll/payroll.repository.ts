@@ -150,7 +150,7 @@ export class PayrollRepository {
             branch: acc.branches?.length ? {
               in: search?.branch ? acc.branches.map(branch => branch.name).concat(search?.branch) : acc.branches.map(branch => branch.name),
               mode: "insensitive",
-            } : {startsWith: search?.branch, mode: "insensitive", in: null},
+            } : {startsWith: search?.branch, mode: "insensitive"},
             position: positions?.length
               ? {in: positions.map(position => position)}
               : {startsWith: search?.position, mode: "insensitive"},
