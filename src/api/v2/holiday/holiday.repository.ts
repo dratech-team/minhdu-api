@@ -3,13 +3,16 @@ import {PrismaService} from "../../../prisma.service";
 import {CreateHolidayDto} from "./dto/create-holiday.dto";
 import {UpdateHolidayDto} from "./dto/update-holiday.dto";
 import {SearchHolidayDto} from "./dto/search-holiday.dto";
-import {firstDatetime, lastDatetime} from "../../../utils/datetime.util";
-import {Position, SalaryType} from "@prisma/client";
+import {Holiday, SalaryType} from "@prisma/client";
 import {ProfileEntity} from "../../../common/entities/profile.entity";
+import * as _ from 'lodash';
+import {BaseRepository} from "../../../common/repository/base.repository";
+import {Response} from 'express';
 
 @Injectable()
-export class HolidayRepository {
+export class HolidayRepository extends BaseRepository<Holiday, any> {
   constructor(private readonly prisma: PrismaService) {
+    super();
   }
 
   async create(body: CreateHolidayDto) {
@@ -49,23 +52,36 @@ export class HolidayRepository {
     }
   }
 
-  async findAll(take: number, skip: number, profile: ProfileEntity, search: Partial<SearchHolidayDto>) {
+  async findAll(profile: ProfileEntity, search: Partial<SearchHolidayDto>) {
     try {
+      const acc = await this.prisma.account.findUnique({
+        where: {id: profile.id},
+        include: {branches: {include: {positions: true}}}
+      });
+
+      const positions = _.flattenDeep(acc.branches.map(branch => branch.positions.map(position => position.name)));
+      if (search?.position) {
+        positions.push(search.position);
+      }
       const [total, data] = await Promise.all([
         this.prisma.holiday.count({
           where: {
-            name: {startsWith: search?.name},
-            datetime: search?.datetime || undefined,
-            rate: search?.rate || undefined,
+            name: {contains: search?.name, mode: "insensitive"},
+            datetime: search?.datetime ? {in: search?.datetime} : {},
+            positions: positions.length ? {
+              some: {name: {in: positions.concat(search?.position)}}
+            } : {}
           },
         }),
         this.prisma.holiday.findMany({
-          take: take || undefined,
-          skip: skip || undefined,
+          take: search?.take,
+          skip: search?.skip,
           where: {
-            name: {startsWith: search?.name},
-            datetime: search?.datetime || undefined,
-            rate: search?.rate || undefined,
+            name: {contains: search?.name, mode: "insensitive"},
+            datetime: search?.datetime ? {in: search?.datetime} : {},
+            positions: positions.length ? {
+              some: {name: {in: positions.concat(search?.position)}}
+            } : {}
           },
           include: {
             positions: true,
@@ -75,7 +91,13 @@ export class HolidayRepository {
           }
         }),
       ]);
-      return {total, data};
+      return {
+        total,
+        data: positions.length ? data.map(holiday => ({
+          ...holiday,
+          positions: holiday.positions.filter(position => positions.includes(position.name))
+        })) : data
+      };
     } catch (err) {
       console.error(err);
       throw new BadRequestException(err);
@@ -155,6 +177,10 @@ export class HolidayRepository {
       console.error(err);
       throw new BadRequestException(err);
     }
+  }
+
+  export(response: Response, profile: ProfileEntity, header: { title: string; filename: string }, items: any[], data: any): Promise<Response<any, Record<string, any>>> {
+    return super.export(response, profile, header, items, data);
   }
 
 }

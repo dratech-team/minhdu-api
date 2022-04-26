@@ -1,13 +1,4 @@
-import {
-  Controller,
-  Get,
-  Post,
-  Body,
-  Patch,
-  Param,
-  Query,
-  Delete,
-} from "@nestjs/common";
+import {Body, Controller, Delete, Get, Param, Patch, Post, Query} from "@nestjs/common";
 import {BasicTemplateService} from "./basic-template.service";
 import {CreateBasicTemplateDto} from "./dto/create-basic-template.dto";
 import {UpdateBasicTemplateDto} from "./dto/update-basic-template.dto";

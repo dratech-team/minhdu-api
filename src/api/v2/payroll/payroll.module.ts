@@ -7,11 +7,12 @@ import {PayrollRepository} from "./payroll.repository";
 import {EmployeeModule} from "../employee/employee.module";
 import {EmployeeRepository} from "../employee/employee.repository";
 import {HttpModule} from "@nestjs/axios";
+import {PayrollServicev2} from "./payroll.service.v2";
 
 @Module({
   imports: [ConfigModule, EmployeeModule, HttpModule],
   controllers: [PayrollController],
-  providers: [PrismaService, PayrollService, PayrollRepository, EmployeeRepository],
+  providers: [PrismaService, PayrollService, PayrollRepository, EmployeeRepository, PayrollServicev2],
   exports: [PayrollService]
 })
 export class PayrollModule {

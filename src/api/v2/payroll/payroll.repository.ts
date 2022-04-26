@@ -1,73 +1,36 @@
 import {BadRequestException, Injectable, NotFoundException} from "@nestjs/common";
-import {EmployeeType, Payroll, Position, Salary, SalaryType} from "@prisma/client";
+import {Branch, EmployeeType, Payroll, Position, RecipeType, RoleEnum, SalaryType} from "@prisma/client";
 import {ProfileEntity} from "../../../common/entities/profile.entity";
 import {PrismaService} from "../../../prisma.service";
 import {firstDatetime, lastDatetime} from "../../../utils/datetime.util";
 import {CreatePayrollDto} from "./dto/create-payroll.dto";
 import {SearchPayrollDto} from "./dto/search-payroll.dto";
 import {UpdatePayrollDto} from "./dto/update-payroll.dto";
-import {CreateSalaryDto} from "../salary/dto/create-salary.dto";
+import {CreateSalaryDto} from "../salaries/salary/dto/create-salary.dto";
 import * as moment from "moment";
-import {SearchType} from "./entities/search.type.enum";
 import {Promise} from "es6-promise";
 import {FilterTypeEnum} from "./entities/filter-type.enum";
+import {SearchSalaryDto} from "./dto/search-salary.dto";
+import {OrderbyEmployeeEnum} from "../employee/enums/orderby-employee.enum";
+import *as _ from "lodash";
+import {TAX} from "../../../common/constant/salary.constant";
+import {StatusEnum} from "../../../common/enum/status.enum";
+
+type CreatePayroll =
+  CreatePayrollDto
+  & { branch: Branch, position: Position, recipeType: RecipeType, workday: number, isFlatSalary: boolean };
 
 @Injectable()
 export class PayrollRepository {
   constructor(private readonly prisma: PrismaService) {
   }
 
-  async create(body: CreatePayrollDto, salaries?: Salary[]) {
+  async create(body: CreatePayroll, isInit?: boolean) {
     try {
-      /// FIXME: If đầu có thẻ gây tốn performance cao
-      const exist = await this.prisma.payroll.findMany({
-        where: {
-          createdAt: {
-            gte: firstDatetime(body.createdAt),
-            lte: lastDatetime(body.createdAt),
-          },
-          employee: {
-            id: {in: body.employeeId},
-          }
-        },
-      });
-      if (!exist?.length) {
-        return await this.prisma.payroll.create({
-          data: {
-            employee: {connect: {id: body.employeeId}},
-            createdAt: body.createdAt,
-            salaries: salaries?.length
-              ? {
-                createMany: {
-                  data: salaries.map((salary) => {
-                    delete salary.payrollId;
-                    delete salary.id;
-                    return salary;
-                  }),
-                },
-              }
-              : {},
-          },
-          include: {salaries: true},
-        });
-      }
-    } catch (err) {
-      console.error(err);
-      if (err.code === "P2003") {
-        throw new BadRequestException(
-          "[DEVELOPMENT] Mã nhân viên không tồn tại ",
-          err
-        );
-      }
-      throw new BadRequestException(err);
-    }
-  }
-
-  async generate(body: CreatePayrollDto) {
-    try {
-      const payroll = await this.prisma.payroll.findFirst({
+      const payrolls = await this.prisma.payroll.findFirst({
         where: {
           employee: {id: {in: body.employeeId}},
+          deletedAt: {in: null},
           salaries: {
             some: {
               type: {in: [SalaryType.BASIC, SalaryType.BASIC_INSURANCE, SalaryType.STAY]}
@@ -75,21 +38,38 @@ export class PayrollRepository {
           }
         },
         include: {salaries: true},
+        orderBy: {
+          createdAt: "desc"
+        }
       });
 
-      // Đã tồn tại phiếu lương
-      if (payroll?.salaries?.length) {
-        const salaries = payroll.salaries.filter(
-          (salary) =>
-            salary.type === SalaryType.BASIC ||
-            salary.type === SalaryType.BASIC_INSURANCE ||
-            salary.type === SalaryType.STAY
-        );
-        return await this.create(body, salaries);
-      } else {
-        // Chưa tòn tại phiếu lương nào
-        return await this.create(body);
-      }
+      const salaries = payrolls?.salaries?.filter(
+        (salary) =>
+          salary.type === SalaryType.BASIC ||
+          salary.type === SalaryType.BASIC_INSURANCE ||
+          salary.type === SalaryType.STAY
+      );
+
+      return await this.prisma.payroll.create({
+        data: {
+          employee: {connect: {id: body?.employeeId}},
+          createdAt: body.createdAt,
+          branch: body.branch.name,
+          position: body.position.name,
+          recipeType: body.recipeType,
+          workday: body.workday,
+          isFlatSalary: body.isFlatSalary,
+          tax: TAX,
+          salaries: !isInit && salaries?.length
+            ? {
+              createMany: {
+                data: salaries.map((salary) => _.omit(salary, ["payrollId", "id"])),
+              },
+            }
+            : {},
+        },
+        include: {salaries: true},
+      });
     } catch (err) {
       console.error(err);
       if (err.code === "P2003") {
@@ -149,62 +129,72 @@ export class PayrollRepository {
       include: {branches: true, role: true}
     });
 
+    const template = search?.templateId
+      ? await this.prisma.overtimeTemplate.findUnique({
+        where: {id: search?.templateId},
+        include: {positions: true},
+      })
+      : null;
+    const positions = template?.positions?.map((position) => position.name);
     try {
       const [total, data] = await Promise.all([
         this.prisma.payroll.count({
           where: {
-            employeeId: Number(search?.employeeId) || undefined,
-            // branch: {
-            //   name: acc.role.role !== RoleEnum.HUMAN_RESOURCE
-            //     ? {startsWith: search?.branch, mode: "insensitive"}
-            //     : {},
-            // },
             employee: {
-              leftAt: null,
-              position: {
-                name: {startsWith: search?.position, mode: "insensitive"},
-              },
-              branch: {
-                id: profile.branches?.length ? {in: profile.branches.map(branch => branch.id)} : {},
-                name: !profile.branches?.length ? {startsWith: search?.branch, mode: "insensitive"} : {},
-              },
+              id: search?.employeeId ? {in: +search.employeeId} : {},
               lastName: {contains: search?.name, mode: "insensitive"},
               type: search?.employeeType ? {in: search?.employeeType} : {},
-              category: search?.categoryId ? {id: {in: search?.categoryId}} : {}
+              category: search?.categoryId ? {id: {in: search?.categoryId}} : {},
+              leftAt: search?.empStatus > -1 && search?.empStatus !== StatusEnum.ALL ? (search?.empStatus === StatusEnum.NOT_ACTIVE ? {notIn: null} : {in: null}) : {},
             },
+            branch: acc.branches?.length ? {
+              in: search?.branch ? acc.branches.map(branch => branch.name).concat(search?.branch) : acc.branches.map(branch => branch.name),
+              mode: "insensitive",
+            } : {startsWith: search?.branch, mode: "insensitive", in: null},
+            position: positions?.length
+              ? {in: positions.map(position => position)}
+              : {startsWith: search?.position, mode: "insensitive"},
             createdAt: {
-              gte: firstDatetime(search?.createdAt),
-              lte: lastDatetime(search?.createdAt),
+              gte: search?.startedAt,
+              lte: search?.endedAt,
             },
-            paidAt: null,
+            recipeType: {in: search?.recipeType},
+            deletedAt: {in: null},
           },
         }),
         this.prisma.payroll.findMany({
-          take: +search?.take || undefined,
-          skip: +search?.skip || undefined,
+          take: search?.take,
+          skip: search?.skip,
           where: {
-            employeeId: Number(search?.employeeId) || undefined,
+            employeeId: search?.employeeId ? {in: +search.employeeId} : {},
             employee: {
-              leftAt: null,
-              position: {
-                name: {startsWith: search?.position, mode: "insensitive"},
-              },
-              branch: {
-                id: profile.branches?.length ? {in: profile.branches.map(branch => branch.id)} : {},
-                name: !profile.branches?.length ? {startsWith: search?.branch, mode: "insensitive"} : {},
-              },
               lastName: {contains: search?.name, mode: "insensitive"},
               type: search?.employeeType ? {in: search?.employeeType} : {},
-              category: search?.categoryId ? {id: {in: search?.categoryId}} : {}
+              category: search?.categoryId ? {id: {in: search?.categoryId}} : {},
+              leftAt: search?.empStatus > -1 && search?.empStatus !== StatusEnum.ALL ? (search?.empStatus === StatusEnum.NOT_ACTIVE ? {notIn: null} : {in: null}) : {},
             },
+            branch: acc.branches?.length ? {
+              in: search?.branch ? acc.branches.map(branch => branch.name).concat(search?.branch) : acc.branches.map(branch => branch.name),
+              mode: "insensitive"
+            } : {startsWith: search?.branch, mode: "insensitive"},
+            position: positions?.length
+              ? {in: positions.map(position => position)}
+              : {startsWith: search?.position, mode: "insensitive"},
             createdAt: {
-              gte: firstDatetime(search?.createdAt),
-              lte: lastDatetime(search?.createdAt),
+              gte: search?.startedAt,
+              lte: search?.endedAt,
             },
-            paidAt: null,
+            recipeType: {in: search?.recipeType},
+            deletedAt: {in: null},
           },
           include: {
             salaries: true,
+            salariesv2: true,
+            deductions: true,
+            absents: true,
+            overtimes: true,
+            allownaces: true,
+            remotes: true,
             employee: {
               include: {
                 contracts: true,
@@ -214,14 +204,22 @@ export class PayrollRepository {
               },
             },
           },
-          orderBy: {
-            employee: {
-              stt: "asc"
-            }
+          // Nếu employeeId nhân viên tồn tại thì đang lấy lịch sử phiếu lương của nhân viên đó. nên sẽ sort theo ngày tạo phiếu lượng
+          orderBy: !search?.employeeId ? {
+            employee: search?.orderBy && search?.orderType
+              ? search.orderBy === OrderbyEmployeeEnum.CREATE
+                ? {createdAt: search.orderType}
+                : search.orderBy === OrderbyEmployeeEnum.POSITION
+                  ? {position: {name: search.orderType}}
+                  : search.orderBy === OrderbyEmployeeEnum.NAME
+                    ? {lastName: search.orderType}
+                    : {}
+              : {stt: "asc"}
+          } : {
+            createdAt: "asc"
           }
         }),
       ]);
-
       return {total, data};
     } catch (e) {
       console.error(e);
@@ -233,16 +231,13 @@ export class PayrollRepository {
     const [total, data] = await Promise.all([
       this.prisma.salary.count({
         where: {
-          datetime: search?.createdAt && search?.filterType === SalaryType.ABSENT ? {
-            in: search?.createdAt
-          } : search?.startedAt && search?.endedAt ? {
-            gte: search?.startedAt,
-            lte: search?.endedAt,
-          } : {
-            gte: firstDatetime(search?.createdAt),
-            lte: lastDatetime(search?.createdAt),
-          },
-          title: {startsWith: search?.title, mode: "insensitive"},
+          datetime: !(search.filterType === FilterTypeEnum.BASIC || search.filterType === FilterTypeEnum.STAY)
+            ? {
+              gte: search.startedAt,
+              lte: search.endedAt,
+            }
+            : {},
+          title: {in: search?.titles, mode: "insensitive"},
           price: search?.salaryPrice ? {equals: search?.salaryPrice} : {},
           type: search?.filterType
             ? {
@@ -254,11 +249,19 @@ export class PayrollRepository {
             }
             : {},
           payroll: {
-            employee: {
-              branch: {
-                id: profile.branches?.length ? {in: profile.branches.map(branch => branch.id)} : {}
+            branch: profile.branches?.length
+              ? {in: profile.branches.map(branch => branch.name)}
+              : {startsWith: search?.branch, mode: "insensitive"},
+            createdAt: (search.filterType === FilterTypeEnum.BASIC || search.filterType === FilterTypeEnum.STAY)
+              ? {
+                gte: firstDatetime(search.startedAt),
+                lte: lastDatetime(search.endedAt),
               }
-            }
+              : {
+                gte: search.startedAt,
+                lte: search.endedAt,
+              },
+            deletedAt: {in: null}
           }
         },
       }),
@@ -266,16 +269,13 @@ export class PayrollRepository {
         take: search?.take,
         skip: search?.skip,
         where: {
-          datetime: search?.createdAt && search?.filterType === SalaryType.ABSENT ? {
-            in: search?.createdAt
-          } : search?.startedAt && search?.endedAt ? {
-            gte: search?.startedAt,
-            lte: search?.endedAt,
-          } : {
-            gte: firstDatetime(search?.createdAt),
-            lte: lastDatetime(search?.createdAt),
-          },
-          title: {startsWith: search?.title, mode: "insensitive"},
+          datetime: !(search.filterType === FilterTypeEnum.BASIC || search.filterType === FilterTypeEnum.STAY)
+            ? {
+              gte: search.startedAt,
+              lte: search.endedAt,
+            }
+            : {},
+          title: {in: search?.titles, mode: "insensitive"},
           price: search?.salaryPrice ? {equals: search?.salaryPrice} : {},
           type: search?.filterType
             ? {
@@ -287,43 +287,44 @@ export class PayrollRepository {
             }
             : {},
           payroll: {
-            employee: {
-              branch: {
-                id: profile.branches?.length ? {in: profile.branches.map(branch => branch.id)} : {}
+            branch: profile.branches?.length
+              ? {in: profile.branches.map(branch => branch.name)}
+              : {startsWith: search?.branch, mode: "insensitive"},
+            createdAt: (search.filterType === FilterTypeEnum.BASIC || search.filterType === FilterTypeEnum.STAY)
+              ? {
+                gte: firstDatetime(search.startedAt),
+                lte: lastDatetime(search.endedAt),
               }
-            }
+              : {
+                gte: search.startedAt,
+                lte: search.endedAt,
+              },
+            deletedAt: {in: null}
           }
         },
         include: {
           payroll: {
-            include: {
-              employee: {
-                include: {
-                  position: true,
-                  branch: true
-                }
-              }
-            }
+            include: {employee: true}
           }
         },
         orderBy: {
           payroll: {
-            employee: {
-              stt: "asc"
-            }
+            employee: search?.orderBy && search?.orderType
+              ? search.orderBy === OrderbyEmployeeEnum.CREATE
+                ? {createdAt: search.orderType}
+                : search.orderBy === OrderbyEmployeeEnum.POSITION
+                  ? {position: {name: search.orderType}}
+                  : search.orderBy === OrderbyEmployeeEnum.NAME
+                    ? {lastName: search.orderType}
+                    : {}
+              : {stt: "asc"}
           }
         }
       })
     ]);
     return {
       total, data: data.map(salary => {
-        return {
-          employeeId: salary.payroll.employeeId,
-          id: salary.id,
-          payrollId: salary.payrollId,
-          salaries: Array.of(salary),
-          employee: salary.payroll.employee
-        };
+        return Object.assign({}, salary.payroll, {salaries: Array.of(_.omit(salary, ["payroll"]))});
       })
     };
   }
@@ -349,6 +350,9 @@ export class PayrollRepository {
               allowance: true
             }
           },
+          salariesv2: true,
+          absents: {include: {setting: true}},
+          deductions: true,
           employee: {
             include: {
               contracts: true,
@@ -360,11 +364,29 @@ export class PayrollRepository {
         },
       });
 
-      if (!payroll) {
+      if (!payroll || payroll.deletedAt) {
         throw new NotFoundException("Phiếu lương không tồn tại");
       }
-
-      const payrolls = await this.findIds(payroll.createdAt, payroll.employee.type, payroll.employee.branchId);
+      const payrolls = await this.prisma.payroll.findMany({
+        where: {
+          employee: {
+            branch: {name: {in: payroll.branch}},
+            type: {equals: payroll.employee.type || EmployeeType.FULL_TIME},
+            leftAt: {in: null},
+          },
+          createdAt: {
+            gte: firstDatetime(payroll.createdAt),
+            lte: lastDatetime(payroll.createdAt),
+          },
+          deletedAt: {in: null}
+        },
+        select: {id: true},
+        orderBy: {
+          employee: {
+            stt: "asc"
+          }
+        }
+      });
       return Object.assign(payroll, {payrollIds: payrolls.map(payroll => payroll.id)});
     } catch (e) {
       console.error(e);
@@ -372,42 +394,53 @@ export class PayrollRepository {
     }
   }
 
-  async update(id: number, updates: UpdatePayrollDto) {
+  async update(profile: ProfileEntity, id: number, updates: Partial<UpdatePayrollDto>) {
     try {
       // Chỉ xác nhận khi phiếu lương có tồn tại giá trị
+      const acc = await this.prisma.account.findUnique({where: {id: profile.id}, include: {role: true}});
       const payroll = await this.findOne(id);
-      if ((updates?.manConfirmedAt || updates?.accConfirmedAt)) {
-        if (!payroll.salaries.length) {
+      if (acc.role.role !== RoleEnum.HUMAN_RESOURCE && (updates?.manConfirmedAt || updates?.accConfirmedAt)) {
+        if (!payroll.salaries.length && !payroll.salariesv2.length) {
           throw new BadRequestException(`Không thể xác nhận phiếu lương rỗng`);
         }
-        if (payroll.salaries.every(salary => (salary.type === SalaryType.BASIC_INSURANCE || salary.type === SalaryType.BASIC))) {
+        if (
+          !payroll.salaries.filter(salary => (salary.type === SalaryType.BASIC_INSURANCE || salary.type === SalaryType.BASIC)).length
+          && !payroll.salariesv2.filter(salary => (salary.type === SalaryType.BASIC_INSURANCE || salary.type === SalaryType.BASIC)).length
+          && payroll.recipeType !== RecipeType.CT3
+        ) {
           throw new BadRequestException(`Không thể xác nhận phiếu lương có lương cơ bản rỗng`);
+        }
+
+        if (updates?.manConfirmedAt && !payroll.isEdit) {
+          throw new BadRequestException(`Phiếu lương đã chốt. Không được phép sửa.`);
         }
       }
 
-      const employee = await this.prisma.employee.findUnique({where: {id: payroll.employeeId}});
-
-      if (moment(updates?.accConfirmedAt || updates?.manConfirmedAt).isBefore(employee.createdAt)) {
+      if (moment(updates?.accConfirmedAt || updates?.manConfirmedAt).isBefore(payroll.createdAt)) {
         throw new BadRequestException(`Không thể xác nhận phiếu lương trước ngày vào làm. Vui lòng kiểm tra lại.`);
       }
-
       return await this.prisma.payroll.update({
         where: {id: id},
         data: {
-          isEdit: !!updates?.accConfirmedAt,
+          isEdit: updates?.isEdit,
           accConfirmedAt: updates?.accConfirmedAt,
           paidAt: updates?.paidAt,
           total: updates?.total,
           manConfirmedAt: updates?.manConfirmedAt,
           actualday: updates?.actualday,
+          workday: updates?.workday,
+          isFlatSalary: updates?.isFlatSalary,
+          branch: updates?.branchId ? (await this.prisma.branch.findUnique({where: {id: updates?.branchId}})).name : undefined,
+          position: updates?.positionId ? (await this.prisma.position.findUnique({where: {id: updates?.positionId}})).name : undefined,
           taxed: updates?.taxed,
+          createdAt: updates?.createdAt,
+          tax: updates?.tax,
+          recipeType: updates?.recipeType,
           note: updates?.note,
         },
         include: {
           employee: {
             include: {
-              position: true,
-              branch: true,
               contracts: true
             }
           },
@@ -422,192 +455,104 @@ export class PayrollRepository {
 
   async remove(id: number) {
     try {
-      return await this.prisma.payroll.delete({where: {id: id}});
+      const found = await this.prisma.payroll.findUnique({where: {id}, include: {salaries: true}});
+      if (found.accConfirmedAt && !found.isEdit) {
+        throw new BadRequestException("Phiếu lương đã xác nhận, bạn không được phép xóa");
+      }
+      if (found.salaries?.length) {
+        return await this.prisma.payroll.update({where: {id: id}, data: {deletedAt: new Date()}});
+      } else {
+        return await this.prisma.payroll.delete({where: {id}});
+      }
     } catch (err) {
       console.error(err);
       throw new BadRequestException(err);
     }
   }
 
-  async findOvertimesV2(profile: ProfileEntity, search: Partial<SearchPayrollDto>) {
+  async findOvertimes(profile: ProfileEntity, search: Partial<SearchPayrollDto>) {
     const acc = await this.prisma.account.findUnique({where: {id: profile.id}, include: {branches: true}});
+    const [total, data] = await Promise.all([
+      this.prisma.salary.count({
+        where: {
+          title: {in: search?.titles, mode: "insensitive"},
+          type: {in: SalaryType.OVERTIME},
+          datetime: search?.startedAt && search?.endedAt
+            ? {
+              gte: search?.startedAt,
+              lte: search?.endedAt
+            } : {},
+          payroll: {
+            branch: acc.branches?.length
+              ? {in: acc.branches.map(branch => branch.name)}
+              : {startsWith: search?.branch, mode: "insensitive"},
+            deletedAt: {in: null},
+            employee: {
+              lastName: {contains: search?.name, mode: "insensitive"}
+            }
+          }
+        },
+      }),
+      this.prisma.salary.findMany({
+        where: {
+          title: {in: search?.titles, mode: "insensitive"},
+          type: {in: SalaryType.OVERTIME},
+          datetime: search?.startedAt && search?.endedAt
+            ? {
+              gte: search?.startedAt,
+              lte: search?.endedAt
+            } : {},
+          payroll: {
+            branch: acc.branches?.length
+              ? {in: acc.branches.map(branch => branch.name)}
+              : {startsWith: search?.branch, mode: "insensitive"},
+            deletedAt: {in: null},
+            employee: {
+              lastName: {contains: search?.name, mode: "insensitive"}
+            }
+          }
+        },
+        include: {
+          allowance: true,
+          payroll: {
+            include: {employee: true}
+          }
+        },
+        orderBy: {
+          payroll: {
+            employee: search?.orderBy && search?.orderType
+              ? search.orderBy === OrderbyEmployeeEnum.CREATE
+                ? {createdAt: search.orderType}
+                : search.orderBy === OrderbyEmployeeEnum.POSITION
+                  ? {position: {name: search.orderType}}
+                  : search.orderBy === OrderbyEmployeeEnum.NAME
+                    ? {lastName: search.orderType}
+                    : {}
+              : {stt: "asc"}
+          }
+        }
+      })
+    ]);
+    return {total, data};
+  }
 
-    const overtimeTitles = await this.prisma.salary.groupBy({
+  async overtimeTemplate(search: SearchSalaryDto) {
+    return await this.prisma.salary.groupBy({
       by: ['title'],
       where: {
-        title: {startsWith: search?.title, mode: "insensitive"},
-        datetime: search?.createdAt ? {
-          in: search?.createdAt
-        } : {
-          gte: search?.startedAt,
-          lte: search?.endedAt
+        type: {in: search.salaryType === SalaryType.BASIC ? [SalaryType.BASIC, SalaryType.BASIC_INSURANCE] : search.salaryType},
+        datetime: {
+          gte: search.startedAt,
+          lte: search.endedAt,
         },
-        type: {in: SalaryType.OVERTIME},
         payroll: {
-          employee: {
-            branch: acc.branches?.length
-              ? {id: {in: profile?.branches.map(branch => branch.id)}}
-              : {
-                name: {
-                  startsWith: search?.branch,
-                  mode: "insensitive"
-                }
-              },
-            position: {name: {startsWith: search?.position, mode: "insensitive"}},
-            lastName: search?.type === SearchType.EQUALS
-              ? {equals: search?.name, mode: "insensitive"}
-              : search?.type === SearchType.START_WITH
-                ? {startsWith: search?.name, mode: "insensitive"}
-                : {contains: search?.name, mode: "insensitive"},
-          }
+          branch: search?.branch ? {startsWith: search.branch, mode: "insensitive"} : {},
+          position: search?.position ? {startsWith: search.position, mode: "insensitive"} : {},
+          deletedAt: {in: null}
         }
       },
     });
-
-    const data = await Promise.all(overtimeTitles.map(async e => {
-      const [total, salaries] = await Promise.all([
-        this.prisma.salary.count({
-          where: {
-            title: e.title,
-            type: {in: SalaryType.OVERTIME},
-            datetime: search?.createdAt ? {
-              in: search?.createdAt
-            } : {
-              gte: search?.startedAt,
-              lte: search?.endedAt
-            },
-            payroll: {
-              employee: {
-                branch: acc.branches?.length
-                  ? {id: {in: acc.branches.map(branch => branch.id)}}
-                  : {name: {startsWith: search?.branch, mode: "insensitive"}}
-              }
-            }
-          },
-        }),
-        this.prisma.salary.findMany({
-          // take: Number(search?.take) || undefined,
-          // skip: Number(search?.skip) || undefined,
-          where: {
-            title: e.title,
-            type: {in: SalaryType.OVERTIME},
-            datetime: search?.createdAt ? {
-              in: search?.createdAt
-            } : {
-              gte: search?.startedAt,
-              lte: search?.endedAt
-            },
-            payroll: {
-              employee: {
-                branch: acc.branches?.length
-                  ? {id: {in: acc.branches.map(branch => branch.id)}}
-                  : {name: {startsWith: search?.branch, mode: "insensitive"}}
-              }
-            }
-          },
-          include: {
-            allowance: true,
-            payroll: {
-              include: {
-                employee: {
-                  include: {
-                    branch: true,
-                    position: true
-                  }
-                }
-              }
-            }
-          },
-          orderBy: {
-            payroll: {
-              employee: {
-                stt: "asc"
-              }
-            }
-          }
-        })
-      ]);
-      /// TODO: Phân trang thì tổng sẽ lấy trong phạm vi được phân trang.
-      return {total, salaries};
-    }));
-
-    return {
-      total: data.map(e => e.total).reduce((a, b) => a + b, 0),
-      data: data.map(e => e.salaries)
-    };
   }
-
-  async findIds(createdAt: Date, employeeType?: EmployeeType, branchId?: number) {
-    try {
-      return await this.prisma.payroll.findMany({
-        where: {
-          employee: {
-            branch: {id: {in: branchId}},
-            type: {equals: employeeType || EmployeeType.FULL_TIME},
-            leftAt: {in: null},
-          },
-          createdAt: {
-            gte: firstDatetime(createdAt),
-            lte: lastDatetime(createdAt),
-          }
-        },
-        select: {id: true},
-        orderBy: {
-          employee: {
-            stt: "asc"
-          }
-        }
-      });
-    } catch (err) {
-      console.error(err);
-      throw new BadRequestException(err);
-    }
-  }
-
-  async currentPayroll(profile: ProfileEntity, datetime: Date) {
-    try {
-      if (!datetime) {
-        throw new BadRequestException("Vui lòng nhập tháng / năm để in phiếu chấm công. Xin cảm ơn!!!");
-      }
-      const employees = await this.prisma.employee.findMany({
-        where: {
-          branchId: profile?.branches?.length ? {in: profile?.branches.map(branch => branch.id)} : {},
-        }
-      });
-
-      return await Promise.all(employees.map(async employee => {
-        const payroll = await this.prisma.payroll.findFirst({
-          where: {
-            employeeId: employee.id,
-            createdAt: {
-              gte: firstDatetime(datetime),
-              lte: lastDatetime(datetime),
-            }
-          },
-          include: {
-            salaries: true,
-            employee: {
-              include: {
-                position: true,
-                contracts: true,
-              }
-            },
-          },
-        });
-        if (!payroll.accConfirmedAt) {
-          throw `Cần xác nhận phiếu lương ${payroll.id} trước khi xuất`;
-        }
-        if (!payroll.salaries.filter(salary => salary.type === SalaryType.BASIC_INSURANCE).length) {
-          throw `Phiếu lương ${payroll.id} chưa có lương cơ bản trích BH. Vui lòng thêm mục này để hoàn thành xác nhận.`;
-        }
-        return payroll;
-      }));
-    } catch (err) {
-      console.error(err);
-      throw new BadRequestException(err);
-    }
-  }
-
 
   async findCurrentHolidays(datetime: Date, positionId: Position["id"]) {
     try {
@@ -627,8 +572,6 @@ export class PayrollRepository {
       throw new BadRequestException("Lỗi get current holiday", err);
     }
   }
-
-
 }
 
 

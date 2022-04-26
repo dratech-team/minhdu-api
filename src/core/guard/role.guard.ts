@@ -1,22 +1,30 @@
 import {CanActivate, ExecutionContext, Injectable} from "@nestjs/common";
-import {Observable} from "rxjs";
 import {Reflector} from "@nestjs/core";
 import {Role} from "@prisma/client";
+import {PrismaService} from "../../prisma.service";
 
 @Injectable()
 export class RolesGuard implements CanActivate {
-  constructor(private readonly reflector: Reflector) {
+  constructor(private readonly reflector: Reflector, private readonly prisma: PrismaService) {
   }
 
-  canActivate(
-    context: ExecutionContext,
-  ): boolean | Promise<boolean> | Observable<boolean> {
+  async canActivate(context: ExecutionContext,): Promise<boolean> {
     const request = context.switchToHttp().getRequest();
     const roles = this.reflector.get('roles', context.getHandler()) || [];
     return this.validateRolesRequest(request, roles);
+    // const validSession = await this.validateSessionReq(request);
+    // if (!validSession) {
+    //   throw new UnauthorizedException("Có tài khoản khác đã đăng nhập vào máy của bạn.. ");
+    // }
+    // return validRole === validSession;
   }
 
   validateRolesRequest(request, roles: Role[]): boolean {
     return roles.includes(request?.user?.role);
   }
+
+  // async validateSessionReq(request): Promise<boolean> {
+  //   const acc = await this.prisma.account.findUnique({where: {id: request.user.id}});
+  //   return request.headers.authorization === acc.token;
+  // }
 }

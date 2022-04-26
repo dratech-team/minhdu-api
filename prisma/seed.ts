@@ -1,53 +1,195 @@
-import {PrismaClient, RoleEnum} from "@prisma/client";
+import {CalculationType, ConditionType, DatetimeUnit, PrismaClient, RoleEnum} from "@prisma/client";
+
 
 const prisma = new PrismaClient();
 
 async function main() {
+  // nhân sự
   await prisma.role.createMany({
     data: [
       {
+        id: 1,
+        name: "Supper Admin",
+        role: RoleEnum.SUPPER_ADMIN,
+      },
+      {
+        id: 2,
+        name: "Admin",
+        role: RoleEnum.ADMIN,
+      },
+      {
+        id: 3,
         name: "Nhân sự",
         role: RoleEnum.HUMAN_RESOURCE,
       },
       {
+        id: 4,
         name: "Bán hàng",
         role: RoleEnum.SALESMAN,
       },
+      {
+        id: 5,
+        name: "Kho",
+        role: RoleEnum.WAREHOUSE,
+      },
     ],
     skipDuplicates: true,
   });
 
+  await prisma.salaryRecipe.createMany({
+    data: [
+      {
+        id: 1,
+        title: "Công thức 1",
+      },
+      {
+        id: 2,
+        title: "Công thức 2",
+      },
+      {
+        id: 3,
+        title: "Công thức 3",
+      },
+      {
+        id: 4,
+        title: "Công thức 4",
+      },
+      {
+        id: 5,
+        title: "Công thức 5",
+      }
+    ],
+    skipDuplicates: true
+  });
+
+  await prisma.calculation.createMany({
+    data: [
+      {
+        id: 1,
+        condition: ConditionType.NO_CONDITION,
+        with: null,
+        calculate: CalculationType.ADD,
+        unit: DatetimeUnit.MONTH,
+      },
+      {
+        id: 2,
+        condition: ConditionType.GREATER_EQUAL,
+        with: null,
+        calculate: CalculationType.ADD,
+        unit: DatetimeUnit.MONTH,
+      },
+      {
+        id: 3,
+        condition: ConditionType.GREATER_EQUAL,
+        with: null,
+        calculate: CalculationType.ADD,
+        unit: DatetimeUnit.DAY,
+      },
+      {
+        id: 4,
+        condition: ConditionType.LESS,
+        with: null,
+        calculate: CalculationType.ADD,
+        unit: DatetimeUnit.MONTH,
+      },
+      {
+        id: 5,
+        condition: ConditionType.LESS_EQUAL,
+        with: null,
+        calculate: CalculationType.ADD,
+        unit: DatetimeUnit.MONTH,
+      },
+      {
+        id: 6,
+        condition: ConditionType.NO_CONDITION,
+        with: null,
+        calculate: CalculationType.SUB,
+        unit: DatetimeUnit.MONTH,
+      },
+    ],
+    skipDuplicates: true
+  });
+
+  await prisma.salaryBlock.createMany({
+    data: [
+      {
+        title: "Lương cơ bản",
+        stt: 1,
+        calculationId: 1,
+      },
+      {
+        title: "Phụ cấp lương",
+        stt: 2,
+        calculationId: 1,
+      },
+      {
+        stt: 3,
+        title: "Phụ cấp khác",
+        calculationId: 1,
+      },
+      {
+        stt: 4,
+        title: "Tăng ca",
+        calculationId: 1,
+      },
+      {
+        stt: 3,
+        title: "Khấu trừ",
+        calculationId: 1,
+      },
+      {
+        stt: 4,
+        title: "Ngày lễ",
+        calculationId: 1,
+      },
+      {
+        stt: 5,
+        title: "Remote",
+        calculationId: 1,
+      }
+    ]
+  });
+  // bán hàng
   await prisma.commodityTemplate.createMany({
     data: [
       {
+        id: 1,
         code: "MD1.BD",
-        name: "Gà loại 1"
+        name: "Gà loại 1",
       },
       {
+        id: 2,
         code: "MD2.BD",
-        name: "Gà loại 2"
+        name: "Gà loại 2",
       },
       {
+        id: 3,
         code: "MD3.BD",
-        name: "Gà loại 3"
+        name: "Gà loại 3",
       },
       {
+        id: 4,
         code: "MD3S.BD",
-        name: "MD3S.BD"
+        name: "MD3S.BD",
       },
       {
+        id: 5,
         code: "GM",
-        name: "Gà mía"
+        name: "Gà mía",
       },
       {
+        id: 6,
         code: "GNBT",
-        name: "Gà nồi bến tre"
+        name: "Gà nồi bến tre",
       },
     ],
     skipDuplicates: true,
   });
 
-  await prisma.provider.createMany({data: {name: "Khác"}, skipDuplicates: true});
+  await prisma.supplier.createMany({
+    data: {name: "Khác"},
+    skipDuplicates: true,
+  });
   // await prisma.position.createMany({
   //   data: [
   //     {
@@ -107,4 +249,4 @@ async function main() {
   // }
 }
 
-main().catch(err => console.error(err));
+main().catch((err) => console.error(err));

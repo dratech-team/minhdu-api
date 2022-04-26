@@ -15,8 +15,8 @@ export class HolidayService {
     return await this.repository.create(body);
   }
 
-  async findAll(take: number, skip: number, profile: ProfileEntity, search: Partial<SearchHolidayDto>) {
-    return await this.repository.findAll(take, skip, profile, search);
+  async findAll(profile: ProfileEntity, search: Partial<SearchHolidayDto>) {
+    return await this.repository.findAll(profile, search);
   }
 
   async findOne(id: number, search?: Partial<SearchHolidayDto>) {
@@ -31,5 +31,9 @@ export class HolidayService {
 
   async remove(id: number) {
     return await this.repository.remove(id);
+  }
+
+  export() {
+
   }
 }

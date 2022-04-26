@@ -1,9 +1,10 @@
 import {BadRequestException, ForbiddenException, Injectable,} from "@nestjs/common";
 import {PrismaService} from "../../../prisma.service";
 import {CreateBranchDto} from "./dto/create-branch.dto";
-import {AppEnum, Branch, RoleEnum} from "@prisma/client";
+import {AppEnum, Branch} from "@prisma/client";
 import {UpdateBranchDto} from "./dto/update-branch.dto";
 import {ProfileEntity} from "../../entities/profile.entity";
+import {SearchBranchDto} from "./dto/search-branch.dto";
 
 @Injectable()
 export class BranchRepository {
@@ -21,18 +22,18 @@ export class BranchRepository {
           name: body.name,
           positions: body?.positionIds?.length ? {connect: body.positionIds.map(positionId => ({id: positionId}))} : {},
           address: body?.address,
-          status: {
+          status: body.status ? {
             create: {
               app: acc.appName,
               status: body.status,
             }
-          },
-          phone: {
+          } : {},
+          phone: body.phone ? {
             create: {
               app: acc.appName,
               phone: body.phone
             }
-          }
+          } : {}
         },
         include: {
           positions: true
@@ -44,33 +45,32 @@ export class BranchRepository {
     }
   }
 
-  async findAll(profile: ProfileEntity) {
+  async findAll(profile: ProfileEntity, search: SearchBranchDto) {
     try {
       const acc = await this.prisma.account.findUnique({where: {id: profile.id}, include: {branches: true}});
 
-      const branches = await this.prisma.branch.findMany({
-        where: {
-          name: acc.branches.length ? {in: acc.branches.map(branch => branch.name)} : {},
-          // status: {
-          //   every: {
-          //     app: acc.appName,
-          //   }
-          // },
-          // phone: {
-          //   every: {
-          //     app: acc.appName,
-          //   }
-          // }
-        },
-        include: {
-          positions: acc.appName === AppEnum.HR,
-          _count: acc.appName === AppEnum.HR,
-          allowances: acc.appName === AppEnum.HR,
-          status: true,
-          phone: true
-        }
-      });
-      return await Promise.all(branches.map(async branch => await this.mapToBranch(branch, acc.appName)));
+      const [total, data] = await Promise.all([
+        this.prisma.branch.count({
+          where: {
+            name: acc?.branches?.length ? {in: acc.branches.map(branch => branch.name)} : {},
+          },
+        }),
+        this.prisma.branch.findMany({
+          take: search?.take,
+          skip: search?.skip,
+          where: {
+            name: acc?.branches?.length ? {in: acc.branches.map(branch => branch.name)} : {},
+          },
+          include: {
+            positions: acc.appName === AppEnum.HR,
+            _count: acc.appName === AppEnum.HR,
+            allowances: acc.appName === AppEnum.HR,
+            status: true,
+            phone: true
+          }
+        }),
+      ]);
+      return {total, data: await Promise.all(data.map(async branch => await this.mapToBranch(branch, acc.appName)))};
     } catch (err) {
       console.error(err);
       throw new BadRequestException(err);
@@ -94,7 +94,7 @@ export class BranchRepository {
     const acc = await this.prisma.account.findUnique({where: {id: profile.id}, include: {branches: true}});
 
     const branch = await this.prisma.branch.findUnique({
-      where: {id: id},
+      where: {id},
       include: {
         _count: {
           select: {
@@ -214,8 +214,8 @@ export class BranchRepository {
 
   private async mapToBranch(branch, appName: AppEnum) {
     return Object.assign(branch, {
-        status: branch.status.map(status => status.status).toString(),
-        phone: branch.phone.map(phone => phone.phone).toString()
+        status: branch.status?.map(status => status.status)?.toString(),
+        phone: branch.phone?.map(phone => phone.phone)?.toString()
       }, appName === AppEnum.HR
       ? {_count: Object.assign(branch._count, {employeeLeft: await this.count(branch.id, true)})}
       : {}

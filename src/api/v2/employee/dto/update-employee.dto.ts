@@ -24,7 +24,7 @@ export class UpdateEmployeeDto extends PartialType(OmitType(CreateEmployeeDto, [
   readonly ethnicity?: string;
 
   @IsOptional()
-  @Transform((val) => new Date(moment(val.value).format('YYYY-MM-DD')))
+  @Transform((val) => new Date(moment(val.value).utc().format('YYYY-MM-DD')))
   @Type(() => Date)
   @IsDate()
   readonly leftAt?: Date;

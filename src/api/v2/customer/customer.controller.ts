@@ -4,7 +4,7 @@ import {CreateCustomerDto} from './dto/create-customer.dto';
 import {UpdateCustomerDto} from './dto/update-customer.dto';
 import {ApiV2Constant} from "../../../common/constant/api.constant";
 import {RoleEnum} from '@prisma/client';
-import {CreatePaymentHistoryDto} from "../payment-history/dto/create-payment-history.dto";
+import {CreatePaymentHistoryDto} from "../histories/payment-history/dto/create-payment-history.dto";
 import {JwtAuthGuard} from "../../../core/guard/jwt-auth.guard";
 import {ApiKeyGuard} from "../../../core/guard/api-key-auth.guard";
 import {RolesGuard} from "../../../core/guard/role.guard";

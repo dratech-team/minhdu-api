@@ -5,6 +5,7 @@ import {UpdatePositionDto} from "./dto/update-position.dto";
 import {PositionRepository} from "./position.repository";
 import {OnePosition} from "./entities/position.entity";
 import {SearchPositionDto} from "./dto/search-position.dto";
+import {ProfileEntity} from "../../entities/profile.entity";
 
 @Injectable()
 export class PositionService {
@@ -15,8 +16,8 @@ export class PositionService {
     return await this.repository.create(body);
   }
 
-  async findAll(search: Partial<SearchPositionDto>): Promise<Position[]> {
-    return this.repository.findAll(search);
+  async findAll(profile: ProfileEntity, search: Partial<SearchPositionDto>) {
+    return this.repository.findAll(profile, search);
   }
 
   findBranch(id: number): Promise<any> {

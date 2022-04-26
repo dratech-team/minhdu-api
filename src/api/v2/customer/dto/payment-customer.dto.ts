@@ -6,7 +6,7 @@ import * as moment from "moment";
 export class PaymentCustomerDto {
   @IsOptional()
   @Type(() => Date)
-  @Transform((val) => new Date(moment(val.value).format('YYYY-MM-DD')))
+  @Transform((val) => new Date(moment(val.value).utc().format('YYYY-MM-DD')))
   readonly paidAt?: Date;
 
   @IsOptional()

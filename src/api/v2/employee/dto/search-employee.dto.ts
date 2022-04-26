@@ -1,9 +1,11 @@
 import {EmployeeType, GenderType, RecipeType} from "@prisma/client";
 import {IsEnum, IsNotEmpty, IsNumber, IsOptional, IsString} from "class-validator";
 import {Type} from "class-transformer";
-import {OrderbyEmployeeEnum} from "../enums/orderby-employee.enum";
+import {SortDto} from "../../../../common/dtos/sort.dto";
+import {PartialType} from "@nestjs/mapped-types";
+import {StatusEnum} from "../../../../common/enum/status.enum";
 
-export class SearchEmployeeDto {
+export class SearchEmployeeDto extends PartialType(SortDto) {
   @IsNotEmpty()
   @IsNumber()
   @Type(() => Number)
@@ -24,7 +26,7 @@ export class SearchEmployeeDto {
 
   readonly createdAt: {
     datetime: Date,
-    compare: 'gte' | 'lte' | 'in',
+    compare: 'gte' | 'lte' | 'in' | 'inMonth',
   };
 
   @IsOptional()
@@ -49,16 +51,12 @@ export class SearchEmployeeDto {
   @Type(() => Number)
   readonly positionId: number;
 
-  @IsOptional()
-  @IsNumber()
-  @Type(() => Number)
-  readonly templateId: number;
-
   readonly createdPayroll: Date;
 
   @IsNotEmpty()
-  @IsOptional()
-  readonly isLeft: boolean | string;
+  @IsEnum(StatusEnum)
+  @Type(() => Number)
+  readonly status: StatusEnum;
 
   readonly type: EmployeeType;
 
@@ -74,14 +72,6 @@ export class SearchEmployeeDto {
   @IsNumber()
   @Type(() => Number)
   readonly categoryId: number;
-
-  @IsOptional()
-  @IsString()
-  readonly orderType: "asc" | "desc";
-
-  @IsOptional()
-  @IsEnum(OrderbyEmployeeEnum)
-  readonly orderBy: OrderbyEmployeeEnum;
 
   @IsOptional()
   @IsString()

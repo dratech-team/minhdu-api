@@ -1,10 +1,10 @@
 import {PaidEnum} from "../enums/paid.enum";
 import {Customer, PaymentType} from "@prisma/client";
-import {IsBoolean, IsEnum, IsNumber, IsOptional, IsString} from "class-validator";
-import {Transform, Type} from "class-transformer";
-import * as moment from "moment";
+import {IsEnum, IsNumber, IsOptional, IsString} from "class-validator";
+import {Type} from "class-transformer";
+import {SearchRangeDto} from "../../../../common/dtos/search-range.dto";
 
-export class SearchOrderDto {
+export class SearchOrderDto extends SearchRangeDto {
   @IsOptional()
   @IsNumber()
   @Type(() => Number)
@@ -14,54 +14,6 @@ export class SearchOrderDto {
   @IsNumber()
   @Type(() => Number)
   readonly take: number;
-
-  @IsOptional()
-  @Transform((val) => {
-    if (val.value) {
-      return new Date(moment(val.value).format('YYYY-MM-DD'));
-    }
-  })
-  readonly createStartedAt: Date;
-
-  @IsOptional()
-  @Transform((val) => {
-    if (val.value) {
-      return new Date(moment(val.value).format('YYYY-MM-DD'));
-    }
-  })
-  readonly createEndedAt: Date;
-
-  @IsOptional()
-  @Transform((val) => {
-    if (val.value) {
-      return new Date(moment(val.value).format('YYYY-MM-DD'));
-    }
-  })
-  readonly deliveryStartedAt: Date;
-
-  @IsOptional()
-  @Transform((val) => {
-    if (val.value) {
-      return new Date(moment(val.value).format('YYYY-MM-DD'));
-    }
-  })
-  readonly deliveryEndedAt: Date;
-
-  @IsOptional()
-  @Transform((val) => {
-    if (val.value) {
-      return new Date(moment(val.value).format('YYYY-MM-DD'));
-    }
-  })
-  readonly startedAt: Date;
-
-  @IsOptional()
-  @Transform((val) => {
-    if (val.value) {
-      return new Date(moment(val.value).format('YYYY-MM-DD'));
-    }
-  })
-  readonly endedAt: Date;
 
   @IsOptional()
   @IsString()
@@ -94,7 +46,7 @@ export class SearchOrderDto {
   @IsOptional()
   @IsNumber()
   @Type((v) => Number)
-  readonly status: 0 | 1;
+  readonly status: 0 | 1 | -1;
 
   @IsOptional()
   readonly hide: string;

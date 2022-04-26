@@ -1,7 +1,7 @@
 import {Module} from '@nestjs/common';
-import {WarehouseService} from './warehouse.service';
-import {WarehouseController} from './warehouse.controller';
 import {PrismaService} from "../../../prisma.service";
+import {WarehouseController} from "./warehouse.controller";
+import {WarehouseService} from "./warehouse.service";
 
 @Module({
   controllers: [WarehouseController],

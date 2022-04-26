@@ -19,40 +19,40 @@ export class CategoryController {
   }
 
   @UseGuards(LoggerGuard)
-  @Roles(RoleEnum.CAMP_ACCOUNTING, RoleEnum.HUMAN_RESOURCE)
+  @Roles(RoleEnum.SUPPER_ADMIN, RoleEnum.CAMP_ACCOUNTING)
   @Post()
   create(@ReqProfile() profile: ProfileEntity, @Body() createCategoryDto: CreateCategoryDto) {
     return this.categoryService.create(profile, createCategoryDto);
   }
 
-  @Roles(RoleEnum.CAMP_ACCOUNTING, RoleEnum.HUMAN_RESOURCE)
+  @Roles(RoleEnum.SUPPER_ADMIN, RoleEnum.ADMIN, RoleEnum.HUMAN_RESOURCE, RoleEnum.CAMP_ACCOUNTING)
   @Get()
   findAll(@ReqProfile() profile: ProfileEntity, @Query() search: SearchCategoryDto) {
     return this.categoryService.findAll(profile, search);
   }
 
-  @Roles(RoleEnum.CAMP_ACCOUNTING, RoleEnum.HUMAN_RESOURCE)
+  @Roles(RoleEnum.SUPPER_ADMIN, RoleEnum.ADMIN, RoleEnum.HUMAN_RESOURCE, RoleEnum.CAMP_ACCOUNTING)
   @Get(':id')
   findOne(@Param('id') id: string) {
     return this.categoryService.findOne(+id);
   }
 
   @UseGuards(LoggerGuard)
-  @Roles(RoleEnum.CAMP_ACCOUNTING, RoleEnum.HUMAN_RESOURCE)
+  @Roles(RoleEnum.SUPPER_ADMIN, RoleEnum.CAMP_ACCOUNTING)
   @Patch(':id')
   update(@Param('id') id: string, @Body() updateCategoryDto: UpdateCategoryDto) {
     return this.categoryService.update(+id, updateCategoryDto);
   }
 
   @UseGuards(LoggerGuard)
-  @Roles(RoleEnum.CAMP_ACCOUNTING, RoleEnum.HUMAN_RESOURCE)
+  @Roles(RoleEnum.SUPPER_ADMIN, RoleEnum.CAMP_ACCOUNTING)
   @Delete(':id')
   remove(@Param('id') id: string) {
     return this.categoryService.remove(+id);
   }
 
   @UseGuards(LoggerGuard)
-  @Roles(RoleEnum.CAMP_ACCOUNTING, RoleEnum.HUMAN_RESOURCE)
+  @Roles(RoleEnum.SUPPER_ADMIN, RoleEnum.CAMP_ACCOUNTING)
   @Patch(':id/employee')
   removeEmployee(@Param('id') id: number, @Body("employeeId") employeeId: number) {
     return this.categoryService.removeEmployee(+id, employeeId);

@@ -1,7 +1,8 @@
 import {DatetimeUnit, PartialDay, SalaryType} from "@prisma/client";
 import {Transform, Type} from "class-transformer";
 import {IsDate, IsEnum, IsNotEmpty, IsNumber, IsOptional, IsString,} from "class-validator";
-import {RageDate} from "src/api/v2/salary/entities/salary.entity";
+import {RageDate} from "src/api/v2/salaries/salary/entities/salary.entity";
+import * as moment from "moment";
 
 export class ICreateSalaryDto {
   @IsNotEmpty({message: "Tiêu đề không được để trống"})
@@ -16,10 +17,10 @@ export class ICreateSalaryDto {
   @IsEnum(DatetimeUnit)
   readonly unit?: DatetimeUnit;
 
-  @Type(() => Date)
-  @Transform((val) => new Date(val.value))
-  @IsDate()
   @IsOptional()
+  @IsDate()
+  @Type(() => Date)
+  @Transform(({value}) => new Date(moment(value).utc().format('YYYY-MM-DD')))
   readonly datetime?: Date | RageDate | null;
 
   @IsOptional()

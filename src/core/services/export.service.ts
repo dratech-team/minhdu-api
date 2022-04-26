@@ -38,6 +38,7 @@ export async function exportExcel(
    * Title
    * */
   worksheet.getRow(4).values = result.customHeaders;
+  worksheet.getRow(4).values = result.customHeaders;
 
   // font
   worksheet.getRow(4).font = {
@@ -71,10 +72,9 @@ export async function exportExcel(
   });
 
   const buf = await workbook.xlsx.writeBuffer();
-
   response.setHeader(
     "Content-Disposition",
-    `${result.name} (${JSON.stringify(moment(new Date()).format(
+    `${stringToSlug(result.name)} (${JSON.stringify(moment(new Date()).format(
       "DD-MM-YYYY"
     ))}).xlsx`
   );
@@ -165,3 +165,19 @@ const alphabet = [
   "Y",
   "Z",
 ];
+
+// sửa lại ký tự sai
+function stringToSlug(str) {
+  // remove accents
+  const from = "àáãảạăằắẳẵặâầấẩẫậèéẻẽẹêềếểễệđùúủũụưừứửữựòóỏõọôồốổỗộơờớởỡợìíỉĩịäëïîöüûñçýỳỹỵỷ1234567890",
+    to = "aaaaaaaaaaaaaaaaaeeeeeeeeeeeduuuuuuuuuuuoooooooooooooooooiiiiiaeiiouuncyyyyy1234567890";
+  for (let i = 0, l = from.length; i < l; i++) {
+    str = str.replace(RegExp(from[i], "gi"), to[i]);
+  }
+
+  str = str.toLowerCase()
+    .trim()
+    .replace(/[^a-z0-9\-]/g, '-')
+    .replace(/-+/g, '-');
+  return str;
+}

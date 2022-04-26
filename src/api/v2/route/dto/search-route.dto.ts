@@ -1,7 +1,7 @@
 import {IsDate, IsEnum, IsNumber, IsOptional, IsString} from "class-validator";
 import {Transform, Type} from "class-transformer";
-import * as moment from "moment";
 import {SortRouteEnum} from "../enums/sort-route.enum";
+import * as moment from "moment";
 
 export class SearchRouteDto {
   @IsOptional()
@@ -16,32 +16,36 @@ export class SearchRouteDto {
 
   @IsOptional()
   @IsString()
-  readonly name: string;
+  readonly search: string;
 
   @IsOptional()
   @IsDate()
   @Type(() => Date)
-  @Transform((val) => new Date(moment(val.value).format('YYYY-MM-DD')))
-  readonly startedAt: Date;
+  @Transform((val) => new Date(moment(val.value).utc().format('YYYY-MM-DD')))
+  readonly startedAt_start: Date;
 
   @IsOptional()
   @IsDate()
   @Type(() => Date)
-  @Transform((val) => new Date(moment(val.value).format('YYYY-MM-DD')))
-  readonly endedAt: Date;
+  @Transform((val) => new Date(moment(val.value).utc().format('YYYY-MM-DD')))
+  readonly startedAt_end: Date;
 
   @IsOptional()
-  @IsString()
-  readonly driver: string;
+  @IsDate()
+  @Type(() => Date)
+  @Transform((val) => new Date(moment(val.value).utc().format('YYYY-MM-DD')))
+  readonly endedAt_start: Date;
 
   @IsOptional()
-  @IsString()
-  readonly bsx: string;
+  @IsDate()
+  @Type(() => Date)
+  @Transform((val) => new Date(moment(val.value).utc().format('YYYY-MM-DD')))
+  readonly endedAt_end: Date;
 
   @IsOptional()
   @IsNumber()
   @Type(() => Number)
-  readonly status: 0 | 1
+  readonly status: 0 | 1 | -1
 
 
   @IsOptional()

@@ -40,7 +40,7 @@ export class CreateProfileDto {
   @Type(() => Date)
   @Transform((val) => {
     if (val.value) {
-      return new Date(moment(val.value).format('YYYY-MM-DD'));
+      return new Date(moment(val.value).utc().format('YYYY-MM-DD'));
     }
   })
   readonly birthday: Date;
@@ -51,14 +51,15 @@ export class CreateProfileDto {
 
   @IsOptional()
   @IsString()
-  @MaxLength(9 | 12)
+  @MaxLength(12)
+  @MinLength(9)
   readonly identify: string;
 
   @IsOptional()
   @Type(() => Date)
   @Transform((val) => {
     if (val.value) {
-      return new Date(moment(val.value).format('YYYY-MM-DD'));
+      return new Date(moment(val.value).utc().format('YYYY-MM-DD'));
     }
   })
   readonly idCardAt: Date;

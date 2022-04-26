@@ -3,6 +3,16 @@ import {Type} from "class-transformer";
 
 export class SearchPositionDto {
   @IsOptional()
+  @IsNumber()
+  @Type(() => Number)
+  readonly take: number;
+
+  @IsOptional()
+  @IsNumber()
+  @Type(() => Number)
+  readonly skip: number;
+
+  @IsOptional()
   @IsString()
   readonly position: string;
 

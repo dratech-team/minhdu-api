@@ -2,14 +2,14 @@ generator client {
   provider = "prisma-client-js"
 }
 
-//generator dbml {
+// generator dbml {
 //  provider            = "prisma-dbml-generator"
 //  output              = "../dbml"
 //  outputName          = "minhdu.dbml"
 //  projectName         = "Minh du"
-//  projectDatabaseType = "PostgreSQL"
+//  projectDatabaseType = "postgres"
 //  projectNote         = "Test project description"
-//}
+// }
 
 datasource db {
   provider = "postgresql"
@@ -23,10 +23,11 @@ model Account {
   role      Role?     @relation(fields: [roleId], references: [id])
   roleId    Int?
   managedBy RoleEnum?
-  branches  Branch[]
+  token     String?
   appName   AppEnum?
   loggedAt  DateTime? @default(now())
   ip        String?
+  branches  Branch[]
   timestamp DateTime? @default(now())
 }
 
@@ -118,12 +119,13 @@ model Branch {
   Account           Account[]
   allowances        Salary[]
   positions         Position[]
-  products          Product[]
   icubators         Incubator[]
   basicTemplates    BasicTemplate[]
   Category          Category[]
   status            BranchStatus[]
   phone             BranchPhone[]
+  ioIReceipts       IoIReceipt[]
+  allowancesv2      AllowanceSalary[]
 }
 
 model BranchStatus {
@@ -210,7 +212,6 @@ model Employee {
   isFlatSalary    Boolean?        @default(false)
   position        Position        @relation(fields: [positionId], references: [id])
   positionId      Int
-
   branch          Branch          @relation(fields: [branchId], references: [id])
   branchId        Int
   note            String?
@@ -251,17 +252,16 @@ model OvertimeTemplate {
   id           Int           @id @default(autoincrement())
   title        String
   type         SalaryType?   @default(OVERTIME)
-  price        Float
+  price        Float? // Nếu giá === null thì áp dụng đơn giá theo lương chuẩn
   rate         Float?        @default(1)
   unit         DatetimeUnit? @default(HOUR)
   note         String?
   positions    Position[]
-  branch       Branch?       @relation(fields: [branchId], references: [id])
-  branchId     Int?
+  branches     Branch[]
   employeeType EmployeeType? @default(FULL_TIME)
   timestamp    DateTime?     @default(now())
 
-  @@unique([title, type, price, rate, unit, branchId])
+  @@unique([title, type, price, rate, unit])
 }
 
 model BasicTemplate {
@@ -277,6 +277,21 @@ model BasicTemplate {
   timestamp  DateTime?     @default(now())
 
   @@unique([title, price])
+}
+
+model SalarySetting {
+  id      Int            @id @default(autoincrement())
+  title   String
+  type    SalaryType
+  rate    Float
+  unit    DatetimeUnit
+  prices  Float[]
+  workday Int?
+  totalOf SalaryType[]
+  absents AbsentSalary[]
+
+  OvertimeSalary OvertimeSalary[]
+  @@unique([title, type])
 }
 
 model Relative {
@@ -340,18 +355,20 @@ model Customer {
 }
 
 model PaymentHistory {
-  id         Int           @id @default(autoincrement())
-  total      Float
-  paidAt     DateTime?     @default(now())
-  currency   CurrencyUnit? @default(VND)
-  payType    PaymentType?  @default(CASH)
-  customer   Customer?     @relation(fields: [customerId], references: [id])
-  customerId Int?
-  note       String?
-  order      Order?        @relation(fields: [orderId], references: [id])
-  orderId    Int?
-  product    Product?      @relation(fields: [productId], references: [id])
-  productId  Int?
+  id           Int           @id @default(autoincrement())
+  total        Float
+  paidAt       DateTime?     @default(now())
+  currency     CurrencyUnit? @default(VND)
+  payType      PaymentType?  @default(CASH)
+  customer     Customer?     @relation(fields: [customerId], references: [id])
+  customerId   Int?
+  note         String?
+  order        Order?        @relation(fields: [orderId], references: [id])
+  orderId      Int?
+  product      Product?      @relation(fields: [productId], references: [id])
+  productId    Int?
+  ioIReceipt   IoIReceipt?   @relation(fields: [ioIReceiptId], references: [id])
+  ioIReceiptId Int?
 }
 
 model Commodity {
@@ -459,6 +476,97 @@ model Salary {
   timestamp  DateTime?     @default(now())
 }
 
+// dùng cho block basic, stay, holiday
+model Salaryv2 {
+  id        Int         @id @default(autoincrement())
+  title     String
+  type      SalaryType
+  price     Float
+  rate      Float?      @default(1)
+  payroll   Payroll     @relation(fields: [payrollId], references: [id])
+  payrollId Int
+  block     SalaryBlock @relation(fields: [blockId], references: [id])
+  blockId   Int
+  note      String?
+  timestamp DateTime?   @default(now())
+
+  @@unique([title, type, price, payrollId])
+}
+
+model RemoteSalary {
+  id        Int         @id @default(autoincrement())
+  type      RemoteType
+  startedAt DateTime
+  endedAt   DateTime
+  payroll   Payroll     @relation(fields: [payrollId], references: [id])
+  payrollId Int
+  block     SalaryBlock @relation(fields: [blockId], references: [id])
+  blockId   Int
+  note      String?
+}
+
+model DeductionSalary {
+  id        Int           @id @default(autoincrement())
+  title     String
+  price     Float
+  payroll   Payroll       @relation(fields: [payrollId], references: [id])
+  payrollId Int
+  block     SalaryBlock   @relation(fields: [blockId], references: [id])
+  blockId   Int
+  unit      DatetimeUnit? @default(MONTH)
+  note      String?
+}
+
+model AbsentSalary {
+  id        Int            @id @default(autoincrement())
+  title     String?
+  unit      DatetimeUnit
+  partial   PartialDay
+  startedAt DateTime
+  endedAt   DateTime
+  startTime DateTime
+  endTime   DateTime
+  setting   SalarySetting? @relation(fields: [settingId], references: [id])
+  settingId Int?
+  payroll   Payroll        @relation(fields: [payrollId], references: [id], onDelete: Cascade)
+  payrollId Int
+  block     SalaryBlock    @relation(fields: [blockId], references: [id])
+  blockId   Int
+  note      String?
+}
+
+model OvertimeSalary {
+  id         Int               @id @default(autoincrement())
+  startedAt  DateTime
+  endedAt    DateTime
+  startTime  DateTime?
+  endTime    DateTime?
+  allowances AllowanceSalary[]
+  setting    SalarySetting     @relation(fields: [settingId], references: [id])
+  settingId  Int
+  block      SalaryBlock       @relation(fields: [blockId], references: [id])
+  blockId    Int
+  payroll    Payroll           @relation(fields: [payrollId], references: [id])
+  payrollId  Int
+  note       String?
+}
+
+model AllowanceSalary {
+  id         Int             @id @default(autoincrement())
+  title      String
+  price      Float
+  rate       Float?          @default(1)
+  branch     Branch?         @relation(fields: [branchId], references: [id])
+  branchId   Int?
+  payroll    Payroll?        @relation(fields: [payrollId], references: [id])
+  payrollId  Int?
+  block      SalaryBlock?    @relation(fields: [blockId], references: [id])
+  blockId    Int?
+  timestamp  DateTime?       @default(now())
+  overtime   OvertimeSalary? @relation(fields: [overtimeId], references: [id])
+  overtimeId Int?
+}
+
 model SalaryHistory {
   id         Int       @id @default(autoincrement())
   title      String
@@ -481,26 +589,91 @@ model WorkHistory {
 }
 
 model Payroll {
-  id             Int         @id @default(autoincrement())
-  employee       Employee    @relation(fields: [employeeId], references: [id], onDelete: Cascade)
+  id             Int               @id @default(autoincrement())
+  employee       Employee          @relation(fields: [employeeId], references: [id], onDelete: Cascade)
   employeeId     Int
   accConfirmedAt DateTime?
-  isEdit         Boolean?    @default(true)
+  isEdit         Boolean?          @default(true)
   manConfirmedAt DateTime?
   paidAt         DateTime?
+  workday        Float? // ngày công chuẩn
   actualday      Float? // Tổng số ngày làm thực tế
   absent         Float? // tổng số ngày vắng
   bsc            Float? // tổng số lần quên giấy phép / bsc
-  branch         String?
-  position       String?
+  branch         String
+  position       String
   total          Float?
   isFlatSalary   Boolean?
-  recipe         RecipeType?
-  salaries       Salary[]
+  recipeType     RecipeType?
   note           String?
-  taxed          Boolean?    @default(true)
-  createdAt      DateTime?   @default(now()) // ngay tao phieu luong, phieu luong cua thang
-  timestamp      DateTime?   @default(now()) // ngay them vao ghi lai lich su
+  tax            Float?
+  taxed          Boolean?          @default(true)
+  deletedAt      DateTime?
+  createdAt      DateTime?         @default(now()) // ngay tao phieu luong, phieu luong cua thang
+  timestamp      DateTime?         @default(now()) // ngay them vao ghi lai lich su
+  salaries       Salary[]
+  salariesv2     Salaryv2[]
+  absents        AbsentSalary[]
+  deductions     DeductionSalary[]
+  remotes        RemoteSalary[]
+  allownaces     AllowanceSalary[]
+  overtimes      OvertimeSalary[]
+}
+
+model SalaryRecipe {
+  id        Int           @id @default(autoincrement())
+  title     String
+  blocks    SalaryBlock[]
+  timestamp DateTime?     @default(now())
+}
+
+model SalaryBlock {
+  id            Int               @id @default(autoincrement())
+  stt           Int
+  title         String
+  recipe        SalaryRecipe?     @relation(fields: [recipeId], references: [id])
+  recipeId      Int?
+  calculate     Calculation       @relation(fields: [calculationId], references: [id])
+  calculationId Int
+  timestamp     DateTime?         @default(now())
+  salaries      Salaryv2[]
+  remotes       RemoteSalary[]
+  deductions    DeductionSalary[]
+  absents       AbsentSalary[]
+  overtimes     OvertimeSalary[]
+  allowances    AllowanceSalary[]
+
+  @@unique([title, recipeId, calculationId])
+}
+
+// Cách tính tiền của 1 block
+model Calculation {
+  id        Int             @id @default(autoincrement())
+  condition ConditionType // so sánh. Nếu = NO_CONDITION thì k cần so sánh với with
+  with      Float? // với. Nếu có số thì so sánh với số, nếu null thì so sánh với ngày công chuẩn
+  unit      DatetimeUnit // Được tính dựa vào. ví dụ DAY => (tổng / ngày công chuẩn) * ngày thực tế, MONTH (tổng / ngày công chuẩn) * ngày công chuẩn
+  calculate CalculationType
+  blocks    SalaryBlock[]
+  timestamp DateTime?       @default(now())
+
+  @@unique([condition, with, unit, calculate])
+}
+
+enum CalculationType {
+  ADD
+  SUB
+  MUL
+  DIV
+}
+
+enum ConditionType {
+  LESS
+  LESS_EQUAL
+  GREATER
+  GREATER_EQUAL
+  EQUAL
+  NOT_EQUAL
+  NO_CONDITION
 }
 
 // warehouse
@@ -513,7 +686,7 @@ model Warehouse {
   timestamp DateTime? @default(now())
 }
 
-model Provider {
+model Supplier {
   id        Int       @id @default(autoincrement())
   name      String    @unique
   products  Product[]
@@ -521,29 +694,73 @@ model Provider {
 }
 
 model Product {
-  id                 Int                @id @default(autoincrement())
-  name               String
-  code               String?
-  mfg                DateTime? // ngày sản xuất
-  exp                DateTime? // hạn sử dụng
-  accountedAt        DateTime? // ngày hạch toán
-  billedAt           DateTime? // ngày chứng từ
-  billCode           String? // số chứng từ
-  branch             Branch?            @relation(fields: [branchId], references: [id]) // Nếu rỗng thì nó là kho tổng
-  branchId           Int?
-  warehouse          Warehouse          @relation(fields: [warehouseId], references: [id])
-  warehouseId        Int
-  price              Float // Đơn giá
-  amount             Float // Số lượng
-  discount           Float?             @default(0)
-  provider           Provider           @relation(fields: [providerId], references: [id])
-  providerId         Int
-  note               String?
-  unit               ProductUnit
-  createdAt          DateTime?          @default(now())
-  paymentHistories   PaymentHistory[]
-  warehouseHistories WarehouseHistory[]
-  timestamp          DateTime?          @default(now())
+  id          Int              @id @default(autoincrement())
+  name        String
+  code        String?
+  barcode     String?
+  type        ProductType
+  warehouse   Warehouse        @relation(fields: [warehouseId], references: [id])
+  warehouseId Int
+  supplier    Supplier         @relation(fields: [supplierId], references: [id])
+  supplierId  Int
+  note        String?
+  unit        ProductUnit
+  timestamp   DateTime?        @default(now())
+  ioIReceipts IoIReceipt[]
+  payments    PaymentHistory[]
+}
+
+model IoIReceipt {
+  id               Int              @id @default(autoincrement())
+  type             StockType
+  createdAt        DateTime?        @default(now())
+  price            Float // Đơn giá
+  amount           Float // số lượng
+  accountedAt      DateTime? // ngày hạch toán
+  billedAt         DateTime? // ngày chứng từ
+  billCode         String? // số chứng từ 
+  discount         Float?
+  discountType     DiscountType?    @default(PERCENT)
+  tax              Float?           @default(0)
+  productId        Int
+  product          Product          @relation(fields: [productId], references: [id])
+  branch           Branch           @relation(fields: [branchId], references: [id])
+  branchId         Int
+  paymentHistories PaymentHistory[]
+  orderedAt        DateTime?        @default(now())
+  importedAt       DateTime?        @default(now())
+  approvedAt       DateTime?        @default(now())
+  completedAt      DateTime?        @default(now())
+  consignments     Consignment[]
+  note             String?
+  attechments      Attachment[]
+}
+
+model Attachment {
+  id           Int         @id @default(autoincrement())
+  file         String
+  ioIReceipt   IoIReceipt? @relation(fields: [ioIReceiptId], references: [id])
+  ioIReceiptId Int?
+}
+
+// Lô hàng
+model Consignment {
+  id           Int        @id @default(autoincrement())
+  code         String?
+  mfg          DateTime // ngày sản xuất
+  exp          DateTime // hạn sử dụng
+  amount       Float
+  createdAt    DateTime?  @default(now())
+  ioIReceipt   IoIReceipt @relation(fields: [ioIReceiptId], references: [id])
+  ioIReceiptId Int
+}
+
+model TemplateConsignment {
+  id        Int       @id @default(autoincrement())
+  code      String?
+  mfg       DateTime // ngày sản xuất
+  exp       DateTime // hạn sử dụng
+  timestamp DateTime? @default(now())
 }
 
 model Incubator {
@@ -574,17 +791,6 @@ model EggType {
   eggs  Egg[]
 }
 
-model WarehouseHistory {
-  id             Int                  @id @default(autoincrement())
-  product        Product              @relation(fields: [productId], references: [id])
-  productId      Int
-  type           WarehouseHistoryType
-  amount         Int
-  inventoryTotal Int
-  account        String?
-  timestamp      DateTime?            @default(now())
-}
-
 model System {
   id       Int        @id @default(autoincrement())
   title    String
@@ -592,9 +798,31 @@ model System {
   datetime DateTime?  @default(now())
 }
 
-enum WarehouseHistoryType {
+enum SalaryConstraint {
+  HOLIDAY
+  OVERTIME
+}
+
+enum SalaryReference {
+  PRICE
+  BASIC
+  STAY
+}
+
+enum ProductType {
+  HSD
+  NORMAL
+}
+
+enum DiscountType {
+  CASH
+  PERCENT
+}
+
+enum StockType {
   IMPORT
   EXPORT
+  MOVE
   INVENTORY
 }
 
@@ -619,6 +847,8 @@ enum PartialDay {
   AFTERNOON
   NIGHT
   ALL_DAY
+  LATE
+  EARLY
 }
 
 //  CT1: apply cho công nhân trại chăn nuôi
@@ -766,6 +996,12 @@ enum FormalityType {
   REMOTE
 }
 
+enum RemoteType {
+  WFH
+  ONSITE
+  REMOTE
+}
+
 enum SalaryType {
   BASIC
   BASIC_INSURANCE
@@ -795,6 +1031,7 @@ enum GenderType {
 }
 
 enum RoleEnum {
+  SUPPER_ADMIN
   ADMIN
   CHIEF_ACCOUNTANT
   ACCOUNTANT_CASH_FUND // Quy tien mat

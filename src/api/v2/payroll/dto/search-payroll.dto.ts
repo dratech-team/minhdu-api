@@ -1,10 +1,12 @@
-import {EmployeeType} from "@prisma/client";
+import {EmployeeType, RecipeType} from "@prisma/client";
 import {FilterTypeEnum} from "../entities/filter-type.enum";
 import {Transform, Type} from "class-transformer";
-import {IsDate, IsEnum, IsNumber, IsOptional, IsString} from "class-validator";
+import {IsArray, IsDate, IsEnum, IsNotEmpty, IsNumber, IsOptional, IsString} from "class-validator";
 import * as moment from "moment";
+import {SortDto} from "../../../../common/dtos/sort.dto";
+import {StatusEnum} from "../../../../common/enum/status.enum";
 
-export class SearchPayrollDto {
+export class SearchPayrollDto extends SortDto {
   @IsOptional()
   @Type(() => Number)
   @Transform(({value}) => Number(value))
@@ -35,6 +37,11 @@ export class SearchPayrollDto {
   readonly branch: string;
 
   @IsOptional()
+  @IsNumber()
+  @Type(() => Number)
+  readonly templateId: number;
+
+  @IsOptional()
   @IsString()
   readonly position: string;
 
@@ -42,17 +49,7 @@ export class SearchPayrollDto {
   @Type(() => Date)
   @Transform(({value}) => {
     if (value) {
-      return new Date(moment(value).format('YYYY-MM-DD'));
-    }
-  })
-  @IsDate()
-  readonly createdAt: Date;
-
-  @IsOptional()
-  @Type(() => Date)
-  @Transform(({value}) => {
-    if (value) {
-      return new Date(moment(value).format('YYYY-MM-DD'));
+      return new Date(moment(value).utc().format('YYYY-MM-DD'));
     }
   })
   @IsDate()
@@ -62,11 +59,16 @@ export class SearchPayrollDto {
   @Type(() => Date)
   @Transform(({value}) => {
     if (value) {
-      return new Date(moment(value).format('YYYY-MM-DD'));
+      return new Date(moment(value).utc().format('YYYY-MM-DD'));
     }
   })
   @IsDate()
   readonly endedAt: Date;
+
+  @IsNotEmpty()
+  @IsEnum(StatusEnum)
+  @Type(() => Number)
+  readonly empStatus: StatusEnum;
 
   @IsOptional()
   @Type(() => Number)
@@ -95,11 +97,18 @@ export class SearchPayrollDto {
   readonly type: string;
 
   @IsOptional()
-  @IsString()
-  readonly title: string;
+  @IsArray()
+  @Transform(val => {
+    return typeof val.value === 'string' ? Array.of(val.value) : val.value;
+  })
+  readonly titles: string[];
 
   @IsOptional()
   @Type(() => Number)
   @IsNumber()
   readonly categoryId: number;
+
+  @IsOptional()
+  @IsEnum(RecipeType)
+  readonly recipeType: RecipeType;
 }

@@ -19,9 +19,9 @@ export class OvertimeTemplateRepository {
               id: positionId,
             })),
           },
-          branch: body?.branchId ? {connect: {id: body?.branchId}} : {},
+          branches: {connect: body.branchIds?.map(id => ({id}))},
           title: body.title,
-          price: body.price,
+          price: body.price || null,
           rate: body.rate,
           unit: body.unit,
           type: body.type,
@@ -39,21 +39,22 @@ export class OvertimeTemplateRepository {
   async findAll(profile: ProfileEntity, search: SearchOvertimeTemplateDto) {
     try {
       const acc = await this.prisma.account.findUnique({where: {id: profile.id}, include: {branches: true}});
-
       const [total, data] = await Promise.all([
         this.prisma.overtimeTemplate.count({
           where: {
             title: {startsWith: search?.title, mode: "insensitive"},
             price: search?.price ? {in: search?.price} : {},
             unit: {in: search?.unit || undefined},
-            AND: {
-              branch: acc.branches?.length
-                ? {id: {in: acc.branches.map(branch => branch.id)}}
-                : {id: {in: search?.branchId}},
-              positions: search?.positionIds?.length
-                ? {some: {id: {in: search?.positionIds}}}
-                : {},
-            }
+            branches: acc.branches?.length ? {
+              some: {
+                id: {in: acc.branches.map(branch => branch.id)}
+              }
+            } : search?.branchIds?.length ? {
+              some: {id: {in: search?.branchIds}},
+            } : {},
+            positions: search?.positionIds?.length
+              ? {some: {id: {in: search?.positionIds}}}
+              : {},
           },
         }),
         this.prisma.overtimeTemplate.findMany({
@@ -63,21 +64,23 @@ export class OvertimeTemplateRepository {
             title: {startsWith: search?.title, mode: "insensitive"},
             price: search?.price ? {in: search?.price} : {},
             unit: {in: search?.unit || undefined},
-            AND: {
-              branch: acc.branches?.length
-                ? {id: {in: acc.branches.map(branch => branch.id)}}
-                : {id: {in: search?.branchId}},
-              positions: search?.positionIds?.length
-                ? {some: {id: {in: search?.positionIds}}}
-                : {},
-            }
+            branches: acc.branches?.length ? {
+              some: {
+                id: {in: acc.branches.map(branch => branch.id)}
+              }
+            } : search?.branchIds?.length ? {
+              some: {id: {in: search?.branchIds}},
+            } : {},
+            positions: search?.positionIds?.length
+              ? {some: {id: {in: search?.positionIds}}}
+              : {},
           },
           include: {
             positions: true,
-            branch: true,
+            branches: true,
           },
           orderBy: {
-            price: "desc",
+            title: "asc",
           },
         }),
       ]);
@@ -94,7 +97,7 @@ export class OvertimeTemplateRepository {
         where: {id},
         include: {
           positions: true,
-          branch: true,
+          branches: true,
         },
       });
     } catch (err) {
@@ -110,19 +113,17 @@ export class OvertimeTemplateRepository {
         data: {
           title: updates.title,
           unit: updates.unit,
-          price: updates.price,
+          price: updates.price || null,
           rate: updates.rate,
           positions: {
             set: updates.positionIds?.map((id) => ({id})),
           },
-          branch: updates?.branchId
-            ? {connect: {id: updates?.branchId}}
-            : {disconnect: true},
+          branches: {set: updates?.branchIds?.map(id => ({id}))},
           employeeType: updates.employeeType,
         },
         include: {
           positions: true,
-          branch: true,
+          branches: true,
         },
       });
     } catch (err) {

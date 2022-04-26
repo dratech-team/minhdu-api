@@ -38,6 +38,19 @@ export class RouteRepository {
           orders: body?.orderIds?.length ? {connect: body.orderIds.map((id) => ({id: id}))} : {connect: orderIds?.map(id => ({id}))},
           commodities: {connect: body?.commodityIds?.map((id) => ({id: id}))},
         },
+        include: {
+          employee: true,
+          locations: true,
+          orders: {
+            include: {
+              province: true,
+              district: true,
+              ward: true,
+              customer: true,
+              commodities: true
+            }
+          },
+        },
       });
     } catch (err) {
       console.error(err);
@@ -47,15 +60,29 @@ export class RouteRepository {
 
   async findAll(search: SearchRouteDto) {
     try {
-      console.log(search)
       const [total, data] = await Promise.all([
         this.prisma.route.count({
           where: {
-            name: {contains: search?.name},
-            startedAt: {gte: search?.startedAt},
-            endedAt: search?.status === 1 ? {notIn: null} : search?.status === 0 ? {in: null} : undefined,
-            driver: {contains: search?.driver},
-            bsx: {contains: search?.bsx},
+            OR: [
+              {name: {contains: search?.search}},
+              {driver: {contains: search?.search}},
+              {bsx: {contains: search?.search}},
+              {orders: {some: {customer: {lastName: {contains: search?.search}}}}}
+            ],
+            startedAt: search?.startedAt_start && search?.startedAt_end ? {
+              gte: search.startedAt_start,
+              lte: search.startedAt_end
+            } : {},
+            endedAt: search?.status !== -1
+              ? search?.status === 1
+                ? {notIn: null}
+                : search?.status === 0
+                  ? {in: null}
+                  : {
+                    gte: search.endedAt_start,
+                    lte: search.endedAt_end
+                  }
+              : {},
             deleted: false
           },
         }),
@@ -63,11 +90,26 @@ export class RouteRepository {
           skip: search?.skip,
           take: search?.take,
           where: {
-            name: {startsWith: search?.name, mode: "insensitive"},
-            startedAt: {gte: search?.startedAt},
-            endedAt: search?.status === 1 ? {notIn: null} : search?.status === 0 ? {in: null} : undefined,
-            driver: {contains: search?.driver},
-            bsx: {contains: search?.bsx},
+            OR: [
+              {name: {contains: search?.search}},
+              {driver: {contains: search?.search}},
+              {bsx: {contains: search?.search}},
+              {orders: {some: {customer: {lastName: {contains: search?.search}}}}}
+            ],
+            startedAt: search?.startedAt_start && search?.startedAt_end ? {
+              gte: search.startedAt_start,
+              lte: search.startedAt_end
+            } : {},
+            endedAt: search?.status !== -1
+              ? search?.status === 1
+                ? {notIn: null}
+                : search?.status === 0
+                  ? {in: null}
+                  : {
+                    gte: search.endedAt_start,
+                    lte: search.endedAt_end
+                  }
+              : {},
             deleted: false
           },
           include: {
@@ -75,6 +117,9 @@ export class RouteRepository {
             locations: true,
             orders: {
               include: {
+                province: true,
+                district: true,
+                ward: true,
                 customer: true,
                 commodities: true
               }
@@ -116,6 +161,8 @@ export class RouteRepository {
                 include: {route: true}
               },
               customer: true,
+              province: true,
+              district: true,
               ward: true,
             },
           },
@@ -163,6 +210,8 @@ export class RouteRepository {
             include: {
               commodities: true,
               customer: true,
+              province: true,
+              district: true,
               ward: true,
             },
           },

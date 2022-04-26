@@ -8,3 +8,4 @@ export function isEqualDatetime(datetime1: Date, datetime2: Date, type?: "month"
 export function includesDatetime(datetimes: Date[], datetime2: Date): boolean {
   return datetimes.map(datetime => moment(datetime).format(DATETIME_FORMAT)).includes(moment(datetime2).format(DATETIME_FORMAT));
 }
+

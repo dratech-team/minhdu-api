@@ -1,10 +1,14 @@
-import {Injectable, NotFoundException} from "@nestjs/common";
+import {BadRequestException, Injectable, NotFoundException} from "@nestjs/common";
 import {CreateEmployeeDto} from "./dto/create-employee.dto";
 import {EmployeeRepository} from "./employee.repository";
 import {Sort, UpdateEmployeeDto} from "./dto/update-employee.dto";
 import {SearchEmployeeDto} from "./dto/search-employee.dto";
 import {ProfileEntity} from "../../../common/entities/profile.entity";
 import {SearchEmployeeByOvertimeDto} from "./dto/search-employee-by-overtime.dto";
+import {Response} from "express";
+import {ItemExportDto} from "../../../common/interfaces/items-export.dto";
+import {SearchExportEmployeeDto} from "./dto/search-export.employee.dto";
+import {EmployeeType, GenderType} from "@prisma/client";
 
 @Injectable()
 export class EmployeeService {
@@ -75,5 +79,38 @@ export class EmployeeService {
 
   async sortable(sort: Sort[]) {
     return this.repository.sortable(sort);
+  }
+
+  async export(
+    response: Response,
+    profile: ProfileEntity,
+    search: SearchExportEmployeeDto,
+    items: ItemExportDto[],
+  ) {
+    try {
+      const {data} = await this.findAll(profile, Object.assign(search, {take: undefined, skip: undefined}));
+
+      const employees = await Promise.all(
+        data.map(async (employee) => {
+          const branch = employee.branch.name;
+          const position = employee.position.name;
+          const type = employee.type === EmployeeType.FULL_TIME ? "Nhân viên" : "Bán thời gian";
+          const isFlatSalary = employee.isFlatSalary ? 'Cố định' : "Không cố định";
+          const gender = employee.gender === GenderType.FEMALE ? "Nữ" : "Nam";
+          const province = employee.ward.district.province.name;
+          const district = employee.ward.district.name;
+          const ward = employee.ward.name;
+          return Object.assign(employee, {branch, position, isFlatSalary, type, province, district, ward, gender});
+        })
+      );
+
+      return this.repository.export(response, profile, {
+        filename: search.filename,
+        title: "Danh sách nhân viên"
+      }, items, employees);
+    } catch (err) {
+      console.error(err);
+      throw new BadRequestException(err);
+    }
   }
 }

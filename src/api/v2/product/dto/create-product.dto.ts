@@ -1,6 +1,6 @@
 import {IsDate, IsEnum, IsNotEmpty, IsNumber, IsOptional, IsString,} from "class-validator";
 import {Transform, Type} from "class-transformer";
-import {ProductUnit} from "@prisma/client";
+import {ProductType, ProductUnit} from "@prisma/client";
 import * as moment from "moment";
 
 export class CreateProductDto {
@@ -15,7 +15,7 @@ export class CreateProductDto {
   @IsOptional()
   @Transform((val) => {
     if (val.value) {
-      return new Date(moment(val.value).format('YYYY-MM-DD'));
+      return new Date(moment(val.value).utc().format('YYYY-MM-DD'));
     }
   })
   readonly mfg?: Date;
@@ -23,7 +23,7 @@ export class CreateProductDto {
   @IsOptional()
   @Transform((val) => {
     if (val.value) {
-      return new Date(moment(val.value).format('YYYY-MM-DD'));
+      return new Date(moment(val.value).utc().format('YYYY-MM-DD'));
     }
   })
   readonly exp?: Date;
@@ -32,7 +32,7 @@ export class CreateProductDto {
   @IsDate()
   @Transform((val) => {
     if (val.value) {
-      return new Date(moment(val.value).format('YYYY-MM-DD'));
+      return new Date(moment(val.value).utc().format('YYYY-MM-DD'));
     }
   })
   readonly accountedAt?: Date;
@@ -41,7 +41,7 @@ export class CreateProductDto {
   @IsDate()
   @Transform((val) => {
     if (val.value) {
-      return new Date(moment(val.value).format('YYYY-MM-DD'));
+      return new Date(moment(val.value).utc().format('YYYY-MM-DD'));
     }
   })
   readonly billedAt?: Date;
@@ -65,6 +65,10 @@ export class CreateProductDto {
   readonly warehouseId?: number;
 
   @IsOptional()
+  @IsEnum(ProductType)
+  readonly productType: ProductType;
+
+  @IsOptional()
   @IsString()
   readonly warehouse?: string;
 
@@ -85,11 +89,11 @@ export class CreateProductDto {
 
   @IsOptional()
   @Type(() => Number)
-  readonly providerId: number;
+  readonly supplierId: number;
 
   @IsOptional()
   @IsString()
-  readonly provider?: string;
+  readonly supplier?: string;
 
   @IsNotEmpty()
   @IsEnum(ProductUnit)

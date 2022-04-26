@@ -7,11 +7,15 @@ import {Sort, UpdateEmployeeDto} from "./dto/update-employee.dto";
 import {firstDatetime, lastDatetime} from "../../../utils/datetime.util";
 import {SearchEmployeeByOvertimeDto} from "./dto/search-employee-by-overtime.dto";
 import {OrderbyEmployeeEnum} from "./enums/orderby-employee.enum";
-import {SortEnum} from "../../../common/enum/sort.enum";
+import {BaseRepository} from "../../../common/repository/base.repository";
+import {Employee} from "@prisma/client";
+import {Response} from "express";
+import {StatusEnum} from "../../../common/enum/status.enum";
 
 @Injectable()
-export class EmployeeRepository {
+export class EmployeeRepository extends BaseRepository<Employee, any> {
   constructor(private readonly prisma: PrismaService) {
+    super();
   }
 
   async create(body: CreateEmployeeDto) {
@@ -81,10 +85,7 @@ export class EmployeeRepository {
           err
         );
       } else {
-        throw new BadRequestException(
-          "Thêm nhân viên thất bại. Bạn đã tạo mới chức vụ hoặc đơn vị mới chưa. Vui lòng kiểm tra lại. ",
-          err
-        );
+        throw new BadRequestException(err);
       }
     }
   }
@@ -94,34 +95,31 @@ export class EmployeeRepository {
     search: Partial<SearchEmployeeDto>
   ) {
     try {
-      const template = search?.templateId
-        ? await this.prisma.overtimeTemplate.findUnique({
-          where: {id: search?.templateId},
-          include: {positions: true},
-        })
-        : null;
-      const positionIds = template?.positions?.map((position) => position.id);
+      const acc = await this.prisma.account.findUnique({where: {id: profile.id}, include: {branches: true}});
       const [total, data] = await Promise.all([
         this.prisma.employee.count({
           where: {
-            leftAt: search?.isLeft === 'true' ? {notIn: null} : {in: null},
-            position: {
-              name: {startsWith: search?.position, mode: "insensitive"},
-            },
+            leftAt: search?.status > -1 && search?.status !== StatusEnum.ALL ? (search?.status === StatusEnum.NOT_ACTIVE ? {notIn: null} : {in: null}) : {},
+            position: {name: {contains: search?.position, mode: "insensitive"}},
             branch: {
-              id: profile.branches?.length ? {in: profile.branches.map(branch => branch.id)} : {},
-              name: !profile.branches?.length ? {startsWith: search?.branch, mode: "insensitive"} : {},
+              id: acc.branches?.length ? {in: acc.branches.map(branch => branch.id)} : {},
+              name: !acc.branches?.length ? {contains: search?.branch, mode: "insensitive"} : {},
             },
-            positionId: positionIds?.length ? {in: positionIds} : {},
             lastName: {contains: search?.name, mode: "insensitive"},
             gender: search?.gender ? {equals: search?.gender} : {},
-            isFlatSalary: search?.isFlatSalary !== -1 ? {equals: +search.isFlatSalary === 1} : undefined,
-            createdAt: search?.createdAt ? search?.createdAt.compare === 'gte' ? {
-              gte: search?.createdAt?.datetime,
-            } : search?.createdAt.compare === 'lte' ? {
-              lte: search?.createdAt?.datetime,
-            } : {in: search?.createdAt?.datetime} : {},
-            workedAt: search?.workedAt || undefined,
+            isFlatSalary: (search?.isFlatSalary == 1 || search?.isFlatSalary == 0) ? {equals: +search.isFlatSalary === 1} : {},
+            createdAt: search?.createdAt ? search?.createdAt.compare === 'gte'
+              ? {gte: search?.createdAt?.datetime}
+              : search?.createdAt.compare === 'lte'
+                ? {lte: search?.createdAt?.datetime}
+                : search?.createdAt.compare === 'in'
+                  ? {in: search?.createdAt?.datetime}
+                  : search?.createdAt.compare === 'inMonth' ? {
+                    gte: firstDatetime(search?.createdAt?.datetime),
+                    lte: lastDatetime(search?.createdAt?.datetime)
+                  } : {}
+              : {},
+            workedAt: {in: search?.workedAt},
             payrolls: search?.createdPayroll ? {
               some: {
                 createdAt: {
@@ -142,38 +140,35 @@ export class EmployeeRepository {
               }
             },
             category: search?.categoryId ? {id: {in: +search.categoryId}} : {},
-            phone: search?.phone?.trim() !== '' ? {contains: search.phone, mode: "insensitive"} : {},
-            address: search?.address?.trim() !== '' ? {
-              contains: search.address,
-              mode: "insensitive"
-            } : {}
+            // phone: {startsWith: search?.phone, mode: "insensitive"},
+            address: {contains: search?.address, mode: "insensitive"}
           },
         }),
         this.prisma.employee.findMany({
           skip: search?.skip,
           take: search?.take,
           where: {
-            leftAt: search?.isLeft === 'true' ? {notIn: null} : {in: null},
-            position: {
-              name: {startsWith: search?.position, mode: "insensitive"},
-            },
+            leftAt: search?.status > -1 && search?.status !== StatusEnum.ALL ? (search?.status === StatusEnum.NOT_ACTIVE ? {notIn: null} : {in: null}) : {},
+            position: {name: {contains: search?.position, mode: "insensitive"}},
             branch: {
-              id: profile.branches?.length ? {in: profile.branches.map(branch => branch.id)} : {},
-              name: !profile.branches?.length ? {startsWith: search?.branch, mode: "insensitive"} : {},
+              id: acc.branches?.length ? {in: acc.branches.map(branch => branch.id)} : {},
+              name: !acc.branches?.length ? {contains: search?.branch, mode: "insensitive"} : {},
             },
-            positionId: positionIds?.length ? {in: positionIds} : {},
             lastName: {contains: search?.name, mode: "insensitive"},
             gender: search?.gender ? {equals: search?.gender} : {},
-            isFlatSalary: search?.isFlatSalary !== -1 ? {equals: +search.isFlatSalary === 1} : undefined,
-            createdAt: search?.createdAt ? search?.createdAt.compare === 'gte' ? {
-              gte: search?.createdAt?.datetime,
-            } : search?.createdAt.compare === 'lte' ? {
-              lte: search?.createdAt?.datetime,
-            } : {
-              gte: firstDatetime(search?.createdAt?.datetime),
-              lte: lastDatetime(search?.createdAt?.datetime)
-            } : {},
-            workedAt: search?.workedAt || undefined,
+            isFlatSalary: (search?.isFlatSalary == 1 || search?.isFlatSalary == 0) ? {equals: +search.isFlatSalary === 1} : {},
+            createdAt: search?.createdAt ? search?.createdAt.compare === 'gte'
+              ? {gte: search?.createdAt?.datetime}
+              : search?.createdAt.compare === 'lte'
+                ? {lte: search?.createdAt?.datetime}
+                : search?.createdAt.compare === 'in'
+                  ? {in: search?.createdAt?.datetime}
+                  : search?.createdAt.compare === 'inMonth' ? {
+                    gte: firstDatetime(search?.createdAt?.datetime),
+                    lte: lastDatetime(search?.createdAt?.datetime)
+                  } : {}
+              : {},
+            workedAt: {in: search?.workedAt},
             payrolls: search?.createdPayroll ? {
               some: {
                 createdAt: {
@@ -194,11 +189,8 @@ export class EmployeeRepository {
               }
             },
             category: search?.categoryId ? {id: {in: +search.categoryId}} : {},
-            phone: search?.phone?.trim() !== '' ? {contains: search.phone, mode: "insensitive"} : {},
-            address: search?.address?.trim() !== '' ? {
-              contains: search.address,
-              mode: "insensitive"
-            } : {}
+            // phone: {startsWith: search?.phone, mode: "insensitive"},
+            address: {contains: search?.address, mode: "insensitive"}
           },
           include: {
             position: true,
@@ -481,5 +473,9 @@ export class EmployeeRepository {
       console.error(err);
       throw new BadRequestException(err);
     }
+  }
+
+  export(response: Response, profile: ProfileEntity, header: { title: string, filename: string }, items: any[], data: any): Promise<Response<any, Record<string, any>>> {
+    return super.export(response, profile, {filename: header.filename, title: header.title}, items, data);
   }
 }

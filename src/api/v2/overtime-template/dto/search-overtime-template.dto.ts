@@ -1,6 +1,6 @@
 import {DatetimeUnit} from "@prisma/client";
 import {IsArray, IsEnum, IsNumber, IsOptional, IsString} from "class-validator";
-import {Type} from "class-transformer";
+import {Transform, Type} from "class-transformer";
 
 export class SearchOvertimeTemplateDto {
   @IsOptional()
@@ -18,9 +18,11 @@ export class SearchOvertimeTemplateDto {
   readonly title: string;
 
   @IsOptional()
-  @IsNumber()
-  @Type(() => Number)
-  readonly branchId: number;
+  @IsArray()
+  @Transform(val => {
+    return typeof val?.value === 'string' ? Array.of(+val.value) : val.value.map(e => +e);
+  })
+  readonly branchIds: number[];
 
   @IsOptional()
   readonly positionIds: number[];

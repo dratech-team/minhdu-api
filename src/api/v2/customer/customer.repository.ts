@@ -1,7 +1,7 @@
 import {BadRequestException, Injectable} from "@nestjs/common";
 import {Customer} from "@prisma/client";
 import {PrismaService} from "../../../prisma.service";
-import {CreatePaymentHistoryDto} from "../payment-history/dto/create-payment-history.dto";
+import {CreatePaymentHistoryDto} from "../histories/payment-history/dto/create-payment-history.dto";
 import {CreateCustomerDto} from "./dto/create-customer.dto";
 import {SearchCustomerDto} from "./dto/search-customer.dto";
 import {UpdateCustomerDto} from "./dto/update-customer.dto";
@@ -13,6 +13,16 @@ export class CustomerRepository {
 
   async create(body: CreateCustomerDto) {
     try {
+      // for (let i = 156; i < 200; i++) {
+      //   const ran = Math.round(Math.random() * 20);
+      //   await this.prisma.customer.create({
+      //     data: {
+      //       lastName: "Tester " + i,
+      //       phone: "0123456789",
+      //       province: {connect: {id: ran === 0 ? 1 : ran}},
+      //     },
+      //   });
+      // }
       return await this.prisma.customer.create({
         data: {
           lastName: body.lastName,
@@ -31,7 +41,7 @@ export class CustomerRepository {
           religion: body?.religion,
           // ethnicity: body?.ethnicity,
           mst: body?.mst,
-          type: body?.customerType,
+          type: body?.type,
           resource: body?.resource,
           isPotential: body?.isPotential,
           note: body?.note,
@@ -53,10 +63,13 @@ export class CustomerRepository {
       const [total, data] = await Promise.all([
         this.prisma.customer.count({
           where: {
-            lastName: {startsWith: search?.name, mode: "insensitive"},
-            phone: {startsWith: search?.phone, mode: "insensitive"},
+            OR: [
+              {lastName: {contains: search?.search, mode: "insensitive"}},
+              {phone: {contains: search?.search, mode: "insensitive"}},
+              {province: {name: {contains: search?.search, mode: "insensitive"}}}
+            ],
             gender: search?.gender ? {in: search.gender} : {},
-            type: search?.customerType ? {in: search.customerType} : {},
+            type: search?.type ? {in: search.type} : {},
             resource: search?.resource ? {in: search?.resource} : {},
             isPotential:
               search?.isPotential === 1
@@ -70,10 +83,13 @@ export class CustomerRepository {
           skip: search?.skip,
           take: search?.take,
           where: {
-            lastName: {startsWith: search?.name, mode: "insensitive"},
-            phone: {startsWith: search?.phone, mode: "insensitive"},
+            OR: [
+              {lastName: {contains: search?.search, mode: "insensitive"}},
+              {phone: {contains: search?.search, mode: "insensitive"}},
+              {province: {name: {contains: search?.search, mode: "insensitive"}}}
+            ],
             gender: search?.gender ? {in: search.gender} : {},
-            type: search?.customerType ? {in: search.customerType} : {},
+            type: search?.type ? {in: search.type} : {},
             resource: search?.resource ? {in: search.resource} : {},
             isPotential:
               search?.isPotential === 1
@@ -165,7 +181,7 @@ export class CustomerRepository {
           religion: updates?.religion,
           // ethnicity: body?.ethnicity,
           mst: updates?.mst,
-          type: updates?.customerType,
+          type: updates?.type,
           resource: updates?.resource,
           isPotential: updates?.isPotential,
           note: updates?.note,

@@ -5,6 +5,8 @@ import {Position} from "@prisma/client";
 import {UpdatePositionDto} from "./dto/update-position.dto";
 import {OnePosition} from "./entities/position.entity";
 import {SearchPositionDto} from "./dto/search-position.dto";
+import {ProfileEntity} from "../../entities/profile.entity";
+import * as _ from 'lodash';
 
 @Injectable()
 export class PositionRepository {
@@ -17,7 +19,7 @@ export class PositionRepository {
         data: {
           name: body.name,
           workday: body.workday,
-          branches: {connect: body.branchIds.map(id => ({id: +id}))},
+          branches: body?.branchIds?.length ? {connect: body.branchIds.map(id => ({id: +id}))} : {},
         },
       });
 
@@ -42,17 +44,42 @@ export class PositionRepository {
     }
   }
 
-  async findAll(search: Partial<SearchPositionDto>): Promise<Position[]> {
+  async findAll(profile: ProfileEntity, search: Partial<SearchPositionDto>) {
     try {
-      return await this.prisma.position.findMany({
-        where: {
-          name: {startsWith: search?.position, mode: "insensitive"},
-          workday: search?.workday,
-        },
-        include: {
-          _count: true
+      const acc = await this.prisma.account.findUnique({where: {id: profile.id}, include: {branches: true}});
+      if (acc.branches?.length) {
+        if (search?.branchId) {
+          const branch = await this.prisma.branch.findUnique({
+            where: {id: search.branchId},
+            include: {positions: true}
+          });
+          return branch.positions;
+        } else {
+          const branchIds = acc.branches.map(branch => branch.id);
+          const branches = await Promise.all(branchIds.map(async branchId => {
+            return await this.prisma.branch.findUnique({where: {id: branchId}, include: {positions: true}});
+          }));
+          return _.flattenDeep(branches.map(branch => branch.positions));
         }
-      });
+      }
+      const [total, data] = await Promise.all([
+        this.prisma.position.count({
+          where: {
+            name: {startsWith: search?.position, mode: "insensitive"},
+            workday: search?.workday,
+          },
+        }),
+        this.prisma.position.findMany({
+          where: {
+            name: {startsWith: search?.position, mode: "insensitive"},
+            workday: search?.workday,
+          },
+          include: {
+            _count: true
+          }
+        }),
+      ]);
+      return {total, data};
     } catch (e) {
       console.error(e);
       throw new BadRequestException(e);

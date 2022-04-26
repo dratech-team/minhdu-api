@@ -28,6 +28,7 @@ export class OrderRepository {
         },
         include: {
           commodities: true,
+          customer: true,
           province: true,
           district: true,
           ward: true
@@ -64,43 +65,36 @@ export class OrderRepository {
       const [total, data] = await Promise.all([
         this.prisma.order.count({
           where: {
-            deliveredAt: (search?.status !== undefined && search?.status !== null && !search?.deliveryStartedAt)
+            createdAt: search?.startedAt_start && search?.startedAt_end
+              ? {
+                gte: search.startedAt_start,
+                lte: search.startedAt_end,
+              }
+              : {},
+            endedAt: (search?.endedAt_start && search?.endedAt_end)
+              ? {
+                gte: search.endedAt_start,
+                lte: search.endedAt_end,
+              } : {},
+            deliveredAt: search?.status !== -1
               ? search.status === 1
                 ? {notIn: null}
-                : search.status === 0
-                  ? {in: null}
-                  : {}
-              : search?.deliveryStartedAt && search?.deliveryEndedAt
+                : {in: null}
+              : search?.deliveredAt_start && search?.deliveredAt_end
                 ? {
-                  gte: search?.deliveryStartedAt,
-                  lte: search?.deliveryEndedAt,
+                  gte: search?.deliveredAt_start,
+                  lte: search?.deliveredAt_end,
                 }
                 : {},
-            endedAt: (search?.startedAt && search?.endedAt)
-              ? {
-                gte: search.startedAt,
-                lte: search.endedAt,
-              } : {},
             hide: search?.hide === 'true',
-            customer: search?.customerId ? {
-              id: {in: search?.customerId},
-            } : {lastName: {startsWith: search?.customer, mode: "insensitive"}},
-            createdAt:
-              search?.createStartedAt && search?.createEndedAt
-                ? {
-                  gte: search.createStartedAt,
-                  lte: search.createEndedAt,
-                }
-                : {},
+            customer: search?.customerId
+              ? {id: {in: search?.customerId}}
+              : {lastName: {startsWith: search?.customer, mode: "insensitive"}},
             paymentHistories:
               search?.paidType === PaidEnum.PAID
-                ? {
-                  some: {total: {gte: 0}},
-                }
+                ? {some: {total: {gte: 0}}}
                 : search?.paidType === PaidEnum.UNPAID
-                ? {
-                  every: {total: {}},
-                }
+                ? {every: {total: {}}}
                 : {},
             province: search?.province
               ? {name: {contains: search?.province, mode: "insensitive"}}
@@ -125,45 +119,36 @@ export class OrderRepository {
           skip: search?.skip,
           take: search?.take,
           where: {
-            deliveredAt:
-              search?.status !== undefined &&
-              search?.status !== null &&
-              !search?.deliveryStartedAt
-                ? search.status === 1
+            createdAt: search?.startedAt_start && search?.startedAt_end
+              ? {
+                gte: search.startedAt_start,
+                lte: search.startedAt_end,
+              }
+              : {},
+            endedAt: (search?.endedAt_start && search?.endedAt_end)
+              ? {
+                gte: search.endedAt_start,
+                lte: search.endedAt_end,
+              } : {},
+            deliveredAt: search?.status !== -1
+              ? search.status === 1
                 ? {notIn: null}
-                : search.status === 0
-                  ? {in: null}
-                  : {}
-                : search?.deliveryStartedAt && search?.deliveryEndedAt
+                : {in: null}
+              : search?.deliveredAt_start && search?.deliveredAt_end
                 ? {
-                  gte: search?.deliveryStartedAt,
-                  lte: search?.deliveryEndedAt,
+                  gte: search?.deliveredAt_start,
+                  lte: search?.deliveredAt_end,
                 }
                 : {},
-            endedAt: search?.startedAt && search?.endedAt ? {
-              gte: search.startedAt,
-              lte: search.endedAt,
-            } : {},
             hide: search?.hide === 'true',
+            customer: search?.customerId
+              ? {id: {in: search?.customerId}}
+              : {lastName: {startsWith: search?.customer, mode: "insensitive"}},
             paymentHistories:
               search?.paidType === PaidEnum.PAID
-                ? {
-                  some: {total: {gte: 0}},
-                }
+                ? {some: {total: {gte: 0}}}
                 : search?.paidType === PaidEnum.UNPAID
-                ? {
-                  every: {total: {}},
-                }
-                : {},
-            customer: search?.customerId ? {
-              id: {in: search?.customerId},
-            } : {lastName: {startsWith: search?.customer, mode: "insensitive"}},
-            createdAt:
-              search?.createStartedAt && search?.createEndedAt
-                ? {
-                  gte: search.createStartedAt,
-                  lte: search.createEndedAt,
-                }
+                ? {every: {total: {}}}
                 : {},
             province: search?.province
               ? {name: {contains: search?.province, mode: "insensitive"}}
@@ -196,6 +181,9 @@ export class OrderRepository {
             ward: true,
             paymentHistories: true,
           },
+          orderBy: {
+            createdAt: "desc"
+          }
         }),
       ]);
       return {total, data};

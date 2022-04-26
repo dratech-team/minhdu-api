@@ -23,7 +23,7 @@ export const ApiV2Constant = {
   PAYMENT_HISTORY: "v2/payment-history",
   PAYROLL: 'v2/payroll',
   PRODUCT: 'v2/product',
-  PROVIDER: 'v2/provider',
+  SUPPLIER: 'v2/supplier',
   RELATIVE: 'v2/relative',
   ROUTE: 'v2/route',
   SALARY: 'v2/salary',

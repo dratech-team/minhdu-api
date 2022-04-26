@@ -1,22 +1,25 @@
 export type PayslipEntity = {
-  basic: number,
-  stay: number,
-  overtime: number,
-  allowance: number,
-  payslipInHoliday: number,
-  payslipNotInHoliday: number,
-  workdayNotInHoliday: number,
-  worksInHoliday: number,
-  worksNotInHoliday: number,
-  deduction: number,
-  daySalary: number,
-  totalWorkday: number,
-  workday: number,
-  bsc: number,
-  bscSalary: number,
-  payslipNormalDay: number,
-  tax: number,
-  total: number,
+  basic: number;
+  stay: number;
+  allowance: number;
+  overtime: Unit;
+  holiday: Unit;
+  notHoliday: Unit;
+  deduction: {
+    absent: Unit;
+    late: Unit;
+  };
+  bsc: Unit;
+  workday: number;
+  daySalary: number;
+  totalWorkday: Unit;
+  tax: number;
+  total: number;
+}
+
+export type Unit = {
+  readonly times: number;
+  readonly price: number;
 }
 
 export type Workday = {
