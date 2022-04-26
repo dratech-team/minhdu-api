@@ -192,6 +192,9 @@ export class PayrollRepository {
             salariesv2: true,
             deductions: true,
             absents: true,
+            overtimes: true,
+            allownaces: true,
+            remotes: true,
             employee: {
               include: {
                 contracts: true,
