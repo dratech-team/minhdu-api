@@ -10,8 +10,11 @@ import {EmployeeService} from "../employee/employee.service";
 import {SearchPayrollDto} from "./dto/search-payroll.dto";
 import {FilterTypeEnum} from "./entities/filter-type.enum";
 import {timesheet} from "./functions/timesheet";
-import {RecipeType} from "@prisma/client";
+import {AllowanceSalary, PartialDay} from "@prisma/client";
 import {OnePayroll} from "./entities/payroll.entity";
+import {OvertimePayslipsEntity, SettingPayslipsEntity} from "./entities/payslips";
+import {AbsentEntity} from "./entities/absent.entity";
+import {DeductionEntity} from "../salaries/deduction/entities";
 
 @Injectable()
 export class PayrollServicev2 {
@@ -100,7 +103,52 @@ export class PayrollServicev2 {
     // const totalOvertime = this.
   }
 
-  private totalOvertime(payroll: OnePayroll) {
-    // payroll.overtimes.
+  private totalAbsent(absents: AbsentEntity[]): number {
+    return absents.map(absent => {
+      const settings = this.totalSetting(Object.assign(absent.setting, {
+        workday: absent.setting.workday,
+        salaries: absent.salaries
+      }) as SettingPayslipsEntity);
+      if (absent.partial === PartialDay.ALL_DAY) {
+
+      } else if (absent.partial === PartialDay.MORNING || absent.partial === PartialDay.AFTERNOON) {
+
+      } else {
+
+      }
+      return settings;
+    }).reduce((a, b) => a + b, 0);
+  }
+
+  private totalDeduction(deductions: DeductionEntity[]) {
+    // return deductions.map(deduction => {
+    //   deduction.
+    // })
+  }
+
+
+  private totalAllowance(allowances: AllowanceSalary[]): number {
+    return allowances.map(allowance => allowance.price * allowance.rate).reduce((a, b) => a + b, 0);
+  }
+
+  private totalOvertime(overtimes: OvertimePayslipsEntity): number {
+    return overtimes.map(overtime => {
+      const allowances = this.totalAllowance(overtime.allowances);
+      const settings = this.totalSetting(
+        Object.assign(overtime.setting, {
+          workday: overtime.setting.workday,
+          salaries: overtimes.salaries
+        }) as SettingPayslipsEntity
+      );
+      return allowances + settings;
+    }).reduce((a, b) => a + b, 0);
+  }
+
+  private totalSetting(setting: SettingPayslipsEntity): number {
+    const totalOf = setting.totalOf.map(type => {
+      return setting.salaries.filter(salary => salary.type === type).map((e) => e.price * e.rate).reduce((a, b) => a + b, 0);
+    }).reduce((a, b) => a + b, 0) + setting.prices?.reduce((a, b) => a + b, 0);
+
+    return totalOf / setting.workday;
   }
 }
