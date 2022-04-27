@@ -1,1 +1,1 @@
-export class SalaryBlock {}
+export class SalaryBlockEntity {}

@@ -148,7 +148,7 @@ export class PayrollService {
     }
   }
 
-  async findOne(id: number): Promise<OnePayroll & { totalWorkday: number }> {
+  async findOne(id: number) {
     const payroll = await this.repository.findOne(id);
     const absents = payroll.absents.map(salary => {
       return Object.assign(salary, {price: this.totalDeduction(payroll)});
@@ -403,7 +403,7 @@ export class PayrollService {
     }).map(e => e.price).reduce((a, b) => a + b, 0);
   }
 
-  totalDeduction(payroll: OnePayroll) {
+  totalDeduction(payroll) {
     return payroll.deductions.map(deduction => deduction.price).reduce((a, b) => a + b, 0);
   }
 
@@ -499,7 +499,7 @@ export class PayrollService {
       ?.reduce((a, b) => a + b, 0);
   }
 
-  totalActualDay(payroll: OnePayroll) {
+  totalActualDay(payroll) {
     let total = 30;
     // total: Ngày cuối cùng của tháng do mình quy định. Áp dụng đối với lương cố dịnh
     const confirmedAt = payroll.accConfirmedAt;
@@ -925,7 +925,7 @@ export class PayrollService {
   }
 
   /// áp dụng cho tinh lương công nhật. Thuê ngoài làm mà không phải nhân viên công ty
-  totalSalaryCT3(payroll: OnePayroll) {
+  totalSalaryCT3(payroll) {
     const workdays = payroll.salaries.filter(salary => salary.type === SalaryType.PART_TIME && salary.unit === DatetimeUnit.DAY);
     const times = payroll.salaries.filter(salary => salary.type === SalaryType.OVERTIME && salary.unit === DatetimeUnit.HOUR);
     const totalSalaryWorkday = workdays.map(salary => salary.type === SalaryType.PART_TIME && salary.times * salary.price).reduce((a, b) => a + b, 0);
@@ -1020,7 +1020,7 @@ export class PayrollService {
 
     const bscSalary = (bsc / 2) * basicSalary / PAYSLIP_WORKDAY_HOLIDAY;
 
-    const absentDay = 0
+    const absentDay = 0;
     // const absentDay = absent.day + (isEqualDatetime(payroll.employee.createdAt, payroll.createdAt)
     //   ? payroll.employee.createdAt.getDate()
     //   : 0) + (isEqualDatetime(payroll.employee.leftAt, payroll.createdAt)
@@ -1190,7 +1190,7 @@ export class PayrollService {
     //   : 0) + (isEqualDatetime(payroll.employee.leftAt, payroll.createdAt)
     //   ? payroll.employee.createdAt.getDate()
     //   : 0);
-    const absentDay = 0
+    const absentDay = 0;
 
     // day
     const workdayNotInHoliday = lastDayOfMonth(payroll.createdAt) - currentHoliday.length - absentDay;

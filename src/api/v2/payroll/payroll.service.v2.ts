@@ -97,6 +97,10 @@ export class PayrollServicev2 {
   }
 
   private totalSalaryCTL(payroll: OnePayroll) {
-    // const holidays = this.
+    // const totalOvertime = this.
+  }
+
+  private totalOvertime(payroll: OnePayroll) {
+    // payroll.overtimes.
   }
 }

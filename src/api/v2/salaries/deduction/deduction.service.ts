@@ -2,11 +2,11 @@ import {Injectable} from '@nestjs/common';
 import {CreateDeductionDto} from './dto/create-deduction.dto';
 import {UpdateDeductionDto} from './dto/update-deduction.dto';
 import {DeductionRepository} from "./deduction.repository";
-import {DeductionEntity} from "./entities/deduction.entity";
 import {DeleteMultipleDeductionDto} from "./dto/delete-multiple-deduction.dto";
 import {AbsentService} from "../absent/absent.service";
 import {crudManyResponse} from "../base/functions/response.function";
 import {CreateMultipleAbsentDto} from "../absent/dto/create-multiple-absent.dto";
+import {CreateMultipleDeductionDto} from "./dto/create-multiple-deduction.dto";
 
 @Injectable()
 export class DeductionService {
@@ -20,7 +20,7 @@ export class DeductionService {
     if (!(body as CreateDeductionDto)?.settingId) {
       const salaries = body.payrollIds.map(payrollId => {
         return this.mapToDeduction(Object.assign(body, {payrollId}));
-      }) as DeductionEntity[];
+      }) as CreateMultipleDeductionDto[];
 
       const {count} = await this.repository.createMany(salaries);
       return crudManyResponse(count, "creation");
@@ -47,7 +47,7 @@ export class DeductionService {
     return crudManyResponse(count, "deletion");
   }
 
-  private mapToDeduction(body): DeductionEntity {
+  private mapToDeduction(body): CreateMultipleDeductionDto {
     return {
       title: body.title,
       unit: body.unit,

@@ -1,3 +1,5 @@
-import {CreateDeductionDto} from "../dto/create-deduction.dto";
+import {DeductionSalary, SalaryBlock} from "@prisma/client";
 
-export type DeductionEntity = Omit<CreateDeductionDto, "payrollIds" | "type" | "settingId"> & { payrollId: number }
+export interface DeductionEntity extends DeductionSalary {
+  readonly block: SalaryBlock;
+}
