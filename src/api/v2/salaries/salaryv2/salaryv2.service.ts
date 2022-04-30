@@ -4,6 +4,7 @@ import {UpdateSalaryv2Dto} from './dto/update-salaryv2.dto';
 import {Salaryv2Repository} from "./salaryv2.repository";
 import {SalaryEntity} from "./entities/salary.entity";
 import {crudManyResponse} from "../base/functions/response.function";
+import {SalaryType} from "@prisma/client";
 
 @Injectable()
 export class Salaryv2Service {
@@ -42,6 +43,7 @@ export class Salaryv2Service {
       title: body.title,
       type: body.type,
       price: body.price,
+      blockId: body.type === SalaryType.STAY ? body?.blockId || 2 : body?.blockId || 1,
       note: body.note,
     } as SalaryEntity;
   }
