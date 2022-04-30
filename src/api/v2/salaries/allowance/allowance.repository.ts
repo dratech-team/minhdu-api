@@ -5,6 +5,7 @@ import {PrismaService} from "../../../../prisma.service";
 import {CreateAllowanceDto} from "./dto/create-allowance.dto";
 import {UpdateAllowanceDto} from "./dto/update-allowance.dto";
 import {RemoveManyAllowanceDto} from "./dto/remove-many-allowance.dto";
+import {CreateManyAllowanceDto} from "./dto/create-many-allowance.dto";
 
 @Injectable()
 export class AllowanceRepository extends BaseRepository<AllowanceSalary, any> {
@@ -48,7 +49,7 @@ export class AllowanceRepository extends BaseRepository<AllowanceSalary, any> {
     }
   }
 
-  update(ids: number[], body: UpdateAllowanceDto) {
+  updateMany(ids: number[], body: CreateAllowanceDto) {
     try {
       return 'This action adds a new allowance';
     } catch (err) {

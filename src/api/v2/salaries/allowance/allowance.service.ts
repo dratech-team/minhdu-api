@@ -24,7 +24,7 @@ export class AllowanceService {
   }
 
   updateMany(body: UpdateAllowanceDto) {
-    // return this.repository.update(body)
+    return this.repository.updateMany(body.salaryIds, this.mapToAllowance(body));
   }
 
   removeMany(body: RemoveManyAllowanceDto) {
@@ -38,6 +38,10 @@ export class AllowanceService {
       payrollId: body.payrollId,
       branchId: body?.branchId,
       rate: body.rate,
-    } as CreateAllowanceDto;
+      isWorkday: body.isWorkday,
+      inOffice: body.inOffice,
+      startedAt: body.startedAt,
+      ended: body.endedAt,
+    };
   }
 }
