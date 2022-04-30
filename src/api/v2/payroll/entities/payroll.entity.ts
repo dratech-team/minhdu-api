@@ -1,8 +1,10 @@
-import {Contract, Employee, Payroll, Salary, Salaryv2} from "@prisma/client";
+import {Payroll, Salary, Salaryv2} from "@prisma/client";
 import {FullSalary} from "../../salaries/salary/entities/salary.entity";
 import {AbsentEntity} from "./absent.entity";
-import {OvertimeEntity} from "../../salaries/overtime/entities/overtime.entity";
+import {OvertimeEntity} from "../../salaries/overtime/entities";
 import {DeductionEntity} from "../../salaries/deduction/entities";
+import {AllowanceEntity} from "../../salaries/allowance/entities";
+import {OneEmployee} from "../../employee/entities/employee.entity";
 
 export type RangeDateTime = { start: Date; end: Date };
 
@@ -15,16 +17,13 @@ export interface FullPayroll extends Payroll {
   salaries: Salary[];
 }
 
-export type OnePayroll =
-  Payroll & {
-  employee: {
-    contracts: Contract[];
-    position: { name: string; workday: number };
-  } & Employee;
-} & {
+export type OnePayroll = Payroll
+  & { employee: OneEmployee }
+  & {
   salaries: FullSalary[],
   salariesv2: Salaryv2[],
   absents: AbsentEntity[],
   deductions: DeductionEntity[],
-  overtimes: OvertimeEntity[]
+  allowances: AllowanceEntity[],
+  overtimes: OvertimeEntity[],
 };

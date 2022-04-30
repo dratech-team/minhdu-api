@@ -1,10 +1,10 @@
-import {District, Employee, Nation, Payroll, Position, Province, Salary, Ward} from "@prisma/client";
-import {FullPosition} from "../../../../common/branches/position/entities/position.entity";
+import {Branch, Contract, Employee, Payroll, Position} from "@prisma/client";
 
-export interface FullEmployee extends Employee {
-  position: FullPosition;
-  salaries: Salary[];
+export interface OneEmployee extends Employee {
+  branch: Branch;
+  position: Position;
   payrolls: Payroll[];
+  contracts: Contract[];
 }
 
 // export type FullEmployee = (Employee & { ward: Ward & { district: District & { province: Province & { nation: Nation; }; }; }; position: Position })[]

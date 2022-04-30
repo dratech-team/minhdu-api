@@ -5,7 +5,6 @@ import {CreatePayrollDto} from "./dto/create-payroll.dto";
 import {firstDatetime, lastDatetime} from "../../../utils/datetime.util";
 import {StatusEnum} from "../../../common/enum/status.enum";
 import {isEqualDatetime} from "../../../common/utils/isEqual-datetime.util";
-import * as moment from "moment";
 import {EmployeeService} from "../employee/employee.service";
 import {SearchPayrollDto} from "./dto/search-payroll.dto";
 import {FilterTypeEnum} from "./entities/filter-type.enum";
@@ -15,6 +14,10 @@ import {OnePayroll} from "./entities/payroll.entity";
 import {OvertimePayslipsEntity, SettingPayslipsEntity} from "./entities/payslips";
 import {AbsentEntity} from "./entities/absent.entity";
 import {DeductionEntity} from "../salaries/deduction/entities";
+import * as Moment from "moment";
+import {extendMoment} from "moment-range";
+
+const moment = extendMoment(Moment);
 
 @Injectable()
 export class PayrollServicev2 {
@@ -99,16 +102,37 @@ export class PayrollServicev2 {
     };
   }
 
-  private totalSalaryCTL(payroll: OnePayroll) {
-    // const totalOvertime = this.
+  async findOne(id: number) {
+    const found = await this.repository.findOne(id);
+    // this.totalSalaryCTL(found);
   }
 
-  private totalSalary(salaries: Salaryv2[]) {
-    return salaries.filter(salary => salary.type === SalaryType.BASIC_INSURANCE).map(salary => salary.price * salary.rate).reduce((a, b) => a + b, 0);
+  private totalSalaryCTL(payroll: OnePayroll) {
+    const allowance = this.totalAllowance(payroll.allowances);
+  }
+
+  // Những khoảng cố định. Không ràng buộc bởi ngày công thực tế. Bao gồm lương cơ bản và phụ cấp lương (phụ cấp ở lại)
+  private totalSalary(salaries: Salaryv2[], taxed?: boolean) {
+    return salaries.filter(salary => salary.type === SalaryType.BASIC_INSURANCE).map(salary => {
+      if (!taxed && salary.type === SalaryType.BASIC_INSURANCE) {
+        return salary.price * 1;
+      }
+      return salary.price * salary.rate;
+    }).reduce((a, b) => a + b, 0);
   }
 
   private totalAllowance(allowances: AllowanceSalary[]): number {
-    return allowances.map(allowance => allowance.price * allowance.rate).reduce((a, b) => a + b, 0);
+    return allowances.map(allowance => {
+      if (allowance.inOffice) {
+        const range = moment().range(allowance.startedAt, allowance.endedAt).by("days");
+        console.log(range);
+      } else if (allowance.isWorkday) {
+
+      } else {
+
+      }
+      return allowance.price * allowance.rate;
+    }).reduce((a, b) => a + b, 0);
   }
 
   private totalAbsent(absents: AbsentEntity[]): number {

@@ -16,11 +16,15 @@ import {ItemExportDto} from "../../../common/interfaces/items-export.dto";
 import {SearchPayrollDto} from "./dto/search-payroll.dto";
 import {SearchExportDto} from "./dto/search-export.dto";
 import {SearchSalaryDto} from "./dto/search-salary.dto";
+import {PayrollServicev2} from "./payroll.service.v2";
 
 @Controller(ApiV2Constant.PAYROLL)
 @UseGuards(JwtAuthGuard, ApiKeyGuard, RolesGuard)
 export class PayrollController {
-  constructor(private readonly payrollService: PayrollService) {
+  constructor(
+    private readonly payrollService: PayrollService,
+    private readonly payrollServicev2: PayrollServicev2,
+  ) {
   }
 
   @UseGuards(LoggerGuard)
@@ -51,7 +55,7 @@ export class PayrollController {
   @Roles(RoleEnum.SUPPER_ADMIN, RoleEnum.ADMIN, RoleEnum.HUMAN_RESOURCE, RoleEnum.CAMP_ACCOUNTING)
   @Get(":id")
   findOne(@Param("id") id: string) {
-    return this.payrollService.findOne(+id);
+    return this.payrollServicev2.findOne(+id);
   }
 
   @UseGuards(LoggerGuard)
