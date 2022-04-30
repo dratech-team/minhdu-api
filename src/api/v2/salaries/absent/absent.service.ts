@@ -2,11 +2,11 @@ import {Injectable} from '@nestjs/common';
 import {AbsentRepository} from "./absent.repository";
 import {AbsentSalary} from '@prisma/client';
 import {DeleteMultipleAbsentDto} from "./dto/delete-multiple-absent.dto";
-import {CreateAbsentEntity} from "./entities/create-absent.entity";
 import {crudManyResponse} from "../base/functions/response.function";
 import * as _ from 'lodash';
 import {CreateMultipleAbsentDto} from "./dto/create-multiple-absent.dto";
 import {UpdateMultipleAbsentDto} from "./dto/update-multiple-absent.dto";
+import {CreateAbsentDto} from "./dto/create-absent.dto";
 
 @Injectable()
 export class AbsentService {
@@ -17,6 +17,7 @@ export class AbsentService {
     const salaries = body.payrollIds.map(payrollId => {
       return this.mapToAbsent(Object.assign(_.omit(body, "payrollIds"), {payrollId}));
     }) as AbsentSalary[];
+    console.log(salaries);
     const {count} = await this.repository.createMany(salaries);
     return crudManyResponse(count, "creation");
   }
@@ -39,12 +40,11 @@ export class AbsentService {
     return crudManyResponse(count, "deletion");
   }
 
-  private mapToAbsent(body): Omit<AbsentSalary, "id"> {
+  private mapToAbsent(body): CreateAbsentDto {
     return {
       payrollId: body.payrollId,
       title: body.title,
       partial: body.partial,
-      price: body.price,
       startedAt: body.startedAt,
       endedAt: body.endedAt,
       startTime: body.startTime,
@@ -53,6 +53,6 @@ export class AbsentService {
       unit: body.unit,
       settingId: body.settingId,
       blockId: body?.blockId || 5,
-    } as CreateAbsentEntity;
+    } as CreateAbsentDto;
   }
 }

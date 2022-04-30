@@ -1,9 +1,10 @@
 import {Body, Controller, Get, Param, Post, UseGuards} from '@nestjs/common';
 import {RemoteService} from './remote.service';
-import {CreateRemoteDto, DeleteMultipleRemoteDto, UpdateRemoteDto} from './dto';
+import {CreateRemoteDto, RemoveManyRemoteDto, UpdateRemoteDto} from './dto';
 import {ApiKeyGuard, JwtAuthGuard, RolesGuard} from "../../../../core/guard";
 import {Roles} from "../../../../core/decorators/roles.decorator";
 import {RoleEnum} from "@prisma/client";
+import {CreateManyRemoteDto} from "./dto/create-many-remote.dto";
 
 @UseGuards(JwtAuthGuard, ApiKeyGuard, RolesGuard)
 @Controller('v2/salary/remote')
@@ -13,7 +14,7 @@ export class RemoteController {
 
   @Roles(RoleEnum.SUPPER_ADMIN, RoleEnum.CAMP_ACCOUNTING)
   @Post('/multiple/creation')
-  create(@Body() createRemoteDto: CreateRemoteDto) {
+  create(@Body() createRemoteDto: CreateManyRemoteDto) {
     return this.remoteService.createMany(createRemoteDto);
   }
 
@@ -37,7 +38,7 @@ export class RemoteController {
 
   @Roles(RoleEnum.SUPPER_ADMIN,RoleEnum.ADMIN)
   @Post('/multiple/deletion')
-  remove(@Body() body: DeleteMultipleRemoteDto) {
+  remove(@Body() body: RemoveManyRemoteDto) {
     return this.remoteService.removeMany(body);
   }
 }

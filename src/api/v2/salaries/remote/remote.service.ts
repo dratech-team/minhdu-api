@@ -1,15 +1,16 @@
 import {Injectable} from '@nestjs/common';
-import {CreateRemoteDto, DeleteMultipleRemoteDto, UpdateRemoteDto} from './dto';
+import {CreateRemoteDto, RemoveManyRemoteDto, UpdateRemoteDto} from './dto';
 import {RemoteRepository} from "./remote.repository";
 import {RemoteEntity} from "./entities/remote.entity";
 import {crudManyResponse} from "../base/functions/response.function";
+import {CreateManyRemoteDto} from "./dto/create-many-remote.dto";
 
 @Injectable()
 export class RemoteService {
   constructor(private readonly repository: RemoteRepository) {
   }
 
-  async createMany(body: CreateRemoteDto) {
+  async createMany(body: CreateManyRemoteDto) {
     const salaries = body.payrollIds.map(payrollId => {
       return this.mapToRemote(Object.assign(body, {payrollId}));
     }) as RemoteEntity[];
@@ -31,12 +32,12 @@ export class RemoteService {
     return crudManyResponse(count, "updation");
   }
 
-  async removeMany(body: DeleteMultipleRemoteDto) {
+  async removeMany(body: RemoveManyRemoteDto) {
     const {count} = await this.repository.removeMany(body);
     return crudManyResponse(count, "deletion");
   }
 
-  private mapToRemote(body): RemoteEntity {
+  private mapToRemote(body): CreateRemoteDto {
     return {
       type: body.type,
       startedAt: body.startedAt,
@@ -44,6 +45,6 @@ export class RemoteService {
       payrollId: body.payrollId,
       blockId: body?.blockId || 7,
       note: body.note
-    };
+    } as CreateRemoteDto;
   }
 }
