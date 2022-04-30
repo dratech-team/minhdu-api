@@ -1,12 +1,15 @@
 import {Injectable} from '@nestjs/common';
-import {CreateDeductionDto} from './dto/create-deduction.dto';
-import {UpdateDeductionDto} from './dto/update-deduction.dto';
+import {
+  CreateDeductionDto,
+  CreateManyDeductionDto,
+  RemoveManyDeductionDto,
+  UpdateDeductionDto,
+  UpdateManyDeductionDto
+} from './dto';
 import {DeductionRepository} from "./deduction.repository";
-import {DeleteMultipleDeductionDto} from "./dto/delete-multiple-deduction.dto";
 import {AbsentService} from "../absent/absent.service";
 import {crudManyResponse} from "../base/functions/response.function";
-import {CreateMultipleAbsentDto} from "../absent/dto/create-multiple-absent.dto";
-import {CreateMultipleDeductionDto} from "./dto/create-multiple-deduction.dto";
+import {CreateManyAbsentDto} from "../absent/dto/create-many-absent.dto";
 
 @Injectable()
 export class DeductionService {
@@ -16,17 +19,13 @@ export class DeductionService {
   ) {
   }
 
-  async create(body: CreateDeductionDto | CreateMultipleAbsentDto) {
-    if (!(body as CreateDeductionDto)?.settingId) {
-      const salaries = body.payrollIds.map(payrollId => {
-        return this.mapToDeduction(Object.assign(body, {payrollId}));
-      }) as CreateMultipleDeductionDto[];
+  async create(body: CreateManyDeductionDto) {
+    const salaries = body.payrollIds.map(payrollId => {
+      return this.mapToDeduction(Object.assign(body, {payrollId}));
+    }) as CreateDeductionDto[];
 
-      const {count} = await this.repository.createMany(salaries);
-      return crudManyResponse(count, "creation");
-    } else {
-      return this.absentService.createMany(body as CreateMultipleAbsentDto);
-    }
+    const {count} = await this.repository.createMany(salaries);
+    return crudManyResponse(count, "creation");
   }
 
   findAll() {
@@ -37,24 +36,24 @@ export class DeductionService {
     return this.repository.findOne(id);
   }
 
-  async updateMany(body: UpdateDeductionDto) {
+  async updateMany(body: UpdateManyDeductionDto) {
     const {count} = await this.repository.updateMany(body.salaryIds, this.mapToDeduction(body));
     return crudManyResponse(count, "updation");
   }
 
-  async removeMany(body: DeleteMultipleDeductionDto) {
+  async removeMany(body: RemoveManyDeductionDto) {
     const {count} = await this.repository.removeMany(body);
     return crudManyResponse(count, "deletion");
   }
 
-  private mapToDeduction(body): CreateMultipleDeductionDto {
+  private mapToDeduction(body): CreateDeductionDto {
     return {
       title: body.title,
       unit: body.unit,
       price: body.price,
       payrollId: body.payrollId,
-      blockId: body.blockId,
+      blockId: body?.blockId || 6,
       note: body.note,
-    };
+    } as CreateDeductionDto;
   }
 }

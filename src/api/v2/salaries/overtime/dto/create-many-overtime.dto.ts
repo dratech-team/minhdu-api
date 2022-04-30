@@ -3,7 +3,7 @@ import {Transform, Type} from "class-transformer";
 import * as moment from "moment";
 import {CreateAllowanceDto} from "../../allowance/dto/create-allowance.dto";
 
-export class CreateMultipleOvertimeDto {
+export class CreateManyOvertimeDto {
   @IsNotEmpty()
   @IsDate()
   @Transform(({value}) => new Date(moment(value).utc().format('YYYY-MM-DD')))

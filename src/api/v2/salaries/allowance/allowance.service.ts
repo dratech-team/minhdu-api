@@ -1,16 +1,18 @@
-import { Injectable } from '@nestjs/common';
-import { CreateAllowanceDto } from './dto/create-allowance.dto';
-import { UpdateAllowanceDto } from './dto/update-allowance.dto';
+import {Injectable} from '@nestjs/common';
+import {UpdateAllowanceDto} from './dto/update-allowance.dto';
 import {AllowanceRepository} from "./allowance.repository";
-import {DeleteMultipleAllowanceDto} from "./dto/delete-multiple-allowance.dto";
+import {RemoveManyAllowanceDto} from "./dto/remove-many-allowance.dto";
+import {CreateManyAllowanceDto} from "./dto/create-many-allowance.dto";
+import {CreateAllowanceDto} from "./dto/create-allowance.dto";
 
 @Injectable()
 export class AllowanceService {
   constructor(private readonly repository: AllowanceRepository) {
   }
 
-  createMany(body: CreateAllowanceDto) {
-    return this.repository.create(body);
+  createMany(body: CreateManyAllowanceDto) {
+    const salaries = body.payrollIds.map(payrollId => this.mapToAllowance(Object.assign(body, {payrollId})));
+    return this.repository.createMany(salaries);
   }
 
   findAll() {
@@ -25,7 +27,17 @@ export class AllowanceService {
     // return this.repository.update(body)
   }
 
-  removeMany(body: DeleteMultipleAllowanceDto) {
+  removeMany(body: RemoveManyAllowanceDto) {
     return this.repository.remove(body);
+  }
+
+  private mapToAllowance(body): CreateAllowanceDto {
+    return {
+      title: body.title,
+      price: body.price,
+      payrollId: body.payrollId,
+      branchId: body?.branchId,
+      rate: body.rate,
+    } as CreateAllowanceDto;
   }
 }

@@ -1,7 +1,6 @@
 import {Injectable} from '@nestjs/common';
-import {CreateRemoteDto, RemoveManyRemoteDto, UpdateRemoteDto} from './dto';
+import {CreateRemoteDto, RemoveManyRemoteDto} from './dto';
 import {RemoteRepository} from "./remote.repository";
-import {RemoteEntity} from "./entities/remote.entity";
 import {crudManyResponse} from "../base/functions/response.function";
 import {CreateManyRemoteDto} from "./dto/create-many-remote.dto";
 
@@ -13,7 +12,7 @@ export class RemoteService {
   async createMany(body: CreateManyRemoteDto) {
     const salaries = body.payrollIds.map(payrollId => {
       return this.mapToRemote(Object.assign(body, {payrollId}));
-    }) as RemoteEntity[];
+    }) as CreateRemoteDto[];
 
     const {count} = await this.repository.createMany(salaries);
     return crudManyResponse(count, "creation");
@@ -27,7 +26,7 @@ export class RemoteService {
     return this.repository.findOne(id);
   }
 
-  async update(id: number, body: UpdateRemoteDto) {
+  async update(id: number, body: RemoveManyRemoteDto) {
     const {count} = await this.repository.updateMany(body.salaryIds, this.mapToRemote(body));
     return crudManyResponse(count, "updation");
   }

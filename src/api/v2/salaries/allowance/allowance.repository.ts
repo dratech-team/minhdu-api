@@ -4,7 +4,7 @@ import {BaseRepository} from "../../../../common/repository/base.repository";
 import {PrismaService} from "../../../../prisma.service";
 import {CreateAllowanceDto} from "./dto/create-allowance.dto";
 import {UpdateAllowanceDto} from "./dto/update-allowance.dto";
-import {DeleteMultipleAllowanceDto} from "./dto/delete-multiple-allowance.dto";
+import {RemoveManyAllowanceDto} from "./dto/remove-many-allowance.dto";
 
 @Injectable()
 export class AllowanceRepository extends BaseRepository<AllowanceSalary, any> {
@@ -15,6 +15,15 @@ export class AllowanceRepository extends BaseRepository<AllowanceSalary, any> {
   create(body: CreateAllowanceDto) {
     try {
       return 'This action adds a new allowance';
+    } catch (err) {
+      console.error(err);
+      throw new BadRequestException(err);
+    }
+  }
+
+  async createMany(body: CreateAllowanceDto[]) {
+    try {
+      return await this.prisma.allowanceSalary.createMany({data: body});
     } catch (err) {
       console.error(err);
       throw new BadRequestException(err);
@@ -48,7 +57,7 @@ export class AllowanceRepository extends BaseRepository<AllowanceSalary, any> {
     }
   }
 
-  remove(body: DeleteMultipleAllowanceDto) {
+  remove(body: RemoveManyAllowanceDto) {
     try {
       return 'This action adds a new allowance';
     } catch (err) {

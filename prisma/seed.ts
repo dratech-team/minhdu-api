@@ -133,17 +133,22 @@ async function main() {
         calculationId: 1,
       },
       {
-        stt: 3,
+        stt: 5,
+        title: "Vắng",
+        calculationId: 1,
+      },
+      {
+        stt: 6,
         title: "Khấu trừ",
         calculationId: 1,
       },
       {
-        stt: 4,
+        stt: 7,
         title: "Ngày lễ",
         calculationId: 1,
       },
       {
-        stt: 5,
+        stt: 8,
         title: "Remote",
         calculationId: 1,
       }

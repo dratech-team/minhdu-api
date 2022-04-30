@@ -3,7 +3,7 @@ import {DatetimeUnit, PartialDay} from "@prisma/client";
 import {Transform, Type} from "class-transformer";
 import * as moment from "moment";
 
-export class CreateMultipleAbsentDto {
+export class CreateManyAbsentDto {
   @IsNotEmpty()
   @IsString()
   readonly title: string;

@@ -1,12 +1,12 @@
 import {Body, Controller, Delete, Get, Param, Patch, Post, UseGuards} from '@nestjs/common';
 import {OvertimeService} from './overtime.service';
-import {CreateMultipleOvertimeDto} from './dto/create-multiple-overtime.dto';
+import {CreateManyOvertimeDto} from './dto/create-many-overtime.dto';
 import {UpdateOvertimeDto} from './dto/update-overtime.dto';
 import {ApiKeyGuard, JwtAuthGuard, RolesGuard} from "../../../../core/guard";
 import {Roles} from "../../../../core/decorators/roles.decorator";
 import {RoleEnum} from "@prisma/client";
-import {DeleteMultipleOvertimeDto} from "./dto/delete-multiple-overtime.dto";
-import {UpdateMultipleOvertimeDto} from "./dto/update-multiple-overtime.dto";
+import {RemoveManyOvertimeDto} from "./dto/remove-many-overtime.dto";
+import {UpdateManyOvertimeDto} from "./dto/update-many-overtime.dto";
 
 @UseGuards(JwtAuthGuard, ApiKeyGuard, RolesGuard)
 @Controller('v2/salary/overtime')
@@ -16,13 +16,13 @@ export class OvertimeController {
 
   @Roles(RoleEnum.SUPPER_ADMIN, RoleEnum.CAMP_ACCOUNTING)
   @Post()
-  create(@Body() createOvertimeDto: CreateMultipleOvertimeDto) {
+  create(@Body() createOvertimeDto: CreateManyOvertimeDto) {
     return this.overtimeService.create(createOvertimeDto);
   }
 
   @Roles(RoleEnum.SUPPER_ADMIN, RoleEnum.CAMP_ACCOUNTING)
   @Post('multiple/creation')
-  createMany(@Body() createOvertimeDto: CreateMultipleOvertimeDto) {
+  createMany(@Body() createOvertimeDto: CreateManyOvertimeDto) {
     return this.overtimeService.createMany(createOvertimeDto);
   }
 
@@ -46,7 +46,7 @@ export class OvertimeController {
 
   @Roles(RoleEnum.SUPPER_ADMIN, RoleEnum.CAMP_ACCOUNTING)
   @Post('multiple/updation')
-  updateMany(@Body() updateOvertimeDto: UpdateMultipleOvertimeDto) {
+  updateMany(@Body() updateOvertimeDto: UpdateManyOvertimeDto) {
     return this.overtimeService.updateMany(updateOvertimeDto);
   }
 
@@ -58,7 +58,7 @@ export class OvertimeController {
 
   @Roles(RoleEnum.SUPPER_ADMIN, RoleEnum.CAMP_ACCOUNTING)
   @Post('multiple/deletion')
-  removeMany(@Body() body: DeleteMultipleOvertimeDto) {
+  removeMany(@Body() body: RemoveManyOvertimeDto) {
     return this.overtimeService.removeMany(body);
   }
 }

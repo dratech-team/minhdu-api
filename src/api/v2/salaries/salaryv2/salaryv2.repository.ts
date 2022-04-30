@@ -1,13 +1,15 @@
 import {BadRequestException, Injectable} from "@nestjs/common";
 import {PrismaService} from "../../../../prisma.service";
 import {SalaryEntity} from "./entities/salary.entity";
+import {CreateSalaryv2Dto} from "./dto/create-salaryv2.dto";
+import {RemoteManySalaryv2Dto} from "./dto/remote-many-salaryv2.dto";
 
 @Injectable()
 export class Salaryv2Repository {
   constructor(private readonly prisma: PrismaService) {
   }
 
-  async createMany(bodys: SalaryEntity[]) {
+  async createMany(bodys: CreateSalaryv2Dto[]) {
     try {
       return await this.prisma.salaryv2.createMany({data: bodys});
     } catch (err) {
@@ -49,9 +51,9 @@ export class Salaryv2Repository {
     }
   }
 
-  async removeMany(salaryIds: number[]) {
+  async removeMany(body: RemoteManySalaryv2Dto) {
     try {
-      return await this.prisma.salaryv2.deleteMany({where: {id: {in: salaryIds}}});
+      return await this.prisma.salaryv2.deleteMany({where: {id: {in: body.salaryIds}}});
     } catch (err) {
       console.error(err);
       throw new BadRequestException(err);

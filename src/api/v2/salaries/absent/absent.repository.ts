@@ -2,7 +2,7 @@ import {AbsentSalary} from "@prisma/client";
 import {BaseRepository} from "../../../../common/repository/base.repository";
 import {PrismaService} from "../../../../prisma.service";
 import {BadRequestException, Injectable} from "@nestjs/common";
-import {DeleteMultipleAbsentDto} from "./dto/delete-multiple-absent.dto";
+import {RemoveManyAbsentDto} from "./dto/remove-many-absent.dto";
 import {CreateAbsentDto} from "./dto/create-absent.dto";
 
 @Injectable()
@@ -45,7 +45,7 @@ export class AbsentRepository extends BaseRepository<AbsentSalary, any> {
     }
   }
 
-  async removeMany(body: DeleteMultipleAbsentDto) {
+  async removeMany(body: RemoveManyAbsentDto) {
     try {
       return await this.prisma.absentSalary.deleteMany({
         where: {id: {in: body.salaryIds}},

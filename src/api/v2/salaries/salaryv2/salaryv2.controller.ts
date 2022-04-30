@@ -1,10 +1,12 @@
 import {Body, Controller, Get, Param, Post, UseGuards} from '@nestjs/common';
 import {Salaryv2Service} from './salaryv2.service';
-import {CreateSalaryv2Dto} from './dto/create-salaryv2.dto';
 import {UpdateSalaryv2Dto} from './dto/update-salaryv2.dto';
 import {Roles} from "../../../../core/decorators/roles.decorator";
 import {RoleEnum} from "@prisma/client";
 import {ApiKeyGuard, JwtAuthGuard, RolesGuard} from "../../../../core/guard";
+import {CreateManySalaryv2Dto} from "./dto/create-many-salaryv2.dto";
+import {UpdateManySalaryv2Dto} from "./dto/update-many-salaryv2.dto";
+import {RemoteManySalaryv2Dto} from "./dto/remote-many-salaryv2.dto";
 
 @UseGuards(JwtAuthGuard, ApiKeyGuard, RolesGuard)
 @Controller('v2/salaryv2')
@@ -14,7 +16,7 @@ export class Salaryv2Controller {
 
   @Roles(RoleEnum.SUPPER_ADMIN, RoleEnum.CAMP_ACCOUNTING)
   @Post("/multiple/creation")
-  createMany(@Body() body: CreateSalaryv2Dto) {
+  createMany(@Body() body: CreateManySalaryv2Dto) {
     return this.salaryv2Service.createMany(body);
   }
 
@@ -32,13 +34,13 @@ export class Salaryv2Controller {
 
   @Roles(RoleEnum.SUPPER_ADMIN, RoleEnum.CAMP_ACCOUNTING)
   @Post('/multiple/updation')
-  updateMany(@Body() updateSalaryv2Dto: UpdateSalaryv2Dto) {
+  updateMany(@Body() updateSalaryv2Dto: UpdateManySalaryv2Dto) {
     return this.salaryv2Service.updateMany(updateSalaryv2Dto);
   }
 
   @Roles(RoleEnum.SUPPER_ADMIN, RoleEnum.CAMP_ACCOUNTING)
   @Post('multiple/deletion')
-  removeMany(@Body('salaryIds') salaryIds: number[]) {
-    return this.salaryv2Service.removeMany(salaryIds);
+  removeMany(@Body() body: RemoteManySalaryv2Dto) {
+    return this.salaryv2Service.removeMany(body);
   }
 }

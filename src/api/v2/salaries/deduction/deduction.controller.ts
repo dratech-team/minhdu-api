@@ -2,12 +2,13 @@ import {Body, Controller, Get, Param, Post, UseGuards} from '@nestjs/common';
 import {DeductionService} from './deduction.service';
 import {CreateDeductionDto} from './dto/create-deduction.dto';
 import {UpdateDeductionDto} from './dto/update-deduction.dto';
-import {DeleteMultipleDeductionDto} from "./dto/delete-multiple-deduction.dto";
+import {RemoveManyDeductionDto} from "./dto/remove-many-deduction.dto";
 import {CreateAbsentDto} from "../absent/dto/create-absent.dto";
 import {ApiKeyGuard, JwtAuthGuard, LoggerGuard, RolesGuard} from "../../../../core/guard";
 import {Roles} from "../../../../core/decorators/roles.decorator";
 import {RoleEnum} from "@prisma/client";
-import {CreateMultipleAbsentDto} from "../absent/dto/create-multiple-absent.dto";
+import {CreateManyAbsentDto} from "../absent/dto/create-many-absent.dto";
+import {CreateManyDeductionDto} from "./dto";
 
 @UseGuards(JwtAuthGuard, ApiKeyGuard, RolesGuard)
 @Controller('v2/salary/deduction')
@@ -18,7 +19,7 @@ export class DeductionController {
   @UseGuards(LoggerGuard)
   @Roles(RoleEnum.SUPPER_ADMIN, RoleEnum.CAMP_ACCOUNTING)
   @Post('/multiple/creation')
-  create(@Body() createDeductionDto: CreateDeductionDto | CreateMultipleAbsentDto) {
+  create(@Body() createDeductionDto: CreateManyDeductionDto) {
     return this.deductionService.create(createDeductionDto);
   }
 
@@ -42,7 +43,7 @@ export class DeductionController {
 
   @Roles(RoleEnum.SUPPER_ADMIN, RoleEnum.CAMP_ACCOUNTING)
   @Post('/multiple/deletion')
-  remove(@Body() body: DeleteMultipleDeductionDto) {
+  remove(@Body() body: RemoveManyDeductionDto) {
     return this.deductionService.removeMany(body);
   }
 }

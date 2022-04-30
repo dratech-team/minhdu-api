@@ -1,9 +1,9 @@
 import {OmitType, PartialType} from "@nestjs/mapped-types";
-import {CreateMultipleOvertimeDto} from "./create-multiple-overtime.dto";
+import {CreateManyAbsentDto} from "./create-many-absent.dto";
 import {IsArray, IsNotEmpty, IsNumber} from "class-validator";
 import {Type} from "class-transformer";
 
-export class UpdateMultipleOvertimeDto extends PartialType(OmitType(CreateMultipleOvertimeDto, ["payrollIds"])) {
+export class UpdateManyAbsentDto extends PartialType(OmitType(CreateManyAbsentDto, ["payrollIds"])) {
   @IsNotEmpty()
   @IsArray()
   @IsNumber({}, {each: true})

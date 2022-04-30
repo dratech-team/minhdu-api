@@ -13,16 +13,10 @@ export class CreateDeductionDto {
   @Type(() => Number)
   readonly price: number;
 
-  @IsOptional()
-  @IsNumber()
-  @Type(() => Number)
-  readonly settingId: number;
-
   @IsNotEmpty()
   @IsNumber({}, {each: true})
-  @IsArray()
   @Type(() => Number)
-  readonly payrollIds: number[];
+  readonly payrollId: number;
 
   @IsNotEmpty()
   @IsNumber({}, {each: true})

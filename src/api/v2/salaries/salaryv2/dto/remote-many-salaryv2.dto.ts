@@ -1,4 +1,5 @@
 import {DeleteMultipleSalaryDto} from "../../base/dto/delete-multiple-salary.dto";
 
-export class DeleteMultipleAllowanceDto extends DeleteMultipleSalaryDto {
+export class RemoteManySalaryv2Dto extends DeleteMultipleSalaryDto {
+
 }

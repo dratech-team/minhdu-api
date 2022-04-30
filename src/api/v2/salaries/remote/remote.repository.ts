@@ -1,14 +1,14 @@
 import {BadRequestException, Injectable} from "@nestjs/common";
 import {PrismaService} from "../../../../prisma.service";
 import {RemoteEntity} from "./entities/remote.entity";
-import {RemoveManyRemoteDto} from "./dto";
+import {CreateRemoteDto, RemoveManyRemoteDto} from "./dto";
 
 @Injectable()
 export class RemoteRepository {
   constructor(private readonly prisma: PrismaService) {
   }
 
-  async createMany(body: RemoteEntity[]) {
+  async createMany(body: CreateRemoteDto[]) {
     try {
       return await this.prisma.remoteSalary.createMany({data: body});
     } catch (err) {

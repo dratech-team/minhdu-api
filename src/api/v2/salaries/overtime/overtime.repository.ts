@@ -2,10 +2,10 @@ import {OvertimeSalary} from "@prisma/client";
 import {BaseRepository} from "../../../../common/repository/base.repository";
 import {BadRequestException, Injectable} from "@nestjs/common";
 import {PrismaService} from "../../../../prisma.service";
-import {CreateMultipleOvertimeDto} from "./dto/create-multiple-overtime.dto";
+import {CreateManyOvertimeDto} from "./dto/create-many-overtime.dto";
 import {UpdateOvertimeDto} from "./dto/update-overtime.dto";
 import {CreateOvertimeDto} from "./dto/create-overtime.dto";
-import {DeleteMultipleOvertimeDto} from "./dto/delete-multiple-overtime.dto";
+import {RemoveManyOvertimeDto} from "./dto/remove-many-overtime.dto";
 
 @Injectable()
 export class OvertimeRepository extends BaseRepository<OvertimeSalary, any> {
@@ -13,7 +13,7 @@ export class OvertimeRepository extends BaseRepository<OvertimeSalary, any> {
     super();
   }
 
-  async create(body: CreateMultipleOvertimeDto) {
+  async create(body: CreateManyOvertimeDto) {
     try {
       return 'This action adds a new overtime';
     } catch (err) {
@@ -79,7 +79,7 @@ export class OvertimeRepository extends BaseRepository<OvertimeSalary, any> {
     }
   }
 
-  async removeMany(body: DeleteMultipleOvertimeDto) {
+  async removeMany(body: RemoveManyOvertimeDto) {
     try {
       return await this.prisma.overtimeSalary.deleteMany({where: {id: {in: body.salaryIds}}});
     } catch (err) {

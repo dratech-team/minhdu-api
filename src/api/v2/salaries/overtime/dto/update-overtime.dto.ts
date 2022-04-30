@@ -1,4 +1,4 @@
 import { PartialType } from '@nestjs/mapped-types';
-import { CreateMultipleOvertimeDto } from './create-multiple-overtime.dto';
+import { CreateManyOvertimeDto } from './create-many-overtime.dto';
 
-export class UpdateOvertimeDto extends PartialType(CreateMultipleOvertimeDto) {}
+export class UpdateOvertimeDto extends PartialType(CreateManyOvertimeDto) {}

@@ -1,13 +1,13 @@
 import {PrismaService} from "../../../../prisma.service";
 import {BadRequestException, Injectable} from "@nestjs/common";
-import {CreateMultipleDeductionDto, DeleteMultipleDeductionDto} from "./dto";
+import {CreateDeductionDto, CreateManyDeductionDto, RemoveManyDeductionDto} from "./dto";
 
 @Injectable()
 export class DeductionRepository {
   constructor(private readonly prisma: PrismaService) {
   }
 
-  async createMany(body: CreateMultipleDeductionDto[]) {
+  async createMany(body: CreateDeductionDto[]) {
     try {
       return await this.prisma.deductionSalary.createMany({data: body});
     } catch (err) {
@@ -34,7 +34,7 @@ export class DeductionRepository {
     }
   }
 
-  async updateMany(ids: number[], body: CreateMultipleDeductionDto) {
+  async updateMany(ids: number[], body: CreateDeductionDto) {
     try {
       return await this.prisma.deductionSalary.updateMany({where: {id: {in: ids}}, data: body});
     } catch (err) {
@@ -43,7 +43,7 @@ export class DeductionRepository {
     }
   }
 
-  async removeMany(body: DeleteMultipleDeductionDto) {
+  async removeMany(body: RemoveManyDeductionDto) {
     try {
       return await this.prisma.deductionSalary.deleteMany({where: {id: {in: body.salaryIds}}});
     } catch (err) {

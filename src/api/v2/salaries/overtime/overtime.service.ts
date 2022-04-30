@@ -1,10 +1,10 @@
 import {Injectable} from '@nestjs/common';
-import {CreateMultipleOvertimeDto} from './dto/create-multiple-overtime.dto';
+import {CreateManyOvertimeDto} from './dto/create-many-overtime.dto';
 import {UpdateOvertimeDto} from './dto/update-overtime.dto';
 import {OvertimeRepository} from "./overtime.repository";
 import {CreateOvertimeDto} from "./dto/create-overtime.dto";
-import {DeleteMultipleOvertimeDto} from "./dto/delete-multiple-overtime.dto";
-import {UpdateMultipleOvertimeDto} from "./dto/update-multiple-overtime.dto";
+import {RemoveManyOvertimeDto} from "./dto/remove-many-overtime.dto";
+import {UpdateManyOvertimeDto} from "./dto/update-many-overtime.dto";
 import {SalarySettingsService} from "../../settings/salary/salary-settings.service";
 import {DatetimeUnit} from '@prisma/client';
 import {crudManyResponse} from "../base/functions/response.function";
@@ -18,11 +18,11 @@ export class OvertimeService {
   ) {
   }
 
-  async create(body: CreateMultipleOvertimeDto) {
+  async create(body: CreateManyOvertimeDto) {
     return this.repository.create(body);
   }
 
-  async createMany(body: CreateMultipleOvertimeDto) {
+  async createMany(body: CreateManyOvertimeDto) {
     const overtimes = await Promise.all(body.payrollIds.map(async payrollId => {
       return await this.mapToOvertime(Object.assign(_.omit(body, "payrollIds"), {payrollId}));
     })) as CreateOvertimeDto[];
@@ -42,7 +42,7 @@ export class OvertimeService {
     return this.repository.update(id, body);
   }
 
-  async updateMany(body: UpdateMultipleOvertimeDto) {
+  async updateMany(body: UpdateManyOvertimeDto) {
     const {count} = await this.repository.updateMany(body.salaryIds, await this.mapToOvertime(body));
     return crudManyResponse(count, "updation");
   }
@@ -51,7 +51,7 @@ export class OvertimeService {
     return this.repository.remove(id);
   }
 
-  async removeMany(body: DeleteMultipleOvertimeDto) {
+  async removeMany(body: RemoveManyOvertimeDto) {
     const {count} = await this.repository.removeMany(body);
     return crudManyResponse(count, "deletion");
   }
