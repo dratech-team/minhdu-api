@@ -10,7 +10,7 @@ import {EmployeeService} from "../employee/employee.service";
 import {SearchPayrollDto} from "./dto/search-payroll.dto";
 import {FilterTypeEnum} from "./entities/filter-type.enum";
 import {timesheet} from "./functions/timesheet";
-import {AllowanceSalary, PartialDay} from "@prisma/client";
+import {AllowanceSalary, PartialDay, SalaryType, Salaryv2} from "@prisma/client";
 import {OnePayroll} from "./entities/payroll.entity";
 import {OvertimePayslipsEntity, SettingPayslipsEntity} from "./entities/payslips";
 import {AbsentEntity} from "./entities/absent.entity";
@@ -103,6 +103,14 @@ export class PayrollServicev2 {
     // const totalOvertime = this.
   }
 
+  private totalSalary(salaries: Salaryv2[]) {
+    return salaries.filter(salary => salary.type === SalaryType.BASIC_INSURANCE).map(salary => salary.price * salary.rate).reduce((a, b) => a + b, 0);
+  }
+
+  private totalAllowance(allowances: AllowanceSalary[]): number {
+    return allowances.map(allowance => allowance.price * allowance.rate).reduce((a, b) => a + b, 0);
+  }
+
   private totalAbsent(absents: AbsentEntity[]): number {
     return absents.map(absent => {
       const settings = this.totalSetting(Object.assign(absent.setting, {
@@ -124,11 +132,6 @@ export class PayrollServicev2 {
     // return deductions.map(deduction => {
     //   deduction.
     // })
-  }
-
-
-  private totalAllowance(allowances: AllowanceSalary[]): number {
-    return allowances.map(allowance => allowance.price * allowance.rate).reduce((a, b) => a + b, 0);
   }
 
   private totalOvertime(overtimes: OvertimePayslipsEntity): number {
