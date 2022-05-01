@@ -8,7 +8,6 @@ import {SearchPayrollDto} from "./dto/search-payroll.dto";
 import {UpdatePayrollDto} from "./dto/update-payroll.dto";
 import {CreateSalaryDto} from "../salaries/salary/dto/create-salary.dto";
 import * as moment from "moment";
-import {Promise} from "es6-promise";
 import {FilterTypeEnum} from "./entities/filter-type.enum";
 import {SearchSalaryDto} from "./dto/search-salary.dto";
 import {OrderbyEmployeeEnum} from "../employee/enums/orderby-employee.enum";
@@ -193,7 +192,7 @@ export class PayrollRepository {
             deductions: true,
             absents: true,
             overtimes: true,
-            allownaces: true,
+            allowances: true,
             remotes: true,
             employee: {
               include: {
@@ -340,7 +339,7 @@ export class PayrollRepository {
     }
   }
 
-  async findOne(id: number) {
+  async findOne(id: number){
     try {
       const payroll = await this.prisma.payroll.findUnique({
         where: {id: id},
@@ -355,7 +354,7 @@ export class PayrollRepository {
           deductions: true,
           remotes: true,
           overtimes: true,
-          allownaces: true,
+          allowances: true,
           employee: {
             include: {
               contracts: true,

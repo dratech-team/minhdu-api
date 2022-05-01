@@ -620,7 +620,7 @@ model Payroll {
   absents        AbsentSalary[]
   deductions     DeductionSalary[]
   remotes        RemoteSalary[]
-  allownaces     AllowanceSalary[]
+  allowances     AllowanceSalary[]
   overtimes      OvertimeSalary[]
 }
 

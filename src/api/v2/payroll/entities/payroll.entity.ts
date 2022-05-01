@@ -19,6 +19,7 @@ export interface FullPayroll extends Payroll {
 
 export type OnePayroll = Payroll
   & { employee: OneEmployee }
+  & { payrollIds: number[] }
   & {
   salaries: FullSalary[],
   salariesv2: Salaryv2[],

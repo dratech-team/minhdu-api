@@ -1,4 +1,3 @@
-import { IProfile } from "./profile.interface";
 
 export interface IAppHeaderRequest extends Headers {
   "x-api-key": string;
@@ -6,7 +5,7 @@ export interface IAppHeaderRequest extends Headers {
 }
 
 export interface IAppRequest extends Request {
-  user: IProfile;
+  user: any;
   route?: {
     path?: string;
   };

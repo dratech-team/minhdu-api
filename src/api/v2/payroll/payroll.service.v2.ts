@@ -1,4 +1,4 @@
-import {BadRequestException, Injectable} from "@nestjs/common";
+import {Injectable} from "@nestjs/common";
 import {PayrollRepository} from "./payroll.repository";
 import {ProfileEntity} from "../../../common/entities/profile.entity";
 import {CreatePayrollDto} from "./dto/create-payroll.dto";
@@ -14,10 +14,8 @@ import {OnePayroll} from "./entities/payroll.entity";
 import {OvertimePayslipsEntity, SettingPayslipsEntity} from "./entities/payslips";
 import {AbsentEntity} from "./entities/absent.entity";
 import {DeductionEntity} from "../salaries/deduction/entities";
-import * as Moment from "moment";
-import {extendMoment} from "moment-range";
-
-const moment = extendMoment(Moment);
+import * as _ from "lodash";
+import * as dateFns from 'date-fns';
 
 @Injectable()
 export class PayrollServicev2 {
@@ -66,14 +64,14 @@ export class PayrollServicev2 {
 
       return {
         status: 201,
-        message: `Đã tự động tạo phiếu lương tháng ${moment(body.createdAt).format("MM/YYYY")} cho ${createds.length} nhân viên`,
+        message: `Đã tự động tạo phiếu lương tháng ${body.createdAt} cho ${createds.length} nhân viên`,
       };
     } else {
       // Tạo 1
       const employee = await this.employeeService.findOne(body.employeeId);
-      if (moment(employee.createdAt).isAfter(body.createdAt)) {
-        throw new BadRequestException(`Không được tạo phiếu lương trước ngày nhân viên vào làm. Xin cảm ơn`);
-      }
+      // if (moment(employee.createdAt).isAfter(body.createdAt)) {
+      //   throw new BadRequestException(`Không được tạo phiếu lương trước ngày nhân viên vào làm. Xin cảm ơn`);
+      // }
       return await this.repository.create(Object.assign(body, {
         employeeId: employee.id,
         branch: employee.branch,
@@ -104,11 +102,12 @@ export class PayrollServicev2 {
 
   async findOne(id: number) {
     const found = await this.repository.findOne(id);
-    // this.totalSalaryCTL(found);
+    const payroll = _.omit(found, "payrollIds");
+    this.totalSalaryCTL(payroll as any);
   }
 
   private totalSalaryCTL(payroll: OnePayroll) {
-    const allowance = this.totalAllowance(payroll.allowances);
+    const allowance = this.totalAllowance(payroll.allowances, payroll.absents);
   }
 
   // Những khoảng cố định. Không ràng buộc bởi ngày công thực tế. Bao gồm lương cơ bản và phụ cấp lương (phụ cấp ở lại)
@@ -121,11 +120,19 @@ export class PayrollServicev2 {
     }).reduce((a, b) => a + b, 0);
   }
 
-  private totalAllowance(allowances: AllowanceSalary[]): number {
-    return allowances.map(allowance => {
+  private totalAllowance(allowances: AllowanceSalary[], absents?: AbsentEntity[]): number {
+    // const absentRange = _.flattenDeep(absents?.map(absent => Array.from(moment().range(absent.startedAt, absent.endedAt).by("days"))));
+    const eachDayOfInterval = _.flattenDeep(allowances.map(allowance => {
+      return dateFns.eachDayOfInterval({
+        start: allowance.startedAt,
+        end: allowance.endedAt
+      });
+    }));
+
+
+
+    return allowances?.map(allowance => {
       if (allowance.inOffice) {
-        const range = moment().range(allowance.startedAt, allowance.endedAt).by("days");
-        console.log(range);
       } else if (allowance.isWorkday) {
 
       } else {
