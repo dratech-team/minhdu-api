@@ -5,6 +5,7 @@ import {OvertimeEntity} from "../../salaries/overtime/entities";
 import {DeductionEntity} from "../../salaries/deduction/entities";
 import {AllowanceEntity} from "../../salaries/allowance/entities";
 import {OneEmployee} from "../../employee/entities/employee.entity";
+import {RemoteEntity} from "../../salaries/remote/entities/remote.entity";
 
 export type RangeDateTime = { start: Date; end: Date };
 
@@ -27,4 +28,5 @@ export type OnePayroll = Payroll
   deductions: DeductionEntity[],
   allowances: AllowanceEntity[],
   overtimes: OvertimeEntity[],
+  remotes: RemoteEntity[],
 };

@@ -9,13 +9,14 @@ import {EmployeeService} from "../employee/employee.service";
 import {SearchPayrollDto} from "./dto/search-payroll.dto";
 import {FilterTypeEnum} from "./entities/filter-type.enum";
 import {timesheet} from "./functions/timesheet";
-import {AllowanceSalary, PartialDay, SalaryType, Salaryv2} from "@prisma/client";
+import {PartialDay, SalaryType, Salaryv2} from "@prisma/client";
 import {OnePayroll} from "./entities/payroll.entity";
 import {OvertimePayslipsEntity, SettingPayslipsEntity} from "./entities/payslips";
 import {AbsentEntity} from "./entities/absent.entity";
 import {DeductionEntity} from "../salaries/deduction/entities";
 import * as _ from "lodash";
 import * as dateFns from 'date-fns';
+import {uniqDatetime} from "./functions/uniqDatetime";
 
 @Injectable()
 export class PayrollServicev2 {
@@ -107,7 +108,7 @@ export class PayrollServicev2 {
   }
 
   private totalSalaryCTL(payroll: OnePayroll) {
-    const allowance = this.totalAllowance(payroll.allowances, payroll.absents);
+    const allowance = this.totalAllowance(payroll);
   }
 
   // Những khoảng cố định. Không ràng buộc bởi ngày công thực tế. Bao gồm lương cơ bản và phụ cấp lương (phụ cấp ở lại)
@@ -120,19 +121,26 @@ export class PayrollServicev2 {
     }).reduce((a, b) => a + b, 0);
   }
 
-  private totalAllowance(allowances: AllowanceSalary[], absents?: AbsentEntity[]): number {
-    // const absentRange = _.flattenDeep(absents?.map(absent => Array.from(moment().range(absent.startedAt, absent.endedAt).by("days"))));
-    const eachDayOfInterval = _.flattenDeep(allowances.map(allowance => {
-      return dateFns.eachDayOfInterval({
-        start: allowance.startedAt,
-        end: allowance.endedAt
-      });
-    }));
+  private totalAllowance(payroll: OnePayroll): number {
+    const absentRange = uniqDatetime(_.flattenDeep(payroll.absents?.map(absent => dateFns.eachDayOfInterval({
+      start: absent.startedAt,
+      end: absent.endedAt
+    }))));
+    const allowanceRange = uniqDatetime(_.flattenDeep(payroll.allowances?.map(allowance => dateFns.eachDayOfInterval({
+      start: allowance.startedAt,
+      end: allowance.endedAt
+    }))));
+    const officeRange = uniqDatetime(_.flattenDeep(payroll.remotes?.map(allowance => dateFns.eachDayOfInterval({
+      start: allowance.startedAt,
+      end: allowance.endedAt
+    }))));
 
-
-
-    return allowances?.map(allowance => {
+    return payroll.allowances?.map(allowance => {
       if (allowance.inOffice) {
+       const a = _.dropWhile(allowanceRange, function (o) {
+          return officeRange.map(date => date.getTime()).includes(o.getTime());
+        });
+       console.log(a)
       } else if (allowance.isWorkday) {
 
       } else {
@@ -167,14 +175,15 @@ export class PayrollServicev2 {
 
   private totalOvertime(overtimes: OvertimePayslipsEntity): number {
     return overtimes.map(overtime => {
-      const allowances = this.totalAllowance(overtime.allowances);
+      // const allowances = this.totalAllowance(overtime);
       const settings = this.totalSetting(
         Object.assign(overtime.setting, {
           workday: overtime.setting.workday,
           salaries: overtimes.salaries
         }) as SettingPayslipsEntity
       );
-      return allowances + settings;
+      // return allowances + settings;
+      return settings;
     }).reduce((a, b) => a + b, 0);
   }
 
