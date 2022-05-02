@@ -339,7 +339,7 @@ export class PayrollRepository {
     }
   }
 
-  async findOne(id: number){
+  async findOne(id: number) {
     try {
       const payroll = await this.prisma.payroll.findUnique({
         where: {id: id},
@@ -455,14 +455,19 @@ export class PayrollRepository {
     }
   }
 
-  async remove(id: number) {
+  async remove(profile: ProfileEntity, id: number) {
     try {
+      const acc = await this.prisma.account.findUnique({where: {id: profile.id}});
       const found = await this.prisma.payroll.findUnique({where: {id}, include: {salaries: true}});
       if (found.accConfirmedAt && !found.isEdit) {
         throw new BadRequestException("Phiếu lương đã xác nhận, bạn không được phép xóa");
       }
+
       if (found.salaries?.length) {
-        return await this.prisma.payroll.update({where: {id: id}, data: {deletedAt: new Date()}});
+        return await this.prisma.payroll.update({
+          where: {id: id},
+          data: {deletedAt: new Date(), deleteBy: acc.username}
+        });
       } else {
         return await this.prisma.payroll.delete({where: {id}});
       }
