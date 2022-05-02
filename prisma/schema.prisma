@@ -556,7 +556,7 @@ model AllowanceSalary {
   id         Int             @id @default(autoincrement())
   title      String
   price      Float
-  isWorkday  Boolean         @default(true) // Dựa vào ngày công thực tế
+  inWorkday  Boolean         @default(true) // Dựa vào ngày công thực tế
   inOffice   Boolean         @default(true) // Chỉ tính những ngày làm tại văn phòng. Không tính các ngày onsite/remote/wfh
   startedAt  DateTime?
   endedAt    DateTime?

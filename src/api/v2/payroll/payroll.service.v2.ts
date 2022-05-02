@@ -16,7 +16,7 @@ import {AbsentEntity} from "./entities/absent.entity";
 import {DeductionEntity} from "../salaries/deduction/entities";
 import * as _ from "lodash";
 import * as dateFns from 'date-fns';
-import {uniqDatetime} from "./functions/uniqDatetime";
+import {AllowanceEntity} from "../salaries/allowance/entities";
 
 @Injectable()
 export class PayrollServicev2 {
@@ -123,32 +123,32 @@ export class PayrollServicev2 {
   }
 
   private totalAllowance(payroll: OnePayroll): number {
-    const absentRange = uniqDatetime(_.flattenDeep(payroll.absents?.map(absent => dateFns.eachDayOfInterval({
-      start: absent.startedAt,
-      end: absent.endedAt
-    }))));
-    const allowanceRange = uniqDatetime(_.flattenDeep(payroll.allowances?.map(allowance => dateFns.eachDayOfInterval({
-      start: allowance.startedAt,
-      end: allowance.endedAt
-    }))));
-    const officeRange = uniqDatetime(_.flattenDeep(payroll.remotes?.map(allowance => dateFns.eachDayOfInterval({
-      start: allowance.startedAt,
-      end: allowance.endedAt
-    }))));
+    const allowances: Array<AllowanceEntity & { datetime: Date }> = [];
+    // const absentRange = uniqDatetime(_.flattenDeep(payroll.absents?.map(absent => dateFns.eachDayOfInterval({
+    //   start: absent.startedAt,
+    //   end: absent.endedAt
+    // }))));
 
-    return payroll.allowances?.map(allowance => {
-      if (allowance.inOffice) {
-        const a = _.dropWhile(allowanceRange, function (o) {
-          return officeRange.map(date => date.getTime()).includes(o.getTime());
-        });
-        console.log(a)
-      } else if (allowance.isWorkday) {
-
-      } else {
-
+    _.flattenDeep(payroll.allowances?.map(allowance => {
+      const datetimes = dateFns.eachDayOfInterval({
+        start: allowance.startedAt,
+        end: allowance.endedAt
+      });
+      for (let i = 0; i < datetimes.length; i++) {
+        const exist = allowances.map(allowance => allowance.datetime.getTime()).includes(datetimes[i].getTime());
+        if (!exist) {
+          allowances.push(Object.assign({}, allowance, {datetime: datetimes[i]}));
+        }
       }
-      return allowance.price * allowance.rate;
-    }).reduce((a, b) => a + b, 0);
+    }));
+
+    // console.log(allowanceRange);
+    // console.log(uniqAllowance);
+    // const officeRange = uniqDatetime(_.flattenDeep(payroll.remotes?.map(allowance => dateFns.eachDayOfInterval({
+    //   start: allowance.startedAt,
+    //   end: allowance.endedAt
+    // }))));
+    return 0;
   }
 
   private totalAbsent(absents: AbsentEntity[]): number {

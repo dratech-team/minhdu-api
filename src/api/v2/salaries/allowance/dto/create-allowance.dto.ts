@@ -25,7 +25,7 @@ export class CreateAllowanceDto {
   @IsNotEmpty()
   @IsNumber()
   @Type(() => Boolean)
-  readonly isWorkday: boolean;
+  readonly inWorkday: boolean;
 
   @IsNotEmpty()
   @IsNumber()

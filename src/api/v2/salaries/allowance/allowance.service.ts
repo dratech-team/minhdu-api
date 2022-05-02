@@ -38,7 +38,7 @@ export class AllowanceService {
       payrollId: body.payrollId,
       branchId: body?.branchId,
       rate: body.rate,
-      isWorkday: body.isWorkday,
+      inWorkday: body.inWorkday,
       inOffice: body.inOffice,
       startedAt: body.startedAt,
       ended: body.endedAt,
