@@ -105,6 +105,7 @@ export class PayrollServicev2 {
     const found = await this.repository.findOne(id);
     const payroll = _.omit(found, "payrollIds");
     this.totalSalaryCTL(payroll as any);
+    return found;
   }
 
   private totalSalaryCTL(payroll: OnePayroll) {
@@ -137,10 +138,10 @@ export class PayrollServicev2 {
 
     return payroll.allowances?.map(allowance => {
       if (allowance.inOffice) {
-       const a = _.dropWhile(allowanceRange, function (o) {
+        const a = _.dropWhile(allowanceRange, function (o) {
           return officeRange.map(date => date.getTime()).includes(o.getTime());
         });
-       console.log(a)
+        console.log(a)
       } else if (allowance.isWorkday) {
 
       } else {
