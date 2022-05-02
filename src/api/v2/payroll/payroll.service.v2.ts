@@ -9,14 +9,22 @@ import {EmployeeService} from "../employee/employee.service";
 import {SearchPayrollDto} from "./dto/search-payroll.dto";
 import {FilterTypeEnum} from "./entities/filter-type.enum";
 import {timesheet} from "./functions/timesheet";
-import {PartialDay, SalaryType, Salaryv2} from "@prisma/client";
+import {AllowanceSalary, PartialDay, SalaryType} from "@prisma/client";
 import {OnePayroll} from "./entities/payroll.entity";
-import {OvertimePayslipsEntity, SettingPayslipsEntity} from "./entities/payslips";
-import {AbsentEntity} from "./entities/absent.entity";
-import {DeductionEntity} from "../salaries/deduction/entities";
+import {SettingPayslipsEntity} from "./entities/payslips";
 import * as _ from "lodash";
 import * as dateFns from 'date-fns';
 import {AllowanceEntity} from "../salaries/allowance/entities";
+import {uniqDatetime} from "./functions/uniqDatetime";
+
+type AllowanceType = AllowanceEntity & { datetime: Date };
+type HandleAllowancetype = {
+  readonly allowancesInWorkday: AllowanceType[];
+  readonly allowancesInOffice: AllowanceType[];
+  readonly allowancesInWorkdayAndOffice: AllowanceType[];
+  readonly allowances: AllowanceType[];
+};
+
 
 @Injectable()
 export class PayrollServicev2 {
@@ -109,13 +117,17 @@ export class PayrollServicev2 {
   }
 
   private totalSalaryCTL(payroll: OnePayroll) {
+    const salary = this.totalSalary(payroll);
     const allowance = this.totalAllowance(payroll);
+    const absent = this.totalAbsent(payroll);
+    const overtime = this.totalOvertime(payroll);
+    const deduction = this.totalDeduction(payroll);
   }
 
   // Những khoảng cố định. Không ràng buộc bởi ngày công thực tế. Bao gồm lương cơ bản và phụ cấp lương (phụ cấp ở lại)
-  private totalSalary(salaries: Salaryv2[], taxed?: boolean) {
-    return salaries.filter(salary => salary.type === SalaryType.BASIC_INSURANCE).map(salary => {
-      if (!taxed && salary.type === SalaryType.BASIC_INSURANCE) {
+  private totalSalary(payroll: OnePayroll) {
+    return payroll.salaries.filter(salary => salary.type === SalaryType.BASIC_INSURANCE).map(salary => {
+      if (!payroll.taxed && salary.type === SalaryType.BASIC_INSURANCE) {
         return salary.price * 1;
       }
       return salary.price * salary.rate;
@@ -123,68 +135,56 @@ export class PayrollServicev2 {
   }
 
   private totalAllowance(payroll: OnePayroll): number {
-    const allowances: Array<AllowanceEntity & { datetime: Date }> = [];
-    // const absentRange = uniqDatetime(_.flattenDeep(payroll.absents?.map(absent => dateFns.eachDayOfInterval({
-    //   start: absent.startedAt,
-    //   end: absent.endedAt
-    // }))));
-
-    _.flattenDeep(payroll.allowances?.map(allowance => {
-      const datetimes = dateFns.eachDayOfInterval({
-        start: allowance.startedAt,
-        end: allowance.endedAt
-      });
-      for (let i = 0; i < datetimes.length; i++) {
-        const exist = allowances.map(allowance => allowance.datetime.getTime()).includes(datetimes[i].getTime());
-        if (!exist) {
-          allowances.push(Object.assign({}, allowance, {datetime: datetimes[i]}));
-        }
-      }
-    }));
-
-    // console.log(allowanceRange);
-    // console.log(uniqAllowance);
-    // const officeRange = uniqDatetime(_.flattenDeep(payroll.remotes?.map(allowance => dateFns.eachDayOfInterval({
-    //   start: allowance.startedAt,
-    //   end: allowance.endedAt
-    // }))));
-    return 0;
-  }
-
-  private totalAbsent(absents: AbsentEntity[]): number {
-    return absents.map(absent => {
-      const settings = this.totalSetting(Object.assign(absent.setting, {
-        workday: absent.setting.workday,
-        salaries: absent.salaries
-      }) as SettingPayslipsEntity);
-      if (absent.partial === PartialDay.ALL_DAY) {
-
-      } else if (absent.partial === PartialDay.MORNING || absent.partial === PartialDay.AFTERNOON) {
-
-      } else {
-
-      }
-      return settings;
+    return payroll.allowances?.map(allowance => {
+      const a = this.handleAllowance(allowance, payroll);
+      return this.allowanceReduce(a.allowancesInWorkday) + this.allowanceReduce(a.allowancesInOffice) + this.allowanceReduce(a.allowancesInWorkdayAndOffice) + this.allowanceReduce(a.allowances);
     }).reduce((a, b) => a + b, 0);
   }
 
-  private totalDeduction(deductions: DeductionEntity[]) {
-    // return deductions.map(deduction => {
-    //   deduction.
-    // })
+  private totalAbsent(payroll: OnePayroll): number {
+    const allday = [];
+    const partialday = [];
+    const minutes = [];
+
+    return payroll.absents.map(absent => {
+      const setting = this.totalSetting(Object.assign(absent.setting, {
+        workday: absent.setting.workday,
+        salaries: absent.salaries
+      }) as SettingPayslipsEntity);
+
+      const datetimes = dateFns.eachDayOfInterval({
+        start: absent.startedAt,
+        end: absent.endedAt
+      });
+
+      if (absent.partial === PartialDay.ALL_DAY) {
+        // 1 day
+      } else if (absent.partial === PartialDay.MORNING || absent.partial === PartialDay.AFTERNOON) {
+        // 1/2 day
+      } else {
+        // minutes
+      }
+      return setting;
+    }).reduce((a, b) => a + b, 0);
   }
 
-  private totalOvertime(overtimes: OvertimePayslipsEntity): number {
-    return overtimes.map(overtime => {
-      // const allowances = this.totalAllowance(overtime);
-      const settings = this.totalSetting(
+  private totalDeduction(payroll: OnePayroll) {
+    return payroll.deductions.map(deduction => {
+      return deduction.price;
+    }).reduce((a, b) => a + b, 0);
+  }
+
+  private totalOvertime(payroll: OnePayroll): number {
+    return payroll.overtimes.map(overtime => {
+      const allowance = this.allowanceReduce(overtime.allowances);
+      const setting = this.totalSetting(
         Object.assign(overtime.setting, {
           workday: overtime.setting.workday,
-          salaries: overtimes.salaries
+          salaries: payroll.salariesv2
         }) as SettingPayslipsEntity
       );
       // return allowances + settings;
-      return settings;
+      return setting + allowance;
     }).reduce((a, b) => a + b, 0);
   }
 
@@ -194,5 +194,64 @@ export class PayrollServicev2 {
     }).reduce((a, b) => a + b, 0) + setting.prices?.reduce((a, b) => a + b, 0);
 
     return totalOf / setting.workday;
+  }
+
+  private allowanceReduce(allowance: Array<AllowanceEntity | AllowanceSalary>) {
+    return allowance.map(allowance => allowance.price * allowance.rate).reduce((a, b) => a + b, 0);
+  }
+
+  private handleAllowance(allowance: AllowanceEntity, payroll: OnePayroll): HandleAllowancetype {
+    const allowancesInWorkday: Array<AllowanceType> = [];
+    const allowancesInOffice: Array<AllowanceType> = [];
+    const allowancesInWorkdayAndOffice: Array<AllowanceType> = [];
+    const allowances: Array<AllowanceType> = [];
+
+    const absentRange = uniqDatetime(_.flattenDeep(payroll.absents?.map(absent => dateFns.eachDayOfInterval({
+      start: absent.startedAt,
+      end: absent.endedAt
+    })))).map(datetime => datetime.getTime());
+
+    const remoteRange = uniqDatetime(_.flattenDeep(payroll.remotes?.map(remote => dateFns.eachDayOfInterval({
+      start: remote.startedAt,
+      end: remote.endedAt
+    })))).map(datetime => datetime.getTime());
+
+    const datetimes = dateFns.eachDayOfInterval({
+      start: allowance.startedAt,
+      end: allowance.endedAt
+    });
+
+    datetimes.forEach(datetime => {
+      const exist = (allowance.inWorkday ? allowancesInWorkday : allowance.inOffice ? allowancesInOffice : allowances)
+        .map(allowance => allowance.datetime.getTime()).includes(datetime.getTime());
+
+      if (!exist) {
+        if (allowance.inWorkday) {
+          if (!absentRange.includes(datetime.getTime())) {
+            allowancesInWorkday.push(Object.assign({}, allowance, {datetime: datetime}));
+          }
+        } else if (allowance.inOffice) {
+          if (!remoteRange.includes(datetime.getTime())) {
+            allowancesInOffice.push(Object.assign({}, allowance, {datetime: datetime}));
+          }
+        } else if (allowance.inWorkday && allowance.inOffice) {
+          if (!remoteRange.includes(datetime.getTime()) && !absentRange.includes(datetime.getTime())) {
+            allowancesInWorkdayAndOffice.push(Object.assign({}, allowance, {datetime: datetime}));
+          }
+        } else {
+          allowances.push(Object.assign({}, allowance, {datetime: datetime}));
+        }
+      }
+    });
+    return {
+      allowancesInWorkday,
+      allowancesInOffice,
+      allowancesInWorkdayAndOffice,
+      allowances,
+    };
+  }
+
+  private mapToPayroll(body) {
+
   }
 }

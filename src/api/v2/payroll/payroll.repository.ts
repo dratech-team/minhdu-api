@@ -81,6 +81,10 @@ export class PayrollRepository {
     }
   }
 
+  async createMany() {
+
+  }
+
   /// tạo ngày lễ cho phiếu lương đó
   async generateHoliday(payrollId: Payroll["id"], body: Partial<CreateSalaryDto>[]) {
     try {
