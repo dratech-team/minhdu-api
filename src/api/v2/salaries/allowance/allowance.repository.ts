@@ -13,9 +13,9 @@ export class AllowanceRepository extends BaseRepository<AllowanceSalary, any> {
     super();
   }
 
-  create(body: CreateAllowanceDto) {
+  async create(body: CreateAllowanceDto) {
     try {
-      return 'This action adds a new allowance';
+      return await this.prisma.allowanceSalary.createMany({data: body});
     } catch (err) {
       console.error(err);
       throw new BadRequestException(err);
@@ -49,18 +49,23 @@ export class AllowanceRepository extends BaseRepository<AllowanceSalary, any> {
     }
   }
 
-  updateMany(ids: number[], body: CreateAllowanceDto) {
+  async updateMany(ids: number[], body: CreateAllowanceDto) {
     try {
-      return 'This action adds a new allowance';
+      return await this.prisma.allowanceSalary.updateMany({
+        where: {id: {in: ids}},
+        data: body,
+      });
     } catch (err) {
       console.error(err);
       throw new BadRequestException(err);
     }
   }
 
-  remove(body: RemoveManyAllowanceDto) {
+  async remove(body: RemoveManyAllowanceDto) {
     try {
-      return 'This action adds a new allowance';
+      return await this.prisma.allowanceSalary.deleteMany({
+        where: {id: {in: body.salaryIds}}
+      });
     } catch (err) {
       console.error(err);
       throw new BadRequestException(err);

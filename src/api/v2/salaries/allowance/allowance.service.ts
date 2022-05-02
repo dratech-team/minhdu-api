@@ -4,15 +4,17 @@ import {AllowanceRepository} from "./allowance.repository";
 import {RemoveManyAllowanceDto} from "./dto/remove-many-allowance.dto";
 import {CreateManyAllowanceDto} from "./dto/create-many-allowance.dto";
 import {CreateAllowanceDto} from "./dto/create-allowance.dto";
+import {crudManyResponse} from "../base/functions/response.function";
 
 @Injectable()
 export class AllowanceService {
   constructor(private readonly repository: AllowanceRepository) {
   }
 
-  createMany(body: CreateManyAllowanceDto) {
+  async createMany(body: CreateManyAllowanceDto) {
     const salaries = body.payrollIds.map(payrollId => this.mapToAllowance(Object.assign(body, {payrollId})));
-    return this.repository.createMany(salaries);
+    const {count} = await this.repository.createMany(salaries);
+    return crudManyResponse(count, "creation");
   }
 
   findAll() {
@@ -23,12 +25,14 @@ export class AllowanceService {
     return this.repository.findOne(id);
   }
 
-  updateMany(body: UpdateAllowanceDto) {
-    return this.repository.updateMany(body.salaryIds, this.mapToAllowance(body));
+  async updateMany(body: UpdateAllowanceDto) {
+    const {count} = await this.repository.updateMany(body.salaryIds, this.mapToAllowance(body));
+    return crudManyResponse(count, "updation");
   }
 
-  removeMany(body: RemoveManyAllowanceDto) {
-    return this.repository.remove(body);
+  async removeMany(body: RemoveManyAllowanceDto) {
+    const {count} = await this.repository.remove(body);
+    return crudManyResponse(count, "deletion");
   }
 
   private mapToAllowance(body): CreateAllowanceDto {
@@ -41,7 +45,7 @@ export class AllowanceService {
       isWorkday: body.isWorkday,
       inOffice: body.inOffice,
       startedAt: body.startedAt,
-      ended: body.endedAt,
+      endedAt: body.endedAt,
     };
   }
 }

@@ -1,4 +1,4 @@
-import {IsDate, IsNotEmpty, IsNumber, IsOptional, IsString} from "class-validator";
+import {IsBoolean, IsDate, IsNotEmpty, IsNumber, IsOptional, IsString} from "class-validator";
 import {Transform, Type} from "class-transformer";
 import * as moment from "moment";
 
@@ -20,15 +20,15 @@ export class CreateAllowanceDto {
   @IsNotEmpty()
   @IsDate()
   @Transform(({value}) => new Date(moment(value).utc().format('YYYY-MM-DD')))
-  readonly ended: Date;
+  readonly endedAt: Date;
 
   @IsNotEmpty()
-  @IsNumber()
+  @IsBoolean()
   @Type(() => Boolean)
   readonly isWorkday: boolean;
 
   @IsNotEmpty()
-  @IsNumber()
+  @IsBoolean()
   @Type(() => Boolean)
   readonly inOffice: boolean;
 
