@@ -9,7 +9,7 @@ import {EmployeeService} from "../employee/employee.service";
 import {SearchPayrollDto} from "./dto/search-payroll.dto";
 import {FilterTypeEnum} from "./entities/filter-type.enum";
 import {timesheet} from "./functions/timesheet";
-import {AllowanceSalary, PartialDay, SalaryType} from "@prisma/client";
+import {AllowanceSalary, PartialDay, SalaryType, Salaryv2} from "@prisma/client";
 import {OnePayroll} from "./entities/payroll.entity";
 import {SettingPayslipsEntity} from "./entities/payslips";
 import * as _ from "lodash";
@@ -122,11 +122,17 @@ export class PayrollServicev2 {
     const absent = this.totalAbsent(payroll);
     const overtime = this.totalOvertime(payroll);
     const deduction = this.totalDeduction(payroll);
+
+    console.log("salary: ", salary);
+    console.log("allowance: ", allowance);
+    console.log("absent: ", absent);
+    console.log("overtime: ", overtime);
+    console.log("deduction: ", deduction);
   }
 
   // Những khoảng cố định. Không ràng buộc bởi ngày công thực tế. Bao gồm lương cơ bản và phụ cấp lương (phụ cấp ở lại)
   private totalSalary(payroll: OnePayroll) {
-    return payroll.salaries.filter(salary => salary.type === SalaryType.BASIC_INSURANCE).map(salary => {
+    return payroll.salariesv2?.filter(salary => salary.type === SalaryType.BASIC_INSURANCE || salary.type === SalaryType.BASIC || salary.type === SalaryType.STAY).map(salary => {
       if (!payroll.taxed && salary.type === SalaryType.BASIC_INSURANCE) {
         return salary.price * 1;
       }
@@ -145,10 +151,9 @@ export class PayrollServicev2 {
     const allday = [];
     const partialday = [];
     const minutes = [];
-
-    return payroll.absents.map(absent => {
+    return payroll.absents?.map(absent => {
       const setting = this.totalSetting(Object.assign(absent.setting, {
-        workday: absent.setting.workday,
+        workday: absent.setting.workday || payroll.workday,
         salaries: absent.salaries
       }) as SettingPayslipsEntity);
 
@@ -169,17 +174,17 @@ export class PayrollServicev2 {
   }
 
   private totalDeduction(payroll: OnePayroll) {
-    return payroll.deductions.map(deduction => {
+    return payroll.deductions?.map(deduction => {
       return deduction.price;
     }).reduce((a, b) => a + b, 0);
   }
 
   private totalOvertime(payroll: OnePayroll): number {
-    return payroll.overtimes.map(overtime => {
+    return payroll.overtimes?.map(overtime => {
       const allowance = this.allowanceReduce(overtime.allowances);
       const setting = this.totalSetting(
         Object.assign(overtime.setting, {
-          workday: overtime.setting.workday,
+          workday: overtime.setting.workday || payroll.workday,
           salaries: payroll.salariesv2
         }) as SettingPayslipsEntity
       );
@@ -196,8 +201,8 @@ export class PayrollServicev2 {
     return totalOf / setting.workday;
   }
 
-  private allowanceReduce(allowance: Array<AllowanceEntity | AllowanceSalary>) {
-    return allowance.map(allowance => allowance.price * allowance.rate).reduce((a, b) => a + b, 0);
+  private allowanceReduce(allowances: Array<AllowanceEntity | AllowanceSalary>) {
+    return allowances?.map(allowance => allowance.price * allowance.rate)?.reduce((a, b) => a + b, 0);
   }
 
   private handleAllowance(allowance: AllowanceEntity, payroll: OnePayroll): HandleAllowancetype {

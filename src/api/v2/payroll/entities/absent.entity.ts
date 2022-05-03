@@ -1,7 +1,6 @@
-import {AbsentSalary, Salaryv2} from "@prisma/client";
-import {SettingPayslipsEntity} from "./payslips";
+import {AbsentSalary, SalarySetting, Salaryv2} from "@prisma/client";
 
 export interface AbsentEntity extends AbsentSalary {
-  readonly setting: SettingPayslipsEntity;
+  readonly setting: SalarySetting;
   readonly salaries: Salaryv2[];
 }

@@ -62,7 +62,7 @@ export class BranchRepository {
             name: acc?.branches?.length ? {in: acc.branches.map(branch => branch.name)} : {},
           },
           include: {
-            positions: acc.appName === AppEnum.HR,
+            positions: true,
             _count: acc.appName === AppEnum.HR,
             allowances: acc.appName === AppEnum.HR,
             status: true,

@@ -72,8 +72,52 @@ export class EmployeeRepository extends BaseRepository<Employee, any> {
           category: body?.categoryId ? {connect: {id: body.categoryId}} : {}
         },
         include: {
+          degrees: true,
+          contracts: true,
+          relatives: {
+            include: {
+              ward: {
+                include: {
+                  district: {
+                    include: {
+                      province: {
+                        include: {
+                          nation: true,
+                        },
+                      },
+                    },
+                  },
+                },
+              },
+            },
+          },
+          banks: true,
           position: true,
-          branch: true,
+          branch: {
+            include: {
+              positions: true
+            }
+          },
+          ward: {
+            include: {
+              district: {
+                include: {
+                  province: {
+                    include: {
+                      nation: true,
+                    },
+                  },
+                },
+              },
+            },
+          },
+          salaryHistories: true,
+          workHistories: {
+            include: {
+              branch: true,
+              position: true
+            }
+          },
           category: true
         },
       });
@@ -404,10 +448,9 @@ export class EmployeeRepository extends BaseRepository<Employee, any> {
           },
           salaryHistories: true,
           workHistories: {
-            select: {
-              branch: {select: {name: true}},
-              position: {select: {name: true}},
-              createdAt: true
+            include: {
+              branch: true,
+              position: true
             }
           },
           category: true

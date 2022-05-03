@@ -357,7 +357,7 @@ export class PayrollRepository {
           absents: {include: {setting: true}},
           deductions: true,
           remotes: true,
-          overtimes: true,
+          overtimes: {include: {setting: true}},
           allowances: true,
           employee: {
             include: {
