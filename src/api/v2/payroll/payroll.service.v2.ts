@@ -15,7 +15,7 @@ import {SettingPayslipsEntity} from "./entities/payslips";
 import * as _ from "lodash";
 import * as dateFns from 'date-fns';
 
-type AllowanceType = AllowanceSalary & { datetime: Date };
+type AllowanceType = AllowanceSalary & { datetime: Date, duration: number};
 
 @Injectable()
 export class PayrollServicev2 {
@@ -205,35 +205,39 @@ export class PayrollServicev2 {
 
         if (allowance.inWorkday && !allowance.inOffice) {
           if (!absentsTime.includes(datetime.getTime())) {
-            allowances.push(Object.assign({}, allowance, {datetime, partial: 1}));
+            allowances.push(Object.assign({}, allowance, {datetime, duration: 1}));
           } else {
             if (absent && (absent.partial === PartialDay.MORNING || absent.partial === PartialDay.AFTERNOON)) {
-              allowances.push(Object.assign({}, allowance, {datetime, partial: 0.5}));
+              allowances.push(Object.assign({}, allowance, {datetime, duration: 0.5}));
             }
           }
         } else if (!allowance.inWorkday && allowance.inOffice) {
           if (!remotesTime.includes(datetime.getTime())) {
-            allowances.push(Object.assign({}, allowance, {datetime, partial: 1}));
+            allowances.push(Object.assign({}, allowance, {datetime, duration: 1}));
           } else {
             if (remote && (remote.partial === PartialDay.MORNING || remote.partial === PartialDay.AFTERNOON)) {
-              allowances.push(Object.assign({}, allowance, {datetime, partial: 0.5}));
+              allowances.push(Object.assign({}, allowance, {datetime, duration: 0.5}));
             }
           }
         } else if (allowance.inWorkday && allowance.inOffice) {
           if (!absentsTime.includes(datetime.getTime()) && !remotesTime.includes(datetime.getTime())) {
-            allowances.push(Object.assign({}, allowance, {datetime: datetime}));
+            allowances.push(Object.assign({}, allowance, {datetime: datetime, duration: 1}));
           } else {
-            if (remote && (remote.partial === PartialDay.MORNING || remote.partial === PartialDay.AFTERNOON)) {
-              allowances.push(Object.assign({}, allowance, {datetime, partial: 0.5}));
+            if (
+              remote
+              && ((remote.partial === PartialDay.MORNING && absent.partial === PartialDay.MORNING)
+              || (remote.partial === PartialDay.AFTERNOON && absent.partial === PartialDay.AFTERNOON))
+            ) {
+              allowances.push(Object.assign({}, allowance, {datetime, duration: 0.5}));
             }
           }
         } else {
-          allowances.push(Object.assign({}, allowance, {datetime: datetime}));
+          allowances.push(Object.assign({}, allowance, {datetime: datetime, duration: 1}));
         }
       }
     });
     return {
-      duration: allowances.map(allowance => allowance.datetime ? 1 : 0).reduce((a, b) => a + b, 0),
+      duration: allowances.map(allowance => allowance.duration).reduce((a, b) => a + b, 0),
       total: allowances.map(allowance => allowance.price * allowance.rate)?.reduce((a, b) => a + b, 0)
     };
   }
