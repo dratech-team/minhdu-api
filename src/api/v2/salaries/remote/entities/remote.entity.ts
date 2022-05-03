@@ -1,3 +1,5 @@
-import {CreateRemoteDto} from "../dto";
+import {RemoteSalary, SalaryBlock} from "@prisma/client";
 
-export type RemoteEntity = Omit<CreateRemoteDto, "payrollIds"> & { payrollId: number }
+export interface RemoteEntity extends RemoteSalary {
+  readonly block: SalaryBlock;
+}

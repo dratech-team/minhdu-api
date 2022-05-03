@@ -207,7 +207,7 @@ export class PayrollServicev2 {
           if (!absentsTime.includes(datetime.getTime())) {
             allowances.push(Object.assign({}, allowance, {datetime, partial: 1}));
           } else {
-            if (absent.partial === PartialDay.MORNING || absent.partial === PartialDay.AFTERNOON) {
+            if (absent && (absent.partial === PartialDay.MORNING || absent.partial === PartialDay.AFTERNOON)) {
               allowances.push(Object.assign({}, allowance, {datetime, partial: 0.5}));
             }
           }
@@ -215,7 +215,7 @@ export class PayrollServicev2 {
           if (!remotesTime.includes(datetime.getTime())) {
             allowances.push(Object.assign({}, allowance, {datetime, partial: 1}));
           } else {
-            if (remote.partial === PartialDay.MORNING || remote.partial === PartialDay.AFTERNOON) {
+            if (remote && (remote.partial === PartialDay.MORNING || remote.partial === PartialDay.AFTERNOON)) {
               allowances.push(Object.assign({}, allowance, {datetime, partial: 0.5}));
             }
           }
@@ -223,7 +223,7 @@ export class PayrollServicev2 {
           if (!absentsTime.includes(datetime.getTime()) && !remotesTime.includes(datetime.getTime())) {
             allowances.push(Object.assign({}, allowance, {datetime: datetime}));
           } else {
-            if (remote.partial === PartialDay.MORNING || remote.partial === PartialDay.AFTERNOON) {
+            if (remote && (remote.partial === PartialDay.MORNING || remote.partial === PartialDay.AFTERNOON)) {
               allowances.push(Object.assign({}, allowance, {datetime, partial: 0.5}));
             }
           }

@@ -3,6 +3,7 @@ import {CreateRemoteDto, RemoveManyRemoteDto} from './dto';
 import {RemoteRepository} from "./remote.repository";
 import {crudManyResponse} from "../base/functions/response.function";
 import {CreateManyRemoteDto} from "./dto/create-many-remote.dto";
+import {UpdateManyRemoteDto} from "./dto/update-many-remote.dto";
 
 @Injectable()
 export class RemoteService {
@@ -26,7 +27,7 @@ export class RemoteService {
     return this.repository.findOne(id);
   }
 
-  async update(id: number, body: RemoveManyRemoteDto) {
+  async update(id: number, body: UpdateManyRemoteDto) {
     const {count} = await this.repository.updateMany(body.salaryIds, this.mapToRemote(body));
     return crudManyResponse(count, "updation");
   }

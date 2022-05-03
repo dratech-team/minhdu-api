@@ -35,7 +35,7 @@ export class RemoteRepository {
     }
   }
 
-  async updateMany(ids: number[], body: RemoteEntity) {
+  async updateMany(ids: number[], body: CreateRemoteDto) {
     try {
       return await this.prisma.remoteSalary.updateMany({where: {id: {in: ids}}, data: body});
     } catch (err) {

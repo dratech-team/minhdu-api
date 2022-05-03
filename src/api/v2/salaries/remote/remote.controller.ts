@@ -5,6 +5,7 @@ import {ApiKeyGuard, JwtAuthGuard, RolesGuard} from "../../../../core/guard";
 import {Roles} from "../../../../core/decorators/roles.decorator";
 import {RoleEnum} from "@prisma/client";
 import {CreateManyRemoteDto} from "./dto/create-many-remote.dto";
+import {UpdateManyRemoteDto} from "./dto/update-many-remote.dto";
 
 @UseGuards(JwtAuthGuard, ApiKeyGuard, RolesGuard)
 @Controller('v2/salary/remote')
@@ -32,7 +33,7 @@ export class RemoteController {
 
   @Roles(RoleEnum.SUPPER_ADMIN, RoleEnum.ADMIN)
   @Post('/multiple/updation')
-  update(@Param('id') id: string, @Body() updateRemoteDto: RemoveManyRemoteDto) {
+  update(@Param('id') id: string, @Body() updateRemoteDto: UpdateManyRemoteDto) {
     return this.remoteService.update(+id, updateRemoteDto);
   }
 
