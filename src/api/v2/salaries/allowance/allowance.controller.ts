@@ -1,12 +1,14 @@
-import {Body, Controller, Get, Param, Post, UseGuards} from '@nestjs/common';
+import {Body, Controller, Get, Param, Post, Query, UseGuards} from '@nestjs/common';
 import {AllowanceService} from './allowance.service';
-import {CreateAllowanceDto} from './dto/create-allowance.dto';
 import {UpdateAllowanceDto} from './dto/update-allowance.dto';
 import {RemoveManyAllowanceDto} from "./dto/remove-many-allowance.dto";
 import {ApiKeyGuard, JwtAuthGuard, RolesGuard} from "../../../../core/guard";
 import {Roles} from "../../../../core/decorators/roles.decorator";
 import {RoleEnum} from "@prisma/client";
 import {CreateManyAllowanceDto} from "./dto/create-many-allowance.dto";
+import {ReqProfile} from "../../../../core/decorators/req-profile.decorator";
+import {ProfileEntity} from "../../../../common/entities/profile.entity";
+import {SearchAllowanceDto} from "./dto/search-allowance.dto";
 
 @UseGuards(JwtAuthGuard, ApiKeyGuard, RolesGuard)
 @Controller('v2/salary/allowance')
@@ -16,14 +18,14 @@ export class AllowanceController {
 
   @Roles(RoleEnum.SUPPER_ADMIN, RoleEnum.CAMP_ACCOUNTING)
   @Post("multiple/creation")
-  createMany(@Body() body: CreateManyAllowanceDto) {
-    return this.allowanceService.createMany(body);
+  createMany(@ReqProfile() profile: ProfileEntity, @Body() body: CreateManyAllowanceDto) {
+    return this.allowanceService.createMany(profile, body);
   }
 
   @Roles(RoleEnum.SUPPER_ADMIN, RoleEnum.ADMIN, RoleEnum.HUMAN_RESOURCE, RoleEnum.CAMP_ACCOUNTING)
-  @Get()
-  findAll() {
-    return this.allowanceService.findAll();
+  @Get('multiple')
+  findAll(@ReqProfile() profile: ProfileEntity, @Query() search: SearchAllowanceDto) {
+    return this.allowanceService.findAll(profile, search);
   }
 
   @Roles(RoleEnum.SUPPER_ADMIN, RoleEnum.ADMIN, RoleEnum.HUMAN_RESOURCE, RoleEnum.CAMP_ACCOUNTING)

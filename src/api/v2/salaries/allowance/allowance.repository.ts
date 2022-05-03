@@ -3,9 +3,9 @@ import {AllowanceSalary} from "@prisma/client";
 import {BaseRepository} from "../../../../common/repository/base.repository";
 import {PrismaService} from "../../../../prisma.service";
 import {CreateAllowanceDto} from "./dto/create-allowance.dto";
-import {UpdateAllowanceDto} from "./dto/update-allowance.dto";
 import {RemoveManyAllowanceDto} from "./dto/remove-many-allowance.dto";
-import {CreateManyAllowanceDto} from "./dto/create-many-allowance.dto";
+import {ProfileEntity} from "../../../../common/entities/profile.entity";
+import {SearchAllowanceDto} from "./dto/search-allowance.dto";
 
 @Injectable()
 export class AllowanceRepository extends BaseRepository<AllowanceSalary, any> {
@@ -31,9 +31,27 @@ export class AllowanceRepository extends BaseRepository<AllowanceSalary, any> {
     }
   }
 
-  findAll() {
+  async findAll(profile: ProfileEntity, search: Partial<SearchAllowanceDto>) {
     try {
-      return 'This action adds a new allowance';
+      const acc = await this.prisma.account.findUnique({where: {id: profile.id}, include: {branches: true}});
+      const [total, data] = await Promise.all([
+        this.prisma.allowanceSalary.count(),
+        this.prisma.allowanceSalary.findMany({
+          take: search?.take,
+          skip: search?.skip,
+          where: {
+            payroll: search?.payrollIds?.length ? {id: {in: search.payrollIds}} : search?.payrollId ? {id: search.payrollId} : {},
+            branch: acc.branches?.length ? {id: {in: acc.branches?.map(branch => branch.id)}} : {},
+            startedAt: {
+              lte: search?.startedAt,
+            },
+            endedAt: {
+              gte: search?.endedAt
+            },
+          }
+        }),
+      ]);
+      return {total, data};
     } catch (err) {
       console.error(err);
       throw new BadRequestException(err);
