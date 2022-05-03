@@ -39,6 +39,7 @@ export class RemoteService {
   private mapToRemote(body): CreateRemoteDto {
     return {
       type: body.type,
+      partial: body.partial,
       startedAt: body.startedAt,
       endedAt: body.endedAt,
       payrollId: body.payrollId,

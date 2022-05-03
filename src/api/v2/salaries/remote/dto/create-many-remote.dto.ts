@@ -1,5 +1,5 @@
 import {IsArray, IsDate, IsEnum, IsNotEmpty, IsNumber, IsOptional, IsString} from "class-validator";
-import {RemoteType} from "@prisma/client";
+import {PartialDay, RemoteType} from "@prisma/client";
 import {Transform, Type} from "class-transformer";
 import * as moment from "moment";
 
@@ -7,6 +7,10 @@ export class CreateManyRemoteDto {
   @IsNotEmpty()
   @IsEnum(RemoteType)
   readonly type: RemoteType;
+
+  @IsOptional()
+  @IsEnum(PartialDay)
+  readonly partial: PartialDay;
 
   @IsNotEmpty()
   @IsDate()

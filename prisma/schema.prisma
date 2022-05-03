@@ -503,6 +503,7 @@ model RemoteSalary {
   payrollId Int
   block     SalaryBlock @relation(fields: [blockId], references: [id])
   blockId   Int
+  partial   PartialDay? @default(ALL_DAY)
   note      String?
 }
 
