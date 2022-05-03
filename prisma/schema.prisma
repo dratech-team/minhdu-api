@@ -503,7 +503,7 @@ model RemoteSalary {
   payrollId Int
   block     SalaryBlock @relation(fields: [blockId], references: [id])
   blockId   Int
-  partial   PartialDay  @default(ALL_DAY)
+  partial   PartialDay
   note      String?
 }
 
@@ -543,7 +543,7 @@ model OvertimeSalary {
   endedAt    DateTime
   startTime  DateTime?
   endTime    DateTime?
-  partial    PartialDay        @default(ALL_DAY)
+  partial    PartialDay
   allowances AllowanceSalary[]
   setting    SalarySetting     @relation(fields: [settingId], references: [id])
   settingId  Int
