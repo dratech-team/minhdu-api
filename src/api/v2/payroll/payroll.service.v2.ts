@@ -9,15 +9,14 @@ import {EmployeeService} from "../employee/employee.service";
 import {SearchPayrollDto} from "./dto/search-payroll.dto";
 import {FilterTypeEnum} from "./entities/filter-type.enum";
 import {timesheet} from "./functions/timesheet";
-import {AllowanceSalary, PartialDay, SalaryType, Salaryv2} from "@prisma/client";
+import {AllowanceSalary, PartialDay, SalaryType} from "@prisma/client";
 import {OnePayroll} from "./entities/payroll.entity";
 import {SettingPayslipsEntity} from "./entities/payslips";
 import * as _ from "lodash";
 import * as dateFns from 'date-fns';
-import {AllowanceEntity} from "../salaries/allowance/entities";
 import {uniqDatetime} from "./functions/uniqDatetime";
 
-type AllowanceType = AllowanceEntity & { datetime: Date };
+type AllowanceType = AllowanceSalary & { datetime: Date };
 type HandleAllowancetype = {
   readonly allowancesInWorkday: AllowanceType[];
   readonly allowancesInOffice: AllowanceType[];
@@ -111,8 +110,12 @@ export class PayrollServicev2 {
 
   async findOne(id: number) {
     const found = await this.repository.findOne(id);
-    const payroll = _.omit(found, "payrollIds");
-    this.totalSalaryCTL(payroll as any);
+    const allowances = found.allowances.map(allowance => {
+      const a = this.handleAllowance(allowance, found as any);
+      return Object.assign(allowance, {total: a.total, duration: a.duration});
+    });
+    console.log(allowances);
+    this.totalSalaryCTL(found as any);
     return found;
   }
 
@@ -142,8 +145,7 @@ export class PayrollServicev2 {
 
   private totalAllowance(payroll: OnePayroll): number {
     return payroll.allowances?.map(allowance => {
-      const a = this.handleAllowance(allowance, payroll);
-      return this.allowanceReduce(a.allowancesInWorkday) + this.allowanceReduce(a.allowancesInOffice) + this.allowanceReduce(a.allowancesInWorkdayAndOffice) + this.allowanceReduce(a.allowances);
+      return this.handleAllowance(allowance, payroll).total;
     }).reduce((a, b) => a + b, 0);
   }
 
@@ -195,20 +197,17 @@ export class PayrollServicev2 {
 
   private totalSetting(setting: SettingPayslipsEntity): number {
     const totalOf = setting.totalOf.map(type => {
-      return setting.salaries.filter(salary => salary.type === type).map((e) => e.price * e.rate).reduce((a, b) => a + b, 0);
+      return setting.salaries?.filter(salary => salary.type === type).map((e) => e.price * e.rate).reduce((a, b) => a + b, 0);
     }).reduce((a, b) => a + b, 0) + setting.prices?.reduce((a, b) => a + b, 0);
 
     return totalOf / setting.workday;
   }
 
-  private allowanceReduce(allowances: Array<AllowanceEntity | AllowanceSalary>) {
+  private allowanceReduce(allowances: Array<AllowanceType | AllowanceSalary>): number {
     return allowances?.map(allowance => allowance.price * allowance.rate)?.reduce((a, b) => a + b, 0);
   }
 
-  private handleAllowance(allowance: AllowanceEntity, payroll: OnePayroll): HandleAllowancetype {
-    const allowancesInWorkday: Array<AllowanceType> = [];
-    const allowancesInOffice: Array<AllowanceType> = [];
-    const allowancesInWorkdayAndOffice: Array<AllowanceType> = [];
+  private handleAllowance(allowance: AllowanceSalary, payroll: OnePayroll): { duration: number, total: number } {
     const allowances: Array<AllowanceType> = [];
 
     const absentRange = uniqDatetime(_.flattenDeep(payroll.absents?.map(absent => dateFns.eachDayOfInterval({
@@ -227,21 +226,20 @@ export class PayrollServicev2 {
     });
 
     datetimes.forEach(datetime => {
-      const exist = (allowance.inWorkday ? allowancesInWorkday : allowance.inOffice ? allowancesInOffice : allowances)
-        .map(allowance => allowance.datetime.getTime()).includes(datetime.getTime());
+      const exist = allowances.map(allowance => allowance.datetime.getTime()).includes(datetime.getTime());
 
       if (!exist) {
         if (allowance.inWorkday) {
           if (!absentRange.includes(datetime.getTime())) {
-            allowancesInWorkday.push(Object.assign({}, allowance, {datetime: datetime}));
+            allowances.push(Object.assign({}, allowance, {datetime: datetime}));
           }
         } else if (allowance.inOffice) {
           if (!remoteRange.includes(datetime.getTime())) {
-            allowancesInOffice.push(Object.assign({}, allowance, {datetime: datetime}));
+            allowances.push(Object.assign({}, allowance, {datetime: datetime}));
           }
         } else if (allowance.inWorkday && allowance.inOffice) {
           if (!remoteRange.includes(datetime.getTime()) && !absentRange.includes(datetime.getTime())) {
-            allowancesInWorkdayAndOffice.push(Object.assign({}, allowance, {datetime: datetime}));
+            allowances.push(Object.assign({}, allowance, {datetime: datetime}));
           }
         } else {
           allowances.push(Object.assign({}, allowance, {datetime: datetime}));
@@ -249,10 +247,8 @@ export class PayrollServicev2 {
       }
     });
     return {
-      allowancesInWorkday,
-      allowancesInOffice,
-      allowancesInWorkdayAndOffice,
-      allowances,
+      duration: allowances.map(allowance => allowance.datetime ? 1 : 0).reduce((a, b) => a + b, 0),
+      total: this.allowanceReduce(allowances)
     };
   }
 
