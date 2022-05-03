@@ -196,24 +196,36 @@ export class PayrollServicev2 {
 
     datetimes.forEach(datetime => {
       const exist = allowances.map(allowance => allowance.datetime.getTime()).includes(datetime.getTime());
+      const absent = absentRange.find(absent => absent.datetime.getTime() === datetime.getTime());
+      const remote = remoteRange.find(remote => remote.datetime.getTime() === datetime.getTime());
 
       if (!exist) {
         const absentsTime = absentRange.map(absent => absent.datetime.getTime());
         const remotesTime = remoteRange.map(remote => remote.datetime.getTime());
 
-        if (allowance.inWorkday) {
+        if (allowance.inWorkday && !allowance.inOffice) {
           if (!absentsTime.includes(datetime.getTime())) {
-            allowances.push(Object.assign({}, allowance, {datetime: datetime}));
+            allowances.push(Object.assign({}, allowance, {datetime, partial: 1}));
+          } else {
+            if (absent.partial === PartialDay.MORNING || absent.partial === PartialDay.AFTERNOON) {
+              allowances.push(Object.assign({}, allowance, {datetime, partial: 0.5}));
+            }
           }
-        } else if (allowance.inOffice) {
+        } else if (!allowance.inWorkday && allowance.inOffice) {
           if (!remotesTime.includes(datetime.getTime())) {
-            const absent = absentRange.find(absent => absent.datetime.getTime() === datetime.getTime());
-            const duration = absent.partial === PartialDay.ALL_DAY ? 1 : absent.partial === PartialDay.MORNING || absent.partial === PartialDay.AFTERNOON ? 0.5 : 0;
-            allowances.push(Object.assign({}, allowance, {datetime, duration}));
+            allowances.push(Object.assign({}, allowance, {datetime, partial: 1}));
+          } else {
+            if (remote.partial === PartialDay.MORNING || remote.partial === PartialDay.AFTERNOON) {
+              allowances.push(Object.assign({}, allowance, {datetime, partial: 0.5}));
+            }
           }
         } else if (allowance.inWorkday && allowance.inOffice) {
-          if (!remotesTime.includes(datetime.getTime()) && !absentsTime.includes(datetime.getTime())) {
+          if (!absentsTime.includes(datetime.getTime()) && !remotesTime.includes(datetime.getTime())) {
             allowances.push(Object.assign({}, allowance, {datetime: datetime}));
+          } else {
+            if (remote.partial === PartialDay.MORNING || remote.partial === PartialDay.AFTERNOON) {
+              allowances.push(Object.assign({}, allowance, {datetime, partial: 0.5}));
+            }
           }
         } else {
           allowances.push(Object.assign({}, allowance, {datetime: datetime}));

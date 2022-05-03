@@ -8,7 +8,7 @@ export class CreateManyRemoteDto {
   @IsEnum(RemoteType)
   readonly type: RemoteType;
 
-  @IsOptional()
+  @IsNotEmpty()
   @IsEnum(PartialDay)
   readonly partial: PartialDay;
 
