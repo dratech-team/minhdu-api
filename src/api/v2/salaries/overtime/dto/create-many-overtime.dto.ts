@@ -1,7 +1,8 @@
-import {IsArray, IsDate, IsNotEmpty, IsNumber, IsObject, IsOptional} from "class-validator";
+import {IsArray, IsDate, IsEnum, IsNotEmpty, IsNumber, IsObject, IsOptional} from "class-validator";
 import {Transform, Type} from "class-transformer";
 import * as moment from "moment";
 import {CreateAllowanceDto} from "../../allowance/dto/create-allowance.dto";
+import { PartialDay } from "@prisma/client";
 
 export class CreateManyOvertimeDto {
   @IsNotEmpty()
@@ -31,6 +32,10 @@ export class CreateManyOvertimeDto {
     }
   })
   readonly endTime: Date | null;
+
+  @IsNotEmpty()
+  @IsEnum(PartialDay)
+  readonly partial: PartialDay;
 
   @IsNotEmpty()
   @IsNumber()

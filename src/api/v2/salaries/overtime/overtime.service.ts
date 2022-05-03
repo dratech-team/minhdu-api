@@ -66,6 +66,7 @@ export class OvertimeService {
       endTime: setting.unit === DatetimeUnit.HOUR ? body.endTime : null,
       settingId: body.settingId,
       blockId: body?.blockId || 4,
+      partial: body.partial,
       allowances: body.allowances,
     };
   }
