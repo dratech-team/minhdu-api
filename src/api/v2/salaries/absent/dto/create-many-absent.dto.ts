@@ -18,12 +18,16 @@ export class CreateManyAbsentDto {
 
   @IsNotEmpty()
   @IsDate()
-  @Transform(({value}) => new Date(moment(value).utc().format('YYYY-MM-DD')))
+  @Transform(({value}) => {
+    return new Date(moment(value).set({hours: 0, minutes: 0, seconds: 0}).format('YYYY-MM-DD'));
+  })
   readonly startedAt: Date;
 
   @IsNotEmpty()
   @IsDate()
-  @Transform(({value}) => new Date(moment(value).utc().format('YYYY-MM-DD')))
+  @Transform(({value}) => {
+    return new Date(moment(value).set({hours: 0, minutes: 0, seconds: 0}).format('YYYY-MM-DD'));
+  })
   readonly endedAt: Date;
 
   @IsOptional()

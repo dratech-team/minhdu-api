@@ -2,17 +2,21 @@ import {IsArray, IsDate, IsEnum, IsNotEmpty, IsNumber, IsObject, IsOptional} fro
 import {Transform, Type} from "class-transformer";
 import * as moment from "moment";
 import {CreateAllowanceDto} from "../../allowance/dto/create-allowance.dto";
-import { PartialDay } from "@prisma/client";
+import {PartialDay} from "@prisma/client";
 
 export class CreateManyOvertimeDto {
   @IsNotEmpty()
   @IsDate()
-  @Transform(({value}) => new Date(moment(value).utc().format('YYYY-MM-DD')))
+  @Transform(({value}) => {
+    return new Date(moment(value).set({hours: 0, minutes: 0, seconds: 0}).format('YYYY-MM-DD'));
+  })
   readonly startedAt: Date;
 
   @IsNotEmpty()
   @IsDate()
-  @Transform(({value}) => new Date(moment(value).utc().format('YYYY-MM-DD')))
+  @Transform(({value}) => {
+    return new Date(moment(value).set({hours: 0, minutes: 0, seconds: 0}).format('YYYY-MM-DD'));
+  })
   readonly endedAt: Date;
 
   @IsOptional()

@@ -220,9 +220,8 @@ export class PayrollServicev2 {
             allowances.push(Object.assign({}, allowance, {datetime: datetime, duration: 1}));
           } else {
             if (
-              remote
-              && ((remote.partial === PartialDay.MORNING && absent.partial === PartialDay.MORNING)
-              || (remote.partial === PartialDay.AFTERNOON && absent.partial === PartialDay.AFTERNOON))
+              (remote?.partial === PartialDay.MORNING || absent?.partial === PartialDay.MORNING)
+              || (remote?.partial === PartialDay.AFTERNOON || absent?.partial === PartialDay.AFTERNOON)
             ) {
               allowances.push(Object.assign({}, allowance, {datetime, duration: 0.5}));
             }
