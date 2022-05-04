@@ -9,13 +9,15 @@ import {EmployeeService} from "../employee/employee.service";
 import {SearchPayrollDto} from "./dto/search-payroll.dto";
 import {FilterTypeEnum} from "./entities/filter-type.enum";
 import {timesheet} from "./functions/timesheet";
-import {AllowanceSalary, PartialDay, SalaryType} from "@prisma/client";
+import {AllowanceSalary, PartialDay, SalarySetting, SalaryType} from "@prisma/client";
 import {OnePayroll} from "./entities/payroll.entity";
-import {SettingPayslipsEntity} from "./entities/payslips";
 import * as _ from "lodash";
 import * as dateFns from 'date-fns';
+import {AbsentEntity} from "./entities/absent.entity";
+import {RemoteEntity} from "../salaries/remote/entities/remote.entity";
+import {AllowanceEntity} from "../salaries/allowance/entities";
 
-type AllowanceType = AllowanceSalary & { datetime: Date, duration: number};
+type AllowanceType = AllowanceSalary & { datetime: Date, duration: number };
 
 @Injectable()
 export class PayrollServicev2 {
@@ -102,18 +104,23 @@ export class PayrollServicev2 {
 
   async findOne(id: number) {
     const found = await this.repository.findOne(id);
+
     const allowances = found.allowances.map(allowance => {
       const a = this.handleAllowance(allowance, found as any);
       return Object.assign(allowance, {total: a.total, duration: a.duration});
     });
+    const absents = found.absents?.map(absent => {
+      const a = this.handleAbsent(absent, found as any);
+      return Object.assign(absent, {price: a.price, duration: a.duration, total: a.price * a.duration});
+    });
     // this.totalSalaryCTL(found as any);
-    return found;
+    return Object.assign(found, {allowances, absents});
   }
 
   private totalSalaryCTL(payroll: OnePayroll) {
     const salary = this.totalSalary(payroll);
     const allowance = this.totalAllowance(payroll);
-    const absent = this.totalAbsent(payroll);
+    // const absent = this.handleAbsent(payroll.absents, payroll);
     const overtime = this.totalOvertime(payroll);
     const deduction = payroll.deductions?.map(deduction => {
       return deduction.price;
@@ -121,7 +128,7 @@ export class PayrollServicev2 {
 
     console.log("salary: ", salary);
     console.log("allowance: ", allowance);
-    console.log("absent: ", absent);
+    // console.log("absent: ", absent);
     console.log("overtime: ", overtime);
     console.log("deduction: ", deduction);
   }
@@ -142,52 +149,41 @@ export class PayrollServicev2 {
     }).reduce((a, b) => a + b, 0);
   }
 
-  private totalAbsent(payroll: OnePayroll): number {
-    const absents = this.handleAbsent(payroll);
-    return absents?.map(absent => {
-      const datetimes = dateFns.eachDayOfInterval({
-        start: absent.startedAt,
-        end: absent.endedAt
-      });
+  private handleAbsent(absent: AbsentEntity, payroll: OnePayroll): { duration: number, price: number } {
+    const totalSetting = this.totalSetting(absent.setting, payroll);
 
-      if (absent.partial === PartialDay.ALL_DAY) {
-        // 1 day
-      } else if (absent.partial === PartialDay.MORNING || absent.partial === PartialDay.AFTERNOON) {
-        // 1/2 day
-      } else {
-        // minutes
-      }
-      return 0;
-    }).reduce((a, b) => a + b, 0);
+    const datetimes = dateFns.eachDayOfInterval({
+      start: absent.startedAt,
+      end: absent.endedAt
+    });
+    const duration = absent.partial === PartialDay.ALL_DAY ? 1 : 0.5;
+    return {
+      duration: duration * datetimes.length,
+      price: totalSetting * datetimes.length
+    };
   }
 
   private totalOvertime(payroll: OnePayroll): number {
     return payroll.overtimes?.map(overtime => {
       const allowance = overtime.allowances?.map(allowance => allowance.price * allowance.rate)?.reduce((a, b) => a + b, 0);
-      const setting = this.totalSetting(
-        Object.assign(overtime.setting, {
-          workday: overtime.setting.workday || payroll.workday,
-          salaries: payroll.salariesv2
-        }) as SettingPayslipsEntity
-      );
+      const setting = this.totalSetting(overtime.setting, payroll);
       // return allowances + settings;
       return setting + allowance;
     }).reduce((a, b) => a + b, 0);
   }
 
-  private totalSetting(setting: SettingPayslipsEntity): number {
+  private totalSetting(setting: SalarySetting, payroll: OnePayroll): number {
     const totalOf = setting.totalOf.map(type => {
-      return setting.salaries?.filter(salary => salary.type === type).map((e) => e.price * e.rate).reduce((a, b) => a + b, 0);
+      return payroll.salariesv2?.filter(salary => salary.type === type).map((e) => e.price * e.rate).reduce((a, b) => a + b, 0);
     }).reduce((a, b) => a + b, 0) + setting.prices?.reduce((a, b) => a + b, 0);
-
-    return totalOf / setting.workday;
+    return totalOf / (setting.workday || payroll.workday || payroll.employee.workday);
   }
 
   private handleAllowance(allowance: AllowanceSalary, payroll: OnePayroll): { duration: number, total: number } {
     const allowances: Array<AllowanceType> = [];
 
-    const absentRange = this.handleAbsent(payroll);
-    const remoteRange = this.handleRemote(payroll);
+    const absentRange = this.absentUniq(payroll);
+    const remoteRange = this.remoteUniq(payroll);
 
     const datetimes = dateFns.eachDayOfInterval({
       start: allowance.startedAt,
@@ -242,29 +238,28 @@ export class PayrollServicev2 {
     };
   }
 
-  private handleAbsent(payroll: OnePayroll) {
-    return _.sortBy(_.uniqBy(_.flattenDeep(payroll.absents?.map(absent => {
-      const range = dateFns.eachDayOfInterval({
-        start: absent.startedAt,
-        end: absent.endedAt
-      });
-      const totalSetting = this.totalSetting(Object.assign(absent.setting, {salaries: payroll.salariesv2}));
-      return range.map(datetime => {
-        return Object.assign({}, absent, {datetime, total: totalSetting});
-      });
-    })), absent => absent.datetime.getTime()), (absent) => absent.datetime);
+  private allowanceUniq(payroll: OnePayroll) {
+    return this.uniq(payroll.allowances) as Array<AllowanceEntity & { datetime: Date }>;
   }
 
-  private handleRemote(payroll: OnePayroll) {
-    return _.sortBy(_.uniqBy(_.flattenDeep(payroll.remotes?.map(remote => {
+  private absentUniq(payroll: OnePayroll) {
+    return this.uniq(payroll.absents) as Array<AbsentEntity & { datetime: Date }>;
+  }
+
+  private remoteUniq(payroll: OnePayroll) {
+    return this.uniq(payroll.remotes) as Array<RemoteEntity & { datetime: Date }>;
+  }
+
+  private uniq(items: Array<AbsentEntity | AllowanceSalary | RemoteEntity>): Array<AbsentEntity & { datetime: Date } | AllowanceSalary & { datetime: Date } | RemoteEntity & { datetime: Date }> {
+    return _.sortBy(_.uniqBy(_.flattenDeep(items?.map(e => {
       const range = dateFns.eachDayOfInterval({
-        start: remote.startedAt,
-        end: remote.endedAt
+        start: e.startedAt,
+        end: e.endedAt
       });
       return range.map(datetime => {
-        return Object.assign({}, remote, {datetime});
+        return Object.assign({}, e, {datetime});
       });
-    })), (remote) => remote.datetime.getTime()), (remote) => remote.datetime);
+    })), (e) => e.datetime.getTime()), (e) => e.datetime);
   }
 
   private mapToPayroll(body) {
