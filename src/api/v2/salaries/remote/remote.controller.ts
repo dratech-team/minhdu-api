@@ -6,9 +6,10 @@ import {Roles} from "../../../../core/decorators/roles.decorator";
 import {RoleEnum} from "@prisma/client";
 import {CreateManyRemoteDto} from "./dto/create-many-remote.dto";
 import {UpdateManyRemoteDto} from "./dto/update-many-remote.dto";
+import {ApiV2Constant} from "../../../../common/constant/api.constant";
 
 @UseGuards(JwtAuthGuard, ApiKeyGuard, RolesGuard)
-@Controller('v2/salary/remote')
+@Controller(ApiV2Constant.SALARY.REMOTE)
 export class RemoteController {
   constructor(private readonly remoteService: RemoteService) {
   }

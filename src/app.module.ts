@@ -48,13 +48,8 @@ import {SalaryHistoryModule} from "./api/v2/history/salary/salary-history.module
 import {ConsignmentModule} from './api/v2/consignment/consignment.module';
 import {WarehouseModule} from "./api/v2/warehouse/warehouse.module";
 import {SalarySettingsModule} from "./api/v2/settings/salary/salary-settings.module";
-import {Salaryv2Module} from './api/v2/salaries/salaryv2/salaryv2.module';
-import {AbsentModule} from './api/v2/salaries/absent/absent.module';
-import {DeductionModule} from './api/v2/salaries/deduction/deduction.module';
-import {RemoteModule} from './api/v2/salaries/remote/remote.module';
-import {OvertimeModule} from './api/v2/salaries/overtime/overtime.module';
-import {AllowanceModule} from './api/v2/salaries/allowance/allowance.module';
 import {SalaryBlockModule} from './api/v2/settings/salary-block/salary-block.module';
+import {SalariesModule} from "./api/v2/salaries/salary.module";
 
 @Module({
   imports: [
@@ -105,13 +100,8 @@ import {SalaryBlockModule} from './api/v2/settings/salary-block/salary-block.mod
     SalaryHistoryModule,
     ConsignmentModule,
     SalarySettingsModule,
-    Salaryv2Module,
-    AbsentModule,
-    DeductionModule,
-    RemoteModule,
-    OvertimeModule,
-    AllowanceModule,
-    SalaryBlockModule
+    SalaryBlockModule,
+    SalariesModule
   ],
   controllers: [AppController],
   providers: [PrismaService],

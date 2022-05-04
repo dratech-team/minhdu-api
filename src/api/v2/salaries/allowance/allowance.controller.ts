@@ -9,9 +9,10 @@ import {CreateManyAllowanceDto} from "./dto/create-many-allowance.dto";
 import {ReqProfile} from "../../../../core/decorators/req-profile.decorator";
 import {ProfileEntity} from "../../../../common/entities/profile.entity";
 import {SearchAllowanceDto} from "./dto/search-allowance.dto";
+import {ApiV2Constant} from "../../../../common/constant/api.constant";
 
 @UseGuards(JwtAuthGuard, ApiKeyGuard, RolesGuard)
-@Controller('v2/salary/allowance')
+@Controller(ApiV2Constant.SALARY.ALLOWANCE)
 export class AllowanceController {
   constructor(private readonly allowanceService: AllowanceService) {
   }

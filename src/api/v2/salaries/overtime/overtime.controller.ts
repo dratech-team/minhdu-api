@@ -7,9 +7,10 @@ import {Roles} from "../../../../core/decorators/roles.decorator";
 import {RoleEnum} from "@prisma/client";
 import {RemoveManyOvertimeDto} from "./dto/remove-many-overtime.dto";
 import {UpdateManyOvertimeDto} from "./dto/update-many-overtime.dto";
+import {ApiV2Constant} from "../../../../common/constant/api.constant";
 
 @UseGuards(JwtAuthGuard, ApiKeyGuard, RolesGuard)
-@Controller('v2/salary/overtime')
+@Controller(ApiV2Constant.SALARY.OVERTIME)
 export class OvertimeController {
   constructor(private readonly overtimeService: OvertimeService) {
   }

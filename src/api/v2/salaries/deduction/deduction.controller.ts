@@ -1,17 +1,13 @@
 import {Body, Controller, Get, Param, Post, UseGuards} from '@nestjs/common';
 import {DeductionService} from './deduction.service';
-import {CreateDeductionDto} from './dto/create-deduction.dto';
-import {UpdateDeductionDto} from './dto/update-deduction.dto';
-import {RemoveManyDeductionDto} from "./dto/remove-many-deduction.dto";
-import {CreateAbsentDto} from "../absent/dto/create-absent.dto";
+import {CreateManyDeductionDto, RemoveManyDeductionDto, UpdateDeductionDto} from './dto';
 import {ApiKeyGuard, JwtAuthGuard, LoggerGuard, RolesGuard} from "../../../../core/guard";
 import {Roles} from "../../../../core/decorators/roles.decorator";
 import {RoleEnum} from "@prisma/client";
-import {CreateManyAbsentDto} from "../absent/dto/create-many-absent.dto";
-import {CreateManyDeductionDto} from "./dto";
+import {ApiV2Constant} from "../../../../common/constant/api.constant";
 
 @UseGuards(JwtAuthGuard, ApiKeyGuard, RolesGuard)
-@Controller('v2/salary/deduction')
+@Controller(ApiV2Constant.SALARY.DEDUCTION)
 export class DeductionController {
   constructor(private readonly deductionService: DeductionService) {
   }

@@ -7,9 +7,10 @@ import {ApiKeyGuard, JwtAuthGuard, RolesGuard} from "../../../../core/guard";
 import {CreateManySalaryv2Dto} from "./dto/create-many-salaryv2.dto";
 import {UpdateManySalaryv2Dto} from "./dto/update-many-salaryv2.dto";
 import {RemoteManySalaryv2Dto} from "./dto/remote-many-salaryv2.dto";
+import {ApiV2Constant} from "../../../../common/constant/api.constant";
 
 @UseGuards(JwtAuthGuard, ApiKeyGuard, RolesGuard)
-@Controller('v2/salaryv2')
+@Controller(ApiV2Constant.SALARY.SALARYV2)
 export class Salaryv2Controller {
   constructor(private readonly salaryv2Service: Salaryv2Service) {
   }

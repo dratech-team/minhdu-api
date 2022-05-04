@@ -6,9 +6,10 @@ import {ApiKeyGuard, JwtAuthGuard, LoggerGuard, RolesGuard} from "../../../../co
 import {Roles} from "../../../../core/decorators/roles.decorator";
 import {RoleEnum} from "@prisma/client";
 import {CreateManyAbsentDto} from "./dto/create-many-absent.dto";
+import {ApiV2Constant} from "../../../../common/constant/api.constant";
 
 @UseGuards(JwtAuthGuard, ApiKeyGuard, RolesGuard)
-@Controller('v2/salary/absent')
+@Controller(ApiV2Constant.SALARY.ABSENT)
 export class AbsentController {
   constructor(private readonly absentService: AbsentService) {
   }
