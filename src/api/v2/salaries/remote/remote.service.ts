@@ -37,7 +37,7 @@ export class RemoteService {
     return crudManyResponse(count, "deletion");
   }
 
-  private mapToRemote(body): CreateRemoteDto {
+  private mapToRemote(body) {
     return {
       type: body.type,
       partial: body.partial,
@@ -46,6 +46,6 @@ export class RemoteService {
       payrollId: body.payrollId,
       blockId: body?.blockId || 7,
       note: body.note
-    } as CreateRemoteDto;
+    };
   }
 }
