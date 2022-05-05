@@ -34,8 +34,8 @@ export class RemoteController {
 
   @Roles(RoleEnum.SUPPER_ADMIN, RoleEnum.ADMIN)
   @Post('/multiple/updation')
-  update(@Param('id') id: string, @Body() updateRemoteDto: UpdateManyRemoteDto) {
-    return this.remoteService.update(+id, updateRemoteDto);
+  update(@Body() updateRemoteDto: UpdateManyRemoteDto) {
+    return this.remoteService.update(updateRemoteDto);
   }
 
   @Roles(RoleEnum.SUPPER_ADMIN, RoleEnum.ADMIN)

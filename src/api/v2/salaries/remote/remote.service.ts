@@ -27,7 +27,7 @@ export class RemoteService {
     return this.repository.findOne(id);
   }
 
-  async update(id: number, body: UpdateManyRemoteDto) {
+  async update(body: UpdateManyRemoteDto) {
     const {count} = await this.repository.updateMany(body.salaryIds, this.mapToRemote(body));
     return crudManyResponse(count, "updation");
   }
