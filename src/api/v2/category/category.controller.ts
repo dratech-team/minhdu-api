@@ -2,14 +2,11 @@ import {Body, Controller, Delete, Get, Param, Patch, Post, Query, UseGuards} fro
 import {CategoryService} from './category.service';
 import {CreateCategoryDto} from './dto/create-category.dto';
 import {UpdateCategoryDto} from './dto/update-category.dto';
-import {JwtAuthGuard} from "../../../core/guard/jwt-auth.guard";
-import {ApiKeyGuard} from "../../../core/guard/api-key-auth.guard";
-import {RolesGuard} from "../../../core/guard/role.guard";
+import {ApiKeyGuard, JwtAuthGuard, LoggerGuard, RolesGuard} from "../../../core/guard";
 import {Roles} from "../../../core/decorators/roles.decorator";
 import {RoleEnum} from "@prisma/client";
 import {ReqProfile} from "../../../core/decorators/req-profile.decorator";
 import {ProfileEntity} from "../../../common/entities/profile.entity";
-import {LoggerGuard} from "../../../core/guard/logger.guard";
 import {SearchCategoryDto} from "./dto/search-category.dto";
 
 @UseGuards(JwtAuthGuard, ApiKeyGuard, RolesGuard)

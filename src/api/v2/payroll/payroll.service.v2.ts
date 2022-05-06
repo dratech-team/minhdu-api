@@ -111,10 +111,22 @@ export class PayrollServicev2 {
     });
     const absents = found.absents?.map(absent => {
       const a = this.handleAbsent(absent, found as any);
-      return Object.assign(absent, {price: a.price, duration: a.duration, total: a.price * a.duration});
+      return Object.assign(absent, {
+        price: a.price,
+        duration: a.duration,
+        total: a.price * a.duration * (absent.partial === PartialDay.ALL_DAY ? 1 : 0.5)
+      });
+    });
+
+    const remotes = found.remotes?.map(remote => {
+      const duration = dateFns.eachDayOfInterval({
+        start: remote.startedAt,
+        end: remote.endedAt
+      }).length;
+      return Object.assign(remote, {total: 0, duration: duration});
     });
     // this.totalSalaryCTL(found as any);
-    return Object.assign(found, {allowances, absents});
+    return Object.assign(found, {allowances, absents, remotes});
   }
 
   private totalSalaryCTL(payroll: OnePayroll) {
@@ -149,36 +161,6 @@ export class PayrollServicev2 {
     }).reduce((a, b) => a + b, 0);
   }
 
-  private handleAbsent(absent: AbsentEntity, payroll: OnePayroll): { duration: number, price: number } {
-    const totalSetting = this.totalSetting(absent.setting, payroll);
-
-    const datetimes = dateFns.eachDayOfInterval({
-      start: absent.startedAt,
-      end: absent.endedAt
-    });
-    const duration = absent.partial === PartialDay.ALL_DAY ? 1 : 0.5;
-    return {
-      duration: duration * datetimes.length,
-      price: totalSetting * datetimes.length
-    };
-  }
-
-  private totalOvertime(payroll: OnePayroll): number {
-    return payroll.overtimes?.map(overtime => {
-      const allowance = overtime.allowances?.map(allowance => allowance.price * allowance.rate)?.reduce((a, b) => a + b, 0);
-      const setting = this.totalSetting(overtime.setting, payroll);
-      // return allowances + settings;
-      return setting + allowance;
-    }).reduce((a, b) => a + b, 0);
-  }
-
-  private totalSetting(setting: SalarySetting, payroll: OnePayroll): number {
-    const totalOf = setting.totalOf.map(type => {
-      return payroll.salariesv2?.filter(salary => salary.type === type).map((e) => e.price * e.rate).reduce((a, b) => a + b, 0);
-    }).reduce((a, b) => a + b, 0) + setting.prices?.reduce((a, b) => a + b, 0);
-    return totalOf / (setting.workday || payroll.workday || payroll.employee.workday);
-  }
-
   private handleAllowance(allowance: AllowanceSalary, payroll: OnePayroll): { duration: number, total: number } {
     const allowances: Array<AllowanceType> = [];
 
@@ -199,48 +181,45 @@ export class PayrollServicev2 {
         const absentsTime = absentRange.map(absent => absent.datetime.getTime());
         const remotesTime = remoteRange.map(remote => remote.datetime.getTime());
 
-        if (allowance.inWorkday && !allowance.inOffice) {
-          if (!absentsTime.includes(datetime.getTime())) {
+        if (allowance.inWorkday && !allowance.inOffice || !allowance.inWorkday && allowance.inOffice) {
+          if (!(allowance.inWorkday && !allowance.inOffice ? absentsTime : remotesTime).includes(datetime.getTime())) {
             allowances.push(Object.assign({}, allowance, {datetime, duration: 1}));
           } else {
-            if (absent && (absent.partial === PartialDay.MORNING || absent.partial === PartialDay.AFTERNOON)) {
-              allowances.push(Object.assign({}, allowance, {datetime, duration: 0.5}));
-            }
-          }
-        } else if (!allowance.inWorkday && allowance.inOffice) {
-          if (!remotesTime.includes(datetime.getTime())) {
-            allowances.push(Object.assign({}, allowance, {datetime, duration: 1}));
-          } else {
-            if (remote && (remote.partial === PartialDay.MORNING || remote.partial === PartialDay.AFTERNOON)) {
+            if (
+              allowance.inWorkday && !allowance.inOffice ? absent : remote
+                && ((allowance.inWorkday && !allowance.inOffice ? absent : remote).partial === PartialDay.MORNING || (allowance.inWorkday && !allowance.inOffice ? absent : remote).partial === PartialDay.AFTERNOON)
+            ) {
               allowances.push(Object.assign({}, allowance, {datetime, duration: 0.5}));
             }
           }
         } else if (allowance.inWorkday && allowance.inOffice) {
           if (!absentsTime.includes(datetime.getTime()) && remotesTime.includes(datetime.getTime())) {
-            console.log("1");
             allowances.push(Object.assign({}, allowance, {
               datetime: datetime,
               duration: remote.partial === PartialDay.MORNING || remote.partial === PartialDay.AFTERNOON ? 0.5 : 1
             }));
           } else if (absentsTime.includes(datetime.getTime()) && !remotesTime.includes(datetime.getTime())) {
-            console.log("2");
-            allowances.push(Object.assign({}, allowance, {
-              datetime: datetime,
-              duration: absent.partial === PartialDay.MORNING || absent.partial === PartialDay.AFTERNOON ? 0.5 : 1
-            }));
+            if (absent.partial === PartialDay.MORNING || absent.partial === PartialDay.AFTERNOON) {
+              allowances.push(Object.assign({}, allowance, {
+                datetime: datetime,
+                duration: 0.5
+              }));
+            }
           } else if (!absentsTime.includes(datetime.getTime()) && !remotesTime.includes(datetime.getTime())) {
             allowances.push(Object.assign({}, allowance, {datetime: datetime, duration: 1}));
           } else {
-            if (absent && !remote) {
-              console.log("5");
-            } else if (!absent && remote) {
-              console.log("6");
+            if (absent && !remote || !absent && remote) {
+              if ((absent && !remote ? absent : remote).partial === PartialDay.MORNING || (absent && !remote ? absent : remote).partial === PartialDay.AFTERNOON) {
+                allowances.push(Object.assign({}, allowance, {
+                  datetime: datetime,
+                  duration: 0.5
+                }));
+              }
             } else {
               if (
                 remote.partial === PartialDay.MORNING && absent.partial === PartialDay.MORNING
                 || remote.partial === PartialDay.AFTERNOON && absent.partial === PartialDay.AFTERNOON
               ) {
-                console.log("7");
                 allowances.push(Object.assign({}, allowance, {datetime, duration: 0.5}));
               }
             }
@@ -250,10 +229,40 @@ export class PayrollServicev2 {
         }
       }
     });
+    const duration = allowances.map(allowance => allowance.duration).reduce((a, b) => a + b, 0);
     return {
-      duration: allowances.map(allowance => allowance.duration).reduce((a, b) => a + b, 0),
-      total: allowances.map(allowance => allowance.price * allowance.rate)?.reduce((a, b) => a + b, 0)
+      duration: duration,
+      total: allowance.price * allowance.rate * duration,
     };
+  }
+
+  private handleAbsent(absent: AbsentEntity, payroll: OnePayroll): { duration: number, price: number } {
+    const totalSetting = this.totalSetting(absent.setting, payroll);
+
+    const datetimes = dateFns.eachDayOfInterval({
+      start: absent.startedAt,
+      end: absent.endedAt
+    });
+    return {
+      duration: datetimes.length,
+      price: totalSetting * datetimes.length
+    };
+  }
+
+  private totalOvertime(payroll: OnePayroll): number {
+    return payroll.overtimes?.map(overtime => {
+      const allowance = overtime.allowances?.map(allowance => allowance.price * allowance.rate)?.reduce((a, b) => a + b, 0);
+      const setting = this.totalSetting(overtime.setting, payroll);
+      // return allowances + settings;
+      return setting + allowance;
+    }).reduce((a, b) => a + b, 0);
+  }
+
+  private totalSetting(setting: SalarySetting, payroll: OnePayroll): number {
+    const totalOf = setting.totalOf.map(type => {
+      return payroll.salariesv2?.filter(salary => salary.type === type).map((e) => e.price * e.rate).reduce((a, b) => a + b, 0);
+    }).reduce((a, b) => a + b, 0) + setting.prices?.reduce((a, b) => a + b, 0);
+    return totalOf / (setting.workday || payroll.workday || payroll.employee.workday);
   }
 
   private allowanceUniq(payroll: OnePayroll) {

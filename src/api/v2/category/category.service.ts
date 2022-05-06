@@ -38,12 +38,21 @@ export class CategoryService {
       if (!acc.appName) {
         throw new BadRequestException("Liên hệ admin để thêm role");
       }
-      return await this.prisma.category.findMany({
-        where: {
-          app: acc.appName,
-          branch: acc.branches?.length ? {id: {in: acc.branches.map(branch => branch.id)}} : {name: search?.branch},
-        }
-      });
+      const [total, data] = await Promise.all([
+        this.prisma.category.count({
+          where: {
+            app: acc.appName,
+            branch: acc.branches?.length ? {id: {in: acc.branches.map(branch => branch.id)}} : {name: search?.branch},
+          }
+        }),
+        this.prisma.category.findMany({
+          where: {
+            app: acc.appName,
+            branch: acc.branches?.length ? {id: {in: acc.branches.map(branch => branch.id)}} : {name: search?.branch},
+          }
+        })
+      ]);
+      return {total, data};
     } catch (err) {
       console.error(err);
       throw new BadRequestException(err);
