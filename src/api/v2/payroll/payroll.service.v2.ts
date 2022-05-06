@@ -216,14 +216,31 @@ export class PayrollServicev2 {
             }
           }
         } else if (allowance.inWorkday && allowance.inOffice) {
-          if (!absentsTime.includes(datetime.getTime()) && !remotesTime.includes(datetime.getTime())) {
+          if (!absentsTime.includes(datetime.getTime()) && remotesTime.includes(datetime.getTime())) {
+            console.log("1");
+            allowances.push(Object.assign({}, allowance, {
+              datetime: datetime,
+              duration: remote.partial === PartialDay.MORNING || remote.partial === PartialDay.AFTERNOON ? 0.5 : 1
+            }));
+          } else if (absentsTime.includes(datetime.getTime()) && !remotesTime.includes(datetime.getTime())) {
+            console.log("2");
+            allowances.push(Object.assign({}, allowance, {
+              datetime: datetime,
+              duration: absent.partial === PartialDay.MORNING || absent.partial === PartialDay.AFTERNOON ? 0.5 : 1
+            }));
+          } else if (!absentsTime.includes(datetime.getTime()) && !remotesTime.includes(datetime.getTime())) {
             allowances.push(Object.assign({}, allowance, {datetime: datetime, duration: 1}));
           } else {
-            if (remote && absent) {
+            if (absent && !remote) {
+              console.log("5");
+            } else if (!absent && remote) {
+              console.log("6");
+            } else {
               if (
                 remote.partial === PartialDay.MORNING && absent.partial === PartialDay.MORNING
                 || remote.partial === PartialDay.AFTERNOON && absent.partial === PartialDay.AFTERNOON
               ) {
+                console.log("7");
                 allowances.push(Object.assign({}, allowance, {datetime, duration: 0.5}));
               }
             }

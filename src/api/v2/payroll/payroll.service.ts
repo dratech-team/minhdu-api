@@ -384,8 +384,7 @@ export class PayrollService {
     const partial = salary.partial === PartialDay.ALL_DAY
       ? 1
       : (salary.partial === PartialDay.MORNING || salary.partial === PartialDay.AFTERNOON)
-        ? 0.5
-        : (salary.partial === PartialDay.LATE || salary.partial === PartialDay.EARLY) ? moment(salary.endedAt).diff(salary.startedAt, "minutes") : 0;
+        ? 0.5 : 0;
     const unit = salary.setting.unit === DatetimeUnit.HOUR
       ? 1 / 8
       : salary.setting.unit === DatetimeUnit.MINUTE

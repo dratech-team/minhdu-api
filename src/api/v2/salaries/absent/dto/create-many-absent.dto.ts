@@ -9,10 +9,6 @@ export class CreateManyAbsentDto {
   readonly title: string;
 
   @IsNotEmpty()
-  @IsEnum(DatetimeUnit)
-  readonly unit: DatetimeUnit;
-
-  @IsNotEmpty()
   @IsEnum(PartialDay)
   readonly partial: PartialDay;
 

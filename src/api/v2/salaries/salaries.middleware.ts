@@ -26,9 +26,13 @@ export class SalariesMiddleware implements NestMiddleware {
       }).format('YYYY-MM-DD'));
     }
 
+    const payrolls = await this.prisma.salary.findMany({
+      where: {id: {in: (req.body as any)?.salaryIds}},
+      select: {payrollId: true}
+    });
     const where = {
-      id: {notIn: (req.body as any).salaryIds},
-      payroll: {id: {in: (req.body as any).payrollIds}},
+      id: {notIn: (req.body as any)?.salaryIds},
+      payroll: {id: {in: (req.body as any)?.payrollIds || payrolls.map(payroll => payroll.payrollId)}},
       OR: [
         {
           AND: [
@@ -69,6 +73,7 @@ export class SalariesMiddleware implements NestMiddleware {
         : req.path.includes(ApiV2Constant.SALARY.ABSENT)
           ? await this.prisma.absentSalary.findMany({where: where})
           : await this.prisma.remoteSalary.findMany({where: where});
+    console.log(data)
     if (data.length) {
       throw new BadRequestException("Có ngày nào đó đã tồn tại rồi. Vui lòng kiểm tra lại");
     }

@@ -50,7 +50,6 @@ export class AbsentService {
       startTime: body.startTime,
       endTime: body.endTime,
       note: body.note,
-      unit: body.unit,
       settingId: body.settingId,
       blockId: body?.blockId || 5,
     } as CreateAbsentDto;

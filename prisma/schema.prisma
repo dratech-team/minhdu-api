@@ -522,7 +522,6 @@ model DeductionSalary {
 model AbsentSalary {
   id        Int            @id @default(autoincrement())
   title     String?
-  unit      DatetimeUnit
   partial   PartialDay
   startedAt DateTime
   endedAt   DateTime
@@ -857,8 +856,6 @@ enum PartialDay {
   AFTERNOON
   NIGHT
   ALL_DAY
-  LATE
-  EARLY
 }
 
 //  CT1: apply cho công nhân trại chăn nuôi
