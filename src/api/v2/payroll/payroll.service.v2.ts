@@ -126,15 +126,18 @@ export class PayrollServicev2 {
       }).length;
       return Object.assign(remote, {total: 0, duration: duration});
     });
+
+    const overtimes = _.flattenDeep(found.overtimes?.map(overtime => {
+      return this.handleOvertime(overtime, found as any);
+    }));
     // this.totalSalaryCTL(found as any);
-    return Object.assign(found, {allowances, absents, remotes});
+    return Object.assign(found, {actualday: this.getWorkday(found), allowances, absents, remotes, overtimes});
   }
 
   private totalSalaryCTL(payroll: OnePayroll) {
     const salary = this.totalSalary(payroll);
     const allowance = this.totalAllowance(payroll);
     // const absent = this.handleAbsent(payroll.absents, payroll);
-    const overtime = this.totalOvertime(payroll);
     const deduction = payroll.deductions?.map(deduction => {
       return deduction.price;
     }).reduce((a, b) => a + b, 0);
@@ -244,34 +247,46 @@ export class PayrollServicev2 {
     };
   }
 
-  private handleOvertime(overtime: OvertimeEntity, payroll: OnePayroll): { duration: number, price: number }  {
-    const totalSetting = this.totalSetting(overtime.setting, payroll);
+  private handleOvertime(overtime: OvertimeEntity, payroll: OnePayroll): OvertimeEntity[] {
+    const absentRange = this.absentUniq(payroll);
+    let duration = this.getWorkday(payroll) - (payroll.workday || payroll.employee.workday);
 
     const datetimes = dateFns.eachDayOfInterval({
       start: overtime.startedAt,
       end: overtime.endedAt
     });
 
-    return {
-      duration: datetimes.length,
-      price: totalSetting * datetimes.length
-    };
-  }
-
-  private totalOvertime(payroll: OnePayroll): number {
-    return payroll.overtimes?.map(overtime => {
-      const allowance = overtime.allowances?.map(allowance => allowance.price * allowance.rate)?.reduce((a, b) => a + b, 0);
-      const setting = this.totalSetting(overtime.setting, payroll);
-      // return allowances + settings;
-      return setting + allowance;
-    }).reduce((a, b) => a + b, 0);
+    const newOvertimes = datetimes.map(datetime => Object.assign({}, overtime, {datetime}))
+      .map(e => {
+        if (!absentRange.map(e => e.datetime.getTime()).includes(e.datetime.getTime())) {
+          return Object.assign(e, {duration: 1});
+        }
+        const absent = absentRange.find(e => e.datetime.getTime() === e.datetime.getTime());
+        return Object.assign(e, {duration: absent.partial !== PartialDay.ALL_DAY ? 0.5 : 0});
+      })
+      .map((e, i) => {
+        const setting = Object.assign({}, e.setting, {rate: duration > 0 ? e.setting.rate : 1});
+        duration -= 1;
+        return Object.assign(e, {setting});
+      })
+      .map(overtime => {
+        const totalSetting = this.totalSetting(overtime.setting, payroll);
+        return Object.assign(overtime, {totalSetting});
+      });
+    return newOvertimes.map(overtime => Object.assign({}, overtime, {
+      price: overtime.totalSetting,
+      rate: overtime.setting.rate,
+      datetime: overtime.datetime,
+      duration: overtime.partial !== PartialDay.ALL_DAY ? 0.5 : 1,
+      total: overtime.totalSetting * (overtime.partial !== PartialDay.ALL_DAY ? 0.5 : 1) * overtime.setting.rate
+    }));
   }
 
   private totalSetting(setting: SalarySetting, payroll: OnePayroll): number {
-    const totalOf = setting.totalOf.map(type => {
+    const totalOf = (setting.prices?.reduce((a, b) => a + b, 0) || setting.totalOf?.map(type => {
       return payroll.salariesv2?.filter(salary => salary.type === type).map((e) => e.price * e.rate).reduce((a, b) => a + b, 0);
-    }).reduce((a, b) => a + b, 0) + setting.prices?.reduce((a, b) => a + b, 0);
-    return totalOf / (setting.workday || payroll.workday || payroll.employee.workday);
+    }).reduce((a, b) => a + b, 0));
+    return totalOf / (setting.type !== SalaryType.OVERTIME ? (setting.workday || payroll.workday || payroll.employee.workday) : 1);
   }
 
   private allowanceUniq(payroll: OnePayroll) {
@@ -296,6 +311,13 @@ export class PayrollServicev2 {
         return Object.assign({}, e, {datetime});
       });
     })), (e) => e.datetime.getTime()), (e) => e.datetime);
+  }
+
+  private getWorkday(payroll) {
+    const absentDuration = payroll.absents?.map(absent => {
+      return this.handleAbsent(absent, payroll).duration * (absent.partial === PartialDay.ALL_DAY ? 1 : 0.5);
+    })?.reduce((a, b) => a + b, 0);
+    return (dateFns.isSameMonth(new Date(), payroll.createdAt) ? new Date().getDate() + 1 : dateFns.getDaysInMonth(payroll.createdAt)) - (absentDuration + (payroll.createdAt.getDate() - 1));
   }
 
   private mapToPayroll(body) {

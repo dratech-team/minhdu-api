@@ -17,7 +17,6 @@ export class AbsentService {
     const salaries = body.payrollIds.map(payrollId => {
       return this.mapToAbsent(Object.assign(_.omit(body, "payrollIds"), {payrollId}));
     }) as AbsentSalary[];
-    console.log(salaries);
     const {count} = await this.repository.createMany(salaries);
     return crudManyResponse(count, "creation");
   }

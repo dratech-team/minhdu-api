@@ -127,6 +127,8 @@ model Branch {
   phone             BranchPhone[]
   ioIReceipts       IoIReceipt[]
   allowancesv2      AllowanceSalary[]
+  salarySetting     SalarySetting?     @relation(fields: [salarySettingId], references: [id])
+  salarySettingId   Int?
 }
 
 model BranchStatus {
@@ -150,16 +152,18 @@ model BranchPhone {
 }
 
 model Position {
-  id             Int                @id @default(autoincrement())
-  name           String             @unique
-  workday        Int?
-  branches       Branch[]
-  employees      Employee[]
-  templates      OvertimeTemplate[]
-  holidays       Holiday[]
-  basicTemplates BasicTemplate[]
-  timestamp      DateTime?          @default(now())
-  workHistories  WorkHistory[]
+  id              Int                @id @default(autoincrement())
+  name            String             @unique
+  workday         Int?
+  branches        Branch[]
+  employees       Employee[]
+  templates       OvertimeTemplate[]
+  holidays        Holiday[]
+  basicTemplates  BasicTemplate[]
+  timestamp       DateTime?          @default(now())
+  workHistories   WorkHistory[]
+  salarySetting   SalarySetting?     @relation(fields: [salarySettingId], references: [id])
+  salarySettingId Int?
 }
 
 // Hợp đồng
@@ -281,17 +285,20 @@ model BasicTemplate {
 }
 
 model SalarySetting {
-  id      Int            @id @default(autoincrement())
-  title   String
-  type    SalaryType
-  rate    Float
-  unit    DatetimeUnit
-  prices  Float[]
-  workday Int?
-  totalOf SalaryType[]
-  absents AbsentSalary[]
+  id             Int              @id @default(autoincrement())
+  title          String
+  type           SalaryType
+  rate           Float
+  hasConstraints Boolean          @default(false) //  Hệ số được tính khi hasConstraints = false
+  unit           DatetimeUnit
+  prices         Float[]
+  workday        Int?
+  branches       Branch[]
+  positions      Position[]
+  totalOf        SalaryType[]
+  absents        AbsentSalary[]
+  overtimes      OvertimeSalary[]
 
-  OvertimeSalary OvertimeSalary[]
   @@unique([title, type])
 }
 
@@ -805,17 +812,6 @@ model System {
   title    String
   type     SystemType
   datetime DateTime?  @default(now())
-}
-
-enum SalaryConstraint {
-  HOLIDAY
-  OVERTIME
-}
-
-enum SalaryReference {
-  PRICE
-  BASIC
-  STAY
 }
 
 enum ProductType {

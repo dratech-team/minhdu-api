@@ -73,7 +73,6 @@ export class SalariesMiddleware implements NestMiddleware {
         : req.path.includes(ApiV2Constant.SALARY.ABSENT)
           ? await this.prisma.absentSalary.findMany({where: where})
           : await this.prisma.remoteSalary.findMany({where: where});
-    console.log(data)
     if (data.length) {
       throw new BadRequestException("Có ngày nào đó đã tồn tại rồi. Vui lòng kiểm tra lại");
     }
