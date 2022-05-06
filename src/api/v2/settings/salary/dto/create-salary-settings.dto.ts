@@ -1,6 +1,6 @@
 import {DatetimeUnit, SalaryType} from "@prisma/client";
 import {IsArray, IsEnum, IsNotEmpty, IsNumber, IsOptional, IsString} from "class-validator";
-import {Type} from "class-transformer";
+import {Transform, Type} from "class-transformer";
 
 export class CreateSalarySettingsDto {
   @IsNotEmpty()
@@ -24,6 +24,13 @@ export class CreateSalarySettingsDto {
 
   @IsOptional()
   @IsArray()
+  @IsEnum(SalaryType, {each: true})
+  @Transform(({value}) => {
+    if (value === null) {
+      return undefined;
+    }
+    return value;
+  })
   readonly totalOf: SalaryType[]
 
   @IsNotEmpty({message: "Bạn phải chọn buổi", groups: ["absent", "overtime"]})

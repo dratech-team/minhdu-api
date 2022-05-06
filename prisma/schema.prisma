@@ -292,10 +292,10 @@ model SalarySetting {
   hasConstraints Boolean          @default(false) //  Hệ số được tính khi hasConstraints = false
   unit           DatetimeUnit
   prices         Float[]
+  totalOf        SalaryType[]
   workday        Int?
   branches       Branch[]
   positions      Position[]
-  totalOf        SalaryType[]
   absents        AbsentSalary[]
   overtimes      OvertimeSalary[]
 
@@ -534,8 +534,8 @@ model AbsentSalary {
   endedAt   DateTime
   startTime DateTime
   endTime   DateTime
-  setting   SalarySetting? @relation(fields: [settingId], references: [id])
-  settingId Int?
+  setting   SalarySetting @relation(fields: [settingId], references: [id])
+  settingId Int
   payroll   Payroll        @relation(fields: [payrollId], references: [id], onDelete: Cascade)
   payrollId Int
   block     SalaryBlock    @relation(fields: [blockId], references: [id])
