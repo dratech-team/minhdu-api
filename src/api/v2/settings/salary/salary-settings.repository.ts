@@ -27,9 +27,10 @@ export class SalarySettingsRepository extends BaseRepository<SalarySetting, any>
           type: body.settingType,
           rate: body.rate,
           workday: body?.workday,
-          prices: !body?.totalOf ? body?.prices : null,
+          prices: body?.prices,
           unit: body.unit,
-          totalOf: !body?.prices ? body?.totalOf : null,
+          totalOf: body?.totalOf,
+          hasConstraints: body.hasConstraints
         }
       });
     } catch (err) {
@@ -76,7 +77,6 @@ export class SalarySettingsRepository extends BaseRepository<SalarySetting, any>
 
   async update(id: number, updates: UpdateSalarySettingsDto) {
     try {
-      console.log(updates)
       return await this.prisma.salarySetting.update({
         where: {id},
         data: {
@@ -86,6 +86,7 @@ export class SalarySettingsRepository extends BaseRepository<SalarySetting, any>
           prices: updates?.prices,
           unit: updates.unit,
           totalOf: updates?.totalOf,
+          hasConstraints: updates.hasConstraints
         }
       });
     } catch (err) {
