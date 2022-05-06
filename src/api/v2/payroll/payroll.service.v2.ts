@@ -16,6 +16,7 @@ import * as dateFns from 'date-fns';
 import {AbsentEntity} from "./entities/absent.entity";
 import {RemoteEntity} from "../salaries/remote/entities/remote.entity";
 import {AllowanceEntity} from "../salaries/allowance/entities";
+import {OvertimeEntity} from "../salaries/overtime/entities";
 
 type AllowanceType = AllowanceSalary & { datetime: Date, duration: number };
 
@@ -137,12 +138,6 @@ export class PayrollServicev2 {
     const deduction = payroll.deductions?.map(deduction => {
       return deduction.price;
     }).reduce((a, b) => a + b, 0);
-
-    console.log("salary: ", salary);
-    console.log("allowance: ", allowance);
-    // console.log("absent: ", absent);
-    console.log("overtime: ", overtime);
-    console.log("deduction: ", deduction);
   }
 
   // Những khoảng cố định. Không ràng buộc bởi ngày công thực tế. Bao gồm lương cơ bản và phụ cấp lương (phụ cấp ở lại)
@@ -243,6 +238,20 @@ export class PayrollServicev2 {
       start: absent.startedAt,
       end: absent.endedAt
     });
+    return {
+      duration: datetimes.length,
+      price: totalSetting * datetimes.length
+    };
+  }
+
+  private handleOvertime(overtime: OvertimeEntity, payroll: OnePayroll): { duration: number, price: number }  {
+    const totalSetting = this.totalSetting(overtime.setting, payroll);
+
+    const datetimes = dateFns.eachDayOfInterval({
+      start: overtime.startedAt,
+      end: overtime.endedAt
+    });
+
     return {
       duration: datetimes.length,
       price: totalSetting * datetimes.length

@@ -49,6 +49,9 @@ export class CategoryService {
           where: {
             app: acc.appName,
             branch: acc.branches?.length ? {id: {in: acc.branches.map(branch => branch.id)}} : {name: search?.branch},
+          },
+          include: {
+            branch: true
           }
         })
       ]);
