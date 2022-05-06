@@ -51,8 +51,13 @@ export class CategoryService {
             branch: acc.branches?.length ? {id: {in: acc.branches.map(branch => branch.id)}} : {name: search?.branch},
           },
           include: {
-            branch: true
-          }
+            branch: true,
+            _count: {
+              select: {
+                employees: true
+              }
+            }
+          },
         })
       ]);
       return {total, data};
