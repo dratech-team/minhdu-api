@@ -127,9 +127,18 @@ export class PayrollServicev2 {
       return Object.assign(remote, {total: 0, duration: duration});
     });
 
-    const overtimes = _.flattenDeep(found.overtimes?.map(overtime => {
-      return this.handleOvertime(overtime, found as any);
-    }));
+    const overtimes = found.overtimes?.map(overtime => {
+      const details = this.handleOvertime(overtime, found as any);
+      return {
+        overtime: Object.assign(overtime, {
+          total: details.map(e => e.total).reduce((a, b) => a + b, 0),
+          duration: details.map(e => e.duration).reduce((a, b) => a + b, 0),
+        }),
+        details: details
+      };
+    });
+
+    // const deductions = found.
     // this.totalSalaryCTL(found as any);
     return Object.assign(found, {actualday: this.getWorkday(found), allowances, absents, remotes, overtimes});
   }
@@ -247,7 +256,10 @@ export class PayrollServicev2 {
     };
   }
 
-  private handleOvertime(overtime: OvertimeEntity, payroll: OnePayroll): OvertimeEntity[] {
+  private handleOvertime(
+    overtime: OvertimeEntity,
+    payroll: OnePayroll
+  ): Array<OvertimeEntity & { price: number, rate: number, datetime: Date, duration: number, total: number }> {
     const absentRange = this.absentUniq(payroll);
     let duration = this.getWorkday(payroll) - (payroll.workday || payroll.employee.workday);
 
