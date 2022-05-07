@@ -7,13 +7,13 @@ import {OvertimeModule} from "./overtime/overtime.module";
 import {RemoteModule} from "./remote/remote.module";
 import {SalaryModule} from "./salary/salary.module";
 import {Salaryv2Module} from "./salaryv2/salaryv2.module";
-import {AllowanceController} from "./allowance/allowance.controller";
 import {AbsentController} from "./absent/absent.controller";
 import {OvertimeController} from "./overtime/overtime.controller";
 import {RemoteController} from "./remote/remote.controller";
 import {PrismaService} from "../../../prisma.service";
-import {SalariesMiddleware} from "./salaries.middleware";
-import { HolidayModule } from './holiday/holiday.module';
+import {SalariesDuplicateMiddleware} from "./salaries-duplicate.middleware";
+import {HolidayModule} from './holiday/holiday.module';
+import {SalariesConvertDatetimeMiddleware} from "./salaries-convert-datime.middleware";
 
 @Module({
   imports: [
@@ -32,7 +32,7 @@ import { HolidayModule } from './holiday/holiday.module';
 export class SalariesModule implements NestModule {
   configure(consumer: MiddlewareConsumer) {
     consumer
-      .apply(SalariesMiddleware)
-      .forRoutes(AllowanceController, AbsentController, OvertimeController, RemoteController);
+      .apply(SalariesConvertDatetimeMiddleware, SalariesDuplicateMiddleware)
+      .forRoutes(AbsentController, OvertimeController, RemoteController);
   }
 }
