@@ -1,4 +1,4 @@
-import {IsArray, IsEnum, IsNumber, IsOptional} from "class-validator";
+import {IsArray, IsEnum, IsNumber, IsOptional, IsString} from "class-validator";
 import {SalaryType} from "@prisma/client";
 import {Transform, Type} from "class-transformer";
 
@@ -12,6 +12,10 @@ export class SearchSalarySettingsDto {
   @IsNumber()
   @Type(() => Number)
   readonly skip: number;
+
+  @IsOptional()
+  @IsString()
+  readonly search: string;
 
   @IsOptional()
   @IsArray()

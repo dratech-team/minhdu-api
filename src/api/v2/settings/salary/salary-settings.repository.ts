@@ -1,5 +1,5 @@
 import {BadRequestException, Injectable} from "@nestjs/common";
-import {SalarySetting} from "@prisma/client";
+import {SalarySetting, SalaryType} from "@prisma/client";
 import {BaseRepository} from "../../../../common/repository/base.repository";
 import {PrismaService} from "../../../../prisma.service";
 import {CreateSalarySettingsDto} from "./dto/create-salary-settings.dto";
@@ -53,7 +53,10 @@ export class SalarySettingsRepository extends BaseRepository<SalarySetting> {
           take: search?.take,
           skip: search?.skip,
           where: {
-            type: {in: search?.types}
+            type: {in: search?.types},
+            OR: [
+              {title: {contains: search?.search, mode: "insensitive"}},
+            ]
           }
         }),
       ]);
