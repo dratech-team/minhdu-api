@@ -16,6 +16,7 @@ import * as dateFns from 'date-fns';
 import {AbsentEntity} from "./entities/absent.entity";
 import {RemoteEntity} from "../salaries/remote/entities/remote.entity";
 import {OvertimeEntity} from "../salaries/overtime/entities";
+import {UpdatePayrollDto} from "./dto/update-payroll.dto";
 
 type AllowanceType = AllowanceSalary & { datetime: Date, duration: number };
 
@@ -104,45 +105,12 @@ export class PayrollServicev2 {
 
   async findOne(id: number) {
     const payroll = await this.repository.findOne(id);
+    return this.mapToPayroll(payroll);
+  }
 
-    // handle
-    const allowances = payroll.allowances.map(allowance => {
-      const a = this.handleAllowance(allowance, payroll as any);
-      return Object.assign(allowance, {total: a.total, duration: a.duration});
-    });
-    const absents = payroll.absents?.map(absent => {
-      const a = this.handleAbsent(absent, payroll as any);
-      return Object.assign(absent, {
-        price: a.price,
-        duration: a.duration,
-        total: a.price * a.duration * (absent.partial === PartialDay.ALL_DAY ? 1 : 0.5)
-      });
-    });
-    const remotes = payroll.remotes?.map(remote => {
-      const duration = dateFns.eachDayOfInterval({
-        start: remote.startedAt,
-        end: remote.endedAt
-      }).length;
-      return Object.assign(remote, {total: 0, duration: duration});
-    });
-    const overtimes = payroll.overtimes?.map(overtime => {
-      const details = this.handleOvertime(overtime, payroll as any);
-      return Object.assign(overtime, {
-        total: details.map(e => e.total).reduce((a, b) => a + b, 0),
-        duration: details.map(e => e.duration).reduce((a, b) => a + b, 0),
-        details: details,
-      });
-    });
-    const total = this.totalSalaryCTL(payroll as any);
-
-    return Object.assign(payroll, {
-      actualday: this.getWorkday(payroll),
-      allowances,
-      absents,
-      remotes,
-      overtimes,
-      total
-    });
+  async update(profile: ProfileEntity, id: number, updates: UpdatePayrollDto) {
+    const updated = this.repository.update(profile, id, updates);
+    return this.mapToPayroll(updated);
   }
 
   private totalSalaryCTL(payroll: OnePayroll): number {
@@ -330,5 +298,46 @@ export class PayrollServicev2 {
       return this.handleAbsent(absent, payroll).duration * (absent.partial === PartialDay.ALL_DAY ? 1 : 0.5);
     })?.reduce((a, b) => a + b, 0);
     return (dateFns.isSameMonth(new Date(), payroll.createdAt) ? new Date().getDate() + 1 : dateFns.getDaysInMonth(payroll.createdAt)) - (absentDuration + (payroll.createdAt.getDate() - 1));
+  }
+
+  private mapToPayroll(payroll) {
+    // handle
+    const allowances = payroll.allowances.map(allowance => {
+      const a = this.handleAllowance(allowance, payroll as any);
+      return Object.assign(allowance, {total: a.total, duration: a.duration});
+    });
+    const absents = payroll.absents?.map(absent => {
+      const a = this.handleAbsent(absent, payroll as any);
+      return Object.assign(absent, {
+        price: a.price,
+        duration: a.duration,
+        total: a.price * a.duration * (absent.partial === PartialDay.ALL_DAY ? 1 : 0.5)
+      });
+    });
+    const remotes = payroll.remotes?.map(remote => {
+      const duration = dateFns.eachDayOfInterval({
+        start: remote.startedAt,
+        end: remote.endedAt
+      }).length;
+      return Object.assign(remote, {total: 0, duration: duration});
+    });
+    const overtimes = payroll.overtimes?.map(overtime => {
+      const details = this.handleOvertime(overtime, payroll as any);
+      return Object.assign(overtime, {
+        total: details.map(e => e.total).reduce((a, b) => a + b, 0),
+        duration: details.map(e => e.duration).reduce((a, b) => a + b, 0),
+        details: details,
+      });
+    });
+    const total = this.totalSalaryCTL(payroll as any);
+
+    return Object.assign(payroll, {
+      actualday: this.getWorkday(payroll),
+      allowances,
+      absents,
+      remotes,
+      overtimes,
+      total
+    });
   }
 }

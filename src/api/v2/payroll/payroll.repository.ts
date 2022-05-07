@@ -445,13 +445,26 @@ export class PayrollRepository {
           note: updates?.note,
         },
         include: {
-          employee: {
+          salaries: {
             include: {
-              contracts: true
+              allowance: true
             }
           },
-          salaries: true,
-        }
+          salariesv2: true,
+          absents: {include: {setting: true}},
+          deductions: true,
+          remotes: {include: {block: true}},
+          overtimes: {include: {block: true, setting: true, allowances: true}},
+          allowances: true,
+          employee: {
+            include: {
+              contracts: true,
+              position: true,
+              branch: true,
+              category: true
+            },
+          },
+        },
       });
     } catch (e) {
       console.error(e);

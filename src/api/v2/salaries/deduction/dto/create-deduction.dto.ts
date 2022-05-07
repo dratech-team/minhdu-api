@@ -18,7 +18,7 @@ export class CreateDeductionDto {
   @Type(() => Number)
   readonly payrollId: number;
 
-  @IsNotEmpty()
+  @IsOptional()
   @IsNumber({}, {each: true})
   @Type(() => Number)
   readonly blockId: number;
