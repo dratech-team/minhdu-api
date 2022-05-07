@@ -584,6 +584,7 @@ model AllowanceSalary {
   blockId    Int?
   overtime   OvertimeSalary? @relation(fields: [overtimeId], references: [id])
   overtimeId Int?
+  note       String?
   timestamp  DateTime?       @default(now())
 }
 
@@ -592,6 +593,10 @@ model HolidaySalary {
   datetime  DateTime
   setting   SalarySetting @relation(fields: [settingId], references: [id])
   settingId Int
+  block     SalaryBlock   @relation(fields: [blockId], references: [id])
+  blockId   Int
+  note      String?
+  timestamp DateTime?     @default(now())
 }
 
 model SalaryHistory {
@@ -672,6 +677,7 @@ model SalaryBlock {
   absents       AbsentSalary[]
   overtimes     OvertimeSalary[]
   allowances    AllowanceSalary[]
+  holidays      HolidaySalary[]
 
   @@unique([title, recipeId, calculationId])
 }

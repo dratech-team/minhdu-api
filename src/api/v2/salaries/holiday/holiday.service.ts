@@ -53,6 +53,8 @@ export class HolidayService {
       payrollId: body.payrollId,
       settingId: body.settingId,
       datetime: body.datetime,
+      note: body?.note,
+      blockId: body?.blockId || 7
     };
   }
 }
