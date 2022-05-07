@@ -104,31 +104,30 @@ export class PayrollServicev2 {
   }
 
   async findOne(id: number) {
-    const found = await this.repository.findOne(id);
+    const payroll = await this.repository.findOne(id);
 
-    const allowances = found.allowances.map(allowance => {
-      const a = this.handleAllowance(allowance, found as any);
+    // handle
+    const allowances = payroll.allowances.map(allowance => {
+      const a = this.handleAllowance(allowance, payroll as any);
       return Object.assign(allowance, {total: a.total, duration: a.duration});
     });
-    const absents = found.absents?.map(absent => {
-      const a = this.handleAbsent(absent, found as any);
+    const absents = payroll.absents?.map(absent => {
+      const a = this.handleAbsent(absent, payroll as any);
       return Object.assign(absent, {
         price: a.price,
         duration: a.duration,
         total: a.price * a.duration * (absent.partial === PartialDay.ALL_DAY ? 1 : 0.5)
       });
     });
-
-    const remotes = found.remotes?.map(remote => {
+    const remotes = payroll.remotes?.map(remote => {
       const duration = dateFns.eachDayOfInterval({
         start: remote.startedAt,
         end: remote.endedAt
       }).length;
       return Object.assign(remote, {total: 0, duration: duration});
     });
-
-    const overtimes = found.overtimes?.map(overtime => {
-      const details = this.handleOvertime(overtime, found as any);
+    const overtimes = payroll.overtimes?.map(overtime => {
+      const details = this.handleOvertime(overtime, payroll as any);
       return {
         overtime: Object.assign(overtime, {
           total: details.map(e => e.total).reduce((a, b) => a + b, 0),
@@ -137,35 +136,32 @@ export class PayrollServicev2 {
         details: details
       };
     });
+    const total = this.totalSalaryCTL(payroll as any);
 
-    // const deductions = found.
-    // this.totalSalaryCTL(found as any);
-    return Object.assign(found, {actualday: this.getWorkday(found), allowances, absents, remotes, overtimes});
+    return Object.assign(payroll, {actualday: this.getWorkday(payroll), allowances, absents, remotes, overtimes, total});
   }
 
-  private totalSalaryCTL(payroll: OnePayroll) {
-    const salary = this.totalSalary(payroll);
-    const allowance = this.totalAllowance(payroll);
-    // const absent = this.handleAbsent(payroll.absents, payroll);
-    const deduction = payroll.deductions?.map(deduction => {
-      return deduction.price;
-    }).reduce((a, b) => a + b, 0);
-  }
-
-  // Những khoảng cố định. Không ràng buộc bởi ngày công thực tế. Bao gồm lương cơ bản và phụ cấp lương (phụ cấp ở lại)
-  private totalSalary(payroll: OnePayroll) {
-    return payroll.salariesv2?.filter(salary => salary.type === SalaryType.BASIC_INSURANCE || salary.type === SalaryType.BASIC || salary.type === SalaryType.STAY).map(salary => {
+  private totalSalaryCTL(payroll: OnePayroll): number {
+    const salary = payroll.salariesv2?.filter(salary => salary.type === SalaryType.BASIC_INSURANCE || salary.type === SalaryType.BASIC || salary.type === SalaryType.STAY).map(salary => {
       if (!payroll.taxed && salary.type === SalaryType.BASIC_INSURANCE) {
         return salary.price * 1;
       }
       return salary.price * salary.rate;
     }).reduce((a, b) => a + b, 0);
-  }
-
-  private totalAllowance(payroll: OnePayroll): number {
-    return payroll.allowances?.map(allowance => {
+    const allowance = payroll.allowances?.map(allowance => {
       return this.handleAllowance(allowance, payroll).total;
     }).reduce((a, b) => a + b, 0);
+    const absent = payroll.absents?.map(absent => {
+      const a = this.handleAbsent(absent, payroll);
+      return a.price * a.duration;
+    }).reduce((a, b) => a + b, 0);
+    const deduction = payroll.deductions?.map(deduction => {
+      return deduction.price;
+    }).reduce((a, b) => a + b, 0);
+    const overtime = _.flattenDeep(payroll.overtimes?.map(overtime => {
+      return this.handleOvertime(overtime, payroll).map(overtime => overtime.total);
+    })).reduce((a, b) => a + b, 0);
+    return salary + allowance - absent - deduction + overtime;
   }
 
   private handleAllowance(allowance: AllowanceSalary, payroll: OnePayroll): { duration: number, total: number } {
@@ -301,9 +297,9 @@ export class PayrollServicev2 {
     return totalOf / (setting.type !== SalaryType.OVERTIME ? (setting.workday || payroll.workday || payroll.employee.workday) : 1);
   }
 
-  private allowanceUniq(payroll: OnePayroll) {
-    return this.uniq(payroll.allowances) as Array<AllowanceEntity & { datetime: Date }>;
-  }
+  // private allowanceUniq(payroll: OnePayroll) {
+  //   return this.uniq(payroll.allowances) as Array<AllowanceEntity & { datetime: Date }>;
+  // }
 
   private absentUniq(payroll: OnePayroll) {
     return this.uniq(payroll.absents) as Array<AbsentEntity & { datetime: Date }>;
@@ -330,9 +326,5 @@ export class PayrollServicev2 {
       return this.handleAbsent(absent, payroll).duration * (absent.partial === PartialDay.ALL_DAY ? 1 : 0.5);
     })?.reduce((a, b) => a + b, 0);
     return (dateFns.isSameMonth(new Date(), payroll.createdAt) ? new Date().getDate() + 1 : dateFns.getDaysInMonth(payroll.createdAt)) - (absentDuration + (payroll.createdAt.getDate() - 1));
-  }
-
-  private mapToPayroll(body) {
-
   }
 }

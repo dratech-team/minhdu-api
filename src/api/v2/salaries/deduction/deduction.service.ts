@@ -49,7 +49,6 @@ export class DeductionService {
   private mapToDeduction(body): CreateDeductionDto {
     return {
       title: body.title,
-      unit: body.unit,
       price: body.price,
       payrollId: body.payrollId,
       blockId: body?.blockId || 6,

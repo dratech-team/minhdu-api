@@ -522,7 +522,6 @@ model DeductionSalary {
   payrollId Int
   block     SalaryBlock   @relation(fields: [blockId], references: [id])
   blockId   Int
-  unit      DatetimeUnit? @default(MONTH)
   note      String?
 }
 
