@@ -1,19 +1,19 @@
-import {Response} from "express";
+import {ResponsePagination} from "../entities/response.pagination";
 
-export interface InterfaceRepository<T, E> {
-  // create(body: any): Promise<T>;
-  //
-  // count(query?: any): Promise<number>;
-  //
-  // findAll(id: number, skip: number, take: number, search?: string): Promise<ResponsePagination<T>>;
-  //
-  // findBy(branchId: number, query: any): Promise<T[]>;
-  //
-  // findOne(id: number): Promise<T>;
-  //
-  // update(id: number, updates: any): Promise<T>;
-  //
-  // remove(id: number): void;
+export interface InterfaceRepository<T> {
+  create(body: any): Promise<T>;
 
-  export(res, profile, header: { title: string, filename: string }, items, data): Promise<Response<any, Record<string, any>>>;
+  createMany(body: Array<any>): Promise<{ count: number }>;
+
+  findAll(search?: any): Promise<ResponsePagination<T>>;
+
+  findOne(id: number): Promise<T>;
+
+  update(id: number, updates: any): Promise<T>;
+
+  updateMany(ids: number[], updates: any): Promise<{ count: number }>;
+
+  remove(id: number): Promise<T>;
+
+  removeMany(ids: number[]): Promise<{ count: number }>;
 }

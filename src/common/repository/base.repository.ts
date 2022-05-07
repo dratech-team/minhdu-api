@@ -1,9 +1,8 @@
-import {InterfaceRepository} from "./interface.repository";
 import {Response} from "express";
 import {ProfileEntity} from "../entities/profile.entity";
 import {exportExcel} from "../../core/services/export.service";
 
-export class BaseRepository<T, E> implements InterfaceRepository<T, E> {
+export class BaseRepository<T> {
   constructor() {
   }
 

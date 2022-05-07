@@ -1,14 +1,14 @@
 import {BadRequestException, Injectable} from "@nestjs/common";
-import {AllowanceSalary} from "@prisma/client";
 import {BaseRepository} from "../../../../common/repository/base.repository";
 import {PrismaService} from "../../../../prisma.service";
 import {CreateAllowanceDto} from "./dto/create-allowance.dto";
 import {RemoveManyAllowanceDto} from "./dto/remove-many-allowance.dto";
 import {ProfileEntity} from "../../../../common/entities/profile.entity";
 import {SearchAllowanceDto} from "./dto/search-allowance.dto";
+import {AllowanceEntity} from "./entities";
 
 @Injectable()
-export class AllowanceRepository extends BaseRepository<AllowanceSalary, any> {
+export class AllowanceRepository extends BaseRepository<AllowanceEntity> {
   constructor(private readonly prisma: PrismaService) {
     super();
   }
@@ -41,14 +41,13 @@ export class AllowanceRepository extends BaseRepository<AllowanceSalary, any> {
           skip: search?.skip,
           where: {
             payroll: search?.payrollIds?.length ? {id: {in: search.payrollIds}} : search?.payrollId ? {id: search.payrollId} : {},
-            branch: acc.branches?.length ? {id: {in: acc.branches?.map(branch => branch.id)}} : {},
             startedAt: {
               lte: search?.startedAt,
             },
             endedAt: {
               gte: search?.endedAt
             },
-          }
+          },
         }),
       ]);
       return {total, data};

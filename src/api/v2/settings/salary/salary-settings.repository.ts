@@ -8,7 +8,7 @@ import {SearchSalarySettingsDto} from "./dto/search-salary-settings.dto";
 import {ProfileEntity} from "../../../../common/entities/profile.entity";
 
 @Injectable()
-export class SalarySettingsRepository extends BaseRepository<SalarySetting, any> {
+export class SalarySettingsRepository extends BaseRepository<SalarySetting> {
   constructor(private readonly prisma: PrismaService) {
     super();
   }

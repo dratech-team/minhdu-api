@@ -10,7 +10,7 @@ import {BaseRepository} from "../../../common/repository/base.repository";
 import {Response} from 'express';
 
 @Injectable()
-export class HolidayRepository extends BaseRepository<Holiday, any> {
+export class HolidayRepository extends BaseRepository<Holiday> {
   constructor(private readonly prisma: PrismaService) {
     super();
   }

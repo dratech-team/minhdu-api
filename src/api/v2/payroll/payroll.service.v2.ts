@@ -15,7 +15,6 @@ import * as _ from "lodash";
 import * as dateFns from 'date-fns';
 import {AbsentEntity} from "./entities/absent.entity";
 import {RemoteEntity} from "../salaries/remote/entities/remote.entity";
-import {AllowanceEntity} from "../salaries/allowance/entities";
 import {OvertimeEntity} from "../salaries/overtime/entities";
 
 type AllowanceType = AllowanceSalary & { datetime: Date, duration: number };
@@ -128,17 +127,22 @@ export class PayrollServicev2 {
     });
     const overtimes = payroll.overtimes?.map(overtime => {
       const details = this.handleOvertime(overtime, payroll as any);
-      return {
-        overtime: Object.assign(overtime, {
-          total: details.map(e => e.total).reduce((a, b) => a + b, 0),
-          duration: details.map(e => e.duration).reduce((a, b) => a + b, 0),
-        }),
-        details: details
-      };
+      return Object.assign(overtime, {
+        total: details.map(e => e.total).reduce((a, b) => a + b, 0),
+        duration: details.map(e => e.duration).reduce((a, b) => a + b, 0),
+        details: details,
+      });
     });
     const total = this.totalSalaryCTL(payroll as any);
 
-    return Object.assign(payroll, {actualday: this.getWorkday(payroll), allowances, absents, remotes, overtimes, total});
+    return Object.assign(payroll, {
+      actualday: this.getWorkday(payroll),
+      allowances,
+      absents,
+      remotes,
+      overtimes,
+      total
+    });
   }
 
   private totalSalaryCTL(payroll: OnePayroll): number {

@@ -13,6 +13,7 @@ import {OvertimeController} from "./overtime/overtime.controller";
 import {RemoteController} from "./remote/remote.controller";
 import {PrismaService} from "../../../prisma.service";
 import {SalariesMiddleware} from "./salaries.middleware";
+import { HolidayModule } from './holiday/holiday.module';
 
 @Module({
   imports: [
@@ -23,7 +24,8 @@ import {SalariesMiddleware} from "./salaries.middleware";
     OvertimeModule,
     RemoteModule,
     SalaryModule,
-    Salaryv2Module
+    Salaryv2Module,
+    HolidayModule
   ],
   providers: [PrismaService]
 })

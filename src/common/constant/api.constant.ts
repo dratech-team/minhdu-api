@@ -34,6 +34,7 @@ export const ApiV2Constant = {
     DEDUCTION: '/v2/salary/deduction',
     OVERTIME: '/v2/salary/overtime',
     REMOTE: '/v2/salary/remote',
+    HOLIDAY: '/v2/salary/holiday',
   },
   SYSTEM: 'v2/system',
   WAREHOUSE: 'v2/warehouse',

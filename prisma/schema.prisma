@@ -126,9 +126,18 @@ model Branch {
   status            BranchStatus[]
   phone             BranchPhone[]
   ioIReceipts       IoIReceipt[]
-  allowancesv2      AllowanceSalary[]
   salarySetting     SalarySetting?     @relation(fields: [salarySettingId], references: [id])
   salarySettingId   Int?
+  allownances       AllowanceBranch[]
+}
+
+model AllowanceBranch {
+  id        Int      @id @default(autoincrement())
+  title     String
+  price     Float
+  branch    Branch   @relation(fields: [branchId], references: [id])
+  branchId  Int
+  timestamp DateTime
 }
 
 model BranchStatus {
@@ -298,6 +307,7 @@ model SalarySetting {
   positions      Position[]
   absents        AbsentSalary[]
   overtimes      OvertimeSalary[]
+  holidays       HolidaySalary[]
 
   @@unique([title, type])
 }
@@ -515,18 +525,18 @@ model RemoteSalary {
 }
 
 model DeductionSalary {
-  id        Int           @id @default(autoincrement())
+  id        Int         @id @default(autoincrement())
   title     String
   price     Float
-  payroll   Payroll       @relation(fields: [payrollId], references: [id])
+  payroll   Payroll     @relation(fields: [payrollId], references: [id])
   payrollId Int
-  block     SalaryBlock   @relation(fields: [blockId], references: [id])
+  block     SalaryBlock @relation(fields: [blockId], references: [id])
   blockId   Int
   note      String?
 }
 
 model AbsentSalary {
-  id        Int            @id @default(autoincrement())
+  id        Int           @id @default(autoincrement())
   title     String?
   partial   PartialDay
   startedAt DateTime
@@ -535,9 +545,9 @@ model AbsentSalary {
   endTime   DateTime
   setting   SalarySetting @relation(fields: [settingId], references: [id])
   settingId Int
-  payroll   Payroll        @relation(fields: [payrollId], references: [id], onDelete: Cascade)
+  payroll   Payroll       @relation(fields: [payrollId], references: [id], onDelete: Cascade)
   payrollId Int
-  block     SalaryBlock    @relation(fields: [blockId], references: [id])
+  block     SalaryBlock   @relation(fields: [blockId], references: [id])
   blockId   Int
   note      String?
 }
@@ -568,15 +578,20 @@ model AllowanceSalary {
   startedAt  DateTime?
   endedAt    DateTime?
   rate       Float?          @default(1)
-  branch     Branch?         @relation(fields: [branchId], references: [id])
-  branchId   Int?
-  payroll    Payroll?        @relation(fields: [payrollId], references: [id])
-  payrollId  Int?
+  payroll    Payroll         @relation(fields: [payrollId], references: [id])
+  payrollId  Int
   block      SalaryBlock?    @relation(fields: [blockId], references: [id])
   blockId    Int?
-  timestamp  DateTime?       @default(now())
   overtime   OvertimeSalary? @relation(fields: [overtimeId], references: [id])
   overtimeId Int?
+  timestamp  DateTime?       @default(now())
+}
+
+model HolidaySalary {
+  id        Int           @id @default(autoincrement())
+  datetime  DateTime
+  setting   SalarySetting @relation(fields: [settingId], references: [id])
+  settingId Int
 }
 
 model SalaryHistory {

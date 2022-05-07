@@ -13,7 +13,7 @@ import {Response} from "express";
 import {StatusEnum} from "../../../common/enum/status.enum";
 
 @Injectable()
-export class EmployeeRepository extends BaseRepository<Employee, any> {
+export class EmployeeRepository extends BaseRepository<Employee> {
   constructor(private readonly prisma: PrismaService) {
     super();
   }

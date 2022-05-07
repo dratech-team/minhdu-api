@@ -6,9 +6,10 @@ import {CreateManyOvertimeDto} from "./dto/create-many-overtime.dto";
 import {UpdateOvertimeDto} from "./dto/update-overtime.dto";
 import {CreateOvertimeDto} from "./dto/create-overtime.dto";
 import {RemoveManyOvertimeDto} from "./dto/remove-many-overtime.dto";
+import {OvertimeEntity} from "./entities";
 
 @Injectable()
-export class OvertimeRepository extends BaseRepository<OvertimeSalary, any> {
+export class OvertimeRepository extends BaseRepository<OvertimeEntity> {
   constructor(private readonly prisma: PrismaService) {
     super();
   }
