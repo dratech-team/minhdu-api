@@ -1,4 +1,5 @@
 import {ResponsePagination} from "../entities/response.pagination";
+import {DeleteMultipleSalaryDto} from "../../api/v2/salaries/base/dto/delete-multiple-salary.dto";
 
 export interface InterfaceRepository<T> {
   create(body: any): Promise<T>;
@@ -15,5 +16,5 @@ export interface InterfaceRepository<T> {
 
   remove(id: number): Promise<T>;
 
-  removeMany(ids: number[]): Promise<{ count: number }>;
+  removeMany(body: any): Promise<{ count: number }>;
 }

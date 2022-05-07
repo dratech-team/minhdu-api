@@ -6,6 +6,11 @@ export class CreateHolidayDto {
   @IsNotEmpty()
   @IsNumber()
   @Type(() => Number)
+  readonly payrollId: number;
+
+  @IsNotEmpty()
+  @IsNumber()
+  @Type(() => Number)
   readonly settingId: number;
 
   @IsNotEmpty()
