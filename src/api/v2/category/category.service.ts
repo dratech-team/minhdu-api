@@ -20,7 +20,10 @@ export class CategoryService {
           branch: {connect: {id: body.branchId}},
           employees: body?.employeeIds?.length ? {connect: body.employeeIds.map(id => ({id}))} : {},
           app: acc.appName,
-        }
+        },
+        include: {
+          branch: true,
+        },
       });
     } catch (err) {
       console.error(err);
@@ -95,7 +98,10 @@ export class CategoryService {
           name: updates?.name,
           branch: updates?.branchId ? {connect: {id: updates.branchId}} : {},
           employees: updates?.employeeIds?.length ? {connect: updates.employeeIds.map(id => ({id}))} : {},
-        }
+        },
+        include: {
+          branch: true,
+        },
       });
     } catch (err) {
       console.error(err);
