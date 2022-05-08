@@ -21,5 +21,6 @@ export class SalariesConvertDatetimeMiddleware implements NestMiddleware {
         seconds: 0
       }).format('YYYY-MM-DD'));
     }
+    next();
   }
 }

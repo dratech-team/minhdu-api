@@ -54,9 +54,6 @@ export class SalarySettingsRepository extends BaseRepository<SalarySetting> {
           skip: search?.skip,
           where: {
             type: {in: search?.types},
-            OR: [
-              {title: {contains: search?.search, mode: "insensitive"}},
-            ]
           }
         }),
       ]);

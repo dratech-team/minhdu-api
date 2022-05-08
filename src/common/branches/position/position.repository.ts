@@ -21,6 +21,10 @@ export class PositionRepository {
           workday: body.workday,
           branches: body?.branchIds?.length ? {connect: body.branchIds.map(id => ({id: +id}))} : {},
         },
+        include: {
+          branches: true,
+          _count: true
+        }
       });
 
       Promise.all(body?.branchIds?.map(async branchId => {
@@ -75,6 +79,7 @@ export class PositionRepository {
             workday: search?.workday,
           },
           include: {
+            branches: true,
             _count: true
           }
         }),
@@ -123,6 +128,10 @@ export class PositionRepository {
           workday: updates?.workday,
           branches: updates?.branchIds?.length ? {set: updates.branchIds?.map((id) => ({id: +id}))} : {}
         },
+        include: {
+          branches: true,
+          _count: true
+        }
       });
     } catch (e) {
       throw new BadRequestException(e);
