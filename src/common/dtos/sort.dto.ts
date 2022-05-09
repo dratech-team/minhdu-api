@@ -7,6 +7,6 @@ export class SortDto {
   readonly orderType: "asc" | "desc";
 
   @IsOptional()
-  @IsEnum(OrderbyEmployeeEnum)
+  @IsString()
   readonly orderBy: OrderbyEmployeeEnum;
 }
