@@ -1,5 +1,5 @@
 export enum EmployeeStatusEnum {
-  LEFT = 1,
-  WORKING = 0,
+  LEFT = 0,
+  WORKING = 1,
   ALL = -1
 }
