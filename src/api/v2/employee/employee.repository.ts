@@ -154,15 +154,15 @@ export class EmployeeRepository extends BaseRepository<Employee> {
             gender: search?.gender ? {equals: search?.gender} : {},
             isFlatSalary: (search?.isFlatSalary == 1 || search?.isFlatSalary == 0) ? {equals: +search.isFlatSalary === 1} : {},
             createdAt: search?.createdAt ? search?.createdAt.compare === 'gte'
-              ? {gte: search?.createdAt?.datetime}
-              : search?.createdAt.compare === 'lte'
-                ? {lte: search?.createdAt?.datetime}
-                : search?.createdAt.compare === 'in'
-                  ? {in: search?.createdAt?.datetime}
-                  : search?.createdAt.compare === 'inMonth' ? {
-                    gte: firstDatetime(search?.createdAt?.datetime),
-                    lte: lastDatetime(search?.createdAt?.datetime)
-                  } : {}
+                ? {gte: search?.createdAt?.datetime}
+                : search?.createdAt.compare === 'lte'
+                  ? {lte: search?.createdAt?.datetime}
+                  : search?.createdAt.compare === 'in'
+                    ? {in: search?.createdAt?.datetime}
+                    : search?.createdAt.compare === 'inMonth' ? {
+                      gte: firstDatetime(search?.createdAt?.datetime),
+                      lte: lastDatetime(search?.createdAt?.datetime)
+                    } : {}
               : {},
             workedAt: {in: search?.workedAt},
             payrolls: search?.createdPayroll ? {
@@ -203,15 +203,15 @@ export class EmployeeRepository extends BaseRepository<Employee> {
             gender: search?.gender ? {equals: search?.gender} : {},
             isFlatSalary: (search?.isFlatSalary == 1 || search?.isFlatSalary == 0) ? {equals: +search.isFlatSalary === 1} : {},
             createdAt: search?.createdAt ? search?.createdAt.compare === 'gte'
-              ? {gte: search?.createdAt?.datetime}
-              : search?.createdAt.compare === 'lte'
-                ? {lte: search?.createdAt?.datetime}
-                : search?.createdAt.compare === 'in'
-                  ? {in: search?.createdAt?.datetime}
-                  : search?.createdAt.compare === 'inMonth' ? {
-                    gte: firstDatetime(search?.createdAt?.datetime),
-                    lte: lastDatetime(search?.createdAt?.datetime)
-                  } : {}
+                ? {gte: search?.createdAt?.datetime}
+                : search?.createdAt.compare === 'lte'
+                  ? {lte: search?.createdAt?.datetime}
+                  : search?.createdAt.compare === 'in'
+                    ? {in: search?.createdAt?.datetime}
+                    : search?.createdAt.compare === 'inMonth' ? {
+                      gte: firstDatetime(search?.createdAt?.datetime),
+                      lte: lastDatetime(search?.createdAt?.datetime)
+                    } : {}
               : {},
             workedAt: {in: search?.workedAt},
             payrolls: search?.createdPayroll ? {
