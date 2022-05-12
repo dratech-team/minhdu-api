@@ -244,7 +244,7 @@ model Employee {
   timestamp       DateTime?       @default(now())
   category        Category?       @relation(fields: [categoryId], references: [id])
   categoryId      Int?
-  stt             Int?
+  stt             Int?  @default(autoincrement())
 
   // @@unique([branchId, stt])
 }
