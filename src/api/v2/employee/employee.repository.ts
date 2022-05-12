@@ -255,9 +255,9 @@ export class EmployeeRepository extends BaseRepository<Employee> {
               : search.orderBy === OrderbyEmployeeEnum.POSITION
                 ? {position: {name: search.orderType}}
                 : search.orderBy === OrderbyEmployeeEnum.STT
-                  ? {stt: search.orderType}
+                  ? {lastName: search.orderType}
                   : {}
-            : {lastName: "asc"}
+            : {stt: "asc"}
         }),
       ]);
       return {total, data};
