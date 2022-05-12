@@ -11,6 +11,7 @@ import {BaseRepository} from "../../../common/repository/base.repository";
 import {Employee} from "@prisma/client";
 import {Response} from "express";
 import {StatusEnum} from "../../../common/enum/status.enum";
+import {EmployeeStatusEnum} from "./enums/employee-status.enum";
 
 @Injectable()
 export class EmployeeRepository extends BaseRepository<Employee> {
@@ -143,7 +144,7 @@ export class EmployeeRepository extends BaseRepository<Employee> {
       const [total, data] = await Promise.all([
         this.prisma.employee.count({
           where: {
-            leftAt: search?.status > -1 && search?.status !== StatusEnum.ALL ? (search?.status === StatusEnum.NOT_ACTIVE ? {notIn: null} : {in: null}) : {},
+            leftAt: search?.status > -1 && search?.status !== EmployeeStatusEnum.ALL ? (search?.status === EmployeeStatusEnum.LEFT ? {notIn: null} : {in: null}) : {},
             position: {name: {contains: search?.position, mode: "insensitive"}},
             branch: {
               id: acc.branches?.length ? {in: acc.branches.map(branch => branch.id)} : {},
@@ -192,7 +193,7 @@ export class EmployeeRepository extends BaseRepository<Employee> {
           skip: search?.skip,
           take: search?.take,
           where: {
-            leftAt: search?.status > -1 && search?.status !== StatusEnum.ALL ? (search?.status === StatusEnum.NOT_ACTIVE ? {notIn: null} : {in: null}) : {},
+            leftAt: search?.status > -1 && search?.status !== EmployeeStatusEnum.ALL ? (search?.status === EmployeeStatusEnum.LEFT ? {notIn: null} : {in: null}) : {},
             position: {name: {contains: search?.position, mode: "insensitive"}},
             branch: {
               id: acc.branches?.length ? {in: acc.branches.map(branch => branch.id)} : {},

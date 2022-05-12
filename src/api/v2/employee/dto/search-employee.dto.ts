@@ -4,6 +4,7 @@ import {Type} from "class-transformer";
 import {SortDto} from "../../../../common/dtos/sort.dto";
 import {PartialType} from "@nestjs/mapped-types";
 import {StatusEnum} from "../../../../common/enum/status.enum";
+import {EmployeeStatusEnum} from "../enums/employee-status.enum";
 
 export class SearchEmployeeDto extends PartialType(SortDto) {
   @IsNotEmpty()
@@ -54,9 +55,9 @@ export class SearchEmployeeDto extends PartialType(SortDto) {
   readonly createdPayroll: Date;
 
   @IsNotEmpty()
-  @IsEnum(StatusEnum)
+  @IsEnum(EmployeeStatusEnum)
   @Type(() => Number)
-  readonly status: StatusEnum;
+  readonly status: EmployeeStatusEnum;
 
   readonly type: EmployeeType;
 

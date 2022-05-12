@@ -17,6 +17,7 @@ import {AbsentEntity} from "./entities/absent.entity";
 import {RemoteEntity} from "../salaries/remote/entities/remote.entity";
 import {OvertimeEntity} from "../salaries/overtime/entities";
 import {UpdatePayrollDto} from "./dto/update-payroll.dto";
+import {EmployeeStatusEnum} from "../employee/enums/employee-status.enum";
 
 type AllowanceType = AllowanceSalary & { datetime: Date, duration: number };
 
@@ -40,9 +41,10 @@ export class PayrollServicev2 {
             datetime: lastDatetime(body.createdAt),
             compare: "lte"
           },
-          status: StatusEnum.NOT_ACTIVE
+          status: EmployeeStatusEnum.WORKING
         }
       );
+      console.log(data);
       const createds = [];
       for (let i = 0; i < data.length; i++) {
         const payrolls = await this.repository.findAll(profile, {

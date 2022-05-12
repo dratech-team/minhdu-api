@@ -33,6 +33,7 @@ import {SearchSalaryDto} from "./dto/search-salary.dto";
 import *as _ from "lodash";
 import {StatusEnum} from "../../../common/enum/status.enum";
 import {AbsentEntity} from "./entities/absent.entity";
+import {EmployeeStatusEnum} from "../employee/enums/employee-status.enum";
 
 @Injectable()
 export class PayrollService {
@@ -55,7 +56,7 @@ export class PayrollService {
               datetime: lastDatetime(body.createdAt),
               compare: "lte"
             },
-            status: StatusEnum.NOT_ACTIVE
+            status: EmployeeStatusEnum.WORKING
           }
         );
         const createds = [];
