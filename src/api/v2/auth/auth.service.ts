@@ -30,9 +30,10 @@ export class AuthService {
         data: {
           username: body.username,
           password: body.password,
-          roleId: body.roleId,
+          role: {connect: {id: body.roleId}},
           appName: body.appName,
           managedBy: profile?.role,
+          branches: body.branchIds?.length ? {connect: body.branchIds?.map(id => ({id}))} : {},
         },
         include: {
           branches: true,
@@ -106,9 +107,8 @@ export class AuthService {
       return await this.prisma.account.update({
         where: {id},
         data: {
-          roleId: body.roleId,
-          /// FIXME:
-          // branches: {set: body.branchIds?.map(id => ({id}))},
+          role: {connect: {id: body.roleId}},
+          branches: body.branchIds?.length ? {set: body.branchIds?.map(id => ({id}))} : {},
         },
         include: {
           branches: true,
