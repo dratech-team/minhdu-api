@@ -51,7 +51,7 @@ export class DeductionService {
       title: body.title,
       price: body.price,
       payrollId: body.payrollId,
-      blockId: body?.blockId || 6,
+      blockId: body?.blockId || 7,
       note: body.note,
     } as CreateDeductionDto;
   }

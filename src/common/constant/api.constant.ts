@@ -31,6 +31,7 @@ export const ApiV2Constant = {
     SALARYV2: '/v2/salaryv2',
     ALLOWANCE: '/v2/salary/allowance',
     ABSENT: '/v2/salary/absent',
+    DAYOFF: '/v2/salary/dayoff',
     DEDUCTION: '/v2/salary/deduction',
     OVERTIME: '/v2/salary/overtime',
     REMOTE: '/v2/salary/remote',
