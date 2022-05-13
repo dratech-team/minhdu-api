@@ -3,7 +3,6 @@ import {PayrollRepository} from "./payroll.repository";
 import {ProfileEntity} from "../../../common/entities/profile.entity";
 import {CreatePayrollDto} from "./dto/create-payroll.dto";
 import {firstDatetime, lastDatetime} from "../../../utils/datetime.util";
-import {StatusEnum} from "../../../common/enum/status.enum";
 import {isEqualDatetime} from "../../../common/utils/isEqual-datetime.util";
 import {EmployeeService} from "../employee/employee.service";
 import {SearchPayrollDto} from "./dto/search-payroll.dto";

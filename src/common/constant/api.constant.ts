@@ -41,3 +41,8 @@ export const ApiV2Constant = {
   WAREHOUSE: 'v2/warehouse',
   WAREHOUSE_HISTORY: 'v2/warehouse-history',
 };
+
+
+export const ApiV3Constant = {
+  PAYROLL: 'v3/payroll',
+};
