@@ -17,7 +17,7 @@ export class AppService {
           data: {
             type: salary.type,
             rate: salary?.rate || 1,
-            payroll: {connect: {id: salary.id}},
+            payroll: {connect: {id: salary.payrollId}},
             price: salary.price,
             block: {connect: {id: salary.type === SalaryType.STAY ? 2 : 1}},
             note: salary.note,
