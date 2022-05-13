@@ -26,18 +26,19 @@ export class AuthService {
   async register(profile: ProfileEntity, body: SignupCredentialDto) {
     try {
       body.password = await generateHash(body.password);
-      await this.prisma.account.create({
+      return await this.prisma.account.create({
         data: {
           username: body.username,
           password: body.password,
           roleId: body.roleId,
-          /// FIXME:
-          // branches: {connect: {id: body.branchIds?.map(id => ({id}))}},
           appName: body.appName,
           managedBy: profile?.role,
+        },
+        include: {
+          branches: true,
+          role: true,
         }
       });
-      return {message: 'Register Success!'};
     } catch (e) {
       console.error(e);
       if (e.code === 'P2002') {
@@ -112,6 +113,7 @@ export class AuthService {
         include: {
           branches: true,
           _count: true,
+          role: true
         }
       });
     } catch (err) {
@@ -126,25 +128,24 @@ export class AuthService {
         where: {
           id: {notIn: profile.id},
           managedBy: profile.role,
+          branches: search?.branchIds?.length ? {some: {id: {in: search.branchIds}}} : {}
         }
       }),
       this.prisma.account.findMany({
+        take: search?.take,
+        skip: search?.skip,
         where: {
           id: {notIn: profile.id},
           managedBy: profile.role,
+          branches: search?.branchIds?.length ? {some: {id: {in: search.branchIds}}} : {}
         },
-        select: {
-          id: true,
-          username: true,
+        include: {
           branches: true,
           role: true,
-          loggedAt: true,
-          ip: true,
-          timestamp: true,
         }
       })
     ]);
-    return {total, data: data.map(account => Object.assign(account, {createdAt: account.timestamp}))};
+    return {total, data};
   }
 
   async remove(profile: ProfileEntity, id: number) {

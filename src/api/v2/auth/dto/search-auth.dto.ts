@@ -1,4 +1,4 @@
-import {IsNumber, IsOptional} from "class-validator";
+import {IsArray, IsNumber, IsOptional} from "class-validator";
 import {Type} from "class-transformer";
 
 export class SearchAuthDto {
@@ -11,4 +11,9 @@ export class SearchAuthDto {
   @IsNumber()
   @Type(() => Number)
   readonly skip: number;
+
+  @IsOptional()
+  @IsArray()
+  @IsNumber({}, {each: true})
+  branchIds: number[];
 }
