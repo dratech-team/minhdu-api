@@ -26,18 +26,30 @@ export class AppService {
           }
         });
       } else if (salary.type === SalaryType.ALLOWANCE) {
-        created = await this.prisma.allowanceSalary.create({
-          data: {
-            title: salary.title,
-            startedAt: salary.datetime,
-            endedAt: salary.datetime,
-            payroll: {connect: {id: salary.payrollId}},
-            price: salary.price,
-            block: {connect: {id: 3}},
-            note: salary.note,
-            timestamp: salary.timestamp,
-          }
-        });
+        if (!salary.branchId && !salary.salaryId) {
+          created = await this.prisma.allowanceSalary.create({
+            data: {
+              title: salary.title,
+              startedAt: salary.datetime,
+              endedAt: salary.datetime,
+              payroll: {connect: {id: salary.payrollId}},
+              price: salary.price,
+              block: {connect: {id: 3}},
+              note: salary.note,
+              timestamp: salary.timestamp,
+            }
+          });
+        }
+        if (salary.branchId && !salary.salaryId) {
+          created = await this.prisma.allowanceBranch.create({
+            data: {
+              title: salary.title,
+              price: salary.price,
+              branch: {connect: {id: salary.branchId}},
+              timestamp: salary.timestamp,
+            }
+          });
+        }
       } else if (salary.type === SalaryType.ABSENT) {
         created = await this.prisma.absentSalary.create({
           data: {
@@ -66,7 +78,7 @@ export class AppService {
             note: salary.note,
           }
         });
-      } else if(salary.type === SalaryType.DEDUCTION) {
+      } else if (salary.type === SalaryType.DEDUCTION) {
         created = await this.prisma.deductionSalary.create({
           data: {
             title: salary.title,
@@ -77,9 +89,9 @@ export class AppService {
             note: salary.note,
           }
         });
-      } else if(salary.type === SalaryType.HOLIDAY) {
+      } else if (salary.type === SalaryType.HOLIDAY) {
 
-      } else if(salary.type === SalaryType.WFH) {
+      } else if (salary.type === SalaryType.WFH) {
         created = await this.prisma.remoteSalary.create({
           data: {
             payroll: {connect: {id: salary.payrollId}},
@@ -90,6 +102,20 @@ export class AppService {
             startedAt: salary.datetime,
             endedAt: salary.datetime,
             type: "WFH",
+          }
+        });
+      } else if (salary.type === SalaryType.OVERTIME) {
+        created = await this.prisma.overtimeSalary.create({
+          data: {
+            payroll: {connect: {id: salary.payrollId}},
+            note: salary.note,
+            timestamp: salary.timestamp,
+            block: {connect: {id: 4}},
+            partial: salary.partial,
+            startedAt: salary.datetime,
+            endedAt: salary.datetime,
+            setting: {connect: {id: 1}},
+            allowances: salary.salaryId ? {connect: {id: salary.salaryId}} : {},
           }
         });
       }
