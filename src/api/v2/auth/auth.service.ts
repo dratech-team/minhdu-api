@@ -13,6 +13,7 @@ import * as bcrypt from "bcrypt";
 import {JwtService} from "@nestjs/jwt";
 import {ProfileEntity} from "../../../common/entities/profile.entity";
 import {UpdateAuthDto} from "./dto/update-auth.dto";
+import {SearchAuthDto} from "./dto/search-auth.dto";
 
 @Injectable()
 export class AuthService {
@@ -119,23 +120,31 @@ export class AuthService {
     }
   }
 
-  async findAll(profile: ProfileEntity) {
-    const accounts = await this.prisma.account.findMany({
-      where: {
-        username: {notIn: profile.username},
-        managedBy: profile.role,
-      },
-      select: {
-        id: true,
-        username: true,
-        branches: true,
-        role: true,
-        loggedAt: true,
-        ip: true,
-        timestamp: true,
-      }
-    });
-    return accounts.map(account => Object.assign(account, {createdAt: account.timestamp}));
+  async findAll(profile: ProfileEntity, search: SearchAuthDto) {
+    const [total, data] = await Promise.all([
+      this.prisma.account.count({
+        where: {
+          id: {notIn: profile.id},
+          managedBy: profile.role,
+        }
+      }),
+      this.prisma.account.findMany({
+        where: {
+          id: {notIn: profile.id},
+          managedBy: profile.role,
+        },
+        select: {
+          id: true,
+          username: true,
+          branches: true,
+          role: true,
+          loggedAt: true,
+          ip: true,
+          timestamp: true,
+        }
+      })
+    ]);
+    return {total, data: data.map(account => Object.assign(account, {createdAt: account.timestamp}))};
   }
 
   async remove(profile: ProfileEntity, id: number) {
