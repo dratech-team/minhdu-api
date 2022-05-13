@@ -1,12 +1,13 @@
 import {Controller, Get} from "@nestjs/common";
+import {AppService} from "./app.service";
 
-@Controller()
+@Controller('migration')
 export class AppController {
-  constructor() {
+  constructor(private readonly service: AppService) {
   }
 
-  @Get()
-  async find(): Promise<any> {
-    return 'Hello world api v2';
+  @Get('salariesv2')
+  async salariesv2(): Promise<any> {
+    return this.service.salariesv2();
   }
 }

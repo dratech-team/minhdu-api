@@ -50,6 +50,7 @@ import {WarehouseModule} from "./api/v2/warehouse/warehouse.module";
 import {SalarySettingsModule} from "./api/v2/settings/salary/salary-settings.module";
 import {SalaryBlockModule} from './api/v2/settings/salary-block/salary-block.module';
 import {SalariesModule} from "./api/v2/salaries/salary.module";
+import {AppService} from "./app.service";
 
 @Module({
   imports: [
@@ -104,7 +105,7 @@ import {SalariesModule} from "./api/v2/salaries/salary.module";
     SalariesModule
   ],
   controllers: [AppController],
-  providers: [PrismaService],
+  providers: [PrismaService, AppService],
 })
 export class AppModule {
 
