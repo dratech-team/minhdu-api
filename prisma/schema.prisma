@@ -244,7 +244,7 @@ model Employee {
   timestamp       DateTime?       @default(now())
   category        Category?       @relation(fields: [categoryId], references: [id])
   categoryId      Int?
-  stt             Int?  @default(autoincrement())
+  stt             Int?            @default(autoincrement())
 
   // @@unique([branchId, stt])
 }
@@ -522,6 +522,7 @@ model RemoteSalary {
   blockId   Int
   partial   PartialDay
   note      String?
+  timestamp DateTime?   @default(now())
 }
 
 model DeductionSalary {
@@ -533,6 +534,7 @@ model DeductionSalary {
   block     SalaryBlock @relation(fields: [blockId], references: [id])
   blockId   Int
   note      String?
+  timestamp DateTime?   @default(now())
 }
 
 model AbsentSalary {
@@ -550,6 +552,19 @@ model AbsentSalary {
   block     SalaryBlock   @relation(fields: [blockId], references: [id])
   blockId   Int
   note      String?
+  timestamp DateTime?     @default(now())
+}
+
+model DayOffSalary {
+  id        Int        @id @default(autoincrement())
+  title     String
+  startedAt DateTime
+  endedAt   DateTime
+  partial   PartialDay
+   payroll   Payroll       @relation(fields: [payrollId], references: [id], onDelete: Cascade)
+  payrollId Int
+  note      String?
+  timestamp DateTime?  @default(now())
 }
 
 model OvertimeSalary {
@@ -567,6 +582,7 @@ model OvertimeSalary {
   payroll    Payroll           @relation(fields: [payrollId], references: [id])
   payrollId  Int
   note       String?
+  timestamp  DateTime?         @default(now())
 }
 
 model AllowanceSalary {
@@ -651,6 +667,7 @@ model Payroll {
   remotes        RemoteSalary[]
   allowances     AllowanceSalary[]
   overtimes      OvertimeSalary[]
+  dayoffs      DayOffSalary[]
   Account        Account?          @relation(fields: [accountId], references: [id])
   accountId      Int?
 }
@@ -665,7 +682,7 @@ model SalaryRecipe {
 model SalaryBlock {
   id            Int               @id @default(autoincrement())
   stt           Int
-  title         String
+  title         String @unique
   recipe        SalaryRecipe?     @relation(fields: [recipeId], references: [id])
   recipeId      Int?
   calculate     Calculation       @relation(fields: [calculationId], references: [id])
