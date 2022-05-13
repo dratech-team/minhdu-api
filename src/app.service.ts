@@ -27,7 +27,7 @@ export class AppService {
             }
           });
         }
-      } else if (salary.type === SalaryType.ALLOWANCE) {
+      } else if (salary.type === SalaryType.ALLOWANCE && salary.payrollId) {
         if (!salary.branchId && !salary.salaryId) {
           created = await this.prisma.allowanceSalary.create({
             data: {
@@ -52,6 +52,17 @@ export class AppService {
             }
           });
         }
+
+        // if (!salary.branchId && salary.salaryId) {
+        //   created = await this.prisma.allowanceBranch.create({
+        //     data: {
+        //       title: salary.title,
+        //       price: salary.price,
+        //       branch: {connect: {id: salary.branchId}},
+        //       timestamp: salary.timestamp,
+        //     }
+        //   });
+        // }
       } else if (salary.type === SalaryType.ABSENT && salary.payrollId) {
         created = await this.prisma.absentSalary.create({
           data: {
@@ -117,7 +128,6 @@ export class AppService {
             startedAt: salary.datetime,
             endedAt: salary.datetime,
             setting: {connect: {id: 1}},
-            allowances: salary.salaryId ? {connect: {id: salary.salaryId}} : {},
           }
         });
       }
