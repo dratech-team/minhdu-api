@@ -7,16 +7,14 @@ import {SortDto} from "../../../../common/dtos/sort.dto";
 import {StatusEnum} from "../../../../common/enum/status.enum";
 
 export class SearchPayrollDto extends SortDto {
-  @IsOptional()
+  @IsNotEmpty()
   @Type(() => Number)
-  @Transform(({value}) => Number(value))
-  @IsNumber()
+  @IsNumber({}, {each: true})
   readonly skip: number;
 
-  @IsOptional()
+  @IsNotEmpty()
   @Type(() => Number)
-  @Transform(({value}) => Number(value))
-  @IsNumber()
+  @IsNumber({}, {each: true})
   readonly take: number;
 
   @IsOptional()
