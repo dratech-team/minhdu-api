@@ -17,6 +17,8 @@ import {RemoteEntity} from "../salaries/remote/entities/remote.entity";
 import {OvertimeEntity} from "../salaries/overtime/entities";
 import {UpdatePayrollDto} from "./dto/update-payroll.dto";
 import {EmployeeStatusEnum} from "../employee/enums/employee-status.enum";
+import {CreateManyPayrollDto} from "./dto/create-many-payroll.dto";
+import {crudManyResponse} from "../salaries/base/functions/response.function";
 
 type AllowanceType = AllowanceSalary & { datetime: Date, duration: number };
 
@@ -29,62 +31,52 @@ export class PayrollServicev2 {
   }
 
   async create(profile: ProfileEntity, body: CreatePayrollDto) {
-    // Tạo hàng loạt
-    if (!body?.employeeId) {
-      const {data} = await this.employeeService.findAll(
-        profile,
-        {
-          take: undefined,
-          skip: undefined,
-          createdAt: {
-            datetime: lastDatetime(body.createdAt),
-            compare: "lte"
-          },
-          status: EmployeeStatusEnum.WORKING
-        }
-      );
-      console.log(data);
-      const createds = [];
-      for (let i = 0; i < data.length; i++) {
-        const payrolls = await this.repository.findAll(profile, {
-          startedAt: firstDatetime(body.createdAt),
-          endedAt: lastDatetime(body.createdAt),
-          employeeId: data[i].id,
-        });
+    const employee = await this.employeeService.findOne(body.employeeId);
+    return await this.repository.create(Object.assign(body, {
+      employeeId: employee.id,
+      branch: employee.branch.name,
+      position: employee.position.name,
+      recipeType: employee.recipeType,
+      workday: employee.workday,
+      isFlatSalary: employee.isFlatSalary,
+    }));
+  }
 
-        if (!payrolls.data.length) {
-          const created = await this.repository.create(Object.assign(body, {
-            createdAt: isEqualDatetime(body.createdAt, data[i].createdAt, "month") ? data[i].createdAt : body.createdAt,
-            employeeId: data[i].id,
-            branch: data[i].branch,
-            position: data[i].position,
-            recipeType: data[i].recipeType,
-            workday: data[i].workday,
-            isFlatSalary: data[i].isFlatSalary
-          }));
-          createds.push(created);
-        }
+  async createMany(profile: ProfileEntity, body: CreateManyPayrollDto) {
+    const {data} = await this.employeeService.findAll(
+      profile,
+      {
+        take: undefined,
+        skip: undefined,
+        createdAt: {
+          datetime: lastDatetime(body.createdAt),
+          compare: "lte"
+        },
+        status: EmployeeStatusEnum.WORKING
       }
+    );
+    const e = [];
+    for (let i = 0; i < data.length; i++) {
+      const payrolls = await this.repository.findAll(profile, {
+        startedAt: firstDatetime(body.createdAt),
+        endedAt: lastDatetime(body.createdAt),
+        employeeId: data[i].id,
+      });
 
-      return {
-        status: 201,
-        message: `Đã tự động tạo phiếu lương tháng ${body.createdAt} cho ${createds.length} nhân viên`,
-      };
-    } else {
-      // Tạo 1
-      const employee = await this.employeeService.findOne(body.employeeId);
-      // if (moment(employee.createdAt).isAfter(body.createdAt)) {
-      //   throw new BadRequestException(`Không được tạo phiếu lương trước ngày nhân viên vào làm. Xin cảm ơn`);
-      // }
-      return await this.repository.create(Object.assign(body, {
-        employeeId: employee.id,
-        branch: employee.branch,
-        position: employee.position,
-        recipeType: employee.recipeType,
-        workday: employee.workday,
-        isFlatSalary: employee.isFlatSalary,
-      }), true);
+      if (!payrolls.data.length) {
+        e.push(Object.assign({}, body, {
+          createdAt: isEqualDatetime(body.createdAt, data[i].createdAt, "month") ? data[i].createdAt : body.createdAt,
+          employeeId: data[i].id,
+          branch: data[i].branch.name,
+          position: data[i].position.name,
+          recipeType: data[i].recipeType,
+          workday: data[i].workday,
+          isFlatSalary: data[i].isFlatSalary
+        }));
+      }
     }
+    const {count} = await this.repository.createMany(profile, e);
+    return crudManyResponse(count, "creation");
   }
 
   async findAll(profile: ProfileEntity, search?: Partial<SearchPayrollDto>) {

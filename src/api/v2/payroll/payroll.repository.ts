@@ -1,5 +1,5 @@
 import {BadRequestException, Injectable, NotFoundException} from "@nestjs/common";
-import {Branch, EmployeeType, Payroll, Position, RecipeType, RoleEnum, SalaryType} from "@prisma/client";
+import {EmployeeType, Payroll, Position, RecipeType, RoleEnum, SalaryType} from "@prisma/client";
 import {ProfileEntity} from "../../../common/entities/profile.entity";
 import {PrismaService} from "../../../prisma.service";
 import {firstDatetime, lastDatetime} from "../../../utils/datetime.util";
@@ -15,57 +15,23 @@ import *as _ from "lodash";
 import {TAX} from "../../../common/constant/salary.constant";
 import {StatusEnum} from "../../../common/enum/status.enum";
 
-type CreatePayroll =
-  CreatePayrollDto
-  & { branch: Branch, position: Position, recipeType: RecipeType, workday: number, isFlatSalary: boolean };
-
 @Injectable()
 export class PayrollRepository {
   constructor(private readonly prisma: PrismaService) {
   }
 
-  async create(body: CreatePayroll, isInit?: boolean) {
+  async create(body: CreatePayrollDto) {
     try {
-      const payrolls = await this.prisma.payroll.findFirst({
-        where: {
-          employee: {id: {in: body.employeeId}},
-          deletedAt: {in: null},
-          salaries: {
-            some: {
-              type: {in: [SalaryType.BASIC, SalaryType.BASIC_INSURANCE, SalaryType.STAY]}
-            },
-          }
-        },
-        include: {salaries: true},
-        orderBy: {
-          createdAt: "desc"
-        }
-      });
-
-      const salaries = payrolls?.salaries?.filter(
-        (salary) =>
-          salary.type === SalaryType.BASIC ||
-          salary.type === SalaryType.BASIC_INSURANCE ||
-          salary.type === SalaryType.STAY
-      );
-
       return await this.prisma.payroll.create({
         data: {
           employee: {connect: {id: body?.employeeId}},
           createdAt: body.createdAt,
-          branch: body.branch.name,
-          position: body.position.name,
+          branch: body.branch,
+          position: body.position,
           recipeType: body.recipeType,
           workday: body.workday,
           isFlatSalary: body.isFlatSalary,
-          tax: TAX,
-          salaries: !isInit && salaries?.length
-            ? {
-              createMany: {
-                data: salaries.map((salary) => _.omit(salary, ["payrollId", "id"])),
-              },
-            }
-            : {},
+          tax: TAX
         },
         include: {salaries: true},
       });
@@ -81,8 +47,38 @@ export class PayrollRepository {
     }
   }
 
-  async createMany() {
-
+  async createMany(profile: ProfileEntity, body: CreatePayrollDto[]) {
+    const bodys = await Promise.all(body.map(async e => {
+      const payroll = await this.prisma.payroll.findFirst({
+        where: {
+          employee: {id: {in: e.employeeId}},
+          deletedAt: {in: null},
+          salaries: {
+            some: {
+              type: {in: [SalaryType.BASIC, SalaryType.BASIC_INSURANCE, SalaryType.STAY]}
+            },
+          }
+        },
+        include: {salaries: true},
+        orderBy: {
+          createdAt: "desc"
+        }
+      });
+      const salaries = payroll?.salaries?.filter(
+        (salary) =>
+          salary.type === SalaryType.BASIC ||
+          salary.type === SalaryType.BASIC_INSURANCE ||
+          salary.type === SalaryType.STAY
+      );
+      return Object.assign({}, e, salaries?.length ? {
+        createMany: {
+          data: salaries.map((salary) => _.omit(salary, ["payrollId", "id"])),
+        },
+      } : {});
+    }));
+    return this.prisma.payroll.createMany({
+      data: bodys
+    });
   }
 
   /// tạo ngày lễ cho phiếu lương đó

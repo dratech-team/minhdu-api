@@ -98,7 +98,7 @@ export class PayrollService {
           recipeType: employee.recipeType,
           workday: employee.workday,
           isFlatSalary: employee.isFlatSalary,
-        }), true);
+        }));
       }
 
     } catch (err) {
