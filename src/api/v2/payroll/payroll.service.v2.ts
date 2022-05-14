@@ -32,14 +32,15 @@ export class PayrollServicev2 {
 
   async create(profile: ProfileEntity, body: CreatePayrollDto) {
     const employee = await this.employeeService.findOne(body.employeeId);
-    return await this.repository.create(Object.assign(body, {
-      employeeId: employee.id,
-      branch: employee.branch.name,
-      position: employee.position.name,
-      recipeType: employee.recipeType,
-      workday: employee.workday,
-      isFlatSalary: employee.isFlatSalary,
-    }));
+    return await this.repository.create(this.mapCreateToPayroll(Object.assign(body, {
+        employeeId: employee.id,
+        branch: employee.branch.name,
+        position: employee.position.name,
+        recipeType: employee.recipeType,
+        workday: employee.workday,
+        isFlatSalary: employee.isFlatSalary,
+      }))
+    );
   }
 
   async createMany(profile: ProfileEntity, body: CreateManyPayrollDto) {
@@ -64,7 +65,7 @@ export class PayrollServicev2 {
       });
 
       if (!payrolls.data.length) {
-        e.push(Object.assign({}, body, {
+        e.push(this.mapCreateToPayroll(Object.assign({}, body, {
           createdAt: isEqualDatetime(body.createdAt, data[i].createdAt, "month") ? data[i].createdAt : body.createdAt,
           employeeId: data[i].id,
           branch: data[i].branch.name,
@@ -72,7 +73,7 @@ export class PayrollServicev2 {
           recipeType: data[i].recipeType,
           workday: data[i].workday,
           isFlatSalary: data[i].isFlatSalary
-        }));
+        })));
       }
     }
     const {count} = await this.repository.createMany(profile, e);
@@ -333,5 +334,17 @@ export class PayrollServicev2 {
       overtimes,
       total
     });
+  }
+
+  private mapCreateToPayroll(body): CreatePayrollDto {
+    return {
+      employeeId: body.employeeId,
+      branch: body.branch,
+      position: body.position,
+      recipeType: body.recipeType,
+      workday: body.workday,
+      isFlatSalary: body.isFlatSalary,
+      createdAt: body.createdAt,
+    };
   }
 }
