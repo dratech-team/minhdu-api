@@ -79,7 +79,7 @@ export class PayrollServicev2 {
     return crudManyResponse(count, "creation");
   }
 
-  async findAll(profile: ProfileEntity, search?: Partial<SearchPayrollDto>) {
+  async findAll(profile: ProfileEntity, search: Partial<SearchPayrollDto>) {
     const {total, data} = await this.repository.findAll(profile, search);
 
     return {
@@ -90,6 +90,7 @@ export class PayrollServicev2 {
             return Object.assign(payroll, {timesheet: timesheet(payroll)});
           }
           case FilterTypeEnum.PAYROLL: {
+            return {total, data};
           }
         }
       })
