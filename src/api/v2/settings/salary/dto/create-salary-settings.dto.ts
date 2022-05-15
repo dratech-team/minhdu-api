@@ -1,5 +1,15 @@
 import {DatetimeUnit, SalaryType} from "@prisma/client";
-import {IsArray, IsBoolean, IsDate, IsEnum, IsNotEmpty, IsNumber, IsOptional, IsString} from "class-validator";
+import {
+  IsArray,
+  IsBoolean,
+  IsDate,
+  IsEnum,
+  IsNotEmpty,
+  IsNumber,
+  IsOptional,
+  IsString,
+  validate
+} from "class-validator";
 import {Transform, Type} from "class-transformer";
 import * as moment from "moment";
 
@@ -38,12 +48,12 @@ export class CreateSalarySettingsDto {
   @IsEnum(DatetimeUnit, {groups: ["absent", "overtime"]})
   readonly unit: DatetimeUnit;
 
-  @IsNotEmpty({})
+  @IsOptional({groups: ["holiday"]})
   @IsDate()
   @Transform(({value}) => new Date(moment(value).utc().format('YYYY-MM-DD')))
   readonly startedAt: Date;
 
-  @IsNotEmpty()
+  @IsOptional({groups: ["holiday"]})
   @IsDate()
   @Transform(({value}) => new Date(moment(value).utc().format('YYYY-MM-DD')))
   readonly endedAt: Date;

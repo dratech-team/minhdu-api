@@ -673,7 +673,7 @@ model Payroll {
   dayoffs        DayOffSalary[]
   Account        Account?          @relation(fields: [accountId], references: [id])
   accountId      Int?
-  holidays  HolidaySalary[]
+  holidays       HolidaySalary[]
 }
 
 model SalaryRecipe {

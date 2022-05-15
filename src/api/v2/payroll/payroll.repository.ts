@@ -187,13 +187,6 @@ export class PayrollRepository {
             deletedAt: {in: null},
           },
           include: {
-            salaries: true,
-            salariesv2: true,
-            deductions: true,
-            absents: true,
-            overtimes: true,
-            allowances: true,
-            remotes: true,
             employee: {
               include: {
                 contracts: true,
@@ -202,6 +195,13 @@ export class PayrollRepository {
                 category: true
               },
             },
+            salaries: true,
+            salariesv2: true,
+            deductions: true,
+            absents: true,
+            overtimes: true,
+            allowances: true,
+            remotes: true,
           },
           // Nếu employeeId nhân viên tồn tại thì đang lấy lịch sử phiếu lương của nhân viên đó. nên sẽ sort theo ngày tạo phiếu lượng
           orderBy: !search?.employeeId ? {
@@ -344,6 +344,14 @@ export class PayrollRepository {
       const payroll = await this.prisma.payroll.findUnique({
         where: {id: id},
         include: {
+          employee: {
+            include: {
+              contracts: true,
+              position: true,
+              branch: true,
+              category: true
+            },
+          },
           salaries: {
             include: {
               allowance: true
@@ -356,14 +364,7 @@ export class PayrollRepository {
           overtimes: {include: {block: true, setting: true, allowances: true}},
           dayoffs: true,
           allowances: true,
-          employee: {
-            include: {
-              contracts: true,
-              position: true,
-              branch: true,
-              category: true
-            },
-          },
+          holidays: {include: {setting: true}}
         },
       });
 

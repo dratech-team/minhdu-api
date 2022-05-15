@@ -1,4 +1,4 @@
-import {Injectable} from '@nestjs/common';
+import {BadRequestException, Injectable} from '@nestjs/common';
 import {CreateSalarySettingsDto} from './dto/create-salary-settings.dto';
 import {UpdateSalarySettingsDto} from './dto/update-salary-settings.dto';
 import {SalarySettingsRepository} from "./salary-settings.repository";
@@ -12,6 +12,9 @@ export class SalarySettingsService {
   }
 
   async create(body: CreateSalarySettingsDto) {
+    if (body.type === SalaryType.HOLIDAY && !body?.startedAt && !body.endedAt) {
+      throw new BadRequestException("Ngày bắt đầu và kết thúc không được để trống");
+    }
     const found = await this.repository.findOne({title: body?.title, settingType: body?.type});
     if (found && body?.prices?.length) {
       return await this.update(found.id, {prices: [...new Set(body.prices.concat(found.prices))]});
