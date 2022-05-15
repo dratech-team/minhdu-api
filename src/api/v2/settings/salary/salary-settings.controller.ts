@@ -2,9 +2,7 @@ import {Body, Controller, Delete, Get, Param, Patch, Post, Query, UseGuards} fro
 import {CreateSalarySettingsDto} from './dto/create-salary-settings.dto';
 import {UpdateSalarySettingsDto} from './dto/update-salary-settings.dto';
 import {SalarySettingsService} from "./salary-settings.service";
-import {JwtAuthGuard} from "../../../../core/guard/jwt-auth.guard";
-import {ApiKeyGuard} from "../../../../core/guard/api-key-auth.guard";
-import {RolesGuard} from "../../../../core/guard/role.guard";
+import {ApiKeyGuard, JwtAuthGuard, RolesGuard} from "../../../../core/guard";
 import {Roles} from "../../../../core/decorators/roles.decorator";
 import {RoleEnum} from "@prisma/client";
 import {ReqProfile} from "../../../../core/decorators/req-profile.decorator";
