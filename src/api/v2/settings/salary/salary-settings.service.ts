@@ -5,7 +5,6 @@ import {SalarySettingsRepository} from "./salary-settings.repository";
 import {ProfileEntity} from "../../../../common/entities/profile.entity";
 import {SearchSalarySettingsDto} from "./dto/search-salary-settings.dto";
 import {SalaryType} from "@prisma/client";
-import {SalarySettingsEntity} from "./entities/salary-settings.entity";
 
 @Injectable()
 export class SalarySettingsService {
@@ -29,8 +28,7 @@ export class SalarySettingsService {
   }
 
   async update(id: number, updates: UpdateSalarySettingsDto) {
-    const types = updates?.totalOf?.length && updates.totalOf.includes(SalaryType.BASIC) ? [SalaryType.BASIC, SalaryType.BASIC_INSURANCE] : updates.totalOf;
-    return await this.repository.update(id, Object.assign(updates, {types}));
+    return await this.repository.update(id, this.mapToSalarySetting(updates));
   }
 
   async remove(id: number) {

@@ -17,16 +17,7 @@ export class SalarySettingsRepository extends BaseRepository<SalarySetting> {
   async create(body: CreateSalarySettingsDto) {
     try {
       return await this.prisma.salarySetting.create({
-        data: {
-          title: body.title,
-          type: body.settingType,
-          rate: body.rate,
-          workday: body?.workday,
-          prices: body?.prices,
-          unit: body.unit,
-          totalOf: body?.totalOf,
-          hasConstraints: body.hasConstraints
-        }
+        data: body
       });
     } catch (err) {
       console.error(err);
@@ -85,15 +76,7 @@ export class SalarySettingsRepository extends BaseRepository<SalarySetting> {
     try {
       return await this.prisma.salarySetting.update({
         where: {id},
-        data: {
-          title: updates.title,
-          type: updates.settingType,
-          rate: updates.rate,
-          prices: updates?.prices,
-          unit: updates.unit,
-          totalOf: updates?.totalOf,
-          hasConstraints: updates.hasConstraints
-        }
+        data: updates,
       });
     } catch (err) {
       console.error(err);
