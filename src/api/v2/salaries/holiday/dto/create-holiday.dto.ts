@@ -13,13 +13,6 @@ export class CreateHolidayDto {
   @Type(() => Number)
   readonly settingId: number;
 
-  @IsNotEmpty()
-  @IsDate()
-  @Transform(({value}) => {
-    return new Date(moment(value).set({hours: 0, minutes: 0, seconds: 0}).format('YYYY-MM-DD'));
-  })
-  readonly datetime: Date;
-
   @IsOptional()
   @IsString()
   readonly note: string;

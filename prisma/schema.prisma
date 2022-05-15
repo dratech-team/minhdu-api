@@ -607,7 +607,6 @@ model AllowanceSalary {
 
 model HolidaySalary {
   id        Int           @id @default(autoincrement())
-  datetime  DateTime
   setting   SalarySetting @relation(fields: [settingId], references: [id])
   settingId Int
   block     SalaryBlock   @relation(fields: [blockId], references: [id])
