@@ -7,6 +7,8 @@ import {UpdateSalarySettingsDto} from "./dto/update-salary-settings.dto";
 import {SearchSalarySettingsDto} from "./dto/search-salary-settings.dto";
 import {ProfileEntity} from "../../../../common/entities/profile.entity";
 import {SearchOneSalarySettingsDto} from "./dto/search-one-salary-settings.dto";
+import {lastDatetime} from "../../../../utils/datetime.util";
+import * as _ from "lodash";
 
 @Injectable()
 export class SalarySettingsRepository extends BaseRepository<SalarySetting> {
@@ -27,12 +29,27 @@ export class SalarySettingsRepository extends BaseRepository<SalarySetting> {
 
   async findAll(profile: ProfileEntity, search: SearchSalarySettingsDto) {
     try {
-      const acc = await this.prisma.account.findUnique({where: {id: profile.id}});
+      const acc = await this.prisma.account.findUnique({
+        where: {id: profile.id},
+        include: {branches: {include: {positions: true}}}
+      });
+
+      const positions = _.flattenDeep(acc.branches.map(branch => branch.positions.map(position => position.id)));
+
+      // use for holiday to get datetime
+      const payroll = search?.payrollId ? await this.prisma.payroll.findUnique({where: {id: search?.payrollId}}) : null;
 
       const [total, data] = await Promise.all([
         this.prisma.salarySetting.count({
           where: {
-            type: {in: search?.types}
+            type: {in: search?.types},
+            startedAt: payroll?.createdAt ? {gte: payroll?.createdAt} : {},
+            endedAt: payroll?.createdAt ? {
+              gte: payroll?.createdAt,
+              lte: lastDatetime(payroll?.createdAt)
+            } : {},
+            branches: acc.branches?.length ? {some: {id: {in: acc.branches.map(branch => branch.id)}}} : {},
+            positions: positions.length ? {some: {id: {in: positions}}} : {},
           }
         }),
         this.prisma.salarySetting.findMany({
@@ -40,6 +57,13 @@ export class SalarySettingsRepository extends BaseRepository<SalarySetting> {
           skip: search?.skip,
           where: {
             type: {in: search?.types},
+            startedAt: payroll?.createdAt ? {gte: payroll?.createdAt} : {},
+            endedAt: payroll?.createdAt ? {
+              gte: payroll?.createdAt,
+              lte: lastDatetime(payroll?.createdAt)
+            } : {},
+            branches: acc.branches?.length ? {some: {id: {in: acc.branches.map(branch => branch.id)}}} : {},
+            positions: positions.length ? {some: {id: {in: positions}}} : {},
           }
         }),
       ]);

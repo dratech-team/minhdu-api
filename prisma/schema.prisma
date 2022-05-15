@@ -563,7 +563,7 @@ model DayOffSalary {
   startedAt DateTime
   endedAt   DateTime
   partial   PartialDay
-   payroll   Payroll       @relation(fields: [payrollId], references: [id], onDelete: Cascade)
+  payroll   Payroll    @relation(fields: [payrollId], references: [id], onDelete: Cascade)
   payrollId Int
   note      String?
   timestamp DateTime?  @default(now())
@@ -612,8 +612,10 @@ model HolidaySalary {
   settingId Int
   block     SalaryBlock   @relation(fields: [blockId], references: [id])
   blockId   Int
+  payroll   Payroll       @relation(fields: [payrollId], references: [id])
   note      String?
   timestamp DateTime?     @default(now())
+  payrollId Int
 }
 
 model SalaryHistory {
@@ -668,9 +670,10 @@ model Payroll {
   remotes        RemoteSalary[]
   allowances     AllowanceSalary[]
   overtimes      OvertimeSalary[]
-  dayoffs      DayOffSalary[]
+  dayoffs        DayOffSalary[]
   Account        Account?          @relation(fields: [accountId], references: [id])
   accountId      Int?
+  holidays  HolidaySalary[]
 }
 
 model SalaryRecipe {
@@ -683,7 +686,7 @@ model SalaryRecipe {
 model SalaryBlock {
   id            Int               @id @default(autoincrement())
   stt           Int
-  title         String @unique
+  title         String            @unique
   recipe        SalaryRecipe?     @relation(fields: [recipeId], references: [id])
   recipeId      Int?
   calculate     Calculation       @relation(fields: [calculationId], references: [id])

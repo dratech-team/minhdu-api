@@ -18,6 +18,11 @@ export class SearchSalarySettingsDto {
   readonly search: string;
 
   @IsOptional()
+  @IsNumber()
+  @Type(() => Number)
+  readonly payrollId: number;
+
+  @IsOptional()
   @IsArray()
   @IsEnum(SalaryType, {each: true})
   @Transform(({value}) => {
