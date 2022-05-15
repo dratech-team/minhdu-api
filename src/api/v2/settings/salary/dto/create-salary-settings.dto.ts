@@ -38,10 +38,15 @@ export class CreateSalarySettingsDto {
   @IsEnum(DatetimeUnit, {groups: ["absent", "overtime"]})
   readonly unit: DatetimeUnit;
 
-  @IsOptional()
+  @IsNotEmpty({})
   @IsDate()
   @Transform(({value}) => new Date(moment(value).utc().format('YYYY-MM-DD')))
-  readonly datetime: Date;
+  readonly startedAt: Date;
+
+  @IsNotEmpty()
+  @IsDate()
+  @Transform(({value}) => new Date(moment(value).utc().format('YYYY-MM-DD')))
+  readonly endedAt: Date;
 
   @IsOptional()
   @IsNumber()

@@ -303,7 +303,8 @@ model SalarySetting {
   prices         Float[]
   totalOf        SalaryType[]
   workday        Int?
-  datetime       DateTime?
+  startedAt      DateTime?
+  endedAt        DateTime?
   branches       Branch[]
   positions      Position[]
   absents        AbsentSalary[]

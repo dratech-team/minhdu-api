@@ -46,7 +46,8 @@ export class SalarySettingsService {
       prices: body?.prices,
       totalOf: totalOf,
       workday: body?.workday,
-      datetime: body?.datetime,
+      startedAt: body?.startedAt,
+      endedAt: body?.endedAt,
     };
   }
 }
