@@ -32,8 +32,4 @@ export class SalarySettingsService {
   async remove(id: number) {
     return await this.repository.remove(id);
   }
-
-  async migrate() {
-    return await this.repository.migrate();
-  }
 }

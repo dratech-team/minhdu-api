@@ -103,23 +103,4 @@ export class SalarySettingsRepository extends BaseRepository<SalarySetting> {
       throw new BadRequestException(err);
     }
   }
-
-  async migrate() {
-    try {
-      const templates = await this.prisma.basicTemplate.findMany();
-      await Promise.all(templates.map(async (template) => {
-        // return await this.prisma.salarySetting.create({
-        //   data: {
-        //     title: template.title,
-        //     type: template.type,
-        //     unit
-        //     rate: 1,
-        //   }
-        // });
-      }));
-    } catch (err) {
-      console.error(err);
-      throw new BadRequestException(err);
-    }
-  }
 }
