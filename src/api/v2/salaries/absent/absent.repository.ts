@@ -4,6 +4,7 @@ import {BadRequestException, Injectable} from "@nestjs/common";
 import {RemoveManyAbsentDto} from "./dto/remove-many-absent.dto";
 import {CreateAbsentDto} from "./dto/create-absent.dto";
 import {AbsentEntity} from "../../payroll/entities/absent.entity";
+import {SearchAbsentDto} from "./dto/search-absent.dto";
 
 @Injectable()
 export class AbsentRepository extends BaseRepository<AbsentEntity> {
@@ -31,6 +32,20 @@ export class AbsentRepository extends BaseRepository<AbsentEntity> {
 
   async findOne(id: number) {
     return `This action returns a #${id} absent`;
+  }
+
+  async count(search: SearchAbsentDto) {
+    try {
+      return await this.prisma.absentSalary.count({
+        where: {
+          payrollId: {in:  search?.payrollIds},
+          title: {contains: search?.title, mode: "insensitive"}
+        }
+      });
+    } catch (err) {
+      console.error(err);
+      throw new BadRequestException(err);
+    }
   }
 
   async update(ids: number[], body: Partial<CreateAbsentDto>) {

@@ -7,6 +7,7 @@ import * as _ from 'lodash';
 import {CreateManyAbsentDto} from "./dto/create-many-absent.dto";
 import {UpdateManyAbsentDto} from "./dto/update-many-absent.dto";
 import {CreateAbsentDto} from "./dto/create-absent.dto";
+import {SearchAbsentDto} from "./dto/search-absent.dto";
 
 @Injectable()
 export class AbsentService {
@@ -27,6 +28,10 @@ export class AbsentService {
 
   findOne(id: number) {
     return `This action returns a #${id} absent`;
+  }
+
+  count(search: SearchAbsentDto) {
+    return this.repository.count(search);
   }
 
   async updateMany(body: UpdateManyAbsentDto) {

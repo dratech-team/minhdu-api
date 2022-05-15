@@ -4,6 +4,7 @@ export enum FilterTypeEnum {
   SEASONAL = "SEASONAL",
   BASIC = "BASIC",
   STAY = "STAY",
+  PERNAMENT = "PERNAMENT",
   OVERTIME = "OVERTIME",
   ALLOWANCE = "ALLOWANCE",
   ABSENT = "ABSENT",

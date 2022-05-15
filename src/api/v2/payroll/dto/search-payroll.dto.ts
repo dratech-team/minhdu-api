@@ -1,7 +1,7 @@
 import {EmployeeType, RecipeType} from "@prisma/client";
 import {FilterTypeEnum} from "../entities/filter-type.enum";
 import {Transform, Type} from "class-transformer";
-import {IsArray, IsDate, IsEnum, IsNotEmpty, IsNumber, IsOptional, IsString} from "class-validator";
+import {IsArray, IsDate, IsEnum, IsNotEmpty, IsNumber, IsObject, IsOptional, IsString} from "class-validator";
 import * as moment from "moment";
 import {SortDto} from "../../../../common/dtos/sort.dto";
 import {StatusEnum} from "../../../../common/enum/status.enum";
@@ -109,4 +109,29 @@ export class SearchPayrollDto extends SortDto {
   @IsOptional()
   @IsEnum(RecipeType)
   readonly recipeType: RecipeType;
+
+  @IsOptional()
+  @IsObject()
+  readonly options: {
+    include?: Partial<{
+      employee: boolean,
+      salaries: boolean,
+      salariesv2: boolean,
+      deductions: boolean,
+      absents: boolean,
+      overtimes: boolean,
+      allowances: boolean,
+      remotes: boolean,
+    }>,
+    select?: Partial<{
+      employee: boolean,
+      salaries: boolean,
+      salariesv2: boolean,
+      deductions: boolean,
+      absents: boolean,
+      overtimes: boolean,
+      allowances: boolean,
+      remotes: boolean,
+    }>,
+  };
 }

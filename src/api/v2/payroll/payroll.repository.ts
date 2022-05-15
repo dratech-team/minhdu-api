@@ -14,6 +14,7 @@ import {OrderbyEmployeeEnum} from "../employee/enums/orderby-employee.enum";
 import *as _ from "lodash";
 import {TAX} from "../../../common/constant/salary.constant";
 import {StatusEnum} from "../../../common/enum/status.enum";
+import {isNotEmpty} from "class-validator";
 
 @Injectable()
 export class PayrollRepository {
