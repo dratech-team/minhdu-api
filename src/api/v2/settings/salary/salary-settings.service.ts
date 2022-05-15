@@ -13,6 +13,10 @@ export class SalarySettingsService {
 
   async create(body: CreateSalarySettingsDto) {
     const types = body?.totalOf?.length && body.totalOf.includes(SalaryType.BASIC) ? [SalaryType.BASIC, SalaryType.BASIC_INSURANCE] : body.totalOf;
+    const found = await this.repository.findOne({title: body?.title, settingType: body?.settingType});
+    if (found && body?.prices?.length) {
+      return await this.update(found.id, {prices: [...new Set(body.prices.concat(found.prices))]});
+    }
     return await this.repository.create(Object.assign(body, {types}));
   }
 
@@ -21,11 +25,11 @@ export class SalarySettingsService {
   }
 
   async findOne(id: number) {
-    return await this.repository.findOne(id);
+    return await this.repository.findById(id);
   }
 
   async update(id: number, updates: UpdateSalarySettingsDto) {
-    const types = updates?.totalOf?.length &&  updates.totalOf.includes(SalaryType.BASIC) ? [SalaryType.BASIC, SalaryType.BASIC_INSURANCE] : updates.totalOf;
+    const types = updates?.totalOf?.length && updates.totalOf.includes(SalaryType.BASIC) ? [SalaryType.BASIC, SalaryType.BASIC_INSURANCE] : updates.totalOf;
     return await this.repository.update(id, Object.assign(updates, {types}));
   }
 

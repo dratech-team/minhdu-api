@@ -6,6 +6,7 @@ import {CreateSalarySettingsDto} from "./dto/create-salary-settings.dto";
 import {UpdateSalarySettingsDto} from "./dto/update-salary-settings.dto";
 import {SearchSalarySettingsDto} from "./dto/search-salary-settings.dto";
 import {ProfileEntity} from "../../../../common/entities/profile.entity";
+import {SearchOneSalarySettingsDto} from "./dto/search-one-salary-settings.dto";
 
 @Injectable()
 export class SalarySettingsRepository extends BaseRepository<SalarySetting> {
@@ -15,12 +16,6 @@ export class SalarySettingsRepository extends BaseRepository<SalarySetting> {
 
   async create(body: CreateSalarySettingsDto) {
     try {
-      const found = await this.prisma.salarySetting.findUnique({
-        where: {title_type: {title: body?.title, type: body?.settingType}}
-      });
-      if (found && body?.prices?.length) {
-        return await this.update(found.id, {prices: [...new Set(body.prices.concat(found.prices))]});
-      }
       return await this.prisma.salarySetting.create({
         data: {
           title: body.title,
@@ -64,10 +59,21 @@ export class SalarySettingsRepository extends BaseRepository<SalarySetting> {
     }
   }
 
-  async findOne(id: number) {
+  async findById(id: number) {
     try {
       return await this.prisma.salarySetting.findUnique({
         where: {id}
+      });
+    } catch (err) {
+      console.error(err);
+      throw new BadRequestException(err);
+    }
+  }
+
+  async findOne(search: SearchOneSalarySettingsDto) {
+    try {
+      return await this.prisma.salarySetting.findUnique({
+        where: {title_type: {title: search.title, type: search.settingType}}
       });
     } catch (err) {
       console.error(err);
