@@ -1,6 +1,7 @@
 import {DatetimeUnit, SalaryType} from "@prisma/client";
-import {IsArray, IsBoolean, IsEnum, IsNotEmpty, IsNumber, IsOptional, IsString} from "class-validator";
+import {IsArray, IsBoolean, IsDate, IsEnum, IsNotEmpty, IsNumber, IsOptional, IsString} from "class-validator";
 import {Transform, Type} from "class-transformer";
+import * as moment from "moment";
 
 export class CreateSalarySettingsDto {
   @IsNotEmpty()
@@ -9,7 +10,7 @@ export class CreateSalarySettingsDto {
 
   @IsNotEmpty()
   @IsEnum(SalaryType)
-  readonly settingType: SalaryType;
+  readonly type: SalaryType;
 
   @IsNotEmpty()
   @IsNumber()
@@ -31,11 +32,16 @@ export class CreateSalarySettingsDto {
     }
     return value;
   })
-  readonly totalOf: SalaryType[]
+  readonly totalOf: SalaryType[];
 
   @IsNotEmpty({message: "Bạn phải chọn buổi", groups: ["absent", "overtime"]})
   @IsEnum(DatetimeUnit, {groups: ["absent", "overtime"]})
   readonly unit: DatetimeUnit;
+
+  @IsOptional()
+  @IsDate()
+  @Transform(({value}) => new Date(moment(value).utc().format('YYYY-MM-DD')))
+  readonly datetime: Date;
 
   @IsOptional()
   @IsNumber()

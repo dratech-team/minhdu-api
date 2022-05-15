@@ -5,6 +5,7 @@ import {SalarySettingsRepository} from "./salary-settings.repository";
 import {ProfileEntity} from "../../../../common/entities/profile.entity";
 import {SearchSalarySettingsDto} from "./dto/search-salary-settings.dto";
 import {SalaryType} from "@prisma/client";
+import {SalarySettingsEntity} from "./entities/salary-settings.entity";
 
 @Injectable()
 export class SalarySettingsService {
@@ -12,12 +13,11 @@ export class SalarySettingsService {
   }
 
   async create(body: CreateSalarySettingsDto) {
-    const types = body?.totalOf?.length && body.totalOf.includes(SalaryType.BASIC) ? [SalaryType.BASIC, SalaryType.BASIC_INSURANCE] : body.totalOf;
-    const found = await this.repository.findOne({title: body?.title, settingType: body?.settingType});
+    const found = await this.repository.findOne({title: body?.title, settingType: body?.type});
     if (found && body?.prices?.length) {
       return await this.update(found.id, {prices: [...new Set(body.prices.concat(found.prices))]});
     }
-    return await this.repository.create(Object.assign(body, {types}));
+    return await this.repository.create(this.mapToSalarySetting(body));
   }
 
   async findAll(profile: ProfileEntity, search: SearchSalarySettingsDto) {
@@ -35,5 +35,20 @@ export class SalarySettingsService {
 
   async remove(id: number) {
     return await this.repository.remove(id);
+  }
+
+  mapToSalarySetting(body: CreateSalarySettingsDto | UpdateSalarySettingsDto) {
+    const totalOf = body?.totalOf?.length && body.totalOf.includes(SalaryType.BASIC) ? [SalaryType.BASIC, SalaryType.BASIC_INSURANCE] : body.totalOf;
+    return {
+      title: body.title,
+      type: body.type,
+      rate: body.rate,
+      hasConstraints: body.hasConstraints,
+      unit: body.unit,
+      prices: body?.prices,
+      totalOf: totalOf,
+      workday: body?.workday,
+      datetime: body?.datetime,
+    };
   }
 }
