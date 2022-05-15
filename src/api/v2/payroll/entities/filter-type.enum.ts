@@ -8,4 +8,5 @@ export enum FilterTypeEnum {
   OVERTIME = "OVERTIME",
   ALLOWANCE = "ALLOWANCE",
   ABSENT = "ABSENT",
+  REMOTE = "REMOTE",
 }

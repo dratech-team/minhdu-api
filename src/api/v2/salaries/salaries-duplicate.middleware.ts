@@ -2,8 +2,7 @@ import {BadRequestException, Injectable, NestMiddleware} from "@nestjs/common";
 import {NextFunction, Request, Response} from "express";
 import {ApiV2Constant} from "../../../common/constant/api.constant";
 import {PrismaService} from "../../../prisma.service";
-import {PartialDay} from "@prisma/client";
-import * as dateFns from 'date-fns';
+import {rangeDatetimeQuery} from "./common/queries/range-datetime.query";
 
 // check đã tồn tại ngày của block đó
 @Injectable()
@@ -19,38 +18,7 @@ export class SalariesDuplicateMiddleware implements NestMiddleware {
     const where = {
       id: {notIn: (req.body as any)?.salaryIds},
       payroll: {id: {in: (req.body as any)?.payrollIds || payrolls.map(payroll => payroll.id)}},
-      OR: [
-        {
-          AND: [
-            {
-              startedAt: {
-                lte: req.body?.startedAt,
-              },
-            },
-            {
-              endedAt: {
-                gte: req.body?.endedAt
-              },
-            }
-          ]
-        },
-        {
-          OR: [
-            {
-              startedAt: {
-                gte: req.body?.startedAt,
-                lte: req.body?.endedAt,
-              },
-            },
-            {
-              endedAt: {
-                gte: req.body?.startedAt,
-                lte: req.body?.endedAt,
-              },
-            }
-          ]
-        },
-      ]
+      OR: rangeDatetimeQuery(req.body?.startedAt, req.body?.endedAt),
     };
     const data = req.path.includes(ApiV2Constant.SALARY.ALLOWANCE)
       ? await this.prisma.allowanceSalary.findMany({where: where})

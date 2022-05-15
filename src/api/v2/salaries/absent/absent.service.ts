@@ -30,7 +30,7 @@ export class AbsentService {
     return `This action returns a #${id} absent`;
   }
 
-  count(search: SearchAbsentDto) {
+  count(search?: Partial<SearchAbsentDto>) {
     return this.repository.count(search);
   }
 

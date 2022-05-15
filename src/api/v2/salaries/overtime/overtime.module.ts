@@ -16,7 +16,8 @@ import {SalarySettingsRepository} from "../../settings/salary/salary-settings.re
     OvertimeRepository,
     SalarySettingsService,
     SalarySettingsRepository
-  ]
+  ],
+  exports: [OvertimeService]
 })
 export class OvertimeModule {
 }

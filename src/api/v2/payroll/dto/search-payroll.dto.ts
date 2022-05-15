@@ -1,4 +1,4 @@
-import {EmployeeType, RecipeType} from "@prisma/client";
+import {EmployeeType, PartialDay, RecipeType} from "@prisma/client";
 import {FilterTypeEnum} from "../entities/filter-type.enum";
 import {Transform, Type} from "class-transformer";
 import {IsArray, IsDate, IsEnum, IsNotEmpty, IsNumber, IsObject, IsOptional, IsString} from "class-validator";
@@ -100,6 +100,10 @@ export class SearchPayrollDto extends SortDto {
     return typeof val.value === 'string' ? Array.of(val.value) : val.value;
   })
   readonly titles: string[];
+
+  @IsOptional()
+  @IsEnum(PartialDay)
+  readonly partial: PartialDay;
 
   @IsOptional()
   @Type(() => Number)

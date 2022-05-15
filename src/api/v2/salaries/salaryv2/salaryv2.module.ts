@@ -12,7 +12,8 @@ import {ConfigModule} from "../../../../core/config/config.module";
     Salaryv2Service,
     Salaryv2Repository,
     PrismaService,
-  ]
+  ],
+  exports: [Salaryv2Service]
 })
 export class Salaryv2Module {
 }

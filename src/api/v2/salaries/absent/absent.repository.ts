@@ -34,11 +34,11 @@ export class AbsentRepository extends BaseRepository<AbsentEntity> {
     return `This action returns a #${id} absent`;
   }
 
-  async count(search: SearchAbsentDto) {
+  async count(search?: Partial<SearchAbsentDto>) {
     try {
       return await this.prisma.absentSalary.count({
         where: {
-          payrollId: {in:  search?.payrollIds},
+          payrollId: search?.payrollIds ? {in: search.payrollIds} : {},
           title: {contains: search?.title, mode: "insensitive"}
         }
       });

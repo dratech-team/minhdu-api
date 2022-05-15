@@ -9,20 +9,43 @@ import {EmployeeRepository} from "../employee/employee.repository";
 import {HttpModule} from "@nestjs/axios";
 import {PayrollServicev2} from "./payroll.service.v2";
 import {Payrollv3Controller} from "./payroll.controller.v3";
-import {AbsentService} from "../salaries/absent/absent.service";
 import {AbsentRepository} from "../salaries/absent/absent.repository";
+import {OvertimeRepository} from "../salaries/overtime/overtime.repository";
+import {OvertimeModule} from "../salaries/overtime/overtime.module";
+import {AbsentModule} from "../salaries/absent/absent.module";
+import {Salaryv2Repository} from "../salaries/salaryv2/salaryv2.repository";
+import {Salaryv2Module} from "../salaries/salaryv2/salaryv2.module";
+import {AllowanceModule} from "../salaries/allowance/allowance.module";
+import {AllowanceRepository} from "../salaries/allowance/allowance.repository";
+import {RemoteModule} from "../salaries/remote/remote.module";
+import {RemoteRepository} from "../salaries/remote/remote.repository";
 
 @Module({
-  imports: [ConfigModule, EmployeeModule, HttpModule],
-  controllers: [PayrollController, Payrollv3Controller],
+  imports: [
+    ConfigModule,
+    HttpModule,
+    EmployeeModule,
+    Salaryv2Module,
+    AllowanceModule,
+    AbsentModule,
+    OvertimeModule,
+    RemoteModule
+  ],
+  controllers: [
+    PayrollController,
+    Payrollv3Controller
+  ],
   providers: [
     PrismaService,
     PayrollRepository,
     PayrollService,
     PayrollServicev2,
     EmployeeRepository,
-    AbsentService,
-    AbsentRepository
+    Salaryv2Repository,
+    AllowanceRepository,
+    AbsentRepository,
+    OvertimeRepository,
+    RemoteRepository
   ],
   exports: [PayrollService]
 })

@@ -1,4 +1,4 @@
-import {Body, Controller, Get, Param, Post, Query, UseGuards} from "@nestjs/common";
+import {Body, Controller, Get, Param, Patch, Post, Query, UseGuards} from "@nestjs/common";
 import {ApiV3Constant} from "../../../common/constant/api.constant";
 import {ApiKeyGuard, JwtAuthGuard, LoggerGuard, RolesGuard} from "../../../core/guard";
 import {Roles} from "../../../core/decorators/roles.decorator";
@@ -9,6 +9,7 @@ import {ProfileEntity} from "../../../common/entities/profile.entity";
 import {CreatePayrollDto} from "./dto/create-payroll.dto";
 import {CreateManyPayrollDto} from "./dto/create-many-payroll.dto";
 import {SearchPayrollDto} from "./dto/search-payroll.dto";
+import {UpdatePayrollDto} from "./dto/update-payroll.dto";
 
 @Controller(ApiV3Constant.PAYROLL)
 @UseGuards(JwtAuthGuard, ApiKeyGuard, RolesGuard)
@@ -51,5 +52,12 @@ export class Payrollv3Controller {
     @Query() search: SearchPayrollDto
   ) {
     return this.payrollServicev2.findAll(profile, search);
+  }
+
+  @UseGuards(LoggerGuard)
+  @Roles(RoleEnum.SUPPER_ADMIN, RoleEnum.ADMIN, RoleEnum.HUMAN_RESOURCE, RoleEnum.CAMP_ACCOUNTING)
+  @Patch(":id")
+  update(@ReqProfile() profile: ProfileEntity, @Param("id") id: number, @Body() updatePayrollDto: UpdatePayrollDto) {
+    return this.payrollServicev2.update(profile, +id, updatePayrollDto);
   }
 }

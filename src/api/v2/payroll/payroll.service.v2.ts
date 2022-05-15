@@ -8,7 +8,7 @@ import {EmployeeService} from "../employee/employee.service";
 import {SearchPayrollDto} from "./dto/search-payroll.dto";
 import {FilterTypeEnum} from "./entities/filter-type.enum";
 import {timesheet} from "./functions/timesheet";
-import {AllowanceSalary, DatetimeUnit, PartialDay, SalarySetting, SalaryType} from "@prisma/client";
+import {AllowanceSalary, PartialDay, SalarySetting, SalaryType} from "@prisma/client";
 import {OnePayroll} from "./entities/payroll.entity";
 import * as _ from "lodash";
 import * as dateFns from 'date-fns';
@@ -19,8 +19,11 @@ import {UpdatePayrollDto} from "./dto/update-payroll.dto";
 import {EmployeeStatusEnum} from "../employee/enums/employee-status.enum";
 import {CreateManyPayrollDto} from "./dto/create-many-payroll.dto";
 import {crudManyResponse} from "../salaries/base/functions/response.function";
-import * as moment from "moment";
 import {AbsentService} from "../salaries/absent/absent.service";
+import {OvertimeService} from "../salaries/overtime/overtime.service";
+import {Salaryv2Service} from "../salaries/salaryv2/salaryv2.service";
+import {AllowanceService} from "../salaries/allowance/allowance.service";
+import {RemoteService} from "../salaries/remote/remote.service";
 
 type AllowanceType = AllowanceSalary & { datetime: Date, duration: number };
 
@@ -29,7 +32,11 @@ export class PayrollServicev2 {
   constructor(
     private readonly repository: PayrollRepository,
     private readonly employeeService: EmployeeService,
+    private readonly salaryv2Service: Salaryv2Service,
+    private readonly allowanceSerivce: AllowanceService,
     private readonly absentService: AbsentService,
+    private readonly overtimeService: OvertimeService,
+    private readonly remoteService: RemoteService,
   ) {
   }
 
@@ -90,22 +97,52 @@ export class PayrollServicev2 {
       case FilterTypeEnum.PERNAMENT: {
         return {
           total,
-          total2: data.map(e => e.salariesv2).length,
-          data: data.map(e => _.omit(Object.assign(e, {salaries: e.salariesv2})))
+          total2: await this.salaryv2Service.count(),
+          data: data.map(e => Object.assign(e, {salaries: e.salariesv2}))
         };
       }
-      case FilterTypeEnum.ALLOWANCE:
+      case FilterTypeEnum.ALLOWANCE: {
+        return {
+          total,
+          total2: await this.allowanceSerivce.count(),
+          data: data.map(e => _.omit(Object.assign(e, {salaries: e.allowances})))
+        };
+      }
       case FilterTypeEnum.TIME_SHEET: {
         return {total, data: Object.assign(data, {timesheet: timesheet(data)})};
       }
       case FilterTypeEnum.OVERTIME: {
-        return this.filterOvertime(profile, search);
+        return {
+          total,
+          total2: await this.overtimeService.count({
+            startedAt: search.startedAt,
+            endedAt: search.endedAt,
+            titles: search.titles,
+            partial: search?.partial
+          }),
+          data: await Promise.all(data.map(async e => {
+            const {data} = await this.overtimeService.findAll({
+              payrollId: e.id,
+              startedAt: search?.startedAt,
+              endedAt: search?.endedAt,
+              partial: search?.partial
+            });
+            return Object.assign(e, {salaries: data});
+          })),
+        };
       }
       case FilterTypeEnum.ABSENT: {
         return {
           total,
-          total2: await this.absentService.count({payrollIds: data.map(e => e.id)}),
+          total2: await this.absentService.count(),
           data: data.map(e => _.omit(Object.assign(e, {salaries: e.absents})))
+        };
+      }
+      case FilterTypeEnum.REMOTE: {
+        return {
+          total,
+          total2: await this.remoteService.count(),
+          data: data.map(e => _.omit(Object.assign(e, {salaries: e.remotes})))
         };
       }
       default:
@@ -119,64 +156,7 @@ export class PayrollServicev2 {
   }
 
   async update(profile: ProfileEntity, id: number, updates: UpdatePayrollDto) {
-    const updated = this.repository.update(profile, id, updates);
-    return this.mapToPayslip(updated);
-  }
-
-  async filterOvertime(profile: ProfileEntity, search: Partial<SearchPayrollDto>) {
-    const {total, data} = await this.repository.findOvertimes(profile, search);
-    const employeeIds = [...new Set(data.map(overtime => overtime.payroll.employee.id))];
-
-    const payrolls = employeeIds.map(employeeId => {
-      return this.overtimeOfEmployee(data, employeeId);
-    });
-
-    return {
-      total: total,
-      data: payrolls.map(payroll => {
-        return Object.assign(payroll, {
-          payrollId: payroll.id,
-          salaries: payroll.salaries.sort((a, b) => moment.utc(a.datetime).diff(moment.utc(b.datetime))),
-          salary: payroll.salary,
-        });
-      }),
-      totalSalary: {
-        total: payrolls.map(payroll => payroll.salary.total).reduce((a, b) => a + b, 0),
-        unit: {
-          days: payrolls.map(payroll => payroll.salary.unit.days).reduce((a, b) => a + b, 0),
-          hours: payrolls.map(payroll => payroll.salary.unit.hours).reduce((a, b) => a + b, 0)
-        },
-      }
-    };
-  }
-
-  private overtimeOfEmployee(data, employeeId) {
-    const payroll = data.find(overtime => overtime.payroll.employee.id === employeeId).payroll;
-    const overtimesOfEmployee = data.filter(overtime => overtime.payroll.employee.id === employeeId);
-
-    const totalInOvertime = overtimesOfEmployee.map(salary => {
-      return this.totalInOvertime(salary);
-    }).reduce((a, b) => a + b, 0);
-
-    const days = overtimesOfEmployee.filter(employee => employee.unit === DatetimeUnit.DAY || !employee.unit).map(employee => employee.times).reduce((a, b) => a + b, 0);
-    const hours = overtimesOfEmployee.filter(employee => employee.unit === DatetimeUnit.HOUR).map(employee => employee.times).reduce((a, b) => a + b, 0);
-
-
-    return Object.assign(payroll, {
-      salaries: overtimesOfEmployee.map(overtime => _.omit(overtime, ["payroll"])),
-      salary: {
-        total: totalInOvertime,
-        unit: {days, hours},
-      },
-    });
-  }
-
-  private totalInOvertime(salary) {
-    if (salary.unit === DatetimeUnit.DAY && salary.times > 1) {
-      return (salary.times * salary.price * (salary.rate || 1)) + (salary.allowance?.price * salary.times);
-    } else {
-      return salary.times * salary.price * (salary.rate || 1) + (salary.allowance?.price || 0);
-    }
+    return this.repository.update(profile, id, updates);
   }
 
   private totalSalaryCTL(payroll: OnePayroll): number {

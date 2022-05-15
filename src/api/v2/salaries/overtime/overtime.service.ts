@@ -9,6 +9,7 @@ import {SalarySettingsService} from "../../settings/salary/salary-settings.servi
 import {DatetimeUnit} from '@prisma/client';
 import {crudManyResponse} from "../base/functions/response.function";
 import * as _ from 'lodash';
+import {SearchOvertimeDto} from "./dto/search-overtime.dto";
 
 @Injectable()
 export class OvertimeService {
@@ -30,14 +31,13 @@ export class OvertimeService {
     return crudManyResponse(count, "creation");
   }
 
-  async findAll() {
-    return this.repository.findAll();
+  async findAll(search?: Partial<SearchOvertimeDto>) {
+    return this.repository.findAll(search);
   }
 
-  async count(id: number) {
-    return this.repository.count();
+  async count(search?: Partial<SearchOvertimeDto>) {
+    return this.repository.count(search);
   }
-
 
   async findOne(id: number) {
     return this.repository.findOne(id);
