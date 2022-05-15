@@ -613,9 +613,11 @@ model HolidaySalary {
   block     SalaryBlock   @relation(fields: [blockId], references: [id])
   blockId   Int
   payroll   Payroll       @relation(fields: [payrollId], references: [id])
+  payrollId Int
   note      String?
   timestamp DateTime?     @default(now())
-  payrollId Int
+
+  @@unique([settingId, payrollId])
 }
 
 model SalaryHistory {

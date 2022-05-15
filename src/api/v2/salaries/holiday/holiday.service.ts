@@ -35,7 +35,7 @@ export class HolidayService {
   }
 
   async updateMany(body: UpdateManyHolidayDto) {
-    const {count} = await this.repository.updateMany(body.salaryIds, body);
+    const {count} = await this.repository.updateMany(body.salaryIds, this.mapToHoliday(body));
     return crudManyResponse(count, "updation");
   }
 

@@ -51,7 +51,7 @@ export class HolidayController {
 
   @UseGuards(LoggerGuard)
   @Roles(RoleEnum.SUPPER_ADMIN, RoleEnum.CAMP_ACCOUNTING)
-  @Patch("multiple/updation")
+  @Post("multiple/updation")
   updateMany(@Body() updateHolidayDto: UpdateManyHolidayDto) {
     return this.holidayService.updateMany(updateHolidayDto);
   }
@@ -65,7 +65,7 @@ export class HolidayController {
 
   @UseGuards(LoggerGuard)
   @Roles(RoleEnum.SUPPER_ADMIN, RoleEnum.CAMP_ACCOUNTING)
-  @Delete("multiple/deletion3333")
+  @Post("multiple/deletion")
   removeMany(@Body() body: RemoveManyHolidayDto) {
     return this.holidayService.removeMany(body);
   }
