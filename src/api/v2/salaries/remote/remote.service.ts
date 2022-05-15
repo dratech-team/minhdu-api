@@ -23,6 +23,10 @@ export class RemoteService {
     return this.repository.findAll();
   }
 
+  count() {
+    return this.repository.count();
+  }
+
   findOne(id: number) {
     return this.repository.findOne(id);
   }

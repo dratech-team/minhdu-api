@@ -1,6 +1,6 @@
 import {PrismaService} from "../../../../prisma.service";
 import {BadRequestException, Injectable} from "@nestjs/common";
-import {CreateDeductionDto, CreateManyDeductionDto, RemoveManyDeductionDto} from "./dto";
+import {CreateDeductionDto, RemoveManyDeductionDto} from "./dto";
 
 @Injectable()
 export class DeductionRepository {
@@ -19,6 +19,15 @@ export class DeductionRepository {
   async findAll() {
     try {
       return await this.prisma.deductionSalary.findMany();
+    } catch (err) {
+      console.error(err);
+      throw new BadRequestException(err);
+    }
+  }
+
+  async count() {
+    try {
+      return await this.prisma.deductionSalary.count();
     } catch (err) {
       console.error(err);
       throw new BadRequestException(err);

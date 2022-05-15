@@ -25,6 +25,10 @@ export class Salaryv2Service {
     return this.repository.findAll();
   }
 
+  async count() {
+    return this.repository.count();
+  }
+
   async findOne(id: number) {
     return this.repository.findOne(id);
   }

@@ -32,6 +32,10 @@ export class DeductionService {
     return this.repository.findAll();
   }
 
+  async count() {
+    return await this.repository.count();
+  }
+
   findOne(id: number) {
     return this.repository.findOne(id);
   }

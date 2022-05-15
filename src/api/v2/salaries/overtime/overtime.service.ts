@@ -34,6 +34,11 @@ export class OvertimeService {
     return this.repository.findAll();
   }
 
+  async count(id: number) {
+    return this.repository.count();
+  }
+
+
   async findOne(id: number) {
     return this.repository.findOne(id);
   }

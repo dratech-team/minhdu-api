@@ -49,7 +49,6 @@ export class DayoffController {
     return this.dayoffService.update(+id, updateDayoffDto);
   }
 
-
   @UseGuards(LoggerGuard)
   @Roles(RoleEnum.SUPPER_ADMIN, RoleEnum.CAMP_ACCOUNTING)
   @Post("multiple/updation")

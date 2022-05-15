@@ -30,6 +30,15 @@ export class Salaryv2Repository {
     }
   }
 
+  async count() {
+    try {
+      return await this.prisma.salaryv2.count();
+    } catch (err) {
+      console.error(err);
+      throw new BadRequestException(err);
+    }
+  }
+
   async findOne(id: number) {
     try {
       return await this.prisma.salaryv2.findUnique({where: {id}});

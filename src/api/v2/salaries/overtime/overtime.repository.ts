@@ -16,7 +16,7 @@ export class OvertimeRepository extends BaseRepository<OvertimeEntity> {
 
   async create(body: CreateManyOvertimeDto) {
     try {
-      return 'This action adds a new overtime';
+      return 'Chưa làm';
     } catch (err) {
       console.error(err);
       throw new BadRequestException(err);
@@ -34,7 +34,20 @@ export class OvertimeRepository extends BaseRepository<OvertimeEntity> {
 
   async findAll() {
     try {
-      return await this.prisma.overtimeSalary.findMany();
+      const [total, data] = await Promise.all([
+        this.prisma.overtimeSalary.count(),
+        this.prisma.overtimeSalary.findMany(),
+      ]);
+      return {total, data};
+    } catch (err) {
+      console.error(err);
+      throw new BadRequestException(err);
+    }
+  }
+
+  async count() {
+    try {
+      return await this.prisma.overtimeSalary.count();
     } catch (err) {
       console.error(err);
       throw new BadRequestException(err);
@@ -43,7 +56,7 @@ export class OvertimeRepository extends BaseRepository<OvertimeEntity> {
 
   async findOne(id: number) {
     try {
-      return `This action returns a #${id} overtime`;
+      return `Chưa làm`;
     } catch (err) {
       console.error(err);
       throw new BadRequestException(err);
@@ -52,7 +65,7 @@ export class OvertimeRepository extends BaseRepository<OvertimeEntity> {
 
   async update(id: number, body: UpdateOvertimeDto) {
     try {
-      return `This action updates a #${id} overtime`;
+      return `Chưa làm`;
     } catch (err) {
       console.error(err);
       throw new BadRequestException(err);
@@ -73,7 +86,7 @@ export class OvertimeRepository extends BaseRepository<OvertimeEntity> {
 
   async remove(id: number) {
     try {
-      return `This action removes a #${id} overtime`;
+      return `Chưa làm`;
     } catch (err) {
       console.error(err);
       throw new BadRequestException(err);

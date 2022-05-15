@@ -23,11 +23,15 @@ export class HolidayService {
   }
 
   findAll() {
-    return `This action returns all holiday`;
+    return `Chưa làm`;
+  }
+
+  count() {
+    return this.repository.count();
   }
 
   findOne(id: number) {
-    return `This action returns a #${id} holiday`;
+    return `Chưa làm`;
   }
 
   update(id: number, updates: UpdateHolidayDto) {
