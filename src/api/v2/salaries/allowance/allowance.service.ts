@@ -1,4 +1,4 @@
-import {BadRequestException, Injectable} from '@nestjs/common';
+import {Injectable} from '@nestjs/common';
 import {UpdateAllowanceDto} from './dto/update-allowance.dto';
 import {AllowanceRepository} from "./allowance.repository";
 import {RemoveManyAllowanceDto} from "./dto/remove-many-allowance.dto";
@@ -21,6 +21,10 @@ export class AllowanceService {
 
   findAll(profile: ProfileEntity, search: Partial<SearchAllowanceDto>) {
     return this.repository.findAll(profile, search);
+  }
+
+  count() {
+    return this.repository.count();
   }
 
   findOne(id: number) {

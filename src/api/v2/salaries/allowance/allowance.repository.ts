@@ -57,6 +57,15 @@ export class AllowanceRepository extends BaseRepository<AllowanceEntity> {
     }
   }
 
+  async count() {
+    try {
+      return await this.prisma.allowanceSalary.count();
+    } catch (err) {
+      console.error(err);
+      throw new BadRequestException(err);
+    }
+  }
+
   findOne(id: number) {
     try {
       return 'This action adds a new allowance';
