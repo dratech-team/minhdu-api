@@ -20,7 +20,7 @@ export class OvertimeService {
   }
 
   async create(body: CreateManyOvertimeDto) {
-    return this.repository.create(body);
+    return this.repository.create(await this.mapToOvertime(body));
   }
 
   async createMany(body: CreateManyOvertimeDto) {
@@ -73,6 +73,7 @@ export class OvertimeService {
       blockId: body?.blockId || 4,
       partial: body.partial,
       allowances: body.allowances,
+      note: body.note,
     };
   }
 }

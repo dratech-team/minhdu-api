@@ -48,6 +48,7 @@ export class AppService {
               title: salary.title,
               price: salary.price,
               branch: {connect: {id: salary.branchId}},
+              datetime: salary.datetime,
               timestamp: salary.timestamp,
             }
           });

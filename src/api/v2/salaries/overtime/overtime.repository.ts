@@ -1,7 +1,6 @@
 import {BaseRepository} from "../../../../common/repository/base.repository";
 import {BadRequestException, Injectable} from "@nestjs/common";
 import {PrismaService} from "../../../../prisma.service";
-import {CreateManyOvertimeDto} from "./dto/create-many-overtime.dto";
 import {UpdateOvertimeDto} from "./dto/update-overtime.dto";
 import {CreateOvertimeDto} from "./dto/create-overtime.dto";
 import {RemoveManyOvertimeDto} from "./dto/remove-many-overtime.dto";
@@ -16,9 +15,11 @@ export class OvertimeRepository extends BaseRepository<OvertimeEntity> {
     super();
   }
 
-  async create(body: CreateManyOvertimeDto) {
+  async create(body: CreateOvertimeDto) {
     try {
-      return 'Chưa làm';
+      return await this.prisma.overtimeSalary.create({
+        data: body
+      });
     } catch (err) {
       console.error(err);
       throw new BadRequestException(err);
@@ -27,7 +28,19 @@ export class OvertimeRepository extends BaseRepository<OvertimeEntity> {
 
   async createMany(bodys: CreateOvertimeDto[]) {
     try {
-      return await this.prisma.overtimeSalary.createMany({data: bodys});
+      return await this.prisma.overtimeSalary.createMany({
+        data: bodys.map(body => ({
+          payrollId: body.payrollId,
+          startedAt: body.startedAt,
+          endedAt: body.endedAt,
+          startTime: body.startTime,
+          endTime: body.endTime,
+          partial: body.partial,
+          blockId: body.blockId,
+          settingId: body.settingId,
+          note: body.note,
+        }))
+      });
     } catch (err) {
       console.error(err);
       throw new BadRequestException(err);
@@ -84,7 +97,7 @@ export class OvertimeRepository extends BaseRepository<OvertimeEntity> {
 
   async findOne(id: number) {
     try {
-      return `Chưa làm`;
+      return await this.prisma.overtimeSalary.findUnique({where: {id: id}, include: {allowances: true}});
     } catch (err) {
       console.error(err);
       throw new BadRequestException(err);

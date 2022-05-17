@@ -14,7 +14,7 @@ export class AllowanceService {
   }
 
   async createMany(profile: ProfileEntity, body: CreateManyAllowanceDto) {
-    const salaries = body.payrollIds.map(payrollId => this.mapToAllowance(Object.assign(body, {payrollId})));
+    const salaries = body.payrollIds.map(payrollId => this.mapToAllowance(Object.assign(body, {payrollId}))) as CreateAllowanceDto[];
     const {count} = await this.repository.createMany(salaries);
     return crudManyResponse(count, "creation");
   }
@@ -45,13 +45,14 @@ export class AllowanceService {
     return {
       title: body.title,
       price: body.price,
-      payrollId: body.payrollId,
-      branchId: body?.branchId,
-      rate: body.rate,
       inWorkday: body.inWorkday,
       inOffice: body.inOffice,
       startedAt: body.startedAt,
       endedAt: body.endedAt,
+      rate: body.rate,
+      payrollId: body.payrollId,
+      blockId: body?.blockId || 3,
+      note: body.note
     };
   }
 }

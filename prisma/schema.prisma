@@ -128,16 +128,17 @@ model Branch {
   ioIReceipts       IoIReceipt[]
   salarySetting     SalarySetting?     @relation(fields: [salarySettingId], references: [id])
   salarySettingId   Int?
-  allownances       AllowanceBranch[]
+  allowancesv2      AllowanceBranch[]
 }
 
 model AllowanceBranch {
-  id        Int      @id @default(autoincrement())
+  id        Int       @id @default(autoincrement())
   title     String
   price     Float
-  branch    Branch   @relation(fields: [branchId], references: [id])
+  datetime  DateTime
+  branch    Branch    @relation(fields: [branchId], references: [id])
   branchId  Int
-  timestamp DateTime
+  timestamp DateTime? @default(now())
 }
 
 model BranchStatus {
@@ -592,42 +593,48 @@ model DayOffSalary {
 }
 
 model OvertimeSalary {
-  id         Int               @id @default(autoincrement())
+  id         Int                       @id @default(autoincrement())
   startedAt  DateTime
   endedAt    DateTime
   startTime  DateTime?
   endTime    DateTime?
   partial    PartialDay
-  allowances AllowanceSalary[]
-  setting    SalarySetting     @relation(fields: [settingId], references: [id])
+  setting    SalarySetting             @relation(fields: [settingId], references: [id])
   settingId  Int
-  block      SalaryBlock       @relation(fields: [blockId], references: [id])
+  block      SalaryBlock               @relation(fields: [blockId], references: [id])
   blockId    Int
-  payroll    Payroll           @relation(fields: [payrollId], references: [id])
+  payroll    Payroll                   @relation(fields: [payrollId], references: [id])
   payrollId  Int
   note       String?
-  timestamp  DateTime?         @default(now())
+  timestamp  DateTime?                 @default(now())
+  allowances OvertimeAllowanceSalary[]
 
   @@unique([startedAt, endedAt, partial, payrollId])
 }
 
-model AllowanceSalary {
-  id         Int             @id @default(autoincrement())
+model OvertimeAllowanceSalary {
+  id         Int            @id @default(autoincrement())
   title      String
   price      Float
-  inWorkday  Boolean         @default(true) // Dựa vào ngày công thực tế
-  inOffice   Boolean         @default(true) // Chỉ tính những ngày làm tại văn phòng. Không tính các ngày onsite/remote/wfh
-  startedAt  DateTime?
-  endedAt    DateTime?
-  rate       Float?          @default(1)
-  payroll    Payroll         @relation(fields: [payrollId], references: [id])
-  payrollId  Int
-  block      SalaryBlock?    @relation(fields: [blockId], references: [id])
-  blockId    Int?
-  overtime   OvertimeSalary? @relation(fields: [overtimeId], references: [id])
-  overtimeId Int?
-  note       String?
-  timestamp  DateTime?       @default(now())
+  overtime   OvertimeSalary @relation(fields: [overtimeId], references: [id])
+  overtimeId Int
+}
+
+model AllowanceSalary {
+  id        Int          @id @default(autoincrement())
+  title     String
+  price     Float
+  inWorkday Boolean      @default(true) // Dựa vào ngày công thực tế
+  inOffice  Boolean      @default(true) // Chỉ tính những ngày làm tại văn phòng. Không tính các ngày onsite/remote/wfh
+  startedAt DateTime?
+  endedAt   DateTime?
+  rate      Float?       @default(1)
+  payroll   Payroll      @relation(fields: [payrollId], references: [id])
+  payrollId Int
+  block     SalaryBlock? @relation(fields: [blockId], references: [id])
+  blockId   Int?
+  note      String?
+  timestamp DateTime?    @default(now())
 }
 
 model HolidaySalary {

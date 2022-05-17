@@ -33,7 +33,10 @@ export class PayrollRepository {
           isFlatSalary: body.isFlatSalary,
           tax: TAX
         },
-        include: {salaries: true},
+        include: {
+          salaries: true,
+          employee: true
+        },
       });
     } catch (err) {
       console.error(err);

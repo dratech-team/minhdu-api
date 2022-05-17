@@ -1,6 +1,5 @@
-import {IsDate, IsNotEmpty, IsNumber, IsOptional, IsString} from "class-validator";
-import {Transform, Type} from "class-transformer";
-import * as moment from "moment";
+import {IsNotEmpty, IsNumber, IsOptional, IsString} from "class-validator";
+import {Type} from "class-transformer";
 
 export class CreateHolidayDto {
   @IsNotEmpty()

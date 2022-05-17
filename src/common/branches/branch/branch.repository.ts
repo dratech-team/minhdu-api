@@ -1,7 +1,6 @@
 import {BadRequestException, ForbiddenException, Injectable,} from "@nestjs/common";
 import {PrismaService} from "../../../prisma.service";
 import {CreateBranchDto} from "./dto/create-branch.dto";
-import {AppEnum} from "@prisma/client";
 import {UpdateBranchDto} from "./dto/update-branch.dto";
 import {ProfileEntity} from "../../entities/profile.entity";
 import {SearchBranchDto} from "./dto/search-branch.dto";
@@ -94,17 +93,12 @@ export class BranchRepository {
           }
         },
         allowances: {
-          select: {
-            id: true,
-            title: true,
-            datetime: true,
-            price: true
-          },
           orderBy: {
             datetime: "asc"
           }
         },
-        positions: true
+        positions: true,
+        allowancesv2: true
       },
     });
     return await this.mapToBranch(branch);

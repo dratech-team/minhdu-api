@@ -29,6 +29,7 @@ export const ApiV2Constant = {
   SALARY: {
     SALARY: '/v2/salary',
     SALARYV2: '/v2/salaryv2',
+    BRANCH: '/v2/salary/branch',
     ALLOWANCE: '/v2/salary/allowance',
     ABSENT: '/v2/salary/absent',
     DAYOFF: '/v2/salary/dayoff',

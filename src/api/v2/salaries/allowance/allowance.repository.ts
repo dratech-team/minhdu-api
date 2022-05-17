@@ -15,7 +15,9 @@ export class AllowanceRepository extends BaseRepository<AllowanceEntity> {
 
   async create(body: CreateAllowanceDto) {
     try {
-      return await this.prisma.allowanceSalary.createMany({data: body});
+      return await this.prisma.allowanceSalary.create({
+        data: body
+      });
     } catch (err) {
       console.error(err);
       throw new BadRequestException(err);

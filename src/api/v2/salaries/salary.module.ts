@@ -15,6 +15,7 @@ import {SalariesDuplicateMiddleware} from "./salaries-duplicate.middleware";
 import {HolidayModule} from './holiday/holiday.module';
 import {SalariesConvertDatetimeMiddleware} from "./salaries-convert-datime.middleware";
 import { DayoffModule } from './dayoff/dayoff.module';
+import { BranchModule } from './branch/branch.module';
 
 @Module({
   imports: [
@@ -27,7 +28,8 @@ import { DayoffModule } from './dayoff/dayoff.module';
     SalaryModule,
     Salaryv2Module,
     HolidayModule,
-    DayoffModule
+    DayoffModule,
+    BranchModule
   ],
   providers: [PrismaService]
 })

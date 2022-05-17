@@ -20,7 +20,8 @@ export class BranchService {
   }
 
   async findOne(profile: ProfileEntity, id: number) {
-    return await this.repository.findOne(profile, id);
+    const branch = await this.repository.findOne(profile, id);
+    return Object.assign(branch, {allowances: branch.allowancesv2});
   }
 
   update(profile: ProfileEntity, id: number, updates: UpdateBranchDto): Promise<any> {
