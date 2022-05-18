@@ -52,19 +52,22 @@ export class OvertimeRepository extends BaseRepository<OvertimeEntity> {
 
   async findAll(search?: Partial<SearchOvertimeDto>) {
     try {
-      const payroll = search?.payrollId ? await this.prisma.payroll.findUnique({where: {id: search.payrollId}}) : null;
+      const payroll = await this.prisma.payroll.findUnique({where: {id: search.payrollId}});
+
       const [total, data] = await Promise.all([
         this.prisma.overtimeSalary.count({
           where: {
-            payrollId: search?.payrollId,
+            payrollId: payroll.id,
             setting: {
               title: {in: search?.titles, mode: "insensitive"},
             },
             partial: {in: search?.partial},
             OR: rangeDatetimeQuery(search?.startedAt || payroll.createdAt, search?.endedAt || lastDatetime(payroll.createdAt)),
-          }
+          },
         }),
         this.prisma.overtimeSalary.findMany({
+          take: search?.take,
+          skip: search?.skip,
           where: {
             payrollId: search?.payrollId,
             setting: {
@@ -72,7 +75,7 @@ export class OvertimeRepository extends BaseRepository<OvertimeEntity> {
             },
             partial: {in: search?.partial},
             OR: rangeDatetimeQuery(search?.startedAt || payroll.createdAt, search?.endedAt || lastDatetime(payroll.createdAt)),
-          }
+          },
         }),
       ]);
       return {total, data};
@@ -80,6 +83,27 @@ export class OvertimeRepository extends BaseRepository<OvertimeEntity> {
       console.error(err);
       throw new BadRequestException(err);
     }
+  }
+
+  async groupBy(search?: Partial<SearchOvertimeDto>) {
+    const payroll = search?.payrollId ? await this.prisma.payroll.findUnique({where: {id: search.payrollId}}) : null;
+    const groupBy = await this.prisma.overtimeSalary.groupBy({
+      by: [search.groupBy],
+      where: {
+        payrollId: search?.payrollId,
+        setting: {
+          title: {in: search?.titles, mode: "insensitive"},
+        },
+        partial: {in: search?.partial},
+        OR: rangeDatetimeQuery(search?.startedAt || payroll.createdAt, search?.endedAt || lastDatetime(payroll.createdAt)),
+      },
+    });
+
+    return await Promise.all(groupBy.map(async e => {
+      const {data} = await this.findAll(Object.assign(search, {payrollId: e.payrollId}));
+      const payroll = await this.prisma.payroll.findUnique({where: {id: search.payrollId}, include: {employee: true}});
+      return Object.assign(payroll, {salaries: data});
+    }));
   }
 
   async count(search?: Partial<SearchOvertimeDto>) {
@@ -146,3 +170,7 @@ export class OvertimeRepository extends BaseRepository<OvertimeEntity> {
     }
   }
 }
+
+export type Subset<T, U> = {
+  [key in keyof T]: key extends keyof U ? T[key] : never;
+};

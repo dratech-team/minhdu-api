@@ -112,24 +112,12 @@ export class PayrollServicev2 {
         return {total, data: Object.assign(data, {timesheet: timesheet(data)})};
       }
       case FilterTypeEnum.OVERTIME: {
-        return {
-          total,
-          total2: await this.overtimeService.count({
-            startedAt: search.startedAt,
-            endedAt: search.endedAt,
-            titles: search.titles,
-            partial: search?.partial
-          }),
-          data: await Promise.all(data.map(async e => {
-            const {data} = await this.overtimeService.findAll({
-              payrollId: e.id,
-              startedAt: search?.startedAt,
-              endedAt: search?.endedAt,
-              partial: search?.partial
-            });
-            return Object.assign(e, {salaries: data});
-          })),
-        };
+        const [total, data] = await Promise.all([
+          this.overtimeService.count(search),
+          this.overtimeService.groupBy(search)
+        ]);
+
+        return {total, total2: total, data};
       }
       case FilterTypeEnum.ABSENT: {
         return {

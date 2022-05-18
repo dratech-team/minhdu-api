@@ -1,4 +1,4 @@
-import {Injectable} from '@nestjs/common';
+import {BadRequestException, Injectable} from '@nestjs/common';
 import {CreateManyOvertimeDto} from './dto/create-many-overtime.dto';
 import {UpdateOvertimeDto} from './dto/update-overtime.dto';
 import {OvertimeRepository} from "./overtime.repository";
@@ -32,6 +32,9 @@ export class OvertimeService {
   }
 
   async findAll(search?: Partial<SearchOvertimeDto>) {
+    if (!search?.startedAt || !search?.endedAt) {
+      throw new BadRequestException("Tăng ca thì truyền ngày bắt đầu và kết thúc vào");
+    }
     return this.repository.findAll(search);
   }
 
@@ -41,6 +44,10 @@ export class OvertimeService {
 
   async findOne(id: number) {
     return this.repository.findOne(id);
+  }
+
+  async groupBy(search: Partial<SearchOvertimeDto>) {
+    return this.repository.groupBy(search);
   }
 
   async update(id: number, body: UpdateOvertimeDto) {
