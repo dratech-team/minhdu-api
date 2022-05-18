@@ -202,7 +202,9 @@ export class PayrollRepository {
             salariesv2: true,
             deductions: true,
             absents: true,
-            overtimes: true,
+            overtimes: {
+              include: {setting: true}
+            },
             allowances: true,
             remotes: true,
           },

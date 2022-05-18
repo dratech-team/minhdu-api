@@ -1,4 +1,4 @@
-import {Body, Controller, Delete, Get, Param, Patch, Post, UseGuards} from '@nestjs/common';
+import {Body, Controller, Delete, Get, Param, Patch, Post, Put, UseGuards} from '@nestjs/common';
 import {OvertimeService} from './overtime.service';
 import {CreateManyOvertimeDto} from './dto/create-many-overtime.dto';
 import {UpdateOvertimeDto} from './dto/update-overtime.dto';
@@ -46,7 +46,7 @@ export class OvertimeController {
   }
 
   @Roles(RoleEnum.SUPPER_ADMIN, RoleEnum.CAMP_ACCOUNTING)
-  @Post('multiple/updation')
+  @Put('multiple/updation')
   updateMany(@Body() updateOvertimeDto: UpdateManyOvertimeDto) {
     return this.overtimeService.updateMany(updateOvertimeDto);
   }

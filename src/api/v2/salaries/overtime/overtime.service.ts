@@ -62,13 +62,13 @@ export class OvertimeService {
   }
 
   private async mapToOvertime(body): Promise<CreateOvertimeDto> {
-    const setting = await this.salarySettingsService.findOne(body.settingId);
+    const setting = body.settingId ? await this.salarySettingsService.findOne(body.settingId) : null;
     return {
       payrollId: body.payrollId,
       startedAt: body.startedAt,
       endedAt: body.endedAt,
-      startTime: setting.unit === DatetimeUnit.HOUR ? body.startTime : null,
-      endTime: setting.unit === DatetimeUnit.HOUR ? body.endTime : null,
+      startTime: setting?.unit === DatetimeUnit.HOUR ? body.startTime : null,
+      endTime: setting?.unit === DatetimeUnit.HOUR ? body.endTime : null,
       settingId: body.settingId,
       blockId: body?.blockId || 4,
       partial: body.partial,

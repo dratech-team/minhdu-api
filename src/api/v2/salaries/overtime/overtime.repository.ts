@@ -25,9 +25,9 @@ export class OvertimeRepository extends BaseRepository<OvertimeEntity> {
           startTime: body.startTime,
           endTime: body.endTime,
           partial: body.partial,
-          allowances: {
+          allowances: body?.allowances ? {
             createMany: {data: body.allowances, skipDuplicates: true}
-          },
+          } : {},
           blockId: body.blockId,
           settingId: body.settingId,
           note: body.note,
