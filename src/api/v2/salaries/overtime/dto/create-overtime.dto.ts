@@ -1,4 +1,4 @@
-import {IsDate, IsEnum, IsNotEmpty, IsNumber, IsObject, IsOptional, IsString} from "class-validator";
+import {IsArray, IsDate, IsEnum, IsNotEmpty, IsNumber, IsObject, IsOptional, IsString} from "class-validator";
 import {Transform, Type} from "class-transformer";
 import * as moment from "moment";
 import {PartialDay} from "@prisma/client";
@@ -52,8 +52,15 @@ export class CreateOvertimeDto {
   readonly blockId: number;
 
   @IsOptional()
+  @Transform(({value}) => {
+    if (typeof value === "object") {
+      return Array.of(value);
+    }
+    return value;
+  })
+  @IsArray()
   @IsObject({each: true})
-  readonly allowances: CreateOvertimeAllowanceDto;
+  readonly allowances: CreateOvertimeAllowanceDto[];
 
   @IsOptional()
   @IsString()

@@ -18,7 +18,20 @@ export class OvertimeRepository extends BaseRepository<OvertimeEntity> {
   async create(body: CreateOvertimeDto) {
     try {
       return await this.prisma.overtimeSalary.create({
-        data: body
+        data: {
+          payrollId: body.payrollId,
+          startedAt: body.startedAt,
+          endedAt: body.endedAt,
+          startTime: body.startTime,
+          endTime: body.endTime,
+          partial: body.partial,
+          allowances: {
+            createMany: {data: body.allowances, skipDuplicates: true}
+          },
+          blockId: body.blockId,
+          settingId: body.settingId,
+          note: body.note,
+        }
       });
     } catch (err) {
       console.error(err);
@@ -26,21 +39,11 @@ export class OvertimeRepository extends BaseRepository<OvertimeEntity> {
     }
   }
 
+  // Không tạo được allowances trong overtime khi dùng createMany
   async createMany(bodys: CreateOvertimeDto[]) {
     try {
-      return await this.prisma.overtimeSalary.createMany({
-        data: bodys.map(body => ({
-          payrollId: body.payrollId,
-          startedAt: body.startedAt,
-          endedAt: body.endedAt,
-          startTime: body.startTime,
-          endTime: body.endTime,
-          partial: body.partial,
-          blockId: body.blockId,
-          settingId: body.settingId,
-          note: body.note,
-        }))
-      });
+      const count = await Promise.all(bodys.map(async body => await this.create(body)));
+      return {count: count.length};
     } catch (err) {
       console.error(err);
       throw new BadRequestException(err);
