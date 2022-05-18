@@ -94,7 +94,7 @@ export class PayrollServicev2 {
     const {total, data} = await this.repository.findAll(profile, search);
 
     switch (search.filterType) {
-      case FilterTypeEnum.PERNAMENT: {
+      case FilterTypeEnum.PERMANENT: {
         return {
           total,
           total2: await this.salaryv2Service.count(),
