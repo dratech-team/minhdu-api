@@ -1,5 +1,5 @@
 import {IsEnum, IsOptional, IsString} from "class-validator";
-import {OrderbyEmployeeEnum} from "../../api/v2/employee/enums/orderby-employee.enum";
+import {OrderbyEmployeeEnum} from "../../api/v1/employee/enums/orderby-employee.enum";
 
 export class SortDto {
   @IsOptional()
