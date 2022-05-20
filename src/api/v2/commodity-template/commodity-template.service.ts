@@ -21,7 +21,11 @@ export class CommodityTemplateService {
 
   async findAll() {
     try {
-      return await this.prisma.commodityTemplate.findMany();
+      const [total, data] = await Promise.all([
+        this.prisma.commodityTemplate.count(),
+        this.prisma.commodityTemplate.findMany()
+      ]);
+      return {total, data};
     } catch (e) {
       console.error(e);
       throw new BadRequestException(e);
@@ -30,16 +34,16 @@ export class CommodityTemplateService {
 
   async findOne(id: number) {
     try {
-
+      return await this.prisma.commodityTemplate.findUnique({where: {id}});
     } catch (e) {
       console.error(e);
       throw new BadRequestException(e);
     }
   }
 
-  async update(id: number, updateCommodityTemplateDto: UpdateCommodityTemplateDto) {
+  async update(id: number, update: UpdateCommodityTemplateDto) {
     try {
-
+      return await this.prisma.commodityTemplate.update({where: {id}, data: update});
     } catch (e) {
       console.error(e);
       throw new BadRequestException(e);
@@ -48,7 +52,7 @@ export class CommodityTemplateService {
 
   async remove(id: number) {
     try {
-
+      return await this.prisma.commodityTemplate.delete({where: {id}});
     } catch (e) {
       console.error(e);
       throw new BadRequestException(e);
