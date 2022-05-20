@@ -1,21 +1,21 @@
-import {Body, Controller, Get, Param, Patch, Post, Query, UseGuards} from "@nestjs/common";
+import {Body, Controller, Get, Param, Patch, Post, Query, UseGuards} from '@nestjs/common';
+import {PayrollService} from './payroll.service';
+import {CreatePayrollDto} from './dto/create-payroll.dto';
+import {UpdatePayrollDto} from './dto/update-payroll.dto';
 import {ApiConstant} from "../../../common/constant";
 import {ApiKeyGuard, JwtAuthGuard, LoggerGuard, RolesGuard} from "../../../core/guard";
 import {Roles} from "../../../core/decorators/roles.decorator";
 import {RoleEnum} from "@prisma/client";
-import {PayrollServicev2} from "./payroll.service.v2";
 import {ReqProfile} from "../../../core/decorators/req-profile.decorator";
 import {ProfileEntity} from "../../../common/entities/profile.entity";
-import {CreatePayrollDto} from "./dto/create-payroll.dto";
-import {CreateManyPayrollDto} from "./dto/create-many-payroll.dto";
-import {SearchPayrollDto} from "./dto/search-payroll.dto";
-import {UpdatePayrollDto} from "./dto/update-payroll.dto";
+import {CreateManyPayrollDto} from "../../v1/payroll/dto/create-many-payroll.dto";
+import {SearchPayrollDto} from "../../v1/payroll/dto/search-payroll.dto";
 
 @Controller(ApiConstant.V2.PAYROLL)
 @UseGuards(JwtAuthGuard, ApiKeyGuard, RolesGuard)
-export class Payrollv3Controller {
+export class PayrollController {
   constructor(
-    private readonly payrollServicev2: PayrollServicev2,
+    private readonly payrollService: PayrollService,
   ) {
   }
 
@@ -26,7 +26,7 @@ export class Payrollv3Controller {
     @ReqProfile() profile: ProfileEntity,
     @Body() body: CreatePayrollDto,
   ) {
-    return this.payrollServicev2.create(profile, body);
+    return this.payrollService.create(profile, body);
   }
 
   @UseGuards(LoggerGuard)
@@ -36,13 +36,13 @@ export class Payrollv3Controller {
     @ReqProfile() profile: ProfileEntity,
     @Body() body: CreateManyPayrollDto,
   ) {
-    return this.payrollServicev2.createMany(profile, body);
+    return this.payrollService.createMany(profile, body);
   }
 
   @Roles(RoleEnum.SUPPER_ADMIN, RoleEnum.ADMIN, RoleEnum.HUMAN_RESOURCE, RoleEnum.CAMP_ACCOUNTING)
   @Get(":id")
   findOne(@Param("id") id: string) {
-    return this.payrollServicev2.findOne(+id);
+    return this.payrollService.findOne(+id);
   }
 
   @Roles(RoleEnum.SUPPER_ADMIN, RoleEnum.ADMIN, RoleEnum.HUMAN_RESOURCE, RoleEnum.CAMP_ACCOUNTING)
@@ -51,13 +51,13 @@ export class Payrollv3Controller {
     @ReqProfile() profile: ProfileEntity,
     @Query() search: SearchPayrollDto
   ) {
-    return this.payrollServicev2.findAll(profile, search);
+    return this.payrollService.findAll(profile, search);
   }
 
   @UseGuards(LoggerGuard)
   @Roles(RoleEnum.SUPPER_ADMIN, RoleEnum.ADMIN, RoleEnum.HUMAN_RESOURCE, RoleEnum.CAMP_ACCOUNTING)
   @Patch(":id")
   update(@ReqProfile() profile: ProfileEntity, @Param("id") id: number, @Body() updatePayrollDto: UpdatePayrollDto) {
-    return this.payrollServicev2.update(profile, +id, updatePayrollDto);
+    return this.payrollService.update(profile, +id, updatePayrollDto);
   }
 }

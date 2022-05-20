@@ -6,7 +6,7 @@ import {CreateSalaryDto} from "./dto/create-salary.dto";
 import {UpdateSalaryDto} from "./dto/update-salary.dto";
 import {OneSalary} from "./entities/salary.entity";
 import {includesDatetime} from "../../../../common/utils/isEqual-datetime.util";
-import {ALL_DAY, PARTIAL_DAY} from "../../../../common/constant/datetime.constant";
+import {ALL_DAY, PARTIAL_DAY} from "../../../../common/constant";
 import {FullPayroll} from "../../payroll/entities/payroll.entity";
 import {SearchSalaryDto} from "./dto/search-salary.dto";
 import {ProfileEntity} from "../../../../common/entities/profile.entity";

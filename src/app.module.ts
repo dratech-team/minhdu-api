@@ -51,6 +51,7 @@ import {SalarySettingsModule} from "./api/v1/settings/salary/salary-settings.mod
 import {SalaryBlockModule} from './api/v1/settings/salary-block/salary-block.module';
 import {SalariesModule} from "./api/v1/salaries/salary.module";
 import {AppService} from "./app.service";
+import {PayrollModule as PayrollModuleV2} from './api/v2/payroll/payroll.module';
 
 @Module({
   imports: [
@@ -102,7 +103,8 @@ import {AppService} from "./app.service";
     ConsignmentModule,
     SalarySettingsModule,
     SalaryBlockModule,
-    SalariesModule
+    SalariesModule,
+    PayrollModuleV2
   ],
   controllers: [AppController],
   providers: [PrismaService, AppService],

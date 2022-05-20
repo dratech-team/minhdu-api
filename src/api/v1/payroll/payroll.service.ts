@@ -18,9 +18,8 @@ import {SearchPayrollDto} from "./dto/search-payroll.dto";
 import {UpdatePayrollDto} from "./dto/update-payroll.dto";
 import {OnePayroll} from "./entities/payroll.entity";
 import {PayrollRepository} from "./payroll.repository";
-import {PAYSLIP_WORKDAY_HOLIDAY, RATE_OUT_OF_WORK_DAY,} from "../../../common/constant/salary.constant";
+import {ALL_DAY, PARTIAL_DAY, PAYSLIP_WORKDAY_HOLIDAY, RATE_OUT_OF_WORK_DAY,} from "../../../common/constant";
 import {includesDatetime, isEqualDatetime,} from "../../../common/utils/isEqual-datetime.util";
-import {ALL_DAY, PARTIAL_DAY,} from "../../../common/constant/datetime.constant";
 import {exportExcel} from "../../../core/services/export.service";
 import * as moment from "moment";
 import {ConfirmPayrollDto} from "./dto/confirm-payroll.dto";
@@ -31,7 +30,6 @@ import {SearchExportDto} from "./dto/search-export.dto";
 import {convertArrayToString} from "./functions/convertArrayToString";
 import {SearchSalaryDto} from "./dto/search-salary.dto";
 import *as _ from "lodash";
-import {StatusEnum} from "../../../common/enum/status.enum";
 import {AbsentEntity} from "./entities/absent.entity";
 import {EmployeeStatusEnum} from "../employee/enums/employee-status.enum";
 

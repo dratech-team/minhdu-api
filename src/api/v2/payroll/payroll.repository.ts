@@ -1,23 +1,23 @@
 import {BadRequestException, Injectable, NotFoundException} from "@nestjs/common";
-import {EmployeeType, Payroll, Position, RecipeType, RoleEnum, SalaryType} from "@prisma/client";
-import {ProfileEntity} from "../../../common/entities/profile.entity";
+import {BaseRepository} from "../../../common/repository/base.repository";
+import {PayrollEntity} from "./entities";
 import {PrismaService} from "../../../prisma.service";
-import {firstDatetime, lastDatetime} from "../../../utils/datetime.util";
-import {CreatePayrollDto} from "./dto/create-payroll.dto";
-import {SearchPayrollDto} from "./dto/search-payroll.dto";
-import {UpdatePayrollDto} from "./dto/update-payroll.dto";
-import {CreateSalaryDto} from "../salaries/salary/dto/create-salary.dto";
-import * as moment from "moment";
-import {FilterTypeEnum} from "./entities/filter-type.enum";
-import {SearchSalaryDto} from "./dto/search-salary.dto";
-import {OrderbyEmployeeEnum} from "../employee/enums/orderby-employee.enum";
-import *as _ from "lodash";
+import {CreatePayrollDto} from "../../v1/payroll/dto/create-payroll.dto";
 import {TAX} from "../../../common/constant";
+import {ProfileEntity} from "../../../common/entities/profile.entity";
+import {EmployeeType, RecipeType, RoleEnum, SalaryType} from "@prisma/client";
+import * as _ from "lodash";
+import {SearchPayrollDto} from "../../v1/payroll/dto/search-payroll.dto";
 import {StatusEnum} from "../../../common/enum/status.enum";
+import {OrderbyEmployeeEnum} from "../../v1/employee/enums/orderby-employee.enum";
+import {firstDatetime, lastDatetime} from "../../../utils/datetime.util";
+import {UpdatePayrollDto} from "../../v1/payroll/dto/update-payroll.dto";
+import * as moment from "moment";
 
 @Injectable()
-export class PayrollRepository {
+export class PayrollRepository extends BaseRepository<PayrollEntity> {
   constructor(private readonly prisma: PrismaService) {
+    super();
   }
 
   async create(body: CreatePayrollDto) {
@@ -82,47 +82,6 @@ export class PayrollRepository {
     return this.prisma.payroll.createMany({
       data: bodys
     });
-  }
-
-  /// tạo ngày lễ cho phiếu lương đó
-  async generateHoliday(payrollId: Payroll["id"], body: Partial<CreateSalaryDto>[]) {
-    try {
-      if (!body?.length) {
-        return await this.prisma.payroll.update({
-          where: {id: payrollId},
-          data: {
-            salaries: {
-              deleteMany: {
-                type: SalaryType.HOLIDAY
-              },
-            }
-          }
-        });
-      }
-      return await this.prisma.payroll.update({
-        where: {id: payrollId},
-        data: {
-          salaries: {
-            deleteMany: {
-              type: SalaryType.HOLIDAY
-            },
-            createMany: {
-              data: body.map(holiday => ({
-                title: holiday.title,
-                price: holiday?.price,
-                type: SalaryType.HOLIDAY,
-                datetime: holiday.datetime as Date,
-                times: holiday.times,
-                rate: holiday.rate,
-              }))
-            }
-          }
-        }
-      });
-    } catch (err) {
-      console.error(err);
-      throw new BadRequestException("Khởi tạo ngày lễ xảy ra lõi. Vui lòng thao tác lại. Nếu không được hãy liên hệ admin. Xin cảm ơn");
-    }
   }
 
   async findAll(profile: ProfileEntity, search?: Partial<SearchPayrollDto>) {
@@ -229,118 +188,6 @@ export class PayrollRepository {
     }
   }
 
-  async findSalaries(profile: ProfileEntity, search?: Partial<SearchPayrollDto>) {
-    const [total, data] = await Promise.all([
-      this.prisma.salary.count({
-        where: {
-          datetime: !(search.filterType === FilterTypeEnum.BASIC || search.filterType === FilterTypeEnum.STAY)
-            ? {
-              gte: search.startedAt,
-              lte: search.endedAt,
-            }
-            : {},
-          title: {in: search?.titles, mode: "insensitive"},
-          price: search?.salaryPrice ? {equals: search?.salaryPrice} : {},
-          type: search?.filterType
-            ? {
-              in: search?.filterType === FilterTypeEnum.BASIC
-                ? [SalaryType.BASIC, SalaryType.BASIC_INSURANCE]
-                : search.filterType === FilterTypeEnum.ABSENT
-                  ? [SalaryType.ABSENT, SalaryType.DAY_OFF]
-                  : search.filterType as SalaryType
-            }
-            : {},
-          payroll: {
-            branch: profile.branches?.length
-              ? {in: profile.branches.map(branch => branch.name)}
-              : {startsWith: search?.branch, mode: "insensitive"},
-            createdAt: (search.filterType === FilterTypeEnum.BASIC || search.filterType === FilterTypeEnum.STAY)
-              ? {
-                gte: firstDatetime(search.startedAt),
-                lte: lastDatetime(search.endedAt),
-              }
-              : {
-                gte: search.startedAt,
-                lte: search.endedAt,
-              },
-            deletedAt: {in: null}
-          }
-        },
-      }),
-      this.prisma.salary.findMany({
-        take: search?.take,
-        skip: search?.skip,
-        where: {
-          datetime: !(search.filterType === FilterTypeEnum.BASIC || search.filterType === FilterTypeEnum.STAY)
-            ? {
-              gte: search.startedAt,
-              lte: search.endedAt,
-            }
-            : {},
-          title: {in: search?.titles, mode: "insensitive"},
-          price: search?.salaryPrice ? {equals: search?.salaryPrice} : {},
-          type: search?.filterType
-            ? {
-              in: search?.filterType === FilterTypeEnum.BASIC
-                ? [SalaryType.BASIC, SalaryType.BASIC_INSURANCE]
-                : search.filterType === FilterTypeEnum.ABSENT
-                  ? [SalaryType.ABSENT, SalaryType.DAY_OFF]
-                  : search.filterType as SalaryType
-            }
-            : {},
-          payroll: {
-            branch: profile.branches?.length
-              ? {in: profile.branches.map(branch => branch.name)}
-              : {startsWith: search?.branch, mode: "insensitive"},
-            createdAt: (search.filterType === FilterTypeEnum.BASIC || search.filterType === FilterTypeEnum.STAY)
-              ? {
-                gte: firstDatetime(search.startedAt),
-                lte: lastDatetime(search.endedAt),
-              }
-              : {
-                gte: search.startedAt,
-                lte: search.endedAt,
-              },
-            deletedAt: {in: null}
-          }
-        },
-        include: {
-          payroll: {
-            include: {employee: true}
-          }
-        },
-        orderBy: {
-          payroll: {
-            employee: search?.orderBy && search?.orderType
-              ? search.orderBy === OrderbyEmployeeEnum.CREATE
-                ? {createdAt: search.orderType}
-                : search.orderBy === OrderbyEmployeeEnum.POSITION
-                  ? {position: {name: search.orderType}}
-                  : search.orderBy === OrderbyEmployeeEnum.NAME
-                    ? {lastName: search.orderType}
-                    : {}
-              : {stt: "asc"}
-          }
-        }
-      })
-    ]);
-    return {
-      total, data: data.map(salary => {
-        return Object.assign({}, salary.payroll, {salaries: Array.of(_.omit(salary, ["payroll"]))});
-      })
-    };
-  }
-
-  async findFirst(query: any) {
-    try {
-      return await this.prisma.payroll.findFirst({
-        where: query
-      });
-    } catch (err) {
-      console.error(err);
-      throw new BadRequestException(err);
-    }
-  }
 
   async findOne(id: number) {
     try {
@@ -473,6 +320,7 @@ export class PayrollRepository {
     }
   }
 
+
   async remove(profile: ProfileEntity, id: number) {
     try {
       const acc = await this.prisma.account.findUnique({where: {id: profile.id}});
@@ -494,110 +342,4 @@ export class PayrollRepository {
       throw new BadRequestException(err);
     }
   }
-
-  async findOvertimes(profile: ProfileEntity, search: Partial<SearchPayrollDto>) {
-    const acc = await this.prisma.account.findUnique({where: {id: profile.id}, include: {branches: true}});
-    const [total, data] = await Promise.all([
-      this.prisma.salary.count({
-        where: {
-          title: {in: search?.titles, mode: "insensitive"},
-          type: {in: SalaryType.OVERTIME},
-          datetime: search?.startedAt && search?.endedAt
-            ? {
-              gte: search?.startedAt,
-              lte: search?.endedAt
-            } : {},
-          payroll: {
-            branch: acc.branches?.length
-              ? {in: acc.branches.map(branch => branch.name)}
-              : {startsWith: search?.branch, mode: "insensitive"},
-            deletedAt: {in: null},
-            employee: {
-              lastName: {contains: search?.name, mode: "insensitive"}
-            }
-          }
-        },
-      }),
-      this.prisma.salary.findMany({
-        where: {
-          title: {in: search?.titles, mode: "insensitive"},
-          type: {in: SalaryType.OVERTIME},
-          datetime: search?.startedAt && search?.endedAt
-            ? {
-              gte: search?.startedAt,
-              lte: search?.endedAt
-            } : {},
-          payroll: {
-            branch: acc.branches?.length
-              ? {in: acc.branches.map(branch => branch.name)}
-              : {startsWith: search?.branch, mode: "insensitive"},
-            deletedAt: {in: null},
-            employee: {
-              lastName: {contains: search?.name, mode: "insensitive"}
-            }
-          }
-        },
-        include: {
-          allowance: true,
-          payroll: {
-            include: {employee: true}
-          }
-        },
-        orderBy: {
-          payroll: {
-            employee: search?.orderBy && search?.orderType
-              ? search.orderBy === OrderbyEmployeeEnum.CREATE
-                ? {createdAt: search.orderType}
-                : search.orderBy === OrderbyEmployeeEnum.POSITION
-                  ? {position: {name: search.orderType}}
-                  : search.orderBy === OrderbyEmployeeEnum.NAME
-                    ? {lastName: search.orderType}
-                    : {}
-              : {stt: "asc"}
-          }
-        }
-      })
-    ]);
-    return {total, data};
-  }
-
-  async overtimeTemplate(search: SearchSalaryDto) {
-    return await this.prisma.salary.groupBy({
-      by: ['title'],
-      where: {
-        type: {in: search.salaryType === SalaryType.BASIC ? [SalaryType.BASIC, SalaryType.BASIC_INSURANCE] : search.salaryType},
-        datetime: {
-          gte: search.startedAt,
-          lte: search.endedAt,
-        },
-        payroll: {
-          branch: search?.branch ? {startsWith: search.branch, mode: "insensitive"} : {},
-          position: search?.position ? {startsWith: search.position, mode: "insensitive"} : {},
-          deletedAt: {in: null}
-        }
-      },
-    });
-  }
-
-  async findCurrentHolidays(datetime: Date, positionId: Position["id"]) {
-    try {
-      return await this.prisma.holiday.findMany({
-        where: {
-          datetime: {
-            gte: firstDatetime(datetime),
-            lte: lastDatetime(datetime),
-          },
-          positions: {
-            some: {id: {in: positionId}}
-          },
-        },
-      });
-    } catch (err) {
-      console.error(err);
-      throw new BadRequestException("Lỗi get current holiday", err);
-    }
-  }
 }
-
-
-

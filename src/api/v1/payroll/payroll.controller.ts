@@ -26,10 +26,10 @@ export class PayrollController {
   @Roles(RoleEnum.SUPPER_ADMIN, RoleEnum.ADMIN, RoleEnum.HUMAN_RESOURCE, RoleEnum.CAMP_ACCOUNTING)
   @Post()
   create(
-    @ReqProfile() user: ProfileEntity,
+    @ReqProfile() profile: ProfileEntity,
     @Body() body: CreatePayrollDto,
   ) {
-    return this.payrollService.create(user, body);
+    return this.payrollService.create(profile, body);
   }
 
   @Get()

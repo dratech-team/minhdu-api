@@ -1,34 +1,33 @@
-import {Injectable} from "@nestjs/common";
+import {Injectable} from '@nestjs/common';
+import {CreatePayrollDto} from './dto/create-payroll.dto';
+import {UpdatePayrollDto} from './dto/update-payroll.dto';
 import {PayrollRepository} from "./payroll.repository";
+import {EmployeeService} from "../../v1/employee/employee.service";
+import {Salaryv2Service} from "../../v1/salaries/salaryv2/salaryv2.service";
+import {AllowanceService} from "../../v1/salaries/allowance/allowance.service";
+import {AbsentService} from "../../v1/salaries/absent/absent.service";
+import {OvertimeService} from "../../v1/salaries/overtime/overtime.service";
+import {RemoteService} from "../../v1/salaries/remote/remote.service";
 import {ProfileEntity} from "../../../common/entities/profile.entity";
-import {CreatePayrollDto} from "./dto/create-payroll.dto";
+import {CreateManyPayrollDto} from "../../v1/payroll/dto/create-many-payroll.dto";
 import {firstDatetime, lastDatetime} from "../../../utils/datetime.util";
+import {EmployeeStatusEnum} from "../../v1/employee/enums/employee-status.enum";
 import {isEqualDatetime} from "../../../common/utils/isEqual-datetime.util";
-import {EmployeeService} from "../employee/employee.service";
-import {SearchPayrollDto} from "./dto/search-payroll.dto";
-import {FilterTypeEnum} from "./entities/filter-type.enum";
-import {timesheet} from "./functions/timesheet";
-import {AllowanceSalary, PartialDay, SalarySetting, SalaryType} from "@prisma/client";
-import {OnePayroll} from "./entities/payroll.entity";
+import {crudManyResponse} from "../../v1/salaries/base/functions/response.function";
+import {SearchPayrollDto} from "../../v1/payroll/dto/search-payroll.dto";
+import {FilterTypeEnum} from "../../v1/payroll/entities/filter-type.enum";
 import * as _ from "lodash";
-import * as dateFns from 'date-fns';
-import {AbsentEntity} from "./entities/absent.entity";
-import {RemoteEntity} from "../salaries/remote/entities/remote.entity";
-import {OvertimeEntity} from "../salaries/overtime/entities";
-import {UpdatePayrollDto} from "./dto/update-payroll.dto";
-import {EmployeeStatusEnum} from "../employee/enums/employee-status.enum";
-import {CreateManyPayrollDto} from "./dto/create-many-payroll.dto";
-import {crudManyResponse} from "../salaries/base/functions/response.function";
-import {AbsentService} from "../salaries/absent/absent.service";
-import {OvertimeService} from "../salaries/overtime/overtime.service";
-import {Salaryv2Service} from "../salaries/salaryv2/salaryv2.service";
-import {AllowanceService} from "../salaries/allowance/allowance.service";
-import {RemoteService} from "../salaries/remote/remote.service";
-
-type AllowanceType = AllowanceSalary & { datetime: Date, duration: number };
+import {timesheet} from "../../v1/payroll/functions/timesheet";
+import {OnePayroll} from "../../v1/payroll/entities/payroll.entity";
+import {AllowanceSalary, PartialDay, SalarySetting, SalaryType} from "@prisma/client";
+import dateFns from "date-fns";
+import {AbsentEntity} from "../../v1/payroll/entities/absent.entity";
+import {OvertimeEntity} from "../../v1/salaries/overtime/entities";
+import {RemoteEntity} from "../../v1/salaries/remote/entities/remote.entity";
+import {AllowanceType} from "./entities";
 
 @Injectable()
-export class PayrollServicev2 {
+export class PayrollService {
   constructor(
     private readonly repository: PayrollRepository,
     private readonly employeeService: EmployeeService,
