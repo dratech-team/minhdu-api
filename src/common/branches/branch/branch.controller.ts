@@ -8,9 +8,10 @@ import {RoleEnum} from "@prisma/client";
 import {ReqProfile} from "../../../core/decorators/req-profile.decorator";
 import {ProfileEntity} from "../../entities/profile.entity";
 import {SearchBranchDto} from "./dto/search-branch.dto";
+import {ApiConstant} from "../../constant";
 
 @UseGuards(JwtAuthGuard, ApiKeyGuard, RolesGuard)
-@Controller('v2/branch')
+@Controller(ApiConstant.V1.ORGCHART.BRANCH)
 export class BranchController {
   constructor(private readonly branchService: BranchService) {
   }

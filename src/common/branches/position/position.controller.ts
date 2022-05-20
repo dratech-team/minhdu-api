@@ -8,9 +8,10 @@ import {Roles} from "../../../core/decorators/roles.decorator";
 import {RoleEnum} from "@prisma/client";
 import {ReqProfile} from "../../../core/decorators/req-profile.decorator";
 import {ProfileEntity} from "../../entities/profile.entity";
+import {ApiConstant} from "../../constant";
 
 @UseGuards(JwtAuthGuard, ApiKeyGuard, RolesGuard)
-@Controller('v2/position')
+@Controller(ApiConstant.V1.ORGCHART.POSITION)
 export class PositionController {
   constructor(private readonly positionService: PositionService) {
   }

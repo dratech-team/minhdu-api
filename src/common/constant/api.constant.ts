@@ -29,7 +29,10 @@ const V1 = {
   LOCATION: `${Version.V1}/location`,
   ORDER: `${Version.V1}/order`,
   ORDER_HISTORY: `${Version.V1}/order-history`,
-  ORGCHART: `${Version.V1}/orgchart`,
+  ORGCHART: {
+    BRANCH: `${Version.V1}/branch`,
+    POSITION: `${Version.V1}/position`,
+  },
   OVERTIME_TEMPLATE: `${Version.V1}/overtime-template`,
   PAYMENT_HISTORY: `${Version.V1}/payment-history`,
   PAYROLL: `${Version.V1}/payroll`,
