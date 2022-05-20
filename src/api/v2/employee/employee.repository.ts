@@ -60,7 +60,7 @@ export class EmployeeRepository extends BaseRepository<Employee> {
           note: body.note,
           branch: {connect: {id: body.branchId}},
           recipeType: body.recipeType,
-          type: body.type,
+          type: body.employeeType,
           contracts: body.contract?.createdAt
             ? {
               create: {
@@ -173,7 +173,7 @@ export class EmployeeRepository extends BaseRepository<Employee> {
                 }
               }
             } : {},
-            type: search?.type ? {in: search.type} : {},
+            type: search?.employeeType ? {in: search.employeeType} : {},
             recipeType: search?.recipeType ? {in: search?.recipeType} : {},
             ward: {
               name: {startsWith: search?.ward, mode: "insensitive"},
@@ -203,15 +203,15 @@ export class EmployeeRepository extends BaseRepository<Employee> {
             gender: search?.gender ? {equals: search?.gender} : {},
             isFlatSalary: (search?.isFlatSalary == 1 || search?.isFlatSalary == 0) ? {equals: +search.isFlatSalary === 1} : {},
             createdAt: search?.createdAt ? search?.createdAt.compare === 'gte'
-                ? {gte: search?.createdAt?.datetime}
-                : search?.createdAt.compare === 'lte'
-                  ? {lte: search?.createdAt?.datetime}
-                  : search?.createdAt.compare === 'in'
-                    ? {in: search?.createdAt?.datetime}
-                    : search?.createdAt.compare === 'inMonth' ? {
-                      gte: firstDatetime(search?.createdAt?.datetime),
-                      lte: lastDatetime(search?.createdAt?.datetime)
-                    } : {}
+              ? {gte: search?.createdAt?.datetime}
+              : search?.createdAt.compare === 'lte'
+                ? {lte: search?.createdAt?.datetime}
+                : search?.createdAt.compare === 'in'
+                  ? {in: search?.createdAt?.datetime}
+                  : search?.createdAt.compare === 'inMonth' ? {
+                    gte: firstDatetime(search?.createdAt?.datetime),
+                    lte: lastDatetime(search?.createdAt?.datetime)
+                  } : {}
               : {},
             workedAt: {in: search?.workedAt},
             payrolls: search?.createdPayroll ? {
@@ -222,7 +222,7 @@ export class EmployeeRepository extends BaseRepository<Employee> {
                 }
               }
             } : {},
-            type: search?.type ? {in: search.type} : {},
+            type: search?.employeeType ? {in: search.employeeType} : {},
             recipeType: search?.recipeType ? {in: search?.recipeType} : {},
             ward: {
               name: {startsWith: search?.ward, mode: "insensitive"},
@@ -404,7 +404,7 @@ export class EmployeeRepository extends BaseRepository<Employee> {
           isFlatSalary: updates.isFlatSalary,
           recipeType: updates.recipeType,
           note: updates.note,
-          type: updates.type,
+          type: updates.employeeType,
           category: updates?.categoryId ? {connect: {id: updates.categoryId}} : {}
         },
         include: {

@@ -1,17 +1,16 @@
-import {Controller, Get, Post, Body, Patch, Param, Delete, UseGuards} from '@nestjs/common';
-import { SalaryBlockService } from './salary-block.service';
-import { CreateSalaryBlockDto } from './dto/create-salary-block.dto';
-import { UpdateSalaryBlockDto } from './dto/update-salary-block.dto';
-import {JwtAuthGuard} from "../../../../core/guard/jwt-auth.guard";
-import {ApiKeyGuard} from "../../../../core/guard/api-key-auth.guard";
-import {RolesGuard} from "../../../../core/guard/role.guard";
+import {Body, Controller, Delete, Get, Param, Patch, Post, UseGuards} from '@nestjs/common';
+import {SalaryBlockService} from './salary-block.service';
+import {CreateSalaryBlockDto} from './dto/create-salary-block.dto';
+import {UpdateSalaryBlockDto} from './dto/update-salary-block.dto';
+import {ApiKeyGuard, JwtAuthGuard, RolesGuard} from "../../../../core/guard";
 import {Roles} from "../../../../core/decorators/roles.decorator";
 import {RoleEnum} from "@prisma/client";
 
 @UseGuards(JwtAuthGuard, ApiKeyGuard, RolesGuard)
 @Controller('v2/settings/salary-block')
 export class SalaryBlockController {
-  constructor(private readonly salaryBlockService: SalaryBlockService) {}
+  constructor(private readonly salaryBlockService: SalaryBlockService) {
+  }
 
   @Roles(RoleEnum.SUPPER_ADMIN)
   @Post()

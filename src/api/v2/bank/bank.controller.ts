@@ -3,10 +3,7 @@ import {BankService} from './bank.service';
 import {CreateBankDto} from './dto/create-bank.dto';
 import {UpdateBankDto} from './dto/update-bank.dto';
 import {ApiV2Constant} from "../../../common/constant/api.constant";
-import {JwtAuthGuard} from "../../../core/guard/jwt-auth.guard";
-import {ApiKeyGuard} from "../../../core/guard/api-key-auth.guard";
-import {RolesGuard} from "../../../core/guard/role.guard";
-import {LoggerGuard} from "../../../core/guard/logger.guard";
+import {ApiKeyGuard, JwtAuthGuard, LoggerGuard, RolesGuard} from "../../../core/guard";
 import {Roles} from "../../../core/decorators/roles.decorator";
 import {RoleEnum} from "@prisma/client";
 
@@ -15,7 +12,6 @@ import {RoleEnum} from "@prisma/client";
 export class BankController {
   constructor(private readonly bankService: BankService) {
   }
-
 
   @UseGuards(LoggerGuard)
   @Roles(RoleEnum.SUPPER_ADMIN, RoleEnum.ADMIN, RoleEnum.SALESMAN)

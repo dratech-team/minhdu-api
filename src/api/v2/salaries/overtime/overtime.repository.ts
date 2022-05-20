@@ -88,7 +88,7 @@ export class OvertimeRepository extends BaseRepository<OvertimeEntity> {
   async groupBy(search?: Partial<SearchOvertimeDto>) {
     const payroll = search?.payrollId ? await this.prisma.payroll.findUnique({where: {id: search.payrollId}}) : null;
     const groupBy = await this.prisma.overtimeSalary.groupBy({
-      by: [search.groupBy],
+      by: [search.groupBy || "payrollId"],
       where: {
         payrollId: search?.payrollId,
         setting: {

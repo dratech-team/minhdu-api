@@ -70,7 +70,7 @@ export class CreateEmployeeDto extends CreateProfileDto {
 
   @IsOptional()
   @IsEnum(EmployeeType)
-  readonly type: EmployeeType;
+  readonly employeeType: EmployeeType;
 
   @IsOptional()
   contract: CreateContractDto;

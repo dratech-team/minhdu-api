@@ -1,12 +1,9 @@
- import {Controller, Get, Post, Body, Patch, Param, Delete, Query, UseGuards} from '@nestjs/common';
+import {Body, Controller, Delete, Get, Param, Patch, Post, Query, UseGuards} from '@nestjs/common';
 import {CommodityService} from './commodity.service';
 import {CreateCommodityDto} from './dto/create-commodity.dto';
 import {UpdateCommodityDto} from './dto/update-commodity.dto';
 import {ApiV2Constant} from "../../../common/constant/api.constant";
-import {JwtAuthGuard} from "../../../core/guard/jwt-auth.guard";
-import {ApiKeyGuard} from "../../../core/guard/api-key-auth.guard";
-import {RolesGuard} from "../../../core/guard/role.guard";
-import {LoggerGuard} from "../../../core/guard/logger.guard";
+import {ApiKeyGuard, JwtAuthGuard, LoggerGuard, RolesGuard} from "../../../core/guard";
 import {Roles} from "../../../core/decorators/roles.decorator";
 import {RoleEnum} from "@prisma/client";
 
@@ -17,13 +14,13 @@ export class CommodityController {
   }
 
   @UseGuards(LoggerGuard)
-  @Roles(RoleEnum.SALESMAN)
+  @Roles(RoleEnum.SUPPER_ADMIN, RoleEnum.SALESMAN)
   @Post()
   create(@Body() body: CreateCommodityDto) {
     return this.commodityService.create(body);
   }
 
-  @Roles(RoleEnum.SALESMAN)
+  @Roles(RoleEnum.SUPPER_ADMIN, RoleEnum.SALESMAN)
   @Get()
   findAll(
     @Query("take") take: number,
@@ -32,21 +29,21 @@ export class CommodityController {
     return this.commodityService.findAll(+take, +skip);
   }
 
-  @Roles(RoleEnum.SALESMAN)
+  @Roles(RoleEnum.SUPPER_ADMIN, RoleEnum.SALESMAN)
   @Get(':id')
   findOne(@Param('id') id: string) {
     return this.commodityService.findOne(+id);
   }
 
   @UseGuards(LoggerGuard)
-  @Roles(RoleEnum.SALESMAN)
+  @Roles(RoleEnum.SUPPER_ADMIN, RoleEnum.SALESMAN)
   @Patch(':id')
   update(@Param('id') id: string, @Body() updateCommodityDto: UpdateCommodityDto) {
     return this.commodityService.update(+id, updateCommodityDto);
   }
 
   @UseGuards(LoggerGuard)
-  @Roles(RoleEnum.SALESMAN)
+  @Roles(RoleEnum.SUPPER_ADMIN, RoleEnum.SALESMAN)
   @Delete(':id')
   remove(@Param('id') id: string) {
     return this.commodityService.remove(+id);

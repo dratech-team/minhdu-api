@@ -59,7 +59,9 @@ export class SearchEmployeeDto extends PartialType(SortDto) {
   @Type(() => Number)
   readonly status: EmployeeStatusEnum;
 
-  readonly type: EmployeeType;
+  @IsOptional()
+  @IsEnum(EmployeeType)
+  readonly employeeType: EmployeeType;
 
   readonly recipeType: RecipeType;
 

@@ -5,10 +5,7 @@ import {UpdateCustomerDto} from './dto/update-customer.dto';
 import {ApiV2Constant} from "../../../common/constant/api.constant";
 import {RoleEnum} from '@prisma/client';
 import {CreatePaymentHistoryDto} from "../histories/payment-history/dto/create-payment-history.dto";
-import {JwtAuthGuard} from "../../../core/guard/jwt-auth.guard";
-import {ApiKeyGuard} from "../../../core/guard/api-key-auth.guard";
-import {RolesGuard} from "../../../core/guard/role.guard";
-import {LoggerGuard} from "../../../core/guard/logger.guard";
+import {ApiKeyGuard, JwtAuthGuard, LoggerGuard, RolesGuard} from "../../../core/guard";
 import {Roles} from 'src/core/decorators/roles.decorator';
 import {SearchCustomerDto} from "./dto/search-customer.dto";
 
@@ -19,13 +16,13 @@ export class CustomerController {
   }
 
   @UseGuards(LoggerGuard)
-  @Roles(RoleEnum.ADMIN, RoleEnum.SALESMAN)
+  @Roles(RoleEnum.SUPPER_ADMIN, RoleEnum.ADMIN, RoleEnum.SALESMAN)
   @Post()
   create(@Body() createCustomerDto: CreateCustomerDto) {
     return this.customerService.create(createCustomerDto);
   }
 
-  @Roles(RoleEnum.ADMIN, RoleEnum.SALESMAN)
+  @Roles(RoleEnum.SUPPER_ADMIN, RoleEnum.ADMIN, RoleEnum.SALESMAN)
   @Get()
   findAll(@Query() search: SearchCustomerDto) {
     return this.customerService.findAll(search);
@@ -38,14 +35,14 @@ export class CustomerController {
   }
 
   @UseGuards(LoggerGuard)
-  @Roles(RoleEnum.SALESMAN)
+  @Roles(RoleEnum.SUPPER_ADMIN, RoleEnum.SALESMAN)
   @Patch(':id')
   update(@Param('id') id: string, @Body() updateCustomerDto: UpdateCustomerDto) {
     return this.customerService.update(+id, updateCustomerDto);
   }
 
   @UseGuards(LoggerGuard)
-  @Roles(RoleEnum.SALESMAN)
+  @Roles(RoleEnum.SUPPER_ADMIN, RoleEnum.SALESMAN)
   @Delete(':id')
   remove(@Param('id') id: string) {
     return this.customerService.remove(+id);
@@ -75,7 +72,7 @@ export class CustomerController {
   // }
 
   // @UseGuards(RolesGuard, LoggerGuard)
-  @Roles(RoleEnum.ADMIN)
+  @Roles(RoleEnum.SUPPER_ADMIN, RoleEnum.ADMIN)
   @Patch(':id/payment')
   payment(@Param('id') id: number, @Body() body: CreatePaymentHistoryDto) {
     return this.customerService.payment(+id, body);
