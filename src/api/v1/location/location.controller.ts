@@ -1,11 +1,13 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete } from '@nestjs/common';
-import { LocationService } from './location.service';
-import { CreateLocationDto } from './dto/create-location.dto';
-import { UpdateLocationDto } from './dto/update-location.dto';
+import {Body, Controller, Delete, Get, Param, Patch, Post} from '@nestjs/common';
+import {LocationService} from './location.service';
+import {CreateLocationDto} from './dto/create-location.dto';
+import {UpdateLocationDto} from './dto/update-location.dto';
+import {ApiConstant} from "../../../common/constant";
 
-@Controller('location')
+@Controller(ApiConstant.V1.LOCATION)
 export class LocationController {
-  constructor(private readonly locationService: LocationService) {}
+  constructor(private readonly locationService: LocationService) {
+  }
 
   @Post()
   create(@Body() createLocationDto: CreateLocationDto) {

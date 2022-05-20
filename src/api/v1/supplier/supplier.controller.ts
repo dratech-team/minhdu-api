@@ -5,7 +5,7 @@ import {CreateSupplierDto} from "./dto/create-supplier.dto";
 import {SearchSupplierDto} from "./dto/search-supplier.dto";
 import {UpdateSupplierDto} from "./dto/update-supplier.dto";
 
-@Controller(ApiConstant.V1.SUPPLIER)
+@Controller(ApiConstant.V1.WAREHOUSE.SUPPLIER)
 export class SupplierController {
   constructor(private readonly providerService: SupplierService) {
   }

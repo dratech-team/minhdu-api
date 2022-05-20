@@ -8,9 +8,10 @@ import {RoleEnum} from "@prisma/client";
 import {ReqProfile} from "../../../core/decorators/req-profile.decorator";
 import {ProfileEntity} from "../../../common/entities/profile.entity";
 import {SearchCategoryDto} from "./dto/search-category.dto";
+import {ApiConstant} from "../../../common/constant";
 
 @UseGuards(JwtAuthGuard, ApiKeyGuard, RolesGuard)
-@Controller('v2/category')
+@Controller(ApiConstant.V1.CATEGORY)
 export class CategoryController {
   constructor(private readonly categoryService: CategoryService) {
   }

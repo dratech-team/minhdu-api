@@ -5,9 +5,10 @@ import {UpdateSalaryBlockDto} from './dto/update-salary-block.dto';
 import {ApiKeyGuard, JwtAuthGuard, RolesGuard} from "../../../../core/guard";
 import {Roles} from "../../../../core/decorators/roles.decorator";
 import {RoleEnum} from "@prisma/client";
+import {ApiConstant} from "../../../../common/constant";
 
 @UseGuards(JwtAuthGuard, ApiKeyGuard, RolesGuard)
-@Controller('v2/settings/salary-block')
+@Controller(ApiConstant.V1.SETTINGS.BLOCK_SALARY)
 export class SalaryBlockController {
   constructor(private readonly salaryBlockService: SalaryBlockService) {
   }

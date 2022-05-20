@@ -1,11 +1,13 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete } from '@nestjs/common';
-import { ContractService } from './contract.service';
-import { CreateContractDto } from './dto/create-contract.dto';
-import { UpdateContractDto } from './dto/update-contract.dto';
+import {Body, Controller, Delete, Get, Param, Patch, Post} from '@nestjs/common';
+import {ContractService} from './contract.service';
+import {CreateContractDto} from './dto/create-contract.dto';
+import {UpdateContractDto} from './dto/update-contract.dto';
+import {ApiConstant} from "../../../common/constant";
 
-@Controller('v2/contract')
+@Controller(ApiConstant.V1.CONTRACT)
 export class ContractController {
-  constructor(private readonly contractService: ContractService) {}
+  constructor(private readonly contractService: ContractService) {
+  }
 
   @Post()
   create(@Body() createContractDto: CreateContractDto) {

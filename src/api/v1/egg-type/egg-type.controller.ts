@@ -2,8 +2,9 @@ import { Controller, Get, Post, Body, Patch, Param, Delete } from '@nestjs/commo
 import { EggTypeService } from './egg-type.service';
 import { CreateEggTypeDto } from './dto/create-egg-type.dto';
 import { UpdateEggTypeDto } from './dto/update-egg-type.dto';
+import {ApiConstant} from "../../../common/constant";
 
-@Controller('v2/egg-type')
+@Controller(ApiConstant.V1.EGG_TYPE)
 export class EggTypeController {
   constructor(private readonly eggTypeService: EggTypeService) {}
 

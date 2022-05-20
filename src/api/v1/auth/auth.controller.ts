@@ -4,14 +4,15 @@ import {SignupCredentialDto} from './dto/signup-credential.dto';
 import {SignInCredentialDto} from "./dto/signin-credential.dto";
 import {ReqProfile} from "../../../core/decorators/req-profile.decorator";
 import {ProfileEntity} from "../../../common/entities/profile.entity";
-import {ApiKeyGuard, JwtAuthGuard, LoggerGuard, RolesGuard} from "../../../core/guard";
+import {ApiKeyGuard, JwtAuthGuard, RolesGuard} from "../../../core/guard";
 import {Roles} from "../../../core/decorators/roles.decorator";
 import {RoleEnum} from "@prisma/client";
 import {UpdateAuthDto} from "./dto/update-auth.dto";
 import {SearchAuthDto} from "./dto/search-auth.dto";
+import {ApiConstant} from "../../../common/constant";
 
 @UseGuards(ApiKeyGuard)
-@Controller('v2/auth')
+@Controller(ApiConstant.V1.AUTH)
 export class AuthController {
   constructor(private readonly service: AuthService) {
   }

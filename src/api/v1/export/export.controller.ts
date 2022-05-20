@@ -3,8 +3,9 @@ import {ExportService} from './export.service';
 import {CreateExportDto} from './dto/create-export.dto';
 import {UpdateExportDto} from './dto/update-export.dto';
 import {ExportTypeEnum} from "./enums/export.emum";
+import {ApiConstant} from "../../../common/constant";
 
-@Controller('v2/export')
+@Controller(ApiConstant.V1.EXPORT)
 export class ExportController {
   constructor(private readonly exportService: ExportService) {
   }

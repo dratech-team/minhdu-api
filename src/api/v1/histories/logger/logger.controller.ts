@@ -8,9 +8,10 @@ import {ApiKeyGuard, JwtAuthGuard, RolesGuard} from "../../../../core/guard";
 import {Roles} from "../../../../core/decorators/roles.decorator";
 import {RoleEnum} from "@prisma/client";
 import {SearchLoggerDto} from "./dto/search-logger.dto";
+import {ApiConstant} from "../../../../common/constant";
 
 @UseGuards(JwtAuthGuard, ApiKeyGuard, RolesGuard)
-@Controller('v2/logger')
+@Controller(ApiConstant.V1.LOGGER)
 export class LoggerController {
   constructor(private readonly loggerService: LoggerService) {
   }

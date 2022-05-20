@@ -1,11 +1,13 @@
-import {Controller, Get, Post, Body, Patch, Param, Delete, UseGuards} from '@nestjs/common';
-import { SystemService } from './system.service';
-import { CreateSystemDto } from './dto/create-system.dto';
-import { UpdateSystemDto } from './dto/update-system.dto';
+import {Body, Controller, Delete, Get, Param, Patch, Post} from '@nestjs/common';
+import {SystemService} from './system.service';
+import {CreateSystemDto} from './dto/create-system.dto';
+import {UpdateSystemDto} from './dto/update-system.dto';
+import {ApiConstant} from "../../../common/constant";
 
-@Controller('v2/system')
+@Controller(ApiConstant.V1.SYSTEM)
 export class SystemController {
-  constructor(private readonly systemService: SystemService) {}
+  constructor(private readonly systemService: SystemService) {
+  }
 
   @Post()
   create(@Body() createSystemDto: CreateSystemDto) {

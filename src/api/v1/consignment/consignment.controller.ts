@@ -1,11 +1,13 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete } from '@nestjs/common';
-import { ConsignmentService } from './consignment.service';
-import { CreateConsignmentDto } from './dto/create-consignment.dto';
-import { UpdateConsignmentDto } from './dto/update-consignment.dto';
+import {Body, Controller, Delete, Get, Param, Patch, Post} from '@nestjs/common';
+import {ConsignmentService} from './consignment.service';
+import {CreateConsignmentDto} from './dto/create-consignment.dto';
+import {UpdateConsignmentDto} from './dto/update-consignment.dto';
+import {ApiConstant} from "../../../common/constant";
 
-@Controller('consignment')
+@Controller(ApiConstant.V1.WAREHOUSE.CONSIGNMENT)
 export class ConsignmentController {
-  constructor(private readonly consignmentService: ConsignmentService) {}
+  constructor(private readonly consignmentService: ConsignmentService) {
+  }
 
   @Post()
   create(@Body() createConsignmentDto: CreateConsignmentDto) {

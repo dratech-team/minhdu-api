@@ -3,8 +3,9 @@ import {BasicTemplateService} from "./basic-template.service";
 import {CreateBasicTemplateDto} from "./dto/create-basic-template.dto";
 import {UpdateBasicTemplateDto} from "./dto/update-basic-template.dto";
 import {SalaryType} from "@prisma/client";
+import {ApiConstant} from "../../../common/constant";
 
-@Controller("v2/basic-template")
+@Controller(ApiConstant.V1.BASIC_TEMPLATE)
 export class BasicTemplateController {
   constructor(private readonly basicTemplateService: BasicTemplateService) {
   }

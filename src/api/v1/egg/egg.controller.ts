@@ -1,12 +1,14 @@
-import {Controller, Get, Post, Body, Patch, Param, Delete, Query} from '@nestjs/common';
-import { EggService } from './egg.service';
-import { CreateEggDto } from './dto/create-egg.dto';
-import { UpdateEggDto } from './dto/update-egg.dto';
+import {Body, Controller, Delete, Get, Param, Patch, Post, Query} from '@nestjs/common';
+import {EggService} from './egg.service';
+import {CreateEggDto} from './dto/create-egg.dto';
+import {UpdateEggDto} from './dto/update-egg.dto';
 import {SearchEggDto} from "./dto/search-egg.dto";
+import {ApiConstant} from "../../../common/constant";
 
-@Controller('v2/egg')
+@Controller(ApiConstant.V1.EGG)
 export class EggController {
-  constructor(private readonly eggService: EggService) {}
+  constructor(private readonly eggService: EggService) {
+  }
 
   @Post()
   create(@Body() createEggDto: CreateEggDto) {

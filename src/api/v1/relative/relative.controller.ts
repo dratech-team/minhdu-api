@@ -1,11 +1,13 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete } from '@nestjs/common';
-import { RelativeService } from './relative.service';
-import { CreateRelativeDto } from './dto/create-relative.dto';
-import { UpdateRelativeDto } from './dto/update-relative.dto';
+import {Body, Controller, Delete, Get, Param, Patch, Post} from '@nestjs/common';
+import {RelativeService} from './relative.service';
+import {CreateRelativeDto} from './dto/create-relative.dto';
+import {UpdateRelativeDto} from './dto/update-relative.dto';
+import {ApiConstant} from "../../../common/constant";
 
-@Controller('v2/relative')
+@Controller(ApiConstant.V1.RELATIVE)
 export class RelativeController {
-  constructor(private readonly relativeService: RelativeService) {}
+  constructor(private readonly relativeService: RelativeService) {
+  }
 
   @Post()
   create(@Body() createRelativeDto: CreateRelativeDto) {

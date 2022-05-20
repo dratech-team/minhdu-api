@@ -1,11 +1,13 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete } from '@nestjs/common';
-import { ApplicationService } from './application.service';
-import { CreateApplicationDto } from './dto/create-application.dto';
-import { UpdateApplicationDto } from './dto/update-application.dto';
+import {Body, Controller, Delete, Get, Param, Patch, Post} from '@nestjs/common';
+import {ApplicationService} from './application.service';
+import {CreateApplicationDto} from './dto/create-application.dto';
+import {UpdateApplicationDto} from './dto/update-application.dto';
+import {ApiConstant} from "../../../common/constant";
 
-@Controller('v2/application')
+@Controller(ApiConstant.V1.APPLICATION)
 export class ApplicationController {
-  constructor(private readonly applicationService: ApplicationService) {}
+  constructor(private readonly applicationService: ApplicationService) {
+  }
 
   @Post()
   create(@Body() createApplicationDto: CreateApplicationDto) {

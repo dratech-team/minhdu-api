@@ -2,8 +2,9 @@ import {Controller, Get, Query} from '@nestjs/common';
 import {OverviewService} from './overview.service';
 import {SearchHrOverviewDto} from "./dto/search-hr-overview.dto";
 import {SearchSellOverviewDto} from "./dto/search-sell-overview.dto";
+import {ApiConstant} from "../../../common/constant";
 
-@Controller('v2/overview')
+@Controller(ApiConstant.V1.OVERVIEW)
 export class OverviewController {
   constructor(private readonly overviewService: OverviewService) {
   }

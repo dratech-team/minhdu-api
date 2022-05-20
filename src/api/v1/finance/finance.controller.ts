@@ -1,9 +1,10 @@
-import {Controller, Get, Post, Body, Patch, Param, Delete, Query} from '@nestjs/common';
+import {Body, Controller, Delete, Get, Param, Patch, Post, Query} from '@nestjs/common';
 import {FinanceService} from './finance.service';
 import {CreateFinanceDto} from './dto/create-finance.dto';
 import {UpdateFinanceDto} from './dto/update-finance.dto';
+import {ApiConstant} from "../../../common/constant";
 
-@Controller('v2/finance')
+@Controller(ApiConstant.V1.FINANCE)
 export class FinanceController {
   constructor(private readonly financeService: FinanceService) {
   }

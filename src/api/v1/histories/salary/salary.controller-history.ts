@@ -1,11 +1,13 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete } from '@nestjs/common';
+import {Body, Controller, Delete, Get, Param, Patch, Post} from '@nestjs/common';
 import {CreateSalaryHistoryDto} from "./dto/create-salary-history.dto";
 import {UpdateSalaryHistoryDto} from "./dto/update-salary-history.dto";
 import {SalaryHistoryService} from "./salary-history.service";
+import {ApiConstant} from "../../../../common/constant";
 
-@Controller('v2/history/salary')
+@Controller(ApiConstant.V1.HISTORY.SALARY)
 export class SalaryControllerHistory {
-  constructor(private readonly salaryService: SalaryHistoryService) {}
+  constructor(private readonly salaryService: SalaryHistoryService) {
+  }
 
   @Post()
   create(@Body() createSalaryDto: CreateSalaryHistoryDto) {

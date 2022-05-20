@@ -8,9 +8,10 @@ import {RoleEnum} from "@prisma/client";
 import {ReqProfile} from "../../../../core/decorators/req-profile.decorator";
 import {ProfileEntity} from "../../../../common/entities/profile.entity";
 import {SearchSalarySettingsDto} from "./dto/search-salary-settings.dto";
+import {ApiConstant} from "../../../../common/constant";
 
 @UseGuards(JwtAuthGuard, ApiKeyGuard, RolesGuard)
-@Controller('v2/settings/salary')
+@Controller(ApiConstant.V1.SETTINGS.SALARY)
 export class SalarySettingsController {
   constructor(private readonly salaryService: SalarySettingsService) {
   }

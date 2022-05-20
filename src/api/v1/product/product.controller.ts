@@ -1,10 +1,11 @@
-import {Controller, Get, Post, Body, Patch, Param, Delete, Query} from '@nestjs/common';
+import {Body, Controller, Delete, Get, Param, Patch, Post, Query} from '@nestjs/common';
 import {ProductService} from './product.service';
 import {CreateProductDto} from './dto/create-product.dto';
 import {UpdateProductDto} from './dto/update-product.dto';
 import {SearchProductDto} from "./dto/search-product.dto";
+import {ApiConstant} from "../../../common/constant";
 
-@Controller('v2/product')
+@Controller(ApiConstant.V1.PRODUCT)
 export class ProductController {
   constructor(private readonly productService: ProductService) {
   }

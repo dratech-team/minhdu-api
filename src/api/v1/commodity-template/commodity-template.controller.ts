@@ -2,8 +2,9 @@ import { Controller, Get, Post, Body, Patch, Param, Delete } from '@nestjs/commo
 import { CommodityTemplateService } from './commodity-template.service';
 import { CreateCommodityTemplateDto } from './dto/create-commodity-template.dto';
 import { UpdateCommodityTemplateDto } from './dto/update-commodity-template.dto';
+import {ApiConstant} from "../../../common/constant";
 
-@Controller('v2/commodity-template')
+@Controller(ApiConstant.V1.COMMODITY_TEMPLATE)
 export class CommodityTemplateController {
   constructor(private readonly commodityTemplateService: CommodityTemplateService) {}
 

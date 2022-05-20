@@ -44,7 +44,7 @@ import {CategoryModule} from './api/v1/category/category.module';
 import {ExportModule} from './api/v1/export/export.module';
 import {SupplierModule} from "./api/v1/supplier/supplier.module";
 import {StockModule} from './api/v1/stock/stock.module';
-import {SalaryHistoryModule} from "./api/v1/history/salary/salary-history.module";
+import {SalaryHistoryModule} from "./api/v1/histories/salary/salary-history.module";
 import {ConsignmentModule} from './api/v1/consignment/consignment.module';
 import {WarehouseModule} from "./api/v1/warehouse/warehouse.module";
 import {SalarySettingsModule} from "./api/v1/settings/salary/salary-settings.module";

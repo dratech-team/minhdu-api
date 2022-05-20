@@ -4,9 +4,14 @@ const Version = {
 };
 
 const V1 = {
-  AUTH: `${Version.V1}/auth`,
+  APPLICATION: `${Version.V1}/application`,
   ADMIN: `${Version.V1}/admin`,
+  AUTH: `${Version.V1}/auth`,
   BANK: `${Version.V1}/bank`,
+  ROLE: `${Version.V1}/role`,
+  EXPORT: `${Version.V1}/export`,
+  OVERVIEW: `${Version.V1}/overview`,
+  LOGGER: `${Version.V1}/logger`,
   BASIC_TEMPLATE: `${Version.V1}/basic-template`,
   BILL: `${Version.V1}/bill`,
   CATEGORY: `${Version.V1}/category`,
@@ -29,7 +34,6 @@ const V1 = {
   PAYMENT_HISTORY: `${Version.V1}/payment-history`,
   PAYROLL: `${Version.V1}/payroll`,
   PRODUCT: `${Version.V1}/product`,
-  SUPPLIER: `${Version.V1}/supplier`,
   RELATIVE: `${Version.V1}/relative`,
   ROUTE: `${Version.V1}/route`,
   SALARY: {
@@ -45,8 +49,20 @@ const V1 = {
     HOLIDAY: `${Version.V1}/salary/holiday`,
   },
   SYSTEM: `${Version.V1}/system`,
-  WAREHOUSE: `${Version.V1}/warehouse`,
-  WAREHOUSE_HISTORY: `${Version.V1}/warehouse-history`,
+  SETTINGS: {
+    SALARY: `${Version.V1}/settings/salary`,
+    BLOCK_SALARY: `${Version.V1}/settings/salary-block`,
+  },
+  HISTORY: {
+    SALARY: `${Version.V1}/history/salary`,
+  },
+  WAREHOUSE: {
+    WAREHOUSE: `${Version.V1}/warehouse`,
+    CONSIGNMENT: `${Version.V1}/consignment`,
+    WAREHOUSE_HISTORY: `${Version.V1}/warehouse-history`,
+    STOCK: `${Version.V1}/stock`,
+    SUPPLIER: `${Version.V1}/supplier`,
+  },
 };
 
 

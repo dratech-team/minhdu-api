@@ -7,9 +7,10 @@ import {ApiKeyGuard, JwtAuthGuard, LoggerGuard, RolesGuard} from "../../../core/
 import {Roles} from "../../../core/decorators/roles.decorator";
 import {RoleEnum} from "@prisma/client";
 import {CancelRouteDto} from "./dto/cancel-route.dto";
+import {ApiConstant} from "../../../common/constant";
 
 @UseGuards(JwtAuthGuard, ApiKeyGuard, RolesGuard)
-@Controller("v2/route")
+@Controller(ApiConstant.V1.ROUTE)
 export class RouteController {
   constructor(private readonly routeService: RouteService) {
   }

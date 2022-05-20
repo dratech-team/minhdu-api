@@ -1,12 +1,14 @@
-import {Controller, Get, Post, Body, Patch, Param, Delete, Query} from '@nestjs/common';
-import { IncubatorService } from './incubator.service';
-import { CreateIncubatorDto } from './dto/create-incubator.dto';
-import { UpdateIncubatorDto } from './dto/update-incubator.dto';
+import {Body, Controller, Delete, Get, Param, Patch, Post, Query} from '@nestjs/common';
+import {IncubatorService} from './incubator.service';
+import {CreateIncubatorDto} from './dto/create-incubator.dto';
+import {UpdateIncubatorDto} from './dto/update-incubator.dto';
 import {SearchIncubatorDto} from "./dto/search-incubator.dto";
+import {ApiConstant} from "../../../common/constant";
 
-@Controller('v2/incubator')
+@Controller(ApiConstant.V1.INCUBATOR)
 export class IncubatorController {
-  constructor(private readonly incubatorService: IncubatorService) {}
+  constructor(private readonly incubatorService: IncubatorService) {
+  }
 
   @Post()
   create(@Body() createIncubatorDto: CreateIncubatorDto) {

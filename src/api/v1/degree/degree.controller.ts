@@ -1,11 +1,13 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete } from '@nestjs/common';
-import { DegreeService } from './degree.service';
-import { CreateDegreeDto } from './dto/create-degree.dto';
-import { UpdateDegreeDto } from './dto/update-degree.dto';
+import {Body, Controller, Delete, Get, Param, Patch, Post} from '@nestjs/common';
+import {DegreeService} from './degree.service';
+import {CreateDegreeDto} from './dto/create-degree.dto';
+import {UpdateDegreeDto} from './dto/update-degree.dto';
+import {ApiConstant} from "../../../common/constant";
 
-@Controller('v2/degree')
+@Controller(ApiConstant.V1.DEGREE)
 export class DegreeController {
-  constructor(private readonly degreeService: DegreeService) {}
+  constructor(private readonly degreeService: DegreeService) {
+  }
 
   @Post()
   create(@Body() createDegreeDto: CreateDegreeDto) {

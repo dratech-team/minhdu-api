@@ -1,11 +1,13 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete } from '@nestjs/common';
-import { StockService } from './stock.service';
-import { CreateStockDto } from './dto/create-stock.dto';
-import { UpdateStockDto } from './dto/update-stock.dto';
+import {Body, Controller, Delete, Get, Param, Patch, Post} from '@nestjs/common';
+import {StockService} from './stock.service';
+import {CreateStockDto} from './dto/create-stock.dto';
+import {UpdateStockDto} from './dto/update-stock.dto';
+import {ApiConstant} from "../../../common/constant";
 
-@Controller('v2/stock')
+@Controller(ApiConstant.V1.WAREHOUSE.STOCK)
 export class StockController {
-  constructor(private readonly stockService: StockService) {}
+  constructor(private readonly stockService: StockService) {
+  }
 
   @Post()
   create(@Body() createStockDto: CreateStockDto) {

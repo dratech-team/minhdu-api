@@ -4,8 +4,9 @@ import {CreateRoleDto} from './dto/create-role.dto';
 import {UpdateRoleDto} from './dto/update-role.dto';
 import {ReqProfile} from "../../../core/decorators/req-profile.decorator";
 import {ProfileEntity} from "../../../common/entities/profile.entity";
+import {ApiConstant} from "../../../common/constant";
 
-@Controller('v2/role')
+@Controller(ApiConstant.V1.ROLE)
 export class RoleController {
   constructor(private readonly roleService: RoleService) {
   }

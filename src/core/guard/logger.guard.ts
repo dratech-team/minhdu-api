@@ -23,7 +23,7 @@ export class LoggerGuard implements CanActivate {
       appName = AppEnum.SELL;
     } else if (path.includes(ApiConstant.V1.EMPLOYEE || ApiConstant.V1.PAYROLL)) {
       appName = AppEnum.HR;
-    } else if (path.includes(ApiConstant.V1.SUPPLIER || ApiConstant.V1.WAREHOUSE)) {
+    } else if (path.includes(ApiConstant.V1.WAREHOUSE.SUPPLIER || ApiConstant.V1.WAREHOUSE)) {
 
     }
 

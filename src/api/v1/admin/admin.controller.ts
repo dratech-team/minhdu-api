@@ -3,8 +3,9 @@ import {AdminService} from './admin.service';
 import {CreateAdminDto} from './dto/create-admin.dto';
 import {UpdateAdminDto} from './dto/update-admin.dto';
 import {SearchAdminDto} from "./dto/search-admin.dto";
+import {ApiConstant} from "../../../common/constant";
 
-@Controller('v2/admin')
+@Controller(ApiConstant.V1.ADMIN)
 export class AdminController {
   constructor(private readonly adminService: AdminService) {
   }
