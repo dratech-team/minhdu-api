@@ -10,7 +10,6 @@ import {OrderbyEmployeeEnum} from "./enums/orderby-employee.enum";
 import {BaseRepository} from "../../../common/repository/base.repository";
 import {Employee} from "@prisma/client";
 import {Response} from "express";
-import {StatusEnum} from "../../../common/enum/status.enum";
 import {EmployeeStatusEnum} from "./enums/employee-status.enum";
 
 @Injectable()
@@ -60,7 +59,7 @@ export class EmployeeRepository extends BaseRepository<Employee> {
           note: body.note,
           branch: {connect: {id: body.branchId}},
           recipeType: body.recipeType,
-          type: body.employeeType,
+          type: body.type,
           contracts: body.contract?.createdAt
             ? {
               create: {
@@ -144,55 +143,7 @@ export class EmployeeRepository extends BaseRepository<Employee> {
       const [total, data] = await Promise.all([
         this.prisma.employee.count({
           where: {
-            leftAt: search?.status > -1 && search?.status !== EmployeeStatusEnum.ALL ? (search?.status === EmployeeStatusEnum.LEFT ? {notIn: null} : {in: null}) : {},
-            position: {name: {contains: search?.position, mode: "insensitive"}},
-            branch: {
-              id: acc.branches?.length ? {in: acc.branches.map(branch => branch.id)} : {},
-              name: !acc.branches?.length ? {contains: search?.branch, mode: "insensitive"} : {},
-            },
-            lastName: {contains: search?.name, mode: "insensitive"},
-            gender: search?.gender ? {equals: search?.gender} : {},
-            isFlatSalary: (search?.isFlatSalary == 1 || search?.isFlatSalary == 0) ? {equals: +search.isFlatSalary === 1} : {},
-            createdAt: search?.createdAt ? search?.createdAt.compare === 'gte'
-                ? {gte: search?.createdAt?.datetime}
-                : search?.createdAt.compare === 'lte'
-                  ? {lte: search?.createdAt?.datetime}
-                  : search?.createdAt.compare === 'in'
-                    ? {in: search?.createdAt?.datetime}
-                    : search?.createdAt.compare === 'inMonth' ? {
-                      gte: firstDatetime(search?.createdAt?.datetime),
-                      lte: lastDatetime(search?.createdAt?.datetime)
-                    } : {}
-              : {},
-            workedAt: {in: search?.workedAt},
-            payrolls: search?.createdPayroll ? {
-              some: {
-                createdAt: {
-                  gte: firstDatetime(search?.createdPayroll),
-                  lte: lastDatetime(search?.createdPayroll)
-                }
-              }
-            } : {},
-            type: search?.employeeType ? {in: search.employeeType} : {},
-            recipeType: search?.recipeType ? {in: search?.recipeType} : {},
-            ward: {
-              name: {startsWith: search?.ward, mode: "insensitive"},
-              district: {
-                name: {startsWith: search?.district, mode: "insensitive"},
-                province: {
-                  name: {startsWith: search?.province, mode: "insensitive"}
-                }
-              }
-            },
-            category: search?.categoryId ? {id: {in: +search.categoryId}} : {},
-            // phone: {startsWith: search?.phone, mode: "insensitive"},
-            address: {contains: search?.address, mode: "insensitive"}
-          },
-        }),
-        this.prisma.employee.findMany({
-          skip: search?.skip,
-          take: search?.take,
-          where: {
+            identify: {contains: search?.identify, mode: "insensitive"},
             leftAt: search?.status > -1 && search?.status !== EmployeeStatusEnum.ALL ? (search?.status === EmployeeStatusEnum.LEFT ? {notIn: null} : {in: null}) : {},
             position: {name: {contains: search?.position, mode: "insensitive"}},
             branch: {
@@ -222,7 +173,7 @@ export class EmployeeRepository extends BaseRepository<Employee> {
                 }
               }
             } : {},
-            type: search?.employeeType ? {in: search.employeeType} : {},
+            type: search?.type ? {in: search.type} : {},
             recipeType: search?.recipeType ? {in: search?.recipeType} : {},
             ward: {
               name: {startsWith: search?.ward, mode: "insensitive"},
@@ -234,7 +185,57 @@ export class EmployeeRepository extends BaseRepository<Employee> {
               }
             },
             category: search?.categoryId ? {id: {in: +search.categoryId}} : {},
-            // phone: {startsWith: search?.phone, mode: "insensitive"},
+            phone: {contains: search?.phone, mode: "insensitive"},
+            address: {contains: search?.address, mode: "insensitive"}
+          },
+        }),
+        this.prisma.employee.findMany({
+          skip: search?.skip,
+          take: search?.take,
+          where: {
+            identify: {contains: search?.identify, mode: "insensitive"},
+            leftAt: search?.status > -1 && search?.status !== EmployeeStatusEnum.ALL ? (search?.status === EmployeeStatusEnum.LEFT ? {notIn: null} : {in: null}) : {},
+            position: {name: {contains: search?.position, mode: "insensitive"}},
+            branch: {
+              id: acc.branches?.length ? {in: acc.branches.map(branch => branch.id)} : {},
+              name: !acc.branches?.length ? {contains: search?.branch, mode: "insensitive"} : {},
+            },
+            lastName: {contains: search?.name, mode: "insensitive"},
+            gender: search?.gender ? {equals: search?.gender} : {},
+            isFlatSalary: (search?.isFlatSalary == 1 || search?.isFlatSalary == 0) ? {equals: +search.isFlatSalary === 1} : {},
+            createdAt: search?.createdAt ? search?.createdAt.compare === 'gte'
+              ? {gte: search?.createdAt?.datetime}
+              : search?.createdAt.compare === 'lte'
+                ? {lte: search?.createdAt?.datetime}
+                : search?.createdAt.compare === 'in'
+                  ? {in: search?.createdAt?.datetime}
+                  : search?.createdAt.compare === 'inMonth' ? {
+                    gte: firstDatetime(search?.createdAt?.datetime),
+                    lte: lastDatetime(search?.createdAt?.datetime)
+                  } : {}
+              : {},
+            workedAt: {in: search?.workedAt},
+            payrolls: search?.createdPayroll ? {
+              some: {
+                createdAt: {
+                  gte: firstDatetime(search?.createdPayroll),
+                  lte: lastDatetime(search?.createdPayroll)
+                }
+              }
+            } : {},
+            type: search?.type ? {in: search.type} : {},
+            recipeType: search?.recipeType ? {in: search?.recipeType} : {},
+            ward: {
+              name: {startsWith: search?.ward, mode: "insensitive"},
+              district: {
+                name: {startsWith: search?.district, mode: "insensitive"},
+                province: {
+                  name: {startsWith: search?.province, mode: "insensitive"}
+                }
+              }
+            },
+            category: search?.categoryId ? {id: {in: +search.categoryId}} : {},
+            phone: {contains: search?.phone, mode: "insensitive"},
             address: {contains: search?.address, mode: "insensitive"}
           },
           include: {
@@ -404,7 +405,7 @@ export class EmployeeRepository extends BaseRepository<Employee> {
           isFlatSalary: updates.isFlatSalary,
           recipeType: updates.recipeType,
           note: updates.note,
-          type: updates.employeeType,
+          type: updates.type,
           category: updates?.categoryId ? {connect: {id: updates.categoryId}} : {}
         },
         include: {

@@ -1,10 +1,10 @@
 import {EmployeeType, GenderType, RecipeType} from "@prisma/client";
-import {IsEnum, IsNotEmpty, IsNumber, IsOptional, IsString} from "class-validator";
-import {Type} from "class-transformer";
+import {IsDate, IsEnum, IsNotEmpty, IsNumber, IsOptional, IsString} from "class-validator";
+import {Transform, Type} from "class-transformer";
 import {SortDto} from "../../../../common/dtos/sort.dto";
 import {PartialType} from "@nestjs/mapped-types";
-import {StatusEnum} from "../../../../common/enum/status.enum";
 import {EmployeeStatusEnum} from "../enums/employee-status.enum";
+import * as moment from "moment";
 
 export class SearchEmployeeDto extends PartialType(SortDto) {
   @IsNotEmpty()
@@ -31,6 +31,12 @@ export class SearchEmployeeDto extends PartialType(SortDto) {
   };
 
   @IsOptional()
+  @IsDate()
+  @Transform(({value}) => {
+    if (value) {
+      return new Date(moment(value).utc().format('YYYY-MM-DD'));
+    }
+  })
   readonly workedAt: Date;
 
   @IsOptional()
@@ -38,13 +44,12 @@ export class SearchEmployeeDto extends PartialType(SortDto) {
   @Type(() => Number)
   readonly isFlatSalary: number; // 0 | 1
 
+  @IsOptional()
+  @IsString()
   readonly branch: string;
 
   @IsOptional()
-  @IsNumber()
-  @Type(() => Number)
-  readonly branchId: number;
-
+  @IsString()
   readonly position: string;
 
   @IsOptional()
@@ -52,6 +57,18 @@ export class SearchEmployeeDto extends PartialType(SortDto) {
   @Type(() => Number)
   readonly positionId: number;
 
+  @IsOptional()
+  @IsNumber()
+  @Type(() => Number)
+  readonly branchId: number;
+
+  @IsOptional()
+  @IsDate()
+  @Transform(({value}) => {
+    if (value) {
+      return new Date(moment(value).utc().format('YYYY-MM-DD'));
+    }
+  })
   readonly createdPayroll: Date;
 
   @IsNotEmpty()
@@ -61,14 +78,22 @@ export class SearchEmployeeDto extends PartialType(SortDto) {
 
   @IsOptional()
   @IsEnum(EmployeeType)
-  readonly employeeType: EmployeeType;
+  readonly type: EmployeeType;
 
+  @IsOptional()
+  @IsEnum(RecipeType)
   readonly recipeType: RecipeType;
 
+  @IsOptional()
+  @IsString()
   readonly province: string;
 
+  @IsOptional()
+  @IsString()
   readonly district: string;
 
+  @IsOptional()
+  @IsString()
   readonly ward: string;
 
   @IsOptional()
@@ -79,6 +104,10 @@ export class SearchEmployeeDto extends PartialType(SortDto) {
   @IsOptional()
   @IsString()
   readonly phone: string;
+
+  @IsOptional()
+  @IsString()
+  readonly identify: string;
 
   @IsOptional()
   @IsString()
