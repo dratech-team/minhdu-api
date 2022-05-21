@@ -259,7 +259,7 @@ export class PayrollService {
     };
   }
 
-  private handleOvertime(salary: OvertimeEntity | HolidayEntity, payroll: OnePayroll): Array<HandleOvertimeEntity> {
+  private handleOvertime(salary: OvertimeEntity, payroll: OnePayroll): Array<HandleOvertimeEntity> {
     const absentRange = this.absentUniq(payroll);
     let duration = this.getWorkday(payroll) - (payroll.workday || payroll.employee.workday);
 
@@ -290,7 +290,7 @@ export class PayrollService {
       rate: salary.setting.rate,
       datetime: salary.datetime,
       duration: salary.partial !== PartialDay.ALL_DAY ? 0.5 : 1,
-      total: salary.totalSetting * (overtime.partial !== PartialDay.ALL_DAY ? 0.5 : 1) * overtime.setting.rate
+      total: salary.totalSetting * (salary.partial !== PartialDay.ALL_DAY ? 0.5 : 1) * salary.setting.rate
     }));
   }
 
