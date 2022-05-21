@@ -20,7 +20,7 @@ import * as _ from "lodash";
 import {timesheet} from "../../v1/payroll/functions/timesheet";
 import {OnePayroll} from "../../v1/payroll/entities/payroll.entity";
 import {AllowanceSalary, PartialDay, SalarySetting, SalaryType} from "@prisma/client";
-import dateFns from "date-fns";
+import * as dateFns from "date-fns";
 import {AbsentEntity} from "../../v1/payroll/entities/absent.entity";
 import {OvertimeEntity} from "../../v1/salaries/overtime/entities";
 import {RemoteEntity} from "../../v1/salaries/remote/entities/remote.entity";

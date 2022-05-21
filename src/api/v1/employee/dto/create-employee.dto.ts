@@ -9,12 +9,9 @@ import {
   IsNumber,
   IsOptional,
   IsString,
-  MaxDate,
   ValidateNested,
 } from "class-validator";
-import {ValidatorMessage} from "../../../../common/constant/validator.constant";
 import {CreateProfileDto} from "../../../../common/dtos/create-profile.dto";
-import {tomorrowDate} from "../../../../utils/datetime.util";
 import {CreateContractDto} from "../../contract/dto/create-contract.dto";
 import {CreateSocialDto} from "./create-social.dto";
 import * as moment from "moment";

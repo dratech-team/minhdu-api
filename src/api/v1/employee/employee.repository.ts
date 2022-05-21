@@ -185,7 +185,7 @@ export class EmployeeRepository extends BaseRepository<Employee> {
               }
             },
             category: search?.categoryId ? {id: {in: +search.categoryId}} : {},
-            phone: {contains: search?.phone, mode: "insensitive"},
+            phone: search?.phone ? {contains: search.phone, mode: "insensitive"} : {},
             address: {contains: search?.address, mode: "insensitive"}
           },
         }),
@@ -235,7 +235,7 @@ export class EmployeeRepository extends BaseRepository<Employee> {
               }
             },
             category: search?.categoryId ? {id: {in: +search.categoryId}} : {},
-            phone: {contains: search?.phone, mode: "insensitive"},
+            phone: search?.phone ? {contains: search.phone, mode: "insensitive"} : {},
             address: {contains: search?.address, mode: "insensitive"}
           },
           include: {
