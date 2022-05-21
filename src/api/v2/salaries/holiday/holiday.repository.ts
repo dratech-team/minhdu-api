@@ -2,21 +2,27 @@ import {BadRequestException, Injectable} from "@nestjs/common";
 import {BaseRepository} from "../../../../common/repository/base.repository";
 import {HolidayEntity} from "./entities/holiday.entity";
 import {PrismaService} from "../../../../prisma.service";
-import {InterfaceRepository} from "../../../../common/repository/interface.repository";
 import {ResponsePagination} from "../../../../common/entities/response.pagination";
 import {CreateHolidayDto} from "./dto/create-holiday.dto";
 import {UpdateHolidayDto} from "./dto/update-holiday.dto";
 import {RemoveManyHolidayDto} from "./dto/remove-many-holiday.dto";
 
 @Injectable()
-export class HolidayRepository extends BaseRepository<HolidayEntity> implements InterfaceRepository<HolidayEntity> {
+export class HolidayRepository extends BaseRepository<HolidayEntity> {
   constructor(private readonly prisma: PrismaService) {
     super();
   }
 
-  async create(body: CreateHolidayDto): Promise<HolidayEntity> {
+  async create(body: CreateHolidayDto) {
     try {
-      return await this.prisma.holidaySalary.create({data: body});
+      return await this.prisma.holidaySalary.create({
+        data: {
+          payrollId: body.payrollId,
+          settingId: body.settingId,
+          blockId: body.blockId,
+          note: body.note,
+        }
+      });
     } catch (err) {
       console.error(err);
       throw new BadRequestException(err);
@@ -49,11 +55,16 @@ export class HolidayRepository extends BaseRepository<HolidayEntity> implements 
     return Promise.resolve(undefined);
   }
 
-  async update(id: number, updates: UpdateHolidayDto): Promise<HolidayEntity> {
+  async update(id: number, updates: UpdateHolidayDto) {
     try {
       return await this.prisma.holidaySalary.update({
         where: {id},
-        data: updates,
+        data: {
+          payrollId: updates.payrollId,
+          settingId: updates.settingId,
+          blockId: updates.blockId,
+          note: updates.note,
+        },
       });
     } catch (err) {
       console.error(err);
@@ -73,7 +84,7 @@ export class HolidayRepository extends BaseRepository<HolidayEntity> implements 
     }
   }
 
-  async remove(id: number): Promise<HolidayEntity> {
+  async remove(id: number) {
     try {
       return await this.prisma.holidaySalary.delete({where: {id}});
     } catch (err) {
