@@ -25,6 +25,8 @@ import {AbsentEntity} from "../../v1/payroll/entities/absent.entity";
 import {OvertimeEntity} from "../../v1/salaries/overtime/entities";
 import {RemoteEntity} from "../../v1/salaries/remote/entities/remote.entity";
 import {AllowanceType} from "./entities";
+import {HandleOvertimeEntity} from "./entities/handle-overtime.entity";
+import {HolidayEntity} from "../salaries/holiday/entities/holiday.entity";
 
 @Injectable()
 export class PayrollService {
@@ -257,19 +259,16 @@ export class PayrollService {
     };
   }
 
-  private handleOvertime(
-    overtime: OvertimeEntity,
-    payroll: OnePayroll
-  ): Array<OvertimeEntity & { price: number, rate: number, datetime: Date, duration: number, total: number }> {
+  private handleOvertime(salary: OvertimeEntity | HolidayEntity, payroll: OnePayroll): Array<HandleOvertimeEntity> {
     const absentRange = this.absentUniq(payroll);
     let duration = this.getWorkday(payroll) - (payroll.workday || payroll.employee.workday);
 
     const datetimes = dateFns.eachDayOfInterval({
-      start: overtime.startedAt,
-      end: overtime.endedAt
+      start: (salary as any).startedAt,
+      end: (salary as any).endedAt
     });
 
-    const newOvertimes = datetimes.map(datetime => Object.assign({}, overtime, {datetime}))
+    const newOvertimes = datetimes.map(datetime => Object.assign({}, salary, {datetime}))
       .map(e => {
         if (!absentRange.map(e => e.datetime.getTime()).includes(e.datetime.getTime())) {
           return Object.assign(e, {duration: 1});
@@ -286,12 +285,12 @@ export class PayrollService {
         const totalSetting = this.totalSetting(overtime.setting, payroll);
         return Object.assign(overtime, {totalSetting});
       });
-    return newOvertimes.map(overtime => Object.assign({}, overtime, {
-      price: overtime.totalSetting,
-      rate: overtime.setting.rate,
-      datetime: overtime.datetime,
-      duration: overtime.partial !== PartialDay.ALL_DAY ? 0.5 : 1,
-      total: overtime.totalSetting * (overtime.partial !== PartialDay.ALL_DAY ? 0.5 : 1) * overtime.setting.rate
+    return newOvertimes.map(salary => Object.assign({}, salary, {
+      price: salary.totalSetting,
+      rate: salary.setting.rate,
+      datetime: salary.datetime,
+      duration: salary.partial !== PartialDay.ALL_DAY ? 0.5 : 1,
+      total: salary.totalSetting * (overtime.partial !== PartialDay.ALL_DAY ? 0.5 : 1) * overtime.setting.rate
     }));
   }
 

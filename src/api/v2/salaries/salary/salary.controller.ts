@@ -12,36 +12,36 @@ import {ApiConstant} from "../../../../common/constant";
 @UseGuards(JwtAuthGuard, ApiKeyGuard, RolesGuard)
 @Controller(ApiConstant.V1.SALARY.SALARYV2)
 export class SalaryController {
-  constructor(private readonly salaryv2Service: SalaryService) {
+  constructor(private readonly salaryService: SalaryService) {
   }
 
   @Roles(RoleEnum.SUPPER_ADMIN, RoleEnum.CAMP_ACCOUNTING)
   @Post("/multiple/creation")
   createMany(@Body() body: CreateManySalaryDto) {
-    return this.salaryv2Service.createMany(body);
+    return this.salaryService.createMany(body);
   }
 
   @Roles(RoleEnum.SUPPER_ADMIN, RoleEnum.CAMP_ACCOUNTING, RoleEnum.HUMAN_RESOURCE)
   @Get()
   findAll() {
-    return this.salaryv2Service.findAll();
+    return this.salaryService.findAll();
   }
 
   @Roles(RoleEnum.SUPPER_ADMIN, RoleEnum.CAMP_ACCOUNTING, RoleEnum.HUMAN_RESOURCE)
   @Get(':id')
   findOne(@Param('id') id: string) {
-    return this.salaryv2Service.findOne(+id);
+    return this.salaryService.findOne(+id);
   }
 
   @Roles(RoleEnum.SUPPER_ADMIN, RoleEnum.CAMP_ACCOUNTING)
   @Post('/multiple/updation')
   updateMany(@Body() updateSalaryv2Dto: UpdateManySalaryDto) {
-    return this.salaryv2Service.updateMany(updateSalaryv2Dto);
+    return this.salaryService.updateMany(updateSalaryv2Dto);
   }
 
   @Roles(RoleEnum.SUPPER_ADMIN, RoleEnum.CAMP_ACCOUNTING)
   @Post('multiple/deletion')
   removeMany(@Body() body: RemoteManySalaryDto) {
-    return this.salaryv2Service.removeMany(body);
+    return this.salaryService.removeMany(body);
   }
 }
