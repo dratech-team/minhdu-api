@@ -6,7 +6,7 @@ import {DeductionModule} from "./deduction/deduction.module";
 import {OvertimeModule} from "./overtime/overtime.module";
 import {RemoteModule} from "./remote/remote.module";
 import {SalaryModule} from "./salary/salary.module";
-import {SalaryModule as SalaryModulev2} from "../../v2/salaries/salaryv2/salary.module";
+import {SalaryModule as SalaryModulev2} from "../../v2/salaries/salary/salary.module";
 import {AbsentController} from "./absent/absent.controller";
 import {OvertimeController} from "./overtime/overtime.controller";
 import {RemoteController} from "./remote/remote.controller";

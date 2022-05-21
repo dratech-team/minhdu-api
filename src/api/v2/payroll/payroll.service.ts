@@ -3,7 +3,7 @@ import {CreatePayrollDto} from './dto/create-payroll.dto';
 import {UpdatePayrollDto} from './dto/update-payroll.dto';
 import {PayrollRepository} from "./payroll.repository";
 import {EmployeeService} from "../../v1/employee/employee.service";
-import {SalaryService} from "../salaries/salaryv2/salary.service";
+import {SalaryService} from "../salaries/salary/salary.service";
 import {AllowanceService} from "../../v1/salaries/allowance/allowance.service";
 import {AbsentService} from "../../v1/salaries/absent/absent.service";
 import {OvertimeService} from "../../v1/salaries/overtime/overtime.service";
