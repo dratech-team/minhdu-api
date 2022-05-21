@@ -2,8 +2,9 @@ import {Body, Controller, Delete, Get, Param, Patch, Post} from '@nestjs/common'
 import {ProvinceService} from './province.service';
 import {CreateProvinceDto} from './dto/create-province.dto';
 import {UpdateProvinceDto} from './dto/update-province.dto';
+import {ApiConstant} from "../../constant";
 
-@Controller('v2/province')
+@Controller(ApiConstant.V1.ORGCHART.PROVINCE)
 export class ProvinceController {
   constructor(private readonly provinceService: ProvinceService) {
   }

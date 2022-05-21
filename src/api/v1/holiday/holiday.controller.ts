@@ -8,9 +8,10 @@ import {RoleEnum} from "@prisma/client";
 import {ReqProfile} from "../../../core/decorators/req-profile.decorator";
 import {ProfileEntity} from "../../../common/entities/profile.entity";
 import {SearchHolidayDto} from "./dto/search-holiday.dto";
+import {ApiConstant} from "../../../common/constant";
 
 @UseGuards(JwtAuthGuard, ApiKeyGuard, RolesGuard)
-@Controller('v2/holiday')
+@Controller(ApiConstant.V1.HOLIDAY)
 export class HolidayController {
   constructor(private readonly holidayService: HolidayService) {
   }

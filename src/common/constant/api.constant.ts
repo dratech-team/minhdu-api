@@ -30,6 +30,10 @@ const V1 = {
   ORDER: `${Version.V1}/order`,
   ORDER_HISTORY: `${Version.V1}/order-history`,
   ORGCHART: {
+    NATION: `${Version.V1}/nation`,
+    PROVINCE: `${Version.V1}/province`,
+    DISTRICT: `${Version.V1}/district`,
+    WARD: `${Version.V1}/ward`,
     BRANCH: `${Version.V1}/branch`,
     POSITION: `${Version.V1}/position`,
   },
@@ -71,6 +75,9 @@ const V1 = {
 
 const V2 = {
   PAYROLL: `${Version.V2}/payroll`,
+  SALARY: {
+    HOLIDAY: `${Version.V2}/salary/holiday`,
+  }
 };
 
 export const ApiConstant = {V1, V2};
