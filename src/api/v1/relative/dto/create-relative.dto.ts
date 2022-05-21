@@ -13,6 +13,10 @@ export class CreateRelativeDto extends CreateProfileDto {
   readonly career: string;
 
   @IsOptional()
+  @IsString()
+  readonly ethnicity: string;
+
+  @IsOptional()
   @Type(() => Boolean)
   @IsBoolean()
   readonly sos: boolean;

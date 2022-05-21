@@ -2,17 +2,36 @@ import {BadRequestException, Injectable} from '@nestjs/common';
 import {CreateRelativeDto} from './dto/create-relative.dto';
 import {UpdateRelativeDto} from './dto/update-relative.dto';
 import {PrismaService} from "../../../prisma.service";
-import {EmployeeService} from "../employee/employee.service";
 
 @Injectable()
 export class RelativeService {
-  constructor(private readonly prisma: PrismaService, private readonly employeeService: EmployeeService) {
+  constructor(private readonly prisma: PrismaService) {
   }
 
   async create(body: CreateRelativeDto) {
     try {
-      const created = await this.prisma.relative.create({data: body});
-      return await this.employeeService.findOne(created.employeeId);
+      return await this.prisma.relative.create({
+        data: {
+          lastName: body.lastName,
+          identify: body.identify,
+          idCardAt: body.idCardAt,
+          issuedBy: body.issuedBy,
+          wardId: body.wardId,
+          employeeId: body.employeeId,
+          gender: body.gender,
+          phone: body.phone,
+          workPhone: body.workPhone,
+          birthday: body.birthday,
+          address: body.address,
+          religion: body.religion,
+          mst: body.mst,
+          sos: body.sos,
+          birthplace: body.birthplace,
+          career: body.career,
+          ethnicity: body.ethnicity,
+          relationship: body.relationship,
+        }
+      });
     } catch (err) {
       console.error(err);
       throw new BadRequestException(err);
@@ -26,13 +45,31 @@ export class RelativeService {
     return `This action returns a #${id} relative`;
   }
 
-  async update(id: number, updates: UpdateRelativeDto) {
+  async update(id: number, body: UpdateRelativeDto) {
     try {
-      const updated = await this.prisma.relative.update({
+      return await this.prisma.relative.update({
         where: {id},
-        data: updates
+        data: {
+          lastName: body.lastName,
+          identify: body.identify,
+          idCardAt: body.idCardAt,
+          issuedBy: body.issuedBy,
+          wardId: body.wardId,
+          employeeId: body.employeeId,
+          gender: body.gender,
+          phone: body.phone,
+          workPhone: body.workPhone,
+          birthday: body.birthday,
+          address: body.address,
+          religion: body.religion,
+          mst: body.mst,
+          sos: body.sos,
+          birthplace: body.birthplace,
+          career: body.career,
+          ethnicity: body.ethnicity,
+          relationship: body.relationship,
+        }
       });
-      return await this.employeeService.findOne(updated.employeeId);
     } catch (err) {
       console.error(err);
       throw new BadRequestException(err);
@@ -41,8 +78,7 @@ export class RelativeService {
 
   async remove(id: number) {
     try {
-      const deleted = await this.prisma.relative.delete({where: {id}});
-      return await this.employeeService.findOne(deleted.employeeId);
+      return await this.prisma.relative.delete({where: {id}});
     } catch (err) {
       console.error(err);
       throw new BadRequestException(err);

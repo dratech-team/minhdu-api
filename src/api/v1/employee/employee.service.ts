@@ -49,15 +49,7 @@ export class EmployeeService {
     if (!employee) {
       throw new NotFoundException(`Not Found employee by Id ${id}`);
     }
-    const contactType =
-      employee.contracts[0]?.createdAt && employee.contracts[0]?.expiredAt
-        ? "Có thời hạn"
-        : employee.contracts[0]?.createdAt && !employee.contracts[0]?.expiredAt
-        ? "Vô  thời hạn"
-        : "Chưa có hợp đồng";
-
-    const salaryHistories = employee.salaryHistories.map(salary => Object.assign(salary, {datetime: salary.timestamp}));
-    return Object.assign(employee, {contractType: contactType, salaryHistories});
+    return this.mapToEmployee(employee);
   }
 
   async update(id: number, updates: UpdateEmployeeDto) {
@@ -112,5 +104,17 @@ export class EmployeeService {
       console.error(err);
       throw new BadRequestException(err);
     }
+  }
+
+  private mapToEmployee(employee) {
+    const salaryHistories = employee.salaryHistories.map(salary => Object.assign(salary, {datetime: salary.timestamp}));
+    const contactType =
+      employee.contracts[0]?.createdAt && employee.contracts[0]?.expiredAt
+        ? "Có thời hạn"
+        : employee.contracts[0]?.createdAt && !employee.contracts[0]?.expiredAt
+        ? "Vô  thời hạn"
+        : "Chưa có hợp đồng";
+
+    return Object.assign(employee, {contractType: contactType, salaryHistories});
   }
 }

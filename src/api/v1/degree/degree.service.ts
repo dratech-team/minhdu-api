@@ -11,8 +11,20 @@ export class DegreeService {
 
   async create(body: CreateDegreeDto) {
     try {
-      const created = await this.prisma.degree.create({data: body});
-      return await this.employeeService.findOne(created.employeeId);
+      return await this.prisma.degree.create({
+        data: {
+          employeeId: body.employeeId,
+          type: body.type,
+          startedAt: body.startedAt,
+          endedAt: body.endedAt,
+          formality: body.formality,
+          status: body.status,
+          level: body.level,
+          school: body.school,
+          major: body.major,
+          note: body.note,
+        }
+      });
     } catch (err) {
       console.error(err);
       throw new BadRequestException(err);
@@ -27,13 +39,23 @@ export class DegreeService {
     return `This action returns a #${id} degree`;
   }
 
-  async update(id: number, updates: UpdateDegreeDto) {
+  async update(id: number, body: UpdateDegreeDto) {
     try {
-      const updated = await this.prisma.degree.update({
+      return await this.prisma.degree.update({
         where: {id},
-        data: updates
+        data: {
+          employeeId: body.employeeId,
+          type: body.type,
+          startedAt: body.startedAt,
+          endedAt: body.endedAt,
+          formality: body.formality,
+          status: body.status,
+          level: body.level,
+          school: body.school,
+          major: body.major,
+          note: body.note,
+        }
       });
-      return await this.employeeService.findOne(updated.employeeId);
     } catch (err) {
       console.error(err);
       throw new BadRequestException(err);
@@ -41,7 +63,6 @@ export class DegreeService {
   }
 
   async remove(id: number) {
-    const removed = await this.prisma.degree.delete({where: {id}});
-    return await this.employeeService.findOne(removed.employeeId);
+    return await this.prisma.degree.delete({where: {id}});
   }
 }

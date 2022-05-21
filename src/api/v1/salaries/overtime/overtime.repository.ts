@@ -102,7 +102,7 @@ export class OvertimeRepository extends BaseRepository<OvertimeEntity> {
     return await Promise.all(groupBy.map(async e => {
       const {data} = await this.findAll(Object.assign(search, {payrollId: e.payrollId}));
       const payroll = await this.prisma.payroll.findUnique({where: {id: search.payrollId}, include: {employee: true}});
-      return Object.assign(payroll, {salaries: data});
+      return Object.assign(payroll, {overtimes: data});
     }));
   }
 
