@@ -6,13 +6,13 @@ import {PrismaService} from "../../../prisma.service";
 import {ConfigModule} from "../../../core/config";
 import {HttpModule} from "@nestjs/axios";
 import {EmployeeModule} from "../../v1/employee/employee.module";
-import {Salaryv2Module} from "../salaries/salaryv2/salaryv2.module";
+import {SalaryModule} from "../salaries/salaryv2/salary.module";
 import {AllowanceModule} from "../../v1/salaries/allowance/allowance.module";
 import {AbsentModule} from "../../v1/salaries/absent/absent.module";
 import {OvertimeModule} from "../../v1/salaries/overtime/overtime.module";
 import {RemoteModule} from "../../v1/salaries/remote/remote.module";
 import {EmployeeRepository} from "../../v1/employee/employee.repository";
-import {Salaryv2Repository} from "../salaries/salaryv2/salaryv2.repository";
+import {SalaryRepository} from "../salaries/salaryv2/salary.repository";
 import {AllowanceRepository} from "../../v1/salaries/allowance/allowance.repository";
 import {AbsentRepository} from "../../v1/salaries/absent/absent.repository";
 import {OvertimeRepository} from "../../v1/salaries/overtime/overtime.repository";
@@ -23,7 +23,7 @@ import {RemoteRepository} from "../../v1/salaries/remote/remote.repository";
     ConfigModule,
     HttpModule,
     EmployeeModule,
-    Salaryv2Module,
+    SalaryModule,
     AllowanceModule,
     AbsentModule,
     OvertimeModule,
@@ -35,7 +35,7 @@ import {RemoteRepository} from "../../v1/salaries/remote/remote.repository";
     PayrollRepository,
     PrismaService,
     EmployeeRepository,
-    Salaryv2Repository,
+    SalaryRepository,
     AllowanceRepository,
     AbsentRepository,
     OvertimeRepository,

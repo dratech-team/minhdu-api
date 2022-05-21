@@ -11,8 +11,8 @@ import {AbsentRepository} from "../salaries/absent/absent.repository";
 import {OvertimeRepository} from "../salaries/overtime/overtime.repository";
 import {OvertimeModule} from "../salaries/overtime/overtime.module";
 import {AbsentModule} from "../salaries/absent/absent.module";
-import {Salaryv2Repository} from "../../v2/salaries/salaryv2/salaryv2.repository";
-import {Salaryv2Module} from "../../v2/salaries/salaryv2/salaryv2.module";
+import {SalaryRepository} from "../../v2/salaries/salaryv2/salary.repository";
+import {SalaryModule} from "../../v2/salaries/salaryv2/salary.module";
 import {AllowanceModule} from "../salaries/allowance/allowance.module";
 import {AllowanceRepository} from "../salaries/allowance/allowance.repository";
 import {RemoteModule} from "../salaries/remote/remote.module";
@@ -23,7 +23,7 @@ import {RemoteRepository} from "../salaries/remote/remote.repository";
     ConfigModule,
     HttpModule,
     EmployeeModule,
-    Salaryv2Module,
+    SalaryModule,
     AllowanceModule,
     AbsentModule,
     OvertimeModule,
@@ -37,7 +37,7 @@ import {RemoteRepository} from "../salaries/remote/remote.repository";
     PayrollRepository,
     PayrollService,
     EmployeeRepository,
-    Salaryv2Repository,
+    SalaryRepository,
     AllowanceRepository,
     AbsentRepository,
     OvertimeRepository,

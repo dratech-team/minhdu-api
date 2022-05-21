@@ -1,3 +1,3 @@
-import {CreateSalaryv2Dto} from "../dto/create-salaryv2.dto";
+import {CreateSalaryDto} from "../dto/create-salary.dto";
 
-export type SalaryEntity = Omit<CreateSalaryv2Dto, "payrollIds"> & { payrollId: number }
+export type SalaryEntity = Omit<CreateSalaryDto, "payrollIds"> & { payrollId: number }

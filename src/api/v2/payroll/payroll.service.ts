@@ -3,7 +3,7 @@ import {CreatePayrollDto} from './dto/create-payroll.dto';
 import {UpdatePayrollDto} from './dto/update-payroll.dto';
 import {PayrollRepository} from "./payroll.repository";
 import {EmployeeService} from "../../v1/employee/employee.service";
-import {Salaryv2Service} from "../salaries/salaryv2/salaryv2.service";
+import {SalaryService} from "../salaries/salaryv2/salary.service";
 import {AllowanceService} from "../../v1/salaries/allowance/allowance.service";
 import {AbsentService} from "../../v1/salaries/absent/absent.service";
 import {OvertimeService} from "../../v1/salaries/overtime/overtime.service";
@@ -31,7 +31,7 @@ export class PayrollService {
   constructor(
     private readonly repository: PayrollRepository,
     private readonly employeeService: EmployeeService,
-    private readonly salaryv2Service: Salaryv2Service,
+    private readonly salaryv2Service: SalaryService,
     private readonly allowanceSerivce: AllowanceService,
     private readonly absentService: AbsentService,
     private readonly overtimeService: OvertimeService,
