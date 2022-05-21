@@ -1,3 +1,5 @@
-import { HolidaySalary } from "@prisma/client";
+import {HolidaySalary, SalarySetting} from "@prisma/client";
 
-export interface HolidayEntity extends HolidaySalary {}
+export interface HolidayEntity extends HolidaySalary {
+  readonly setting: SalarySetting
+}

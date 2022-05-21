@@ -1,5 +1,5 @@
 import {BadRequestException, Injectable} from "@nestjs/common";
-import {SalarySetting, SalaryType} from "@prisma/client";
+import {SalarySetting} from "@prisma/client";
 import {BaseRepository} from "../../../../common/repository/base.repository";
 import {PrismaService} from "../../../../prisma.service";
 import {CreateSalarySettingsDto} from "./dto/create-salary-settings.dto";
