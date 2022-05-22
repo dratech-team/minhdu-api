@@ -143,7 +143,7 @@ export class EmployeeRepository extends BaseRepository<Employee> {
       const [total, data] = await Promise.all([
         this.prisma.employee.count({
           where: {
-            identify: {contains: search?.identify, mode: "insensitive"},
+            identify: search?.identify ? {contains: search.identify, mode: "insensitive"} : {},
             leftAt: search?.status > -1 && search?.status !== EmployeeStatusEnum.ALL ? (search?.status === EmployeeStatusEnum.LEFT ? {notIn: null} : {in: null}) : {},
             position: {name: {contains: search?.position, mode: "insensitive"}},
             branch: {
@@ -193,7 +193,7 @@ export class EmployeeRepository extends BaseRepository<Employee> {
           skip: search?.skip,
           take: search?.take,
           where: {
-            identify: {contains: search?.identify, mode: "insensitive"},
+            identify: search?.identify ? {contains: search.identify, mode: "insensitive"} : {},
             leftAt: search?.status > -1 && search?.status !== EmployeeStatusEnum.ALL ? (search?.status === EmployeeStatusEnum.LEFT ? {notIn: null} : {in: null}) : {},
             position: {name: {contains: search?.position, mode: "insensitive"}},
             branch: {
@@ -248,7 +248,8 @@ export class EmployeeRepository extends BaseRepository<Employee> {
                 },
               },
             },
-            category: true
+            category: true,
+            contracts: true,
           },
           orderBy: search?.orderBy && search?.orderType
             ? search.orderBy === OrderbyEmployeeEnum.CREATE

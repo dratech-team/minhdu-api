@@ -180,6 +180,7 @@ model Position {
 model Contract {
   id         Int           @id @default(autoincrement())
   contractId String?
+  code String?
   type       ContractType? @default(LIMITED)
   name       String?
   position   String

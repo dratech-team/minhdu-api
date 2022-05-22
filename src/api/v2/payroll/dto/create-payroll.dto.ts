@@ -36,4 +36,12 @@ export class CreatePayrollDto {
   @Type(() => Boolean)
   @IsBoolean()
   readonly isFlatSalary: boolean;
+
+  @IsOptional()
+  @Type(() => Boolean)
+  @IsBoolean()
+  readonly taxed: boolean;
+
+  @IsOptional()
+  readonly tax: number | null;
 }

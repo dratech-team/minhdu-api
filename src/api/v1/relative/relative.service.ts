@@ -30,6 +30,9 @@ export class RelativeService {
           career: body.career,
           ethnicity: body.ethnicity,
           relationship: body.relationship,
+        },
+        include: {
+          ward: true
         }
       });
     } catch (err) {
@@ -68,6 +71,9 @@ export class RelativeService {
           career: body.career,
           ethnicity: body.ethnicity,
           relationship: body.relationship,
+        },
+        include: {
+          ward: true
         }
       });
     } catch (err) {
