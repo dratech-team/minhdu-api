@@ -27,6 +27,7 @@ import {RemoteEntity} from "../../v1/salaries/remote/entities/remote.entity";
 import {AllowanceType} from "./entities";
 import {HandleOvertimeEntity} from "./entities/handle-overtime.entity";
 import {TAX} from "../../../common/constant";
+import {HolidayEntity} from "../salaries/holiday/entities/holiday.entity";
 
 @Injectable()
 export class PayrollService {
@@ -151,7 +152,7 @@ export class PayrollService {
       return deduction.price;
     }).reduce((a, b) => a + b, 0);
     const overtime = _.flattenDeep(payroll.overtimes?.map(overtime => {
-      return this.handleOvertime(overtime, payroll).map(overtime => overtime.total);
+      return this.handleOvertime(Object.assign(overtime, {type: "overtime"}), payroll).map(overtime => overtime.total);
     })).reduce((a, b) => a + b, 0);
     return salary + allowance - absent - deduction + overtime;
   }
@@ -244,13 +245,16 @@ export class PayrollService {
     };
   }
 
-  private handleOvertime(salary: OvertimeEntity, payroll: OnePayroll): Array<HandleOvertimeEntity> {
+  // type: "overtime" | "holiday"
+  private handleOvertime(
+    salary: OvertimeEntity | HolidayEntity,
+    payroll: OnePayroll
+  ): Array<HandleOvertimeEntity> {
     const absentRange = this.absentUniq(payroll);
     let duration = this.getWorkday(payroll) - (payroll.workday || payroll.employee.workday);
-
     const datetimes = dateFns.eachDayOfInterval({
-      start: (salary as any).startedAt,
-      end: (salary as any).endedAt
+      start: salary?.type === "overtime" ? (salary as OvertimeEntity).startedAt : (salary as HolidayEntity).setting.startedAt,
+      end: salary?.type === "overtime" ? (salary as OvertimeEntity).endedAt : (salary as HolidayEntity).setting.endedAt,
     });
 
     const newOvertimes = datetimes.map(datetime => Object.assign({}, salary, {datetime}))
@@ -270,12 +274,11 @@ export class PayrollService {
         const totalSetting = this.totalSetting(overtime.setting, payroll);
         return Object.assign(overtime, {totalSetting});
       });
-    return newOvertimes.map(salary => Object.assign({}, salary, {
+    return newOvertimes.map((salary) => Object.assign({}, salary, {
       price: salary.totalSetting,
       rate: salary.setting.rate,
       datetime: salary.datetime,
-      duration: salary.partial !== PartialDay.ALL_DAY ? 0.5 : 1,
-      total: salary.totalSetting * (salary.partial !== PartialDay.ALL_DAY ? 0.5 : 1) * salary.setting.rate
+      total: salary.totalSetting * salary.duration * salary.setting.rate
     }));
   }
 
@@ -339,8 +342,16 @@ export class PayrollService {
       return Object.assign(remote, {total: 0, duration: duration});
     });
     const overtimes = payroll.overtimes?.map(overtime => {
-      const details = this.handleOvertime(overtime, payroll as any);
+      const details = this.handleOvertime(Object.assign(overtime, {type: "overtime"}), payroll as any);
       return Object.assign(overtime, {
+        total: details.map(e => e.total).reduce((a, b) => a + b, 0),
+        duration: details.map(e => e.duration).reduce((a, b) => a + b, 0),
+        details: details,
+      });
+    });
+    const holidays = payroll.holidays?.map(holiday => {
+      const details = this.handleOvertime(Object.assign(holiday, {type: "holiday"}), payroll as any);
+      return Object.assign(holiday, {
         total: details.map(e => e.total).reduce((a, b) => a + b, 0),
         duration: details.map(e => e.duration).reduce((a, b) => a + b, 0),
         details: details,
@@ -354,6 +365,7 @@ export class PayrollService {
       absents,
       remotes,
       overtimes,
+      holidays,
       total
     });
   }
