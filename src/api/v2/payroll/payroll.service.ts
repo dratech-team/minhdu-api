@@ -18,13 +18,12 @@ import {SearchPayrollDto} from "../../v1/payroll/dto/search-payroll.dto";
 import {FilterTypeEnum} from "../../v1/payroll/entities/filter-type.enum";
 import * as _ from "lodash";
 import {timesheet} from "../../v1/payroll/functions/timesheet";
-import {OnePayroll} from "../../v1/payroll/entities/payroll.entity";
 import {AllowanceSalary, PartialDay, SalarySetting, SalaryType} from "@prisma/client";
 import * as dateFns from "date-fns";
 import {AbsentEntity} from "../../v1/payroll/entities/absent.entity";
 import {OvertimeEntity} from "../../v1/salaries/overtime/entities";
 import {RemoteEntity} from "../../v1/salaries/remote/entities/remote.entity";
-import {AllowanceType} from "./entities";
+import {AllowanceType, PayrollEntity} from "./entities";
 import {HandleOvertimeEntity} from "./entities/handle-overtime.entity";
 import {TAX} from "../../../common/constant";
 import {HolidayEntity} from "../salaries/holiday/entities/holiday.entity";
@@ -134,7 +133,7 @@ export class PayrollService {
     return this.repository.update(profile, id, updates);
   }
 
-  private totalSalaryCTL(payroll: OnePayroll): number {
+  private totalSalaryCTL(payroll: PayrollEntity): number {
     const salary = payroll.salariesv2?.filter(salary => salary.type === SalaryType.BASIC_INSURANCE || salary.type === SalaryType.BASIC || salary.type === SalaryType.STAY).map(salary => {
       if (!payroll.taxed && salary.type === SalaryType.BASIC_INSURANCE) {
         return salary.price * 1;
@@ -152,12 +151,15 @@ export class PayrollService {
       return deduction.price;
     }).reduce((a, b) => a + b, 0);
     const overtime = _.flattenDeep(payroll.overtimes?.map(overtime => {
-      return this.handleOvertime(Object.assign(overtime, {type: "overtime"}), payroll).map(overtime => overtime.total);
+      return this.handleOvertimeOrHoliday(Object.assign(overtime, {type: "overtime"}), payroll).map(overtime => overtime.total);
+    })).reduce((a, b) => a + b, 0);
+    const holiday = _.flattenDeep(payroll.holidays?.map(overtime => {
+      return this.handleOvertimeOrHoliday(Object.assign(overtime, {type: "overtime"}), payroll).map(overtime => overtime.total);
     })).reduce((a, b) => a + b, 0);
     return salary + allowance - absent - deduction + overtime;
   }
 
-  private handleAllowance(allowance: AllowanceSalary, payroll: OnePayroll): { duration: number, total: number } {
+  private handleAllowance(allowance: AllowanceSalary, payroll: PayrollEntity): { duration: number, total: number } {
     const allowances: Array<AllowanceType> = [];
 
     const absentRange = this.absentUniq(payroll);
@@ -232,7 +234,7 @@ export class PayrollService {
     };
   }
 
-  private handleAbsent(absent: AbsentEntity, payroll: OnePayroll): { duration: number, price: number } {
+  private handleAbsent(absent: AbsentEntity, payroll: PayrollEntity): { duration: number, price: number } {
     const totalSetting = this.totalSetting(absent.setting, payroll);
 
     const datetimes = dateFns.eachDayOfInterval({
@@ -246,9 +248,9 @@ export class PayrollService {
   }
 
   // type: "overtime" | "holiday"
-  private handleOvertime(
+  private handleOvertimeOrHoliday(
     salary: OvertimeEntity | HolidayEntity,
-    payroll: OnePayroll
+    payroll: PayrollEntity
   ): Array<HandleOvertimeEntity> {
     const absentRange = this.absentUniq(payroll);
     let duration = this.getWorkday(payroll) - (payroll.workday || payroll.employee.workday);
@@ -282,7 +284,7 @@ export class PayrollService {
     }));
   }
 
-  private totalSetting(setting: SalarySetting, payroll: OnePayroll): number {
+  private totalSetting(setting: SalarySetting, payroll: PayrollEntity): number {
     const totalOf = (setting.prices?.reduce((a, b) => a + b, 0) || setting.totalOf?.map(type => {
       return payroll.salariesv2?.filter(salary => salary.type === type).map((e) => e.price * e.rate).reduce((a, b) => a + b, 0);
     }).reduce((a, b) => a + b, 0));
@@ -293,11 +295,11 @@ export class PayrollService {
   //   return this.uniq(payroll.allowances) as Array<AllowanceEntity & { datetime: Date }>;
   // }
 
-  private absentUniq(payroll: OnePayroll) {
+  private absentUniq(payroll: PayrollEntity) {
     return this.uniq(payroll.absents) as Array<AbsentEntity & { datetime: Date }>;
   }
 
-  private remoteUniq(payroll: OnePayroll) {
+  private remoteUniq(payroll: PayrollEntity) {
     return this.uniq(payroll.remotes) as Array<RemoteEntity & { datetime: Date }>;
   }
 
@@ -342,7 +344,7 @@ export class PayrollService {
       return Object.assign(remote, {total: 0, duration: duration});
     });
     const overtimes = payroll.overtimes?.map(overtime => {
-      const details = this.handleOvertime(Object.assign(overtime, {type: "overtime"}), payroll as any);
+      const details = this.handleOvertimeOrHoliday(Object.assign(overtime, {type: "overtime"}), payroll as any);
       return Object.assign(overtime, {
         total: details.map(e => e.total).reduce((a, b) => a + b, 0),
         duration: details.map(e => e.duration).reduce((a, b) => a + b, 0),
@@ -350,7 +352,7 @@ export class PayrollService {
       });
     });
     const holidays = payroll.holidays?.map(holiday => {
-      const details = this.handleOvertime(Object.assign(holiday, {type: "holiday"}), payroll as any);
+      const details = this.handleOvertimeOrHoliday(Object.assign(holiday, {type: "holiday"}), payroll as any);
       return Object.assign(holiday, {
         total: details.map(e => e.total).reduce((a, b) => a + b, 0),
         duration: details.map(e => e.duration).reduce((a, b) => a + b, 0),
