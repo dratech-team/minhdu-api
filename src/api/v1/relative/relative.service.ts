@@ -32,7 +32,15 @@ export class RelativeService {
           relationship: body.relationship,
         },
         include: {
-          ward: true
+          ward: {
+            include: {
+              district: {
+                include: {
+                  province: true
+                }
+              }
+            }
+          }
         }
       });
     } catch (err) {
@@ -73,7 +81,15 @@ export class RelativeService {
           relationship: body.relationship,
         },
         include: {
-          ward: true
+          ward: {
+            include: {
+              district: {
+                include: {
+                  province: true
+                }
+              }
+            }
+          }
         }
       });
     } catch (err) {
