@@ -27,14 +27,14 @@ export class CreateAllowanceDto {
   @Transform(({value}) => {
     return new Date(moment(value).set({hours: 0, minutes: 0, seconds: 0}).format('YYYY-MM-DD'));
   })
-  readonly startedAt?: Date;
+  readonly startedAt: Date;
 
   @IsNotEmpty()
   @IsDate()
   @Transform(({value}) => {
     return new Date(moment(value).set({hours: 0, minutes: 0, seconds: 0}).format('YYYY-MM-DD'));
   })
-  readonly endedAt?: Date;
+  readonly endedAt: Date;
 
   @IsOptional()
   @IsNumber()
