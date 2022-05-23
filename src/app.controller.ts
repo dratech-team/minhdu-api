@@ -11,7 +11,7 @@ export class AppController {
     return this.service.salariesv2();
   }
 
-  @Get('salariesv2')
+  @Get('allowance')
   async allowance() {
     return this.service.allowance();
   }
