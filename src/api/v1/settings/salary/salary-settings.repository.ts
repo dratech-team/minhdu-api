@@ -42,6 +42,7 @@ export class SalarySettingsRepository extends BaseRepository<SalarySetting> {
       const [total, data] = await Promise.all([
         this.prisma.salarySetting.count({
           where: {
+            title: {contains: search?.search, mode: "insensitive"},
             type: {in: search?.types},
             startedAt: payroll?.createdAt ? {gte: payroll?.createdAt} : {},
             endedAt: payroll?.createdAt ? {
@@ -56,6 +57,7 @@ export class SalarySettingsRepository extends BaseRepository<SalarySetting> {
           take: search?.take,
           skip: search?.skip,
           where: {
+            title: {contains: search?.search, mode: "insensitive"},
             type: {in: search?.types},
             startedAt: payroll?.createdAt ? {gte: payroll?.createdAt} : {},
             endedAt: payroll?.createdAt ? {
