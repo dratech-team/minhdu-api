@@ -23,7 +23,7 @@ export class CreateOvertimeDto {
   @IsDate()
   @Transform(({value}) => {
     if (value) {
-      return new Date(moment(value).utc().format('YYYY-MM-DD'));
+      return new Date(value);
     }
   })
   readonly startTime: Date | null;
@@ -32,7 +32,7 @@ export class CreateOvertimeDto {
   @IsDate()
   @Transform(({value}) => {
     if (value) {
-      return new Date(moment(value).utc().format('YYYY-MM-DD'));
+      return new Date(value);
     }
   })
   readonly endTime: Date | null;
