@@ -1,5 +1,4 @@
 import {Injectable} from '@nestjs/common';
-import {UpdateSalaryDto} from './dto/update-salary.dto';
 import {SalaryRepository} from "./salary.repository";
 import {SalaryEntity} from "./entities/salary.entity";
 import {crudManyResponse} from "../../../v1/salaries/base/functions/response.function";
@@ -7,6 +6,7 @@ import {SalaryType} from "@prisma/client";
 import {CreateManySalaryDto} from "./dto/create-many-salary.dto";
 import {UpdateManySalaryDto} from "./dto/update-many-salary.dto";
 import {RemoteManySalaryDto} from "./dto/remote-many-salary.dto";
+import {CreateSalaryDto} from "./dto/create-salary.dto";
 
 @Injectable()
 export class SalaryService {
@@ -43,7 +43,7 @@ export class SalaryService {
     return crudManyResponse(count, "deletion");
   }
 
-  private mapToSalary(body): UpdateSalaryDto {
+  private mapToSalary(body): CreateSalaryDto {
     return {
       payrollId: body.payrollId,
       title: body.title,
@@ -51,6 +51,6 @@ export class SalaryService {
       price: body.price,
       blockId: body.type === SalaryType.STAY ? body?.blockId || 2 : body?.blockId || 1,
       note: body.note,
-    } as UpdateSalaryDto;
+    } as CreateSalaryDto;
   }
 }
