@@ -153,7 +153,7 @@ export class PayrollService {
     const holiday = _.flattenDeep(payroll.holidays?.map(overtime => {
       return this.handleOvertimeOrHoliday(Object.assign(overtime, {type: "overtime"}), payroll).map(overtime => overtime.total);
     })).reduce((a, b) => a + b, 0);
-    const tax = payroll.taxed && payroll.tax ? payroll.salariesv2?.find(salary => salary.type === SalaryType.BASIC_INSURANCE).price * payroll.tax : 0;
+    const tax = payroll.taxed && payroll.tax ? (payroll.salariesv2?.find(salary => salary.type === SalaryType.BASIC_INSURANCE)?.price || 0) * payroll.tax : 0;
     return salary + allowance + overtime + holiday - absent - deduction - tax;
   }
 
