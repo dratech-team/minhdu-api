@@ -1,6 +1,7 @@
 import {DatetimeUnit, PartialDay, SalaryType} from "@prisma/client";
 import {PrismaService} from "./prisma.service";
 import {Injectable} from "@nestjs/common";
+import {firstDatetime, lastDatetime} from "./utils/datetime.util";
 
 @Injectable()
 export class AppService {
@@ -37,6 +38,9 @@ export class AppService {
         type: {in: SalaryType.ALLOWANCE},
         branchId: {in: null},
         payrollId: {not: null},
+      },
+      include: {
+        payroll: true
       }
     });
 
@@ -44,14 +48,14 @@ export class AppService {
       data: allowances.map(allowance => {
         return {
           title: allowance.title,
-          price: allowance.price,
+          price: !allowance?.datetime ? allowance.price / allowance.payroll.createdAt.getDate() : allowance.price,
           blockId: 3,
           inWorkday: true,
           inOffice: true,
           rate: 1,
           payrollId: allowance.payrollId,
-          startedAt: allowance.datetime,
-          endedAt: allowance.datetime,
+          startedAt: allowance?.datetime || firstDatetime(allowance.payroll.createdAt),
+          endedAt: allowance?.datetime || lastDatetime(allowance.payroll.createdAt),
           timestamp: allowance.timestamp,
           note: allowance.note,
         };
