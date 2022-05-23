@@ -156,7 +156,7 @@ export class PayrollService {
     const holiday = _.flattenDeep(payroll.holidays?.map(overtime => {
       return this.handleOvertimeOrHoliday(Object.assign(overtime, {type: "overtime"}), payroll).map(overtime => overtime.total);
     })).reduce((a, b) => a + b, 0);
-    return salary + allowance - absent - deduction + overtime;
+    return salary + allowance - absent - deduction + overtime + holiday;
   }
 
   private handleAllowance(allowance: AllowanceSalary, payroll: PayrollEntity): { duration: number, total: number } {
@@ -247,7 +247,6 @@ export class PayrollService {
     };
   }
 
-  // type: "overtime" | "holiday"
   private handleOvertimeOrHoliday(
     salary: OvertimeEntity | HolidayEntity,
     payroll: PayrollEntity
@@ -255,8 +254,8 @@ export class PayrollService {
     const absentRange = this.absentUniq(payroll);
     let duration = this.getWorkday(payroll) - (payroll.workday || payroll.employee.workday);
     const datetimes = dateFns.eachDayOfInterval({
-      start: salary?.type === "overtime" ? (salary as OvertimeEntity).startedAt : (salary as HolidayEntity).setting.startedAt,
-      end: salary?.type === "overtime" ? (salary as OvertimeEntity).endedAt : (salary as HolidayEntity).setting.endedAt,
+      start: salary?.setting.type === "OVERTIME" ? (salary as OvertimeEntity).startedAt : (salary as HolidayEntity).setting.startedAt,
+      end: salary?.setting.type === "OVERTIME" ? (salary as OvertimeEntity).endedAt : (salary as HolidayEntity).setting.endedAt,
     });
 
     const newOvertimes = datetimes.map(datetime => Object.assign({}, salary, {datetime}))
