@@ -74,8 +74,8 @@ export class AppService {
         timestamp: overtime.timestamp,
         type: SalaryType.OVERTIME,
         hasConstraints: true,
-        totalOf: !overtime.price ? [SalaryType.BASIC_INSURANCE, SalaryType.BASIC, SalaryType.STAY] : null,
-        prices: overtime.price ? [overtime.price] : null,
+        totalOf: !overtime.price ? [SalaryType.BASIC_INSURANCE, SalaryType.BASIC, SalaryType.STAY] : undefined,
+        prices: overtime.price ? [overtime.price] : undefined,
         unit: overtime.unit
       })),
       skipDuplicates: true
