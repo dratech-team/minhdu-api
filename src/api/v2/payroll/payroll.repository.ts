@@ -13,6 +13,7 @@ import {OrderbyEmployeeEnum} from "../../v1/employee/enums/orderby-employee.enum
 import {firstDatetime, lastDatetime} from "../../../utils/datetime.util";
 import {UpdatePayrollDto} from "../../v1/payroll/dto/update-payroll.dto";
 import * as moment from "moment";
+import {ResponsePagination} from "../../../common/entities/response.pagination";
 
 @Injectable()
 export class PayrollRepository extends BaseRepository<PayrollEntity> {
@@ -105,7 +106,7 @@ export class PayrollRepository extends BaseRepository<PayrollEntity> {
               id: search?.employeeId ? {in: +search.employeeId} : {},
               lastName: {contains: search?.name, mode: "insensitive"},
               type: search?.employeeType ? {in: search?.employeeType} : {},
-              category: search?.categoryId ? {id: {in: search?.categoryId}} : {},
+              categories: search?.categoryId ? {id: {in: search?.categoryId}} : {},
               leftAt: search?.empStatus > -1 && search?.empStatus !== StatusEnum.ALL ? (search?.empStatus === StatusEnum.NOT_ACTIVE ? {notIn: null} : {in: null}) : {},
             },
             branch: acc.branches?.length ? {
@@ -131,7 +132,7 @@ export class PayrollRepository extends BaseRepository<PayrollEntity> {
             employee: {
               lastName: {contains: search?.name, mode: "insensitive"},
               type: search?.employeeType ? {in: search?.employeeType} : {},
-              category: search?.categoryId ? {id: {in: search?.categoryId}} : {},
+              categories: search?.categoryId ? {id: {in: search?.categoryId}} : {},
               leftAt: search?.empStatus > -1 && search?.empStatus !== StatusEnum.ALL ? (search?.empStatus === StatusEnum.NOT_ACTIVE ? {notIn: null} : {in: null}) : {},
             },
             branch: acc.branches?.length ? {
@@ -152,18 +153,20 @@ export class PayrollRepository extends BaseRepository<PayrollEntity> {
             employee: {
               include: {
                 contracts: true,
-                position: true,
                 branch: true,
-                category: true
+                categories: true,
+                position: true,
               },
             },
             salaries: true,
             salariesv2: true,
-            deductions: true,
-            absents: {include: {setting: true}},
-            overtimes: {include: {setting: true}},
             allowances: true,
+            absents: {include: {setting: true}},
+            dayoffs: true,
+            deductions: true,
+            overtimes: {include: {setting: true}},
             remotes: true,
+            holidays: true,
           },
           // Nếu employeeId nhân viên tồn tại thì đang lấy lịch sử phiếu lương của nhân viên đó. nên sẽ sort theo ngày tạo phiếu lượng
           orderBy: !search?.employeeId ? {
@@ -199,7 +202,7 @@ export class PayrollRepository extends BaseRepository<PayrollEntity> {
               contracts: true,
               position: true,
               branch: true,
-              category: true
+              categories: true
             },
           },
           salaries: {
@@ -309,7 +312,7 @@ export class PayrollRepository extends BaseRepository<PayrollEntity> {
               contracts: true,
               position: true,
               branch: true,
-              category: true
+              categories: true
             },
           },
         },

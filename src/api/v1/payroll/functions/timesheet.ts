@@ -2,7 +2,7 @@ import {DatetimeUnit, SalaryType} from "@prisma/client";
 import * as moment from "moment";
 import {firstDatetime, lastDatetime} from "../../../../utils/datetime.util";
 import {includesDatetime} from "../../../../common/utils/isEqual-datetime.util";
-import {ALL_DAY, PARTIAL_DAY} from "../../../../common/constant/datetime.constant";
+import {ALL_DAY, PARTIAL_DAY} from "../../../../common/constant";
 
 export function rageDateTime(startedAt: Date, endedAt: Date, type: "days" | "months" | "years" = "days"): moment.Moment[] {
   const range = [];
