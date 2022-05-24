@@ -135,9 +135,6 @@ export class PayrollService {
 
   private totalSalaryCTL(payroll: PayrollEntity): number {
     const salary = payroll.salariesv2?.filter(salary => salary.type === SalaryType.BASIC_INSURANCE || salary.type === SalaryType.BASIC || salary.type === SalaryType.STAY).map(salary => {
-      if (!payroll.taxed && salary.type === SalaryType.BASIC_INSURANCE) {
-        return salary.price * 1;
-      }
       return salary.price * salary.rate;
     }).reduce((a, b) => a + b, 0);
     const allowance = payroll.allowances?.map(allowance => {
@@ -156,7 +153,8 @@ export class PayrollService {
     const holiday = _.flattenDeep(payroll.holidays?.map(overtime => {
       return this.handleOvertimeOrHoliday(Object.assign(overtime, {type: "overtime"}), payroll).map(overtime => overtime.total);
     })).reduce((a, b) => a + b, 0);
-    return salary + allowance - absent - deduction + overtime + holiday;
+    const tax = payroll.taxed && payroll.tax ? (payroll.salariesv2?.find(salary => salary.type === SalaryType.BASIC_INSURANCE)?.price || 0) * payroll.tax : 0;
+    return salary + allowance + overtime + holiday - absent - deduction - tax;
   }
 
   private handleAllowance(allowance: AllowanceSalary, payroll: PayrollEntity): { duration: number, total: number } {
