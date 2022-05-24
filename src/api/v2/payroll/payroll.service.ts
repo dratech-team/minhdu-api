@@ -18,7 +18,7 @@ import {SearchPayrollDto} from "../../v1/payroll/dto/search-payroll.dto";
 import {FilterTypeEnum} from "../../v1/payroll/entities/filter-type.enum";
 import * as _ from "lodash";
 import {timesheet} from "../../v1/payroll/functions/timesheet";
-import {AllowanceSalary, PartialDay, SalarySetting, SalaryType} from "@prisma/client";
+import {AllowanceSalary, DatetimeUnit, PartialDay, SalarySetting, SalaryType} from "@prisma/client";
 import * as dateFns from "date-fns";
 import {AbsentEntity} from "../../v1/payroll/entities/absent.entity";
 import {OvertimeEntity} from "../../v1/salaries/overtime/entities";
@@ -168,6 +168,8 @@ export class PayrollService {
       end: allowance.endedAt
     });
 
+    const days = dateFns.getDaysInMonth(allowance.startedAt);
+
     datetimes.forEach(datetime => {
       const exist = allowances.map(allowance => allowance.datetime.getTime()).includes(datetime.getTime());
       const absent = absentRange.find(absent => absent.datetime.getTime() === datetime.getTime());
@@ -228,7 +230,7 @@ export class PayrollService {
     const duration = allowances.map(allowance => allowance.duration).reduce((a, b) => a + b, 0);
     return {
       duration: duration,
-      total: allowance.price * allowance.rate * duration,
+      total: (allowance.unit === DatetimeUnit.MONTH ? (allowance.price / days) : allowance.price) * allowance.rate * duration,
     };
   }
 
