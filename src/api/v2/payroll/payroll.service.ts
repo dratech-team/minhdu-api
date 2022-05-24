@@ -176,7 +176,6 @@ export class PayrollService {
       return Object.assign(dayoff, {
         price: a.price,
         duration: a.duration,
-        total: a.price * a.duration,
       });
     });
     const remotes = payroll.remotes.map(remote => {
