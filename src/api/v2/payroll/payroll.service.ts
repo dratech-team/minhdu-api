@@ -130,7 +130,7 @@ export class PayrollService {
   }
 
   async update(profile: ProfileEntity, id: number, updates: UpdatePayrollDto) {
-    return this.repository.update(profile, id, updates);
+    return this.mapToPayslip(this.repository.update(profile, id, updates));
   }
 
   private totalSalaryCTL(payroll: PayrollEntity): number {
