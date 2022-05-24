@@ -1,6 +1,7 @@
-import {IsBoolean, IsDate, IsNotEmpty, IsNumber, IsOptional, IsString} from "class-validator";
+import {IsBoolean, IsDate, IsEnum, IsNotEmpty, IsNumber, IsOptional, IsString} from "class-validator";
 import {Transform, Type} from "class-transformer";
 import * as moment from "moment";
+import {DatetimeUnit} from "@prisma/client";
 
 export class CreateAllowanceDto {
   @IsNotEmpty()
@@ -11,6 +12,10 @@ export class CreateAllowanceDto {
   @IsNumber()
   @Type(() => Number)
   readonly price: number;
+
+  @IsNotEmpty()
+  @IsEnum(DatetimeUnit)
+  readonly unit: DatetimeUnit;
 
   @IsNotEmpty()
   @IsBoolean()

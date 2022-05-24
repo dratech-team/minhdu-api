@@ -52,6 +52,7 @@ export class AllowanceService {
       rate: body.rate,
       payrollId: body.payrollId,
       blockId: body?.blockId || 3,
+      unit: body.unit,
       note: body.note
     };
   }
