@@ -141,7 +141,7 @@ export class PayrollService {
       return SalaryFunctions.handleAllowance(allowance, payroll).total;
     }).reduce((a, b) => a + b, 0);
     const absent = payroll.absents.map(absent => {
-      const a = SalaryFunctions.handleAbsentOrDayOff(absent, payroll);
+      const a = SalaryFunctions.handleAbsent(absent, payroll);
       return a.price * a.duration;
     }).reduce((a, b) => a + b, 0);
     const deduction = payroll.deductions.map(deduction => {
@@ -164,7 +164,7 @@ export class PayrollService {
       return Object.assign(allowance, {total: a.total, duration: a.duration});
     });
     const absents = payroll.absents.map(absent => {
-      const a = SalaryFunctions.handleAbsentOrDayOff(absent, payroll as any);
+      const a = SalaryFunctions.handleAbsent(absent, payroll as any);
       return Object.assign(absent, {
         price: a.price,
         duration: a.duration,
@@ -172,11 +172,9 @@ export class PayrollService {
       });
     });
     const dayoff = payroll.dayoffs.map(dayoff => {
-      const a = SalaryFunctions.handleAbsentOrDayOff(dayoff, payroll as any);
+      const a = SalaryFunctions.handleDayOff(dayoff, payroll as any);
       return Object.assign(dayoff, {
-        price: a.price,
         duration: a.duration,
-        total: a.price * a.duration * (dayoff.partial !== PartialDay.ALL_DAY ? 0.5 : 1),
       });
     });
     const remotes = payroll.remotes.map(remote => {

@@ -21,15 +21,18 @@ const uniqSalary = (items: Array<AbsentEntity | DayoffEnity | AllowanceSalary | 
     .map(uniq => Object.assign({}, items.find(item => item.id === uniq.id), {datetime: uniq.datetime}));
 };
 
-const getWorkday = (payroll) => {
-  const absentDuration = payroll.absents.map(absent => {
-    return handleAbsentOrDayOff(absent, payroll).duration * (absent.partial === PartialDay.ALL_DAY ? 1 : 0.5);
-  })?.reduce((a, b) => a + b, 0);
+const getWorkday = (payroll: PayrollEntity) => {
+  const absentDuration = payroll.absents
+      ?.map(absent => handleAbsent(absent, payroll).duration * (absent.partial === PartialDay.ALL_DAY ? 1 : 0.5))
+      ?.reduce((a, b) => a + b, 0)
+    + payroll.dayoffs
+      ?.map(dayoff => handleDayOff(dayoff, payroll).duration * (dayoff.partial === PartialDay.ALL_DAY ? 1 : 0.5))
+      .reduce((a, b) => a + b, 0);
   return (dateFns.isSameMonth(new Date(), payroll.createdAt) ? new Date().getDate() + 1 : dateFns.getDaysInMonth(payroll.createdAt)) - (absentDuration + (payroll.createdAt.getDate() - 1));
 };
 
-const handleAbsentOrDayOff = (absent: AbsentEntity | DayoffEnity, payroll: PayrollEntity): { duration: number, price: number } => {
-  const settingTotal = (absent as AbsentEntity)?.setting ? totalSetting((absent as AbsentEntity).setting, payroll) : 0;
+const handleAbsent = (absent: AbsentEntity, payroll: PayrollEntity): { duration: number, price: number } => {
+  const settingTotal = totalSetting(absent.setting, payroll);
 
   const datetimes = dateFns.eachDayOfInterval({
     start: absent.startedAt,
@@ -42,24 +45,16 @@ const handleAbsentOrDayOff = (absent: AbsentEntity | DayoffEnity, payroll: Payro
   };
 };
 
-// const handleAbsentOrDayOff = (salaries: AbsentEntity[] | DayoffEnity[], payroll: PayrollEntity): { duration: number, price: number } => {
-//   return uniqSalary(salaries)?.map(salary => {
-//     const duration = (salary as any).partial !== PartialDay.ALL_DAY ? 0.5 : 1;
-//     if ((salary as AbsentEntity)?.setting) {
-//       const settingTotal = totalSetting((salary as AbsentEntity).setting, payroll);
-//       return {
-//         duration: duration,
-//         price: settingTotal * duration
-//       };
-//     }
-//     return {
-//       duration: duration,
-//       price: 0
-//     };
-//   })?.reduce((a, b) => {
-//     return {price: a.price + b.price, duration: a.duration + b.duration};
-//   }, {duration: 0, price: 0});
-// };
+const handleDayOff = (dayoff: DayoffEnity, payroll: PayrollEntity): { duration: number } => {
+  const datetimes = dateFns.eachDayOfInterval({
+    start: dayoff.startedAt,
+    end: dayoff.endedAt
+  });
+  const duration = datetimes.length;
+  return {
+    duration: duration
+  };
+};
 
 const handleAllowance = (allowance: AllowanceSalary, payroll: PayrollEntity): { duration: number, total: number } => {
   const allowances: Array<AllowanceType> = [];
@@ -188,7 +183,8 @@ export const SalaryFunctions = {
   handleOvertimeOrHoliday,
   handleAllowance,
   getWorkday,
-  handleAbsentOrDayOff,
+  handleAbsent,
+  handleDayOff,
   uniqSalary,
   absentUniq,
   dayoffUniq,
