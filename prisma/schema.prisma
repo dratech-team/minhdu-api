@@ -244,7 +244,7 @@ model Employee {
   salaryHistories SalaryHistory[]
   workHistories   WorkHistory[]
   timestamp       DateTime?       @default(now())
-  categories      Category?       @relation(fields: [categoryId], references: [id])
+  category     Category?       @relation(fields: [categoryId], references: [id])
   categoryId      Int?
   stt             Int?            @default(autoincrement())
 

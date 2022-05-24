@@ -22,7 +22,7 @@ import * as dateFns from "date-fns";
 import {PayrollEntity} from "./entities";
 import {TAX} from "../../../common/constant";
 import {SalaryFunctions} from "./functions/salary.functions";
-import {timesheet} from "./functions/timesheet.functions";
+import {TimeSheet} from "./functions/timesheet.functions";
 
 @Injectable()
 export class PayrollService {
@@ -87,11 +87,15 @@ export class PayrollService {
         return {
           total,
           total2: await this.allowanceSerivce.count(),
-          data: data.map(e => _.omit(Object.assign(e, {salaries: e.allowances})))
+          data: data.map(e => Object.assign(e, {salaries: e.allowances}))
         };
       }
       case FilterTypeEnum.TIME_SHEET: {
-        return {total, data: Object.assign(data, {timesheet: timesheet(data as PayrollEntity)})};
+        return {
+          total, data: data.map(e => {
+            return Object.assign(e, {timesheet: TimeSheet.timesheet(e)});
+          })
+        };
       }
       case FilterTypeEnum.OVERTIME: {
         const [total, data] = await Promise.all([

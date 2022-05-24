@@ -160,7 +160,7 @@ const absentUniq = (absents: AbsentEntity[]) => {
 };
 
 const dayoffUniq = (dayoffs: DayOffSalary[]) => {
-  return uniqSalary(dayoffs) as Array<AbsentEntity & { datetime: Date }>;
+  return uniqSalary(dayoffs) as Array<DayOffSalary & { datetime: Date }>;
 };
 
 export const SalaryFunctions = {
@@ -171,6 +171,7 @@ export const SalaryFunctions = {
   handleAbsent,
   uniqSalary,
   absentUniq,
+  dayoffUniq,
   remoteUniq
 };
 

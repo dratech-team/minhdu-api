@@ -69,7 +69,7 @@ export class EmployeeRepository extends BaseRepository<Employee> {
               },
             }
             : {},
-          categories: body?.categoryId ? {connect: {id: body.categoryId}} : {}
+          category: body?.categoryId ? {connect: {id: body.categoryId}} : {}
         },
         include: {
           degrees: true,
@@ -118,7 +118,7 @@ export class EmployeeRepository extends BaseRepository<Employee> {
               position: true
             }
           },
-          categories: true
+          category: true
         },
       });
     } catch (err) {
@@ -184,7 +184,7 @@ export class EmployeeRepository extends BaseRepository<Employee> {
                 }
               }
             },
-            categories: search?.categoryId ? {id: {in: +search.categoryId}} : {},
+            category: search?.categoryId ? {id: {in: +search.categoryId}} : {},
             phone: search?.phone ? {contains: search.phone, mode: "insensitive"} : {},
             address: {contains: search?.address, mode: "insensitive"}
           },
@@ -234,7 +234,7 @@ export class EmployeeRepository extends BaseRepository<Employee> {
                 }
               }
             },
-            categories: search?.categoryId ? {id: {in: +search.categoryId}} : {},
+            category: search?.categoryId ? {id: {in: +search.categoryId}} : {},
             phone: search?.phone ? {contains: search.phone, mode: "insensitive"} : {},
             address: {contains: search?.address, mode: "insensitive"}
           },
@@ -248,7 +248,7 @@ export class EmployeeRepository extends BaseRepository<Employee> {
                 },
               },
             },
-            categories: true,
+            category: true,
             contracts: true,
           },
           orderBy: search?.orderBy && search?.orderType
@@ -366,7 +366,7 @@ export class EmployeeRepository extends BaseRepository<Employee> {
               position: true
             }
           },
-          categories: true
+          category: true
         },
       });
     } catch (e) {
@@ -407,7 +407,7 @@ export class EmployeeRepository extends BaseRepository<Employee> {
           recipeType: updates.recipeType,
           note: updates.note,
           type: updates.type,
-          categories: updates?.categoryId ? {connect: {id: updates.categoryId}} : {}
+          category: updates?.categoryId ? {connect: {id: updates.categoryId}} : {}
         },
         include: {
           degrees: true,
@@ -456,7 +456,7 @@ export class EmployeeRepository extends BaseRepository<Employee> {
               position: true
             }
           },
-          categories: true
+          category: true
         },
       });
       if (updates.positionId || updates.branchId) {

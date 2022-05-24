@@ -106,7 +106,7 @@ export class PayrollRepository extends BaseRepository<PayrollEntity> {
               id: search?.employeeId ? {in: +search.employeeId} : {},
               lastName: {contains: search?.name, mode: "insensitive"},
               type: search?.employeeType ? {in: search?.employeeType} : {},
-              categories: search?.categoryId ? {id: {in: search?.categoryId}} : {},
+              category: search?.categoryId ? {id: {in: search?.categoryId}} : {},
               leftAt: search?.empStatus > -1 && search?.empStatus !== StatusEnum.ALL ? (search?.empStatus === StatusEnum.NOT_ACTIVE ? {notIn: null} : {in: null}) : {},
             },
             branch: acc.branches?.length ? {
@@ -132,7 +132,7 @@ export class PayrollRepository extends BaseRepository<PayrollEntity> {
             employee: {
               lastName: {contains: search?.name, mode: "insensitive"},
               type: search?.employeeType ? {in: search?.employeeType} : {},
-              categories: search?.categoryId ? {id: {in: search?.categoryId}} : {},
+              category: search?.categoryId ? {id: {in: search?.categoryId}} : {},
               leftAt: search?.empStatus > -1 && search?.empStatus !== StatusEnum.ALL ? (search?.empStatus === StatusEnum.NOT_ACTIVE ? {notIn: null} : {in: null}) : {},
             },
             branch: acc.branches?.length ? {
@@ -154,7 +154,7 @@ export class PayrollRepository extends BaseRepository<PayrollEntity> {
               include: {
                 contracts: true,
                 branch: true,
-                categories: true,
+                category: true,
                 position: true,
               },
             },
@@ -202,7 +202,7 @@ export class PayrollRepository extends BaseRepository<PayrollEntity> {
               contracts: true,
               position: true,
               branch: true,
-              categories: true
+              category: true
             },
           },
           salaries: {
@@ -312,7 +312,7 @@ export class PayrollRepository extends BaseRepository<PayrollEntity> {
               contracts: true,
               position: true,
               branch: true,
-              categories: true
+              category: true
             },
           },
         },

@@ -1,29 +1,35 @@
 import {DatetimeUnit, PartialDay} from "@prisma/client";
 import * as moment from "moment";
 import {includesDatetime} from "../../../../common/utils/isEqual-datetime.util";
-import * as dateFns from "date-fns";
 import {PayrollEntity} from "../entities";
 import {SalaryFunctions} from "./salary.functions";
+import {firstDatetime, lastDatetime} from "../../../../utils/datetime.util";
+import {rageDateTime} from "../../../v1/payroll/functions/timesheet";
 
-export const timesheet = (payroll: PayrollEntity, isExport?: boolean) => {
-  const diff = dateFns.eachDayOfInterval({
-    start: dateFns.startOfMonth(payroll.createdAt),
-    end: dateFns.endOfMonth(payroll.createdAt),
-  });
+const timesheet = (payroll: PayrollEntity | any, isExport?: boolean) => {
+  const diff = rageDateTime(firstDatetime(payroll.createdAt), lastDatetime(payroll.createdAt));
   const range = [];
   let total = 0;
 
-  const dayoffs = SalaryFunctions.absentUniq(payroll.absents);
-  const absents = SalaryFunctions.absentUniq(payroll.absents);
+  const dayoffs = SalaryFunctions.dayoffUniq(payroll.dayoffs).map(e => ({
+    unit: DatetimeUnit.DAY,
+    partial: e.partial,
+    datetime: e.datetime
+  }));
+  const absents = SalaryFunctions.absentUniq(payroll.absents).map(e => ({
+    unit: e.setting.unit,
+    partial: e.partial,
+    datetime: e.datetime
+  })).concat(dayoffs);
 
   const allDay = absents?.reduce((result, b) => {
-    if (b.setting.unit === DatetimeUnit.DAY && b.partial === PartialDay.ALL_DAY) {
+    if (b.unit === DatetimeUnit.DAY && b.partial === PartialDay.ALL_DAY) {
       result.push(b.datetime);
     }
     return result;
   }, []);
   const partialDay = absents?.reduce((result, b) => {
-    if (b.setting.unit === DatetimeUnit.DAY && b.partial !== PartialDay.ALL_DAY) {
+    if (b.unit === DatetimeUnit.DAY && b.partial !== PartialDay.ALL_DAY) {
       result.push(b.datetime);
     }
     return result;
@@ -38,10 +44,10 @@ export const timesheet = (payroll: PayrollEntity, isExport?: boolean) => {
       tick = "N/A";
       color = "#717171";
     } else {
-      if (partialDay && includesDatetime(partialDay, datetime)) {
+      if (partialDay && includesDatetime(partialDay, datetime.toDate())) {
         tick = "1/2";
         total += 1 / 2;
-      } else if (allDay && includesDatetime(allDay, datetime)) {
+      } else if (allDay && includesDatetime(allDay, datetime.toDate())) {
         tick = "o";
       } else if (!payroll?.accConfirmedAt && moment(new Date()).isBefore(datetime)) {
         tick = "-";
@@ -53,7 +59,7 @@ export const timesheet = (payroll: PayrollEntity, isExport?: boolean) => {
       }
     }
 
-    const obj = {[dateFns.format(datetime, "DD-MM")]: tick, color: color};
+    const obj = {[datetime.format("DD-MM")]: tick, color: color};
     if (isExport) {
       range.push(tick);
     } else {
@@ -63,3 +69,5 @@ export const timesheet = (payroll: PayrollEntity, isExport?: boolean) => {
 
   return {datetime: range, total};
 };
+
+export const TimeSheet = {timesheet};
