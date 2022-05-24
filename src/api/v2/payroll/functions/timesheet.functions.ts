@@ -55,6 +55,7 @@ const timesheet = (payroll: PayrollEntity | any, isExport?: boolean) => {
       if (partialDay && includesDatetime(partialDay, datetime.toDate())) {
         tick = "1/2";
         total += 1 / 2;
+        color = "#E02401";
       } else if (allDay && includesDatetime(allDay, datetime.toDate())) {
         tick = "o";
       } else if (!payroll?.accConfirmedAt && moment(new Date()).isBefore(datetime)) {

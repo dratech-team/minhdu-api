@@ -137,20 +137,20 @@ export class PayrollService {
     const salary = payroll.salariesv2?.filter(salary => salary.type === SalaryType.BASIC_INSURANCE || salary.type === SalaryType.BASIC || salary.type === SalaryType.STAY).map(salary => {
       return salary.price * salary.rate;
     }).reduce((a, b) => a + b, 0);
-    const allowance = payroll.allowances?.length && payroll.allowances.map(allowance => {
+    const allowance = payroll.allowances.map(allowance => {
       return SalaryFunctions.handleAllowance(allowance, payroll).total;
     }).reduce((a, b) => a + b, 0);
-    const absent = payroll.absents?.length && payroll.absents.map(absent => {
+    const absent = payroll.absents.map(absent => {
       const a = SalaryFunctions.handleAbsent(absent, payroll);
       return a.price * a.duration;
     }).reduce((a, b) => a + b, 0);
-    const deduction = payroll.deductions?.length && payroll.deductions.map(deduction => {
+    const deduction = payroll.deductions.map(deduction => {
       return deduction.price;
     }).reduce((a, b) => a + b, 0);
-    const overtime = payroll.overtimes?.length && _.flattenDeep(payroll.overtimes.map(overtime => {
+    const overtime = _.flattenDeep(payroll.overtimes.map(overtime => {
       return SalaryFunctions.handleOvertimeOrHoliday(Object.assign(overtime, {type: "overtime"}), payroll).map(overtime => overtime.total);
     })).reduce((a, b) => a + b, 0);
-    const holiday = payroll.holidays?.length && _.flattenDeep(payroll.holidays.map(overtime => {
+    const holiday = _.flattenDeep(payroll.holidays.map(overtime => {
       return SalaryFunctions.handleOvertimeOrHoliday(Object.assign(overtime, {type: "overtime"}), payroll).map(overtime => overtime.total);
     })).reduce((a, b) => a + b, 0);
     const tax = payroll.taxed && payroll.tax ? (payroll.salariesv2?.find(salary => salary.type === SalaryType.BASIC_INSURANCE)?.price || 0) * payroll.tax : 0;
@@ -159,11 +159,11 @@ export class PayrollService {
 
   private mapToPayslip(payroll) {
     // handle
-    const allowances = payroll.allowances?.length && payroll.allowances.map(allowance => {
+    const allowances = payroll.allowances.map(allowance => {
       const a = SalaryFunctions.handleAllowance(allowance, payroll as any);
       return Object.assign(allowance, {total: a.total, duration: a.duration});
     });
-    const absents = payroll.absents?.length && payroll.absents.map(absent => {
+    const absents = payroll.absents.map(absent => {
       const a = SalaryFunctions.handleAbsent(absent, payroll as any);
       return Object.assign(absent, {
         price: a.price,
@@ -171,14 +171,14 @@ export class PayrollService {
         total: a.price * a.duration * (absent.partial === PartialDay.ALL_DAY ? 1 : 0.5)
       });
     });
-    const remotes = payroll.remotes?.length && payroll.remotes.map(remote => {
+    const remotes = payroll.remotes.map(remote => {
       const duration = dateFns.eachDayOfInterval({
         start: remote.startedAt,
         end: remote.endedAt
       }).length;
       return Object.assign(remote, {total: 0, duration: duration});
     });
-    const overtimes = payroll.overtimes?.length && payroll.overtimes.map(overtime => {
+    const overtimes = payroll.overtimes.map(overtime => {
       const details = SalaryFunctions.handleOvertimeOrHoliday(Object.assign(overtime, {type: "overtime"}), payroll as any);
       return Object.assign(overtime, {
         total: details.map(e => e.total).reduce((a, b) => a + b, 0),
@@ -186,7 +186,7 @@ export class PayrollService {
         details: details,
       });
     });
-    const holidays = payroll.holidays?.length && payroll.holidays.map(holiday => {
+    const holidays = payroll.holidays.map(holiday => {
       const details = SalaryFunctions.handleOvertimeOrHoliday(Object.assign(holiday, {type: "holiday"}), payroll as any);
       return Object.assign(holiday, {
         total: details.map(e => e.total).reduce((a, b) => a + b, 0),
