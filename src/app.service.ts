@@ -96,8 +96,7 @@ export class AppService {
         const setting = await this.prisma.salarySetting.findFirst({
           where: {
             type: {in: [SalaryType.OVERTIME]},
-            title: overtime.title,
-            unit: overtime?.unit ? {in: overtime?.unit} : {},
+            title: overtime.title
           }
         });
         return {
