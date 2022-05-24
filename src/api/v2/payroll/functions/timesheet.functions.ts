@@ -4,24 +4,32 @@ import {includesDatetime} from "../../../../common/utils/isEqual-datetime.util";
 import {PayrollEntity} from "../entities";
 import {SalaryFunctions} from "./salary.functions";
 import {firstDatetime, lastDatetime} from "../../../../utils/datetime.util";
-import {rageDateTime} from "../../../v1/payroll/functions/timesheet";
+
+export function rageDateTime(startedAt: Date, endedAt: Date, type: "days" | "months" | "years" = "days"): moment.Moment[] {
+  const range = [];
+  const fromDate = moment(startedAt);
+  const toDate = moment(endedAt);
+  const diff = toDate.diff(fromDate, type || "days") + 1;
+  for (let i = 0; i < diff; i++) {
+    range.push(moment(startedAt).add(i, type || "days"));
+  }
+  return range;
+}
 
 const timesheet = (payroll: PayrollEntity | any, isExport?: boolean) => {
   const diff = rageDateTime(firstDatetime(payroll.createdAt), lastDatetime(payroll.createdAt));
   const range = [];
   let total = 0;
-
-  const dayoffs = SalaryFunctions.dayoffUniq(payroll.dayoffs).map(e => ({
+  const dayoffs = SalaryFunctions.dayoffUniq(payroll.dayoffs)?.map(e => ({
     unit: DatetimeUnit.DAY,
     partial: e.partial,
     datetime: e.datetime
   }));
-  const absents = SalaryFunctions.absentUniq(payroll.absents).map(e => ({
+  const absents = SalaryFunctions.absentUniq(payroll.absents)?.map(e => ({
     unit: e.setting.unit,
     partial: e.partial,
     datetime: e.datetime
   })).concat(dayoffs);
-
   const allDay = absents?.reduce((result, b) => {
     if (b.unit === DatetimeUnit.DAY && b.partial === PartialDay.ALL_DAY) {
       result.push(b.datetime);

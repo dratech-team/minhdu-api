@@ -1,13 +1,13 @@
 import {AbsentEntity} from "../../../v1/payroll/entities/absent.entity";
 import {AllowanceType, PayrollEntity} from "../entities";
-import dateFns from "date-fns";
+import * as dateFns from "date-fns";
 import {AllowanceSalary, DatetimeUnit, DayOffSalary, PartialDay, SalarySetting, SalaryType} from "@prisma/client";
 import {OvertimeEntity} from "../../../v1/salaries/overtime/entities";
 import {HolidayEntity} from "../../salaries/holiday/entities/holiday.entity";
 import {HandleOvertimeEntity} from "../entities/handle-overtime.entity";
 import {RemoteEntity} from "../../../v1/salaries/remote/entities/remote.entity";
-import {datimeUniq} from "./datetime-uniq.functions";
 import {DayoffEnity} from "../../../v1/salaries/dayoff/entities/dayoff.entity";
+import {DatetimeUniq} from "./datetime-uniq.functions";
 
 const totalSetting = (setting: SalarySetting, payroll: PayrollEntity): number => {
   const totalOf = (setting.prices?.reduce((a, b) => a + b, 0) || setting.totalOf?.map(type => {
@@ -17,12 +17,12 @@ const totalSetting = (setting: SalarySetting, payroll: PayrollEntity): number =>
 };
 
 const uniqSalary = (items: Array<AbsentEntity | DayoffEnity | AllowanceSalary | RemoteEntity>): Array<(AbsentEntity | DayoffEnity | AllowanceSalary | RemoteEntity) & { datetime: Date }> => {
-  return datimeUniq(items?.map(item => ({start: item.startedAt, end: item.endedAt, id: item.id})))
+  return DatetimeUniq.datimeUniq(items.map(item => ({start: item.startedAt, end: item.endedAt, id: item.id})))
     .map(uniq => Object.assign({}, items.find(item => item.id === uniq.id), {datetime: uniq.datetime}));
 };
 
 const getWorkday = (payroll) => {
-  const absentDuration = payroll.absents?.map(absent => {
+  const absentDuration = payroll.absents.map(absent => {
     return handleAbsent(absent, payroll).duration * (absent.partial === PartialDay.ALL_DAY ? 1 : 0.5);
   })?.reduce((a, b) => a + b, 0);
   return (dateFns.isSameMonth(new Date(), payroll.createdAt) ? new Date().getDate() + 1 : dateFns.getDaysInMonth(payroll.createdAt)) - (absentDuration + (payroll.createdAt.getDate() - 1));
@@ -44,8 +44,8 @@ const handleAbsent = (absent: AbsentEntity, payroll: PayrollEntity): { duration:
 const handleAllowance = (allowance: AllowanceSalary, payroll: PayrollEntity): { duration: number, total: number } => {
   const allowances: Array<AllowanceType> = [];
 
-  const absentRange = SalaryFunctions.absentUniq(payroll.absents);
-  const remoteRange = SalaryFunctions.remoteUniq(payroll.remotes);
+  const absentRange = absentUniq(payroll.absents);
+  const remoteRange = remoteUniq(payroll.remotes);
 
   const datetimes = dateFns.eachDayOfInterval({
     start: allowance.startedAt,
