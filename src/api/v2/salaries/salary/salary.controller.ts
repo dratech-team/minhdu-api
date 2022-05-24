@@ -10,7 +10,7 @@ import {RemoteManySalaryDto} from "./dto/remote-many-salary.dto";
 import {ApiConstant} from "../../../../common/constant";
 
 @UseGuards(JwtAuthGuard, ApiKeyGuard, RolesGuard)
-@Controller(ApiConstant.V1.SALARY.SALARYV2)
+@Controller(ApiConstant.V2.SALARY.SALARY)
 export class SalaryController {
   constructor(private readonly salaryService: SalaryService) {
   }

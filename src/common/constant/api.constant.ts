@@ -76,6 +76,7 @@ const V1 = {
 const V2 = {
   PAYROLL: `${Version.V2}/payroll`,
   SALARY: {
+    SALARY: `${Version.V2}/salary/salaryv2`,
     HOLIDAY: `${Version.V2}/salary/holiday`,
   }
 };
