@@ -97,15 +97,15 @@ export class AppService {
           where: {
             type: {in: [SalaryType.OVERTIME]},
             title: overtime.title,
-            unit: overtime?.unit,
+            unit: overtime?.unit ? {in: overtime?.unit} : {},
           }
         });
         return {
           payrollId: overtime.payrollId,
           startedAt: overtime.datetime,
           endedAt: overtime.datetime,
-          startTime: overtime?.unit === DatetimeUnit.HOUR ? overtime.datetime : null,
-          endTime: overtime?.unit === DatetimeUnit.HOUR ? overtime.datetime : null,
+          startTime: overtime?.unit === DatetimeUnit.HOUR ? overtime.datetime : undefined,
+          endTime: overtime?.unit === DatetimeUnit.HOUR ? overtime.datetime : undefined,
           timestamp: overtime.timestamp,
           note: overtime.note,
           blockId: 4,
