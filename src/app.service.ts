@@ -131,30 +131,14 @@ export class AppService {
       const settings = await this.prisma.salarySetting.findMany({
         where: {
           title: absents[i].title,
-          unit: absent.unit,
-          hasConstraints: false,
-          timestamp: absent.timestamp,
-          type: SalaryType.ABSENT,
-          rate: 1,
+          type: SalaryType.ABSENT
         },
       });
 
       if (!settings?.length) {
-        const setting = await this.prisma.salarySetting.create({
-          data: {
-            title: absents[i].title,
-            unit: absent.unit,
-            totalOf: [SalaryType.BASIC, SalaryType.BASIC_INSURANCE, SalaryType.STAY],
-            hasConstraints: false,
-            timestamp: absent.timestamp,
-            type: SalaryType.ABSENT,
-            rate: 1,
-          },
-        });
-
         const create = await this.prisma.absentSalary.create({
           data: {
-            settingId: setting.id,
+            settingId: settings[0].id,
             title: absent.title,
             startedAt: absent.datetime,
             endedAt: absent.datetime,
