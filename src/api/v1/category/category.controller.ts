@@ -17,7 +17,7 @@ export class CategoryController {
   }
 
   @UseGuards(LoggerGuard)
-  @Roles(RoleEnum.SUPPER_ADMIN, RoleEnum.CAMP_ACCOUNTING)
+  @Roles(RoleEnum.CAMP_ACCOUNTING) // super admin khong co app name nên không get đc app name cho category
   @Post()
   create(@ReqProfile() profile: ProfileEntity, @Body() createCategoryDto: CreateCategoryDto) {
     return this.categoryService.create(profile, createCategoryDto);

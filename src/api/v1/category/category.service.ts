@@ -19,7 +19,7 @@ export class CategoryService {
           name: body.name,
           branch: {connect: {id: body.branchId}},
           employees: body?.employeeIds?.length ? {connect: body.employeeIds.map(id => ({id}))} : {},
-          app: acc.appName,
+          app: acc?.appName,
         },
         include: {
           branch: true,
@@ -38,19 +38,16 @@ export class CategoryService {
         include: {branches: true}
       });
 
-      if (!acc.appName) {
-        throw new BadRequestException("Liên hệ admin để thêm role");
-      }
       const [total, data] = await Promise.all([
         this.prisma.category.count({
           where: {
-            app: acc.appName,
+            app: acc?.appName ? {in: acc.appName} : {},
             branch: acc.branches?.length ? {id: {in: acc.branches.map(branch => branch.id)}} : {name: search?.branch},
           }
         }),
         this.prisma.category.findMany({
           where: {
-            app: acc.appName,
+            app: acc?.appName ? {in: acc.appName} : {},
             branch: acc.branches?.length ? {id: {in: acc.branches.map(branch => branch.id)}} : {name: search?.branch},
           },
           include: {
