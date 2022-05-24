@@ -166,7 +166,7 @@ export class PayrollRepository extends BaseRepository<PayrollEntity> {
             deductions: true,
             overtimes: {include: {setting: true}},
             remotes: true,
-            holidays: true,
+            holidays: {include: {setting: true}},
           },
           // Nếu employeeId nhân viên tồn tại thì đang lấy lịch sử phiếu lương của nhân viên đó. nên sẽ sort theo ngày tạo phiếu lượng
           orderBy: !search?.employeeId ? {
