@@ -35,7 +35,7 @@ const handleAbsentOrDayOff = (absent: AbsentEntity | DayoffEnity, payroll: Payro
     start: absent.startedAt,
     end: absent.endedAt
   });
-  const duration = (absent.partial !== PartialDay.ALL_DAY ? 0.5 : 1) * datetimes.length;
+  const duration = datetimes.length;
   return {
     duration: duration,
     price: settingTotal

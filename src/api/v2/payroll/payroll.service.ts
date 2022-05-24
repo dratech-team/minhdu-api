@@ -168,7 +168,7 @@ export class PayrollService {
       return Object.assign(absent, {
         price: a.price,
         duration: a.duration,
-        total: a.price * a.duration
+        total: a.price * a.duration * a.duration * (absent.partial !== PartialDay.ALL_DAY ? 0.5 : 1)
       });
     });
     const dayoff = payroll.dayoffs.map(dayoff => {
@@ -176,6 +176,7 @@ export class PayrollService {
       return Object.assign(dayoff, {
         price: a.price,
         duration: a.duration,
+        total: a.price * a.duration * (dayoff.partial !== PartialDay.ALL_DAY ? 0.5 : 1),
       });
     });
     const remotes = payroll.remotes.map(remote => {
