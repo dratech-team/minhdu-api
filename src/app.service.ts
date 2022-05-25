@@ -56,8 +56,8 @@ export class AppService {
           rate: 1,
           unit: allowance.unit,
           payrollId: allowance.payrollId,
-          startedAt: allowance?.datetime || firstDatetime(allowance.payroll.createdAt),
-          endedAt: allowance?.datetime || lastDatetime(allowance.payroll.createdAt),
+          startedAt: allowance.unit === DatetimeUnit.MONTH ? firstDatetime(allowance.payroll.createdAt) : allowance?.datetime || firstDatetime(allowance.payroll.createdAt),
+          endedAt: allowance.unit === DatetimeUnit.MONTH ? lastDatetime(allowance.payroll.createdAt) : allowance?.datetime || lastDatetime(allowance.payroll.createdAt),
           timestamp: allowance.timestamp,
           note: allowance.note,
         };
