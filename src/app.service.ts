@@ -2,6 +2,7 @@ import {DatetimeUnit, PartialDay, SalaryType} from "@prisma/client";
 import {PrismaService} from "./prisma.service";
 import {Injectable} from "@nestjs/common";
 import {firstDatetime, lastDatetime} from "./utils/datetime.util";
+import * as dateFns from "date-fns";
 
 @Injectable()
 export class AppService {
@@ -126,23 +127,51 @@ export class AppService {
       where: {
         type: {in: [SalaryType.ABSENT]},
         payrollId: {not: null},
+        title: {in: ["Đi trễ", "Về sớm"], mode: "insensitive"}
       }
     });
 
     const {count} = await this.prisma.absentSalary.createMany({
-      data: absents.map(absent => ({
-        settingId: 21,
-        title: absent.title,
-        startedAt: absent.datetime,
-        endedAt: absent.datetime,
-        startTime: absent.datetime,
-        endTime: absent.datetime,
-        payrollId: absent.payrollId,
-        note: absent.note,
-        blockId: 5,
-        partial: absent.partial,
-        timestamp: absent.timestamp,
-      })),
+      data: absents.map(absent => {
+        let hours = 0;
+        let minutes = 0;
+
+        if (absent.times >= 240) {
+          hours = 4;
+        } else if (absent.times >= 180) {
+          hours = 3;
+        } else if (absent.times >= 120) {
+          hours = 2;
+        } else if (absent.times >= 60) {
+          hours = 1;
+        }
+
+        if (absent.times > 0 && absent.times < 60) {
+          minutes = absent.times;
+        } else if (absent.times > 60 && absent.times < 120) {
+          minutes = absent.times - 60;
+        } else if (absent.times > 120 && absent.times < 180) {
+          minutes = absent.times - 120;
+        } else if (absent.times > 180 && absent.times < 240) {
+          minutes = absent.times - 180;
+        }
+
+        const startTime = dateFns.set(absent.datetime, {hours: 7, minutes: 0});
+        const endTime = dateFns.set(absent.datetime, {hours: 7 + hours, minutes: minutes});
+        return {
+          settingId: 47,
+          title: absent.title,
+          startedAt: absent.datetime,
+          endedAt: absent.datetime,
+          startTime: startTime,
+          endTime: endTime,
+          payrollId: absent.payrollId,
+          note: absent.note,
+          blockId: 5,
+          partial: absent.partial,
+          timestamp: absent.timestamp,
+        };
+      }),
     });
     return {message: `Đã tạo ${count} record absent`};
   }
