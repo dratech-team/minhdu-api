@@ -138,27 +138,40 @@ export class AppService {
         }
         const startTime = dateFns.set(overtime.datetime, {hours: 7, minutes: 0});
         const endTime = dateFns.set(overtime.datetime, {hours: 7 + hours, minutes: minutes});
-        const create = await this.prisma.overtimeSalary.create({
-          data: {
-            payrollId: overtime.payrollId,
-            startedAt: overtime.datetime,
-            endedAt: overtime.datetime,
-            startTime: overtime?.unit === DatetimeUnit.HOUR ? startTime : undefined,
-            endTime: overtime?.unit === DatetimeUnit.HOUR ? endTime : undefined,
-            timestamp: overtime.timestamp,
-            allowances: overtime.allowance ? {
-              create: {
-                title: overtime.allowance.title,
-                price: overtime.allowance.price,
-              }
-            } : {},
-            note: overtime.note,
-            blockId: 4,
-            partial: overtime.partial,
-            settingId: setting[0].id
+
+        const found = await this.prisma.overtimeSalary.findUnique({
+          where: {
+            startedAt_endedAt_partial_payrollId: {
+              payrollId: overtime.payrollId,
+              startedAt: overtime.datetime,
+              endedAt: overtime.datetime,
+              partial: overtime.partial
+            }
           }
         });
-        count.push(create);
+        if(!found) {
+          const create = await this.prisma.overtimeSalary.create({
+            data: {
+              payrollId: overtime.payrollId,
+              startedAt: overtime.datetime,
+              endedAt: overtime.datetime,
+              startTime: overtime?.unit === DatetimeUnit.HOUR ? startTime : undefined,
+              endTime: overtime?.unit === DatetimeUnit.HOUR ? endTime : undefined,
+              timestamp: overtime.timestamp,
+              allowances: overtime.allowance ? {
+                create: {
+                  title: overtime.allowance.title,
+                  price: overtime.allowance.price,
+                }
+              } : {},
+              note: overtime.note,
+              blockId: 4,
+              partial: overtime.partial,
+              settingId: setting[0].id
+            }
+          });
+          count.push(create);
+        }
       }
     }
     return {message: `Đã tạo ${count.length} record overtimes`};
