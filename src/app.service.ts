@@ -49,11 +49,12 @@ export class AppService {
       data: allowances.map(allowance => {
         return {
           title: allowance.title,
-          price: !allowance?.datetime ? allowance.price / allowance.payroll.createdAt.getDate() : allowance.price,
+          price: allowance.price,
           blockId: 3,
           inWorkday: true,
           inOffice: true,
           rate: 1,
+          unit: allowance.unit,
           payrollId: allowance.payrollId,
           startedAt: allowance?.datetime || firstDatetime(allowance.payroll.createdAt),
           endedAt: allowance?.datetime || lastDatetime(allowance.payroll.createdAt),
