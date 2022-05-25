@@ -26,6 +26,11 @@ export class AppController {
     return this.service.overtime();
   }
 
+  @Get('overtime-template')
+  async overtimeTemplate() {
+    return this.service.overtimeTemplate();
+  }
+
   @Get('absent')
   async absent() {
     return this.service.absent();

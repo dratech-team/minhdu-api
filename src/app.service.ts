@@ -117,6 +117,10 @@ export class AppService {
     return {message: `Đã tạo ${count} record overtimes`};
   }
 
+  async overtimeTemplate() {
+    const settings = await this.prisma.overtimeTemplate.findMany();
+  }
+
   async absent() {
     const absents = await this.prisma.salary.findMany({
       where: {

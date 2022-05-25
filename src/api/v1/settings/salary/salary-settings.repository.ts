@@ -32,6 +32,10 @@ export class SalarySettingsRepository extends BaseRepository<SalarySetting> {
           endedAt: body?.endedAt,
           branches: {connect: body.branchIds.map(id => ({id}))},
           positions: {connect: body.positionIds.map(id => ({id}))},
+        },
+        include: {
+          branches: true,
+          positions: true
         }
       });
     } catch (err) {
@@ -129,6 +133,10 @@ export class SalarySettingsRepository extends BaseRepository<SalarySetting> {
           branches: {connect: body.branchIds.map(id => ({id}))},
           positions: {connect: body.positionIds.map(id => ({id}))},
         },
+        include: {
+          branches: true,
+          positions: true
+        }
       });
     } catch (err) {
       console.error(err);
