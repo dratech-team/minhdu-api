@@ -99,6 +99,7 @@ export class AppService {
       where: {
         type: {in: [SalaryType.OVERTIME]},
         payrollId: {not: null},
+        datetime: {not: null}
       },
       include: {
         allowance: true
