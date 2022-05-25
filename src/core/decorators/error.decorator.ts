@@ -39,7 +39,6 @@ export function getTypeIsArrayTuple(
   }
   const isInputArray = isArray(input);
   const type = isInputArray ? input[0] : input;
-  // @ts-ignore
   return [type, isInputArray];
 }
 
