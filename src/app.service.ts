@@ -85,6 +85,33 @@ export class AppService {
     return {message: `Đã tạo ${count} record cho salary setting`};
   }
 
+  async overtimeTemplate() {
+    const count = [];
+    const templates = await this.prisma.overtimeTemplate.findMany({
+      include: {branches: true, positions: true}
+    });
+    for (let i = 0; i < templates.length; i++) {
+      const template = templates[i];
+      const created = await this.prisma.salarySetting.create({
+        data: {
+          title: template.title,
+          type: SalaryType.OVERTIME,
+          hasConstraints: false,
+          unit: template.unit,
+          prices: template.price,
+          totalOf: !template.price ? [SalaryType.BASIC, SalaryType.BASIC_INSURANCE, SalaryType.STAY] : undefined,
+          timestamp: template.timestamp,
+          rate: template.rate,
+          branches: {connect: template.branches.map(branch => ({id: branch.id}))},
+          positions: {connect: template.positions.map(position => ({id: position.id}))},
+        }
+      });
+      count.push(created);
+    }
+
+    return {message: `Đã tạo ${count} record`};
+  }
+
   async overtime() {
     const overtimes = await this.prisma.salary.findMany({
       where: {
@@ -97,7 +124,7 @@ export class AppService {
         const setting = await this.prisma.salarySetting.findFirst({
           where: {
             type: {in: [SalaryType.OVERTIME]},
-            title: overtime.title
+            title: overtime.title,
           }
         });
         return {
@@ -116,10 +143,6 @@ export class AppService {
       skipDuplicates: true
     });
     return {message: `Đã tạo ${count} record overtimes`};
-  }
-
-  async overtimeTemplate() {
-    const settings = await this.prisma.overtimeTemplate.findMany();
   }
 
   async absent() {
