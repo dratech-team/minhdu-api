@@ -141,15 +141,16 @@ export class AppService {
 
         const found = await this.prisma.overtimeSalary.findUnique({
           where: {
-            startedAt_endedAt_partial_payrollId: {
+            startedAt_endedAt_partial_settingId_payrollId: {
               payrollId: overtime.payrollId,
               startedAt: overtime.datetime,
               endedAt: overtime.datetime,
-              partial: overtime.partial
+              partial: overtime.partial,
+              settingId: setting[0].id,
             }
           }
         });
-        if(!found) {
+        if (!found) {
           const create = await this.prisma.overtimeSalary.create({
             data: {
               payrollId: overtime.payrollId,
