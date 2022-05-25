@@ -610,7 +610,7 @@ model OvertimeSalary {
   timestamp  DateTime?                 @default(now())
   allowances OvertimeAllowanceSalary[]
 
-  @@unique([startedAt, endedAt, partial, payrollId])
+  @@unique([startedAt, endedAt, partial, settingId, payrollId])
 }
 
 model OvertimeAllowanceSalary {
