@@ -125,52 +125,22 @@ export class AppService {
       }
     });
 
-    for (let i = 0; i < absents.length; i++) {
-      const absent = absents[i];
-
-      const settings = await this.prisma.salarySetting.findMany({
-        where: {
-          title: absents[i].title,
-          type: SalaryType.ABSENT
-        },
-      });
-
-      if (!settings?.length) {
-        const create = await this.prisma.absentSalary.create({
-          data: {
-            settingId: settings[0].id,
-            title: absent.title,
-            startedAt: absent.datetime,
-            endedAt: absent.datetime,
-            startTime: absent.datetime,
-            endTime: absent.datetime,
-            payrollId: absent.payrollId,
-            note: absent.note,
-            blockId: 5,
-            partial: absent.partial,
-            timestamp: absent.timestamp,
-          },
-        });
-        console.log(`Đã tạo absent với tiêu đề ${create.title} cho phiếu lương ${create.payrollId} `);
-      } else {
-        const create = await this.prisma.absentSalary.create({
-          data: {
-            settingId: settings[0].id,
-            title: absent.title,
-            startedAt: absent.datetime,
-            endedAt: absent.datetime,
-            startTime: absent.datetime,
-            endTime: absent.datetime,
-            payrollId: absent.payrollId,
-            note: absent.note,
-            blockId: 5,
-            partial: absent.partial,
-            timestamp: absent.timestamp,
-          },
-        });
-        console.log(`Đã tạo absent với tiêu đề ${create.title} cho phiếu lương ${create.payrollId} `);
-      }
-    }
+    const {count} = await this.prisma.absentSalary.createMany({
+      data: absents.map(absent => ({
+        settingId: 21,
+        title: absent.title,
+        startedAt: absent.datetime,
+        endedAt: absent.datetime,
+        startTime: absent.datetime,
+        endTime: absent.datetime,
+        payrollId: absent.payrollId,
+        note: absent.note,
+        blockId: 5,
+        partial: absent.partial,
+        timestamp: absent.timestamp,
+      })),
+    });
+    return {message: `Đã tạo ${count} record absent`};
   }
 
   async dayoff() {
