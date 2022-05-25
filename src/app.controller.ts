@@ -16,11 +16,6 @@ export class AppController {
     return this.service.allowance();
   }
 
-  @Get('overtime-settings')
-  async overtimeSetting() {
-    return this.service.overtimeSetting();
-  }
-
   @Get('overtime')
   async overtime() {
     return this.service.overtime();

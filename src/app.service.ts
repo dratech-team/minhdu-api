@@ -66,25 +66,6 @@ export class AppService {
     return {message: `Đã tạo ${count} record allowance`};
   }
 
-  async overtimeSetting() {
-    const overtimes = await this.prisma.overtimeTemplate.findMany();
-    const {count} = await this.prisma.salarySetting.createMany({
-      data: overtimes.map(overtime => ({
-        title: overtime.title,
-        rate: overtime.rate,
-        timestamp: overtime.timestamp,
-        type: SalaryType.OVERTIME,
-        hasConstraints: true,
-        totalOf: !overtime.price ? [SalaryType.BASIC_INSURANCE, SalaryType.BASIC, SalaryType.STAY] : undefined,
-        prices: overtime.price ? [overtime.price] : undefined,
-        unit: overtime.unit
-      })),
-      skipDuplicates: true
-    });
-
-    return {message: `Đã tạo ${count} record cho salary setting`};
-  }
-
   async overtimeTemplate() {
     const count = [];
     const templates = await this.prisma.overtimeTemplate.findMany({
@@ -113,36 +94,50 @@ export class AppService {
   }
 
   async overtime() {
+    const count = [];
     const overtimes = await this.prisma.salary.findMany({
       where: {
         type: {in: [SalaryType.OVERTIME]},
         payrollId: {not: null},
+      },
+      include: {
+        allowance: true
       }
     });
-    const {count} = await this.prisma.overtimeSalary.createMany({
-      data: await Promise.all(overtimes.map(async overtime => {
-        const setting = await this.prisma.salarySetting.findFirst({
-          where: {
-            type: {in: [SalaryType.OVERTIME]},
-            title: overtime.title,
+
+    for (let i = 0; i < overtimes.length; i++) {
+      const overtime = overtimes[i];
+      const setting = await this.prisma.salarySetting.findMany({
+        where: {
+          type: {in: [SalaryType.OVERTIME]},
+          title: {contains: overtime.title, mode: "insensitive"},
+        }
+      });
+      if (setting) {
+        const create = await this.prisma.overtimeSalary.create({
+          data: {
+            payrollId: overtime.payrollId,
+            startedAt: overtime.datetime,
+            endedAt: overtime.datetime,
+            startTime: overtime?.unit === DatetimeUnit.HOUR ? overtime.datetime : undefined,
+            endTime: overtime?.unit === DatetimeUnit.HOUR ? overtime.datetime : undefined,
+            timestamp: overtime.timestamp,
+            allowances: overtime.allowance ? {
+              create: {
+                title: overtime.allowance.title,
+                price: overtime.allowance.price,
+              }
+            } : {},
+            note: overtime.note,
+            blockId: 4,
+            partial: overtime.partial,
+            settingId: setting[0].id
           }
         });
-        return {
-          payrollId: overtime.payrollId,
-          startedAt: overtime.datetime,
-          endedAt: overtime.datetime,
-          startTime: overtime?.unit === DatetimeUnit.HOUR ? overtime.datetime : undefined,
-          endTime: overtime?.unit === DatetimeUnit.HOUR ? overtime.datetime : undefined,
-          timestamp: overtime.timestamp,
-          note: overtime.note,
-          blockId: 4,
-          partial: overtime.partial,
-          settingId: setting.id
-        };
-      })),
-      skipDuplicates: true
-    });
-    return {message: `Đã tạo ${count} record overtimes`};
+        count.push(create);
+      }
+    }
+    return {message: `Đã tạo ${count.length} record overtimes`};
   }
 
   async absent() {
