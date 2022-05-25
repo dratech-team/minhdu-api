@@ -68,7 +68,7 @@ export class SalarySettingsRepository extends BaseRepository<SalarySetting> {
             } : {},
             branches: acc.branches?.length ? {some: {id: {in: acc.branches.map(branch => branch.id)}}} : {},
             positions: positions.length ? {some: {id: {in: positions}}} : {},
-          }
+          },
         }),
         this.prisma.salarySetting.findMany({
           take: search?.take,
@@ -83,6 +83,10 @@ export class SalarySettingsRepository extends BaseRepository<SalarySetting> {
             } : {},
             branches: acc.branches?.length ? {some: {id: {in: acc.branches.map(branch => branch.id)}}} : {},
             positions: positions.length ? {some: {id: {in: positions}}} : {},
+          },
+          include: {
+            branches: true,
+            positions: true
           }
         }),
       ]);
@@ -107,7 +111,11 @@ export class SalarySettingsRepository extends BaseRepository<SalarySetting> {
   async findOne(search: SearchOneSalarySettingsDto) {
     try {
       return await this.prisma.salarySetting.findUnique({
-        where: {title_type: {title: search.title, type: search.settingType}}
+        where: {title_type: {title: search.title, type: search.settingType}},
+        include: {
+          branches: true,
+          positions: true
+        }
       });
     } catch (err) {
       console.error(err);
