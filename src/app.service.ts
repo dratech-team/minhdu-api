@@ -113,14 +113,38 @@ export class AppService {
           title: {contains: overtime.title, mode: "insensitive"},
         }
       });
-      if (setting) {
+      if (setting?.length) {
+        let hours = 0;
+        let minutes = 0;
+
+        if (overtime.times >= 240) {
+          hours = 4;
+        } else if (overtime.times >= 180) {
+          hours = 3;
+        } else if (overtime.times >= 120) {
+          hours = 2;
+        } else if (overtime.times >= 60) {
+          hours = 1;
+        }
+
+        if (overtime.times > 0 && overtime.times < 60) {
+          minutes = overtime.times;
+        } else if (overtime.times > 60 && overtime.times < 120) {
+          minutes = overtime.times - 60;
+        } else if (overtime.times > 120 && overtime.times < 180) {
+          minutes = overtime.times - 120;
+        } else if (overtime.times > 180 && overtime.times < 240) {
+          minutes = overtime.times - 180;
+        }
+        const startTime = dateFns.set(overtime.datetime, {hours: 7, minutes: 0});
+        const endTime = dateFns.set(overtime.datetime, {hours: 7 + hours, minutes: minutes});
         const create = await this.prisma.overtimeSalary.create({
           data: {
             payrollId: overtime.payrollId,
             startedAt: overtime.datetime,
             endedAt: overtime.datetime,
-            startTime: overtime?.unit === DatetimeUnit.HOUR ? overtime.datetime : undefined,
-            endTime: overtime?.unit === DatetimeUnit.HOUR ? overtime.datetime : undefined,
+            startTime: overtime?.unit === DatetimeUnit.HOUR ? startTime : undefined,
+            endTime: overtime?.unit === DatetimeUnit.HOUR ? endTime : undefined,
             timestamp: overtime.timestamp,
             allowances: overtime.allowance ? {
               create: {
