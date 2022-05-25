@@ -1,15 +1,5 @@
 import {DatetimeUnit, SalaryType} from "@prisma/client";
-import {
-  IsArray,
-  IsBoolean,
-  IsDate,
-  IsEnum,
-  IsNotEmpty,
-  IsNumber,
-  IsOptional,
-  IsString,
-  validate
-} from "class-validator";
+import {IsArray, IsBoolean, IsDate, IsEnum, IsNotEmpty, IsNumber, IsOptional, IsString} from "class-validator";
 import {Transform, Type} from "class-transformer";
 import * as moment from "moment";
 
@@ -62,6 +52,16 @@ export class CreateSalarySettingsDto {
   @IsNumber()
   @Type(() => Number)
   readonly workday: number;
+
+  @IsOptional()
+  @IsArray()
+  @IsNumber({}, {each: true})
+  readonly branchIds: number[]
+
+  @IsOptional()
+  @IsArray()
+  @IsNumber({}, {each: true})
+  readonly positionIds: number[]
 
   @IsOptional()
   @IsBoolean()

@@ -19,7 +19,20 @@ export class SalarySettingsRepository extends BaseRepository<SalarySetting> {
   async create(body: CreateSalarySettingsDto) {
     try {
       return await this.prisma.salarySetting.create({
-        data: body
+        data: {
+          title: body.title,
+          type: body.type,
+          rate: body.rate,
+          hasConstraints: body.hasConstraints,
+          unit: body.unit,
+          prices: body?.prices,
+          totalOf: body?.totalOf,
+          workday: body?.workday,
+          startedAt: body?.startedAt,
+          endedAt: body?.endedAt,
+          branches: {connect: body.branchIds.map(id => ({id}))},
+          positions: {connect: body.positionIds.map(id => ({id}))},
+        }
       });
     } catch (err) {
       console.error(err);
@@ -98,11 +111,24 @@ export class SalarySettingsRepository extends BaseRepository<SalarySetting> {
     }
   }
 
-  async update(id: number, updates: UpdateSalarySettingsDto) {
+  async update(id: number, body: UpdateSalarySettingsDto) {
     try {
       return await this.prisma.salarySetting.update({
         where: {id},
-        data: updates,
+        data: {
+          title: body.title,
+          type: body.type,
+          rate: body.rate,
+          hasConstraints: body.hasConstraints,
+          unit: body.unit,
+          prices: body?.prices,
+          totalOf: body?.totalOf,
+          workday: body?.workday,
+          startedAt: body?.startedAt,
+          endedAt: body?.endedAt,
+          branches: {connect: body.branchIds.map(id => ({id}))},
+          positions: {connect: body.positionIds.map(id => ({id}))},
+        },
       });
     } catch (err) {
       console.error(err);

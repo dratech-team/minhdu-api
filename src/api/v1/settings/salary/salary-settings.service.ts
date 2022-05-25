@@ -51,6 +51,8 @@ export class SalarySettingsService {
       workday: body?.workday,
       startedAt: body?.startedAt,
       endedAt: body?.endedAt,
+      branchIds: body?.branchIds,
+      positionIds: body?.positionIds,
     };
   }
 }
