@@ -51,7 +51,7 @@ export class SalarySettingsRepository extends BaseRepository<SalarySetting> {
         include: {branches: {include: {positions: true}}}
       });
 
-      const positions = _.flattenDeep(acc.branches.map(branch => branch.positions.map(position => position.id)));
+      const positions = _.flattenDeep(acc?.branches?.map(branch => branch.positions?.map(position => position.id)));
 
       // use for holiday to get datetime
       const payroll = search?.payrollId ? await this.prisma.payroll.findUnique({where: {id: search?.payrollId}}) : null;
@@ -66,7 +66,7 @@ export class SalarySettingsRepository extends BaseRepository<SalarySetting> {
               gte: payroll?.createdAt,
               lte: lastDatetime(payroll?.createdAt)
             } : {},
-            branches: acc.branches?.length ? {some: {id: {in: acc.branches.map(branch => branch.id)}}} : {},
+            branches: acc?.branches?.length ? {some: {id: {in: acc.branches.map(branch => branch.id)}}} : {},
             positions: positions.length ? {some: {id: {in: positions}}} : {},
           },
         }),
@@ -81,7 +81,7 @@ export class SalarySettingsRepository extends BaseRepository<SalarySetting> {
               gte: payroll?.createdAt,
               lte: lastDatetime(payroll?.createdAt)
             } : {},
-            branches: acc.branches?.length ? {some: {id: {in: acc.branches.map(branch => branch.id)}}} : {},
+            branches: acc?.branches?.length ? {some: {id: {in: acc.branches.map(branch => branch.id)}}} : {},
             positions: positions.length ? {some: {id: {in: positions}}} : {},
           },
           include: {
