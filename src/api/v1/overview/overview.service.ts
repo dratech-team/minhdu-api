@@ -85,7 +85,7 @@ export class OverviewService {
       const count = await Promise.all([true, false].map(async isLeft => {
         const a = await this.prisma.employee.count({
           where: {
-            leftAt: isLeft ? {notIn: null} : {in: null},
+            leftAt: !isLeft ? {in: null} : {notIn: null},
             createdAt: {
               gte: firstDatetime(new Date(`${e}-01-01`), "years"),
               lte: lastDatetime(new Date(`${e}-01-01`), "years"),
@@ -93,7 +93,7 @@ export class OverviewService {
           }
         });
         return {
-          name: isLeft ? "Nghỉ việc" : "Vào làm",
+          name: !isLeft ?  "Vào làm" : "Nghỉ việc",
           value: a,
         };
       }));
