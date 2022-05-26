@@ -286,20 +286,13 @@ export class AppService {
 
   async holidaySetting() {
     const count = [];
-    const holidays = await this.prisma.holiday.findMany({include: {positions: true}});
+    const holidays = await this.prisma.salarySetting.findMany({include: {positions: true}});
     for (let i = 0; i < holidays.length; i++) {
-      const holiday = holidays[i];
-      const create = await this.prisma.salarySetting.create({
+      const holiday = await this.prisma.holiday.findMany({where: {name: holidays[i].title}, include: {positions: true}});
+      const create = await this.prisma.salarySetting.update({
+        where: {id: holidays[i].id},
         data: {
-          title: holiday.name,
-          unit: DatetimeUnit.DAY,
-          type: SalaryType.HOLIDAY,
-          hasConstraints: holiday.isConstraint,
-          prices: holiday.price || undefined,
-          totalOf: !holiday.price ? [SalaryType.BASIC, SalaryType.BASIC_INSURANCE, SalaryType.STAY] : undefined,
-          positions: {connect: holiday.positions?.map(position => ({id: position.id}))},
-          rate: holiday.rate,
-          timestamp: holiday.timestamp,
+          positions: {connect: holiday[0].positions?.map(position => ({id: position.id}))},
         }
       });
       count.push(i + 1);
@@ -324,16 +317,18 @@ export class AppService {
           title: salary.title
         }
       });
-      const create = await this.prisma.holidaySalary.create({
-        data: {
-          payrollId: salary.payrollId,
-          note: salary.note,
-          timestamp: salary.timestamp,
-          blockId: 8,
-          settingId: settings[0].id,
-        }
-      });
-      count.push(create);
+      if (settings?.length) {
+        const create = await this.prisma.holidaySalary.create({
+          data: {
+            payrollId: salary.payrollId,
+            note: salary.note,
+            timestamp: salary.timestamp,
+            blockId: 8,
+            settingId: settings[0].id,
+          }
+        });
+        count.push(i + 1);
+      }
     }
     return {message: `Đã tạo ${count} record holiday`};
   }
