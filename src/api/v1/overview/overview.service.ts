@@ -82,10 +82,10 @@ export class OverviewService {
       }
     })).map(e => Number(moment(e.createdAt).format("YYYY"))))];
     return await Promise.all(groupBy.map(async e => {
-      const count = await Promise.all([true, false].map(async isLeft => {
+      const count = await Promise.all([false, true].map(async isLeft => {
         const a = await this.prisma.employee.count({
           where: {
-            leftAt: !isLeft ? {in: null} : {notIn: null},
+            leftAt: isLeft ? {notIn: null} : {in: null},
             createdAt: {
               gte: firstDatetime(new Date(`${e}-01-01`), "years"),
               lte: lastDatetime(new Date(`${e}-01-01`), "years"),
@@ -93,7 +93,7 @@ export class OverviewService {
           }
         });
         return {
-          name: !isLeft ?  "Vào làm" : "Nghỉ việc",
+          name: isLeft ? "Nghỉ việc" : "Vào làm",
           value: a,
         };
       }));
