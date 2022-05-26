@@ -285,20 +285,25 @@ export class AppService {
   }
 
   async holidaySetting() {
-    const holidays = await this.prisma.holiday.findMany();
-    const {count} = await this.prisma.salarySetting.createMany({
-      data: holidays.map(holiday => ({
-        title: holiday.name,
-        unit: DatetimeUnit.DAY,
-        type: SalaryType.HOLIDAY,
-        hasConstraints: holiday.isConstraint,
-        prices: holiday.price || undefined,
-        totalOf: !holiday.price ? [SalaryType.BASIC, SalaryType.BASIC_INSURANCE, SalaryType.STAY] : undefined,
-        rate: holiday.rate,
-        timestamp: holiday.timestamp,
-      })),
-      skipDuplicates: true
-    });
+    const count = [];
+    const holidays = await this.prisma.holiday.findMany({include: {positions: true}});
+    for (let i = 0; i < holidays.length; i++) {
+      const holiday = holidays[i];
+      const create = await this.prisma.salarySetting.create({
+        data: {
+          title: holiday.name,
+          unit: DatetimeUnit.DAY,
+          type: SalaryType.HOLIDAY,
+          hasConstraints: holiday.isConstraint,
+          prices: holiday.price || undefined,
+          totalOf: !holiday.price ? [SalaryType.BASIC, SalaryType.BASIC_INSURANCE, SalaryType.STAY] : undefined,
+          positions: {connect: holiday.positions?.map(position => ({id: position.id}))},
+          rate: holiday.rate,
+          timestamp: holiday.timestamp,
+        }
+      });
+      count.push(i + 1);
+    }
     return {message: `Đã tạo ${count} record holidaySetting`};
   }
 
