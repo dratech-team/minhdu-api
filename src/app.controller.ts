@@ -36,9 +36,19 @@ export class AppController {
     return this.service.dayoff();
   }
 
-  @Get('dayoff')
-  async duduction() {
+  @Get('deduction')
+  async deduction() {
     return this.service.duduction();
+  }
+
+  @Get('settings-holiday')
+  async holidaySetting() {
+    return this.service.holidaySetting();
+  }
+
+  @Get('holiday')
+  async holiday() {
+    return this.service.holiday();
   }
 
   @Get('remote')

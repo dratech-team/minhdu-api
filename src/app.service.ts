@@ -284,27 +284,54 @@ export class AppService {
     return {message: `Đã tạo ${count} record deduction`};
   }
 
-  // async holiday() {
-  //   const salaries = await this.prisma.salary.findMany({
-  //     where: {
-  //       type: {in: [SalaryType.HOLIDAY]},
-  //       payrollId: {not: null},
-  //     }
-  //   });
-  //
-  //   for (let i = 0; i < salaries.length; i++) {
-  //     const salary = salaries[i];
-  //     const settings = await this.prisma.salarySetting.findMany({
-  //       where: {
-  //         type: {in: [SalaryType.HOLIDAY]},
-  //         title: salary.title,
-  //         unit: salary.unit,
-  //       }
-  //     });
-  //
-  //
-  //   }
-  // }
+  async holidaySetting() {
+    const holidays = await this.prisma.holiday.findMany();
+    const {count} = await this.prisma.salarySetting.createMany({
+      data: holidays.map(holiday => ({
+        title: holiday.name,
+        unit: DatetimeUnit.DAY,
+        type: SalaryType.HOLIDAY,
+        hasConstraints: holiday.isConstraint,
+        prices: holiday.price || undefined,
+        totalOf: !holiday.price ? [SalaryType.BASIC, SalaryType.BASIC_INSURANCE, SalaryType.STAY] : undefined,
+        rate: holiday.rate,
+        timestamp: holiday.timestamp,
+      })),
+      skipDuplicates: true
+    });
+    return {message: `Đã tạo ${count} record holidaySetting`};
+  }
+
+  async holiday() {
+    const count = [];
+    const salaries = await this.prisma.salary.findMany({
+      where: {
+        type: {in: [SalaryType.HOLIDAY]},
+        payrollId: {not: null},
+      }
+    });
+
+    for (let i = 0; i < salaries.length; i++) {
+      const salary = salaries[i];
+      const settings = await this.prisma.salarySetting.findMany({
+        where: {
+          type: {in: [SalaryType.HOLIDAY]},
+          title: salary.title
+        }
+      });
+      const create = await this.prisma.holidaySalary.create({
+        data: {
+          payrollId: salary.payrollId,
+          note: salary.note,
+          timestamp: salary.timestamp,
+          blockId: 8,
+          settingId: settings[0].id,
+        }
+      });
+      count.push(create);
+    }
+    return {message: `Đã tạo ${count} record holiday`};
+  }
 
   async remote() {
     const remotes = await this.prisma.salary.findMany({

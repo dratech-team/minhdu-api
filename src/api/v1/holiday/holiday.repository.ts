@@ -42,7 +42,7 @@ export class HolidayRepository extends BaseRepository<Holiday> {
           datetime: body.datetime,
           rate: body.rate,
           price: body.price,
-          positions: {connect: body.positionIds.map((id) => ({id}))},
+          positions: {connect: body.positionIds?.map((id) => ({id}))},
           isConstraint: body.isConstraint,
         },
       });
@@ -59,7 +59,7 @@ export class HolidayRepository extends BaseRepository<Holiday> {
         include: {branches: {include: {positions: true}}}
       });
 
-      const positions = _.flattenDeep(acc.branches.map(branch => branch.positions.map(position => position.name)));
+      const positions = acc?.branches?.length ?  _.flattenDeep(acc.branches.map(branch => branch.positions.map(position => position.name))) : [];
       if (search?.position) {
         positions.push(search.position);
       }
