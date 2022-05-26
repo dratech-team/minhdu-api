@@ -30,8 +30,8 @@ export class SalarySettingsRepository extends BaseRepository<SalarySetting> {
           workday: body?.workday,
           startedAt: body?.startedAt,
           endedAt: body?.endedAt,
-          branches: {connect: body.branchIds.map(id => ({id}))},
-          positions: {connect: body.positionIds.map(id => ({id}))},
+          branches: {connect: body.branchIds?.map(id => ({id}))},
+          positions: {connect: body.positionIds?.map(id => ({id}))},
         },
         include: {
           branches: true,
@@ -138,8 +138,8 @@ export class SalarySettingsRepository extends BaseRepository<SalarySetting> {
           workday: body?.workday,
           startedAt: body?.startedAt,
           endedAt: body?.endedAt,
-          branches: {connect: body.branchIds.map(id => ({id}))},
-          positions: {connect: body.positionIds.map(id => ({id}))},
+          branches: {connect: body.branchIds?.map(id => ({id}))},
+          positions: {connect: body.positionIds?.map(id => ({id}))},
         },
         include: {
           branches: true,
