@@ -84,6 +84,7 @@ export class AppService {
           totalOf: !template?.price ? [SalaryType.BASIC, SalaryType.BASIC_INSURANCE, SalaryType.STAY] : undefined,
           timestamp: template.timestamp,
           rate: template.rate,
+          employeeType: template.employeeType,
           branches: {connect: template.branches.map(branch => ({id: branch.id}))},
           positions: {connect: template.positions.map(position => ({id: position.id}))},
         }
