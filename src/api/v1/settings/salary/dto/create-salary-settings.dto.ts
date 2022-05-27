@@ -1,4 +1,4 @@
-import {DatetimeUnit, SalaryType} from "@prisma/client";
+import {DatetimeUnit, EmployeeType, SalaryType} from "@prisma/client";
 import {IsArray, IsBoolean, IsDate, IsEnum, IsNotEmpty, IsNumber, IsOptional, IsString} from "class-validator";
 import {Transform, Type} from "class-transformer";
 import * as moment from "moment";
@@ -47,6 +47,10 @@ export class CreateSalarySettingsDto {
   @IsDate()
   @Transform(({value}) => new Date(moment(value).utc().format('YYYY-MM-DD')))
   readonly endedAt: Date;
+
+  @IsNotEmpty()
+  @IsEnum(EmployeeType)
+  readonly employeeType: EmployeeType;
 
   @IsOptional()
   @IsNumber()

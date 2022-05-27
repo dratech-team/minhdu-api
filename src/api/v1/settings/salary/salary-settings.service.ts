@@ -52,6 +52,7 @@ export class SalarySettingsService {
       startedAt: body?.startedAt,
       endedAt: body?.endedAt,
       branchIds: body?.branchIds,
+      employeeType: body?.employeeType,
       positionIds: body?.positionIds,
     };
   }

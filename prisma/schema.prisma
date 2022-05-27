@@ -307,6 +307,7 @@ model SalarySetting {
   workday        Int?
   startedAt      DateTime?
   endedAt        DateTime?
+  employeeType   EmployeeType @default(FULL_TIME)
   branches       Branch[]
   positions      Position[]
   absents        AbsentSalary[]
