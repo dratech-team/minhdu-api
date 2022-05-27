@@ -16,7 +16,7 @@ export class BasicTemplateService {
           title: body.title,
           type: body.type,
           price: body?.price,
-          branches: {connect: body.branchIds.map(id => ({id}))}
+          branches: {connect: body.branchIds?.map(id => ({id}))}
         },
         include: {
           branches: true
