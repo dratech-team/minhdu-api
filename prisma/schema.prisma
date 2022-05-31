@@ -618,7 +618,7 @@ model OvertimeAllowanceSalary {
   id         Int            @id @default(autoincrement())
   title      String
   price      Float
-  overtime   OvertimeSalary @relation(fields: [overtimeId], references: [id])
+  overtime   OvertimeSalary @relation(fields: [overtimeId], references: [id], onDelete: Cascade)
   overtimeId Int
 }
 
