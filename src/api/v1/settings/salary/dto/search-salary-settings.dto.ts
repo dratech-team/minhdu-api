@@ -1,6 +1,7 @@
 import {IsArray, IsEnum, IsNumber, IsOptional, IsString} from "class-validator";
 import {SalaryType} from "@prisma/client";
 import {Transform, Type} from "class-transformer";
+import {SortSalarySettingsEnum} from "../enums/sort-salary-settings.enum";
 
 export class SearchSalarySettingsDto {
   @IsOptional()
@@ -32,4 +33,13 @@ export class SearchSalarySettingsDto {
     return value;
   })
   readonly types: SalaryType[];
+
+  @IsOptional()
+  @IsString()
+  readonly orderType: "asc" | "desc";
+
+
+  @IsOptional()
+  @IsString()
+  readonly orderBy: SortSalarySettingsEnum;
 }

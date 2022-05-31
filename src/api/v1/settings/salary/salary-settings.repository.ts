@@ -9,6 +9,7 @@ import {ProfileEntity} from "../../../../common/entities/profile.entity";
 import {SearchOneSalarySettingsDto} from "./dto/search-one-salary-settings.dto";
 import {lastDatetime} from "../../../../utils/datetime.util";
 import * as _ from "lodash";
+import {SortSalarySettingsEnum} from "./enums/sort-salary-settings.enum";
 
 @Injectable()
 export class SalarySettingsRepository extends BaseRepository<SalarySetting> {
@@ -56,7 +57,7 @@ export class SalarySettingsRepository extends BaseRepository<SalarySetting> {
 
       // use for holiday to get datetime
       const payroll = search?.payrollId ? await this.prisma.payroll.findUnique({where: {id: search?.payrollId}}) : null;
-
+console.log(search)
       const [total, data] = await Promise.all([
         this.prisma.salarySetting.count({
           where: {
@@ -88,7 +89,22 @@ export class SalarySettingsRepository extends BaseRepository<SalarySetting> {
           include: {
             branches: true,
             positions: true
-          }
+          },
+          orderBy: search?.orderBy && search?.orderType
+            ? search.orderBy === SortSalarySettingsEnum.TITLE
+              ? {title: search.orderType}
+              : search.orderBy === SortSalarySettingsEnum.PRICE
+                ? {prices: search.orderType}
+                : search.orderBy === SortSalarySettingsEnum.UNIT
+                  ? {unit: search.orderType}
+                  : search.orderBy === SortSalarySettingsEnum.DATETIME
+                    ? {startedAt: search.orderType}
+                    : search.orderBy === SortSalarySettingsEnum.RATE
+                      ? {rate: search.orderType}
+                      : search.orderBy === SortSalarySettingsEnum.TYPE
+                        ? {type: search.orderType}
+                        : {}
+            : {title: "asc"}
         }),
       ]);
       return {total, data};
