@@ -29,26 +29,7 @@ export class OrderService {
     const resultFull = await this.repository.findAll(Object.assign({}, search, {take: undefined, skip: undefined}));
     const result = await this.repository.findAll(search);
 
-    const orders = result.data.map((e) => {
-      const order = Object.assign(
-        e,
-        {
-          commodityTotal: this.commodityService.totalCommodities(
-            e.commodities
-          ),
-        },
-        {
-          paymentTotal: this.paymentService.totalPayment(
-            e.paymentHistories
-          ),
-        }
-      );
-      return Object.assign(order, {
-        commodities: order.commodities.map(commodity => {
-          return this.commodityService.handleCommodity(commodity);
-        }),
-      });
-    });
+    const orders = result.data.map((order) => this.mapOrder(order));
     return {
       total: result.total,
       data: orders,
@@ -62,21 +43,7 @@ export class OrderService {
     if (!order) {
       throw new BadRequestException(`Not found id ${id}`);
     }
-    /// Phương thức này fai đứng trước map commodities
-    const commodityTotal = this.commodityService.totalCommodities(
-      order.commodities
-    );
-    return Object.assign(
-      order,
-      {
-        commodities: order.commodities.map((commodity) => {
-            return this.commodityService.handleCommodity(commodity);
-          }
-        ),
-      },
-      {commodityTotal: commodityTotal},
-      {paymentTotal: this.paymentService.totalPayment(order.paymentHistories)}
-    );
+    return this.mapOrder(order);
   }
 
   async update(id: number, updates: UpdateOrderDto) {
@@ -85,11 +52,13 @@ export class OrderService {
     if (found.deliveredAt) {
       throw new BadRequestException("Không được sửa đơn hàng đã được giao thành công.");
     }
-    return await this.repository.update(id, Object.assign(updates, updates.deliveredAt ? {total: found.commodityTotal} : {}));
+    const order = await this.repository.update(id, Object.assign(updates, updates.deliveredAt ? {total: found.commodityTotal} : {}));
+    return this.mapOrder(order);
   }
 
   updateHide(id: number, hide: boolean) {
-    return this.repository.update(id, {hide: hide});
+    const order = this.repository.update(id, {hide: hide});
+    return this.mapOrder(order);
   }
 
   async remove(id: number, canceled?: boolean) {
@@ -100,12 +69,6 @@ export class OrderService {
       );
     }
     return await this.repository.remove(id, canceled);
-  }
-
-  orderTotal(orders: FullOrder[]): number {
-    return orders
-      .map((order) => this.commodityService.totalCommodities(order.commodities))
-      .reduce((a, b) => a + b, 0);
   }
 
   orderUniq(order: FullOrder[]) {
@@ -165,6 +128,23 @@ export class OrderService {
         })),
       },
       200
+    );
+  }
+
+  private mapOrder(order) {
+    const commodityTotal = this.commodityService.totalCommodities(
+      order.commodities
+    );
+    return Object.assign(
+      order,
+      {
+        commodities: order.commodities.map((commodity) => {
+            return this.commodityService.handleCommodity(commodity);
+          }
+        ),
+      },
+      {commodityTotal: commodityTotal},
+      {paymentTotal: this.paymentService.totalPayment(order.paymentHistories)}
     );
   }
 }

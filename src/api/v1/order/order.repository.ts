@@ -86,7 +86,7 @@ export class OrderRepository {
                   lte: search?.deliveredAt_end,
                 }
                 : {},
-            hide: search?.hide === 'true',
+            hide: search?.hiddenDebt !== -1 ? {equals: search?.hiddenDebt === 1} : {},
             customer: search?.customerId
               ? {id: {in: search?.customerId}}
               : {lastName: {startsWith: search?.customer, mode: "insensitive"}},
@@ -94,8 +94,8 @@ export class OrderRepository {
               search?.paidType === PaidEnum.PAID
                 ? {some: {total: {gte: 0}}}
                 : search?.paidType === PaidEnum.UNPAID
-                ? {every: {total: {}}}
-                : {},
+                  ? {every: {total: {}}}
+                  : {},
             province: search?.province
               ? {name: {contains: search?.province, mode: "insensitive"}}
               : {},
@@ -140,7 +140,7 @@ export class OrderRepository {
                   lte: search?.deliveredAt_end,
                 }
                 : {},
-            hide: search?.hide === 'true',
+            hide: search?.hiddenDebt !== -1 ? {equals: search?.hiddenDebt === 1} : {},
             customer: search?.customerId
               ? {id: {in: search?.customerId}}
               : {lastName: {startsWith: search?.customer, mode: "insensitive"}},
@@ -148,8 +148,8 @@ export class OrderRepository {
               search?.paidType === PaidEnum.PAID
                 ? {some: {total: {gte: 0}}}
                 : search?.paidType === PaidEnum.UNPAID
-                ? {every: {total: {}}}
-                : {},
+                  ? {every: {total: {}}}
+                  : {},
             province: search?.province
               ? {name: {contains: search?.province, mode: "insensitive"}}
               : {},
@@ -213,9 +213,12 @@ export class OrderRepository {
         },
         include: {
           commodities: true,
+          customer: true,
+          routes: true,
           province: true,
           district: true,
           ward: true,
+          paymentHistories: true,
         },
       });
     } catch (err) {

@@ -3,6 +3,7 @@ import {Customer, PaymentType} from "@prisma/client";
 import {IsEnum, IsNumber, IsOptional, IsString} from "class-validator";
 import {Type} from "class-transformer";
 import {SearchRangeDto} from "../../../../common/dtos/search-range.dto";
+import {number} from "joi";
 
 export class SearchOrderDto extends SearchRangeDto {
   @IsOptional()
@@ -49,7 +50,9 @@ export class SearchOrderDto extends SearchRangeDto {
   readonly status: 0 | 1 | -1;
 
   @IsOptional()
-  readonly hide: string;
+  @IsNumber({}, {each: true})
+  @Type(() => Number)
+  readonly hiddenDebt: 0 | 1 | -1;
 
 
   @IsOptional()

@@ -43,6 +43,9 @@ export class PaymentHistoryRepository {
           where: {
             customer: {id: customerId},
           },
+          include: {
+            order: true
+          }
         }),
       ]);
       return {
