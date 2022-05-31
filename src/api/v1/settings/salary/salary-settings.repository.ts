@@ -57,7 +57,7 @@ export class SalarySettingsRepository extends BaseRepository<SalarySetting> {
 
       // use for holiday to get datetime
       const payroll = search?.payrollId ? await this.prisma.payroll.findUnique({where: {id: search?.payrollId}}) : null;
-console.log(search)
+
       const [total, data] = await Promise.all([
         this.prisma.salarySetting.count({
           where: {
