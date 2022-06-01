@@ -148,10 +148,10 @@ export class PayrollService {
       return deduction.price;
     }).reduce((a, b) => a + b, 0);
     const overtime = _.flattenDeep(payroll.overtimes.map(overtime => {
-      return SalaryFunctions.handleOvertimeOrHoliday(Object.assign(overtime, {type: "overtime"}), payroll).map(overtime => overtime.total);
+      return SalaryFunctions.handleOvertime(overtime, payroll).map(overtime => overtime.total);
     })).reduce((a, b) => a + b, 0);
-    const holiday = _.flattenDeep(payroll.holidays.map(overtime => {
-      return SalaryFunctions.handleOvertimeOrHoliday(Object.assign(overtime, {type: "overtime"}), payroll).map(overtime => overtime.total);
+    const holiday = _.flattenDeep(payroll.holidays.map(holiday => {
+      return SalaryFunctions.handleHoliday(holiday, payroll).map(overtime => overtime.total);
     })).reduce((a, b) => a + b, 0);
     const tax = payroll.taxed && payroll.tax ? (payroll.salariesv2?.find(salary => salary.type === SalaryType.BASIC_INSURANCE)?.price || 0) * payroll.tax : 0;
     return salary + allowance + overtime + holiday - absent - deduction - tax;
@@ -185,7 +185,7 @@ export class PayrollService {
       return Object.assign(remote, {total: 0, duration: duration});
     });
     const overtimes = payroll.overtimes.map(overtime => {
-      const details = SalaryFunctions.handleOvertimeOrHoliday(Object.assign(overtime, {type: "overtime"}), payroll as any);
+      const details = SalaryFunctions.handleOvertime(Object.assign(overtime, {type: "overtime"}), payroll as any);
       return Object.assign(overtime, {
         total: details.map(e => e.total).reduce((a, b) => a + b, 0),
         duration: details.map(e => e.duration).reduce((a, b) => a + b, 0),
@@ -193,7 +193,7 @@ export class PayrollService {
       });
     });
     const holidays = payroll.holidays.map(holiday => {
-      const details = SalaryFunctions.handleOvertimeOrHoliday(Object.assign(holiday, {type: "holiday"}), payroll as any);
+      const details = SalaryFunctions.handleOvertime(Object.assign(holiday, {type: "holiday"}), payroll as any);
       return Object.assign(holiday, {
         total: details.map(e => e.total).reduce((a, b) => a + b, 0),
         duration: details.map(e => e.duration).reduce((a, b) => a + b, 0),

@@ -133,12 +133,46 @@ const handleAllowance = (allowance: AllowanceSalary, payroll: PayrollEntity): { 
   };
 };
 
-const handleOvertimeOrHoliday = (salary: OvertimeEntity | HolidayEntity, payroll: PayrollEntity): Array<HandleOvertimeEntity> => {
+const handleOvertime = (salary: OvertimeEntity, payroll: PayrollEntity): Array<HandleOvertimeEntity> => {
   const absentRange = absentUniq(payroll.absents);
   let duration = getWorkday(payroll) - (payroll.workday || payroll.employee.workday);
   const datetimes = dateFns.eachDayOfInterval({
-    start: salary?.setting.type === "OVERTIME" ? (salary as OvertimeEntity).startedAt : (salary as HolidayEntity).setting.startedAt,
-    end: salary?.setting.type === "OVERTIME" ? (salary as OvertimeEntity).endedAt : (salary as HolidayEntity).setting.endedAt,
+    start: salary.startedAt,
+    end: salary.endedAt,
+  });
+
+  const newOvertimes = datetimes.map(datetime => Object.assign({}, salary, {datetime}))
+    .map(e => {
+      if (!absentRange.map(e => e.datetime.getTime()).includes(e.datetime.getTime())) {
+        return Object.assign(e, {duration: 1});
+      }
+      const absent = absentRange.find(e => e.datetime.getTime() === e.datetime.getTime());
+      return Object.assign(e, {duration: absent.partial !== PartialDay.ALL_DAY ? 0.5 : 0});
+    })
+    .map((e, i) => {
+      const setting = Object.assign({}, e.setting, {rate: duration > 0 ? e.setting.rate : 1});
+      duration -= 1;
+      return Object.assign(e, {setting});
+    })
+    .map(overtime => {
+      const settingTotal = totalSetting(overtime.setting, payroll);
+      const allowanceTotal = overtime.allowances?.map(allowance => allowance.price)?.reduce((a, b) => a + b);
+      return Object.assign(overtime, {totalSetting: settingTotal, allowanceTotal: allowanceTotal});
+    });
+  return newOvertimes.map((salary) => Object.assign({}, salary, {
+    price: salary.totalSetting,
+    rate: salary.setting.rate,
+    datetime: salary.datetime,
+    total: salary.totalSetting * salary.duration * salary.setting.rate
+  }));
+};
+
+const handleHoliday = (salary: HolidayEntity, payroll: PayrollEntity) => {
+  const absentRange = absentUniq(payroll.absents);
+  let duration = getWorkday(payroll) - (payroll.workday || payroll.employee.workday);
+  const datetimes = dateFns.eachDayOfInterval({
+    start: salary.setting.startedAt,
+    end: salary.setting.endedAt,
   });
 
   const newOvertimes = datetimes.map(datetime => Object.assign({}, salary, {datetime}))
@@ -180,7 +214,8 @@ const dayoffUniq = (dayoffs: DayOffSalary[]) => {
 
 export const SalaryFunctions = {
   totalSetting,
-  handleOvertimeOrHoliday,
+  handleOvertime,
+  handleHoliday,
   handleAllowance,
   getWorkday,
   handleAbsent,
