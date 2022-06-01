@@ -245,7 +245,7 @@ export class PayrollService {
   }
 
   async remove(profile: ProfileEntity, id: number) {
-    return this.repository.remove(profile, id);
+    return this.repository.remove(id);
   }
 
   async findFirst(query: any) {
