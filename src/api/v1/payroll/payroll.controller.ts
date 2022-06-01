@@ -106,8 +106,8 @@ export class PayrollController {
 
   @UseGuards(LoggerGuard)
   @Delete(":id")
-  remove(@ReqProfile() profile: ProfileEntity, @Param("id") id: number) {
-    return this.payrollService.remove(profile, +id);
+  remove(@Param("id") id: number) {
+    return this.payrollService.remove(+id);
   }
 
   @UseGuards(LoggerGuard)
