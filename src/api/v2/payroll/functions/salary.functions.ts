@@ -156,14 +156,14 @@ const handleOvertime = (salary: OvertimeEntity, payroll: PayrollEntity): Array<H
     })
     .map(overtime => {
       const settingTotal = totalSetting(overtime.setting, payroll);
-      const allowanceTotal = overtime.allowances?.map(allowance => allowance.price)?.reduce((a, b) => a + b);
+      const allowanceTotal = overtime.allowances?.map(allowance => allowance.price)?.reduce((a, b) => a + b, 0);
       return Object.assign(overtime, {totalSetting: settingTotal, allowanceTotal: allowanceTotal});
     });
   return newOvertimes.map((salary) => Object.assign({}, salary, {
     price: salary.totalSetting,
     rate: salary.setting.rate,
     datetime: salary.datetime,
-    total: salary.totalSetting * salary.duration * salary.setting.rate
+    total: salary.totalSetting * salary.duration * salary.setting.rate + salary.allowanceTotal
   }));
 };
 
