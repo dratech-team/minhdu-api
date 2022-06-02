@@ -135,9 +135,11 @@ export class PayrollService {
   }
 
   private totalSalaryCTL(payroll: PayrollEntity): number {
+    const actualDay = SalaryFunctions.getWorkday(payroll);
     const salary = payroll.salariesv2?.filter(salary => salary.type === SalaryType.BASIC_INSURANCE || salary.type === SalaryType.BASIC || salary.type === SalaryType.STAY).map(salary => {
       return salary.price * salary.rate;
     }).reduce((a, b) => a + b, 0);
+
     const allowance = payroll.allowances.map(allowance => {
       return SalaryFunctions.handleAllowance(allowance, payroll).total;
     }).reduce((a, b) => a + b, 0);
@@ -155,7 +157,7 @@ export class PayrollService {
       return SalaryFunctions.handleHoliday(holiday, payroll).map(overtime => overtime.total);
     })).reduce((a, b) => a + b, 0);
     const tax = payroll.taxed && payroll.tax ? (payroll.salariesv2?.find(salary => salary.type === SalaryType.BASIC_INSURANCE)?.price || 0) * payroll.tax : 0;
-    return salary + allowance + overtime + holiday - absent - deduction - tax;
+    return (salary / (payroll.workday || payroll.employee.workday)) * actualDay + allowance + overtime + holiday - absent - deduction - tax;
   }
 
   private mapToPayslip(payroll: PayrollEntity) {

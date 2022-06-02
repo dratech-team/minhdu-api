@@ -22,13 +22,13 @@ const uniqSalary = (items: Array<AbsentEntity | DayoffEnity | AllowanceSalary | 
 };
 
 const getWorkday = (payroll: PayrollEntity) => {
-  const absentDuration = payroll.absents
-      ?.map(absent => handleAbsent(absent, payroll).duration * (absent.partial === PartialDay.ALL_DAY ? 1 : 0.5))
-      ?.reduce((a, b) => a + b, 0)
-    + payroll.dayoffs
-      ?.map(dayoff => handleDayOff(dayoff, payroll).duration * (dayoff.partial === PartialDay.ALL_DAY ? 1 : 0.5))
-      .reduce((a, b) => a + b, 0);
-  return (dateFns.isSameMonth(new Date(), payroll.createdAt) ? new Date().getDate() + 1 : dateFns.getDaysInMonth(payroll.createdAt)) - (absentDuration + (payroll.createdAt.getDate() - 1));
+  const absent = payroll.absents
+    ?.map(absent => handleAbsent(absent, payroll).duration * (absent.partial === PartialDay.ALL_DAY ? 1 : 0.5))
+    ?.reduce((a, b) => a + b, 0);
+  const dayoff = payroll.dayoffs
+    ?.map(dayoff => handleDayOff(dayoff, payroll).duration * (dayoff.partial === PartialDay.ALL_DAY ? 1 : 0.5))
+    .reduce((a, b) => a + b, 0);
+  return (dateFns.isSameMonth(new Date(), payroll.createdAt) ? new Date().getDate() + 1 : dateFns.getDaysInMonth(payroll.createdAt)) - (absent + dayoff + (payroll.createdAt.getDate() - 1));
 };
 
 const handleAbsent = (absent: AbsentEntity, payroll: PayrollEntity): { duration: number, price: number } => {
