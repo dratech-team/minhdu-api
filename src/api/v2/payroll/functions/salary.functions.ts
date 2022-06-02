@@ -133,21 +133,25 @@ const handleAllowance = (allowance: AllowanceSalary, payroll: PayrollEntity): { 
   };
 };
 
-const handleOvertime = (salary: OvertimeEntity, payroll: PayrollEntity): Array<HandleOvertimeEntity> => {
+const handleOvertime = (overtime: OvertimeEntity, payroll: PayrollEntity): Array<HandleOvertimeEntity> => {
   const absentRange = absentUniq(payroll.absents);
   let duration = getWorkday(payroll) - (payroll.workday || payroll.employee.workday);
   const datetimes = dateFns.eachDayOfInterval({
-    start: salary.startedAt,
-    end: salary.endedAt,
+    start: overtime.startedAt,
+    end: overtime.endedAt,
   });
 
-  const newOvertimes = datetimes.map(datetime => Object.assign({}, salary, {datetime}))
+  const newOvertimes = datetimes.map(datetime => Object.assign({}, overtime, {datetime}))
     .map(e => {
-      if (!absentRange.map(e => e.datetime.getTime()).includes(e.datetime.getTime())) {
-        return Object.assign(e, {duration: 1});
-      }
       const absent = absentRange.find(e => e.datetime.getTime() === e.datetime.getTime());
-      return Object.assign(e, {duration: absent.partial !== PartialDay.ALL_DAY ? 0.5 : 0});
+      const duration = overtime.setting.unit === DatetimeUnit.HOUR
+        ? dateFns.differenceInMinutes(overtime.endTime, overtime.startTime) / 60
+        : !absentRange.map(e => e.datetime.getTime()).includes(e.datetime.getTime())
+          ? 1
+          : absent.partial !== PartialDay.ALL_DAY
+            ? 0.5
+            : 0;
+      return Object.assign(e, {duration: duration});
     })
     .map((e, i) => {
       const setting = Object.assign({}, e.setting, {rate: duration > 0 ? e.setting.rate : 1});
