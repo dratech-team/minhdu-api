@@ -17,7 +17,7 @@ import {crudManyResponse} from "../../v1/salaries/base/functions/response.functi
 import {SearchPayrollDto} from "../../v1/payroll/dto/search-payroll.dto";
 import {FilterTypeEnum} from "../../v1/payroll/entities/filter-type.enum";
 import * as _ from "lodash";
-import {PartialDay, SalaryType} from "@prisma/client";
+import {DatetimeUnit, PartialDay, SalaryType} from "@prisma/client";
 import * as dateFns from "date-fns";
 import {PayrollEntity} from "./entities";
 import {TAX} from "../../../common/constant";
@@ -130,7 +130,8 @@ export class PayrollService {
   }
 
   async update(profile: ProfileEntity, id: number, updates: UpdatePayrollDto) {
-    return this.mapToPayslip(this.repository.update(profile, id, updates));
+    const payroll = await this.repository.update(profile, id, updates);
+    return this.mapToPayslip(payroll);
   }
 
   private totalSalaryCTL(payroll: PayrollEntity): number {
@@ -157,7 +158,7 @@ export class PayrollService {
     return salary + allowance + overtime + holiday - absent - deduction - tax;
   }
 
-  private mapToPayslip(payroll) {
+  private mapToPayslip(payroll: PayrollEntity) {
     // handle
     const allowances = payroll.allowances.map(allowance => {
       const a = SalaryFunctions.handleAllowance(allowance, payroll as any);
@@ -168,7 +169,7 @@ export class PayrollService {
       return Object.assign(absent, {
         price: a.price,
         duration: a.duration,
-        total: a.price * a.duration * a.duration * (absent.partial !== PartialDay.ALL_DAY ? 0.5 : 1)
+        total: a.price * a.duration / (absent.setting.unit === DatetimeUnit.MINUTE ? 8 / 60 : 1) * (absent.partial !== PartialDay.ALL_DAY ? 0.5 : 1)
       });
     });
     const dayoff = payroll.dayoffs.map(dayoff => {
@@ -193,7 +194,7 @@ export class PayrollService {
       });
     });
     const holidays = payroll.holidays.map(holiday => {
-      const details = SalaryFunctions.handleOvertime(Object.assign(holiday, {type: "holiday"}), payroll as any);
+      const details = SalaryFunctions.handleHoliday(holiday, payroll as any);
       return Object.assign(holiday, {
         total: details.map(e => e.total).reduce((a, b) => a + b, 0),
         duration: details.map(e => e.duration).reduce((a, b) => a + b, 0),

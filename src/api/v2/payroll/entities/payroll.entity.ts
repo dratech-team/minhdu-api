@@ -9,11 +9,12 @@ export interface PayrollEntity extends Payroll {
   readonly employee: OneEmployee;
   readonly salaries: Salary[];
   readonly salariesv2: Salaryv2[];
-  readonly allowances: AllowanceSalary[];
   readonly absents: AbsentEntity[];
-  readonly dayoffs: DayOffSalary[];
   readonly deductions: DeductionSalary[];
   readonly overtimes: OvertimeEntity[];
+  readonly dayoffs: DayOffSalary[];
+  readonly allowances: AllowanceSalary[];
   readonly remotes: RemoteEntity[];
   readonly holidays: HolidayEntity[];
 }
+

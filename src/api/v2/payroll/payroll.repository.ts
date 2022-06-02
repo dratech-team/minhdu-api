@@ -2,18 +2,16 @@ import {BadRequestException, Injectable, NotFoundException} from "@nestjs/common
 import {BaseRepository} from "../../../common/repository/base.repository";
 import {PayrollEntity} from "./entities";
 import {PrismaService} from "../../../prisma.service";
-import {CreatePayrollDto} from "../../v1/payroll/dto/create-payroll.dto";
 import {TAX} from "../../../common/constant";
 import {ProfileEntity} from "../../../common/entities/profile.entity";
 import {EmployeeType, RecipeType, RoleEnum, SalaryType} from "@prisma/client";
-import * as _ from "lodash";
 import {SearchPayrollDto} from "../../v1/payroll/dto/search-payroll.dto";
 import {StatusEnum} from "../../../common/enum/status.enum";
 import {OrderbyEmployeeEnum} from "../../v1/employee/enums/orderby-employee.enum";
 import {firstDatetime, lastDatetime} from "../../../utils/datetime.util";
 import {UpdatePayrollDto} from "../../v1/payroll/dto/update-payroll.dto";
 import * as moment from "moment";
-import {ResponsePagination} from "../../../common/entities/response.pagination";
+import {CreatePayrollDto} from "./dto/create-payroll.dto";
 
 @Injectable()
 export class PayrollRepository extends BaseRepository<PayrollEntity> {
@@ -51,11 +49,11 @@ export class PayrollRepository extends BaseRepository<PayrollEntity> {
     }
   }
 
-  async createMany(profile: ProfileEntity, body: CreatePayrollDto[]) {
-    const bodys = await Promise.all(body.map(async e => {
+  async createMany(profile: ProfileEntity, bodys: CreatePayrollDto[]) {
+    const payrolls = await Promise.all(bodys.map(async body => {
       const payroll = await this.prisma.payroll.findFirst({
         where: {
-          employee: {id: {in: e.employeeId}},
+          employee: {id: {in: body.employeeId}},
           deletedAt: {in: null},
           salaries: {
             some: {
@@ -63,26 +61,46 @@ export class PayrollRepository extends BaseRepository<PayrollEntity> {
             },
           }
         },
-        include: {salaries: true},
+        include: {salariesv2: true},
         orderBy: {
           createdAt: "desc"
         }
       });
-      const salaries = payroll?.salaries?.filter(
+      const salaries = payroll?.salariesv2?.filter(
         (salary) =>
           salary.type === SalaryType.BASIC ||
           salary.type === SalaryType.BASIC_INSURANCE ||
           salary.type === SalaryType.STAY
       );
-      return Object.assign({}, e, salaries?.length ? {
-        createMany: {
-          data: salaries.map((salary) => _.omit(salary, ["payrollId", "id"])),
-        },
-      } : {});
+      return await this.prisma.payroll.create({
+        data: {
+          createdAt: body.createdAt,
+          branch: body.branch,
+          position: body.position,
+          recipeType: body.recipeType,
+          workday: body.workday,
+          isFlatSalary: body.isFlatSalary,
+          tax: body.tax,
+          taxed: body.taxed,
+          employeeId: body.employeeId,
+          salariesv2: salaries?.length
+            ? {
+              createMany: {
+                data: salaries.map(salary => ({
+                  title: salary.title,
+                  type: salary.type,
+                  price: salary.price,
+                  rate: salary.rate,
+                  note: salary.note,
+                  blockId: salary.blockId,
+                }))
+              }
+            }
+            : {}
+        }
+      });
     }));
-    return this.prisma.payroll.createMany({
-      data: bodys
-    });
+    return {count: payrolls.length};
   }
 
   async findAll(profile: ProfileEntity, search?: Partial<SearchPayrollDto>) {
@@ -296,6 +314,14 @@ export class PayrollRepository extends BaseRepository<PayrollEntity> {
           note: updates?.note,
         },
         include: {
+          employee: {
+            include: {
+              contracts: true,
+              position: true,
+              branch: true,
+              category: true
+            },
+          },
           salaries: {
             include: {
               allowance: true
@@ -306,15 +332,9 @@ export class PayrollRepository extends BaseRepository<PayrollEntity> {
           deductions: true,
           remotes: {include: {block: true}},
           overtimes: {include: {block: true, setting: true, allowances: true}},
+          dayoffs: true,
           allowances: true,
-          employee: {
-            include: {
-              contracts: true,
-              position: true,
-              branch: true,
-              category: true
-            },
-          },
+          holidays: {include: {setting: true}}
         },
       });
     } catch (e) {
