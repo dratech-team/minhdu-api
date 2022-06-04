@@ -65,7 +65,7 @@ export class AuthService {
         throw new UnauthorizedException("Tên đăng nhập hoặc mật khẩu không hợp lệ. Vui lòng kiểm tra lại");
       }
 
-      const token = this.jwtService.sign(Object.assign(user, {role: user?.role?.role}));
+      const token = this.jwtService.sign(user);
       // save logged at
       this.prisma.account.update({
         where: {id: user.id},
@@ -74,7 +74,7 @@ export class AuthService {
           ip: ipaddress,
           // token: 'Bearer ' + token,
         }
-      }).then(v => console.log("login success ", v));
+      });
       return Object.assign(user, {token: token});
     } catch (err) {
       console.error(err);
