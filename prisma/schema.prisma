@@ -25,6 +25,7 @@ model Account {
   managedBy RoleEnum?
   token     String?
   appName   AppEnum?
+  mode      String?   @default("prod")
   loggedAt  DateTime? @default(now())
   ip        String?
   branches  Branch[]
