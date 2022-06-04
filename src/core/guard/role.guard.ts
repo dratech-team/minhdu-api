@@ -20,7 +20,7 @@ export class RolesGuard implements CanActivate {
   }
 
   validateRolesRequest(request, roles: Role[]): boolean {
-    return roles.includes(request?.user?.role);
+    return roles.includes(request?.user?.role?.role);
   }
 
   // async validateSessionReq(request): Promise<boolean> {
