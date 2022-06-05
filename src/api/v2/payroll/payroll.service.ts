@@ -17,7 +17,7 @@ import {crudManyResponse} from "../../v1/salaries/base/functions/response.functi
 import {SearchPayrollDto} from "../../v1/payroll/dto/search-payroll.dto";
 import {FilterTypeEnum} from "../../v1/payroll/entities/filter-type.enum";
 import * as _ from "lodash";
-import {DatetimeUnit, PartialDay, SalaryType} from "@prisma/client";
+import {DatetimeUnit, PartialDay, RecipeType, SalaryType} from "@prisma/client";
 import * as dateFns from "date-fns";
 import {PayrollEntity} from "./entities";
 import {TAX} from "../../../common/constant";
@@ -135,10 +135,16 @@ export class PayrollService {
   }
 
   private totalSalaryCTL(payroll: PayrollEntity): number {
+    const workday = payroll.workday || payroll.employee.workday || payroll.employee.position.workday;
     const actualDay = SalaryFunctions.getWorkday(payroll);
-    const salary = payroll.salariesv2?.filter(salary => salary.type === SalaryType.BASIC_INSURANCE || salary.type === SalaryType.BASIC || salary.type === SalaryType.STAY).map(salary => {
+    const totalBasicSalary = payroll.salariesv2?.filter(salary => salary.type === SalaryType.BASIC_INSURANCE || salary.type === SalaryType.BASIC).map(salary => {
       return salary.price * salary.rate;
     }).reduce((a, b) => a + b, 0);
+    const totalStaySalary = payroll.salariesv2?.filter(salary => salary.type === SalaryType.BASIC_INSURANCE || salary.type === SalaryType.BASIC).map(salary => {
+      return salary.price * salary.rate;
+    }).reduce((a, b) => a + b, 0);
+
+    const salary = totalBasicSalary + totalStaySalary;
 
     const allowance = payroll.allowances.map(allowance => {
       return SalaryFunctions.handleAllowance(allowance, payroll).total;
@@ -157,6 +163,14 @@ export class PayrollService {
       return SalaryFunctions.handleHoliday(holiday, payroll).map(overtime => overtime.total);
     })).reduce((a, b) => a + b, 0);
     const tax = payroll.taxed && payroll.tax ? (payroll.salariesv2?.find(salary => salary.type === SalaryType.BASIC_INSURANCE)?.price || 0) * payroll.tax : 0;
+
+    const salaryPerDay = payroll.recipeType === RecipeType.CT1 || actualDay >= workday
+      ? totalBasicSalary / workday
+      : (totalBasicSalary + totalStaySalary) / workday;
+    // const staySalary =
+    //   actualDay >= workday
+    //     ? this.totalStaySalary(payroll.salaries)
+    //     : (this.totalStaySalary(payroll.salaries) / workday) * actualDay;
     return (salary / (payroll.workday || payroll.employee.workday)) * actualDay + allowance + overtime + holiday - absent - deduction - tax;
   }
 

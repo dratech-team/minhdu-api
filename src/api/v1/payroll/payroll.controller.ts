@@ -112,7 +112,7 @@ export class PayrollController {
 
   @UseGuards(LoggerGuard)
   @Roles(RoleEnum.SUPPER_ADMIN, RoleEnum.ADMIN, RoleEnum.HUMAN_RESOURCE, RoleEnum.CAMP_ACCOUNTING)
-  @Get("/:id/payslip")
+  @Get("/payslip/:id")
   async confirmPayslip(@Param("id") id: number) {
     return await this.payrollService.confirmPayslip(+id);
   }
