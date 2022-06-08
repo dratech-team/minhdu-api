@@ -232,10 +232,10 @@ export class PayrollRepository extends BaseRepository<PayrollEntity> {
           absents: {include: {setting: true}},
           deductions: true,
           remotes: {include: {block: true}},
-          overtimes: {include: {block: true, setting: true, allowances: true}},
+          overtimes: {include: {block: true, setting: {include: {rateCondition: true}}, allowances: true}},
           dayoffs: true,
           allowances: true,
-          holidays: {include: {setting: true}}
+          holidays: {include: {setting: {include: {rateCondition: true}}}}
         },
       });
 
@@ -331,10 +331,10 @@ export class PayrollRepository extends BaseRepository<PayrollEntity> {
           absents: {include: {setting: true}},
           deductions: true,
           remotes: {include: {block: true}},
-          overtimes: {include: {block: true, setting: true, allowances: true}},
+          overtimes: {include: {block: true, setting: {include: {rateCondition: true}}, allowances: true}},
           dayoffs: true,
           allowances: true,
-          holidays: {include: {setting: true}}
+          holidays: {include: {setting: {include: {rateCondition: true}}}}
         },
       });
     } catch (e) {

@@ -97,6 +97,9 @@ export class PayrollService {
           })
         };
       }
+      case FilterTypeEnum.SEASONAL: {
+        break;
+      }
       case FilterTypeEnum.OVERTIME: {
         const [total, data] = await Promise.all([
           this.overtimeService.count(search),

@@ -1,7 +1,15 @@
 import {AbsentEntity} from "../../../v1/payroll/entities/absent.entity";
 import {AllowanceType, PayrollEntity} from "../entities";
 import * as dateFns from "date-fns";
-import {AllowanceSalary, DatetimeUnit, DayOffSalary, PartialDay, SalarySetting, SalaryType} from "@prisma/client";
+import {
+  AllowanceSalary,
+  DatetimeUnit,
+  DayOffSalary,
+  PartialDay,
+  RateConditionType,
+  SalarySetting,
+  SalaryType
+} from "@prisma/client";
 import {OvertimeEntity} from "../../../v1/salaries/overtime/entities";
 import {HolidayEntity} from "../../salaries/holiday/entities/holiday.entity";
 import {HandleOvertimeEntity} from "../entities/handle-overtime.entity";
@@ -135,7 +143,12 @@ const handleAllowance = (allowance: AllowanceSalary, payroll: PayrollEntity): { 
 
 const handleOvertime = (overtime: OvertimeEntity, payroll: PayrollEntity): Array<HandleOvertimeEntity> => {
   const absentRange = absentUniq(payroll.absents);
-  let duration = getWorkday(payroll) - (payroll.workday || payroll.employee.workday);
+  const totalAbsent = absentRange.reduce((a, b) => a + (b.partial === PartialDay.ALL_DAY ? 1 : 0.5), 0);
+  const withOf = ((overtime.setting.rateCondition.with === 0 ? (payroll.workday || payroll.employee.workday) : overtime.setting.rateCondition.with) || overtime.setting.rateCondition.default);
+  let duration = overtime.setting.rateCondition.type === RateConditionType.WORKDAY
+    ? getWorkday(payroll) - withOf
+    : totalAbsent - withOf;
+
   const datetimes = dateFns.eachDayOfInterval({
     start: overtime.startedAt,
     end: overtime.endedAt,
