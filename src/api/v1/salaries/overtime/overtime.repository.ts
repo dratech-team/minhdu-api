@@ -133,7 +133,22 @@ export class OvertimeRepository extends BaseRepository<OvertimeEntity> {
 
   async update(id: number, body: UpdateOvertimeDto) {
     try {
-      return `Chưa làm`;
+      return await this.prisma.overtimeSalary.update({
+        where: {id},
+        data: {
+          startedAt: body.startedAt,
+          endedAt: body.endedAt,
+          startTime: body.startTime,
+          endTime: body.endTime,
+          partial: body.partial,
+          allowances: body?.allowances?.length ? {
+            createMany: {data: body.allowances}
+          } : {},
+          blockId: body.blockId,
+          settingId: body.settingId,
+          note: body.note,
+        }
+      });
     } catch (err) {
       console.error(err);
       throw new BadRequestException(err);
@@ -142,10 +157,8 @@ export class OvertimeRepository extends BaseRepository<OvertimeEntity> {
 
   async updateMany(ids: number[], body: CreateOvertimeDto) {
     try {
-      return await this.prisma.overtimeSalary.updateMany({
-        where: {id: {in: ids}},
-        data: body
-      });
+      const count = await Promise.all(ids.map(async id => await this.update(id, body)));
+      return {count: count.length};
     } catch (err) {
       console.error(err);
       throw new BadRequestException(err);
@@ -154,7 +167,7 @@ export class OvertimeRepository extends BaseRepository<OvertimeEntity> {
 
   async remove(id: number) {
     try {
-      return `Chưa làm`;
+      return await this.prisma.overtimeSalary.delete({where: {id}});
     } catch (err) {
       console.error(err);
       throw new BadRequestException(err);

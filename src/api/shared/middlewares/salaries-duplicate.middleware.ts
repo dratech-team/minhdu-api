@@ -3,6 +3,7 @@ import {NextFunction, Request, Response} from "express";
 import {ApiConstant} from "../../../common/constant";
 import {PrismaService} from "../../../prisma.service";
 import {rangeDatetimeQuery} from "../../v1/salaries/common/queries/range-datetime.query";
+import {DatetimeUnit, PartialDay} from "@prisma/client";
 
 // check đã tồn tại ngày của block đó
 @Injectable()
@@ -27,7 +28,8 @@ export class SalariesDuplicateMiddleware implements NestMiddleware {
         : req.path.includes(ApiConstant.V1.SALARY.ABSENT)
           ? await this.prisma.absentSalary.findMany({where: where})
           : await this.prisma.remoteSalary.findMany({where: where});
-    if (!req.path.includes(ApiConstant.V1.SALARY.ALLOWANCE) && data.length) {
+    console.log((req.body as any))
+    if (!req.path.includes(ApiConstant.V1.SALARY.ALLOWANCE) && data.length && (req.body as any)?.partial === PartialDay.ALL_DAY) {
       throw new BadRequestException("Có ngày nào đó đã tồn tại rồi. Vui lòng kiểm tra lại");
     }
     // if (req.path.includes(ApiV2Constant.SALARY.ALLOWANCE) || req.path.includes(ApiV2Constant.SALARY.OVERTIME)) {

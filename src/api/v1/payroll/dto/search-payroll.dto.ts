@@ -72,7 +72,13 @@ export class SearchPayrollDto extends SortDto {
   @Type(() => Number)
   @Transform(({value}) => +value)
   @IsNumber()
-  readonly isConfirm: number;
+  readonly isAccConfirm: number;
+
+  @IsOptional()
+  @Type(() => Number)
+  @Transform(({value}) => +value)
+  @IsNumber()
+  readonly isManConfirm: number;
 
   @IsOptional()
   @Type(() => Number)
