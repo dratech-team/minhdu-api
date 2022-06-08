@@ -2,7 +2,7 @@ import {AbsentEntity} from "../../../v1/payroll/entities/absent.entity";
 import {AllowanceType, PayrollEntity} from "../entities";
 import * as dateFns from "date-fns";
 import {
-  AllowanceSalary,
+  AllowanceSalary, ConditionType,
   DatetimeUnit,
   DayOffSalary,
   PartialDay,
@@ -140,12 +140,19 @@ const handleAllowance = (allowance: AllowanceSalary, payroll: PayrollEntity): { 
 };
 
 const handleOvertime = (overtime: OvertimeEntity, payroll: PayrollEntity): Array<HandleOvertimeEntity> => {
+  const rateCondition = overtime.setting.rateCondition;
+
   const absentRange = absentUniq(payroll.absents);
   const totalAbsent = absentRange.reduce((a, b) => a + (b.partial === PartialDay.ALL_DAY ? 1 : 0.5), 0);
-  const withOf = ((overtime.setting.rateCondition.with === 0 ? (payroll.workday || payroll.employee.workday) : overtime.setting.rateCondition.with) || overtime.setting.rateCondition.default);
-  let duration = overtime.setting.rateCondition.type === RateConditionType.WORKDAY
-    ? getWorkday(payroll) - withOf
-    : totalAbsent - withOf;
+  const withOf = rateCondition.with === 0 ? (payroll.workday || payroll.employee.workday) : rateCondition.with;
+
+  let duration = rateCondition.type === RateConditionType.WORKDAY
+    ? rateCondition.condition === ConditionType.GREATER || rateCondition.condition === ConditionType.GREATER_EQUAL
+      ? getWorkday(payroll) - withOf
+      : withOf - getWorkday(payroll)
+    : rateCondition.condition === ConditionType.GREATER || rateCondition.condition === ConditionType.GREATER_EQUAL
+      ? totalAbsent - withOf
+      : withOf - totalAbsent;
 
   const datetimes = dateFns.eachDayOfInterval({
     start: overtime.startedAt,
@@ -165,7 +172,11 @@ const handleOvertime = (overtime: OvertimeEntity, payroll: PayrollEntity): Array
       return Object.assign(e, {duration: duration});
     })
     .map((e, i) => {
-      const setting = Object.assign({}, e.setting, {rate: duration > 0 ? e.setting.rate : 1});
+      const setting = Object.assign({}, e.setting, {
+        rate: e.setting.rateCondition.condition === ConditionType.NO_CONDITION
+          ? e.setting.rate
+          : duration > 0 ? e.setting.rate : e.setting.rateCondition.default
+      });
       duration -= 1;
       return Object.assign(e, {setting});
     })
@@ -182,15 +193,27 @@ const handleOvertime = (overtime: OvertimeEntity, payroll: PayrollEntity): Array
   }));
 };
 
-const handleHoliday = (salary: HolidayEntity, payroll: PayrollEntity) => {
+const handleHoliday = (holiday: HolidayEntity, payroll: PayrollEntity) => {
+  const rateCondition = holiday.setting.rateCondition;
+
   const absentRange = absentUniq(payroll.absents);
-  let duration = getWorkday(payroll) - (payroll.workday || payroll.employee.workday);
+  const totalAbsent = absentRange.reduce((a, b) => a + (b.partial === PartialDay.ALL_DAY ? 1 : 0.5), 0);
+  const withOf = rateCondition.with === 0 ? (payroll.workday || payroll.employee.workday) : rateCondition.with;
+
+  let duration = rateCondition.type === RateConditionType.WORKDAY
+    ? rateCondition.condition === ConditionType.GREATER || rateCondition.condition === ConditionType.GREATER_EQUAL
+      ? getWorkday(payroll) - withOf
+      : withOf - getWorkday(payroll)
+    : rateCondition.condition === ConditionType.GREATER || rateCondition.condition === ConditionType.GREATER_EQUAL
+      ? totalAbsent - withOf
+      : withOf - totalAbsent;
+
   const datetimes = dateFns.eachDayOfInterval({
-    start: salary.setting.startedAt,
-    end: salary.setting.endedAt,
+    start: holiday.setting.startedAt,
+    end: holiday.setting.endedAt,
   });
 
-  const newOvertimes = datetimes.map(datetime => Object.assign({}, salary, {datetime}))
+  const newOvertimes = datetimes.map(datetime => Object.assign({}, holiday, {datetime}))
     .map(e => {
       if (!absentRange.map(e => e.datetime.getTime()).includes(e.datetime.getTime())) {
         return Object.assign(e, {duration: 1});
@@ -199,7 +222,11 @@ const handleHoliday = (salary: HolidayEntity, payroll: PayrollEntity) => {
       return Object.assign(e, {duration: absent.partial !== PartialDay.ALL_DAY ? 0.5 : 0});
     })
     .map((e, i) => {
-      const setting = Object.assign({}, e.setting, {rate: duration > 0 ? e.setting.rate : 1});
+      const setting = Object.assign({}, e.setting, {
+        rate: e.setting.rateCondition.condition === ConditionType.NO_CONDITION
+          ? e.setting.rate
+          : duration > 0 ? e.setting.rate : e.setting.rateCondition.default
+      });
       duration -= 1;
       return Object.assign(e, {setting});
     })

@@ -621,8 +621,8 @@ model OvertimeSalary {
 model RateCodition {
   id        Int             @id @default(autoincrement())
   condition ConditionType
-  with      Float // >= với 30. 0 = workday
-  default   Float
+  with      Float // >, <, >=, <=, =  với 31 (with). 0 = workday sẽ lấy ngày công chuẩn của nhân viên đó
+  default   Float? @default(1)  // giá trị default của rate nếu không thoả mãn điều kiện (rate default)
   type      RateConditionType
   settings  SalarySetting[]
 }
