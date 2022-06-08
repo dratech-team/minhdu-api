@@ -167,6 +167,7 @@ export class PayrollService {
     const salaryPerDay = payroll.recipeType === RecipeType.CT1 || actualDay >= workday
       ? totalBasicSalary / workday
       : (totalBasicSalary + totalStaySalary) / workday;
+
     // const staySalary =
     //   actualDay >= workday
     //     ? this.totalStaySalary(payroll.salaries)

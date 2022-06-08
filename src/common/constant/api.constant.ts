@@ -59,6 +59,7 @@ const V1 = {
   SETTINGS: {
     SALARY: `${Version.V1}/settings/salary`,
     BLOCK_SALARY: `${Version.V1}/settings/salary-block`,
+    RATE_CONDITION: `${Version.V1}/settings/rate-condition`,
   },
   HISTORY: {
     SALARY: `${Version.V1}/history/salary`,

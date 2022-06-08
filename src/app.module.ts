@@ -52,6 +52,7 @@ import {SalaryBlockModule} from './api/v1/settings/salary-block/salary-block.mod
 import {SalariesModule} from "./api/v1/salaries/salary.module";
 import {AppService} from "./app.service";
 import {PayrollModule as PayrollModuleV2} from './api/v2/payroll/payroll.module';
+import { RateConditionModule } from './api/v1/settings/rate-condition/rate-condition.module';
 
 @Module({
   imports: [
@@ -104,7 +105,8 @@ import {PayrollModule as PayrollModuleV2} from './api/v2/payroll/payroll.module'
     SalarySettingsModule,
     SalaryBlockModule,
     SalariesModule,
-    PayrollModuleV2
+    PayrollModuleV2,
+    RateConditionModule
   ],
   controllers: [AppController],
   providers: [PrismaService, AppService],
