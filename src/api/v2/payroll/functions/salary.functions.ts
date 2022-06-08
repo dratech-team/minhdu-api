@@ -19,7 +19,7 @@ import {DatetimeUniq} from "./datetime-uniq.functions";
 
 const totalSetting = (setting: SalarySetting, payroll: PayrollEntity): number => {
   const totalOf = (setting.prices?.reduce((a, b) => a + b, 0) || setting.totalOf?.map(type => {
-    return payroll.salariesv2?.filter(salary => salary.type === type).map((e) => e.price * e.rate).reduce((a, b) => a + b, 0);
+    return payroll.salariesv2?.filter(salary => salary.type === type).reduce((a, b) => a + b.price * b.rate, 0);
   }).reduce((a, b) => a + b, 0));
   return totalOf / (setting.type !== SalaryType.OVERTIME ? (setting.workday || payroll.workday || payroll.employee.workday) : 1);
 };
@@ -31,11 +31,9 @@ const uniqSalary = (items: Array<AbsentEntity | DayoffEnity | AllowanceSalary | 
 
 const getWorkday = (payroll: PayrollEntity) => {
   const absent = payroll.absents
-    ?.map(absent => handleAbsent(absent, payroll).duration * (absent.partial === PartialDay.ALL_DAY ? 1 : 0.5))
-    ?.reduce((a, b) => a + b, 0);
+    ?.reduce((a, b) => a + handleAbsent(b, payroll).duration * (b.partial === PartialDay.ALL_DAY ? 1 : 0.5), 0);
   const dayoff = payroll.dayoffs
-    ?.map(dayoff => handleDayOff(dayoff, payroll).duration * (dayoff.partial === PartialDay.ALL_DAY ? 1 : 0.5))
-    .reduce((a, b) => a + b, 0);
+    ?.reduce((a, b) => a + handleDayOff(b, payroll).duration * (b.partial === PartialDay.ALL_DAY ? 1 : 0.5), 0);
   return (dateFns.isSameMonth(new Date(), payroll.createdAt) ? new Date().getDate() + 1 : dateFns.getDaysInMonth(payroll.createdAt)) - (absent + dayoff + (payroll.createdAt.getDate() - 1));
 };
 
@@ -134,7 +132,7 @@ const handleAllowance = (allowance: AllowanceSalary, payroll: PayrollEntity): { 
       }
     }
   });
-  const duration = allowances.map(allowance => allowance.duration).reduce((a, b) => a + b, 0);
+  const duration = allowances.reduce((a, b) => a + b.duration, 0);
   return {
     duration: duration,
     total: (allowance.unit === DatetimeUnit.MONTH ? (allowance.price / days) : allowance.price) * allowance.rate * duration,
@@ -173,7 +171,7 @@ const handleOvertime = (overtime: OvertimeEntity, payroll: PayrollEntity): Array
     })
     .map(overtime => {
       const settingTotal = totalSetting(overtime.setting, payroll);
-      const allowanceTotal = overtime.allowances?.map(allowance => allowance.price)?.reduce((a, b) => a + b, 0);
+      const allowanceTotal = overtime.allowances?.reduce((a, b) => a + b.price, 0);
       return Object.assign(overtime, {totalSetting: settingTotal, allowanceTotal: allowanceTotal});
     });
   return newOvertimes.map((salary) => Object.assign({}, salary, {

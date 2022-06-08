@@ -140,25 +140,19 @@ export class PayrollService {
   private totalSalaryCTL(payroll: PayrollEntity): number {
     const workday = payroll.workday || payroll.employee.workday || payroll.employee.position.workday;
     const actualDay = SalaryFunctions.getWorkday(payroll);
-    const totalBasicSalary = payroll.salariesv2?.filter(salary => salary.type === SalaryType.BASIC_INSURANCE || salary.type === SalaryType.BASIC).map(salary => {
-      return salary.price * salary.rate;
-    }).reduce((a, b) => a + b, 0);
-    const totalStaySalary = payroll.salariesv2?.filter(salary => salary.type === SalaryType.BASIC_INSURANCE || salary.type === SalaryType.BASIC).map(salary => {
-      return salary.price * salary.rate;
-    }).reduce((a, b) => a + b, 0);
+    const totalBasicSalary = payroll.salariesv2?.filter(salary => salary.type === SalaryType.BASIC_INSURANCE || salary.type === SalaryType.BASIC)
+      .reduce((a, b) => a + b.price * b.rate, 0);
+    const totalStaySalary = payroll.salariesv2?.filter(salary => salary.type === SalaryType.BASIC_INSURANCE || salary.type === SalaryType.BASIC)
+      .reduce((a, b) => a + b.price * b.rate, 0);
 
     const salary = totalBasicSalary + totalStaySalary;
 
-    const allowance = payroll.allowances.map(allowance => {
-      return SalaryFunctions.handleAllowance(allowance, payroll).total;
-    }).reduce((a, b) => a + b, 0);
-    const absent = payroll.absents.map(absent => {
-      const a = SalaryFunctions.handleAbsent(absent, payroll);
-      return a.price * a.duration;
-    }).reduce((a, b) => a + b, 0);
-    const deduction = payroll.deductions.map(deduction => {
-      return deduction.price;
-    }).reduce((a, b) => a + b, 0);
+    const allowance = payroll.allowances.reduce((a, b) => a + SalaryFunctions.handleAllowance(b, payroll).total, 0);
+    const absent = payroll.absents.reduce((a, b) => {
+      const v = SalaryFunctions.handleAbsent(b, payroll);
+      return a + (v.price * v.duration);
+    }, 0);
+    const deduction = payroll.deductions.reduce((a, b) => a + b.price, 0);
     const overtime = _.flattenDeep(payroll.overtimes.map(overtime => {
       return SalaryFunctions.handleOvertime(overtime, payroll).map(overtime => overtime.total);
     })).reduce((a, b) => a + b, 0);
