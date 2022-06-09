@@ -89,7 +89,8 @@ export class SalarySettingsRepository extends BaseRepository<SalarySetting> {
           },
           include: {
             branches: true,
-            positions: true
+            positions: true,
+            rateCondition: true
           },
           orderBy: search?.orderBy && search?.orderType
             ? search.orderBy === SortSalarySettingsEnum.TITLE
