@@ -8,8 +8,7 @@ import {
   DayOffSalary,
   PartialDay,
   RateConditionType,
-  SalarySetting,
-  SalaryType
+  SalarySetting
 } from "@prisma/client";
 import {OvertimeEntity} from "../../../v1/salaries/overtime/entities";
 import {HolidayEntity} from "../../salaries/holiday/entities/holiday.entity";
@@ -23,7 +22,7 @@ const totalSetting = (setting: SalarySetting, payroll: PayrollEntity): number =>
   const totalOf = (setting.prices?.reduce((a, b) => a + b, 0) || setting.totalOf?.map(type => {
     return payroll.salariesv2?.filter(salary => salary.type === type).reduce((a, b) => a + b.price * b.rate, 0);
   }).reduce((a, b) => a + b, 0));
-  return totalOf / (setting.type !== SalaryType.OVERTIME ? (setting.workday || payroll.workday || payroll.employee.workday) : 1);
+  return totalOf / (setting.totalOf.length ? (setting.workday || payroll.workday || payroll.employee.workday) : 1);
 };
 
 const uniqSalary = (items: Array<AbsentEntity | DayoffEnity | AllowanceSalary | RemoteEntity>): Array<(AbsentEntity | DayoffEnity | AllowanceSalary | RemoteEntity) & { datetime: Date }> => {
@@ -160,10 +159,7 @@ const handleOvertime = (overtime: OvertimeEntity, payroll: PayrollEntity): Array
       const d = overtime.setting.unit === DatetimeUnit.HOUR
         ? dateFns.differenceInMinutes(overtime.endTime, overtime.startTime) / 60
         : !absentRange.map(e => e.datetime.getTime()).includes(e.datetime.getTime())
-          ? 1
-          : absent.partial !== PartialDay.ALL_DAY
-            ? 0.5
-            : 0;
+          ? 1 : (absent.partial !== PartialDay.ALL_DAY ? 0.5 : 1);
       duration -= 1;
       const settingTotal = totalSetting(overtime.setting, payroll);
       const allowanceTotal = overtime.allowances?.reduce((a, b) => a + b.price, 0);
@@ -178,7 +174,7 @@ const handleOvertime = (overtime: OvertimeEntity, payroll: PayrollEntity): Array
             : e.setting.rate
         }),
         allowanceTotal: allowanceTotal,
-        total: settingTotal * d * e.setting.rate + allowanceTotal
+        total: settingTotal * d * (overtime.partial !== PartialDay.ALL_DAY ? 0.5 : 1) * e.setting.rate + allowanceTotal
       });
     });
 };

@@ -40,6 +40,7 @@ export class SalarySettingsService {
 
   mapToSalarySetting(body: CreateSalarySettingsDto | UpdateSalarySettingsDto) {
     const totalOf = body?.totalOf?.length && body.totalOf.includes(SalaryType.BASIC) ? [SalaryType.BASIC, SalaryType.BASIC_INSURANCE] : body.totalOf;
+    const workday = body.prices?.length && !totalOf?.length ? null : !body.prices?.length && totalOf.length ? 0 : body.workday;
     return {
       title: body.title,
       type: body.type,
@@ -49,7 +50,7 @@ export class SalarySettingsService {
       unit: body.unit,
       prices: body?.prices,
       totalOf: totalOf,
-      workday: body?.workday,
+      workday: workday,
       startedAt: body?.startedAt,
       endedAt: body?.endedAt,
       branchIds: body?.branchIds,

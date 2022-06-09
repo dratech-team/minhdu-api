@@ -305,7 +305,7 @@ model SalarySetting {
   unit           DatetimeUnit
   prices         Float[]
   totalOf        SalaryType[]
-  workday        Int?
+  workday        Int?  // null khi prices.length && !totalOf.length. 0 (workday dựa vào ngày công chuẩn) khi !prices.length && totalOf.length
   startedAt      DateTime?
   endedAt        DateTime?
   employeeType   EmployeeType
