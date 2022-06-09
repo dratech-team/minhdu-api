@@ -16,7 +16,7 @@ export class RateConditionController {
   }
 
   @Get()
-  findAll(@Query() search: Partial<SearchRateConditionDto>) {
+  findAll(@Query() search: SearchRateConditionDto) {
     return this.rateConditionService.findAll(search);
   }
 

@@ -1,14 +1,4 @@
-import {IsNotEmpty, IsNumber} from "class-validator";
-import {Type} from "class-transformer";
+import {SearchBaseDto} from "../../../../../common/dtos/search-base.dto";
 
-export class SearchRateConditionDto {
-  @IsNotEmpty()
-  @IsNumber()
-  @Type(() => Number)
-  readonly take: number;
-
-  @IsNotEmpty()
-  @IsNumber()
-  @Type(() => Number)
-  readonly skip: number;
+export class SearchRateConditionDto extends SearchBaseDto {
 }
