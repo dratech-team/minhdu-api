@@ -142,7 +142,10 @@ const handleAllowance = (allowance: AllowanceSalary, payroll: PayrollEntity): { 
 };
 
 const handleOvertime = (overtime: OvertimeEntity, payroll: PayrollEntity): Array<HandleOvertimeEntity> => {
-  let duration: number = getRateDuration(overtime.setting, payroll);
+  const overtimeRateCondition = payroll.overtimes.filter(overtime => overtime.setting.rateCondition && overtime.setting.unit === DatetimeUnit.DAY)
+    .reduce((a, b) => a + (b.partial !== PartialDay.ALL_DAY ? 1 : 0.5), 0);
+
+  let duration: number = getRateDuration(overtime.setting, payroll) - overtimeRateCondition;
   const absentRange = absentUniq(payroll.absents);
 
   const datetimes = dateFns.eachDayOfInterval({
@@ -181,7 +184,9 @@ const handleOvertime = (overtime: OvertimeEntity, payroll: PayrollEntity): Array
 };
 
 const handleHoliday = (holiday: HolidayEntity, payroll: PayrollEntity) => {
-  let duration: number = getRateDuration(holiday.setting, payroll);
+  const holidayRateCondition = payroll.holidays.filter(overtime => overtime.setting.rateCondition && overtime.setting.unit === DatetimeUnit.DAY);
+
+  let duration: number = getRateDuration(holiday.setting, payroll) - holidayRateCondition.length;
   const absentRange = absentUniq(payroll.absents);
 
   const datetimes = dateFns.eachDayOfInterval({

@@ -28,8 +28,7 @@ export class SalariesDuplicateMiddleware implements NestMiddleware {
         : req.path.includes(ApiConstant.V1.SALARY.ABSENT)
           ? await this.prisma.absentSalary.findMany({where: where})
           : await this.prisma.remoteSalary.findMany({where: where});
-    console.log((req.body as any))
-    if (!req.path.includes(ApiConstant.V1.SALARY.ALLOWANCE) && data.length && (req.body as any)?.partial === PartialDay.ALL_DAY) {
+    if (!req.path.includes(ApiConstant.V1.SALARY.ALLOWANCE) && data.length && (req.body as any)?.partial === PartialDay.ALL_DAY && (req.body as any)?.unit === DatetimeUnit.DAY) {
       throw new BadRequestException("Có ngày nào đó đã tồn tại rồi. Vui lòng kiểm tra lại");
     }
     // if (req.path.includes(ApiV2Constant.SALARY.ALLOWANCE) || req.path.includes(ApiV2Constant.SALARY.OVERTIME)) {
