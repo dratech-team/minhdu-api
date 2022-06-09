@@ -151,6 +151,7 @@ const handleOvertime = (overtime: OvertimeEntity, payroll: PayrollEntity): Array
   });
 
   return datetimes.map(datetime => Object.assign({}, overtime, {datetime}))
+    .sort(alphabetically(true))
     .map(e => {
       const absent = absentRange.find(e => e.datetime.getTime() === e.datetime.getTime());
       const d = overtime.setting.unit === DatetimeUnit.HOUR
@@ -189,6 +190,7 @@ const handleHoliday = (holiday: HolidayEntity, payroll: PayrollEntity) => {
   });
 
   return datetimes.map(datetime => Object.assign({}, holiday, {datetime}))
+    .sort(alphabetically(true))
     .map(e => {
       const absent = absentRange.find(e => e.datetime.getTime() === e.datetime.getTime());
       const d = !absentRange.map(e => e.datetime.getTime()).includes(e.datetime.getTime())
@@ -251,6 +253,23 @@ const getRateDuration = (setting: SalarySettingsEntity, payroll: PayrollEntity):
   }
   return -1;
 };
+
+function alphabetically(ascending) {
+  return function (a: OvertimeEntity | HolidayEntity, b: OvertimeEntity | HolidayEntity) {
+    if (a.setting.rateCondition && a.setting.rate === b.setting.rate) {
+      return 0;
+    } else if (a.setting.rateCondition === null) {
+      return 1;
+    } else if (b.setting.rateCondition === null) {
+      return -1;
+    } else if (a.setting.rateCondition && ascending) {
+      return a.setting.rate < b.setting.rate ? -1 : 1;
+    } else {
+      return a.setting.rate < b.setting.rate ? 1 : -1;
+    }
+  };
+}
+
 export const SalaryFunctions = {
   totalSetting,
   handleOvertime,
