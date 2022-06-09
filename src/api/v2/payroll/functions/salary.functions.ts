@@ -2,7 +2,8 @@ import {AbsentEntity} from "../../../v1/payroll/entities/absent.entity";
 import {AllowanceType, PayrollEntity} from "../entities";
 import * as dateFns from "date-fns";
 import {
-  AllowanceSalary, ConditionType,
+  AllowanceSalary,
+  ConditionType,
   DatetimeUnit,
   DayOffSalary,
   PartialDay,
@@ -16,6 +17,7 @@ import {HandleOvertimeEntity} from "../entities/handle-overtime.entity";
 import {RemoteEntity} from "../../../v1/salaries/remote/entities/remote.entity";
 import {DayoffEnity} from "../../../v1/salaries/dayoff/entities/dayoff.entity";
 import {DatetimeUniq} from "./datetime-uniq.functions";
+import {SalarySettingsEntity} from "../../../v1/settings/salary/entities/salary-settings.entity";
 
 const totalSetting = (setting: SalarySetting, payroll: PayrollEntity): number => {
   const totalOf = (setting.prices?.reduce((a, b) => a + b, 0) || setting.totalOf?.map(type => {
@@ -140,106 +142,77 @@ const handleAllowance = (allowance: AllowanceSalary, payroll: PayrollEntity): { 
 };
 
 const handleOvertime = (overtime: OvertimeEntity, payroll: PayrollEntity): Array<HandleOvertimeEntity> => {
-  const rateCondition = overtime.setting.rateCondition;
-
+  let duration: number = getRateDuration(overtime.setting, payroll);
   const absentRange = absentUniq(payroll.absents);
-  const totalAbsent = absentRange.reduce((a, b) => a + (b.partial === PartialDay.ALL_DAY ? 1 : 0.5), 0);
-  const withOf = rateCondition.with === 0 ? (payroll.workday || payroll.employee.workday) : rateCondition.with;
-
-  let duration = rateCondition.type === RateConditionType.WORKDAY
-    ? rateCondition.condition === ConditionType.GREATER || rateCondition.condition === ConditionType.GREATER_EQUAL
-      ? getWorkday(payroll) - withOf
-      : withOf - getWorkday(payroll)
-    : rateCondition.condition === ConditionType.GREATER || rateCondition.condition === ConditionType.GREATER_EQUAL
-      ? totalAbsent - withOf
-      : withOf - totalAbsent;
 
   const datetimes = dateFns.eachDayOfInterval({
     start: overtime.startedAt,
     end: overtime.endedAt,
   });
 
-  const newOvertimes = datetimes.map(datetime => Object.assign({}, overtime, {datetime}))
+  return datetimes.map(datetime => Object.assign({}, overtime, {datetime}))
     .map(e => {
       const absent = absentRange.find(e => e.datetime.getTime() === e.datetime.getTime());
-      const duration = overtime.setting.unit === DatetimeUnit.HOUR
+      const d = overtime.setting.unit === DatetimeUnit.HOUR
         ? dateFns.differenceInMinutes(overtime.endTime, overtime.startTime) / 60
         : !absentRange.map(e => e.datetime.getTime()).includes(e.datetime.getTime())
           ? 1
           : absent.partial !== PartialDay.ALL_DAY
             ? 0.5
             : 0;
-      return Object.assign(e, {duration: duration});
-    })
-    .map((e, i) => {
-      const setting = Object.assign({}, e.setting, {
-        rate: e.setting.rateCondition.condition === ConditionType.NO_CONDITION
-          ? e.setting.rate
-          : duration > 0 ? e.setting.rate : e.setting.rateCondition.default
-      });
       duration -= 1;
-      return Object.assign(e, {setting});
-    })
-    .map(overtime => {
       const settingTotal = totalSetting(overtime.setting, payroll);
       const allowanceTotal = overtime.allowances?.reduce((a, b) => a + b.price, 0);
-      return Object.assign(overtime, {totalSetting: settingTotal, allowanceTotal: allowanceTotal});
+      return Object.assign(e, {
+        price: settingTotal,
+        rate: overtime.setting.rate,
+        datetime: e.datetime,
+        duration: d,
+        setting: Object.assign({}, e.setting, {
+          rate: e.setting.rateCondition
+            ? duration > 0 ? e.setting.rate : e.setting.rateCondition.default
+            : e.setting.rate
+        }),
+        allowanceTotal: allowanceTotal,
+        total: settingTotal * d * e.setting.rate + allowanceTotal
+      });
     });
-  return newOvertimes.map((salary) => Object.assign({}, salary, {
-    price: salary.totalSetting,
-    rate: salary.setting.rate,
-    datetime: salary.datetime,
-    total: salary.totalSetting * salary.duration * salary.setting.rate + salary.allowanceTotal
-  }));
 };
 
 const handleHoliday = (holiday: HolidayEntity, payroll: PayrollEntity) => {
-  const rateCondition = holiday.setting.rateCondition;
-
+  let duration: number = getRateDuration(holiday.setting, payroll);
   const absentRange = absentUniq(payroll.absents);
-  const totalAbsent = absentRange.reduce((a, b) => a + (b.partial === PartialDay.ALL_DAY ? 1 : 0.5), 0);
-  const withOf = rateCondition.with === 0 ? (payroll.workday || payroll.employee.workday) : rateCondition.with;
-
-  let duration = rateCondition.type === RateConditionType.WORKDAY
-    ? rateCondition.condition === ConditionType.GREATER || rateCondition.condition === ConditionType.GREATER_EQUAL
-      ? getWorkday(payroll) - withOf
-      : withOf - getWorkday(payroll)
-    : rateCondition.condition === ConditionType.GREATER || rateCondition.condition === ConditionType.GREATER_EQUAL
-      ? totalAbsent - withOf
-      : withOf - totalAbsent;
 
   const datetimes = dateFns.eachDayOfInterval({
     start: holiday.setting.startedAt,
     end: holiday.setting.endedAt,
   });
 
-  const newOvertimes = datetimes.map(datetime => Object.assign({}, holiday, {datetime}))
+  return datetimes.map(datetime => Object.assign({}, holiday, {datetime}))
     .map(e => {
-      if (!absentRange.map(e => e.datetime.getTime()).includes(e.datetime.getTime())) {
-        return Object.assign(e, {duration: 1});
-      }
       const absent = absentRange.find(e => e.datetime.getTime() === e.datetime.getTime());
-      return Object.assign(e, {duration: absent.partial !== PartialDay.ALL_DAY ? 0.5 : 0});
-    })
-    .map((e, i) => {
-      const setting = Object.assign({}, e.setting, {
-        rate: e.setting.rateCondition.condition === ConditionType.NO_CONDITION
-          ? e.setting.rate
-          : duration > 0 ? e.setting.rate : e.setting.rateCondition.default
-      });
+      const d = !absentRange.map(e => e.datetime.getTime()).includes(e.datetime.getTime())
+        ? 1
+        : absent.partial !== PartialDay.ALL_DAY
+          ? 0.5
+          : 0;
       duration -= 1;
-      return Object.assign(e, {setting});
-    })
-    .map(overtime => {
-      const settingTotal = totalSetting(overtime.setting, payroll);
-      return Object.assign(overtime, {totalSetting: settingTotal});
+
+      const settingTotal = totalSetting(holiday.setting, payroll);
+      return Object.assign(e, {
+        duration: d,
+        setting: Object.assign({}, e.setting, {
+          rate: e.setting.rateCondition.condition === ConditionType.NO_CONDITION
+            ? e.setting.rate
+            : duration > 0 ? e.setting.rate : e.setting.rateCondition.default
+        }),
+        settingTotal: settingTotal,
+        price: settingTotal,
+        rate: e.setting.rate,
+        datetime: e.datetime,
+        total: settingTotal * d * e.setting.rate
+      });
     });
-  return newOvertimes.map((salary) => Object.assign({}, salary, {
-    price: salary.totalSetting,
-    rate: salary.setting.rate,
-    datetime: salary.datetime,
-    total: salary.totalSetting * salary.duration * salary.setting.rate
-  }));
 };
 
 const remoteUniq = (remotes: RemoteEntity[]) => {
@@ -254,6 +227,30 @@ const dayoffUniq = (dayoffs: DayOffSalary[]) => {
   return uniqSalary(dayoffs) as Array<DayOffSalary & { datetime: Date }>;
 };
 
+const getRateDuration = (setting: SalarySettingsEntity, payroll: PayrollEntity): number => {
+  const rateCondition = setting.rateCondition;
+
+  const absentRange = absentUniq(payroll.absents);
+  const totalAbsent = absentRange.reduce((a, b) => a + (b.partial === PartialDay.ALL_DAY ? 1 : 0.5), 0);
+
+  if (rateCondition) {
+    const withOf = rateCondition.with === 0 ? (payroll.workday || payroll.employee.workday) : rateCondition.with;
+    if (rateCondition.type === RateConditionType.WORKDAY) {
+      if (rateCondition.condition === ConditionType.GREATER || rateCondition.condition === ConditionType.GREATER_EQUAL) {
+        return getWorkday(payroll) - withOf;
+      } else {
+        return withOf - getWorkday(payroll);
+      }
+    } else {
+      if (rateCondition.condition === ConditionType.GREATER || rateCondition.condition === ConditionType.GREATER_EQUAL) {
+        return totalAbsent - withOf;
+      } else {
+        return withOf - totalAbsent;
+      }
+    }
+  }
+  return -1;
+};
 export const SalaryFunctions = {
   totalSetting,
   handleOvertime,

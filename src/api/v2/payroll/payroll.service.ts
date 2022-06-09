@@ -200,7 +200,7 @@ export class PayrollService {
       return Object.assign(remote, {total: 0, duration: duration});
     });
     const overtimes = payroll.overtimes.map(overtime => {
-      const details = SalaryFunctions.handleOvertime(Object.assign(overtime, {type: "overtime"}), payroll as any);
+      const details = SalaryFunctions.handleOvertime(overtime, payroll as any);
       return Object.assign(overtime, {
         total: details.map(e => e.total).reduce((a, b) => a + b, 0),
         duration: details.map(e => e.duration).reduce((a, b) => a + b, 0),
