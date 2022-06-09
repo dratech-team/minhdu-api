@@ -314,8 +314,8 @@ model SalarySetting {
   absents        AbsentSalary[]
   overtimes      OvertimeSalary[]
   holidays       HolidaySalary[]
-  rateCondition  RateCodition?    @relation(fields: [rateCoditionId], references: [id])
-  rateCoditionId Int?
+  rateCondition  RateCondition?    @relation(fields: [rateConditionId], references: [id])
+  rateConditionId Int?
   timestamp      DateTime?        @default(now())
 
   @@unique([title, type])
@@ -618,7 +618,7 @@ model OvertimeSalary {
   @@unique([startedAt, endedAt, partial, settingId, payrollId])
 }
 
-model RateCodition {
+model RateCondition {
   id        Int             @id @default(autoincrement())
   condition ConditionType
   with      Float // >, <, >=, <=, =  với 31 (with). 0 = workday sẽ lấy ngày công chuẩn của nhân viên đó

@@ -1,5 +1,5 @@
-import {RateCodition, SalarySetting} from "@prisma/client";
+import {RateCondition, SalarySetting} from "@prisma/client";
 
 export interface SalarySettingsEntity extends SalarySetting {
-  readonly rateCondition: RateCodition;
+  readonly rateCondition: RateCondition;
 }

@@ -17,6 +17,11 @@ export class CreateSalarySettingsDto {
   @Type(() => Number)
   readonly rate: number;
 
+  @IsNotEmpty()
+  @IsNumber()
+  @Type(() => Number)
+  readonly rateConditionId: number;
+
   @IsOptional()
   @IsNumber({}, {each: true})
   @IsArray()

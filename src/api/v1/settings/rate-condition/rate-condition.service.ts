@@ -11,7 +11,7 @@ export class RateConditionService {
 
   async create(body: CreateRateConditionDto) {
     try {
-      return await this.prisma.rateCodition.create({data: body});
+      return await this.prisma.rateCondition.create({data: body});
     } catch (err) {
       console.error(err);
     }
@@ -20,8 +20,8 @@ export class RateConditionService {
   async findAll(search: Partial<SearchRateConditionDto>) {
     try {
       const [total, data] = await Promise.all([
-        this.prisma.rateCodition.count(),
-        this.prisma.rateCodition.findMany({
+        this.prisma.rateCondition.count(),
+        this.prisma.rateCondition.findMany({
           take: search?.take,
           skip: search?.skip,
         })
@@ -34,7 +34,7 @@ export class RateConditionService {
 
   async findOne(id: number) {
     try {
-      return await this.prisma.rateCodition.findUnique({where: {id}});
+      return await this.prisma.rateCondition.findUnique({where: {id}});
     } catch (err) {
       console.error(err);
     }
@@ -42,7 +42,7 @@ export class RateConditionService {
 
   async update(id: number, update: UpdateRateConditionDto) {
     try {
-      return await this.prisma.rateCodition.update({
+      return await this.prisma.rateCondition.update({
         where: {id},
         data: update,
       });
@@ -53,7 +53,7 @@ export class RateConditionService {
 
   async remove(id: number) {
     try {
-      return await this.prisma.rateCodition.delete({where: {id}});
+      return await this.prisma.rateCondition.delete({where: {id}});
     } catch (err) {
       console.error(err);
     }

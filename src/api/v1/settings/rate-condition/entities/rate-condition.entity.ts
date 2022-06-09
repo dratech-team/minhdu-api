@@ -1,3 +1,3 @@
-import { RateCodition } from "@prisma/client";
+import { RateCondition } from "@prisma/client";
 
-export interface RateConditionEntity extends RateCodition {}
+export interface RateConditionEntity extends RateCondition {}

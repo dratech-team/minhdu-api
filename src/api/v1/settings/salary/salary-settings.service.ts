@@ -44,6 +44,7 @@ export class SalarySettingsService {
       title: body.title,
       type: body.type,
       rate: body.rate,
+      rateConditionId: body.rateConditionId,
       hasConstraints: body.hasConstraints,
       unit: body.unit,
       prices: body?.prices,

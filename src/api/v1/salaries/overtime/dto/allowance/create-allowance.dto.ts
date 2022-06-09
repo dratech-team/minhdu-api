@@ -1,7 +1,12 @@
-import {IsNotEmpty, IsNumber, IsString} from "class-validator";
+import {IsNotEmpty, IsNumber, IsOptional, IsString} from "class-validator";
 import {Type} from "class-transformer";
 
 export class CreateOvertimeAllowanceDto {
+  @IsOptional()
+  @IsNumber()
+  @Type(() => Number)
+  readonly id: number;
+
   @IsNotEmpty()
   @IsString()
   readonly title: string;
