@@ -174,7 +174,7 @@ const handleOvertime = (overtime: OvertimeEntity, payroll: PayrollEntity): Array
             : e.setting.rate
         }),
         allowanceTotal: allowanceTotal,
-        total: settingTotal * d * (overtime.partial !== PartialDay.ALL_DAY ? 0.5 : 1) * e.setting.rate + allowanceTotal
+        total: settingTotal * d * (overtime.setting.unit === DatetimeUnit.DAY && overtime.partial !== PartialDay.ALL_DAY ? 0.5 : 1) * e.setting.rate + allowanceTotal
       });
     });
 };
