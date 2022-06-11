@@ -159,7 +159,14 @@ export class OvertimeRepository extends BaseRepository<OvertimeEntity> {
                     }
                   }
                 }
-            ) : {},
+            ) : {
+              delete: {
+                id: (await this.prisma.overtimeSalary.findUnique({
+                  where: {id: id},
+                  include: {allowances: true}
+                })).allowances[0].id
+              }
+            },
           blockId: body.blockId,
           settingId: body.settingId,
           note: body.note,

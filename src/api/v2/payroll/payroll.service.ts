@@ -141,10 +141,10 @@ export class PayrollService {
     const workday = payroll.workday || payroll.employee.workday;
     const actualDay = SalaryFunctions.getWorkday(payroll);
 
+    const basicInsuranceSalary = payroll.salariesv2?.filter(salary => salary.type === SalaryType.BASIC_INSURANCE)?.reduce((a, b) => a + b.price, 0) || 0;
     const basicSalary = payroll.salariesv2?.filter(salary => salary.type === SalaryType.BASIC_INSURANCE || salary.type === SalaryType.BASIC)
       .reduce((a, b) => a + b.price * b.rate, 0);
-    const basicInsuranceSalary = payroll.salariesv2?.filter(salary => salary.type === SalaryType.BASIC_INSURANCE)?.reduce((a, b) => a + b.price, 0) || 0;
-    const staySalary = payroll.salariesv2?.filter(salary => salary.type === SalaryType.BASIC_INSURANCE || salary.type === SalaryType.BASIC)
+    const staySalary = payroll.salariesv2?.filter(salary => salary.type === SalaryType.STAY)
       .reduce((a, b) => a + b.price * b.rate, 0);
     const allowances = payroll.allowances.map(allowance => {
       const a = SalaryFunctions.handleAllowance(allowance, payroll as any);
@@ -172,11 +172,11 @@ export class PayrollService {
       return Object.assign(remote, {total: 0, duration: duration});
     });
     const overtimes = payroll.overtimes.map(overtime => {
-      const details = SalaryFunctions.handleOvertime(overtime, payroll as any);
+      const overtimes = SalaryFunctions.handleOvertime(overtime, payroll as any);
       return Object.assign(overtime, {
-        total: details.map(e => e.total).reduce((a, b) => a + b, 0),
-        duration: details.map(e => e.duration).reduce((a, b) => a + b, 0),
-        details: details,
+        total: overtimes.map(e => e.total).reduce((a, b) => a + b, 0),
+        duration: overtimes.map(e => e.duration).reduce((a, b) => a + b, 0),
+        details: overtimes,
       });
     });
     const holidays = payroll.holidays.map(holiday => {
@@ -196,7 +196,7 @@ export class PayrollService {
     const absentSalary = absents.reduce((a, b) => a + b.total, 0);
     const deductionSalary = payroll.deductions.reduce((a, b) => a + b.price, 0);
     const taxSalary = payroll.taxed && payroll.tax ? basicInsuranceSalary * payroll.tax : 0;
-    const total = salary + allowanceSalary + overtimeSalary + holidaySalary - (absentSalary + deductionSalary + taxSalary);
+    const total = (salary + allowanceSalary + overtimeSalary + holidaySalary) - (absentSalary + deductionSalary + taxSalary);
     // if (isPayslip) {
     //   return {
     //     basicSalary: basicSalary,
