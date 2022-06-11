@@ -140,6 +140,10 @@ const handleAllowance = (allowance: AllowanceSalary, payroll: PayrollEntity): { 
   };
 };
 
+/*
+* Overtime
+* unit: DAY, HOUR
+* */
 const handleOvertime = (overtime: OvertimeEntity, payroll: PayrollEntity): Array<HandleOvertimeEntity> => {
   const overtimeRateCondition = payroll.overtimes.filter(overtime => overtime.setting.rateCondition && overtime.setting.unit === DatetimeUnit.DAY)
     .reduce((a, b) => a + (b.partial !== PartialDay.ALL_DAY ? 1 : 0.5), 0);
@@ -155,11 +159,25 @@ const handleOvertime = (overtime: OvertimeEntity, payroll: PayrollEntity): Array
   return datetimes.map(datetime => Object.assign({}, overtime, {datetime}))
     .sort(alphabetically(true))
     .map(e => {
-      const absent = absentRange.find(e => e.datetime.getTime() === e.datetime.getTime());
-      const d = overtime.setting.unit === DatetimeUnit.HOUR
-        ? dateFns.differenceInMinutes(overtime.endTime, overtime.startTime) / 60
-        : !absentRange.map(e => e.datetime.getTime()).includes(e.datetime.getTime())
-          ? 1 : (absent.partial !== PartialDay.ALL_DAY ? 0.5 : 1);
+      const absent = absentRange.find(absent => absent.datetime.getTime() === e.datetime.getTime());
+      let partial: number;
+
+      if (overtime.setting.unit === DatetimeUnit.HOUR) {
+        partial = dateFns.differenceInMinutes(overtime.endTime, overtime.startTime) / 60;
+      } else {
+        // Không tồn tại ngày vắng trong ngày tăng ca này.
+        if (!absent) {
+          partial = 1;
+        } else {
+          if (absent.partial === PartialDay.ALL_DAY && e.partial === PartialDay.NIGHT) {
+            partial = 1;
+          } else if (absent.partial === PartialDay.ALL_DAY && e.partial === PartialDay.ALL_DAY) {
+            partial = 0;
+          } else {
+            partial = 0.5;
+          }
+        }
+      }
       duration -= 1;
       const settingTotal = totalSetting(overtime.setting, payroll);
       const allowanceTotal = overtime.allowances?.reduce((a, b) => a + b.price, 0);
@@ -167,14 +185,14 @@ const handleOvertime = (overtime: OvertimeEntity, payroll: PayrollEntity): Array
         price: settingTotal,
         rate: overtime.setting.rate,
         datetime: e.datetime,
-        duration: d,
+        duration: partial,
         setting: Object.assign({}, e.setting, {
-          rate: e.setting.rateCondition
+          rate: e.setting.rate > 1 && e.setting.rateCondition
             ? duration > 0 ? e.setting.rate : e.setting.rateCondition.default
             : e.setting.rate
         }),
         allowanceTotal: allowanceTotal,
-        total: settingTotal * d * (overtime.setting.unit === DatetimeUnit.DAY && overtime.partial !== PartialDay.ALL_DAY ? 0.5 : 1) * e.setting.rate + allowanceTotal
+        total: settingTotal * partial * (overtime.setting.unit === DatetimeUnit.DAY && overtime.partial !== PartialDay.ALL_DAY && overtime.partial !== PartialDay.NIGHT ? 0.5 : 1) * e.setting.rate + allowanceTotal
       });
     });
 };
