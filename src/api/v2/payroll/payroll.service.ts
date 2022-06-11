@@ -143,6 +143,7 @@ export class PayrollService {
 
     const basicSalary = payroll.salariesv2?.filter(salary => salary.type === SalaryType.BASIC_INSURANCE || salary.type === SalaryType.BASIC)
       .reduce((a, b) => a + b.price * b.rate, 0);
+    const basicInsuranceSalary = payroll.salariesv2?.filter(salary => salary.type === SalaryType.BASIC_INSURANCE)?.reduce((a, b) => a + b.price, 0) || 0;
     const staySalary = payroll.salariesv2?.filter(salary => salary.type === SalaryType.BASIC_INSURANCE || salary.type === SalaryType.BASIC)
       .reduce((a, b) => a + b.price * b.rate, 0);
     const allowances = payroll.allowances.map(allowance => {
@@ -192,11 +193,10 @@ export class PayrollService {
     const allowanceSalary = allowances.reduce((a, b) => a + b.total, 0);
     const overtimeSalary = overtimes.reduce((a, b) => a + b.total, 0);
     const holidaySalary = holidays.reduce((a, b) => a + b.total, 0);
-    const absentSalary = absents.reduce((a, b) => +b.total, 0);
+    const absentSalary = absents.reduce((a, b) => a + b.total, 0);
     const deductionSalary = payroll.deductions.reduce((a, b) => a + b.price, 0);
-    const taxSalary = payroll.taxed && payroll.tax ? (payroll.salariesv2?.find(salary => salary.type === SalaryType.BASIC_INSURANCE)?.price || 0) * payroll.tax : 0;
-    const total = salary / (workday * actualDay) + allowanceSalary + overtimeSalary + holidaySalary - (absentSalary + deductionSalary + taxSalary);
-
+    const taxSalary = payroll.taxed && payroll.tax ? basicInsuranceSalary * payroll.tax : 0;
+    const total = salary + allowanceSalary + overtimeSalary + holidaySalary - (absentSalary + deductionSalary + taxSalary);
     // if (isPayslip) {
     //   return {
     //     basicSalary: basicSalary,

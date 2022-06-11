@@ -145,10 +145,9 @@ const handleAllowance = (allowance: AllowanceSalary, payroll: PayrollEntity): { 
 * unit: DAY, HOUR
 * */
 const handleOvertime = (overtime: OvertimeEntity, payroll: PayrollEntity): Array<HandleOvertimeEntity> => {
-  const overtimeRateCondition = payroll.overtimes.filter(overtime => overtime.setting.rateCondition && overtime.setting.unit === DatetimeUnit.DAY)
-    .reduce((a, b) => a + (b.partial !== PartialDay.ALL_DAY ? 1 : 0.5), 0);
-
-  let duration: number = getRateDuration(overtime.setting, payroll) - overtimeRateCondition;
+  const overtimeRateCondition = payroll.overtimes.filter(overtime => overtime.setting.rateConditionId && overtime.setting.unit === DatetimeUnit.DAY)
+    .reduce((a, b) => a + (b.partial !== PartialDay.ALL_DAY && b.partial !== PartialDay.NIGHT ? 0.5 : 1), 0);
+  let duration: number = getRateDuration(overtime.setting, payroll);
   const absentRange = absentUniq(payroll.absents);
 
   const datetimes = dateFns.eachDayOfInterval({
@@ -169,30 +168,40 @@ const handleOvertime = (overtime: OvertimeEntity, payroll: PayrollEntity): Array
         if (!absent) {
           partial = 1;
         } else {
-          if (absent.partial === PartialDay.ALL_DAY && e.partial === PartialDay.NIGHT) {
+          if (
+            e.partial === PartialDay.NIGHT &&
+            (absent.partial === PartialDay.ALL_DAY || absent.partial === PartialDay.MORNING || absent.partial === PartialDay.AFTERNOON)
+          ) {
             partial = 1;
-          } else if (absent.partial === PartialDay.ALL_DAY && e.partial === PartialDay.ALL_DAY) {
+          } else if (
+            (e.partial === PartialDay.ALL_DAY && absent.partial === PartialDay.ALL_DAY) ||
+            (e.partial === PartialDay.MORNING && absent.partial === PartialDay.MORNING) ||
+            (e.partial === PartialDay.AFTERNOON && absent.partial === PartialDay.AFTERNOON)
+          ) {
             partial = 0;
           } else {
             partial = 0.5;
           }
         }
       }
+      const setting = Object.assign({}, e.setting, {
+        rate: e.setting.rate > 1 && e.setting.rateCondition
+          ? duration > 0 ? e.setting.rate : e.setting.rateCondition.default
+          : e.setting.rate
+      });
+
       duration -= 1;
-      const settingTotal = totalSetting(overtime.setting, payroll);
+      const settingTotal = totalSetting(setting, payroll);
       const allowanceTotal = overtime.allowances?.reduce((a, b) => a + b.price, 0);
+      const overtimeTotal = settingTotal * partial * (setting.unit === DatetimeUnit.DAY && overtime.partial !== PartialDay.ALL_DAY && overtime.partial !== PartialDay.NIGHT ? 0.5 : 1) * setting.rate;
       return Object.assign(e, {
         price: settingTotal,
-        rate: overtime.setting.rate,
+        rate: setting.rate,
         datetime: e.datetime,
         duration: partial,
-        setting: Object.assign({}, e.setting, {
-          rate: e.setting.rate > 1 && e.setting.rateCondition
-            ? duration > 0 ? e.setting.rate : e.setting.rateCondition.default
-            : e.setting.rate
-        }),
+        setting: setting,
         allowanceTotal: allowanceTotal,
-        total: settingTotal * partial * (overtime.setting.unit === DatetimeUnit.DAY && overtime.partial !== PartialDay.ALL_DAY && overtime.partial !== PartialDay.NIGHT ? 0.5 : 1) * e.setting.rate + allowanceTotal
+        total: overtimeTotal + allowanceTotal
       });
     });
 };
