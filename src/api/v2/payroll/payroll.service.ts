@@ -17,12 +17,13 @@ import {crudManyResponse} from "../../v1/salaries/base/functions/response.functi
 import {SearchPayrollDto} from "../../v1/payroll/dto/search-payroll.dto";
 import {FilterTypeEnum} from "../../v1/payroll/entities/filter-type.enum";
 import * as _ from "lodash";
-import {DatetimeUnit, PartialDay, RecipeType, SalaryType} from "@prisma/client";
+import {DatetimeUnit, PartialDay, SalaryType} from "@prisma/client";
 import * as dateFns from "date-fns";
-import {PayrollEntity} from "./entities";
+import {PayrollEntity, ResponsePayrollEntity} from "./entities";
 import {TAX} from "../../../common/constant";
 import {SalaryFunctions} from "./functions/salary.functions";
 import {TimeSheet} from "./functions/timesheet.functions";
+import {PayslipEntity} from "./entities/payslip.entity";
 
 @Injectable()
 export class PayrollService {
@@ -137,43 +138,14 @@ export class PayrollService {
     return this.mapToPayslip(payroll);
   }
 
-  private totalSalaryCTL(payroll: PayrollEntity): number {
-    const workday = payroll.workday || payroll.employee.workday || payroll.employee.position.workday;
+  private mapToPayslip(payroll: PayrollEntity, isPayslip?: boolean): ResponsePayrollEntity | PayslipEntity {
+    const workday = payroll.workday || payroll.employee.workday;
     const actualDay = SalaryFunctions.getWorkday(payroll);
-    const totalBasicSalary = payroll.salariesv2?.filter(salary => salary.type === SalaryType.BASIC_INSURANCE || salary.type === SalaryType.BASIC)
+
+    const basicSalary = payroll.salariesv2?.filter(salary => salary.type === SalaryType.BASIC_INSURANCE || salary.type === SalaryType.BASIC)
       .reduce((a, b) => a + b.price * b.rate, 0);
-    const totalStaySalary = payroll.salariesv2?.filter(salary => salary.type === SalaryType.BASIC_INSURANCE || salary.type === SalaryType.BASIC)
+    const staySalary = payroll.salariesv2?.filter(salary => salary.type === SalaryType.BASIC_INSURANCE || salary.type === SalaryType.BASIC)
       .reduce((a, b) => a + b.price * b.rate, 0);
-
-    const salary = totalBasicSalary + totalStaySalary;
-
-    const allowance = payroll.allowances.reduce((a, b) => a + SalaryFunctions.handleAllowance(b, payroll).total, 0);
-    const absent = payroll.absents.reduce((a, b) => {
-      const v = SalaryFunctions.handleAbsent(b, payroll);
-      return a + (v.price * v.duration);
-    }, 0);
-    const deduction = payroll.deductions.reduce((a, b) => a + b.price, 0);
-    const overtime = _.flattenDeep(payroll.overtimes.map(overtime => {
-      return SalaryFunctions.handleOvertime(overtime, payroll).map(overtime => overtime.total);
-    })).reduce((a, b) => a + b, 0);
-    const holiday = _.flattenDeep(payroll.holidays.map(holiday => {
-      return SalaryFunctions.handleHoliday(holiday, payroll).map(overtime => overtime.total);
-    })).reduce((a, b) => a + b, 0);
-    const tax = payroll.taxed && payroll.tax ? (payroll.salariesv2?.find(salary => salary.type === SalaryType.BASIC_INSURANCE)?.price || 0) * payroll.tax : 0;
-
-    const salaryPerDay = payroll.recipeType === RecipeType.CT1 || actualDay >= workday
-      ? totalBasicSalary / workday
-      : (totalBasicSalary + totalStaySalary) / workday;
-
-    // const staySalary =
-    //   actualDay >= workday
-    //     ? this.totalStaySalary(payroll.salaries)
-    //     : (this.totalStaySalary(payroll.salaries) / workday) * actualDay;
-    return (salary / (payroll.workday || payroll.employee.workday)) * actualDay + allowance + overtime + holiday - absent - deduction - tax;
-  }
-
-  private mapToPayslip(payroll: PayrollEntity) {
-    // handle
     const allowances = payroll.allowances.map(allowance => {
       const a = SalaryFunctions.handleAllowance(allowance, payroll as any);
       return Object.assign(allowance, {total: a.total, duration: a.duration});
@@ -186,7 +158,7 @@ export class PayrollService {
         total: a.price * a.duration / (absent.setting.unit === DatetimeUnit.MINUTE ? 8 / 60 : 1) * (absent.partial !== PartialDay.ALL_DAY ? 0.5 : 1)
       });
     });
-    const dayoff = payroll.dayoffs.map(dayoff => {
+    const dayoffs = payroll.dayoffs.map(dayoff => {
       const a = SalaryFunctions.handleDayOff(dayoff, payroll as any);
       return Object.assign(dayoff, {
         duration: a.duration,
@@ -215,18 +187,58 @@ export class PayrollService {
         details: details,
       });
     });
-    const total = this.totalSalaryCTL(payroll as any);
 
-    return Object.assign(payroll, {
-      actualday: SalaryFunctions.getWorkday(payroll),
-      allowances,
-      absents,
-      dayoff,
-      remotes,
-      overtimes,
-      holidays,
-      total
-    });
+    //total
+    const salary = basicSalary + staySalary;
+    const allowanceSalary = allowances.reduce((a, b) => a + b.total, 0);
+    const overtimeSalary = overtimes.reduce((a, b) => a + b.total, 0);
+    const holidaySalary = holidays.reduce((a, b) => a + b.total, 0);
+    const absentSalary = absents.reduce((a, b) => +b.total, 0);
+    const deductionSalary = payroll.deductions.reduce((a, b) => a + b.price, 0);
+    const taxSalary = payroll.taxed && payroll.tax ? (payroll.salariesv2?.find(salary => salary.type === SalaryType.BASIC_INSURANCE)?.price || 0) * payroll.tax : 0;
+    const total = salary / (workday * actualDay) + allowanceSalary + overtimeSalary + holidaySalary - (absentSalary + deductionSalary + taxSalary);
+
+    if (isPayslip) {
+      return {
+        basicSalary: basicSalary,
+        staySalary: staySalary,
+        allowanceSalary: allowanceSalary,
+        overtime: {
+          duration: {
+            day: overtimes.filter(overtime => overtime.setting.unit === DatetimeUnit.DAY).reduce((a, b) => a + b.duration, 0),
+            hour: overtimes.filter(overtime => overtime.setting.unit === DatetimeUnit.HOUR).reduce((a, b) => a + b.duration, 0),
+            minute: 0
+          },
+          total: overtimeSalary,
+        },
+        deductionSalary: deductionSalary,
+        absent: {
+          duration: {
+            paidLeave: absents.filter(absent => absent.setting.type === SalaryType.ABSENT && absent.setting.rate === 1).reduce((a, b) => a + b.duration, 0),
+            unpaidLeave: absents.filter(absent => absent.setting.type === SalaryType.ABSENT && absent.setting.rate === 1.5).reduce((a, b) => a + b.duration, 0),
+          },
+          total: absentSalary,
+        },
+        holiday: { /// TODO: handle tính working và unworking. working là những ngàylafm trong ngày lễ. unworking là ngày lễ nhưng vắng
+          working: {duration: 1, total: 1},
+          unworking: {duration: 1, total: 1},
+        }
+      } as PayslipEntity;
+    }
+    // return Object.assign(payroll, {
+    //   actualday: SalaryFunctions.getWorkday(payroll),
+    //   basicSalary: basicSalary,
+    //   workday: workday,
+    //   actualDay: actualDay,
+    //   staySalary: staySalary,
+    //   allowances: allowances,
+    //   absents: absents,
+    //   dayoffs: dayoffs,
+    //   remotes: remotes,
+    //   overtimes: overtimes,
+    //   holidays: holidays,
+    //   total: total
+    // }) as ResponsePayrollEntity;
   }
 
   private mapCreateToPayroll(body, employee): CreatePayrollDto {
@@ -241,5 +253,9 @@ export class PayrollService {
       taxed: employee.contracts?.length > 0,
       tax: employee.contracts?.length > 0 ? TAX : null,
     };
+  }
+
+  async remove(profile: ProfileEntity, id: number) {
+    return this.repository.remove(profile, id);
   }
 }

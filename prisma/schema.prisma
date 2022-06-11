@@ -301,7 +301,7 @@ model SalarySetting {
   title          String
   type           SalaryType
   rate           Float
-  hasConstraints Boolean          @default(false) //  Hệ số được tính khi hasConstraints = false
+  hasConstraints Boolean          @default(false) //  Hệ số được tính khi hasConstraints = false (bỏ)
   unit           DatetimeUnit
   prices         Float[]
   totalOf        SalaryType[]

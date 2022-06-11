@@ -1,4 +1,4 @@
-import {Body, Controller, Get, Param, Patch, Post, Query, UseGuards} from '@nestjs/common';
+import {Body, Controller, Delete, Get, Param, Patch, Post, Query, UseGuards} from '@nestjs/common';
 import {PayrollService} from './payroll.service';
 import {CreatePayrollDto} from './dto/create-payroll.dto';
 import {UpdatePayrollDto} from './dto/update-payroll.dto';
@@ -59,5 +59,12 @@ export class PayrollController {
   @Patch(":id")
   update(@ReqProfile() profile: ProfileEntity, @Param("id") id: number, @Body() updatePayrollDto: UpdatePayrollDto) {
     return this.payrollService.update(profile, +id, updatePayrollDto);
+  }
+
+  @UseGuards(LoggerGuard)
+  @Roles(RoleEnum.SUPPER_ADMIN, RoleEnum.ADMIN, RoleEnum.HUMAN_RESOURCE, RoleEnum.CAMP_ACCOUNTING)
+  @Delete(":id")
+  remove(@ReqProfile() profile: ProfileEntity, @Param("id") id: number) {
+    return this.payrollService.remove(profile, +id);
   }
 }
