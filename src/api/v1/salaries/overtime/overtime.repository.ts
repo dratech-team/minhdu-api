@@ -133,6 +133,10 @@ export class OvertimeRepository extends BaseRepository<OvertimeEntity> {
 
   async update(id: number, body: UpdateOvertimeDto) {
     try {
+      const {allowances} = await this.prisma.overtimeSalary.findUnique({
+        where: {id: id},
+        select: {allowances: true}
+      });
       return await this.prisma.overtimeSalary.update({
         where: {id},
         data: {
@@ -159,14 +163,7 @@ export class OvertimeRepository extends BaseRepository<OvertimeEntity> {
                     }
                   }
                 }
-            ) : {
-              delete: {
-                id: (await this.prisma.overtimeSalary.findUnique({
-                  where: {id: id},
-                  include: {allowances: true}
-                })).allowances[0].id
-              }
-            },
+            ) : !body.allowances?.length && allowances.length ? {delete: {id: allowances[0].id}} : {},
           blockId: body.blockId,
           settingId: body.settingId,
           note: body.note,
