@@ -16,40 +16,40 @@ export class RouteController {
   }
 
   @UseGuards(LoggerGuard)
-  @Roles(RoleEnum.SALESMAN)
+  @Roles(RoleEnum.SUPPER_ADMIN, RoleEnum.SALESMAN)
   @Post()
   create(@Body() createRouteDto: CreateRouteDto) {
     return this.routeService.create(createRouteDto);
   }
 
-  @Roles(RoleEnum.ADMIN, RoleEnum.SALESMAN)
+  @Roles(RoleEnum.SUPPER_ADMIN, RoleEnum.ADMIN, RoleEnum.SALESMAN)
   @Get()
   findAll(@Query() search: SearchRouteDto) {
     return this.routeService.findAll(search);
   }
 
-  @Roles(RoleEnum.ADMIN, RoleEnum.SALESMAN)
+  @Roles(RoleEnum.SUPPER_ADMIN, RoleEnum.ADMIN, RoleEnum.SALESMAN)
   @Get(":id")
   findOne(@Param("id") id: string) {
     return this.routeService.findOne(+id);
   }
 
   @UseGuards(LoggerGuard)
-  @Roles(RoleEnum.SALESMAN)
+  @Roles(RoleEnum.SUPPER_ADMIN, RoleEnum.SALESMAN)
   @Patch(":id")
   update(@Param("id") id: string, @Body() updateRouteDto: UpdateRouteDto) {
     return this.routeService.update(+id, updateRouteDto);
   }
 
   @UseGuards(LoggerGuard)
-  @Roles(RoleEnum.SALESMAN)
+  @Roles(RoleEnum.SUPPER_ADMIN, RoleEnum.SALESMAN)
   @Delete(":id")
   remove(@Param("id") id: string) {
     return this.routeService.remove(+id);
   }
 
   @UseGuards(LoggerGuard)
-  @Roles(RoleEnum.SALESMAN)
+  @Roles(RoleEnum.SUPPER_ADMIN, RoleEnum.SALESMAN)
   @Patch(":id/cancel")
   cancel(@Param("id") id: string, @Body() body: CancelRouteDto) {
     return this.routeService.cancel(+id, body);
