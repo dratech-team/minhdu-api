@@ -25,6 +25,11 @@ export class CreateCommodityDto {
   @IsNumber()
   readonly amount: number;
 
+  @IsNotEmpty()
+  @Type(() => Number)
+  @IsNumber()
+  readonly orderId: number;
+
   @IsOptional()
   @IsNumber()
   @Type(() => Number)

@@ -9,7 +9,7 @@ export class OrderHistoryService {
   constructor(private readonly prisma: PrismaService) {
   }
 
-  async create(createOrderHistoryDto: CreateOrderHistoryDto) {
+  async create(body: CreateOrderHistoryDto) {
     return 'This action adds a new orderHistory';
   }
 
@@ -18,7 +18,6 @@ export class OrderHistoryService {
       const [total, data] = await Promise.all([
         this.prisma.orderHistory.count({
           where: {
-            type: {startsWith: search.commodity, mode: "insensitive"},
             note: {contains: search?.content, mode: "insensitive"},
           }
         }),
@@ -26,7 +25,6 @@ export class OrderHistoryService {
           take: search?.take,
           skip: search?.skip,
           where: {
-            type: {startsWith: search.commodity, mode: "insensitive"},
             note: {contains: search?.content, mode: "insensitive"},
           }
         }),

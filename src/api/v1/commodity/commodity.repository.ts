@@ -10,11 +10,18 @@ export class CommodityRepository {
 
   async create(body: CreateCommodityDto) {
     try {
+      if (body?.orderId) {
+        const order = await this.prisma.order.findUnique({where: {id: body.orderId}});
+        if (order.deliveredAt) {
+          throw new BadRequestException("Đơn hàng đã được giao thành công. Không được phép sửa!!!");
+        }
+      }
       return await this.prisma.commodity.create({
         data: {
           name: body.name,
           code: body.code,
           amount: body.amount,
+          orderId: body?.orderId,
           price: body?.price,
           unit: body?.unit,
           more: body?.more,
@@ -65,9 +72,13 @@ export class CommodityRepository {
 
   async update(id: number, updates: UpdateCommodityDto) {
     try {
-      const commodity = await this.prisma.commodity.findUnique({where: {id}});
-
-      const updated = await this.prisma.commodity.update({
+      if (updates?.orderId) {
+        const order = await this.prisma.order.findUnique({where: {id: updates.orderId}});
+        if (order.deliveredAt) {
+          throw new BadRequestException("Đơn hàng đã được giao thành công. Không được phép sửa!!!");
+        }
+      }
+      return await this.prisma.commodity.update({
         where: {id},
         data: {
           name: updates?.name,
@@ -79,40 +90,6 @@ export class CommodityRepository {
           closed: updates?.closed,
         },
       });
-      if (updates.histored) {
-        const updownBuy = updated?.amount
-          ? updated.amount > commodity.amount
-            ? `Tăng thêm ${updated.amount - commodity.amount} con (gà mua)`
-            : updated.amount < commodity.amount
-              ? `Giảm đi ${commodity.amount - updated.amount} con (gà mua)`
-              : null
-          : null;
-        const updownGift = updated?.gift
-          ? updated.gift > commodity.gift
-            ? `Tăng thêm ${updated.gift - commodity.gift} con (gà tặng)`
-            : updated.gift < commodity.gift
-              ? `Giảm đi ${commodity.gift - updated.gift} con (gà tặng)`
-              : null
-          : null;
-        const updownMore = updated?.more
-          ? updated.more > commodity.more
-            ? `Tăng thêm ${updated.more - commodity.more} con (mua thêm)`
-            : updated.more < commodity.more
-              ? `Giảm đi ${commodity.more - updated.more} con (mua thêm)`
-              : null
-          : null;
-
-        if (updownBuy || updownGift || updownMore) {
-          await this.prisma.orderHistory.create({
-            data: {
-              order: {connect: {id: commodity?.orderId}},
-              type: commodity.name,
-              note: updownBuy ? updownBuy : '' + updownGift + '. ' ? updownGift + '. ' : '' + updownMore ? updownMore : '',
-            }
-          });
-        }
-      }
-      return updated;
     } catch (err) {
       console.error('commodity update', err);
       throw new BadRequestException(err);

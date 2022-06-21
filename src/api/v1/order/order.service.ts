@@ -2,7 +2,6 @@ import {BadRequestException, Injectable} from "@nestjs/common";
 import {CreateOrderDto} from "./dto/create-order.dto";
 import {UpdateOrderDto} from "./dto/update-order.dto";
 import {OrderRepository} from "./order.repository";
-import {CommodityService} from "../commodity/commodity.service";
 import {PaymentHistoryService} from "../histories/payment-history/payment-history.service";
 import {Response} from "express";
 import {exportExcel} from "../../../core/services/export.service";
@@ -16,7 +15,6 @@ import {Commodity} from '@prisma/client';
 export class OrderService {
   constructor(
     private readonly repository: OrderRepository,
-    private readonly commodityService: CommodityService,
     private readonly paymentService: PaymentHistoryService,
   ) {
   }
@@ -34,7 +32,7 @@ export class OrderService {
       total: result.total,
       data: orders,
       commodityUniq: this.orderUniq(resultFull.data),
-      commodityTotal: resultFull.data.map(order => this.commodityService.totalCommodities(order.commodities)).reduce((a, b) => a + b, 0)
+      commodityTotal: resultFull.data.map(order => this.totalCommodities(order.commodities)).reduce((a, b) => a + b, 0)
     };
   }
 
@@ -119,11 +117,11 @@ export class OrderService {
           createdAt: e.createdAt,
           // ward: `${e.ward.name}, ${e.ward.district.name}, ${e.ward.district.province.name}, ${e.ward.district.province.nation.name}`,
           lengthTotal: e.commodities.length,
-          commodityTotal: this.commodityService.totalCommodities(e.commodities),
+          commodityTotal: this.totalCommodities(e.commodities),
           payTotal: this.paymentService.totalPayment(e.paymentHistories),
           debtTotal:
             this.paymentService.totalPayment(e.paymentHistories) -
-            this.commodityService.totalCommodities(e.commodities),
+            this.totalCommodities(e.commodities),
           explain: e.explain,
         })),
       },
@@ -132,19 +130,52 @@ export class OrderService {
   }
 
   private mapOrder(order) {
-    const commodityTotal = this.commodityService.totalCommodities(
+    const commodityTotal = this.totalCommodities(
       order.commodities
     );
     return Object.assign(
       order,
       {
         commodities: order.commodities.map((commodity) => {
-            return this.commodityService.handleCommodity(commodity);
+            return this.handleCommodity(commodity);
           }
         ),
       },
       {commodityTotal: commodityTotal},
       {paymentTotal: this.paymentService.totalPayment(order.paymentHistories)}
     );
+  }
+
+
+  /**
+   * Nếu có more thì giá trị trả về trong đơn hàng sẽ ở dạng này*/
+  handleCommodity(commodity: Commodity) {
+    const priceMore = Math.ceil((commodity.price * commodity.amount) / (commodity.amount + commodity.more));
+    return Object.assign(commodity, commodity.more ? {
+      more: {
+        amount: commodity.more,
+        price: priceMore,
+      }
+    } : null);
+  }
+
+  /*
+  * Tổng trị giá đơn hàng
+  * */
+  totalCommodity(commodity: Commodity): number {
+    if (commodity?.more) {
+      return (commodity.amount * commodity.price) + (((commodity.amount + commodity.gift) / commodity.price) * commodity.more);
+    } else {
+      return commodity.amount * commodity.price;
+    }
+  }
+
+  /*
+  * Tổng tiền nhiều đơn hàng
+  * */
+  totalCommodities(commodities: any[]) {
+    return commodities.map(commodity => {
+      return this.totalCommodity(commodity);
+    }).reduce((a, b) => a + b, 0);
   }
 }
