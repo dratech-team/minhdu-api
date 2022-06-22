@@ -21,8 +21,8 @@ import {DatetimeUnit, PartialDay, SalaryType} from "@prisma/client";
 import * as dateFns from "date-fns";
 import {PayrollEntity} from "./entities";
 import {TAX} from "../../../common/constant";
-import {SalaryFunctions} from "./functions/salary.functions";
 import {TimeSheet} from "./functions/timesheet.functions";
+import {SalaryUtils} from "./functions/salary.functions";
 
 @Injectable()
 export class PayrollService {
@@ -139,7 +139,7 @@ export class PayrollService {
 
   private mapToPayslip(payroll: PayrollEntity, isPayslip?: boolean) {
     const workday = payroll.workday || payroll.employee.workday;
-    const actualDay = SalaryFunctions.getWorkday(payroll);
+    const actualDay = SalaryUtils.getWorkday(payroll);
 
     const basicInsuranceSalary = payroll.salariesv2?.filter(salary => salary.type === SalaryType.BASIC_INSURANCE)?.reduce((a, b) => a + b.price, 0) || 0;
     const basicSalary = payroll.salariesv2?.filter(salary => salary.type === SalaryType.BASIC_INSURANCE || salary.type === SalaryType.BASIC)
@@ -147,11 +147,11 @@ export class PayrollService {
     const staySalary = payroll.salariesv2?.filter(salary => salary.type === SalaryType.STAY)
       .reduce((a, b) => a + b.price * b.rate, 0);
     const allowances = payroll.allowances.map(allowance => {
-      const a = SalaryFunctions.handleAllowance(allowance, payroll as any);
+      const a = SalaryUtils.handleAllowance(allowance, payroll as any);
       return Object.assign(allowance, {total: a.total, duration: a.duration});
     });
     const absents = payroll.absents.map(absent => {
-      const a = SalaryFunctions.handleAbsent(absent, payroll as any);
+      const a = SalaryUtils.handleAbsent(absent, payroll as any);
       return Object.assign(absent, {
         price: a.price,
         duration: a.duration,
@@ -159,7 +159,7 @@ export class PayrollService {
       });
     });
     const dayoffs = payroll.dayoffs.map(dayoff => {
-      const a = SalaryFunctions.handleDayOff(dayoff, payroll as any);
+      const a = SalaryUtils.handleDayOff(dayoff, payroll as any);
       return Object.assign(dayoff, {
         duration: a.duration,
       });
@@ -172,7 +172,7 @@ export class PayrollService {
       return Object.assign(remote, {total: 0, duration: duration});
     });
     const overtimes = payroll.overtimes.map(overtime => {
-      const overtimes = SalaryFunctions.handleOvertime(overtime, payroll as any);
+      const overtimes = SalaryUtils.handleOvertime(overtime, payroll as any);
       return Object.assign(overtime, {
         total: overtimes.map(e => e.total).reduce((a, b) => a + b, 0),
         duration: overtimes.map(e => e.duration).reduce((a, b) => a + b, 0),
@@ -180,7 +180,7 @@ export class PayrollService {
       });
     });
     const holidays = payroll.holidays.map(holiday => {
-      const details = SalaryFunctions.handleHoliday(holiday, payroll as any);
+      const details = SalaryUtils.handleHoliday(holiday, payroll as any);
       return Object.assign(holiday, {
         total: details.map(e => e.total).reduce((a, b) => a + b, 0),
         duration: details.map(e => e.duration).reduce((a, b) => a + b, 0),
@@ -225,7 +225,7 @@ export class PayrollService {
     //   } as PayslipEntity;
     // }
     return Object.assign(payroll, {
-      actualday: SalaryFunctions.getWorkday(payroll),
+      actualday: SalaryUtils.getWorkday(payroll),
       basicSalary: basicSalary,
       workday: workday,
       actualDay: actualDay,
