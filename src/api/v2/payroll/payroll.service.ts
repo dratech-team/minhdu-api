@@ -21,8 +21,8 @@ import {DatetimeUnit, PartialDay, SalaryType} from "@prisma/client";
 import * as dateFns from "date-fns";
 import {PayrollEntity} from "./entities";
 import {TAX} from "../../../common/constant";
-import {TimeSheet} from "./functions/timesheet.functions";
 import {SalaryUtils} from "./functions/salary.functions";
+import {TimeSheetUtils} from "./functions/timesheet.functions";
 
 @Injectable()
 export class PayrollService {
@@ -93,7 +93,7 @@ export class PayrollService {
       case FilterTypeEnum.TIME_SHEET: {
         return {
           total, data: data.map(e => {
-            return Object.assign(e, {timesheet: TimeSheet.timesheet(e)});
+            return Object.assign(e, {timesheet: TimeSheetUtils.timesheet(e)});
           })
         };
       }
