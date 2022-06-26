@@ -55,7 +55,7 @@
     "express": "4.17.1",
     "express-rate-limit": "5.5.1",
     "faker": "5.5.3",
-    "formidable": "1.2.6",
+    "formidable": "2.0.1",
     "helmet": "4.4.1",
     "jimp": "0.16.1",
     "joi": "17.4.0",
