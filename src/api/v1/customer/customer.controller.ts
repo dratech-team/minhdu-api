@@ -28,7 +28,7 @@ export class CustomerController {
     return this.customerService.findAll(search);
   }
 
-  @Roles(RoleEnum.ADMIN, RoleEnum.SALESMAN)
+  @Roles(RoleEnum.SUPPER_ADMIN, RoleEnum.ADMIN, RoleEnum.SALESMAN)
   @Get(':id')
   findOne(@Param('id') id: string) {
     return this.customerService.findOne(+id);

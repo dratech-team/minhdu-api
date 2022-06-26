@@ -14,13 +14,13 @@ export class PaymentHistoryController {
   }
 
   @UseGuards(LoggerGuard)
-  @Roles(RoleEnum.SALESMAN)
+  @Roles(RoleEnum.SUPPER_ADMIN, RoleEnum.SALESMAN)
   @Post()
   create(@Body() body: CreatePaymentHistoryDto) {
     return this.paymentHistoryService.create(body);
   }
 
-  @Roles(RoleEnum.SALESMAN)
+  @Roles(RoleEnum.SUPPER_ADMIN, RoleEnum.SALESMAN)
   @Get()
   findAll(
     @Query("customerId") customerId: number,
@@ -30,14 +30,14 @@ export class PaymentHistoryController {
     return this.paymentHistoryService.findAll(+customerId, +skip, +take);
   }
 
-  @Roles(RoleEnum.SALESMAN)
+  @Roles(RoleEnum.SUPPER_ADMIN, RoleEnum.SALESMAN)
   @Get(":id")
   findOne(@Param("id") id: string) {
     return this.paymentHistoryService.findOne(+id);
   }
 
   @UseGuards(LoggerGuard)
-  @Roles(RoleEnum.SALESMAN)
+  @Roles(RoleEnum.SUPPER_ADMIN, RoleEnum.SALESMAN)
   @Patch(":id")
   update(
     @Param("id") id: string,
@@ -47,7 +47,7 @@ export class PaymentHistoryController {
   }
 
   @UseGuards(LoggerGuard)
-  @Roles(RoleEnum.SALESMAN)
+  @Roles(RoleEnum.SUPPER_ADMIN, RoleEnum.SALESMAN)
   @Delete(":id")
   remove(@Param("id") id: string) {
     return this.paymentHistoryService.remove(+id);
