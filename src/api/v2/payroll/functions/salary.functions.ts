@@ -234,9 +234,11 @@ export namespace SalaryUtils {
         return Object.assign(e, {
           duration: d,
           setting: Object.assign({}, e.setting, {
-            rate: e.setting.rateCondition.condition === ConditionType.NO_CONDITION
-              ? e.setting.rate
-              : duration > 0 ? e.setting.rate : e.setting.rateCondition.default
+            rate: e.setting.rateCondition
+              ? e.setting.rateCondition.condition === ConditionType.NO_CONDITION
+                ? e.setting.rate
+                : duration > 0 ? e.setting.rate : e.setting.rateCondition.default
+              : 1
           }),
           settingTotal: settingTotal,
           price: settingTotal,
