@@ -1,76 +1,47 @@
-import {Body, Controller, Delete, Get, Param, ParseIntPipe, Patch, Post, Query, UseGuards,} from "@nestjs/common";
-import {CreateSalaryDto} from "./dto/create-salary.dto";
-import {UpdateSalaryDto} from "./dto/update-salary.dto";
-import {SalaryService} from "./salary.service";
-import {ParseDatetimePipe} from "../../../../core/pipe/datetime.pipe";
-import {DatetimeUnit, RoleEnum} from "@prisma/client";
-import {ReqProfile} from "../../../../core/decorators/req-profile.decorator";
-import {ProfileEntity} from "../../../../common/entities/profile.entity";
-import {ApiKeyGuard, JwtAuthGuard, LoggerGuard, RolesGuard} from "../../../../core/guard";
+import {Body, Controller, Get, Param, Post, UseGuards} from '@nestjs/common';
+import {SalaryService} from './salary.service';
+import {UpdateSalaryDto} from './dto/update-salary.dto';
 import {Roles} from "../../../../core/decorators/roles.decorator";
+import {RoleEnum} from "@prisma/client";
+import {ApiKeyGuard, JwtAuthGuard, RolesGuard} from "../../../../core/guard";
+import {CreateManySalaryDto} from "./dto/create-many-salary.dto";
 import {UpdateManySalaryDto} from "./dto/update-many-salary.dto";
-import {ApiV2Constant} from "../../../../common/constant/api.constant";
+import {RemoteManySalaryDto} from "./dto/remote-many-salary.dto";
+import {ApiConstant} from "../../../../common/constant";
 
 @UseGuards(JwtAuthGuard, ApiKeyGuard, RolesGuard)
-@Controller(ApiV2Constant.SALARY.SALARY)
+@Controller(ApiConstant.V2.SALARY.SALARY)
 export class SalaryController {
   constructor(private readonly salaryService: SalaryService) {
   }
 
-  @UseGuards(LoggerGuard)
   @Roles(RoleEnum.SUPPER_ADMIN, RoleEnum.CAMP_ACCOUNTING)
-  @Post()
-  async create(@Body() createSalaryDto: CreateSalaryDto) {
-    return await this.salaryService.create(createSalaryDto);
+  @Post("/multiple/creation")
+  createMany(@Body() body: CreateManySalaryDto) {
+    return this.salaryService.createMany(body);
   }
 
-  @Roles(RoleEnum.SUPPER_ADMIN, RoleEnum.CAMP_ACCOUNTING, RoleEnum.HUMAN_RESOURCE, RoleEnum.ADMIN)
+  @Roles(RoleEnum.SUPPER_ADMIN, RoleEnum.CAMP_ACCOUNTING, RoleEnum.HUMAN_RESOURCE)
   @Get()
-  findAll(
-    @Query("skip", ParseIntPipe) skip: number,
-    @Query("take", ParseIntPipe) take: number,
-    @Query("title") title: string,
-    @Query("unit") unit: DatetimeUnit,
-    @Query("createdAt", ParseDatetimePipe) createdAt: any,
-    @Query("position") position: string,
-    @Query("employeeId") employeeId: number,
-  ) {
-    return this.salaryService.findAll({
-      createdAt, unit, title, position, employeeId: +employeeId
-    });
+  findAll() {
+    return this.salaryService.findAll();
   }
 
-  @Roles(RoleEnum.SUPPER_ADMIN, RoleEnum.CAMP_ACCOUNTING, RoleEnum.HUMAN_RESOURCE, RoleEnum.ADMIN)
-  @Get(":id")
-  findOne(@Param("id") id: string) {
+  @Roles(RoleEnum.SUPPER_ADMIN, RoleEnum.CAMP_ACCOUNTING, RoleEnum.HUMAN_RESOURCE)
+  @Get(':id')
+  findOne(@Param('id') id: string) {
     return this.salaryService.findOne(+id);
   }
 
   @Roles(RoleEnum.SUPPER_ADMIN, RoleEnum.CAMP_ACCOUNTING)
-  @UseGuards(LoggerGuard)
-  @Roles(RoleEnum.CAMP_ACCOUNTING, RoleEnum.HUMAN_RESOURCE)
-  @Patch(":id")
-  async update(@Param("id") id: string, @Body() updateSalaryDto: UpdateSalaryDto) {
-    return await this.salaryService.update(+id, updateSalaryDto);
-  }
-
-  @UseGuards(LoggerGuard)
-  @Roles(RoleEnum.SUPPER_ADMIN, RoleEnum.CAMP_ACCOUNTING)
-  @Patch("salaries/ids")
-  async updateMany(@ReqProfile() profile: ProfileEntity, @Param("id") id: number, @Body() updateSalaryDto: UpdateManySalaryDto) {
-    return await this.salaryService.updateMany(profile, +id, updateSalaryDto);
-  }
-
-  @UseGuards(LoggerGuard)
-  @Roles(RoleEnum.SUPPER_ADMIN, RoleEnum.CAMP_ACCOUNTING)
-  @Delete(":id")
-  remove(@Param("id") id: string) {
-    return this.salaryService.remove(+id);
+  @Post('/multiple/updation')
+  updateMany(@Body() updateSalaryv2Dto: UpdateManySalaryDto) {
+    return this.salaryService.updateMany(updateSalaryv2Dto);
   }
 
   @Roles(RoleEnum.SUPPER_ADMIN, RoleEnum.CAMP_ACCOUNTING)
-  @Post("/migrate")
-  migrate() {
-    return this.salaryService.migrate();
+  @Post('multiple/deletion')
+  removeMany(@Body() body: RemoteManySalaryDto) {
+    return this.salaryService.removeMany(body);
   }
 }

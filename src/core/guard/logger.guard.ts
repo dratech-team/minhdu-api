@@ -2,7 +2,7 @@ import {CanActivate, ExecutionContext, Injectable} from "@nestjs/common";
 import {AppEnum} from "@prisma/client";
 import {Observable} from "rxjs";
 import {PrismaService} from "../../prisma.service";
-import {ApiV2Constant} from "../../common/constant/api.constant";
+import {ApiConstant} from "../../common/constant";
 
 @Injectable()
 export class LoggerGuard implements CanActivate {
@@ -19,11 +19,11 @@ export class LoggerGuard implements CanActivate {
     const method = request.method;
     const body = request.body;
     // path for define app name
-    if ((path.includes(ApiV2Constant.ORDER || ApiV2Constant.PAYMENT_HISTORY || ApiV2Constant.COMMODITY))) {
+    if ((path.includes(ApiConstant.V1.ORDER || ApiConstant.V1.PAYMENT_HISTORY || ApiConstant.V1.COMMODITY))) {
       appName = AppEnum.SELL;
-    } else if (path.includes(ApiV2Constant.EMPLOYEE || ApiV2Constant.PAYROLL)) {
+    } else if (path.includes(ApiConstant.V1.EMPLOYEE || ApiConstant.V1.PAYROLL)) {
       appName = AppEnum.HR;
-    } else if (path.includes(ApiV2Constant.SUPPLIER || ApiV2Constant.WAREHOUSE)) {
+    } else if (path.includes(ApiConstant.V1.WAREHOUSE.SUPPLIER || ApiConstant.V1.WAREHOUSE)) {
 
     }
 

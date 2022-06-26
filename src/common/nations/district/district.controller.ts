@@ -2,8 +2,9 @@ import {Controller, Get, Post, Body, Patch, Param, Delete, Query} from '@nestjs/
 import {DistrictService} from './district.service';
 import {CreateDistrictDto} from './dto/create-district.dto';
 import {UpdateDistrictDto} from './dto/update-district.dto';
+import {ApiConstant} from "../../constant";
 
-@Controller('v2/district')
+@Controller(ApiConstant.V1.ORGCHART.DISTRICT)
 export class DistrictController {
   constructor(private readonly districtService: DistrictService) {
   }

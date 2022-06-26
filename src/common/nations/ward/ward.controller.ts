@@ -1,11 +1,13 @@
-import {Controller, Get, Post, Body, Patch, Param, Delete, Query} from '@nestjs/common';
-import { WardService } from './ward.service';
-import { CreateWardDto } from './dto/create-ward.dto';
-import { UpdateWardDto } from './dto/update-ward.dto';
+import {Body, Controller, Delete, Get, Param, Patch, Post, Query} from '@nestjs/common';
+import {WardService} from './ward.service';
+import {CreateWardDto} from './dto/create-ward.dto';
+import {UpdateWardDto} from './dto/update-ward.dto';
+import {ApiConstant} from "../../constant";
 
-@Controller('v2/ward')
+@Controller(ApiConstant.V1.ORGCHART.WARD)
 export class WardController {
-  constructor(private readonly wardService: WardService) {}
+  constructor(private readonly wardService: WardService) {
+  }
 
   @Post()
   create(@Body() createWardDto: CreateWardDto) {

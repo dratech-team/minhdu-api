@@ -1,39 +1,33 @@
+import {IsDate, IsEnum, IsNotEmpty, IsNumber, IsOptional, IsString} from "class-validator";
 import {Transform, Type} from "class-transformer";
-import {IsArray, IsDate, IsNumber, IsOptional, ValidateNested} from "class-validator";
-import {ICreateSalaryDto} from "../../../../../common/dtos/create-salary.dto";
-import {CreateAllowanceDto} from "./create-allowance.dto";
+import {PartialDay, SalaryType} from "@prisma/client";
 import * as moment from "moment";
 
-export class CreateSalaryDto extends ICreateSalaryDto {
-  @IsOptional()
-  @IsDate()
-  @Type(() => Date)
-  @Transform(({value}) => new Date(moment(value).utc().format('YYYY-MM-DD')))
-  readonly startedAt: Date;
-
-  @IsOptional()
-  @IsDate()
-  @Type(() => Date)
-  @Transform(({value}) => new Date(moment(value).utc().format('YYYY-MM-DD')))
-  readonly endedAt: Date;
-
+export class CreateSalaryDto {
+  @IsNotEmpty()
+  @IsNumber()
   @Type(() => Number)
-  @IsOptional()
+  readonly payrollId: number;
+
+  @IsOptional({message: "Bạn phải nhập đơn giá", groups: ["basic", "stay"]})
   @IsNumber()
-  readonly payrollId?: number;
+  @Type(() => Number)
+  readonly price: number;
+
+  @IsNotEmpty({message: "Bạn phải nhập tiêu đề"})
+  @IsString()
+  readonly title: string;
 
   @IsOptional()
-  @IsArray()
-  readonly payrollIds?: number[];
+  @IsNumber({}, {each: true})
+  @Type(() => Number)
+  readonly blockId: number;
+
+  @IsNotEmpty({message: "Bạn phải loại lương"})
+  @IsEnum(SalaryType)
+  readonly type: SalaryType;
 
   @IsOptional()
-  @IsArray()
-  readonly allowPayrollIds: number[];
-
-  @ValidateNested()
-  readonly allowance: CreateAllowanceDto;
-
-  @IsOptional()
-  @IsNumber()
-  readonly branchId: number;
+  @IsString()
+  readonly note: string;
 }

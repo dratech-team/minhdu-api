@@ -1,8 +1,3 @@
-import {Payroll, Salary} from "@prisma/client";
+import {CreateSalaryDto} from "../dto/create-salary.dto";
 
-export type FullSalary = Salary & { allowance?: Salary }
-
-export type OneSalary = Salary & { payroll: Payroll }
-
-
-export type RageDate = { start: Date; end: Date };
+export type SalaryEntity = Omit<CreateSalaryDto, "payrollIds"> & { payrollId: number }

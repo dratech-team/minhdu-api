@@ -2,18 +2,16 @@ import {Body, Controller, Delete, Get, Param, Patch, Post, UseGuards} from '@nes
 import {BranchService} from './branch.service';
 import {CreateBranchDto} from './dto/create-branch.dto';
 import {UpdateBranchDto} from './dto/update-branch.dto';
-import {JwtAuthGuard} from "../../../core/guard/jwt-auth.guard";
-import {ApiKeyGuard} from "../../../core/guard/api-key-auth.guard";
-import {RolesGuard} from "../../../core/guard/role.guard";
+import {ApiKeyGuard, JwtAuthGuard, LoggerGuard, RolesGuard} from "../../../core/guard";
 import {Roles} from "../../../core/decorators/roles.decorator";
 import {RoleEnum} from "@prisma/client";
-import {LoggerGuard} from "../../../core/guard/logger.guard";
 import {ReqProfile} from "../../../core/decorators/req-profile.decorator";
 import {ProfileEntity} from "../../entities/profile.entity";
 import {SearchBranchDto} from "./dto/search-branch.dto";
+import {ApiConstant} from "../../constant";
 
 @UseGuards(JwtAuthGuard, ApiKeyGuard, RolesGuard)
-@Controller('v2/branch')
+@Controller(ApiConstant.V1.ORGCHART.BRANCH)
 export class BranchController {
   constructor(private readonly branchService: BranchService) {
   }

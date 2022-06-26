@@ -4,7 +4,7 @@ import {UpdateHolidayDto} from './dto/update-holiday.dto';
 import {HolidayRepository} from './holiday.repository';
 import {CreateManyHolidayDto} from "./dto/create-many-holiday.dto";
 import {UpdateManyHolidayDto} from "./dto/update-many-holiday.dto";
-import {crudManyResponse} from "../base/functions/response.function";
+import {crudManyResponse} from "../../../v1/salaries/base/functions/response.function";
 import {RemoveManyHolidayDto} from "./dto/remove-many-holiday.dto";
 
 @Injectable()
@@ -23,11 +23,15 @@ export class HolidayService {
   }
 
   findAll() {
-    return `This action returns all holiday`;
+    return `Chưa làm`;
+  }
+
+  count() {
+    return this.repository.count();
   }
 
   findOne(id: number) {
-    return `This action returns a #${id} holiday`;
+    return `Chưa làm`;
   }
 
   update(id: number, updates: UpdateHolidayDto) {
@@ -35,7 +39,7 @@ export class HolidayService {
   }
 
   async updateMany(body: UpdateManyHolidayDto) {
-    const {count} = await this.repository.updateMany(body.salaryIds, body);
+    const {count} = await this.repository.updateMany(body.salaryIds, this.mapToHoliday(body));
     return crudManyResponse(count, "updation");
   }
 
@@ -52,7 +56,6 @@ export class HolidayService {
     return {
       payrollId: body.payrollId,
       settingId: body.settingId,
-      datetime: body.datetime,
       note: body?.note,
       blockId: body?.blockId || 7
     };

@@ -1,11 +1,13 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete } from '@nestjs/common';
-import { NationService } from './nation.service';
-import { CreateNationDto } from './dto/create-nation.dto';
-import { UpdateNationDto } from './dto/update-nation.dto';
+import {Body, Controller, Delete, Get, Param, Patch, Post} from '@nestjs/common';
+import {NationService} from './nation.service';
+import {CreateNationDto} from './dto/create-nation.dto';
+import {UpdateNationDto} from './dto/update-nation.dto';
+import {ApiConstant} from "../../constant";
 
-@Controller('v2/nation')
+@Controller(ApiConstant.V1.ORGCHART.NATION)
 export class NationController {
-  constructor(private readonly nationService: NationService) {}
+  constructor(private readonly nationService: NationService) {
+  }
 
   @Post()
   create(@Body() createNationDto: CreateNationDto) {

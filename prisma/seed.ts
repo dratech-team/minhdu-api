@@ -139,16 +139,21 @@ async function main() {
       },
       {
         stt: 6,
-        title: "Khấu trừ",
+        title: "Không đi làm",
         calculationId: 1,
       },
       {
         stt: 7,
-        title: "Ngày lễ",
+        title: "Khấu trừ",
         calculationId: 1,
       },
       {
         stt: 8,
+        title: "Ngày lễ",
+        calculationId: 1,
+      },
+      {
+        stt: 9,
         title: "Remote",
         calculationId: 1,
       }

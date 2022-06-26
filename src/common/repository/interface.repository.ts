@@ -1,5 +1,4 @@
 import {ResponsePagination} from "../entities/response.pagination";
-import {DeleteMultipleSalaryDto} from "../../api/v2/salaries/base/dto/delete-multiple-salary.dto";
 
 export interface InterfaceRepository<T> {
   create(body: any): Promise<T>;

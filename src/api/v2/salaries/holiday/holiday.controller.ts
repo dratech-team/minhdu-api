@@ -1,8 +1,8 @@
-import {Controller, Get, Post, Body, Patch, Param, Delete, UseGuards} from '@nestjs/common';
+import {Body, Controller, Delete, Get, Param, Patch, Post, UseGuards} from '@nestjs/common';
 import {HolidayService} from './holiday.service';
 import {CreateHolidayDto} from './dto/create-holiday.dto';
 import {UpdateHolidayDto} from './dto/update-holiday.dto';
-import {ApiV2Constant} from "../../../../common/constant/api.constant";
+import {ApiConstant} from "../../../../common/constant";
 import {ApiKeyGuard, JwtAuthGuard, LoggerGuard, RolesGuard} from "../../../../core/guard";
 import {Roles} from "../../../../core/decorators/roles.decorator";
 import {RoleEnum} from "@prisma/client";
@@ -11,7 +11,7 @@ import {UpdateManyHolidayDto} from "./dto/update-many-holiday.dto";
 import {RemoveManyHolidayDto} from "./dto/remove-many-holiday.dto";
 
 @UseGuards(JwtAuthGuard, ApiKeyGuard, RolesGuard)
-@Controller(ApiV2Constant.SALARY.HOLIDAY)
+@Controller(ApiConstant.V2.SALARY.HOLIDAY)
 export class HolidayController {
   constructor(private readonly holidayService: HolidayService) {
   }
@@ -51,7 +51,7 @@ export class HolidayController {
 
   @UseGuards(LoggerGuard)
   @Roles(RoleEnum.SUPPER_ADMIN, RoleEnum.CAMP_ACCOUNTING)
-  @Patch("multiple/updation")
+  @Post("multiple/updation")
   updateMany(@Body() updateHolidayDto: UpdateManyHolidayDto) {
     return this.holidayService.updateMany(updateHolidayDto);
   }
@@ -65,7 +65,7 @@ export class HolidayController {
 
   @UseGuards(LoggerGuard)
   @Roles(RoleEnum.SUPPER_ADMIN, RoleEnum.CAMP_ACCOUNTING)
-  @Delete("multiple/deletion3333")
+  @Post("multiple/deletion")
   removeMany(@Body() body: RemoveManyHolidayDto) {
     return this.holidayService.removeMany(body);
   }
