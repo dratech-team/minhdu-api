@@ -42,7 +42,7 @@
     "@nestjs/swagger": "4.8.2",
     "@nestjs/websockets": "7.6.17",
     "@prisma/client": "3.7.0",
-    "@types/lodash": "4.14.174",
+    "@types/lodash": "4.14.182",
     "@types/passport": "1.0.6",
     "basic-auth-token": "0.4.2",
     "bcrypt": "5.0.1",
