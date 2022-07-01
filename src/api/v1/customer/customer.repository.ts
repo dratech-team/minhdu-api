@@ -75,8 +75,8 @@ export class CustomerRepository {
               search?.isPotential === 1
                 ? true
                 : search?.isPotential === 0
-                ? false
-                : {},
+                  ? false
+                  : {},
           },
         }),
         this.prisma.customer.findMany({
@@ -95,8 +95,8 @@ export class CustomerRepository {
               search?.isPotential === 1
                 ? true
                 : search?.isPotential === 0
-                ? false
-                : {},
+                  ? false
+                  : {},
           },
           include: {
             ward: true,
