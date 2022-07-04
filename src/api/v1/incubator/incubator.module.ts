@@ -6,7 +6,7 @@ import {IncubatorRepository} from "./incubator.repository";
 
 @Module({
   controllers: [IncubatorController],
-  providers: [IncubatorService, PrismaService, IncubatorRepository]
+  providers: [IncubatorService, IncubatorRepository, PrismaService]
 })
 export class IncubatorModule {
 }

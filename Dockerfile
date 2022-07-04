@@ -4,13 +4,15 @@ FROM node:${VARIANT}-alpine
 
 WORKDIR /minhdu-api
 
-COPY package*.json ./minhdu-api
+COPY package*.json ./
 
-RUN yarn
+COPY . .
 
-RUN yarn build
+RUN npm run push
 
-RUN ls -la
+RUN npm install --production
 
-CMD ["yarn", "start"]
+WORKDIR /app/dist/
+
+CMD ["npm", "start"]
 EXPOSE 3000

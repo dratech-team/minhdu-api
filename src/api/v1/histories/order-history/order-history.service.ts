@@ -10,7 +10,22 @@ export class OrderHistoryService {
   }
 
   async create(body: CreateOrderHistoryDto) {
-    return 'This action adds a new orderHistory';
+    try {
+      return await this.prisma.orderHistory.create({
+        data: {
+          orderId: body.orderId,
+          amount: body.amount,
+          gift: body.gift,
+          more: body.more,
+          price: body.price,
+          confirmedAt: body.confirmedAt,
+          note: body.note
+        }
+      });
+    } catch (err) {
+      console.error(err);
+      throw new BadRequestException(err);
+    }
   }
 
   async findAll(search: SearchOrderHistoryDto) {

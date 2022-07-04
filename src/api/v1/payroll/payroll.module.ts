@@ -33,9 +33,9 @@ import {RemoteRepository} from "../salaries/remote/remote.repository";
     PayrollController,
   ],
   providers: [
-    PrismaService,
     PayrollRepository,
     PayrollService,
+    PrismaService,
     EmployeeRepository,
     SalaryRepository,
     AllowanceRepository,

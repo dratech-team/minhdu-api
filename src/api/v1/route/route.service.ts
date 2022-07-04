@@ -5,14 +5,12 @@ import {RouteRepository} from "./route.repository";
 import {Response} from "express";
 import {exportExcel} from "../../../core/services/export.service";
 import {SearchRouteDto} from "./dto/search-route.dto";
-import {OrderService} from "../order/order.service";
 import {CancelRouteDto} from "./dto/cancel-route.dto";
 
 @Injectable()
 export class RouteService {
   constructor(
     private readonly repository: RouteRepository,
-    private readonly orderService: OrderService,
   ) {
   }
 

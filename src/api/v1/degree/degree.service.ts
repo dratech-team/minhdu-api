@@ -2,11 +2,10 @@ import {BadRequestException, Injectable} from '@nestjs/common';
 import {CreateDegreeDto} from './dto/create-degree.dto';
 import {UpdateDegreeDto} from './dto/update-degree.dto';
 import {PrismaService} from "../../../prisma.service";
-import {EmployeeService} from "../employee/employee.service";
 
 @Injectable()
 export class DegreeService {
-  constructor(private readonly prisma: PrismaService, private readonly employeeService: EmployeeService) {
+  constructor(private readonly prisma: PrismaService) {
   }
 
   async create(body: CreateDegreeDto) {

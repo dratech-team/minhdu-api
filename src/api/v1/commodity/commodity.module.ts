@@ -10,7 +10,7 @@ import {OrderHistoryModule} from "../histories/order-history/order-history.modul
 @Module({
   imports: [ConfigModule, OrderHistoryModule],
   controllers: [CommodityController],
-  providers: [PrismaService, CommodityService, CommodityRepository, OrderHistoryService],
+  providers: [CommodityService, CommodityRepository, PrismaService, OrderHistoryService],
   exports: [CommodityService]
 })
 export class CommodityModule {

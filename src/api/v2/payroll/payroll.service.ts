@@ -29,8 +29,8 @@ export class PayrollService {
   constructor(
     private readonly repository: PayrollRepository,
     private readonly employeeService: EmployeeService,
-    private readonly salaryv2Service: SalaryService,
-    private readonly allowanceSerivce: AllowanceService,
+    private readonly salaryService: SalaryService,
+    private readonly allowanceService: AllowanceService,
     private readonly absentService: AbsentService,
     private readonly overtimeService: OvertimeService,
     private readonly remoteService: RemoteService,
@@ -79,14 +79,14 @@ export class PayrollService {
       case FilterTypeEnum.PERMANENT: {
         return {
           total,
-          total2: await this.salaryv2Service.count(),
+          total2: await this.salaryService.count(),
           data: data.map(e => Object.assign(e, {salaries: e.salariesv2}))
         };
       }
       case FilterTypeEnum.ALLOWANCE: {
         return {
           total,
-          total2: await this.allowanceSerivce.count(),
+          total2: await this.allowanceService.count(),
           data: data.map(e => Object.assign(e, {salaries: e.allowances}))
         };
       }

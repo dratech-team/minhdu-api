@@ -17,5 +17,5 @@ export class UpdateOrderDto extends PartialType(CreateOrderDto) {
 
   @IsOptional()
   @IsObject({each: true})
-  readonly commidity: UpdateCommodityDto;
+  readonly commodity: UpdateCommodityDto;
 }

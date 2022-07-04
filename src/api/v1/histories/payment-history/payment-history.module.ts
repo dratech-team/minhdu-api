@@ -8,7 +8,7 @@ import {ConfigModule} from "../../../../core/config/config.module";
 @Module({
   imports: [ConfigModule],
   controllers: [PaymentHistoryController],
-  providers: [PrismaService, PaymentHistoryService, PaymentHistoryRepository],
+  providers: [PaymentHistoryService, PaymentHistoryRepository, PrismaService],
   exports: [PaymentHistoryService],
 })
 export class PaymentHistoryModule {

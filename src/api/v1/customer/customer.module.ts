@@ -3,26 +3,17 @@ import {CustomerService} from "./customer.service";
 import {CustomerController} from "./customer.controller";
 import {PrismaService} from "../../../prisma.service";
 import {CustomerRepository} from "./customer.repository";
-import {PaymentHistoryModule} from "../histories/payment-history/payment-history.module";
-import {PaymentHistoryService} from "../histories/payment-history/payment-history.service";
-import {PaymentHistoryRepository} from "../histories/payment-history/payment-history.repository";
-import {CommodityService} from "../commodity/commodity.service";
-import {CommodityRepository} from "../commodity/commodity.repository";
-import {ConfigModule} from "../../../core/config/config.module";
+import {ConfigModule} from "../../../core/config";
 
 @Module({
-  imports: [PaymentHistoryModule, ConfigModule],
+  imports: [ConfigModule],
   controllers: [CustomerController],
   providers: [
-    PrismaService,
     CustomerService,
     CustomerRepository,
-    PaymentHistoryService,
-    PaymentHistoryRepository,
-    CommodityService,
-    CommodityRepository,
+    PrismaService,
   ],
-  exports: [CustomerService, CustomerRepository],
+  exports: [],
 })
 export class CustomerModule {
 }

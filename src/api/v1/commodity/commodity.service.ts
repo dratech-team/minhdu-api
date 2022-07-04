@@ -8,7 +8,7 @@ import {OrderHistoryService} from "../histories/order-history/order-history.serv
 export class CommodityService {
   constructor(
     private readonly repository: CommodityRepository,
-    // private readonly orderHistoryService: OrderHistoryService,
+    private readonly orderHistoryService: OrderHistoryService,
   ) {
   }
 
@@ -26,14 +26,15 @@ export class CommodityService {
 
   async update(id: number, updates: UpdateCommodityDto) {
     const commodity = await this.findOne(id);
-    // this.orderHistoryService.create({
-    //   orderId: commodity.orderId,
-    //   price: updates.price,
-    //   amount: updates.amount,
-    //   more: updates.more,
-    //   gift: updates.gift,
-    //   confirmedAt: updates.closed ? new Date() : null
-    // }).then();
+
+    this.orderHistoryService.create({
+      orderId: commodity.orderId,
+      price: updates.price,
+      amount: updates.amount,
+      more: updates.more,
+      gift: updates.gift,
+      confirmedAt: updates.closed ? new Date() : null
+    }).then();
     return await this.repository.update(id, updates);
   }
 
