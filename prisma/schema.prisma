@@ -420,19 +420,20 @@ model PaymentHistory {
 }
 
 model Commodity {
-  id      Int           @id @default(autoincrement())
-  code    String
-  name    String
-  unit    CommodityUnit
-  price   Float?
-  amount  Float
-  gift    Float?        @default(0)
-  more    Float?        @default(0)
-  closed  Boolean?      @default(false)
-  order   Order?        @relation(fields: [orderId], references: [id])
-  orderId Int?
-  route   Route?        @relation(fields: [routeId], references: [id])
-  routeId Int?
+  id        Int            @id @default(autoincrement())
+  code      String
+  name      String
+  unit      CommodityUnit
+  price     Float?
+  amount    Float
+  gift      Float?         @default(0)
+  more      Float?         @default(0)
+  closed    Boolean?       @default(false)
+  order     Order?         @relation(fields: [orderId], references: [id])
+  orderId   Int?
+  route     Route?         @relation(fields: [routeId], references: [id])
+  routeId   Int?
+  histories OrderHistory[]
 }
 
 model CommodityTemplate {
@@ -462,7 +463,6 @@ model Order {
   deleted          Boolean?         @default(false)
   timestamp        DateTime?        @default(now())
   note             String?
-  orderHistories   OrderHistory[]
   routes           Route[]
   commodities      Commodity[]
   paymentHistories PaymentHistory[]
@@ -470,8 +470,8 @@ model Order {
 
 model OrderHistory {
   id          Int       @id @default(autoincrement())
-  order       Order     @relation(fields: [orderId], references: [id])
-  orderId     Int
+  commodity   Commodity @relation(fields: [commodityId], references: [id])
+  commodityId Int
   price       Float?
   amount      Float
   gift        Float?    @default(0)

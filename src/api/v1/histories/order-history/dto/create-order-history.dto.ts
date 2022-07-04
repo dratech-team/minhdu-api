@@ -5,7 +5,7 @@ export class CreateOrderHistoryDto {
   @IsNotEmpty()
   @IsNumber()
   @Type(() => Number)
-  readonly orderId: number;
+  readonly commodityId: number;
 
   @IsNotEmpty()
   @IsNumber()

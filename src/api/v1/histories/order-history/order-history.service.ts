@@ -13,7 +13,7 @@ export class OrderHistoryService {
     try {
       return await this.prisma.orderHistory.create({
         data: {
-          order: {connect: {id: body.orderId}},
+          commodity: {connect: {id: body.commodityId}},
           amount: body.amount,
           gift: body.gift,
           more: body.more,
@@ -33,15 +33,16 @@ export class OrderHistoryService {
       const [total, data] = await Promise.all([
         this.prisma.orderHistory.count({
           where: {
-            note: {contains: search?.content, mode: "insensitive"},
+            commodity: {name: {startsWith: search?.commodity, mode: "insensitive"}}
           }
         }),
         this.prisma.orderHistory.findMany({
           take: search?.take,
           skip: search?.skip,
           where: {
-            note: {contains: search?.content, mode: "insensitive"},
-          }
+            commodity: {name: {startsWith: search?.commodity, mode: "insensitive"}}
+          },
+          include: {commodity: true}
         }),
       ]);
       return {total, data};

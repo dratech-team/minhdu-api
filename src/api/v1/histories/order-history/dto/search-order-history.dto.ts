@@ -12,6 +12,11 @@ export class SearchOrderHistoryDto {
   @Type(() => Number)
   readonly skip: number;
 
+  @IsNotEmpty()
+  @IsNumber()
+  @Type(() => Number)
+  readonly orderId: number;
+
   @IsOptional()
   @IsString()
   readonly commodity: string;
