@@ -18,5 +18,5 @@ export class CreateBasicTemplateDto {
 
   @IsOptional()
   @IsArray()
-  readonly branchIds: number[]
+  readonly branchIds: number[];
 }

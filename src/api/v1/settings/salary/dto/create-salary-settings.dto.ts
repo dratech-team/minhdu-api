@@ -65,12 +65,12 @@ export class CreateSalarySettingsDto {
   @IsOptional()
   @IsArray()
   @IsNumber({}, {each: true})
-  readonly branchIds: number[]
+  readonly branchIds: number[];
 
   @IsOptional()
   @IsArray()
   @IsNumber({}, {each: true})
-  readonly positionIds: number[]
+  readonly positionIds: number[];
 
   @IsOptional()
   @IsBoolean()

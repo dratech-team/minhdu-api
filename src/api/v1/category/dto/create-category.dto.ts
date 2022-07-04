@@ -13,5 +13,5 @@ export class CreateCategoryDto {
 
   @IsArray()
   @IsOptional()
-  readonly employeeIds: number[]
+  readonly employeeIds: number[];
 }

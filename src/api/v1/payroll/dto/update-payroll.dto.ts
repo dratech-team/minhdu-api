@@ -8,7 +8,7 @@ import * as moment from "moment";
 export class UpdatePayrollDto extends PartialType(CreatePayrollDto) {
   @IsOptional()
   @Type(() => Number)
-  readonly salaryId?: number
+  readonly salaryId?: number;
 
   /// TODO: Tạo endpoint mới cho việc này
   @IsOptional()

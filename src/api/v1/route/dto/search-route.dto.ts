@@ -45,7 +45,7 @@ export class SearchRouteDto {
   @IsOptional()
   @IsNumber()
   @Type(() => Number)
-  readonly status: 0 | 1 | -1
+  readonly status: 0 | 1 | -1;
 
 
   @IsOptional()

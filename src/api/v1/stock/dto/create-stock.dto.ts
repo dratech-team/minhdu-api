@@ -6,7 +6,7 @@ import * as moment from "moment";
 export class CreateStockDto {
   @IsNotEmpty()
   @IsEnum(StockType)
-  readonly type: StockType
+  readonly type: StockType;
 
   @IsNotEmpty()
   @IsNumber()

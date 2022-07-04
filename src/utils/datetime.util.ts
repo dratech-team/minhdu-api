@@ -30,4 +30,4 @@ export function beforeDatetime(i: number, type?: "days" | "months" | "years", da
 
 export const compareDatetime = (date1: Date, date2: Date, unitOfType?: "days" | "months" | "years") => {
   return moment(date1).diff(date2, unitOfType || "days") === 0;
-}
+};

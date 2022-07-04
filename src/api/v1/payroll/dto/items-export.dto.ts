@@ -6,5 +6,5 @@ export class ItemExportDto {
   items: {
     key: string;
     value: string;
-  }[]
+  }[];
 }

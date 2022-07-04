@@ -6,5 +6,5 @@ export class DeleteMultipleSalaryDto {
   @IsNumber({}, {each: true})
   @Type(() => Number)
   @IsArray()
-  readonly salaryIds: number[]
+  readonly salaryIds: number[];
 }
