@@ -20,21 +20,23 @@ export class CommodityService {
     return await this.repository.findAll(take, skip);
   }
 
-  async findOne(id: number) {
-    return await this.repository.findOne(id);
+  async findFirst(id: number) {
+    return await this.repository.findFirst(id);
   }
 
   async update(id: number, updates: UpdateCommodityDto) {
-    const commodity = await this.findOne(id);
+    const commodity = await this.repository.findOne(id);
+    if (updates.historied) {
+      this.orderHistoryService.create({
+        orderId: commodity.orderId,
+        price: updates.price ?? commodity.price,
+        amount: updates.amount ?? commodity.amount,
+        more: updates.more ?? commodity.more,
+        gift: updates.gift ?? commodity.gift,
+        confirmedAt: updates.closed ? new Date() : null
+      }).then();
+    }
 
-    this.orderHistoryService.create({
-      orderId: commodity.orderId,
-      price: updates.price,
-      amount: updates.amount,
-      more: updates.more,
-      gift: updates.gift,
-      confirmedAt: updates.closed ? new Date() : null
-    }).then();
     return await this.repository.update(id, updates);
   }
 

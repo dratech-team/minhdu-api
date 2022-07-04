@@ -32,7 +32,7 @@ export class CommodityController {
   @Roles(RoleEnum.SUPPER_ADMIN, RoleEnum.SALESMAN)
   @Get(':id')
   findOne(@Param('id') id: string) {
-    return this.commodityService.findOne(+id);
+    return this.commodityService.findFirst(+id);
   }
 
   @UseGuards(LoggerGuard)

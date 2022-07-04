@@ -35,7 +35,7 @@ export class CommodityRepository {
     }
   }
 
-  async findOne(id: number) {
+  async findFirst(id: number) {
     try {
       return await this.prisma.commodity.findFirst({
         where: {
@@ -43,6 +43,15 @@ export class CommodityRepository {
           order: null,
         },
       });
+    } catch (err) {
+      console.error(err);
+      throw new BadRequestException(err);
+    }
+  }
+
+  async findOne(id: number) {
+    try {
+      return await this.prisma.commodity.findUnique({where: {id: id}});
     } catch (err) {
       console.error(err);
       throw new BadRequestException(err);

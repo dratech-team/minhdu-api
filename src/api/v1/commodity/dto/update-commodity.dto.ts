@@ -7,5 +7,5 @@ export class UpdateCommodityDto extends PartialType(CreateCommodityDto) {
   @IsOptional()
   @IsBoolean()
   @Type(() => Boolean)
-  readonly histored: boolean;
+  readonly historied: boolean;
 }

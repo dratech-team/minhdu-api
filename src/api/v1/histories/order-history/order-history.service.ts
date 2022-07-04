@@ -13,7 +13,7 @@ export class OrderHistoryService {
     try {
       return await this.prisma.orderHistory.create({
         data: {
-          orderId: body.orderId,
+          order: {connect: {id: body.orderId}},
           amount: body.amount,
           gift: body.gift,
           more: body.more,
