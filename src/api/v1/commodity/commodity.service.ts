@@ -26,7 +26,7 @@ export class CommodityService {
 
   async update(id: number, updates: UpdateCommodityDto) {
     const commodity = await this.repository.findOne(id);
-    if (updates.historied) {
+    if (updates.logged) {
       this.orderHistoryService.create({
         orderId: commodity.orderId,
         price: updates.price ?? commodity.price,
