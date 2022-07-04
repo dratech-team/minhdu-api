@@ -42,7 +42,8 @@ export class OrderHistoryService {
           where: {
             commodity: {name: {startsWith: search?.commodity, mode: "insensitive"}}
           },
-          include: {commodity: true}
+          include: {commodity: true},
+          orderBy: {timestamp: "desc"}
         }),
       ]);
       return {total, data};
