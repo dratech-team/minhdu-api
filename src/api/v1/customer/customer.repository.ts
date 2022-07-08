@@ -63,9 +63,9 @@ export class CustomerRepository {
             resource: search?.resource ? {in: search?.resource} : {},
             isPotential:
               search?.isPotential === 1
-                ? true
+                ? {equals: true}
                 : search?.isPotential === 0
-                  ? false
+                  ? {equals: false}
                   : {},
           },
         }),
@@ -83,9 +83,9 @@ export class CustomerRepository {
             resource: search?.resource ? {in: search.resource} : {},
             isPotential:
               search?.isPotential === 1
-                ? true
+                ? {equals: true}
                 : search?.isPotential === 0
-                  ? false
+                  ? {equals: false}
                   : {},
           },
           include: {

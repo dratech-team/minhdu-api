@@ -20,7 +20,8 @@ export class OrderService {
   }
 
   async create(body: CreateOrderDto) {
-    return await this.repository.create(body);
+    const order = await this.repository.create(body);
+    return this.mapOrder(order);
   }
 
   async findAll(search: SearchOrderDto) {
@@ -69,21 +70,6 @@ export class OrderService {
     return await this.repository.remove(id, canceled);
   }
 
-  orderUniq(order: FullOrder[]) {
-    const flatCommodities = _.flattenDeep(order.map(order => order.commodities));
-    const uniqCommodities: Commodity[] = _.uniqBy(flatCommodities, "code");
-
-    return uniqCommodities.map(uniq => {
-      const amount = flatCommodities.filter(flat => flat.code === uniq.code).map(c => c.amount + (c.gift || 0) + ((c.more as any)?.amount || 0)).reduce((a, b) => a + b);
-      return {
-        code: uniq.code,
-        name: uniq.name,
-        amount,
-      };
-    });
-  }
-
-
   itemsExport() {
     const customs = {
       customer: 'Tên khách hàng',
@@ -129,6 +115,20 @@ export class OrderService {
     );
   }
 
+  private orderUniq(order: FullOrder[]) {
+    const flatCommodities = _.flattenDeep(order.map(order => order.commodities));
+    const uniqCommodities: Commodity[] = _.uniqBy(flatCommodities, "code");
+
+    return uniqCommodities.map(uniq => {
+      const amount = flatCommodities.filter(flat => flat.code === uniq.code).map(c => c.amount + (c.gift || 0) + ((c.more as any)?.amount || 0)).reduce((a, b) => a + b);
+      return {
+        code: uniq.code,
+        name: uniq.name,
+        amount,
+      };
+    });
+  }
+
   private mapOrder(order) {
     const commodityTotal = this.totalCommodities(
       order.commodities
@@ -149,7 +149,7 @@ export class OrderService {
 
   /**
    * Nếu có more thì giá trị trả về trong đơn hàng sẽ ở dạng này*/
-  handleCommodity(commodity: Commodity) {
+  private handleCommodity(commodity: Commodity) {
     const priceMore = Math.ceil((commodity.price * commodity.amount) / (commodity.amount + commodity.more));
     return Object.assign(commodity, commodity.more ? {
       more: {
@@ -162,7 +162,7 @@ export class OrderService {
   /*
   * Tổng trị giá đơn hàng
   * */
-  totalCommodity(commodity: Commodity): number {
+  private totalCommodity(commodity: Commodity): number {
     if (commodity?.more) {
       return (commodity.amount * commodity.price) + (((commodity.amount + commodity.gift) / commodity.price) * commodity.more);
     } else {
@@ -173,7 +173,7 @@ export class OrderService {
   /*
   * Tổng tiền nhiều đơn hàng
   * */
-  totalCommodities(commodities: any[]) {
+  private totalCommodities(commodities: any[]) {
     return commodities.map(commodity => {
       return this.totalCommodity(commodity);
     }).reduce((a, b) => a + b, 0);
