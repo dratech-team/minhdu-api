@@ -29,6 +29,7 @@ export class OrderService {
     const result = await this.repository.findAll(search);
 
     const orders = result.data.map((order) => this.mapOrder(order));
+    console.log(search)
     return {
       total: result.total,
       data: orders,
