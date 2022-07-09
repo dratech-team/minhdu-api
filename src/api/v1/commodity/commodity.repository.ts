@@ -16,6 +16,16 @@ export class CommodityRepository {
           throw new BadRequestException("Đơn hàng đã được giao thành công. Không được phép sửa!!!");
         }
       }
+      // for (let i = 0; i < 50; i++) {
+      //   await this.prisma.commodity.create({
+      //     data: {
+      //       code: "MD" + i,
+      //       name: "Gà loại " + i,
+      //       amount: 100 + i,
+      //       unit: "CON"
+      //     }
+      //   });
+      // }
       return await this.prisma.commodity.create({
         data: {
           name: body.name,
