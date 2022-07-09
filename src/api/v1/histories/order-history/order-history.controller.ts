@@ -7,6 +7,8 @@ import {ApiConstant} from "../../../../common/constant";
 import {ApiKeyGuard, JwtAuthGuard, RolesGuard} from "../../../../core/guard";
 import {Roles} from "../../../../core/decorators/roles.decorator";
 import {RoleEnum} from "@prisma/client";
+import {ReqProfile} from "../../../../core/decorators/req-profile.decorator";
+import {ProfileEntity} from "../../../../common/entities/profile.entity";
 
 @UseGuards(JwtAuthGuard, ApiKeyGuard, RolesGuard)
 @Controller(ApiConstant.V1.ORDER_HISTORY)
@@ -40,7 +42,7 @@ export class OrderHistoryController {
 
   @Roles(RoleEnum.SUPPER_ADMIN, RoleEnum.SALESMAN)
   @Delete(':id')
-  remove(@Param('id') id: string) {
-    return this.orderHistoryService.remove(+id);
+  remove(@Param('id') id: string, @ReqProfile() profile: ProfileEntity) {
+    return this.orderHistoryService.remove(+id, profile);
   }
 }

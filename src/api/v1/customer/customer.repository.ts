@@ -193,6 +193,9 @@ export class CustomerRepository {
       return await this.prisma.customer.delete({where: {id}});
     } catch (err) {
       console.error(err);
+      if(err.code === "P2003") {
+        throw new BadRequestException(`Không thể xoá khách hàng này!!`);
+      }
       throw new BadRequestException(err);
     }
   }

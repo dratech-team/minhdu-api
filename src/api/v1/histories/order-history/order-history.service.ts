@@ -3,6 +3,7 @@ import {CreateOrderHistoryDto} from './dto/create-order-history.dto';
 import {UpdateOrderHistoryDto} from './dto/update-order-history.dto';
 import {PrismaService} from "../../../../prisma.service";
 import {SearchOrderHistoryDto} from "./dto/search-order-history.dto";
+import {ProfileEntity} from "../../../../common/entities/profile.entity";
 
 @Injectable()
 export class OrderHistoryService {
@@ -33,14 +34,16 @@ export class OrderHistoryService {
       const [total, data] = await Promise.all([
         this.prisma.orderHistory.count({
           where: {
-            commodity: {name: {startsWith: search?.commodity, mode: "insensitive"}}
+            commodity: {name: {startsWith: search?.commodity, mode: "insensitive"}},
+            deletedAt: {in: null}
           }
         }),
         this.prisma.orderHistory.findMany({
           take: search?.take,
           skip: search?.skip,
           where: {
-            commodity: {name: {startsWith: search?.commodity, mode: "insensitive"}}
+            commodity: {name: {startsWith: search?.commodity, mode: "insensitive"}},
+            deletedAt: {in: null}
           },
           include: {commodity: true},
           orderBy: {timestamp: "desc"}
@@ -61,7 +64,19 @@ export class OrderHistoryService {
     return `This action updates a #${id} orderHistory`;
   }
 
-  async remove(id: number) {
-    return `This action removes a #${id} orderHistory`;
+  async remove(id: number, profile: ProfileEntity) {
+    try {
+      const account = await this.prisma.account.findUnique({where: {id: profile.id}});
+      return await this.prisma.orderHistory.update({
+        where: {id},
+        data: {
+          deletedAt: new Date(),
+          deletedBy: account.username + `(${account.ip})`,
+        }
+      });
+    } catch (err) {
+      console.error(err);
+      throw new BadRequestException(err);
+    }
   }
 }

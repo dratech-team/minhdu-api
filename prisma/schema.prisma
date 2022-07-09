@@ -478,6 +478,8 @@ model OrderHistory {
   more        Float?    @default(0)
   confirmedAt DateTime? // chốt đơn
   note        String?
+  deletedAt   DateTime?
+  deletedBy   String?
   timestamp   DateTime? @default(now())
 }
 
