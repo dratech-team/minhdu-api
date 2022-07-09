@@ -27,6 +27,21 @@ export class RouteRepository {
     }
 
     try {
+      // for (let i = 0; i < 50; i++) {
+      //   const commodity = await this.prisma.commodity.findUnique({where: {id: i + 26}});
+      //   if (commodity) {
+      //     await this.prisma.route.create({
+      //       data: {
+      //         name: "BD - VT " + i,
+      //         driver: "Tester " + 1,
+      //         bsx: "77G15659" + i,
+      //         startedAt: new Date(),
+      //         commodities: {connect: {id: i + 26}},
+      //       }
+      //     });
+      //     console.log("Đã tạo ", i);
+      //   }
+      // }
       return await this.prisma.route.create({
         data: {
           name: body.name,
