@@ -43,6 +43,13 @@ export class OrderController {
 
   @UseGuards(LoggerGuard)
   @Roles(RoleEnum.SUPPER_ADMIN, RoleEnum.SALESMAN)
+  @Delete(":id")
+  remove(@Param("id") id: string) {
+    return this.orderService.remove(+id);
+  }
+
+  @UseGuards(LoggerGuard)
+  @Roles(RoleEnum.SUPPER_ADMIN, RoleEnum.SALESMAN)
   @Patch("hide/:id")
   updateHide(@Param("id") id: string, @Body("hide", ParseBoolPipe) hide: boolean) {
     return this.orderService.updateHide(+id, hide);
@@ -50,16 +57,16 @@ export class OrderController {
 
   @UseGuards(LoggerGuard)
   @Roles(RoleEnum.SUPPER_ADMIN, RoleEnum.SALESMAN)
-  @Delete(":id/cancel")
-  cancel(@Param("id") id: string) {
-    return this.orderService.remove(+id, true);
+  @Patch(":id/restore")
+  async restore(@Param("id") id: string) {
+    return this.orderService.restore(+id);
   }
 
   @UseGuards(LoggerGuard)
   @Roles(RoleEnum.SUPPER_ADMIN, RoleEnum.SALESMAN)
-  @Delete(":id")
-  remove(@Param("id") id: string) {
-    return this.orderService.remove(+id);
+  @Delete(":id/cancel")
+  async cancel(@Param("id") id: string) {
+    return this.orderService.remove(+id, true);
   }
 
   @Get("/export/items")

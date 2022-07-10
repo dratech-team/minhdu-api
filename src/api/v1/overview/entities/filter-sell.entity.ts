@@ -19,3 +19,9 @@ export enum DELIVERY_STATUS {
   DELIVERY = "Đang giao",
   CANCEL = "Đã hủy"
 }
+
+export enum ORDER_STATUS {
+  COMPLETE = 1,
+  COMPLETE_HIDE = -1,
+  DELIVERING = 0,
+}

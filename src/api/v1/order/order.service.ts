@@ -51,12 +51,8 @@ export class OrderService {
     if (found.deliveredAt) {
       throw new BadRequestException("Không được sửa đơn hàng đã được giao thành công.");
     }
+    console.log(found)
     const order = await this.repository.update(id, Object.assign(updates, updates.deliveredAt ? {total: found.commodityTotal} : {}));
-    return this.mapOrder(order);
-  }
-
-  updateHide(id: number, hide: boolean) {
-    const order = this.repository.update(id, {hide: hide});
     return this.mapOrder(order);
   }
 
@@ -68,6 +64,15 @@ export class OrderService {
       );
     }
     return await this.repository.remove(id, canceled);
+  }
+
+  async updateHide(id: number, hide: boolean) {
+    const order = this.repository.update(id, {hide: hide});
+    return this.mapOrder(order);
+  }
+
+  async restore(id: number) {
+    return this.repository.update(id, {deliveredAt: null});
   }
 
   itemsExport() {

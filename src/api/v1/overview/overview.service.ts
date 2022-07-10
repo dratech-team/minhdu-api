@@ -4,7 +4,7 @@ import {SearchHrOverviewDto} from "./dto/search-hr-overview.dto";
 import {FilterTypeEntity} from "./entities/filter-type.entity";
 import * as moment from "moment";
 import {SearchSellOverviewDto} from "./dto/search-sell-overview.dto";
-import {DELIVERY_STATUS, FilterSellEntity, OptionFilterEnum} from "./entities/filter-sell.entity";
+import {DELIVERY_STATUS, FilterSellEntity, OptionFilterEnum, ORDER_STATUS} from "./entities/filter-sell.entity";
 import {beforeDatetime, firstDatetime, lastDatetime} from "../../../utils/datetime.util";
 import {CustomerType} from '@prisma/client';
 import {filterStatusNotNull} from "./functions/filter-numeric.func";
@@ -106,7 +106,7 @@ export class OverviewService {
 
   private async overviewSellNation(search: SearchSellOverviewDto) {
     const orderGroup = await this.prisma.order.groupBy({
-      by: ["wardId"],
+      by: ["provinceId"],
       where: {
         deliveredAt: search?.startedAt && search?.endedAt ? {
           gte: search.startedAt,
@@ -116,7 +116,7 @@ export class OverviewService {
     });
 
     const customerGroup = await this.prisma.customer.groupBy({
-      by: ['wardId'],
+      by: ['provinceId'],
       where: {
         timestamp: search?.startedAt && search?.endedAt ? {
           gte: search.startedAt,
@@ -124,7 +124,6 @@ export class OverviewService {
         } : {}
       }
     });
-
     if (search.option === OptionFilterEnum.SOLD) {
       return await this.nationSold(orderGroup, search);
     } else if (search.option === OptionFilterEnum.CUSTOMER) {
@@ -266,17 +265,10 @@ export class OverviewService {
     }
   }
 
-  private async nationSold(orderGroup: any, search: SearchSellOverviewDto) {
+  private async nationSold(orderGroup: { provinceId: number }[], search: SearchSellOverviewDto) {
     return await Promise.all(orderGroup.map(async e => {
-      const province = await this.prisma.ward.findUnique({
-        where: {id: e.wardId},
-        select: {
-          district: {
-            select: {
-              province: true
-            }
-          }
-        }
+      const province = await this.prisma.province.findUnique({
+        where: {id: e.provinceId},
       });
 
       const aggregate = await this.prisma.commodity.aggregate({
@@ -287,7 +279,7 @@ export class OverviewService {
         },
         where: {
           order: {
-            wardId: e.wardId,
+            provinceId: e.provinceId,
             deliveredAt: search?.startedAt && search?.endedAt ? {
               gte: search.startedAt,
               lte: search.endedAt,
@@ -297,7 +289,7 @@ export class OverviewService {
       });
 
       return {
-        name: province.district.province.name,
+        name: province.name,
         series: Array.of(
           {
             name: "Gà bán",
@@ -316,23 +308,16 @@ export class OverviewService {
     }));
   }
 
-  private async nationCustomer(customerGroup: any) {
+  private async nationCustomer(customerGroup: { provinceId: number }[]) {
     return await Promise.all(customerGroup.map(async e => {
-      const ward = await this.prisma.ward.findUnique({
-        where: {id: e.wardId},
-        select: {
-          district: {
-            select: {
-              province: true
-            }
-          }
-        }
+      const province = await this.prisma.province.findUnique({
+        where: {id: e.provinceId}
       });
       const a = await Promise.all([CustomerType.AGENCY, CustomerType.RETAIL].map(async type => {
         const count = await this.prisma.customer.count({
           where: {
             type,
-            wardId: e.wardId,
+            provinceId: e.provinceId,
           }
         });
         return {
@@ -341,62 +326,50 @@ export class OverviewService {
         };
       }));
       return {
-        name: ward.district.province.name,
+        name: province.name,
         series: a,
       };
     }));
   }
 
-  private async nationSales(orderGroup: any) {
+  private async nationSales(orderGroup: { provinceId: number }[]) {
     return await Promise.all(orderGroup.map(async e => {
-      const ward = await this.prisma.ward.findUnique({
-        where: {id: e.wardId},
-        select: {
-          district: {
-            select: {
-              province: true,
-            }
-          }
-        }
+      const province = await this.prisma.province.findUnique({
+        where: {id: e.provinceId}
       });
-      const a = await Promise.all([true, false].map(async isHide => {
-        const aggregate = await this.prisma.order.aggregate({
-          where: {
-            hide: isHide,
-            wardId: e.wardId,
-          },
-          _sum: {
-            total: true,
-          }
-        });
-        return {
-          name: isHide ? "Ẩn nợ" : "Doanh thu",
-          value: Number(aggregate._sum.total),
-        };
-      }));
+      const a = await Promise.all([ORDER_STATUS.COMPLETE, ORDER_STATUS.COMPLETE_HIDE, ORDER_STATUS.DELIVERING]
+        .map(async (status, index) => {
+          const aggregate = await this.prisma.order.aggregate({
+            where: {
+              hide: index === 1,
+              deliveredAt: index === 0 || index === 1 ? {notIn: null} : {in: null},
+              provinceId: e.provinceId,
+            },
+            _sum: {
+              total: true,
+            }
+          });
+          return {
+            name: index === 0 ? "Doanh thu (có)" : index === 1 ? "Doanh thu (thiếu)" : "Doanh thu (dự kiến)",
+            value: Number(aggregate._sum.total),
+          };
+        }));
       return {
-        name: ward.district.province.name,
+        name: province.name,
         series: a,
       };
     }));
   }
 
-  private async nationOrder(orderGroup: any) {
+  private async nationOrder(orderGroup: { provinceId: number }[]) {
     return await Promise.all(orderGroup.map(async e => {
-      const ward = await this.prisma.ward.findUnique({
-        where: {id: e.wardId},
-        select: {
-          district: {
-            select: {
-              province: true,
-            }
-          }
-        }
+      const province = await this.prisma.province.findUnique({
+        where: {id: e.provinceId}
       });
       const series = await Promise.all([DELIVERY_STATUS.COMPLETE, DELIVERY_STATUS.DELIVERY, DELIVERY_STATUS.CANCEL].map(async status => {
         const count = await this.prisma.order.count({
           where: {
-            wardId: e.wardId,
+            provinceId: e.provinceId,
             deleted: status === DELIVERY_STATUS.CANCEL,
             deliveredAt: status === DELIVERY_STATUS.COMPLETE ? {notIn: null} : {in: null}
           }
@@ -407,20 +380,19 @@ export class OverviewService {
         };
       }));
       return {
-        name: ward.district.province.name,
+        name: province.name,
         series: series
       };
     }));
   }
 
-  private async nationRoute(orderGroup: any) {
+  private async nationRoute(orderGroup: { provinceId: number }[]) {
     const data = await Promise.all(orderGroup.map(async e => {
-      const ward = await this.prisma.ward.findUnique({
-        where: {id: e.wardId},
-        select: {district: {select: {province: true}}}
+      const province = await this.prisma.province.findUnique({
+        where: {id: e.provinceId}
       });
       return {
-        name: ward.district.province.name,
+        name: province.name,
         series: await Promise.all([DELIVERY_STATUS.COMPLETE, DELIVERY_STATUS.DELIVERY, DELIVERY_STATUS.CANCEL].map(async status => {
           return {
             name: status === DELIVERY_STATUS.COMPLETE ? "Hoàn thành" : status === DELIVERY_STATUS.DELIVERY ? "Đang giao" : "Đã hủy",
@@ -431,7 +403,7 @@ export class OverviewService {
                   endedAt: status === DELIVERY_STATUS.COMPLETE ? {notIn: null} : status === DELIVERY_STATUS.DELIVERY ? {in: null} : {},
                   orders: {
                     some: {
-                      wardId: e.wardId,
+                      provinceId: e.provinceId,
                     },
                   }
                 },
@@ -444,7 +416,7 @@ export class OverviewService {
     return filterStatusNotNull(data);
   }
 
-  private async yearCustomer(yearsCustomer: any) {
+  private async yearCustomer(yearsCustomer: number[]) {
     return await Promise.all(yearsCustomer.map(async year => {
       const count = await Promise.all([CustomerType.AGENCY, CustomerType.RETAIL].map(async type => {
         const value = await this.prisma.customer.count({
