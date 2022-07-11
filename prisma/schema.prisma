@@ -470,7 +470,7 @@ model Order {
 
 model OrderHistory {
   id          Int       @id @default(autoincrement())
-  commodity   Commodity @relation(fields: [commodityId], references: [id])
+  commodity   Commodity @relation(fields: [commodityId], references: [id], onDelete: Cascade)
   commodityId Int
   price       Float?
   amount      Float

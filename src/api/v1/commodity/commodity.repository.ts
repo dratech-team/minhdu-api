@@ -77,7 +77,7 @@ export class CommodityRepository {
         this.prisma.commodity.findMany({
           take: take || undefined,
           skip: skip || undefined,
-          where: {order: null}
+          where: {order: null},
         }),
       ]);
       return {

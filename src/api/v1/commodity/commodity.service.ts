@@ -1,15 +1,18 @@
-import {Injectable} from '@nestjs/common';
+import {forwardRef, Inject, Injectable} from '@nestjs/common';
 import {CreateCommodityDto} from './dto/create-commodity.dto';
 import {UpdateCommodityDto} from './dto/update-commodity.dto';
 import {CommodityRepository} from "./commodity.repository";
 import {OrderHistoryService} from "../histories/order-history/order-history.service";
 import {Commodity} from "@prisma/client";
+import {OrderService} from "../order/order.service";
 
 @Injectable()
 export class CommodityService {
   constructor(
     private readonly repository: CommodityRepository,
     private readonly orderHistoryService: OrderHistoryService,
+    @Inject(forwardRef(() => OrderService))
+    private readonly orderService: OrderService,
   ) {
   }
 
@@ -38,11 +41,15 @@ export class CommodityService {
       }).then();
     }
 
+    this.orderService.update(commodity.orderId, {}).then();
+
     return await this.repository.update(id, updates);
   }
 
   async remove(id: number) {
-    return await this.repository.remove(id);
+    const commodity = await this.repository.remove(id);
+    this.orderService.update(commodity.orderId, {}).then();
+    return commodity;
   }
 
 

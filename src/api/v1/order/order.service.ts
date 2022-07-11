@@ -1,4 +1,4 @@
-import {BadRequestException, Injectable} from "@nestjs/common";
+import {BadRequestException, forwardRef, Inject, Injectable} from "@nestjs/common";
 import {CreateOrderDto} from "./dto/create-order.dto";
 import {UpdateOrderDto} from "./dto/update-order.dto";
 import {OrderRepository} from "./order.repository";
@@ -17,6 +17,7 @@ export class OrderService {
   constructor(
     private readonly repository: OrderRepository,
     private readonly paymentService: PaymentHistoryService,
+    @Inject(forwardRef(() => CommodityService))
     private readonly commodityService: CommodityService,
   ) {
   }
