@@ -52,7 +52,7 @@ export class OrderController {
   @Roles(RoleEnum.SUPPER_ADMIN, RoleEnum.SALESMAN)
   @Patch("hide/:id")
   updateHide(@Param("id") id: string, @Body("hide", ParseBoolPipe) hide: boolean) {
-    return this.orderService.updateHide(+id, hide);
+    return this.orderService.hide(+id, hide);
   }
 
   @UseGuards(LoggerGuard)

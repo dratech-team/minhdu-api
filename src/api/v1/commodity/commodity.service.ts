@@ -3,6 +3,7 @@ import {CreateCommodityDto} from './dto/create-commodity.dto';
 import {UpdateCommodityDto} from './dto/update-commodity.dto';
 import {CommodityRepository} from "./commodity.repository";
 import {OrderHistoryService} from "../histories/order-history/order-history.service";
+import {Commodity} from "@prisma/client";
 
 @Injectable()
 export class CommodityService {
@@ -42,5 +43,38 @@ export class CommodityService {
 
   async remove(id: number) {
     return await this.repository.remove(id);
+  }
+
+
+  /**
+   * Nếu có more thì giá trị trả về trong đơn hàng sẽ ở dạng này*/
+  handleCommodity(commodity: Commodity) {
+    const priceMore = Math.ceil((commodity.price * commodity.amount) / (commodity.amount + commodity.more));
+    return Object.assign(commodity, commodity.more ? {
+      more: {
+        amount: commodity.more,
+        price: priceMore,
+      }
+    } : null);
+  }
+
+  /*
+  * Tổng trị giá đơn hàng
+  * */
+  totalCommodity(commodity: Commodity): number {
+    if (commodity?.more) {
+      return (commodity.amount * commodity.price) + (((commodity.amount + commodity.gift) / commodity.price) * commodity.more);
+    } else {
+      return commodity.amount * commodity.price;
+    }
+  }
+
+  /*
+  * Tổng tiền nhiều đơn hàng
+  * */
+  totalCommodities(commodities: any[]) {
+    return commodities.map(commodity => {
+      return this.totalCommodity(commodity);
+    }).reduce((a, b) => a + b, 0);
   }
 }

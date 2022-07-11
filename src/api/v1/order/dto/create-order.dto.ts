@@ -17,7 +17,7 @@ export class CreateOrderDto {
       return new Date(moment(val.value).utc().format('YYYY-MM-DD'));
     }
   })
-  readonly createdAt?: Date;
+  readonly createdAt: Date;
 
   @IsOptional()
   @Type(() => Date)
@@ -27,7 +27,7 @@ export class CreateOrderDto {
       return new Date(moment(val.value).utc().format('YYYY-MM-DD'));
     }
   })
-  readonly deliveredAt: Date;
+  readonly deliveredAt?: Date;
 
   @IsOptional()
   @Type(() => Date)
@@ -37,7 +37,7 @@ export class CreateOrderDto {
       return new Date(moment(val.value).utc().format('YYYY-MM-DD'));
     }
   })
-  readonly endedAt: Date;
+  readonly endedAt?: Date;
 
   @IsOptional()
   @IsString()

@@ -10,17 +10,31 @@ import {FullOrder} from "./entities/order.entity";
 import {ItemExportDto} from "../../../common/interfaces/items-export.dto";
 import * as _ from 'lodash';
 import {Commodity} from '@prisma/client';
+import {CommodityService} from "../commodity/commodity.service";
 
 @Injectable()
 export class OrderService {
   constructor(
     private readonly repository: OrderRepository,
     private readonly paymentService: PaymentHistoryService,
+    private readonly commodityService: CommodityService,
   ) {
   }
 
+  /// FIXME: Hơi dài dòng. Sau khi tạo thành công thì update lại tổng tiền của hàng hoá
   async create(body: CreateOrderDto) {
+    // for (let i = 0; i < 50; i++) {
+    //   const order = await this.repository.create({
+    //     createdAt: new Date(),
+    //     provinceId: 4,
+    //     customerId: 123 + i,
+    //     commodityIds: [31 + i]
+    //   });
+    //   console.log("Đã tạo orderId", order.id);
+    //   await this.update(order.id, {});
+    // }
     const order = await this.repository.create(body);
+    this.update(order.id, {}).then();
     return this.mapOrder(order);
   }
 
@@ -33,7 +47,7 @@ export class OrderService {
       total: result.total,
       data: orders,
       commodityUniq: this.orderUniq(resultFull.data),
-      commodityTotal: resultFull.data.map(order => this.totalCommodities(order.commodities)).reduce((a, b) => a + b, 0)
+      commodityTotal: resultFull.data.map(order => this.commodityService.totalCommodities(order.commodities)).reduce((a, b) => a + b, 0)
     };
   }
 
@@ -45,14 +59,13 @@ export class OrderService {
     return this.mapOrder(order);
   }
 
-  async update(id: number, updates: UpdateOrderDto) {
+  async update(id: number, updates: Partial<UpdateOrderDto>) {
     const found = await this.findOne(id);
     // Đơn hàng giao thành công thì không được phép sửa
     if (found.deliveredAt) {
-      throw new BadRequestException("Không được sửa đơn hàng đã được giao thành công.");
+      throw new BadRequestException("Không được sửa đơn hàng đã được giao thành công.!!!");
     }
-    console.log(found)
-    const order = await this.repository.update(id, Object.assign(updates, updates.deliveredAt ? {total: found.commodityTotal} : {}));
+    const order = await this.repository.update(id, Object.assign(updates, {total: found.commodityTotal}));
     return this.mapOrder(order);
   }
 
@@ -66,13 +79,14 @@ export class OrderService {
     return await this.repository.remove(id, canceled);
   }
 
-  async updateHide(id: number, hide: boolean) {
+  async hide(id: number, hide: boolean) {
     const order = this.repository.update(id, {hide: hide});
     return this.mapOrder(order);
   }
 
   async restore(id: number) {
-    return this.repository.update(id, {deliveredAt: null});
+    const order = this.repository.update(id, {deliveredAt: null});
+    return this.mapOrder(order);
   }
 
   itemsExport() {
@@ -106,13 +120,12 @@ export class OrderService {
         data: data.data.map((e) => ({
           name: e.customer.firstName + e.customer.lastName,
           createdAt: e.createdAt,
-          // ward: `${e.ward.name}, ${e.ward.district.name}, ${e.ward.district.province.name}, ${e.ward.district.province.nation.name}`,
           lengthTotal: e.commodities.length,
-          commodityTotal: this.totalCommodities(e.commodities),
+          commodityTotal: this.commodityService.totalCommodities(e.commodities),
           payTotal: this.paymentService.totalPayment(e.paymentHistories),
           debtTotal:
             this.paymentService.totalPayment(e.paymentHistories) -
-            this.totalCommodities(e.commodities),
+            this.commodityService.totalCommodities(e.commodities),
           explain: e.explain,
         })),
       },
@@ -135,52 +148,19 @@ export class OrderService {
   }
 
   private mapOrder(order) {
-    const commodityTotal = this.totalCommodities(
+    const commodityTotal = this.commodityService.totalCommodities(
       order.commodities
     );
     return Object.assign(
       order,
       {
         commodities: order.commodities.map((commodity) => {
-            return this.handleCommodity(commodity);
+            return this.commodityService.handleCommodity(commodity);
           }
         ),
       },
       {commodityTotal: commodityTotal},
       {paymentTotal: this.paymentService.totalPayment(order.paymentHistories)}
     );
-  }
-
-
-  /**
-   * Nếu có more thì giá trị trả về trong đơn hàng sẽ ở dạng này*/
-  private handleCommodity(commodity: Commodity) {
-    const priceMore = Math.ceil((commodity.price * commodity.amount) / (commodity.amount + commodity.more));
-    return Object.assign(commodity, commodity.more ? {
-      more: {
-        amount: commodity.more,
-        price: priceMore,
-      }
-    } : null);
-  }
-
-  /*
-  * Tổng trị giá đơn hàng
-  * */
-  private totalCommodity(commodity: Commodity): number {
-    if (commodity?.more) {
-      return (commodity.amount * commodity.price) + (((commodity.amount + commodity.gift) / commodity.price) * commodity.more);
-    } else {
-      return commodity.amount * commodity.price;
-    }
-  }
-
-  /*
-  * Tổng tiền nhiều đơn hàng
-  * */
-  private totalCommodities(commodities: any[]) {
-    return commodities.map(commodity => {
-      return this.totalCommodity(commodity);
-    }).reduce((a, b) => a + b, 0);
   }
 }

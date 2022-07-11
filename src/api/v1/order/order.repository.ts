@@ -12,17 +12,6 @@ export class OrderRepository {
 
   async create(body: CreateOrderDto) {
     try {
-      // for (let i = 0; i < 50; i++) {
-      //   const a = await this.prisma.order.create({
-      //     data: {
-      //       createdAt: new Date(),
-      //       provinceId: 4,
-      //       customerId: 123 + i,
-      //       commodities: {connect: {id: 31 + i}}
-      //     }
-      //   });
-      //   console.log("Đã tạo orderId", a.id)
-      // }
       return await this.prisma.order.create({
         data: {
           customerId: body.customerId,
