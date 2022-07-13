@@ -6,7 +6,7 @@ import {PaymentHistoryService} from "../histories/payment-history/payment-histor
 import {Response} from "express";
 import {exportExcel} from "../../../core/services/export.service";
 import {SearchOrderDto} from "./dto/search-order.dto";
-import {FullOrder} from "./entities/order.entity";
+import {OrderEntity} from "./entities/order.entity";
 import {ItemExportDto} from "../../../common/interfaces/items-export.dto";
 import * as _ from 'lodash';
 import {Commodity} from '@prisma/client';
@@ -134,7 +134,7 @@ export class OrderService {
     );
   }
 
-  private orderUniq(order: FullOrder[]) {
+  private orderUniq(order: OrderEntity[]) {
     const flatCommodities = _.flattenDeep(order.map(order => order.commodities));
     const uniqCommodities: Commodity[] = _.uniqBy(flatCommodities, "code");
 

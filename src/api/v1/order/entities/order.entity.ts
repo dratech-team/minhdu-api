@@ -1,5 +1,5 @@
 import {Commodity, Order} from "@prisma/client";
 
-export interface FullOrder extends Order {
+export interface OrderEntity extends Order {
   readonly commodities: Commodity[];
 }
