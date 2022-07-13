@@ -6,11 +6,13 @@ import {Response} from "express";
 import {exportExcel} from "../../../core/services/export.service";
 import {SearchRouteDto} from "./dto/search-route.dto";
 import {CancelRouteDto} from "./dto/cancel-route.dto";
+import {OrderService} from "../order/order.service";
 
 @Injectable()
 export class RouteService {
   constructor(
     private readonly repository: RouteRepository,
+    private readonly orderService: OrderService,
   ) {
   }
 
