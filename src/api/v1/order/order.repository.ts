@@ -77,19 +77,19 @@ export class OrderRepository {
                 lte: search.endedAt_end,
               } : {},
             deliveredAt: search?.status !== -1
-              ? search.status === 1
-                ? {notIn: null}
-                : {in: null}
-              : search?.deliveredAt_start && search?.deliveredAt_end
+              ? (search?.deliveredAt_start && search?.deliveredAt_end
                 ? {
                   gte: search?.deliveredAt_start,
                   lte: search?.deliveredAt_end,
                 }
-                : {},
+                : search.status === 1
+                  ? {notIn: null}
+                  : {in: null})
+              : {},
             hide: search?.hiddenDebt !== -1 ? {equals: search?.hiddenDebt === 1} : {},
             customer: search?.customerId
               ? {id: {in: search?.customerId}}
-              : {lastName: {startsWith: search?.customer, mode: "insensitive"}},
+              : {lastName: {contains: search?.search, mode: "insensitive"}},
             paymentHistories:
               search?.paidType === PaidEnum.PAID
                 ? {some: {total: {gte: 0}}}
@@ -99,19 +99,23 @@ export class OrderRepository {
             province: search?.province
               ? {name: {contains: search?.province, mode: "insensitive"}}
               : {},
-            commodities: search?.filterRoute === 'true' ? {
-              some: {
-                // OR: [
-                //   {
-                //     code: {startsWith: search?.commodity, mode: "insensitive"},
-                //   },
-                //   {
-                //     name: {contains: search?.commodity, mode: "insensitive"},
-                //   },
-                // ],
-                routeId: {in: null}
-              },
-            } : {},
+            commodities: search?.filterRoute === 'true'
+              ? {
+                some: {
+                  OR: [
+                    {
+                      code: {startsWith: search?.commodity, mode: "insensitive"},
+                    },
+                    {
+                      name: {contains: search?.commodity, mode: "insensitive"},
+                    },
+                  ],
+                  routeId: {in: null}
+                },
+              }
+              : search?.commodity
+                ? {some: {name: {contains: search?.commodity, mode: "insensitive"}}}
+                : {},
             deleted: false,
           },
         }),
@@ -131,19 +135,19 @@ export class OrderRepository {
                 lte: search.endedAt_end,
               } : {},
             deliveredAt: search?.status !== -1
-              ? search.status === 1
-                ? {notIn: null}
-                : {in: null}
-              : search?.deliveredAt_start && search?.deliveredAt_end
+              ? (search?.deliveredAt_start && search?.deliveredAt_end
                 ? {
                   gte: search?.deliveredAt_start,
                   lte: search?.deliveredAt_end,
                 }
-                : {},
+                : search.status === 1
+                  ? {notIn: null}
+                  : {in: null})
+              : {},
             hide: search?.hiddenDebt !== -1 ? {equals: search?.hiddenDebt === 1} : {},
             customer: search?.customerId
               ? {id: {in: search?.customerId}}
-              : {lastName: {startsWith: search?.customer, mode: "insensitive"}},
+              : {lastName: {contains: search?.search, mode: "insensitive"}},
             paymentHistories:
               search?.paidType === PaidEnum.PAID
                 ? {some: {total: {gte: 0}}}
@@ -153,19 +157,23 @@ export class OrderRepository {
             province: search?.province
               ? {name: {contains: search?.province, mode: "insensitive"}}
               : {},
-            commodities: search?.filterRoute === 'true' ? {
-              some: {
-                // OR: [
-                //   {
-                //     code: {startsWith: search?.commodity, mode: "insensitive"},
-                //   },
-                //   {
-                //     name: {contains: search?.commodity, mode: "insensitive"},
-                //   },
-                // ],
-                routeId: {in: null}
-              },
-            } : {},
+            commodities: search?.filterRoute === 'true'
+              ? {
+                some: {
+                  OR: [
+                    {
+                      code: {startsWith: search?.commodity, mode: "insensitive"},
+                    },
+                    {
+                      name: {contains: search?.commodity, mode: "insensitive"},
+                    },
+                  ],
+                  routeId: {in: null}
+                },
+              }
+              : search?.commodity
+                ? {some: {name: {contains: search?.commodity, mode: "insensitive"}}}
+                : {},
             deleted: false,
           },
           include: {

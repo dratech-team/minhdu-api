@@ -17,6 +17,10 @@ export class SearchOrderDto extends SearchRangeDto {
 
   @IsOptional()
   @IsString()
+  readonly search: string;
+
+  @IsOptional()
+  @IsString()
   readonly commodity: string;
 
   @IsOptional()
@@ -26,10 +30,6 @@ export class SearchOrderDto extends SearchRangeDto {
   @IsNumber()
   @Type(() => Number)
   readonly customerId: Customer["id"];
-
-  @IsOptional()
-  @IsString()
-  readonly customer: string;
 
   @IsOptional()
   @IsString()

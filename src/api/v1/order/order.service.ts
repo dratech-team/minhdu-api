@@ -80,12 +80,12 @@ export class OrderService {
   }
 
   async hide(id: number, hide: boolean) {
-    const order = this.repository.update(id, {hide: hide});
+    const order = await this.repository.update(id, {hide: hide});
     return this.mapOrder(order);
   }
 
   async restore(id: number) {
-    const order = this.repository.update(id, {deliveredAt: null});
+    const order = await this.repository.update(id, {deliveredAt: null});
     return this.mapOrder(order);
   }
 
