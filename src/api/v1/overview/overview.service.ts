@@ -399,7 +399,7 @@ export class OverviewService {
             value: Number(
               await this.prisma.route.count({
                 where: {
-                  deleted: status === DELIVERY_STATUS.CANCEL,
+                  deletedAt: status === DELIVERY_STATUS.CANCEL ? {notIn: null} : {in: null},
                   endedAt: status === DELIVERY_STATUS.COMPLETE ? {notIn: null} : status === DELIVERY_STATUS.DELIVERY ? {in: null} : {},
                   orders: {
                     some: {
@@ -544,7 +544,7 @@ export class OverviewService {
             name: status,
             value: await this.prisma.route.count({
               where: {
-                deleted: status === DELIVERY_STATUS.CANCEL,
+                deletedAt: status === DELIVERY_STATUS.CANCEL ? {notIn: null} : {in: null},
                 startedAt: status === DELIVERY_STATUS.DELIVERY ? {
                   gte: firstDatetime(new Date(`${year}-01-01`), "years"),
                   lte: lastDatetime(new Date(`${year}-01-01`), "years"),
@@ -718,7 +718,7 @@ export class OverviewService {
             value: await this.prisma.route.count({
               where: {
                 id: e.id,
-                deleted: status === DELIVERY_STATUS.CANCEL,
+                deletedAt: status === DELIVERY_STATUS.CANCEL ? {notIn: null} : {in: null},
                 endedAt: status === DELIVERY_STATUS.COMPLETE && search?.startedAt && search?.endedAt ? {
                   gte: search.startedAt,
                   lte: search.endedAt

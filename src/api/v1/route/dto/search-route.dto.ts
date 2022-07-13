@@ -1,9 +1,9 @@
-import {IsDate, IsEnum, IsNumber, IsOptional, IsString} from "class-validator";
-import {Transform, Type} from "class-transformer";
+import {IsEnum, IsNumber, IsOptional, IsString} from "class-validator";
+import {Type} from "class-transformer";
 import {SortRouteEnum} from "../enums/sort-route.enum";
-import * as moment from "moment";
+import {SearchRangeDto} from "../../../../common/dtos/search-range.dto";
 
-export class SearchRouteDto {
+export class SearchRouteDto extends SearchRangeDto {
   @IsOptional()
   @IsNumber()
   @Type(() => Number)
@@ -17,30 +17,6 @@ export class SearchRouteDto {
   @IsOptional()
   @IsString()
   readonly search: string;
-
-  @IsOptional()
-  @IsDate()
-  @Type(() => Date)
-  @Transform((val) => new Date(moment(val.value).utc().format('YYYY-MM-DD')))
-  readonly startedAt_start: Date;
-
-  @IsOptional()
-  @IsDate()
-  @Type(() => Date)
-  @Transform((val) => new Date(moment(val.value).utc().format('YYYY-MM-DD')))
-  readonly startedAt_end: Date;
-
-  @IsOptional()
-  @IsDate()
-  @Type(() => Date)
-  @Transform((val) => new Date(moment(val.value).utc().format('YYYY-MM-DD')))
-  readonly endedAt_start: Date;
-
-  @IsOptional()
-  @IsDate()
-  @Type(() => Date)
-  @Transform((val) => new Date(moment(val.value).utc().format('YYYY-MM-DD')))
-  readonly endedAt_end: Date;
 
   @IsOptional()
   @IsNumber()

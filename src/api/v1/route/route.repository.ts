@@ -98,7 +98,7 @@ export class RouteRepository {
                     lte: search.endedAt_end
                   }
               : {},
-            deleted: false
+            deletedAt: {in: null}
           },
         }),
         this.prisma.route.findMany({
@@ -125,7 +125,7 @@ export class RouteRepository {
                     lte: search.endedAt_end
                   }
               : {},
-            deleted: false
+            deletedAt: {in: null}
           },
           include: {
             employee: true,
