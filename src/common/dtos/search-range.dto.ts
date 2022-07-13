@@ -7,7 +7,7 @@ export class SearchRangeDto {
   @IsOptional()
   @IsDate()
   @Transform((val) => {
-    if (dateFns.isDate(val?.value)) {
+    if (dateFns.isDate(new Date(val?.value))) {
       return new Date(moment(val.value).utc().format('YYYY-MM-DD'));
     }
   })
@@ -16,7 +16,7 @@ export class SearchRangeDto {
   @IsOptional()
   @IsDate()
   @Transform((val) => {
-    if (dateFns.isDate(val?.value)) {
+    if (dateFns.isDate(new Date(val?.value))) {
       return new Date(moment(val.value).utc().format('YYYY-MM-DD'));
     }
   })
@@ -25,7 +25,7 @@ export class SearchRangeDto {
   @IsOptional()
   @IsDate()
   @Transform((val) => {
-    if (dateFns.isDate(val?.value)) {
+    if (val?.value && val?.value !== '' && dateFns.isDate(new Date(val.value))) {
       return new Date(moment(val.value).utc().format('YYYY-MM-DD'));
     }
   })
@@ -34,7 +34,7 @@ export class SearchRangeDto {
   @IsOptional()
   @IsDate()
   @Transform((val) => {
-    if (dateFns.isDate(val?.value)) {
+    if (dateFns.isDate(new Date(val?.value))) {
       return new Date(moment(val.value).utc().format('YYYY-MM-DD'));
     }
   })
@@ -43,7 +43,7 @@ export class SearchRangeDto {
   @IsOptional()
   @IsDate()
   @Transform((val) => {
-    if (dateFns.isDate(val?.value)) {
+    if (dateFns.isDate(new Date(val?.value))) {
       return new Date(moment(val.value).utc().format('YYYY-MM-DD'));
     }
   })
@@ -53,7 +53,7 @@ export class SearchRangeDto {
   @IsOptional()
   @IsDate()
   @Transform((val) => {
-    if (dateFns.isDate(val?.value)) {
+    if (dateFns.isDate(new Date(val?.value))) {
       return new Date(moment(val.value).utc().format('YYYY-MM-DD'));
     }
   })
