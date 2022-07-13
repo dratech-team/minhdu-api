@@ -8,7 +8,7 @@ export class SearchRangeDto {
   @IsDate()
   @Transform((val) => {
     if (dateFns.isDate(new Date(val?.value))) {
-      return new Date(moment(val.value).utc().format('YYYY-MM-DD'));
+      return new Date(moment(val.value).format('YYYY-MM-DD'));
     }
   })
   readonly startedAt_start: Date;
@@ -17,7 +17,7 @@ export class SearchRangeDto {
   @IsDate()
   @Transform((val) => {
     if (dateFns.isDate(new Date(val?.value))) {
-      return new Date(moment(val.value).utc().format('YYYY-MM-DD'));
+      return new Date(moment(val.value).format('YYYY-MM-DD'));
     }
   })
   readonly startedAt_end: Date;
@@ -26,7 +26,7 @@ export class SearchRangeDto {
   @IsDate()
   @Transform((val) => {
     if (val?.value && val?.value !== '' && dateFns.isDate(new Date(val.value))) {
-      return new Date(moment(val.value).utc().format('YYYY-MM-DD'));
+      return new Date(moment(val.value).format('YYYY-MM-DD'));
     }
   })
   readonly endedAt_start: Date;
@@ -35,7 +35,7 @@ export class SearchRangeDto {
   @IsDate()
   @Transform((val) => {
     if (dateFns.isDate(new Date(val?.value))) {
-      return new Date(moment(val.value).utc().format('YYYY-MM-DD'));
+      return new Date(moment(val.value).format('YYYY-MM-DD'));
     }
   })
   readonly endedAt_end: Date;
@@ -44,7 +44,7 @@ export class SearchRangeDto {
   @IsDate()
   @Transform((val) => {
     if (dateFns.isDate(new Date(val?.value))) {
-      return new Date(moment(val.value).utc().format('YYYY-MM-DD'));
+      return new Date(moment(val.value).format('YYYY-MM-DD'));
     }
   })
   readonly deliveredAt_start: Date;
@@ -54,7 +54,7 @@ export class SearchRangeDto {
   @IsDate()
   @Transform((val) => {
     if (dateFns.isDate(new Date(val?.value))) {
-      return new Date(moment(val.value).utc().format('YYYY-MM-DD'));
+      return new Date(moment(val.value).format('YYYY-MM-DD'));
     }
   })
   readonly deliveredAt_end: Date;
