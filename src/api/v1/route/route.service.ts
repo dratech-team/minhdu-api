@@ -75,6 +75,9 @@ export class RouteService {
     );
   }
 
+  /*
+  * commodityUniq những commodity thuộc tuyến xe hiện tại.
+  * */
   private mapToRoute(route: RouteEntity) {
     return Object.assign(route, {
       commodityUniq: this.orderService.commodityUniq(_.flattenDeep(route.orders.map(order => order.commodities.filter(commodity => commodity.routeId))))
