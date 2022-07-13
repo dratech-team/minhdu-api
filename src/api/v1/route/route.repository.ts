@@ -170,6 +170,8 @@ export class RouteRepository {
       return await this.prisma.route.findUnique({
         where: {id},
         include: {
+          employee: true,
+          locations: true,
           orders: {
             include: {
               commodities: {
@@ -181,8 +183,6 @@ export class RouteRepository {
               ward: true,
             },
           },
-          locations: true,
-          employee: true,
         },
       });
     } catch (err) {
@@ -221,6 +221,8 @@ export class RouteRepository {
           commodities: {connect: updates?.commodityIds?.map((id) => ({id: id}))},
         },
         include: {
+          employee: true,
+          locations: true,
           orders: {
             include: {
               commodities: true,
@@ -230,8 +232,6 @@ export class RouteRepository {
               ward: true,
             },
           },
-          locations: true,
-          employee: true,
         }
       });
     } catch (err) {

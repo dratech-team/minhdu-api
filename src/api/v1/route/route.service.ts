@@ -7,6 +7,8 @@ import {exportExcel} from "../../../core/services/export.service";
 import {SearchRouteDto} from "./dto/search-route.dto";
 import {CancelRouteDto} from "./dto/cancel-route.dto";
 import {OrderService} from "../order/order.service";
+import * as _ from 'lodash';
+import {RouteEntity} from "./entities/route.entity";
 
 @Injectable()
 export class RouteService {
@@ -17,19 +19,23 @@ export class RouteService {
   }
 
   async create(body: CreateRouteDto) {
-    return await this.repository.create(body);
+    const route = await this.repository.create(body);
+    return this.mapToRoute(route);
   }
 
   async findAll(search: SearchRouteDto) {
-    return await this.repository.findAll(search);
+    const {total, data} = await this.repository.findAll(search);
+    return {total, data: data.map(route => this.mapToRoute(route))};
   }
 
   async findOne(id: number) {
-    return await this.repository.findOne(id);
+    const route = await this.repository.findOne(id);
+    return this.mapToRoute(route);
   }
 
   async update(id: number, updates: UpdateRouteDto) {
-    return await this.repository.update(id, updates);
+    const route = await this.repository.update(id, updates);
+    return this.mapToRoute(route);
   }
 
   async remove(id: number) {
@@ -67,5 +73,11 @@ export class RouteService {
       },
       200
     );
+  }
+
+  private mapToRoute(route: RouteEntity) {
+    return Object.assign(route, {
+      commodityUniq: this.orderService.commodityUniq(_.flattenDeep(route.orders.map(order => order.commodities.filter(commodity => commodity.routeId))))
+    });
   }
 }

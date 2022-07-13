@@ -6,7 +6,6 @@ import {PaymentHistoryService} from "../histories/payment-history/payment-histor
 import {Response} from "express";
 import {exportExcel} from "../../../core/services/export.service";
 import {SearchOrderDto} from "./dto/search-order.dto";
-import {OrderEntity} from "./entities/order.entity";
 import {ItemExportDto} from "../../../common/interfaces/items-export.dto";
 import * as _ from 'lodash';
 import {Commodity} from '@prisma/client';
@@ -47,7 +46,7 @@ export class OrderService {
     return {
       total: result.total,
       data: orders,
-      commodityUniq: this.orderUniq(resultFull.data),
+      commodityUniq: this.commodityUniq(_.flattenDeep(resultFull.data.map(order => order.commodities))),
       commodityTotal: resultFull.data.map(order => this.commodityService.totalCommodities(order.commodities)).reduce((a, b) => a + b, 0)
     };
   }
@@ -134,12 +133,11 @@ export class OrderService {
     );
   }
 
-  private orderUniq(order: OrderEntity[]) {
-    const flatCommodities = _.flattenDeep(order.map(order => order.commodities));
-    const uniqCommodities: Commodity[] = _.uniqBy(flatCommodities, "code");
+  commodityUniq(commodities: Commodity[]) {
+    const uniqCommodities: Commodity[] = _.uniqBy(commodities, "code");
 
     return uniqCommodities.map(uniq => {
-      const amount = flatCommodities.filter(flat => flat.code === uniq.code).map(c => c.amount + (c.gift || 0) + ((c.more as any)?.amount || 0)).reduce((a, b) => a + b);
+      const amount = commodities.filter(flat => flat.code === uniq.code).map(c => c.amount + (c.gift || 0) + ((c.more as any)?.amount || 0)).reduce((a, b) => a + b);
       return {
         code: uniq.code,
         name: uniq.name,
