@@ -9,6 +9,7 @@ import {CancelRouteDto} from "./dto/cancel-route.dto";
 import {OrderService} from "../order/order.service";
 import * as _ from 'lodash';
 import {RouteEntity} from "./entities/route.entity";
+import {CancelTypeEnum} from "./enums/cancel-type.enum";
 
 @Injectable()
 export class RouteService {
@@ -43,6 +44,15 @@ export class RouteService {
   }
 
   async cancel(id: number, body: CancelRouteDto) {
+    if (body.desId && body.cancelType === "ORDER") {
+      const order = await this.orderService.findOne(body.desId);
+      if (order) {
+        const commodityIds = order.commodities.map(commodity => commodity.id);
+        commodityIds?.length && await Promise.all(commodityIds.map(async commodityId => {
+          return await this.repository.cancel(id, {cancelType: CancelTypeEnum.COMMODITY, desId: commodityId});
+        }));
+      }
+    }
     return await this.repository.cancel(id, body);
   }
 

@@ -5,6 +5,7 @@ import {UpdateRouteDto} from "./dto/update-route.dto";
 import {SearchRouteDto} from "./dto/search-route.dto";
 import {CancelRouteDto} from "./dto/cancel-route.dto";
 import {SortRouteEnum} from "./enums/sort-route.enum";
+import {CancelTypeEnum} from "./enums/cancel-type.enum";
 
 @Injectable()
 export class RouteRepository {
@@ -225,14 +226,16 @@ export class RouteRepository {
           locations: true,
           orders: {
             include: {
-              commodities: true,
+              commodities: {
+                include: {route: true}
+              },
               customer: true,
               province: true,
               district: true,
               ward: true,
             },
           },
-        }
+        },
       });
     } catch (err) {
       console.error(err);
@@ -253,34 +256,29 @@ export class RouteRepository {
 
   async cancel(id: number, body: CancelRouteDto) {
     try {
-      if (body.desId && body.cancelType === "ORDER") {
-        this.prisma.order.findUnique({
-          where: {id: body.desId},
-          include: {commodities: true}
-        }).then(order => {
-          const commodityIds = order.commodities.map(commodity => commodity.id);
-          this.prisma.route.update({
-            where: {id: id},
-            data: {commodities: {disconnect: commodityIds.map(id => ({id}))}}
-          }).then();
-        });
-      }
+      console.log(body.cancelType === CancelTypeEnum.COMMODITY
+        ? {commodities: {disconnect: {id: body.desId}}}
+        : {orders: {disconnect: {id: body.desId}}},);
       return await this.prisma.route.update({
         where: {id},
-        data: body.cancelType === "COMMODITY"
+        data: body.cancelType === CancelTypeEnum.COMMODITY
           ? {commodities: {disconnect: {id: body.desId}}}
           : {orders: {disconnect: {id: body.desId}}},
         include: {
+          employee: true,
+          locations: true,
           orders: {
             include: {
-              commodities: true,
+              commodities: {
+                include: {route: true}
+              },
               customer: true,
+              province: true,
+              district: true,
               ward: true,
             },
           },
-          locations: true,
-          employee: true,
-        }
+        },
       });
     } catch (err) {
       console.error(err);

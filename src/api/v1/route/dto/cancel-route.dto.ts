@@ -1,10 +1,6 @@
 import {IsEnum, IsNotEmpty, IsNumber} from "class-validator";
 import {Type} from "class-transformer";
-
-enum TypeEnum {
-  ORDER = "ORDER",
-  COMMODITY = "COMMODITY",
-}
+import {CancelTypeEnum} from "../enums/cancel-type.enum";
 
 export class CancelRouteDto {
   @IsNotEmpty()
@@ -13,6 +9,6 @@ export class CancelRouteDto {
   readonly desId: number;
 
   @IsNotEmpty()
-  @IsEnum(TypeEnum)
-  readonly cancelType: TypeEnum;
+  @IsEnum(CancelTypeEnum)
+  readonly cancelType: CancelTypeEnum;
 }
