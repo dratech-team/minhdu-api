@@ -65,6 +65,9 @@ export class OrderRepository {
       const [total, data] = await Promise.all([
         this.prisma.order.count({
           where: {
+            routes: search.routeId
+              ? {some: {id: search.routeId}}
+              : {},
             createdAt: (search?.startedAt_start && search?.startedAt_end)
               ? {
                 gte: search.startedAt_start,
@@ -116,13 +119,17 @@ export class OrderRepository {
               : search?.commodity
                 ? {some: {name: {contains: search?.commodity, mode: "insensitive"}}}
                 : {},
-            deleted: false,
+            deletedAt: {in: null},
+            canceledAt: {in: null}
           },
         }),
         this.prisma.order.findMany({
           skip: search?.skip,
           take: search?.take,
           where: {
+            routes: search.routeId
+              ? {some: {id: search.routeId}}
+              : {},
             createdAt: (search?.startedAt_start && search?.startedAt_end)
               ? {
                 gte: search.startedAt_start,
@@ -174,7 +181,8 @@ export class OrderRepository {
               : search?.commodity
                 ? {some: {name: {contains: search?.commodity, mode: "insensitive"}}}
                 : {},
-            deleted: false,
+            deletedAt: {in: null},
+            canceledAt: {in: null}
           },
           include: {
             commodities: {
@@ -242,7 +250,7 @@ export class OrderRepository {
         data: canceled ? {
           canceledAt: new Date(),
         } : {
-          deleted: true
+          deletedAt: new Date(),
         },
       });
     } catch (err) {

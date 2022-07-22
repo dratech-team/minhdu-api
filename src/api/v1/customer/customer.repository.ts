@@ -108,7 +108,7 @@ export class CustomerRepository {
         where: {
           customerId: id,
           hide: false,
-          deleted: false,
+          deletedAt: {in: null},
           deliveredAt: {not: null},
         },
         _sum: {

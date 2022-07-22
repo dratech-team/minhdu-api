@@ -17,7 +17,16 @@ export class CommodityService {
   }
 
   async create(body: CreateCommodityDto) {
-    return this.repository.create(body);
+    const commodity = await this.repository.create(body);
+    await this.orderHistoryService.create({
+      commodityId: commodity.id,
+      price: commodity.price ?? commodity.price,
+      amount: commodity.amount ?? commodity.amount,
+      more: commodity.more ?? commodity.more,
+      gift: commodity.gift ?? commodity.gift,
+      confirmedAt: null
+    });
+    return commodity;
   }
 
   async findAll(take: number, skip: number) {

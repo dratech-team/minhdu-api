@@ -460,7 +460,8 @@ model Order {
   hide             Boolean?         @default(false)
   total            Float?
   canceledAt       DateTime?
-  deleted          Boolean?         @default(false)
+  deletedAt        DateTime?
+  deletedBy        String?
   timestamp        DateTime?        @default(now())
   note             String?
   routes           Route[]

@@ -34,7 +34,10 @@ export class OrderHistoryService {
       const [total, data] = await Promise.all([
         this.prisma.orderHistory.count({
           where: {
-            commodity: {name: {startsWith: search?.commodity, mode: "insensitive"}},
+            commodity: {
+              name: {startsWith: search?.commodity, mode: "insensitive"},
+              order: search?.orderId ? {id: {in: search.orderId}} : {},
+            },
             deletedAt: {in: null}
           }
         }),
@@ -42,7 +45,10 @@ export class OrderHistoryService {
           take: search?.take,
           skip: search?.skip,
           where: {
-            commodity: {name: {startsWith: search?.commodity, mode: "insensitive"}},
+            commodity: {
+              name: {startsWith: search?.commodity, mode: "insensitive"},
+              order: search?.orderId ? {id: {in: search.orderId}} : {},
+            },
             deletedAt: {in: null}
           },
           include: {commodity: true},

@@ -16,6 +16,11 @@ export class SearchOrderDto extends SearchRangeDto {
   readonly take: number;
 
   @IsOptional()
+  @IsNumber()
+  @Type(() => Number)
+  readonly routeId: number;
+
+  @IsOptional()
   @IsString()
   readonly search: string;
 

@@ -370,7 +370,7 @@ export class OverviewService {
         const count = await this.prisma.order.count({
           where: {
             provinceId: e.provinceId,
-            deleted: status === DELIVERY_STATUS.CANCEL,
+            canceledAt: status === DELIVERY_STATUS.CANCEL ? {notIn: null} : {in: null},
             deliveredAt: status === DELIVERY_STATUS.COMPLETE ? {notIn: null} : {in: null}
           }
         });
@@ -513,7 +513,7 @@ export class OverviewService {
             name: status,
             value: await this.prisma.order.count({
               where: {
-                deleted: status === DELIVERY_STATUS.CANCEL,
+                canceledAt: status === DELIVERY_STATUS.CANCEL ? {notIn: null} : {in: null},
                 createdAt: status === DELIVERY_STATUS.DELIVERY ? {
                   gte: firstDatetime(new Date(`${year}-01-01`), "years"),
                   lte: lastDatetime(new Date(`${year}-01-01`), "years"),
@@ -691,7 +691,7 @@ export class OverviewService {
             value: await this.prisma.order.count({
               where: {
                 customerId: e.id,
-                deleted: status === DELIVERY_STATUS.CANCEL,
+                canceledAt: status === DELIVERY_STATUS.CANCEL ? {notIn: null} : {in: null},
                 deliveredAt: status === DELIVERY_STATUS.COMPLETE && search?.startedAt && search?.endedAt ? {
                   gte: search.startedAt,
                   lte: search.endedAt
