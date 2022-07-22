@@ -101,19 +101,22 @@ export class OrderRepository {
             commodities: search?.filterRoute === 'true'
               ? {
                 some: {
-                  OR: [
-                    {
-                      code: {startsWith: search?.commodity, mode: "insensitive"},
-                    },
-                    {
-                      name: {contains: search?.commodity, mode: "insensitive"},
-                    },
-                  ],
                   routeId: {in: null}
                 },
               }
               : search?.commodity
-                ? {some: {name: {contains: search?.commodity, mode: "insensitive"}}}
+                ? {
+                  some: {
+                    OR: [
+                      {
+                        code: {startsWith: search?.commodity, mode: "insensitive"},
+                      },
+                      {
+                        name: {contains: search?.commodity, mode: "insensitive"},
+                      },
+                    ],
+                  }
+                }
                 : {},
             deletedAt: {in: null},
             canceledAt: {in: null}
@@ -160,19 +163,22 @@ export class OrderRepository {
             commodities: search?.filterRoute === 'true'
               ? {
                 some: {
-                  OR: [
-                    {
-                      code: {startsWith: search?.commodity, mode: "insensitive"},
-                    },
-                    {
-                      name: {contains: search?.commodity, mode: "insensitive"},
-                    },
-                  ],
                   routeId: {in: null}
                 },
               }
               : search?.commodity
-                ? {some: {name: {contains: search?.commodity, mode: "insensitive"}}}
+                ? {
+                  some: {
+                    OR: [
+                      {
+                        code: {startsWith: search?.commodity, mode: "insensitive"},
+                      },
+                      {
+                        name: {contains: search?.commodity, mode: "insensitive"},
+                      },
+                    ],
+                  }
+                }
                 : {},
             deletedAt: {in: null},
             canceledAt: {in: null}

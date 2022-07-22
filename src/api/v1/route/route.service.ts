@@ -7,8 +7,8 @@ import {exportExcel} from "../../../core/services/export.service";
 import {SearchRouteDto} from "./dto/search-route.dto";
 import {CancelRouteDto} from "./dto/cancel-route.dto";
 import {OrderService} from "../order/order.service";
-import * as _ from 'lodash';
 import {RouteEntity} from "./entities/route.entity";
+import {CancelTypeEnum} from "./enums/cancel-type.enum";
 
 @Injectable()
 export class RouteService {
@@ -43,24 +43,17 @@ export class RouteService {
   }
 
   async cancel(id: number, body: CancelRouteDto) {
-    // if (body.desId && body.cancelType === "ORDER") {
-    //   const order = await this.orderService.findOne(body.desId);
-    //   if (order) {
-    //     const commodityIds = order.commodities.map(commodity => commodity.id);
-    //     commodityIds?.length && await Promise.all(commodityIds.map(async commodityId => {
-    //       return await this.repository.cancel(id, {cancelType: CancelTypeEnum.COMMODITY, desId: commodityId});
-    //     }));
-    //   }
-    // } else {
-    //   for (let i = 0; i < route.orders.length; i++) {
-    //     const order = route.orders[i];
-    //     if (!isEqual(order.commodities?.map(commodity => commodity.id), route.commodities.map(commodity => commodity.id))) {
-    //       await this.repository.cancel(id, {cancelType: CancelTypeEnum.ORDER, desId: order.id});
-    //     }
-    //   }
-    // }
-
-    return await this.repository.cancel(id, body);
+    const route = await this.repository.cancel(id, body);
+    if (body.desId && body.cancelType === "ORDER") {
+      const {commodities} = await this.orderService.findOne(body.desId);
+      if (commodities.length) {
+        const commodityIds = commodities.map(commodity => commodity.id);
+        await Promise.all(commodityIds.map(async commodityId => {
+          return await this.repository.cancel(id, {cancelType: CancelTypeEnum.COMMODITY, desId: commodityId});
+        }));
+      }
+    }
+    return route;
   }
 
   async export(response?: Response, search?: SearchRouteDto) {
