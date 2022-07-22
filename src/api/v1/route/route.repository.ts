@@ -256,9 +256,6 @@ export class RouteRepository {
 
   async cancel(id: number, body: CancelRouteDto) {
     try {
-      console.log(body.cancelType === CancelTypeEnum.COMMODITY
-        ? {commodities: {disconnect: {id: body.desId}}}
-        : {orders: {disconnect: {id: body.desId}}},);
       return await this.prisma.route.update({
         where: {id},
         data: body.cancelType === CancelTypeEnum.COMMODITY
@@ -278,6 +275,7 @@ export class RouteRepository {
               ward: true,
             },
           },
+          commodities: true,
         },
       });
     } catch (err) {

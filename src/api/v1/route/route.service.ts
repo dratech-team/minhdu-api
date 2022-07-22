@@ -8,6 +8,7 @@ import {SearchRouteDto} from "./dto/search-route.dto";
 import {CancelRouteDto} from "./dto/cancel-route.dto";
 import {OrderService} from "../order/order.service";
 import * as _ from 'lodash';
+import {isEqual} from 'lodash';
 import {RouteEntity} from "./entities/route.entity";
 import {CancelTypeEnum} from "./enums/cancel-type.enum";
 
@@ -53,7 +54,14 @@ export class RouteService {
         }));
       }
     }
-    return await this.repository.cancel(id, body);
+    const route = await this.repository.cancel(id, body);
+    for (let i = 0; i < route.orders.length; i++) {
+      const order = route.orders[i];
+      if (!isEqual(order.commodities?.map(commodity => commodity.id), route.commodities.map(commodity => commodity.id))) {
+        await this.repository.cancel(id, {cancelType: CancelTypeEnum.ORDER, desId: order.id});
+      }
+    }
+    return route;
   }
 
   async export(response?: Response, search?: SearchRouteDto) {
