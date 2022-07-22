@@ -5,7 +5,6 @@ import {UpdateRouteDto} from "./dto/update-route.dto";
 import {SearchRouteDto} from "./dto/search-route.dto";
 import {CancelRouteDto} from "./dto/cancel-route.dto";
 import {SortRouteEnum} from "./enums/sort-route.enum";
-import {CancelTypeEnum} from "./enums/cancel-type.enum";
 
 @Injectable()
 export class RouteRepository {
@@ -51,19 +50,22 @@ export class RouteRepository {
           bsx: body.bsx,
           startedAt: body.startedAt,
           endedAt: body?.endedAt,
-          orders: body?.orderIds?.length ? {connect: body.orderIds.map((id) => ({id: id}))} : {connect: orderIds?.map(id => ({id}))},
           commodities: {connect: body?.commodityIds?.map((id) => ({id: id}))},
         },
         include: {
           employee: true,
           locations: true,
-          orders: {
+          commodities: {
             include: {
-              province: true,
-              district: true,
-              ward: true,
-              customer: true,
-              commodities: true
+              route: true,
+              order: {
+                include: {
+                  customer: true,
+                  province: true,
+                  district: true,
+                  ward: true,
+                },
+              },
             }
           },
         },
@@ -83,7 +85,6 @@ export class RouteRepository {
               {name: {contains: search?.search}},
               {driver: {contains: search?.search}},
               {bsx: {contains: search?.search}},
-              {orders: {some: {customer: {lastName: {contains: search?.search}}}}}
             ],
             startedAt: search?.startedAt_start && search?.startedAt_end ? {
               gte: search.startedAt_start,
@@ -110,7 +111,6 @@ export class RouteRepository {
               {name: {contains: search?.search}},
               {driver: {contains: search?.search}},
               {bsx: {contains: search?.search}},
-              {orders: {some: {customer: {lastName: {contains: search?.search}}}}}
             ],
             startedAt: search?.startedAt_start && search?.startedAt_end ? {
               gte: search.startedAt_start,
@@ -131,13 +131,17 @@ export class RouteRepository {
           include: {
             employee: true,
             locations: true,
-            orders: {
+            commodities: {
               include: {
-                province: true,
-                district: true,
-                ward: true,
-                customer: true,
-                commodities: true
+                route: true,
+                order: {
+                  include: {
+                    customer: true,
+                    province: true,
+                    district: true,
+                    ward: true,
+                  },
+                },
               }
             },
           },
@@ -173,16 +177,18 @@ export class RouteRepository {
         include: {
           employee: true,
           locations: true,
-          orders: {
+          commodities: {
             include: {
-              commodities: {
-                include: {route: true}
+              route: true,
+              order: {
+                include: {
+                  customer: true,
+                  province: true,
+                  district: true,
+                  ward: true,
+                },
               },
-              customer: true,
-              province: true,
-              district: true,
-              ward: true,
-            },
+            }
           },
         },
       });
@@ -198,17 +204,17 @@ export class RouteRepository {
       if (found.endedAt) {
         throw new BadRequestException("Chuyến xe đã hoàn thành. không được phép sửa.");
       }
-      if (updates?.endedAt) {
-        const route = await this.prisma.route.findUnique({where: {id}, select: {orders: true}});
-        await Promise.all(route.orders?.map(async order => {
-          await this.prisma.order.update({
-            where: {id: order.id},
-            data: {
-              deliveredAt: updates.endedAt
-            }
-          });
-        }));
-      }
+      // if (updates?.endedAt) {
+      //   const route = await this.prisma.route.findUnique({where: {id}, select: {orders: true}});
+      //   await Promise.all(route.orders?.map(async order => {
+      //     await this.prisma.order.update({
+      //       where: {id: order.id},
+      //       data: {
+      //         deliveredAt: updates.endedAt
+      //       }
+      //     });
+      //   }));
+      // }
       return await this.prisma.route.update({
         where: {id},
         data: {
@@ -218,22 +224,23 @@ export class RouteRepository {
           bsx: updates.bsx,
           startedAt: updates.startedAt,
           endedAt: updates.endedAt,
-          orders: {connect: updates.orderIds?.map((id) => ({id: id}))},
           commodities: {connect: updates?.commodityIds?.map((id) => ({id: id}))},
         },
         include: {
           employee: true,
           locations: true,
-          orders: {
+          commodities: {
             include: {
-              commodities: {
-                include: {route: true}
+              route: true,
+              order: {
+                include: {
+                  customer: true,
+                  province: true,
+                  district: true,
+                  ward: true,
+                },
               },
-              customer: true,
-              province: true,
-              district: true,
-              ward: true,
-            },
+            }
           },
         },
       });
@@ -258,24 +265,23 @@ export class RouteRepository {
     try {
       return await this.prisma.route.update({
         where: {id},
-        data: body.cancelType === CancelTypeEnum.COMMODITY
-          ? {commodities: {disconnect: {id: body.desId}}}
-          : {orders: {disconnect: {id: body.desId}}},
+        data: {commodities: {disconnect: {id: body.desId}}},
         include: {
           employee: true,
           locations: true,
-          orders: {
+          commodities: {
             include: {
-              commodities: {
-                include: {route: true}
+              route: true,
+              order: {
+                include: {
+                  customer: true,
+                  province: true,
+                  district: true,
+                  ward: true,
+                },
               },
-              customer: true,
-              province: true,
-              district: true,
-              ward: true,
-            },
+            }
           },
-          commodities: true,
         },
       });
     } catch (err) {

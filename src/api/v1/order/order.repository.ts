@@ -47,7 +47,6 @@ export class OrderRepository {
         include: {
           commodities: true,
           customer: true,
-          routes: true,
           province: true,
           district: true,
           ward: true,
@@ -65,9 +64,6 @@ export class OrderRepository {
       const [total, data] = await Promise.all([
         this.prisma.order.count({
           where: {
-            routes: search.routeId
-              ? {some: {id: search.routeId}}
-              : {},
             createdAt: (search?.startedAt_start && search?.startedAt_end)
               ? {
                 gte: search.startedAt_start,
@@ -127,9 +123,6 @@ export class OrderRepository {
           skip: search?.skip,
           take: search?.take,
           where: {
-            routes: search.routeId
-              ? {some: {id: search.routeId}}
-              : {},
             createdAt: (search?.startedAt_start && search?.startedAt_end)
               ? {
                 gte: search.startedAt_start,
@@ -191,7 +184,6 @@ export class OrderRepository {
               }
             },
             customer: true,
-            routes: true,
             province: true,
             district: true,
             ward: true,
@@ -230,7 +222,6 @@ export class OrderRepository {
         include: {
           commodities: true,
           customer: true,
-          routes: true,
           province: true,
           district: true,
           ward: true,

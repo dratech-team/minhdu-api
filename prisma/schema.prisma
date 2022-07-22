@@ -464,7 +464,6 @@ model Order {
   deletedBy        String?
   timestamp        DateTime?        @default(now())
   note             String?
-  routes           Route[]
   commodities      Commodity[]
   paymentHistories PaymentHistory[]
 }
@@ -496,10 +495,9 @@ model Route {
   bsx         String
   deletedAt   DateTime?
   deletedBy   String?
-  timestamp   DateTime?   @default(now())
-  orders      Order[]
   locations   Location[]
   commodities Commodity[]
+  timestamp   DateTime?   @default(now())
 }
 
 model Location {

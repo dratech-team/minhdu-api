@@ -401,11 +401,6 @@ export class OverviewService {
                 where: {
                   deletedAt: status === DELIVERY_STATUS.CANCEL ? {notIn: null} : {in: null},
                   endedAt: status === DELIVERY_STATUS.COMPLETE ? {notIn: null} : status === DELIVERY_STATUS.DELIVERY ? {in: null} : {},
-                  orders: {
-                    some: {
-                      provinceId: e.provinceId,
-                    },
-                  }
                 },
               })
             ),

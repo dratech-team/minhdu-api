@@ -6,6 +6,7 @@ import {ApiConstant} from "../../../common/constant";
 import {ApiKeyGuard, JwtAuthGuard, LoggerGuard, RolesGuard} from "../../../core/guard";
 import {Roles} from "../../../core/decorators/roles.decorator";
 import {RoleEnum} from "@prisma/client";
+import {SearchCommodityDto} from "./dto/search-commodity.dto";
 
 @UseGuards(JwtAuthGuard, ApiKeyGuard, RolesGuard)
 @Controller(ApiConstant.V1.COMMODITY)
@@ -23,10 +24,9 @@ export class CommodityController {
   @Roles(RoleEnum.SUPPER_ADMIN, RoleEnum.SALESMAN)
   @Get()
   findAll(
-    @Query("take") take: number,
-    @Query("skip") skip: number,
+    @Query() search: SearchCommodityDto
   ) {
-    return this.commodityService.findAll(+take, +skip);
+    return this.commodityService.findAll(search);
   }
 
   @Roles(RoleEnum.SUPPER_ADMIN, RoleEnum.SALESMAN)

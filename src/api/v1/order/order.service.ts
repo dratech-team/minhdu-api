@@ -43,11 +43,19 @@ export class OrderService {
     const result = await this.repository.findAll(search);
 
     const orders = result.data.map((order) => this.mapOrder(order));
+    const commodities = _.flattenDeep(await Promise.all(resultFull.data.map(async order => {
+      const {data} = await this.commodityService.findAll({
+        take: undefined,
+        skip: undefined,
+        orderId: order.id,
+      });
+      return data;
+    })));
     return {
       total: result.total,
       data: orders,
-      commodityUniq: this.commodityUniq(_.flattenDeep(resultFull.data.map(order => order.commodities))),
-      commodityTotal: resultFull.data.map(order => this.commodityService.totalCommodities(order.commodities)).reduce((a, b) => a + b, 0)
+      commodityUniq: this.commodityUniq(commodities),
+      commodityTotal: resultFull.data.map(order => this.commodityService.totalCommodities(commodities)).reduce((a, b) => a + b, 0)
     };
   }
 

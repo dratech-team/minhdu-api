@@ -2,6 +2,7 @@ import {BadRequestException, Injectable} from "@nestjs/common";
 import {PrismaService} from "../../../prisma.service";
 import {CreateCommodityDto} from "./dto/create-commodity.dto";
 import {UpdateCommodityDto} from "./dto/update-commodity.dto";
+import {SearchCommodityDto} from "./dto/search-commodity.dto";
 
 @Injectable()
 export class CommodityRepository {
@@ -68,15 +69,15 @@ export class CommodityRepository {
     }
   }
 
-  async findAll(take: number, skip: number) {
+  async findAll(search: SearchCommodityDto) {
     try {
       const [total, data] = await Promise.all([
         this.prisma.commodity.count({
           where: {order: null}
         }),
         this.prisma.commodity.findMany({
-          take: take || undefined,
-          skip: skip || undefined,
+          take: search.take,
+          skip: search.skip,
           where: {order: null},
         }),
       ]);

@@ -5,6 +5,7 @@ import {CommodityRepository} from "./commodity.repository";
 import {OrderHistoryService} from "../histories/order-history/order-history.service";
 import {Commodity} from "@prisma/client";
 import {OrderService} from "../order/order.service";
+import {SearchCommodityDto} from "./dto/search-commodity.dto";
 
 @Injectable()
 export class CommodityService {
@@ -29,8 +30,8 @@ export class CommodityService {
     return commodity;
   }
 
-  async findAll(take: number, skip: number) {
-    return await this.repository.findAll(take, skip);
+  async findAll(search: SearchCommodityDto) {
+    return await this.repository.findAll(search);
   }
 
   async findFirst(id: number) {
@@ -88,7 +89,7 @@ export class CommodityService {
   /*
   * Tổng tiền nhiều đơn hàng
   * */
-  totalCommodities(commodities: any[]) {
+  totalCommodities(commodities: Commodity[]) {
     return commodities.map(commodity => {
       return this.totalCommodity(commodity);
     }).reduce((a, b) => a + b, 0);
