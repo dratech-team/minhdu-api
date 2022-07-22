@@ -45,6 +45,7 @@ export class RouteService {
   }
 
   async cancel(id: number, body: CancelRouteDto) {
+    const route = await this.repository.cancel(id, body);
     if (body.desId && body.cancelType === "ORDER") {
       const order = await this.orderService.findOne(body.desId);
       if (order) {
@@ -53,14 +54,15 @@ export class RouteService {
           return await this.repository.cancel(id, {cancelType: CancelTypeEnum.COMMODITY, desId: commodityId});
         }));
       }
-    }
-    const route = await this.repository.cancel(id, body);
-    for (let i = 0; i < route.orders.length; i++) {
-      const order = route.orders[i];
-      if (!isEqual(order.commodities?.map(commodity => commodity.id), route.commodities.map(commodity => commodity.id))) {
-        await this.repository.cancel(id, {cancelType: CancelTypeEnum.ORDER, desId: order.id});
+    } else {
+      for (let i = 0; i < route.orders.length; i++) {
+        const order = route.orders[i];
+        if (!isEqual(order.commodities?.map(commodity => commodity.id), route.commodities.map(commodity => commodity.id))) {
+          await this.repository.cancel(id, {cancelType: CancelTypeEnum.ORDER, desId: order.id});
+        }
       }
     }
+
     return route;
   }
 
