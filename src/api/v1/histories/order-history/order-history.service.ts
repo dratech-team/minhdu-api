@@ -72,14 +72,15 @@ export class OrderHistoryService {
 
   async remove(id: number, profile: ProfileEntity) {
     try {
-      const account = await this.prisma.account.findUnique({where: {id: profile.id}});
-      return await this.prisma.orderHistory.update({
-        where: {id},
-        data: {
-          deletedAt: new Date(),
-          deletedBy: account.username + `(${account.ip})`,
-        }
-      });
+      // const account = await this.prisma.account.findUnique({where: {id: profile.id}});
+      // return await this.prisma.orderHistory.update({
+      //   where: {id},
+      //   data: {
+      //     deletedAt: new Date(),
+      //     deletedBy: account.username + `(${account.ip})`,
+      //   }
+      // });
+      return await this.prisma.orderHistory.delete({where: {id}});
     } catch (err) {
       console.error(err);
       throw new BadRequestException(err);

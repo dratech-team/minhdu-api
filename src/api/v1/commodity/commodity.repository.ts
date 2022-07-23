@@ -110,7 +110,7 @@ export class CommodityRepository {
         },
       });
     } catch (err) {
-      console.error('commodity update', err);
+      console.error(err);
       throw new BadRequestException(err);
     }
   }

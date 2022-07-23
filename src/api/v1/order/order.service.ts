@@ -155,7 +155,7 @@ export class OrderService {
     const uniqCommodities: Commodity[] = _.uniqBy(commodities, "code");
 
     return uniqCommodities.map(uniq => {
-      const amount = commodities.filter(flat => flat.code === uniq.code).map(c => c.amount + (c.gift || 0) + ((c.more as any)?.amount || 0)).reduce((a, b) => a + b);
+      const amount = commodities.filter(flat => flat.code === uniq.code).reduce((a: number, b: Commodity) => a + b.amount + (b.gift || 0) + (b.more || 0), 0);
       return {
         code: uniq.code,
         name: uniq.name,

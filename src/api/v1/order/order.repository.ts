@@ -242,15 +242,17 @@ export class OrderRepository {
 
   async remove(id: number, reason?: string) {
     try {
-      return await this.prisma.order.update({
-        where: {id},
-        data: reason ? {
-          canceledAt: new Date(),
-          reason: reason
-        } : {
-          deletedAt: new Date(),
-        },
-      });
+      if (reason) {
+        return await this.prisma.order.update({
+          where: {id},
+          data: {
+            canceledAt: new Date(),
+            reason: reason
+          },
+        });
+      }
+      return await this.prisma.order.delete({where: {id}});
+
     } catch (err) {
       console.error(err);
       throw new BadRequestException(err);
