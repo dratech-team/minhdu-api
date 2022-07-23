@@ -65,8 +65,8 @@ export class OrderController {
   @UseGuards(LoggerGuard)
   @Roles(RoleEnum.SUPPER_ADMIN, RoleEnum.SALESMAN)
   @Delete(":id/cancel")
-  async cancel(@Param("id") id: string) {
-    return this.orderService.remove(+id, true);
+  async cancel(@Param("id") id: string, @Body('reason') reason?: string) {
+    return this.orderService.remove(+id, reason || "Không có");
   }
 
   @Get("/export/items")

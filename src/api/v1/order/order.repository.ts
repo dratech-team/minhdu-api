@@ -240,12 +240,13 @@ export class OrderRepository {
     }
   }
 
-  async remove(id: number, canceled?: boolean) {
+  async remove(id: number, reason?: string) {
     try {
       return await this.prisma.order.update({
         where: {id},
-        data: canceled ? {
+        data: reason ? {
           canceledAt: new Date(),
+          reason: reason
         } : {
           deletedAt: new Date(),
         },

@@ -41,7 +41,7 @@ export class OrderService {
 
   async findAll(search: SearchOrderDto) {
     const {total, data} = await this.repository.findAll(search);
-    const resFull = await this.repository.findAll({});
+    const resFull = await this.repository.findAll(Object.assign({}, search, {take: undefined, skip: undefined}));
 
     const commodityRes = await this.commodityService.findAll({
       orderIds: resFull.data.map(order => order.id),
@@ -82,14 +82,14 @@ export class OrderService {
     return this.mapOrder(order);
   }
 
-  async remove(id: number, canceled?: boolean) {
+  async remove(id: number, reason?: string) {
     const order = await this.findOne(id);
     if (order.deliveredAt) {
       throw new BadRequestException(
         "Đơn hàng đã giao thành công. Bạn không được phép xóa."
       );
     }
-    return await this.repository.remove(id, canceled);
+    return await this.repository.remove(id, reason);
   }
 
   async hide(id: number, hide: boolean) {

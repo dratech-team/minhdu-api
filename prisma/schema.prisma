@@ -465,6 +465,7 @@ model Order {
   deletedBy        String?
   timestamp        DateTime?        @default(now())
   note             String?
+  reason           String? // Lý do huỷ đơn hàng
   commodities      Commodity[]
   paymentHistories PaymentHistory[]
 }
