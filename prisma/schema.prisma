@@ -461,11 +461,11 @@ model Order {
   hide             Boolean?         @default(false)
   total            Float?
   canceledAt       DateTime?
+  reason           String? // Lý do huỷ đơn hàng
   deletedAt        DateTime?
   deletedBy        String?
   timestamp        DateTime?        @default(now())
   note             String?
-  reason           String? // Lý do huỷ đơn hàng
   commodities      Commodity[]
   paymentHistories PaymentHistory[]
 }
