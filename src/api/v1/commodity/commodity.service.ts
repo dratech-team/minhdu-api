@@ -1,4 +1,4 @@
-import {forwardRef, Inject, Injectable} from '@nestjs/common';
+import {BadRequestException, forwardRef, Inject, Injectable} from '@nestjs/common';
 import {CreateCommodityDto} from './dto/create-commodity.dto';
 import {UpdateCommodityDto} from './dto/update-commodity.dto';
 import {CommodityRepository} from "./commodity.repository";
@@ -44,7 +44,13 @@ export class CommodityService {
 
   async update(id: number, updates: UpdateCommodityDto) {
     const commodity = await this.repository.findOne(id);
-    if (updates.logged) {
+    if (updates?.orderId) {
+      const order = await this.orderService.findOne(updates.orderId);
+      if (order.deliveredAt) {
+        throw new BadRequestException("Đơn hàng đã được giao thành công. Không được phép sửa!!!");
+      }
+    }
+    if (updates?.logged) {
       this.orderHistoryService.create({
         commodityId: id,
         price: updates.price ?? commodity.price,

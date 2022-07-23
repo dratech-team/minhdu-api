@@ -96,12 +96,6 @@ export class CommodityRepository {
 
   async update(id: number, updates: UpdateCommodityDto) {
     try {
-      if (updates?.orderId) {
-        const order = await this.prisma.order.findUnique({where: {id: updates.orderId}});
-        if (order.deliveredAt) {
-          throw new BadRequestException("Đơn hàng đã được giao thành công. Không được phép sửa!!!");
-        }
-      }
       return await this.prisma.commodity.update({
         where: {id},
         data: {
