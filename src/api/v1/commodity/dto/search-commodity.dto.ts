@@ -1,19 +1,19 @@
-import {IsNotEmpty, IsNumber, IsOptional} from "class-validator";
+import {IsArray, IsNotEmpty, IsNumber, IsOptional} from "class-validator";
 import {Type} from "class-transformer";
 
 export class SearchCommodityDto {
   @IsNotEmpty()
   @IsNumber()
   @Type(() => Number)
-  readonly take: number;
+  readonly take?: number;
 
   @IsNotEmpty()
   @IsNumber()
   @Type(() => Number)
-  readonly skip: number;
+  readonly skip?: number;
 
   @IsOptional()
-  @IsNumber()
+  @IsArray({each: true})
   @Type(() => Number)
-  readonly orderId?: number;
+  readonly orderIds?: number[];
 }

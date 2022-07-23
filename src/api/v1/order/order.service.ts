@@ -10,6 +10,7 @@ import {ItemExportDto} from "../../../common/interfaces/items-export.dto";
 import * as _ from 'lodash';
 import {Commodity} from '@prisma/client';
 import {CommodityService} from "../commodity/commodity.service";
+import {OrderEntity} from "./entities/order.entity";
 
 @Injectable()
 export class OrderService {
@@ -39,23 +40,17 @@ export class OrderService {
   }
 
   async findAll(search: SearchOrderDto) {
-    const resultFull = await this.repository.findAll(Object.assign({}, search, {take: undefined, skip: undefined}));
-    const result = await this.repository.findAll(search);
+    const {total, data} = await this.repository.findAll(search);
+    const resFull = await this.repository.findAll({});
 
-    const orders = result.data.map((order) => this.mapOrder(order));
-    const commodities = _.flattenDeep(await Promise.all(resultFull.data.map(async order => {
-      const {data} = await this.commodityService.findAll({
-        take: undefined,
-        skip: undefined,
-        orderId: order.id,
-      });
-      return data;
-    })));
+    const commodityRes = await this.commodityService.findAll({
+      orderIds: resFull.data.map(order => order.id),
+    });
     return {
-      total: result.total,
-      data: orders,
-      commodityUniq: this.commodityUniq(commodities),
-      commodityTotal: resultFull.data.map(order => this.commodityService.totalCommodities(commodities)).reduce((a, b) => a + b, 0)
+      total: total,
+      data: data.map((order) => this.mapOrder(order)),
+      commodityUniq: this.commodityUniq(commodityRes.data),
+      commodityTotal: this.commodityService.totalCommodities(commodityRes.data)
     };
   }
 
@@ -72,6 +67,16 @@ export class OrderService {
     // Đơn hàng giao thành công thì không được phép sửa
     if (found.deliveredAt) {
       throw new BadRequestException("Không được sửa đơn hàng đã được giao thành công.!!!");
+    }
+
+    if (!found.deliveredAt && updates.deliveredAt) {
+      for (let i = 0; i < found.commodities.length; i++) {
+        const commodity = found.commodities[i];
+        if (!commodity.deliveredAt) {
+          await this.commodityService.update(commodity.id, {deliveredAt: updates.deliveredAt});
+        }
+      }
+
     }
     const order = await this.repository.update(id, Object.assign(updates, {total: found.commodityTotal}));
     return this.mapOrder(order);
@@ -94,6 +99,11 @@ export class OrderService {
 
   async restore(id: number) {
     const order = await this.repository.update(id, {deliveredAt: null});
+    for (let i = 0; i < order.commodities.length; i++) {
+      const commodity = order.commodities[i];
+      await this.commodityService.update(commodity.id, {deliveredAt: null});
+    }
+
     return this.mapOrder(order);
   }
 
@@ -130,11 +140,11 @@ export class OrderService {
           createdAt: e.createdAt,
           lengthTotal: e.commodities.length,
           commodityTotal: this.commodityService.totalCommodities(e.commodities),
-          payTotal: this.paymentService.totalPayment(e.paymentHistories),
-          debtTotal:
-            this.paymentService.totalPayment(e.paymentHistories) -
-            this.commodityService.totalCommodities(e.commodities),
-          explain: e.explain,
+          // payTotal: this.paymentService.totalPayment(e.paymentHistories),
+          // debtTotal:
+          //   this.paymentService.totalPayment(e.paymentHistories) -
+          //   this.commodityService.totalCommodities(e.commodities),
+          // explain: e.explain,
         })),
       },
       200
@@ -154,7 +164,7 @@ export class OrderService {
     });
   }
 
-  private mapOrder(order) {
+  private mapOrder(order): OrderEntity {
     const commodityTotal = this.commodityService.totalCommodities(
       order.commodities
     );

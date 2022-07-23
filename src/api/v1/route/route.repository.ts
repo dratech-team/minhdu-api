@@ -200,21 +200,6 @@ export class RouteRepository {
 
   async update(id: number, updates: UpdateRouteDto) {
     try {
-      const found = await this.prisma.route.findUnique({where: {id}});
-      if (found.endedAt) {
-        throw new BadRequestException("Chuyến xe đã hoàn thành. không được phép sửa.");
-      }
-      // if (updates?.endedAt) {
-      //   const route = await this.prisma.route.findUnique({where: {id}, select: {orders: true}});
-      //   await Promise.all(route.orders?.map(async order => {
-      //     await this.prisma.order.update({
-      //       where: {id: order.id},
-      //       data: {
-      //         deliveredAt: updates.endedAt
-      //       }
-      //     });
-      //   }));
-      // }
       return await this.prisma.route.update({
         where: {id},
         data: {

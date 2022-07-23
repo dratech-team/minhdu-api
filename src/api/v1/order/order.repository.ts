@@ -59,7 +59,7 @@ export class OrderRepository {
     }
   }
 
-  async findAll(search: SearchOrderDto) {
+  async findAll(search: Partial<SearchOrderDto>) {
     try {
       const [total, data] = await Promise.all([
         this.prisma.order.count({

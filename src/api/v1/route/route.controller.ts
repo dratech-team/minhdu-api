@@ -50,6 +50,13 @@ export class RouteController {
 
   @UseGuards(LoggerGuard)
   @Roles(RoleEnum.SUPPER_ADMIN, RoleEnum.SALESMAN)
+  @Patch(":id/restore")
+  async restore(@Param("id") id: string) {
+    return this.routeService.restore(+id);
+  }
+
+  @UseGuards(LoggerGuard)
+  @Roles(RoleEnum.SUPPER_ADMIN, RoleEnum.SALESMAN)
   @Patch(":id/cancel")
   cancel(@Param("id") id: string, @Body() body: CancelRouteDto) {
     return this.routeService.cancel(+id, body);

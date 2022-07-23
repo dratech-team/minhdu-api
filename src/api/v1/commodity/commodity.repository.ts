@@ -73,12 +73,16 @@ export class CommodityRepository {
     try {
       const [total, data] = await Promise.all([
         this.prisma.commodity.count({
-          where: {order: null}
+          where: {
+            orderId: search?.orderIds ? {in: search.orderIds} : {in: null}
+          }
         }),
         this.prisma.commodity.findMany({
           take: search.take,
           skip: search.skip,
-          where: {order: null},
+          where: {
+            orderId: search?.orderIds ? {in: search.orderIds} : {in: null}
+          },
         }),
       ]);
       return {
@@ -108,6 +112,7 @@ export class CommodityRepository {
           gift: updates?.gift,
           price: updates?.price,
           closed: updates?.closed,
+          deliveredAt: updates?.deliveredAt,
         },
       });
     } catch (err) {

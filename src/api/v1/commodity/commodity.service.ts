@@ -38,6 +38,10 @@ export class CommodityService {
     return await this.repository.findFirst(id);
   }
 
+  async findOne(id: number) {
+    return await this.repository.findOne(id);
+  }
+
   async update(id: number, updates: UpdateCommodityDto) {
     const commodity = await this.repository.findOne(id);
     if (updates.logged) {
@@ -51,7 +55,7 @@ export class CommodityService {
       }).then();
     }
 
-    this.orderService.update(commodity.orderId, {}).then();
+    await this.orderService.update(commodity.orderId, {});
 
     return await this.repository.update(id, updates);
   }

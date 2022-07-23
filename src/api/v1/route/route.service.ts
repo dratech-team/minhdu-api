@@ -1,4 +1,4 @@
-import {Injectable} from "@nestjs/common";
+import {BadRequestException, Injectable} from "@nestjs/common";
 import {CreateRouteDto} from "./dto/create-route.dto";
 import {UpdateRouteDto} from "./dto/update-route.dto";
 import {RouteRepository} from "./route.repository";
@@ -9,12 +9,15 @@ import {CancelRouteDto} from "./dto/cancel-route.dto";
 import {OrderService} from "../order/order.service";
 import {RouteEntity} from "./entities/route.entity";
 import {CancelTypeEnum} from "./enums/cancel-type.enum";
+import {CommodityService} from "../commodity/commodity.service";
+import {uniq} from "lodash";
 
 @Injectable()
 export class RouteService {
   constructor(
     private readonly repository: RouteRepository,
     private readonly orderService: OrderService,
+    private readonly commodityService: CommodityService,
   ) {
   }
 
@@ -34,6 +37,27 @@ export class RouteService {
   }
 
   async update(id: number, updates: UpdateRouteDto) {
+    const found = await this.findOne(id);
+    if (found.endedAt) {
+      throw new BadRequestException("Chuyến xe đã hoàn thành. không được phép sửa.");
+    }
+    if (updates?.endedAt) {
+      for (let i = 0; i < found.commodities.length; i++) {
+        const commodity = found.commodities[i];
+        if(!commodity.deliveredAt) {
+          await this.commodityService.update(commodity.id, {deliveredAt: updates.endedAt});
+        }
+      }
+
+      const orderIds = uniq(found.commodities?.map((commodity) => commodity.orderId));
+      for (let i = 0; i < orderIds.length; i++) {
+        const orderId = orderIds[i];
+        const order = await this.orderService.findOne(orderId);
+        if (order && order.commodities.every(commodity => commodity.deliveredAt !== null)) {
+          await this.orderService.update(orderId, {deliveredAt: updates?.endedAt});
+        }
+      }
+    }
     const route = await this.repository.update(id, updates);
     return this.mapToRoute(route);
   }
@@ -42,15 +66,30 @@ export class RouteService {
     return await this.repository.remove(id);
   }
 
+  async restore(id: number) {
+    const route = await this.repository.update(id, {endedAt: null});
+    return this.mapToRoute(route);
+  }
+
+
   async cancel(id: number, body: CancelRouteDto) {
     const route = await this.repository.cancel(id, body);
+
     if (body.desId && body.cancelType === "ORDER") {
-      const {commodities} = await this.orderService.findOne(body.desId);
-      if (commodities.length) {
-        const commodityIds = commodities.map(commodity => commodity.id);
+      const order = await this.orderService.findOne(body.desId);
+      if (order.deliveredAt !== null) {
+        throw new BadRequestException("Đơn hàng đã được giao thành công. Không được phép huỷ");
+      }
+      if (order.commodities.length) {
+        const commodityIds = order.commodities.map(commodity => commodity.id);
         await Promise.all(commodityIds.map(async commodityId => {
           return await this.repository.cancel(id, {cancelType: CancelTypeEnum.COMMODITY, desId: commodityId});
         }));
+      }
+    } else {
+      const commodity = await this.commodityService.findOne(body.desId);
+      if (commodity.deliveredAt !== null) {
+        throw new BadRequestException("Mặt hàng đã được giao thành công. Không được phép huỷ");
       }
     }
     return route;
