@@ -195,9 +195,11 @@ export class OrderRepository {
             ward: true,
             paymentHistories: true,
           },
-          orderBy: {
-            createdAt: "desc"
-          }
+          orderBy: search.key === 'customer'
+            ? {customer: {lastName: search.directions}}
+            : search.key === 'destination'
+              ? {province: {name: search.directions}}
+              : {[search.key]: search.directions}
         }),
       ]);
       return {total, data};

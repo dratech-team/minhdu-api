@@ -61,4 +61,12 @@ export class SearchOrderDto extends SearchRangeDto {
 
   @IsOptional()
   readonly filterRoute: string;
+
+  @IsOptional()
+  @IsString()
+  readonly directions: "asc" | "desc";
+
+  @IsOptional()
+  @IsString()
+  readonly key: string;
 }
