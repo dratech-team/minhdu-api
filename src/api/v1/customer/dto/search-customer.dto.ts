@@ -29,4 +29,13 @@ export class SearchCustomerDto {
 
   @IsOptional()
   readonly gender: GenderType;
+
+  @IsOptional()
+  @IsString()
+  readonly key: string;
+
+  @IsOptional()
+  @IsString()
+  readonly directions: "asc" | "desc";
+
 }

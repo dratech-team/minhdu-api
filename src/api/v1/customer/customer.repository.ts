@@ -93,6 +93,9 @@ export class CustomerRepository {
             district: true,
             province: true
           },
+          orderBy: search.key === 'address'
+            ? {province: {name: search.directions}}
+            : {[search.key]: search.directions}
         }),
       ]);
       return {total, data};
@@ -193,7 +196,7 @@ export class CustomerRepository {
       return await this.prisma.customer.delete({where: {id}});
     } catch (err) {
       console.error(err);
-      if(err.code === "P2003") {
+      if (err.code === "P2003") {
         throw new BadRequestException(`Không thể xoá khách hàng này!!`);
       }
       throw new BadRequestException(err);
