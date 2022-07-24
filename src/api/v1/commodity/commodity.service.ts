@@ -62,7 +62,6 @@ export class CommodityService {
     }
 
     await this.orderService.update(commodity.orderId, {});
-console.log("update commodity", updates)
     return await this.repository.update(id, updates);
   }
 
